@@ -2053,7 +2053,7 @@ void menu_ui(pixel *vid_buf, int i, int *sl, int *sr)
 //current menu function
 void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq, int mx, int my)
 {
-	int h,x,y,n=0,height,width,sy,rows=0,xoff=0,fwidth;
+	int h,x,y,n=0,height,width,sy,rows=0,xoff=0,fwidth,favdesc = 0;
 	SEC = SEC2;
 	mx /= sdl_scale;
 	my /= sdl_scale;
@@ -2087,9 +2087,9 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 					drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
 					h = n;
 				}
-				else if (n==SLALT)
+				else if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
 				{
-					drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
 				}
 				else if (n==*sl)
 				{
@@ -2098,6 +2098,10 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 				else if (n==*sr)
 				{
 					drawrect(vid_buf, x+30, y-1, 29, 17, 55, 55, 255, 255);
+				}
+				else if (n==SLALT)
+				{
+					drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
 				}
 			}
 		}
@@ -2124,9 +2128,9 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
 					h = n;
 				}
-				else if (n==SLALT)
+				else if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
 				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
 				}
 				else if (n==*sl)
 				{
@@ -2136,46 +2140,9 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 				{
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
 				}
-			}
-		}
-	}
-	else if (i==SC_SPECIAL)//special menu
-	{
-		if (fwidth > XRES-BARSIZE) { //fancy scrolling
-			float overflow = fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
-			xoff = (int)(overflow / location);
-		}
-		for (n = 0; n<PT_NUM; n++)
-		{
-			if (ptypes[n].menusection==i&&ptypes[n].menu==1)
-			{
-				/*if (x-18<=0)
-				{
-					x = XRES-BARSIZE-18;
-					y += 19;
-				}*/
-				x -= draw_tool_xy(vid_buf, x-xoff, y, n, ptypes[n].pcolors)+5;
-				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-					h = n;
-				}
-				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-					h = n;
-				}
 				else if (n==SLALT)
 				{
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-				}
-				else if (n==*sl)
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-				}
-				else if (n==*sr)
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
 				}
 			}
 		}
@@ -2201,9 +2168,9 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
 				h = n;
 			}
-			else if (n==SLALT)
+			else if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
 			{
-				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
+				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
 			}
 			else if (n==*sl)
 			{
@@ -2212,6 +2179,84 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 			else if (n==*sr)
 			{
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
+			}
+			else if (n==SLALT)
+			{
+				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
+			}
+		}
+	}
+	else if (i == SC_FAV) //Favorite
+	{
+		int n2;
+		if (fwidth > XRES-BARSIZE) { //fancy scrolling
+			float overflow = fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
+			xoff = (int)(overflow / location);
+		}
+		for (n2 = 0; n2<19; n2++)
+		{
+			n = favMenu[n2];
+			if (n >= FAV_START && n < FAV_END)
+				x -= draw_tool_xy(vid_buf, x-xoff, y, n, fav[n-FAV_START].colour)+5;
+			else if (n % 256 == PT_LIFE)
+				x -= draw_tool_xy(vid_buf, x-xoff, y, n, gmenu[n/256].colour)+5;
+			else if (n < PT_NUM)
+				x -= draw_tool_xy(vid_buf, x-xoff, y, n, ptypes[n].pcolors)+5;
+			else
+				x -= draw_tool_xy(vid_buf, x-xoff, y, n, wtypes[n-UI_WALLSTART].colour)+5;
+
+			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
+			{
+				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
+				h = n;
+				if (n >= FAV_START && n < FAV_END)
+					favdesc = 3;
+				else if (n % 256 == PT_LIFE)
+					favdesc = 2;
+				else if (n >= PT_NUM)
+					favdesc = 1;
+			}
+			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
+			{
+				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
+			}
+			else if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
+			{
+				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
+			}
+			else if (n==*sl)
+			{
+				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
+			}
+			else if (n==*sr)
+			{
+				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
+			}
+			else if (n==SLALT)
+			{
+				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
+			}
+			if (n2 > 18-locked)
+			{
+				fillrect(vid_buf, x+31-xoff, y, 27, 15, 0, 0, 255, 127);
+			}
+		}
+	}
+	else if (i == SC_FAV2) //Favorite
+	{
+		int n2;
+		if (fwidth > XRES-BARSIZE) { //fancy scrolling
+			float overflow = fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
+			xoff = (int)(overflow / location);
+		}
+		for (n = 1; n<5; n++)
+		{
+			x -= draw_tool_xy(vid_buf, x-xoff, y, FAV_START+n, fav[n].colour)+5;
+
+			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
+			{
+				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
+				h = n+FAV_START;
 			}
 		}
 	}
@@ -2236,9 +2281,9 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
 					h = n;
 				}
-				else if (n==SLALT)
+				else if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
 				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
 				}
 				else if (n==*sl)
 				{
@@ -2247,6 +2292,10 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 				else if (n==*sr)
 				{
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
+				}
+				else if (n==SLALT)
+				{
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
 				}
 			}
 		}
@@ -2260,13 +2309,17 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 	{
 		drawtext(vid_buf, XRES-textwidth((char *)msections[i].name)-BARSIZE, sy-10, (char *)msections[i].name, 255, 255, 255, 255);
 	}
-	else if (i==SC_WALL||i==SC_TOOL)
+	else if (i==SC_WALL||i==SC_TOOL||favdesc == 1)
 	{
 		drawtext(vid_buf, XRES-textwidth((char *)wtypes[h-UI_WALLSTART].descs)-BARSIZE, sy-10, (char *)wtypes[h-UI_WALLSTART].descs, 255, 255, 255, 255);
 	}
-	else if (i==SC_LIFE)
+	else if (i==SC_LIFE||favdesc == 2)
 	{
 		drawtext(vid_buf, XRES-textwidth((char *)gmenu[(h>>8)&0xFF].description)-BARSIZE, sy-10, (char *)gmenu[(h>>8)&0xFF].description, 255, 255, 255, 255);
+	}
+	else if (i == SC_FAV2||favdesc == 3)
+	{
+		drawtext(vid_buf, XRES-textwidth((char *)fav[h-300].description)-BARSIZE, sy-10, (char *)fav[h-300].description, 255, 255, 255, 255);
 	}
 	else
 	{
@@ -2284,14 +2337,57 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 	}
 	if (b==1&&h!=-1)
 	{
-		if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
+		int j;
+		if (h >= FAV_START && h <= FAV_END)
+		{
+			if (h == FAV_MORE)
+				active_menu = SC_FAV2;
+			else if (h == FAV_BACK)
+				active_menu = SC_FAV;
+			else if (h == FAV_HUD)
+				alt_hud = !alt_hud;
+			else if (h == FAV_FIND)
+				if (finding)
+					finding = 0;
+				else
+					finding = *sl;
+			else if (h == FAV_INFO)
+				drawinfo = !drawinfo;
+		}
+		else if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
 		{
 			SLALT = h;
 			SEC2 = -1;
 		}
 		else {
-			*sl = h;
-			*dae = 51;
+			int j, pos = 1, pos2 = 1, last = 18-locked, lock = 0;
+			for (j = 1; j < 19; j++)
+				if (favMenu[j] == h)
+					pos = j; // If el is alredy on list, don't put it there twice
+			pos2 = pos;
+			if (sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL) && locked < 18 && pos < 18-locked)
+			{
+				lock = 1;
+			}
+			if (pos > 18-locked && locked != 18) lock = 1;
+			if (lock) last = 18;
+			while (pos < last)
+			{
+				favMenu[pos] = favMenu[pos+1];
+				pos = pos + 1;
+			}
+			if (last != 0)
+				favMenu[last] = h;
+			if (sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL) && locked < 18 && pos2 <= 18-locked)
+			{
+				locked = locked + 1;
+				save_presets(0);
+			}
+			else
+			{
+				*sl = h;
+				*dae = 51;
+			}
 		}
 	}
 	if (b==4&&h==-1)
@@ -2304,17 +2400,47 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 	}
 	if (b==4&&h!=-1)
 	{
-		if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
+		int j;
+		if (h >= FAV_START && h <= FAV_END)
+		{
+		}
+		else if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
 		{
 			SLALT = h;
 			SEC2 = -1;
 		}
 		else {
-			*sr = h;
-			*dae = 51;
+			int j, pos = 1, last = 18-locked, lock = 0;
+			for (j = 1; j < 19; j++)
+				if (favMenu[j] == h)
+					pos = j; // If el is alredy on list, don't put it there twice
+			if (pos > 18-locked && locked != 18) lock = 1;
+			if (lock) last = 18;
+			if (pos > 18-locked && sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL) && locked > 0 & i == SC_FAV)
+			{
+				int temp = favMenu[pos];
+				for (j = pos; j > 19-locked; j--)
+					favMenu[j] = favMenu[j-1];
+				favMenu[19-locked] = temp;
+				locked = locked - 1;
+				save_presets(0);
+			}
+			else
+			{
+				*sr = h;
+				*dae = 51;
+				while (pos < last)
+				{
+					favMenu[pos] = favMenu[pos+1];
+					pos = pos + 1;
+				}
+				if (last != 0)
+					favMenu[last] = h;
+			}
 		}
 	}
 }
+
 int color_menu_ui(pixel *vid_buf, int i, int *cr, int *cg, int *cb, int b, int bq, int mx, int my, int *tool)
 {
 	int h,x,y,n=0,height,width,sy,rows=0,xoff=0,fwidth,a,c;

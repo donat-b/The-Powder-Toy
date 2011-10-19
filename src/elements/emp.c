@@ -30,7 +30,7 @@ int update_EMP(UPDATE_FUNC_ARGS) {
 		ry=parts[r].y;
 		if (t==PT_SPRK || (t==PT_SWCH && parts[r].life!=0 && parts[r].life!=10) || (t==PT_WIRE && parts[r].ctype>0))
 		{
-			int is_elec=0;
+			int is_elec=0, n,nx,ny;
 			if ((parts[r].ctype==PT_PSCN || parts[r].ctype==PT_NSCN || parts[r].ctype==PT_PTCT ||
 			        parts[r].ctype==PT_NTCT || parts[r].ctype==PT_INST || parts[r].ctype==PT_SWCH) || t==PT_WIRE || t==PT_SWCH)
 			{
@@ -42,7 +42,6 @@ int update_EMP(UPDATE_FUNC_ARGS) {
 				else if (rand()%120==0)
 					part_change_type(r, rx, ry, PT_NTCT);
 			}
-			int n,nx,ny;
 			for (nx=-2; nx<3; nx++)
 				for (ny=-2; ny<3; ny++)
 					if (rx+nx>=0 && ry+ny>=0 && rx+nx<XRES && ry+ny<YRES && (rx || ry))

@@ -741,6 +741,30 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, int b, unsigned pc)
 		}
 		drawtext(vid_buf, x+14-textwidth((char *)gmenu[(b>>8)&0xFF].name)/2, y+4, (char *)gmenu[(b>>8)&0xFF].name, c, c, c, 255);
 	}
+	else if (b >= FAV_START)
+	{
+#ifdef OpenGL
+		fillrect(vid_buf, x, y, 28, 16, PIXR(pc), PIXG(pc), PIXB(pc), 255);
+#else
+		for (j=1; j<15; j++)
+		{
+			for (i=1; i<27; i++)
+			{
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = pc;
+			}
+		}
+#endif
+		c = PIXB(pc) + 3*PIXG(pc) + 2*PIXR(pc);
+		if (c<544)
+		{
+			c = 255;
+		}
+		else
+		{
+			c = 0;
+		}
+		drawtext(vid_buf, x+14-textwidth((char *)fav[b-FAV_START].name)/2, y+4, (char *)fav[b-FAV_START].name, c, c, c, 255);
+	}
 	else if (b>=UI_WALLSTART)
 	{
 		int ds = 0;
@@ -3436,7 +3460,7 @@ void draw_parts(pixel *vid)
                     cb = PIXB(ptypes[t].pcolors);
                     if (cmode != CM_CRACK) {
                         int newx = 0;
-                        float flicker = rand()%30;
+                        float flicker = rand()%30, div_n;
                         float gradv = flicker+(parts[i].life==0?20:1)+parts[i].life*8;
                         blendpixel(vid, nx, ny, cr, cg, cb, (gradv*4)>255?255:(gradv*4) );
                         blendpixel(vid, nx+1, ny, cr, cg, cb, (gradv*2)>255?255:(gradv*2) );
@@ -3454,7 +3478,7 @@ void draw_parts(pixel *vid)
 
                             addpixel(vid, nx, ny+newx, cr, cg, cb, gradv);
                             addpixel(vid, nx, ny-newx, cr, cg, cb, gradv);
-                            float div_n=1.2f-0.006*parts[i].life;
+                            div_n=1.2f-0.006*parts[i].life;
                             if (div_n<1.01f)
                                 div_n=1.01f;
                             gradv = gradv/div_n;
@@ -3892,6 +3916,14 @@ void draw_parts(pixel *vid)
 					blendpixel(vid, nx, ny, cr, cg, cb, (parts[i].dcolour>>24)&0xFF);
 				} else {
 					blendpixel(vid, nx, ny, (parts[i].dcolour>>16)&0xFF, (parts[i].dcolour>>8)&0xFF, (parts[i].dcolour)&0xFF, (parts[i].dcolour>>24)&0xFF);
+				}
+				if (finding && parts[i].type == finding)
+				{
+					drawpixel(vid, nx, ny, 255, 0, 0, 255);
+				}
+				else if (finding)
+				{
+					drawpixel(vid, nx, ny, 0, 0, 0, 230);
 				}
 		}
 #endif

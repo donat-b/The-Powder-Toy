@@ -84,7 +84,7 @@ extern unsigned char ZSIZE;
 #define CATALOGUE_S 6
 #define CATALOGUE_Z 3
 
-#define STAMP_X 4
+#define STAMP_X 5
 #define STAMP_Y 4
 #define STAMP_MAX 240
 
@@ -98,7 +98,7 @@ extern unsigned char ZSIZE;
 
 
 //#define GRAVFFT
-//#define LUACONSOLE
+#define LUACONSOLE
 //#define PYCONSOLE
 //#define PYEXT
 //no longer needed
@@ -165,6 +165,21 @@ extern int hud_enable;
 extern int pretty_powder;
 int limitFPS;
 int water_equal_test;
+extern int favMenu[19];
+extern int alt_hud;
+extern int finding;
+extern int locked;
+
+extern int drawinfo;
+extern int currentTime;
+extern int totaltime;
+extern int totalafktime;
+extern int afktime;
+extern int frames;
+extern double totalfps;
+extern double maxfps;
+extern int prevafktime;
+extern int timesplayed;
 
 extern int debug_flags;
 #define DEBUG_PERF_FRAMECOUNT 256

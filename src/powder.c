@@ -35,6 +35,8 @@ unsigned pmap[YRES][XRES];
 unsigned cb_pmap[YRES][XRES];
 unsigned photons[YRES][XRES];
 
+int msindex[][100], numballs = 0, creatingsolid = 0;
+
 static int pn_junction_sprk(int x, int y, int pt)
 {
 	unsigned r = pmap[y][x];
@@ -2613,11 +2615,11 @@ int flood_prop_2(int x, int y, size_t propoffset, void * propvalue, int proptype
 	{
 		i = pmap[y][x]>>8;
 		if(proptype==2){
-			*((float*)(((void*)&parts[i])+propoffset)) = *((float*)propvalue);
+			*((float*)((&parts[i])+propoffset)) = *((float*)propvalue);
 		} else if(proptype==0) {
-			*((int*)(((void*)&parts[i])+propoffset)) = *((int*)propvalue);
+			*((int*)((&parts[i])+propoffset)) = *((int*)propvalue);
 		} else if(proptype==1) {
-			*((char*)(((void*)&parts[i])+propoffset)) = *((char*)propvalue);
+			*((char*)((&parts[i])+propoffset)) = *((char*)propvalue);
 		}
 		bitmap[(y*XRES)+x] = 1;
 	}

@@ -182,11 +182,27 @@ int framerender = 0;
 int pretty_powder = 0;
 int amd = 1;
 int FPSB = 0;
+float FPSB2 = 0;
 int MSIGN =-1;
 int frameidx = 0;
 //int CGOL = 0;
 //int GSPEED = 1;//causes my .exe to crash..
 int sound_enable = 0;
+int favMenu[19] = {300,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17};
+int alt_hud = 0;
+int finding = 0;
+int locked = 0;
+
+int drawinfo = 0;
+int currentTime = 0;
+int totaltime = 0;
+int totalafktime = 0;
+int afktime = 0;
+double totalfps = 0;
+int frames = 0;
+double maxfps = 0;
+int prevafktime = 0;
+int timesplayed = 0;
 
 int debug_flags = 0;
 int debug_perf_istart = 1;
@@ -230,7 +246,7 @@ int core_count()
 	return numCPU;
 }
 
-int mousex = 0, mousey = 0;  //They contain mouse position
+int mousex = 0, mousey = 0, lastx = 0, lasty = 0;  //They contain mouse position
 int kiosk_enable = 0;
 
 void sdl_seticon(void)
@@ -1476,6 +1492,23 @@ void stop_grav_async()
 	}
 }
 
+void timestring(int currtime, char *string)
+{
+	int years, days, hours, minutes, seconds, milliseconds;
+	years = currtime/31557600000;
+	currtime = currtime%31557600000;
+	days = currtime/86400000;
+	currtime = currtime%86400000;
+	hours = currtime/3600000;
+	currtime = currtime%3600000;
+	minutes = currtime/60000;
+	currtime = currtime%60000;
+	seconds = currtime/1000;
+	currtime = currtime%1000;
+	milliseconds = currtime;
+	sprintf(string,"%i years, %i days, %i hours, %i minutes, %i seconds, %i milliseconds",years,days,hours,minutes,seconds,milliseconds);
+}
+
 #ifdef RENDERER
 int main(int argc, char *argv[])
 {
@@ -1574,12 +1607,13 @@ int main(int argc, char *argv[])
 	char uitext[512] = "";
 	char heattext[256] = "";
 	char coordtext[128] = "";
-	int currentTime = 0;
+	char infotext[512] = "";
+	char timeinfotext[512] = "";
 	int FPS = 0, pastFPS = 0, elapsedTime = 0; 
 	void *http_ver_check, *http_session_check = NULL;
 	char *ver_data=NULL, *check_data=NULL, *tmp;
 	//char console_error[255] = "";
-	int result, i, j, bq, bc, fire_fc=0, do_check=0, do_s_check=0, old_version=0, http_ret=0,http_s_ret=0, major, minor, buildnum, is_beta = 0, old_ver_len, new_message_len=0;
+	int result, i, j, bq, bc, fire_fc=0, do_check=0, do_s_check=0, old_version=0, http_ret=0,http_s_ret=0, major, minor, buildnum, is_beta = 0, old_ver_len, new_message_len=0, afk = 0, afkstart = 0;
 #ifdef INTERNAL
 	int vs = 0;
 #endif
@@ -1675,6 +1709,7 @@ int main(int argc, char *argv[])
 	}
 	
 	load_presets();
+	timesplayed = timesplayed + 1;
 
 	for (i=1; i<argc; i++)
 	{
@@ -2633,7 +2668,7 @@ int main(int argc, char *argv[])
 			x = (((x/sdl_scale-zoom_wx)/ZFACTOR)+zoom_x)*sdl_scale;
 			y = (((y/sdl_scale-zoom_wy)/ZFACTOR)+zoom_y)*sdl_scale;
 		}
-		if (y>0 && y<sdl_scale*YRES && x>0 && x<sdl_scale*XRES)
+		if (y>=0 && y<sdl_scale*YRES && x>=0 && x<sdl_scale*XRES)
 		{
 			int cr; //cr is particle under mouse, for drawing HUD information
 			char nametext[50];
@@ -2648,15 +2683,15 @@ int main(int argc, char *argv[])
 				{
 					sprintf(nametext, "%s (%s)", ptypes[cr&0xFF].name, gmenu[parts[cr>>8].ctype].name);
 				}
-				else if ((cr&0xFF)==PT_LAVA && parts[cr>>8].ctype > 0 && parts[cr>>8].ctype < PT_NUM )
+				else if (alt_hud == 0 && (cr&0xFF)==PT_LAVA && parts[cr>>8].ctype > 0 && parts[cr>>8].ctype < PT_NUM )
 				{
-					char lowername[6];
-					int ix;
-					strcpy(lowername, ptypes[parts[cr>>8].ctype].name);
-					for (ix = 0; lowername[ix]; ix++)
-						lowername[ix] = tolower(lowername[ix]);
+					//char lowername[6];
+					//int ix;
+					//strcpy(lowername, ptypes[parts[cr>>8].ctype].name);
+					//for (ix = 0; lowername[ix]; ix++)
+					//	lowername[ix] = tolower(lowername[ix]);
 
-					sprintf(nametext, "Molten %s", lowername);
+					sprintf(nametext, "Molten %s", ptypes[parts[cr>>8].ctype].name);
 				}
 				else if (DEBUG_MODE)
 				{
@@ -2673,28 +2708,70 @@ int main(int argc, char *argv[])
 				{
 					strcpy(nametext, ptypes[cr&0xFF].name);
 				}
-				if (DEBUG_MODE)
+				if (alt_hud == 0)
 				{
-					sprintf(heattext, "%s, Pressure: %3.2f, Temp: %4.2f C, Life: %d, Tmp:%d", nametext, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life, parts[cr>>8].tmp);
-					sprintf(coordtext, "#%d, X:%d Y:%d", cr>>8, x/sdl_scale, y/sdl_scale);
+					if (DEBUG_MODE)
+					{
+						sprintf(heattext, "%s, Pressure: %3.2f, Temp: %4.2f C, Life: %d", nametext, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life);
+						sprintf(coordtext, "#%d, X:%d Y:%d", cr>>8, x/sdl_scale, y/sdl_scale);
+					}
+					else
+					{
+#ifdef BETA
+						sprintf(heattext, "%s, Pressure: %3.2f, Temp: %4.2f C, Life: %d", nametext, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life);
+#else
+						sprintf(heattext, "%s, Pressure: %3.2f, Temp: %4.2f C", nametext, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f);
+#endif
+					}
 				}
 				else
 				{
-#ifdef BETA
-					sprintf(heattext, "%s, Pressure: %3.2f, Temp: %4.2f C, Life: %d, Tmp:%d", nametext, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life, parts[cr>>8].tmp);
-#else
-					sprintf(heattext, "%s, Pressure: %3.2f, Temp: %4.2f C", nametext, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f);
-#endif
+					if (DEBUG_MODE)
+					{
+						sprintf(heattext, "%s, Temp: %4.4f C, Temp: %4.4f F, Life: %d, Pressure: %3.4f", nametext, parts[cr>>8].temp-273.15f, ((parts[cr>>8].temp-273.15f)*9/5)+32, parts[cr>>8].life, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+						if (ngrav_enable)
+							sprintf(coordtext, "#%d, X:%d Y:%d GX: %.4f GY: %.4f", cr>>8, x/sdl_scale, y/sdl_scale, gravx[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], gravy[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+						else
+							sprintf(coordtext, "#%d, X:%d Y:%d", cr>>8, x/sdl_scale, y/sdl_scale);
+					}
+					else
+					{
+						sprintf(heattext, "%s, Temp: %4.2f C, Pressure: %3.2f", nametext, parts[cr>>8].temp-273.15f, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+					}
 				}
 				if ((cr&0xFF)==PT_PHOT) wavelength_gfx = parts[cr>>8].ctype;
 			}
 			else
 			{
-				sprintf(heattext, "Empty, Pressure: %3.2f", pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
-				if (DEBUG_MODE)
+				if (alt_hud == 0)
 				{
-					sprintf(coordtext, "X:%d Y:%d. GX: %.2f GY: %.2f", x/sdl_scale, y/sdl_scale, gravxf[((y/sdl_scale)*XRES)+(x/sdl_scale)], gravyf[((y/sdl_scale)*XRES)+(x/sdl_scale)]);
+					sprintf(heattext, "Empty, Pressure: %3.2f", pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+					if (DEBUG_MODE)
+					{
+						sprintf(coordtext, "X:%d Y:%d. GX: %.2f GY: %.2f", x/sdl_scale, y/sdl_scale, gravx[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], gravy[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+					}
 				}
+				else
+				{
+					if (DEBUG_MODE)
+					{
+						sprintf(heattext, "Empty, Pressure: %3.4f", pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+						if (ngrav_enable)
+							sprintf(coordtext, "X:%d Y:%d GX: %.4f GY: %.4f", x/sdl_scale, y/sdl_scale, gravx[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], gravy[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+						else
+							sprintf(coordtext, "X:%d Y:%d", x/sdl_scale, y/sdl_scale);
+					}
+					else
+						sprintf(heattext, "Empty, Pressure: %3.2f", pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+				}
+			}
+		}
+		else
+		{
+			sprintf(heattext, "Empty");
+			if (DEBUG_MODE)
+			{
+				sprintf(coordtext, "X:%d Y:%d", x/sdl_scale, y/sdl_scale);
 			}
 		}
 
@@ -3443,7 +3520,7 @@ int main(int argc, char *argv[])
 		elapsedTime = currentTime-pastFPS;
 		if ((FPS>2 || elapsedTime>1000*2/limitFPS) && elapsedTime && FPS*1000/elapsedTime>limitFPS)
 		{
-			while (FPS*1000/elapsedTime>limitFPS)
+			while ((float)(FPS*1000)/elapsedTime>limitFPS)
 			{
 				SDL_Delay(1);
 				currentTime = SDL_GetTicks();
@@ -3453,31 +3530,70 @@ int main(int argc, char *argv[])
 		if (elapsedTime>=1000)
 		{
 			FPSB = FPS;
+			FPSB2 = (float)(FPS*1000)/elapsedTime;
 			FPS = 0;
 			pastFPS = currentTime;
+			if (elapsedTime != currentTime)
+			{
+				frames = frames + 1;
+				totalfps = totalfps + FPSB2;
+				if (FPSB2 > maxfps)
+					maxfps = FPSB2;
+			}
 		}
+		if (lastx == mousex && lasty == mousey)
+		{
+			if (!afk)
+			{
+				afk = 1;
+				afkstart = currentTime;
+			}
+		}
+		else if (afk)
+		{
+			afk = 0;
+			totalafktime = totalafktime + afktime;
+			afktime = 0;
+		}
+		if (afk && currentTime - afkstart > 30000)
+			afktime = currentTime - afkstart - 30000;
+		lastx = mousex;
+		lasty = mousey;
 
 		if (hud_enable)
 		{
+			if (alt_hud == 0)
+			{
 #ifdef BETA
-			sprintf(uitext, "Version %d.%d Beta (%d) FPS:%d Parts:%d Generation:%d Gravity:%d Air:%d", SAVE_VERSION, MINOR_VERSION, BUILD_NUM, FPSB, NUM_PARTS, GENERATION, gravityMode, airMode);
+				sprintf(uitext, "Version %d.%d Beta (%d) FPS:%d Parts:%d Generation:%d Gravity:%d Air:%d", SAVE_VERSION, MINOR_VERSION, BUILD_NUM, FPSB, NUM_PARTS, GENERATION, gravityMode, airMode);
 #else
-			if (DEBUG_MODE)
-				sprintf(uitext, "Version %d.%d (%d) FPS:%d Parts:%d Generation:%d Gravity:%d Air:%d", SAVE_VERSION, MINOR_VERSION, BUILD_NUM, FPSB, NUM_PARTS, GENERATION, gravityMode, airMode);
-			else
-				sprintf(uitext, "Version %d.%d FPS:%d", SAVE_VERSION, MINOR_VERSION, FPSB);
+				if (DEBUG_MODE)
+					sprintf(uitext, "Version %d.%d (%d) FPS:%d Parts:%d Generation:%d Gravity:%d Air:%d", SAVE_VERSION, MINOR_VERSION, BUILD_NUM, FPSB, NUM_PARTS, GENERATION, gravityMode, airMode);
+				else
+					sprintf(uitext, "Version %d.%d FPS:%d", SAVE_VERSION, MINOR_VERSION, FPSB);
 #endif
-			if (REPLACE_MODE)
-				strappend(uitext, " [REPLACE MODE]");
-			if (sdl_mod&(KMOD_CAPS))
-				strappend(uitext, " [CAP LOCKS]");
-			if (GRID_MODE)
-				sprintf(uitext, "%s [GRID: %d]", uitext, GRID_MODE); //TODO: Undefined behavior: variable is used as parameter and destination in sprintf().
+				if (REPLACE_MODE)
+					strappend(uitext, " [REPLACE MODE]");
+				if (sdl_mod&(KMOD_CAPS))
+					strappend(uitext, " [CAP LOCKS]");
+				if (GRID_MODE)
+					sprintf(uitext, "%s [GRID: %d]", uitext, GRID_MODE); //TODO: Undefined behavior: variable is used as parameter and destination in sprintf().
 #ifdef INTERNAL
-			if (vs)
-				strappend(uitext, " [FRAME CAPTURE]");
+				if (vs)
+					strappend(uitext, " [FRAME CAPTURE]");
 #endif
-
+			}
+			else
+			{
+				if (DEBUG_MODE)
+					sprintf(uitext, "Version %d.%d (%d) FPS:%.2f Parts:%d", SAVE_VERSION, MINOR_VERSION, BUILD_NUM, FPSB2, NUM_PARTS);
+				else
+					sprintf(uitext, "Version %d.%d FPS:%d", SAVE_VERSION, MINOR_VERSION, FPSB);
+				if (REPLACE_MODE)
+					strappend(uitext, " [REPLACE MODE]");
+				if (sdl_mod&(KMOD_CAPS))
+					strappend(uitext, " [CAP LOCKS]");
+			}
 			if (sdl_zoom_trig||zoom_en)
 			{
 				if (zoom_x<XRES/2)
@@ -3520,6 +3636,34 @@ int main(int argc, char *argv[])
 			wavelength_gfx = 0;
 			fillrect(vid_buf, 12, 12, textwidth(uitext)+8, 15, 0, 0, 0, 140);
 			drawtext(vid_buf, 16, 16, uitext, 32, 216, 255, 200);
+
+			if (drawinfo)
+			{
+				timestring(currentTime-totalafktime-afktime, timeinfotext);
+				sprintf(infotext,"Time Played: %s", timeinfotext);
+				fillrect(vid_buf, 12, 296, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+				drawtext(vid_buf, 16, 300, infotext, 255, 255, 255, 200);
+				timestring(totaltime+currentTime-totalafktime-afktime, timeinfotext);
+				sprintf(infotext,"Total Time Played: %s", timeinfotext);
+				fillrect(vid_buf, 12, 310, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+				drawtext(vid_buf, 16, 314, infotext, 255, 255, 255, 200);
+				timestring(totalafktime+afktime+prevafktime, timeinfotext);
+				sprintf(infotext,"Total AFK Time: %s", timeinfotext);
+				fillrect(vid_buf, 12, 324, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+				drawtext(vid_buf, 16, 328, infotext, 255, 255, 255, 200);
+				if (frames)
+				{
+					sprintf(infotext,"Average FPS: %f", totalfps/frames);
+					fillrect(vid_buf, 12, 338, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+					drawtext(vid_buf, 16, 342, infotext, 255, 255, 255, 200);
+				}
+				sprintf(infotext,"Max FPS: %f", maxfps);
+				fillrect(vid_buf, 12, 352, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+				drawtext(vid_buf, 16, 356, infotext, 255, 255, 255, 200);
+				sprintf(infotext,"Number of Times Played: %i", timesplayed);
+				fillrect(vid_buf, 12, 366, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+				drawtext(vid_buf, 16, 370, infotext, 255, 255, 255, 200);
+			}
 
 		}
 
@@ -3627,6 +3771,7 @@ int main(int argc, char *argv[])
     pthread_win32_thread_detach_np();
     pthread_win32_process_detach_np();
 #endif
+	save_presets(0);
 	return 0;
 }
 #endif

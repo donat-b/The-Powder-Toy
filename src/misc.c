@@ -120,8 +120,13 @@ void clean_text(char *text, int vwidth)
 
 void save_presets(int do_update)
 {
+	//*/
+	int i;
 	char * outputdata;
-	cJSON *root, *userobj, *versionobj;
+	cJSON *root, *userobj, *versionobj, *recobj;
+	FILE *f = fopen("powder.pref", "wb");
+	if(!f)
+		return;
 	root = cJSON_CreateObject();	
 	
 	cJSON_AddStringToObject(root, "Powder Toy Preferences", "Don't modify this file unless you know what you're doing. P.S: editing the admin/mod fields in your user info doesn't give you magical powers");
@@ -155,21 +160,37 @@ void save_presets(int do_update)
 		cJSON_AddFalseToObject(versionobj, "update");
 	}
 	
+	//Fav Menu/Records
+	cJSON_AddItemToObject(root, "records", recobj=cJSON_CreateObject());
+	cJSON_AddNumberToObject(recobj, "num elements in menu", locked);
+	for (i = 0; i < locked; i++)
+	{
+		char eltext[128] = "";
+		sprintf(eltext,"element %i",i);
+		cJSON_AddNumberToObject(recobj, eltext, favMenu[18-i]);
+	}
+	cJSON_AddNumberToObject(recobj, "Alternate HUD ON", alt_hud);
+	cJSON_AddNumberToObject(recobj, "Total Time Played", ((double)currentTime/1000)+((double)totaltime/1000)-((double)totalafktime/1000)-((double)afktime/1000));
+	cJSON_AddNumberToObject(recobj, "Average FPS", totalfps/frames);
+	cJSON_AddNumberToObject(recobj, "Number of frames", frames);
+	cJSON_AddNumberToObject(recobj, "Max FPS", maxfps);
+	cJSON_AddNumberToObject(recobj, "Total AFK Time", ((double)totalafktime/1000)+((double)afktime/1000)+((double)prevafktime/1000));
+	cJSON_AddNumberToObject(recobj, "Times Played", timesplayed);
+
 	//General settings
 	cJSON_AddStringToObject(root, "proxy", http_proxy_string);
 	cJSON_AddNumberToObject(root, "cmode", cmode);
 	cJSON_AddNumberToObject(root, "scale", sdl_scale);
+	cJSON_AddNumberToObject(root, "Debug mode", DEBUG_MODE);
 	
 	outputdata = cJSON_Print(root);
 	cJSON_Delete(root);
 	
-	FILE *f = fopen("powder.pref", "wb");
-	if(!f)
-		return;
 	fwrite(outputdata, 1, strlen(outputdata), f);
 	fclose(f);
+	/*/
 	//Old format, don't bother with this
-	/*FILE *f=fopen("powder.def", "wb");
+	FILE *f=fopen("powder.def", "wb");
 	unsigned char sig[4] = {0x50, 0x44, 0x65, 0x68};
 	unsigned char tmp = sdl_scale;
 	if (!f)
@@ -195,7 +216,8 @@ void save_presets(int do_update)
 	fwrite(&tmp, 1, 1, f);
 	tmp = do_update;
 	fwrite(&tmp, 1, 1, f);
-	fclose(f);*/
+	fclose(f);
+	/*/
 }
 
 int sregexp(const char *str, char *pattern)
@@ -211,11 +233,11 @@ int sregexp(const char *str, char *pattern)
 
 void load_presets(void)
 {
-	int prefdatasize = 0;
+	int prefdatasize = 0, i;
 	char * prefdata = file_load("powder.pref", &prefdatasize);
 	if(prefdata)
 	{
-		cJSON *root, *userobj, *versionobj, *tmpobj;
+		cJSON *root, *userobj, *versionobj, *recobj, *tmpobj;
 		root = cJSON_Parse(prefdata);
 		
 		//Read user data
@@ -261,10 +283,30 @@ void load_presets(void)
 			update_flag = 0;
 		}
 		
+		//Read FavMenu/Records
+		recobj = cJSON_GetObjectItem(root, "records");
+		if (recobj) {
+			if(tmpobj = cJSON_GetObjectItem(recobj, "num elements in menu")) locked = tmpobj->valueint;
+			for (i = 0; i < locked; i++)
+			{
+				char eltext[128] = "";
+				sprintf(eltext,"element %i",i);
+				if(tmpobj = cJSON_GetObjectItem(recobj, eltext)) favMenu[18-i] = tmpobj->valueint;
+			}
+			if(tmpobj = cJSON_GetObjectItem(recobj, "Alternate HUD ON")) alt_hud = tmpobj->valueint;
+			if(tmpobj = cJSON_GetObjectItem(recobj, "Total Time Played")) totaltime = (tmpobj->valuedouble)*1000;
+			if(tmpobj = cJSON_GetObjectItem(recobj, "Average FPS")) totalfps = tmpobj->valuedouble;
+			if(tmpobj = cJSON_GetObjectItem(recobj, "Number of frames")) frames = tmpobj->valueint; totalfps = totalfps * frames;
+			if(tmpobj = cJSON_GetObjectItem(recobj, "Max FPS")) maxfps = tmpobj->valuedouble;
+			if(tmpobj = cJSON_GetObjectItem(recobj, "Total AFK Time")) prevafktime = (tmpobj->valuedouble)*1000;
+			if(tmpobj = cJSON_GetObjectItem(recobj, "Times Played")) timesplayed = tmpobj->valueint;
+		}
+
 		//Read general settings
 		if((tmpobj = cJSON_GetObjectItem(root, "proxy")) && tmpobj->type == cJSON_String) strncpy(http_proxy_string, tmpobj->valuestring, 255); else http_proxy_string[0] = 0;
 		if(tmpobj = cJSON_GetObjectItem(root, "cmode")) cmode = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "scale")) sdl_scale = tmpobj->valueint;
+		if(tmpobj = cJSON_GetObjectItem(root, "Debug mode")) DEBUG_MODE = tmpobj->valueint;
 		
 		cJSON_Delete(root);
 	} else { //Fallback and read from old def file

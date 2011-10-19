@@ -193,9 +193,9 @@
 #define PT_SING 131
 #define PT_QRTZ 132
 #define PT_PQRT 133
-
 #define PT_EMP 134
 #define PT_BREC 135
+#define PT_MOVS 136
 
 #define PT_BOYL 141
 
@@ -211,6 +211,14 @@
 #define PT_WIRE 156
 #define PT_GBMB 157
 #define PT_NUM  158
+
+#define FAV_START 300
+#define FAV_MORE 300
+#define FAV_BACK 301
+#define FAV_HUD 302
+#define FAV_FIND 303
+#define FAV_INFO 304
+#define FAV_END 305
 
 #define R_TEMP 22
 #define MAX_TEMP 9999
@@ -503,9 +511,9 @@ static const part_type ptypes[PT_NUM] =
 	{"PVOD",	PIXPACK(0x792020),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	1,	1,	1,	100,	SC_POWERED,		R_TEMP+0.0f	+273.15f,	251,	"Solid. When activated, destroys entering particles", ST_NONE, TYPE_SOLID, &update_PVOD},
 	{"CONV",	PIXPACK(0x0AAB0A),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	1,	1,	1,	100,	SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	251,	"Solid. Converts whatever touches it into its ctype.", ST_NONE, TYPE_SOLID, &update_CONV},
 	{"CAUS",	PIXPACK(0x80FFA0),	2.0f,   0.00f * CFDS,   0.99f,	0.30f,	-0.1f,	0.0f,	1.50f,	0.000f	* CFDS,	0,	0,  	0,	0,	0,	1,	1,	1,		SC_GAS,		 	R_TEMP+0.0f	+273.15f,   70,		"Caustic Gas, acts like Acid", ST_GAS, TYPE_GAS, &update_CAUS},
-	{"LIGH",	PIXPACK(0xFFFFC0),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	1,	1,	1,	100,	SC_ELEC,		R_TEMP+0.0f	+273.15f,	0,	    "More realistic lighting. Set pen size for setting size of the lighting.", ST_SOLID, TYPE_SOLID, &update_LIGH, 0},
-    {"TESC",	PIXPACK(0x707040),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	1,	1,	1,	100,	SC_ELEC,		R_TEMP+0.0f	+273.15f,	251,	"Tesla coil!", ST_SOLID, TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW, NULL, 0},
-    {"DEST",	PIXPACK(0xFF3311),  -0.05f,	0.00f * CFDS,	0.95f,	0.95f,	-0.1f,	0.4f,	0.00f,	0.000f	* CFDS,	1,	0,		0,  0,	0,	1,	1,	101,	SC_EXPLOSIVE,	R_TEMP+0.0f	+273.15f,	150,	"More destructive Bomb.", ST_SOLID, TYPE_PART|PROP_LIFE_DEC|PROP_LIFE_KILL_DEC, &update_DEST, 0},
+	{"LIGH",	PIXPACK(0xFFFFC0),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	1,	1,	1,	100,	SC_ELEC,		R_TEMP+0.0f	+273.15f,	0,	    "More realistic lighting. Set pen size for setting size of the lighting.", ST_SOLID, TYPE_SOLID, &update_LIGH},
+    {"TESC",	PIXPACK(0x707040),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	1,	1,	1,	100,	SC_ELEC,		R_TEMP+0.0f	+273.15f,	251,	"Tesla coil!", ST_SOLID, TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW, NULL},
+    {"DEST",	PIXPACK(0xFF3311),  -0.05f,	0.00f * CFDS,	0.95f,	0.95f,	-0.1f,	0.4f,	0.00f,	0.000f	* CFDS,	1,	0,		0,  0,	0,	1,	1,	101,	SC_EXPLOSIVE,	R_TEMP+0.0f	+273.15f,	150,	"More destructive Bomb.", ST_SOLID, TYPE_PART|PROP_LIFE_DEC|PROP_LIFE_KILL_DEC, &update_DEST},
 	{"SPNG",  	PIXPACK(0xFFBE30),	0.00f, 	0.00f * CFDS,   0.00f,  1.00f,   0.00f, 0.0f,   0.00f,  0.000f  * CFDS, 0, 	20, 	0,  1, 	30,	1, 	1,	100,    SC_SOLIDS,  	R_TEMP+0.0f +273.15f,   251,    "A sponge, absorbs water.", ST_SOLID, TYPE_SOLID, &update_SPNG},
 	{"RIME",  	PIXPACK(0xCCCCCC),	0.00f, 	0.00f * CFDS,   0.00f,  1.00f,   0.00f, 0.0f,   0.00f,  0.000f  * CFDS, 0, 	0, 		0, 	0, 	30,	1,  1,	100,    SC_CRACKER2,  	243.15f,				100,    "Not quite Ice", ST_SOLID, TYPE_SOLID, &update_RIME},
 	{"FOG",  	PIXPACK(0xAAAAAA),	0.8f,	0.00f * CFDS,	0.4f,	0.70f,	-0.1f,	0.0f,	0.99f,	0.000f	* CFDS, 0, 	0, 		0,  0,  30, 1,  1,	1,		SC_CRACKER2,  	243.15f,				100,    "Not quite Steam", ST_GAS, TYPE_GAS|PROP_LIFE_DEC, &update_FOG},
@@ -550,9 +558,9 @@ static const part_type ptypes[PT_NUM] =
 	{"SING",	PIXPACK(0x242424),	0.7f,	0.36f * CFDS,	0.96f,	0.80f,	0.1f,	0.12f,	0.00f,	-0.001f	* CFDS,	1,	0,		0,	0,	0,	1,	1,	86,		SC_NUCLEAR,		R_TEMP+0.0f	+273.15f,	70,		"Singularity", ST_SOLID, TYPE_PART|PROP_LIFE_DEC, &update_SING},
 	{"QRTZ",	PIXPACK(0xAADDDD),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_SOLIDS,		R_TEMP+0.0f	+273.15f,	3,		"Quartz, breakable mineral. Conducts but becomes brittle at lower temperatures.", ST_SOLID, TYPE_SOLID|PROP_HOT_GLOW|PROP_LIFE_DEC, &update_QRTZ},
 	{"PQRT",	PIXPACK(0x88BBBB),	0.4f,	0.04f * CFDS,	0.94f,	0.95f,	-0.1f,	0.27f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	0,	0,	1,	1,	90,		SC_POWDERS,		R_TEMP+0.0f	+273.15f,	3,		"Broken quartz.", ST_SOLID, TYPE_PART| PROP_HOT_GLOW, &update_QRTZ},
-	{"EMP",	    PIXPACK(0x66AAFF),	0.0f,   0.00f * CFDS,   0.90f,  0.00f,  0.0f,   0.0f,   0.0f,   0.0f	* CFDS, 0,	0,		0,	0,	3,	1,	1,	100,	SC_ELEC,		R_TEMP+0.0f	+273.15f,	121,	"Breaks activated electronics.", ST_SOLID, TYPE_SOLID|PROP_LIFE_DEC, &update_EMP, 0},
-	{"BREL",	PIXPACK(0x707060),	0.4f,	0.04f * CFDS,	0.94f,	0.95f,	-0.1f,	0.18f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	2,	2,	1,	1,	90,		SC_POWDERS,		R_TEMP+0.0f	+273.15f,	211,	"Broken electronics", ST_SOLID, TYPE_PART|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW, NULL, 0},
-	/*FREE*/{"COAG",	PIXPACK(0x9ACD32),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	0,	0,	100,	SC_LIFE,		9000.0f,				40,		"B378/S235678", ST_NONE, TYPE_SOLID|PROP_LIFE, NULL},
+	{"EMP",	    PIXPACK(0x66AAFF),	0.0f,   0.00f * CFDS,   0.90f,  0.00f,  0.0f,   0.0f,   0.0f,   0.0f	* CFDS, 0,	0,		0,	0,	3,	1,	1,	100,	SC_ELEC,		R_TEMP+0.0f	+273.15f,	121,	"Breaks activated electronics.", ST_SOLID, TYPE_SOLID|PROP_LIFE_DEC, &update_EMP},
+	{"BREL",	PIXPACK(0x707060),	0.4f,	0.04f * CFDS,	0.94f,	0.95f,	-0.1f,	0.18f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	2,	2,	1,	1,	90,		SC_POWDERS,		R_TEMP+0.0f	+273.15f,	211,	"Broken electronics", ST_SOLID, TYPE_PART|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW, NULL},
+	{"BALL",	PIXPACK(0x0010FF),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_SOLIDS,		R_TEMP+0.0f	+273.15f,	186,	"Moving solid. Acts like a bouncy ball", ST_SOLID, TYPE_SOLID, NULL},
 	/*FREE*/{"WALL",	PIXPACK(0x0047AB),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	0,	0,	100,	SC_LIFE,		9000.0f,				40,		"B45678/S2345", ST_NONE, TYPE_SOLID|PROP_LIFE, NULL},
 	/*FREE*/{"GNAR",	PIXPACK(0xE5B73B),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	0,	0,	100,	SC_LIFE,		9000.0f,				40,		"B1/S1", ST_NONE, TYPE_SOLID|PROP_LIFE, NULL},
 	/*FREE*/{"REPL",	PIXPACK(0x259588),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	0,	0,	100,	SC_LIFE,		9000.0f,				40,		"B1357/S1357", ST_NONE, TYPE_SOLID|PROP_LIFE, NULL},
@@ -961,6 +969,23 @@ static wall_type wtypes[] =
 	{PIXPACK(0x000099), PIXPACK(0x000000), -1, "Negative gravity tool."},
 	{PIXPACK(0xFFAA00), PIXPACK(0xAA5500), 4, "Energy wall, allows only energy type particles to pass"},
 	{PIXPACK(0xFFAA00), PIXPACK(0xAA5500), -1, "Property edit tool"},
+};
+
+struct fav_menu
+{
+	const char *name;
+	pixel colour;
+	const char *description;
+};
+typedef struct fav_menu fav_menu;
+
+static fav_menu fav[] =
+{
+	{"MORE", PIXPACK(0xFF7F00), "Display different options"},
+	{"BACK", PIXPACK(0xFF7F00), "Go back to the favorites menu"},
+	{"HUD", PIXPACK(0x20D8FF), "Left click to toggle a different HUD"},
+	{"FIND", PIXPACK(0xFF0000), "Finds the currently selected element on the screen and temporarily colors it red"},
+	{"INFO", PIXPACK(0x00FF00), "Displays statistics and records about The Powder Toy. Left click to toggle display"},
 };
 
 #define CHANNELS ((int)(MAX_TEMP-73)/100+2)
