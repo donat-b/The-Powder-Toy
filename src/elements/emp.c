@@ -1,7 +1,7 @@
 #include <element.h>
 
 int update_EMP(UPDATE_FUNC_ARGS) {
-	int r,rx,ry,ok=0,t;
+	int r,rx,ry,ok=0,t,n,nx,ny;
 	if (parts[i].life)
 		return 0;
 	for (rx=-2; rx<3; rx++)
