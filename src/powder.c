@@ -35,7 +35,8 @@ unsigned pmap[YRES][XRES];
 unsigned cb_pmap[YRES][XRES];
 unsigned photons[YRES][XRES];
 
-int msindex[][100], numballs = 0, creatingsolid = 0;
+float msvx[100], msvy[100];
+int msindex[100], msnum[100], numballs = 0, creatingsolid = 0;
 
 static int pn_junction_sprk(int x, int y, int pt)
 {
@@ -590,21 +591,39 @@ void kill_part(int i)//kills particle number i
 	{
 		player[27] = 0;
 	}
-	if (parts[i].type == PT_STKM2)
+	else if (parts[i].type == PT_STKM2)
 	{
 		player2[27] = 0;
 	}
-	if (parts[i].type == PT_SPAWN)
+	else if (parts[i].type == PT_SPAWN)
 	{
 		ISSPAWN1 = 0;
 	}
-	if (parts[i].type == PT_SPAWN2)
+	else if (parts[i].type == PT_SPAWN2)
 	{
 		ISSPAWN2 = 0;
 	}
-	if (parts[i].type == PT_SOAP)
+	else if (parts[i].type == PT_SOAP)
 	{
 		detach(i);
+	}
+	else if (parts[i].type == PT_MOVS)
+	{
+		int bn = parts[i].life;
+		msnum[bn]--;
+		if (msindex[bn] == i)
+		{
+			msindex[bn] = NULL;
+			/*int i;
+			for (i = bn; i < numballs - 1; i++)
+			{
+				msindex[i] = msindex[i+1];
+				msnum[i] = msnum[i+1];
+				msvx[i] = msvy[i+1];
+				msvx[i] = msvy[i+1];
+			}
+			numballs--;*/
+		}
 	}
 	if (x>=0 && y>=0 && x<XRES && y<YRES) {
 		if ((pmap[y][x]>>8)==i)
@@ -850,6 +869,25 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		parts[i].temp = ptypes[t].heat;
 		parts[i].tmp = 0;
 		parts[i].tmp2 = 0;
+	}
+	if (t==PT_MOVS) {
+		if (creatingsolid)
+		{
+			parts[i].life = numballs-1;
+			parts[i].tmp = x - (int)parts[msindex[parts[i].life]].x;
+			parts[i].tmp2 = y - (int)parts[msindex[parts[i].life]].y;
+			msnum[numballs-1]++;
+		}
+		else
+		{
+			parts[i].life = numballs;
+			parts[i].tmp = 0;
+			parts[i].tmp2 = 0;
+			msindex[numballs] = i;
+			msnum[numballs] = 1;
+			numballs = numballs + 1;
+			creatingsolid = 1;
+		}
 	}
 	if (t==PT_LIGH && p==-2)
 	{
@@ -2461,6 +2499,15 @@ killed:
 				}
 			}
 movedone:
+			if (parts[i].type == PT_MOVS)
+			{
+				int bn = parts[i].life;
+				if (msindex[bn])
+				{
+					msvx[bn] = msvx[bn] + parts[i].vx;
+					msvy[bn] = msvy[bn] + parts[i].vy;
+				}
+			}
 			continue;
 		}
 }
@@ -2528,6 +2575,7 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 	}
 
 	update_particles_i(vid, 0, 1);
+	update_moving_solids();
 
 	// this should probably be elsewhere
 	for (y=0; y<YRES/CELL; y++)
@@ -2553,6 +2601,47 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 				drawtext(vid, x*CELL, y*CELL-2, "\x8D", 255, 255, 255, 128);
 			}
 
+}
+
+void update_moving_solids()
+{
+	int i, bn;
+	if (sys_pause && !framerender)
+		return;
+	/*for (i=0; i<=parts_lastActiveIndex; i++)
+	{
+		if (parts[i].type == PT_MOVS)
+		{
+			int bn = parts[i].life;
+			if (msindex[bn])
+			{
+				msvx[bn] = msvx[bn] + parts[i].vx;
+				msvy[bn] = msvy[bn] + parts[i].vy;
+			}
+		}
+	}*/
+	for (bn = 0; bn < numballs; bn++)
+	{
+		msvx[bn] = msvx[bn]/msnum[bn];
+		msvy[bn] = msvy[bn]/msnum[bn];
+		msvy[bn] = msvy[bn] + .2;
+	}
+	for (i=0; i<=parts_lastActiveIndex; i++)
+	{
+		if (parts[i].type == PT_MOVS)
+		{
+			int bn = parts[i].life;
+			if (msindex[bn])
+			{
+				parts[i].x = parts[msindex[bn]].x + parts[i].tmp;
+				parts[i].y = parts[msindex[bn]].y + parts[i].tmp2;
+				if (parts[i].x < 0 || parts[i].x >= XRES || parts[i].y < 0 || parts[i].y >= YRES)
+					kill_part(i);
+				parts[i].vx = msvx[bn];
+				parts[i].vy = msvy[bn];
+			}
+		}
+	}
 }
 
 void clear_area(int area_x, int area_y, int area_w, int area_h)
@@ -3037,6 +3126,22 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags)
 						f = 1;
 	return !f;
 }
+
+void create_moving_solid(int x, int y, int rx, int ry)
+{
+	int j, i;
+	creatingsolid = 0;
+	if (CURRENT_BRUSH == SQUARE_BRUSH || numballs == 100 || rx < 3 || ry < 3)
+		return;
+	create_part(-2, x, y, PT_MOVS);
+	if (!creatingsolid)
+		return;
+	for (j=-ry; j<=ry; j++)
+			for (i=-rx; i<=rx; i++)
+				if (InCurrentBrush(i ,j ,rx ,ry) && !InCurrentBrush(i ,j ,rx-1 ,ry-1))
+					create_part(-2, x+i, y+j, PT_MOVS);
+}
+
 int InCurrentBrush(int i, int j, int rx, int ry)
 {
 	switch(CURRENT_BRUSH)

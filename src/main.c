@@ -1145,6 +1145,7 @@ void clear_sim(void)
 		}
 	}
 	gravity_mask();
+	numballs = 0;
 }
 
 // stamps library
@@ -3269,7 +3270,7 @@ int main(int argc, char *argv[])
 										vy[(y+j)/CELL][(x+i)/CELL] += (y-ly)*0.01f;
 									}
 						}
-						else
+						else if (c != PT_MOVS)
 						{
 							create_line(lx, ly, x, y, bsx, bsy, c, get_brush_flags());
 						}
@@ -3356,7 +3357,10 @@ int main(int argc, char *argv[])
 								cb_bmap[cby][cbx] = bmap[cby][cbx];
 								cb_emap[cby][cbx] = emap[cby][cbx];
 							}
-						create_parts(x, y, bsx, bsy, c, get_brush_flags());
+						if (c == PT_MOVS)
+							create_moving_solid(x,y,bsx,bsy);
+						else
+							create_parts(x, y, bsx, bsy, c, get_brush_flags());
 						lx = x;
 						ly = y;
 						lb = b;
