@@ -2001,7 +2001,8 @@ void draw_parts(pixel *vid)
 				         t!=PT_LCRY && t!=PT_SWCH && t!=PT_PCLN &&
 				         t!=PT_PUMP && t!=PT_HSWC && t!=PT_FILT &&
 				         t!=PT_GPMP && t!=PT_PBCN && t!=PT_LIFE &&
-						 t!=PT_O2 && t!=PT_H2 && t!=PT_PVOD)
+						 t!=PT_O2   && t!=PT_H2   && t!=PT_PVOD &&
+						 t!=PT_ANIM)
 				{
 					if (ptypes[parts[i].type].properties&TYPE_LIQUID) //special effects for liquids in fancy mode
 					{
@@ -3065,7 +3066,7 @@ void draw_parts(pixel *vid)
 						blendpixel(vid, nx-1, ny+1, cr, cg, cb, 112);
 					}
 				}
-				else if (t==PT_LCRY)
+				else if (t==PT_LCRY||t==PT_ANIM)
 				{
 					uint8 GR = 0x50+((parts[i].life>10?10:parts[i].life)*10);
 					vid[ny*(XRES+BARSIZE)+nx] = PIXRGB(GR, GR, GR);
@@ -3928,7 +3929,21 @@ void draw_parts(pixel *vid)
 					cg = cg>255?255:cg;
 					cb = cb>255?255:cb;*/
 					blendpixel(vid, nx, ny, cr, cg, cb, (parts[i].dcolour>>24)&0xFF);
-				} else {
+				}
+				else if(t==PT_ANIM){
+					int fn = parts[i].tmp2;
+					cr = (parts[i].animations[fn]>>16)&0xFF;
+					cg = (parts[i].animations[fn]>>8)&0xFF;
+					cb = (parts[i].animations[fn])&0xFF;
+
+					if(parts[i].life<10){
+						cr /= 10-parts[i].life;
+						cg /= 10-parts[i].life;
+						cb /= 10-parts[i].life;
+					}
+					
+					blendpixel(vid, nx, ny, cr, cg, cb, (parts[i].animations[fn]>>24)&0xFF);
+				}else {
 					blendpixel(vid, nx, ny, (parts[i].dcolour>>16)&0xFF, (parts[i].dcolour>>8)&0xFF, (parts[i].dcolour)&0xFF, (parts[i].dcolour>>24)&0xFF);
 				}
 				if (finding && parts[i].type == finding)
@@ -4160,6 +4175,10 @@ void create_decoration(int x, int y, int r, int g, int b, int click, int tool)
 	rp = pmap[y][x];
 	if (!rp)
 		return;
+	if (parts[rp>>8].type == PT_ANIM)
+	{
+		parts[rp>>8].animations[framenum] = (255<<24)|(r<<16)|(g<<8)|b;
+	}
 	if (tool == DECO_DRAW)
 	{
 		if (click == 4)

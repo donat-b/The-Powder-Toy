@@ -85,6 +85,9 @@ int zoom_wx=0, zoom_wy=0;
 unsigned char ZFACTOR = 256/ZSIZE_D;
 unsigned char ZSIZE = ZSIZE_D;
 
+int numframes = 0;
+int framenum = 0;
+
 int drawgrav_enable = 0;
 
 void menu_count(void)//puts the number of elements in each section into .itemcount
@@ -5174,6 +5177,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 	ui_edit box_B;
 
 	zoom_en = 0;
+	framenum = 0;
 
 	box_R.x = 5;
 	box_R.y = 5+255+4;
@@ -5672,6 +5676,27 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 		{
 			zoom_en = 1;
 			hidden = 1;
+		}
+		if (sdl_key==SDLK_RIGHT && framenum < 24)
+		{
+			int i;
+			framenum++;
+			if (framenum > numframes)
+				numframes = framenum;
+			for (i = 0; i <= parts_lastActiveIndex; i++)
+				if (parts[i].type == PT_ANIM)
+				{
+					parts[i].tmp2 = framenum;
+					parts[i].numframes = numframes;
+				}
+		}
+		if (sdl_key==SDLK_LEFT && framenum > 0)
+		{
+			int i;
+			framenum--;
+			for (i = 0; i <= parts_lastActiveIndex; i++)
+				if (parts[i].type == PT_ANIM)
+					parts[i].tmp2 = framenum;
 		}
 
 		if(sdl_key=='b' || sdl_key==SDLK_ESCAPE)

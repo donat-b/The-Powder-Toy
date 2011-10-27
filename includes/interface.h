@@ -221,6 +221,9 @@ extern int zoom_en;
 extern int zoom_x, zoom_y;
 extern int zoom_wx, zoom_wy;
 
+extern int numframes;
+extern int framenum;
+
 void menu_count(void);
 
 void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y);

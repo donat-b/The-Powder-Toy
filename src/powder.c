@@ -35,8 +35,8 @@ unsigned pmap[YRES][XRES];
 unsigned cb_pmap[YRES][XRES];
 unsigned photons[YRES][XRES];
 
-float msvx[100], msvy[100];
-int msindex[100], msnum[100], numballs = 0, creatingsolid = 0;
+float *msvx, *msvy;
+int *msindex, *msnum, numballs = 0, creatingsolid = 0;
 
 static int pn_junction_sprk(int x, int y, int pt)
 {
@@ -612,18 +612,11 @@ void kill_part(int i)//kills particle number i
 		int bn = parts[i].life;
 		msnum[bn]--;
 		if (msindex[bn] == i)
-		{
 			msindex[bn] = NULL;
-			/*int i;
-			for (i = bn; i < numballs - 1; i++)
-			{
-				msindex[i] = msindex[i+1];
-				msnum[i] = msnum[i+1];
-				msvx[i] = msvy[i+1];
-				msvx[i] = msvy[i+1];
-			}
-			numballs--;*/
-		}
+	}
+	else if (parts[i].type == PT_ANIM)
+	{
+		free(parts[i].animations);
 	}
 	if (x>=0 && y>=0 && x<XRES && y<YRES) {
 		if ((pmap[y][x]>>8)==i)
@@ -696,6 +689,8 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 			{
 				if ((pmap[y][x]&0xFF)==PT_PUMP || (pmap[y][x]&0xFF)==PT_GPMP) {
 					parts[pmap[y][x]>>8].temp = restrict_flt(parts[pmap[y][x]>>8].temp + 0.1f, MIN_TEMP, MAX_TEMP);
+				} else if ((pmap[y][x]&0xFF)==PT_ANIM) {
+					parts[pmap[y][x]>>8].temp = restrict_flt(parts[pmap[y][x]>>8].temp + 1.0f, MIN_TEMP, MAX_TEMP);
 				} else if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL))) {
 					parts[pmap[y][x]>>8].temp = restrict_flt(parts[pmap[y][x]>>8].temp + 50.0f, MIN_TEMP, MAX_TEMP);
 				} else {
@@ -706,6 +701,8 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 			{
 				if ((pmap[y][x]&0xFF)==PT_PUMP || (pmap[y][x]&0xFF)==PT_GPMP) {
 					parts[pmap[y][x]>>8].temp = restrict_flt(parts[pmap[y][x]>>8].temp - 0.1f, MIN_TEMP, MAX_TEMP);
+				} else if ((pmap[y][x]&0xFF)==PT_ANIM) {
+					parts[pmap[y][x]>>8].temp = restrict_flt(parts[pmap[y][x]>>8].temp - 1.0f, MIN_TEMP, MAX_TEMP);
 				} else if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL))) {
 					parts[pmap[y][x]>>8].temp = restrict_flt(parts[pmap[y][x]>>8].temp - 50.0f, MIN_TEMP, MAX_TEMP);
 				} else {
@@ -870,6 +867,13 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		parts[i].tmp = 0;
 		parts[i].tmp2 = 0;
 	}
+	if (t==PT_ANIM)
+	{
+		parts[i].animations = calloc(25,sizeof(unsigned int));
+		memset(parts[i].animations, 0, sizeof(parts[i].animations));
+		parts[i].tmp2 = 1;
+		parts[i].numframes = 1;
+	}
 	if (t==PT_MOVS) {
 		if (creatingsolid)
 		{
@@ -880,11 +884,22 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		}
 		else
 		{
+			int j;
+			int *newmsindex = calloc(numballs+1,sizeof(int));
+			int *newmsnum = calloc(numballs+1,sizeof(int));
+			float *newmsvx = calloc(numballs+1,sizeof(int));
+			float *newmsvy = calloc(numballs+1,sizeof(int));
 			parts[i].life = numballs;
 			parts[i].tmp = 0;
 			parts[i].tmp2 = 0;
+			memcpy(newmsindex,msindex,numballs*sizeof(int)); free(msindex); msindex = newmsindex;
+			memcpy(newmsnum,msnum,numballs*sizeof(int)); free(msnum); msnum = newmsnum;
+			memcpy(newmsvx,msvx,numballs*sizeof(int)); free(msvx); msvx = newmsvx;
+			memcpy(newmsvy,msvy,numballs*sizeof(int)); free (msvy); msvy = newmsvy;
 			msindex[numballs] = i;
 			msnum[numballs] = 1;
+			msvx[numballs] = 0;
+			msvy[numballs] = 0;
 			numballs = numballs + 1;
 			creatingsolid = 1;
 		}
@@ -2608,18 +2623,6 @@ void update_moving_solids()
 	int i, bn;
 	if (sys_pause && !framerender)
 		return;
-	/*for (i=0; i<=parts_lastActiveIndex; i++)
-	{
-		if (parts[i].type == PT_MOVS)
-		{
-			int bn = parts[i].life;
-			if (msindex[bn])
-			{
-				msvx[bn] = msvx[bn] + parts[i].vx;
-				msvy[bn] = msvy[bn] + parts[i].vy;
-			}
-		}
-	}*/
 	for (bn = 0; bn < numballs; bn++)
 	{
 		msvx[bn] = msvx[bn]/msnum[bn];
@@ -3131,7 +3134,7 @@ void create_moving_solid(int x, int y, int rx, int ry)
 {
 	int j, i;
 	creatingsolid = 0;
-	if (CURRENT_BRUSH == SQUARE_BRUSH || numballs == 100 || rx < 3 || ry < 3)
+	if (CURRENT_BRUSH == SQUARE_BRUSH || rx < 3 || ry < 3)
 		return;
 	create_part(-2, x, y, PT_MOVS);
 	if (!creatingsolid)

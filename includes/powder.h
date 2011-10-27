@@ -196,6 +196,7 @@
 #define PT_EMP 134
 #define PT_BREC 135
 #define PT_MOVS 136
+#define PT_ANIM 137
 
 #define PT_BOYL 141
 
@@ -259,6 +260,7 @@
 
 int update_ACID(UPDATE_FUNC_ARGS);
 int update_ANAR(UPDATE_FUNC_ARGS);
+int update_ANIM(UPDATE_FUNC_ARGS);
 int update_AMTR(UPDATE_FUNC_ARGS);
 int update_ARAY(UPDATE_FUNC_ARGS);
 int update_BCLN(UPDATE_FUNC_ARGS);
@@ -366,6 +368,8 @@ struct particle
 	int tmp;
 	int tmp2;
 	unsigned int dcolour;
+	unsigned int *animations;
+	int numframes;
 };
 typedef struct particle particle;
 
@@ -562,7 +566,7 @@ static const part_type ptypes[PT_NUM] =
 	{"EMP",	    PIXPACK(0x66AAFF),	0.0f,   0.00f * CFDS,   0.90f,  0.00f,  0.0f,   0.0f,   0.0f,   0.0f	* CFDS, 0,	0,		0,	0,	3,	1,	1,	100,	SC_ELEC,		R_TEMP+0.0f	+273.15f,	121,	"Breaks activated electronics.", ST_SOLID, TYPE_SOLID|PROP_LIFE_DEC, &update_EMP},
 	{"BREL",	PIXPACK(0x707060),	0.4f,	0.04f * CFDS,	0.94f,	0.95f,	-0.1f,	0.18f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	2,	2,	1,	1,	90,		SC_POWDERS,		R_TEMP+0.0f	+273.15f,	211,	"Broken electronics", ST_SOLID, TYPE_PART|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW, NULL},
 	{"BALL",	PIXPACK(0x0010A0),	0.7f,	0.02f * CFDS,	0.96f,	0.80f,	0.00f,	0.1f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	30,	1,	1,	85,		SC_SOLIDS,	R_TEMP+0.0f	+273.15f,	70,		"Moving solid. Acts like a bouncy ball", ST_NONE, TYPE_PART, &update_MOVS},
-	/*FREE*/{"WALL",	PIXPACK(0x0047AB),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	0,	0,	100,	SC_LIFE,		9000.0f,				40,		"B45678/S2345", ST_NONE, TYPE_SOLID|PROP_LIFE, NULL},
+	{"ANIM",	PIXPACK(0x505050),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	1,	1,	1,	100,	SC_POWERED,		R_TEMP+0.0f	+273.15f,	0,	"Animated Liquid Crystal", ST_SOLID, TYPE_SOLID, &update_ANIM},
 	/*FREE*/{"GNAR",	PIXPACK(0xE5B73B),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	0,	0,	100,	SC_LIFE,		9000.0f,				40,		"B1/S1", ST_NONE, TYPE_SOLID|PROP_LIFE, NULL},
 	/*FREE*/{"REPL",	PIXPACK(0x259588),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	0,	0,	100,	SC_LIFE,		9000.0f,				40,		"B1357/S1357", ST_NONE, TYPE_SOLID|PROP_LIFE, NULL},
 	/*FREE*/{"MYST",	PIXPACK(0x0C3C00),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	0,	0,	100,	SC_LIFE,		9000.0f,				40,		"B3458/S05678", ST_NONE, TYPE_SOLID|PROP_LIFE, NULL},
@@ -1023,8 +1027,10 @@ unsigned cb_pmap[YRES][XRES];
 
 unsigned photons[YRES][XRES];
 
-extern float msvx[100];
-extern float msvy[100];
+extern int *msindex;
+extern int *msnum;
+extern float *msvx;
+extern float *msvy;
 extern int numballs;
 
 int do_move(int i, int x, int y, float nxf, float nyf);
