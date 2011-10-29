@@ -348,7 +348,7 @@ void *build_thumb(int *size, int bzip2)
 //the saving function
 void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr)
 {
-	unsigned char *d=calloc(1,3*(XRES/CELL)*(YRES/CELL)+(XRES*YRES)*15+MAXSIGNS*262), *c;
+	unsigned char *d=calloc(1,3*(XRES/CELL)*(YRES/CELL)+(XRES*YRES)*(16+numframes*4)+MAXSIGNS*262+numballs*6), *c;
 	int i,j,x,y,p=0,*m=calloc(XRES*YRES, sizeof(int));
 	int x0, y0, w, h, bx0=orig_x0/CELL, by0=orig_y0/CELL, bw, bh;
 	particle *parts = partsptr;
@@ -391,9 +391,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 			x = (int)(parts[i].x+0.5f);
 			y = (int)(parts[i].y+0.5f);
 			if (x>=orig_x0 && x<orig_x0+orig_w && y>=orig_y0 && y<orig_y0+orig_h) {
-				if (!m[(x-x0)+(y-y0)*w] ||
-				        parts[m[(x-x0)+(y-y0)*w]-1].type == PT_PHOT ||
-				        parts[m[(x-x0)+(y-y0)*w]-1].type == PT_NEUT)
+				if (!m[(x-x0)+(y-y0)*w] || parts[m[(x-x0)+(y-y0)*w]-1].type == PT_PHOT || parts[m[(x-x0)+(y-y0)*w]-1].type == PT_NEUT)
 					m[(x-x0)+(y-y0)*w] = i+1;
 			}
 		}
@@ -448,7 +446,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	for (j=0; j<w*h; j++)
 	{
 		i = m[j];
-		if (i && (parts[i-1].type==PT_PBCN)) {
+		if (i && (parts[i-1].type==PT_PBCN || parts[i-1].type==PT_MOVS || parts[i-1].type==PT_ANIM || parts[i-1].type==PT_PSCN || parts[i-1].type==PT_NSCN)) {
 			//Save tmp2
 			d[p++] = parts[i-1].tmp2;
 		}
@@ -483,6 +481,22 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 		if (i) {
 			//Save colour (BLUE)
 			d[p++] = (parts[i-1].dcolour&0x000000FF);
+		}
+	}
+	for (j=0; j<w*h; j++)
+	{
+		i = m[j];
+		if (i && parts[i-1].type==PT_ANIM)
+		{
+			int k;
+			d[p++] = parts[i-1].numframes;
+			for (k = 0; k <= parts[i-1].numframes;k++)
+			{
+				d[p++] = (parts[i-1].animations[k]&0xFF000000)>>24;
+				d[p++] = (parts[i-1].animations[k]&0x00FF0000)>>16;
+				d[p++] = (parts[i-1].animations[k]&0x0000FF00)>>8;
+				d[p++] = (parts[i-1].animations[k]&0x000000FF);
+				}
 		}
 	}
 	for (j=0; j<w*h; j++)
@@ -525,6 +539,19 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 			memcpy(d+p, signs[i].text, x);
 			p+=x;
 		}
+	if (numballs)
+	{
+		d[p++] = numballs;
+		for (i = 0; i < numballs; i++)
+		{
+			d[p++] = (msindex[i]&0x00FF0000)>>16;
+			d[p++] = (msindex[i]&0x0000FF00)>>8;
+			d[p++] = (msindex[i]&0x000000FF);
+			d[p++] = (msnum[i]&0x00FF0000)>>16;
+			d[p++] = (msnum[i]&0x0000FF00)>>8;
+			d[p++] = (msnum[i]&0x000000FF);
+		}
+	}
 
 	i = (p*101+99)/100 + 612;
 	c = malloc(i);
@@ -852,7 +879,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 		{
 			i = m[j];
 			ty = d[pty+j];
-			if (i && ty==PT_PBCN)
+			if (i && (ty==PT_PBCN || ty==PT_MOVS || ty==PT_ANIM || ty==PT_PSCN || ty==PT_PSCN))
 			{
 				if (p >= size)
 					goto corrupt;
@@ -929,6 +956,33 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 				}
 				if (i <= NPART) {
 					parts[i-1].dcolour |= d[p++];
+				} else {
+					p++;
+				}
+			}
+		}
+	}
+	for (j=0; j<w*h; j++)
+	{
+		i = m[j];
+		if (i && parts[i-1].type == PT_ANIM)
+		{
+			if (ver>=65) {
+				if (p >= size) {
+					goto corrupt;
+				}
+				if (i <= NPART) {
+					int k;
+					parts[i-1].numframes = d[p++];
+					parts[i-1].animations = calloc(25,sizeof(unsigned int));
+					memset(parts[i-1].animations, 0, sizeof(parts[i-1].animations));
+					for (k = 0; k <= parts[i-1].numframes; k++)
+					{
+						parts[i-1].animations[k] = d[p++]<<24;
+						parts[i-1].animations[k] |= d[p++]<<16;
+						parts[i-1].animations[k] |= d[p++]<<8;
+						parts[i-1].animations[k] |= d[p++];
+					}
 				} else {
 					p++;
 				}
@@ -1089,6 +1143,43 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 			clean_text(signs[k].text, 158-14 /* Current max sign length */);
 		}
 		p += x;
+	}
+
+	if (ver >= 65)
+	{
+		numballs = d[p++];
+		msindex = calloc(numballs,sizeof(int));
+		msnum = calloc(numballs,sizeof(int));
+		msvx = calloc(numballs,sizeof(float));
+		msvy = calloc(numballs,sizeof(float));
+		for (i = 0; i < numballs; i++)
+		{
+			msindex[i] = d[p++]<<16;
+			msindex[i] |= d[p++]<<8;
+			msindex[i] |= d[p++];
+			msnum[i] = d[p++]<<16;
+			msnum[i] |= d[p++]<<8;
+			msnum[i] |= d[p++];
+		}
+		for (i = 0; i < NPART; i++)
+		{
+			if (parts[i].type == PT_MOVS &&!parts[i].tmp && !parts[i].tmp2)
+				msindex[parts[i].life] = i;
+		}
+		for (i = 0; i < NPART; i++)
+		{
+			if (parts[i].type == PT_MOVS)
+			{
+				if (parts[i].x < parts[msindex[parts[i].life]].x)
+				{
+					parts[i].tmp -= 65536;
+				}
+				if (parts[i].y < parts[msindex[parts[i].life]].y)
+				{
+					parts[i].tmp2 -= 256; 
+				}
+			}
+		}
 	}
 
 version1:
@@ -2750,7 +2841,7 @@ int main(int argc, char *argv[])
 				{
 					if (DEBUG_MODE)
 					{
-						sprintf(heattext, "%s, Temp: %4.4f C, Temp: %4.4f F, Life: %d, Tmp: %d, Tmp2: %d, Pressure: %3.4f", nametext, parts[cr>>8].temp-273.15f, ((parts[cr>>8].temp-273.15f)*9/5)+32, parts[cr>>8].life,parts[cr>>8].tmp,parts[cr>>8].tmp2, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+						sprintf(heattext, "%s, Temp: %4.4f C, Temp: %4.4f F, Life: %d, Pressure: %3.4f", nametext, parts[cr>>8].temp-273.15f, ((parts[cr>>8].temp-273.15f)*9/5)+32, parts[cr>>8].life, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
 						if (ngrav_enable)
 							sprintf(coordtext, "#%d, X:%d Y:%d GX: %.4f GY: %.4f", cr>>8, x/sdl_scale, y/sdl_scale, gravx[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], gravy[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
 						else
