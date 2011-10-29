@@ -8,11 +8,11 @@
 #endif
  
 //VersionInfoStart
-#define SAVE_VERSION 65
-#define MINOR_VERSION 5
+#define SAVE_VERSION 66
+#define MINOR_VERSION 1
 #define MOD_SAVE_VERSION 3
 #define MOD_MINOR_VERSION 0
-#define BUILD_NUM 100
+#define BUILD_NUM 102
 //VersionInfoEnd
 
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter.
@@ -24,8 +24,6 @@
 #define SCRIPTSERVER "powdertoy.co.uk"
 
 #define LOCAL_SAVE_DIR "Saves"
-
-#define LOCAL_LUA_DIR "Lua"
 
 #define APPDATA_SUBDIR "\\HardWIRED"
 
@@ -187,6 +185,14 @@ extern double totalfps;
 extern double maxfps;
 extern int prevafktime;
 extern int timesplayed;
+
+extern int debug_flags;
+#define DEBUG_PERF_FRAMECOUNT 256
+extern int debug_perf_istart;
+extern int debug_perf_iend;
+extern long debug_perf_frametime[DEBUG_PERF_FRAMECOUNT];
+extern long debug_perf_partitime[DEBUG_PERF_FRAMECOUNT];
+extern long debug_perf_time;
 
 extern int debug_flags;
 #define DEBUG_PERF_FRAMECOUNT 256
