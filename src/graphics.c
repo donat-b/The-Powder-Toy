@@ -3898,10 +3898,20 @@ void draw_parts(pixel *vid)
 
 				if (decorations_enable && parts[i].dcolour)
 				{
-					int a = (parts[i].dcolour>>24)&0xFF;
-					cr = (a*((parts[i].dcolour>>16)&0xFF) + (255-a)*cr) >> 8;
-					cg = (a*((parts[i].dcolour>>8)&0xFF) + (255-a)*cg) >> 8;
-					cb = (a*((parts[i].dcolour)&0xFF) + (255-a)*cb) >> 8;
+					if (t == PT_ANIM)
+					{
+						int fn = parts[i].tmp2;
+						cr = (parts[i].animations[fn]>>16)&0xFF;
+						cg = (parts[i].animations[fn]>>8)&0xFF;
+						cb = (parts[i].animations[fn])&0xFF;
+					}
+					else
+					{
+						int a = (parts[i].dcolour>>24)&0xFF;
+						cr = (a*((parts[i].dcolour>>16)&0xFF) + (255-a)*cr) >> 8;
+						cg = (a*((parts[i].dcolour>>8)&0xFF) + (255-a)*cg) >> 8;
+						cb = (a*((parts[i].dcolour)&0xFF) + (255-a)*cb) >> 8;
+					}
 				}
 				blendpixel(vid, nx+1, ny, cr, cg, cb, 223);
 				blendpixel(vid, nx-1, ny, cr, cg, cb, 223);
@@ -3913,7 +3923,7 @@ void draw_parts(pixel *vid)
 				blendpixel(vid, nx+1, ny+1, cr, cg, cb, 112);
 				blendpixel(vid, nx-1, ny+1, cr, cg, cb, 112);
 			}
-			if (decorations_enable && cmode!=CM_HEAT && cmode!=CM_LIFE && parts[i].dcolour)
+			if (decorations_enable && cmode!=CM_HEAT && cmode!=CM_LIFE && (parts[i].dcolour || t==PT_ANIM))
 				if(t==PT_LCRY){
 					cr = (parts[i].dcolour>>16)&0xFF;
 					cg = (parts[i].dcolour>>8)&0xFF;
@@ -4175,10 +4185,6 @@ void create_decoration(int x, int y, int r, int g, int b, int click, int tool)
 	rp = pmap[y][x];
 	if (!rp)
 		return;
-	if (parts[rp>>8].type == PT_ANIM)
-	{
-		parts[rp>>8].animations[framenum] = (255<<24)|(r<<16)|(g<<8)|b;
-	}
 	if (tool == DECO_DRAW)
 	{
 		if (click == 4)
@@ -4203,6 +4209,10 @@ void create_decoration(int x, int y, int r, int g, int b, int click, int tool)
 		tg = (parts[rp>>8].dcolour>>8)&0xFF;
 		tb = (parts[rp>>8].dcolour)&0xFF;
 		parts[rp>>8].dcolour = ((parts[rp>>8].dcolour&0xFF000000)|(clamp_flt(tr-(tr)*0.02, 0,255)<<16)|(clamp_flt(tg-(tg)*0.02, 0,255)<<8)|clamp_flt(tb-(tb)*0.02, 0,255));
+	}
+	if (parts[rp>>8].type == PT_ANIM)
+	{
+		parts[rp>>8].animations[framenum] = parts[rp>>8].dcolour;
 	}
 }
 void line_decorations(int x1, int y1, int x2, int y2, int rx, int ry, int r, int g, int b, int click, int tool)

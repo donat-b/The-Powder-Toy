@@ -617,6 +617,7 @@ void kill_part(int i)//kills particle number i
 	else if (parts[i].type == PT_ANIM)
 	{
 		free(parts[i].animations);
+		parts[i].animations = NULL;
 	}
 	if (x>=0 && y>=0 && x<XRES && y<YRES) {
 		if ((pmap[y][x]>>8)==i)
@@ -3134,7 +3135,7 @@ void create_moving_solid(int x, int y, int rx, int ry)
 {
 	int j, i;
 	creatingsolid = 0;
-	if (CURRENT_BRUSH == SQUARE_BRUSH || rx < 3 || ry < 3)
+	if (CURRENT_BRUSH == SQUARE_BRUSH || rx < 3 || ry < 3 || numballs >= 255)
 		return;
 	create_part(-2, x, y, PT_MOVS);
 	if (!creatingsolid)
@@ -3143,6 +3144,7 @@ void create_moving_solid(int x, int y, int rx, int ry)
 			for (i=-rx; i<=rx; i++)
 				if (InCurrentBrush(i ,j ,rx ,ry) && !InCurrentBrush(i ,j ,rx-1 ,ry-1))
 					create_part(-2, x+i, y+j, PT_MOVS);
+	creatingsolid = 0;
 }
 
 int InCurrentBrush(int i, int j, int rx, int ry)

@@ -349,7 +349,7 @@ void *build_thumb(int *size, int bzip2)
 void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr)
 {
 	unsigned char *d=calloc(1,3*(XRES/CELL)*(YRES/CELL)+(XRES*YRES)*(16+numframes*4)+MAXSIGNS*262+numballs*6), *c;
-	int i,j,x,y,p=0,*m=calloc(XRES*YRES, sizeof(int));
+	int i,j,x,y,p=0,*m=calloc(XRES*YRES, sizeof(int)),nummovs = 0;
 	int x0, y0, w, h, bx0=orig_x0/CELL, by0=orig_y0/CELL, bw, bh;
 	particle *parts = partsptr;
 	bw=(orig_w+orig_x0-bx0*CELL+CELL-1)/CELL;
@@ -539,19 +539,16 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 			memcpy(d+p, signs[i].text, x);
 			p+=x;
 		}
-	if (numballs)
+	d[p++] =  decorations_enable|((aheat_enable<<1)&0x02)|((hud_enable<<2)&0x04)|((water_equal_test<<3)&0x08)|((cmode<<4)&0xF0);
+	for (j=0; j<w*h; j++)
 	{
-		d[p++] = numballs;
-		for (i = 0; i < numballs; i++)
+		i = m[j];
+		if (i && parts[i-1].type==PT_MOVS && !parts[i].tmp && !parts[i].tmp2)
 		{
-			d[p++] = (msindex[i]&0x00FF0000)>>16;
-			d[p++] = (msindex[i]&0x0000FF00)>>8;
-			d[p++] = (msindex[i]&0x000000FF);
-			d[p++] = (msnum[i]&0x00FF0000)>>16;
-			d[p++] = (msnum[i]&0x0000FF00)>>8;
-			d[p++] = (msnum[i]&0x000000FF);
+			nummovs++;
 		}
 	}
+	d[p++] = nummovs;
 
 	i = (p*101+99)/100 + 612;
 	c = malloc(i);
@@ -879,7 +876,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 		{
 			i = m[j];
 			ty = d[pty+j];
-			if (i && (ty==PT_PBCN || ty==PT_MOVS || ty==PT_ANIM || ty==PT_PSCN || ty==PT_PSCN))
+			if (i && (ty==PT_PBCN || ty==PT_MOVS || ty==PT_ANIM || ty==PT_PSCN || ty==PT_NSCN))
 			{
 				if (p >= size)
 					goto corrupt;
@@ -1147,24 +1144,33 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 
 	if (ver >= 65)
 	{
+		if (p >= size)
+			goto version1;
+		if (!decorations_enable) {
+			decorations_enable = (d[p++])&0x01;
+		}
+		aheat_enable = (d[p]>>1)&0x01;
+		hud_enable = (d[p]>>2)&0x01;
+		water_equal_test = (d[p]>>3)&0x01;
+		if (replace)
+			cmode = (d[p]>>4)&0x0F;
+	}
+
+	if (ver >= 65)
+	{
+		if (p >= size)
+			goto version1;
 		numballs = d[p++];
 		msindex = calloc(numballs,sizeof(int));
 		msnum = calloc(numballs,sizeof(int));
 		msvx = calloc(numballs,sizeof(float));
 		msvy = calloc(numballs,sizeof(float));
-		for (i = 0; i < numballs; i++)
-		{
-			msindex[i] = d[p++]<<16;
-			msindex[i] |= d[p++]<<8;
-			msindex[i] |= d[p++];
-			msnum[i] = d[p++]<<16;
-			msnum[i] |= d[p++]<<8;
-			msnum[i] |= d[p++];
-		}
 		for (i = 0; i < NPART; i++)
 		{
 			if (parts[i].type == PT_MOVS &&!parts[i].tmp && !parts[i].tmp2)
 				msindex[parts[i].life] = i;
+			if (parts[i].type == PT_MOVS)
+				msnum[parts[i].life]++;
 		}
 		for (i = 0; i < NPART; i++)
 		{
@@ -1206,9 +1212,10 @@ void clear_sim(void)
 	int i,x, y;
 	for (i=0; i<=parts_lastActiveIndex; i++)//the particle loop that resets the pmap/photon maps every frame, to update them.
 	{
-		if (parts[i].type == PT_ANIM)
+		if (parts[i].animations)
 		{
 			free(parts[i].animations);
+			parts[i].animations = NULL;
 		}
 	}
 	memset(bmap, 0, sizeof(bmap));

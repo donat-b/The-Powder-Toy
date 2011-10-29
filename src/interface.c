@@ -5212,6 +5212,11 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 	box_B.multiline = 0;
 	box_B.cursor = 0;
 
+	for (i = 0; i <= parts_lastActiveIndex; i++)
+		if (parts[i].type == PT_ANIM)
+		{
+			parts[i].tmp2 = framenum;
+		}
 
 	memcpy(old_buf,vid_buf,(XRES+BARSIZE)*YRES*PIXELSIZE);
 	while (!sdl_poll())
@@ -5688,6 +5693,8 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 				{
 					parts[i].tmp2 = framenum;
 					parts[i].numframes = numframes;
+					if (sdl_mod & (KMOD_CTRL))
+						parts[i].animations[numframes] = parts[i].animations[numframes-1];
 				}
 		}
 		if (sdl_key==SDLK_LEFT && framenum > 0)
@@ -5698,14 +5705,42 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 				if (parts[i].type == PT_ANIM)
 					parts[i].tmp2 = framenum;
 		}
+		if (sdl_key==SDLK_DELETE && numframes > 0)
+		{
+			int i;
+			numframes--;
+			for (i = 0; i <= parts_lastActiveIndex; i++)
+				if (parts[i].type == PT_ANIM)
+				{
+					int j;
+					for (j = framenum; j <= parts[i].numframes; j++)
+						parts[i].animations[j] = parts[i].animations[j+1];
+					parts[i].animations[parts[i].numframes] = 0;
+					parts[i].numframes--;
+					if (framenum == numframes+1)
+						parts[i].tmp2 = framenum-1;
+				}
+			if (framenum == numframes-1)
+				framenum--;
+		}
 
 		if(sdl_key=='b' || sdl_key==SDLK_ESCAPE)
 		{
 			free(old_buf);
+			for (i = 0; i <= parts_lastActiveIndex; i++)
+				if (parts[i].type == PT_ANIM)
+				{
+					parts[i].tmp2 = 0;
+				}
 			return PIXRGB(currR,currG,currB);
 		}
 	}
 	free(old_buf);
+	for (i = 0; i <= parts_lastActiveIndex; i++)
+		if (parts[i].type == PT_ANIM)
+		{
+			parts[i].tmp2 = 0;
+		}
 	return PIXRGB(currR,currG,currB);
 }
 struct savelist_e {
