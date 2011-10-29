@@ -5692,7 +5692,8 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 				if (parts[i].type == PT_ANIM)
 				{
 					parts[i].tmp2 = framenum;
-					parts[i].numframes = numframes;
+					if (parts[i].numframes < numframes)
+						parts[i].numframes = numframes;
 					if (sdl_mod & (KMOD_CTRL))
 						parts[i].animations[numframes] = parts[i].animations[numframes-1];
 				}

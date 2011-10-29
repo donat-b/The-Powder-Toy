@@ -560,7 +560,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	c[1] = 0x53;	//0x75;
 	c[2] = 0x76;	//0x43;
 	c[3] = legacy_enable|((sys_pause<<1)&0x02)|((gravityMode<<2)&0x0C)|((airMode<<4)&0x70)|((ngrav_enable<<7)&0x80);
-	c[4] = SAVE_VERSION;
+	c[4] = MOD_SAVE_VERSION+237;
 	c[5] = CELL;
 	c[6] = bw;
 	c[7] = bh;
@@ -588,7 +588,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, unsigned pmap[YRES][XRES])
 {
 	unsigned char *d=NULL,*c=save;
-	int q,i,j,k,x,y,p=0,*m=NULL, ver, pty, ty, legacy_beta=0, tempGrav = 0;
+	int q,i,j,k,x,y,p=0,*m=NULL, ver, pty, ty, legacy_beta=0, tempGrav = 0, modver = 0;
 	int bx0=x0/CELL, by0=y0/CELL, bw, bh, w, h;
 	int nf=0, new_format = 0, ttv = 0;
 	particle *parts = partsptr;
@@ -605,9 +605,14 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 	if (c[2]==0x76 && c[1]==0x53 && c[0]==0x50) {
 		new_format = 1;
 	}
-	if (c[4]>SAVE_VERSION)
+	if (c[4]>SAVE_VERSION && c[4] < 238)
 		return 2;
 	ver = c[4];
+	if (ver == 240)
+	{
+		ver = 65;
+		modver = 3;
+	}
 
 	if (ver<34)
 	{
@@ -876,7 +881,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 		{
 			i = m[j];
 			ty = d[pty+j];
-			if (i && (ty==PT_PBCN || ty==PT_MOVS || ty==PT_ANIM || ty==PT_PSCN || ty==PT_NSCN))
+			if (i && (ty==PT_PBCN || ty==PT_MOVS || ty==PT_ANIM || ((ty==PT_PSCN || ty==PT_NSCN) && modver >= 3)))
 			{
 				if (p >= size)
 					goto corrupt;
@@ -964,7 +969,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 		i = m[j];
 		if (i && parts[i-1].type == PT_ANIM)
 		{
-			if (ver>=65) {
+			if (modver>=3) {
 				if (p >= size) {
 					goto corrupt;
 				}
@@ -1142,7 +1147,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 		p += x;
 	}
 
-	if (ver >= 65)
+	if (modver >= 3)
 	{
 		if (p >= size)
 			goto version1;
@@ -1156,7 +1161,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 			cmode = (d[p]>>4)&0x0F;
 	}
 
-	if (ver >= 65)
+	if (modver >= 3)
 	{
 		if (p >= size)
 			goto version1;
