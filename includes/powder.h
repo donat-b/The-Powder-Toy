@@ -144,11 +144,9 @@
 #define PT_PVOD 84
 #define PT_CONV 85
 #define PT_CAUS 86
-
 #define PT_LIGH 87
 #define PT_TESC 88
 #define PT_DEST 89
-
 #define PT_SPNG 90
 #define PT_RIME 91
 #define PT_FOG 92
@@ -220,7 +218,8 @@
 #define FAV_HUD 302
 #define FAV_FIND 303
 #define FAV_INFO 304
-#define FAV_END 305
+#define FAV_ROTATE 305
+#define FAV_END 306
 
 #define R_TEMP 22
 #define MAX_TEMP 9999
@@ -631,7 +630,7 @@ static const part_type ptypes[PT_NUM] =
 	{"PQRT",	PIXPACK(0x88BBBB),	0.4f,	0.04f * CFDS,	0.94f,	0.95f,	-0.1f,	0.27f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	0,	0,	1,	1,	90,		SC_POWDERS,		R_TEMP+0.0f	+273.15f,	3,		"Broken quartz.", ST_SOLID, TYPE_PART| PROP_HOT_GLOW, &update_QRTZ, &graphics_QRTZ},
 	{"EMP",	    PIXPACK(0x66AAFF),	0.0f,   0.00f * CFDS,   0.90f,  0.00f,  0.0f,   0.0f,   0.0f,   0.0f	* CFDS, 0,	0,		0,	0,	3,	1,	1,	100,	SC_ELEC,		R_TEMP+0.0f	+273.15f,	121,	"Breaks activated electronics.", ST_SOLID, TYPE_SOLID|PROP_LIFE_DEC, &update_EMP, &graphics_EMP},
 	{"BREL",	PIXPACK(0x707060),	0.4f,	0.04f * CFDS,	0.94f,	0.95f,	-0.1f,	0.18f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	2,	2,	1,	1,	90,		SC_POWDERS,		R_TEMP+0.0f	+273.15f,	211,	"Broken electronics", ST_SOLID, TYPE_PART|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW, NULL, NULL},
-	{"BALL",	PIXPACK(0x0010A0),	0.7f,	0.02f * CFDS,	0.96f,	0.80f,	0.00f,	0.1f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	30,	1,	1,	85,		SC_SOLIDS,	R_TEMP+0.0f	+273.15f,	70,		"Moving solid. Acts like a bouncy ball", ST_NONE, TYPE_PART, &update_MOVS, NULL},
+	{"BALL",	PIXPACK(0x0010A0),	0.7f,	0.02f * CFDS,	0.96f,	0.80f,	0.00f,	0.1f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	30,	1,	1,	85,		SC_SPECIAL,	R_TEMP+0.0f	+273.15f,	70,		"Moving solid. Acts like a bouncy ball", ST_NONE, TYPE_PART, &update_MOVS, NULL},
 	{"ANIM",	PIXPACK(0x505050),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	1,	1,	1,	100,	SC_POWERED,		R_TEMP+0.0f	+273.15f,	0,	"Animated Liquid Crystal", ST_SOLID, TYPE_SOLID, &update_ANIM, NULL},
 	/*FREE*/{"GNAR",	PIXPACK(0xE5B73B),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	0,	0,	100,	SC_LIFE,		9000.0f,				40,		"B1/S1", ST_NONE, TYPE_SOLID|PROP_LIFE, NULL, NULL},
 	/*FREE*/{"REPL",	PIXPACK(0x259588),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	0,	0,	100,	SC_LIFE,		9000.0f,				40,		"B1357/S1357", ST_NONE, TYPE_SOLID|PROP_LIFE, NULL, NULL},
@@ -1059,6 +1058,7 @@ static fav_menu fav[] =
 	{"HUD", PIXPACK(0x20D8FF), "Left click to toggle a different HUD"},
 	{"FIND", PIXPACK(0xFF0000), "Finds the currently selected element on the screen and temporarily colors it red"},
 	{"INFO", PIXPACK(0x00FF00), "Displays statistics and records about The Powder Toy. Left click to toggle display"},
+	{"SPIN", PIXPACK(0x0010A0), "Makes moving solids rotate"}
 };
 
 #define CHANNELS ((int)(MAX_TEMP-73)/100+2)
@@ -1098,11 +1098,13 @@ unsigned cb_pmap[YRES][XRES];
 
 unsigned photons[YRES][XRES];
 
-extern int *msindex;
-extern int *msnum;
-extern float *msvx;
-extern float *msvy;
+extern int msindex[256];
+extern int msnum[256];
+extern float msvx[256];
+extern float msvy[256];
+extern float msrotation[256];
 extern int numballs;
+extern int ms_rotation;
 
 int do_move(int i, int x, int y, float nxf, float nyf);
 int try_move(int i, int x, int y, int nx, int ny);

@@ -2252,7 +2252,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 			float overflow = fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
 			xoff = (int)(overflow / location);
 		}
-		for (n = 1; n<5; n++)
+		for (n = 1; n < FAV_END - FAV_START; n++)
 		{
 			x -= draw_tool_xy(vid_buf, x-xoff, y, FAV_START+n, fav[n].colour)+5;
 
@@ -2356,6 +2356,8 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 					finding = *sl;
 			else if (h == FAV_INFO)
 				drawinfo = !drawinfo;
+			else if (h == FAV_ROTATE)
+				ms_rotation = !ms_rotation;
 		}
 		else if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
 		{

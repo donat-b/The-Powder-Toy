@@ -36,8 +36,8 @@ unsigned pmap[YRES][XRES];
 unsigned cb_pmap[YRES][XRES];
 unsigned photons[YRES][XRES];
 
-float *msvx, *msvy;
-int *msindex, *msnum, numballs = 0, creatingsolid = 0;
+float msvx[256], msvy[256], msrotation[256];
+int msindex[256], msnum[256], numballs = 0, creatingsolid = 0, ms_rotation = 0;
 
 static int pn_junction_sprk(int x, int y, int pt)
 {
@@ -911,21 +911,14 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		else
 		{
 			int j;
-			int *newmsindex = calloc(numballs+1,sizeof(int));
-			int *newmsnum = calloc(numballs+1,sizeof(int));
-			float *newmsvx = calloc(numballs+1,sizeof(float));
-			float *newmsvy = calloc(numballs+1,sizeof(float));
 			parts[i].life = numballs;
 			parts[i].tmp = 0;
 			parts[i].tmp2 = 0;
-			memcpy(newmsindex,msindex,numballs*sizeof(int)); free(msindex); msindex = newmsindex;
-			memcpy(newmsnum,msnum,numballs*sizeof(int)); free(msnum); msnum = newmsnum;
-			memcpy(newmsvx,msvx,numballs*sizeof(float)); free(msvx); msvx = newmsvx;
-			memcpy(newmsvy,msvy,numballs*sizeof(float)); free (msvy); msvy = newmsvy;
 			msindex[numballs] = i;
 			msnum[numballs] = 1;
 			msvx[numballs] = 0;
 			msvy[numballs] = 0;
+			msrotation[numballs] = 0;
 			numballs = numballs + 1;
 			creatingsolid = 1;
 		}
@@ -2678,6 +2671,8 @@ void update_moving_solids()
 		msvx[bn] = msvx[bn]/msnum[bn];
 		msvy[bn] = msvy[bn]/msnum[bn];
 		msvy[bn] = msvy[bn] + .2;
+		if (!ms_rotation)
+			msrotation[bn] = 0;
 	}
 	for (i=0; i<=parts_lastActiveIndex; i++)
 	{
@@ -2686,8 +2681,24 @@ void update_moving_solids()
 			int bn = parts[i].life;
 			if (msindex[bn])
 			{
-				parts[i].x = parts[msindex[bn]].x + parts[i].tmp;
-				parts[i].y = parts[msindex[bn]].y + parts[i].tmp2;
+				if (parts[i].tmp != 0)
+				{
+					float angle = atan((float)parts[i].tmp2/parts[i].tmp);
+					float distance = sqrt(pow((float)parts[i].tmp,2)+pow((float)parts[i].tmp2,2));
+					if (parts[i].tmp < 0)
+						angle += 3.1415926535;
+					parts[i].x = parts[msindex[bn]].x + distance*cos(angle+msrotation[bn]);
+					parts[i].y = parts[msindex[bn]].y + distance*sin(angle+msrotation[bn]);
+				}
+				else if (parts[i].tmp2 != 0)
+				{
+					float angle = 3.1415926535/2;
+					parts[i].x = parts[msindex[bn]].x + parts[i].tmp2*cos(angle+msrotation[bn]);
+					if (parts[i].tmp2 < 0)
+						parts[i].y = parts[msindex[bn]].y + parts[i].tmp2*sin(angle+msrotation[bn]);
+					else
+						parts[i].y = parts[msindex[bn]].y - parts[i].tmp2*sin(-angle+msrotation[bn]);
+				}
 				if (parts[i].x < 0 || parts[i].x >= XRES || parts[i].y < 0 || parts[i].y >= YRES)
 					kill_part(i);
 				parts[i].vx = msvx[bn];

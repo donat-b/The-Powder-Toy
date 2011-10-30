@@ -1173,19 +1173,38 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 
 	if (modver >= 3)
 	{
+		int oldnumballs = numballs;
 		if (p >= size)
 			goto version1;
-		numballs = d[p++];
-		msindex = calloc(numballs,sizeof(int));
-		msnum = calloc(numballs,sizeof(int));
-		msvx = calloc(numballs,sizeof(float));
-		msvy = calloc(numballs,sizeof(float));
+		if (replace)
+		{
+			memset(msindex, 0, sizeof(msindex));
+			memset(msnum, 0, sizeof(msnum));
+			memset(msvx, 0, sizeof(msvx));
+			memset(msvy, 0, sizeof(msvy));
+			memset(msrotation, 0, sizeof(msrotation));
+			oldnumballs = 0;
+		}
+		numballs += d[p++];
 		for (i = 0; i < NPART; i++)
 		{
 			if (parts[i].type == PT_MOVS &&!parts[i].tmp && !parts[i].tmp2)
-				msindex[parts[i].life] = i;
+			{
+				if (parts[i].life+oldnumballs < 256)
+					msindex[parts[i].life+oldnumballs] = i;
+			}
 			if (parts[i].type == PT_MOVS)
-				msnum[parts[i].life]++;
+			{
+				if (parts[i].life+oldnumballs < 256)
+				{
+					parts[i].life += oldnumballs;
+					msnum[parts[i].life]++;
+				}
+				else
+				{
+					parts[i].type = PT_NONE;
+				}
+			}
 		}
 		for (i = 0; i < NPART; i++)
 		{
@@ -1197,7 +1216,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 				}
 				if (parts[i].y < parts[msindex[parts[i].life]].y)
 				{
-					parts[i].tmp2 -= 256; 
+					parts[i].tmp2 -= 256;
 				}
 			}
 		}
@@ -1268,6 +1287,11 @@ void clear_sim(void)
 	}
 	gravity_mask();
 	numballs = 0;
+	memset(msindex, 0, sizeof(msindex));
+	memset(msnum, 0, sizeof(msnum));
+	memset(msvx, 0, sizeof(msvx));
+	memset(msvy, 0, sizeof(msvy));
+	memset(msrotation, 0, sizeof(msrotation));
 }
 
 // stamps library
