@@ -10,6 +10,13 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 			parts[i].temp = R_TEMP + 273.15f;
 		if (ct<=0 || ct>=PT_NUM)
 			ct = PT_METL;
+		if (ct==PT_OTWR)
+		{
+			if (parts[i].tmp == 0)
+				ct = PT_BREC;
+			else
+				parts[i].tmp--;
+		}
 		part_change_type(i,x,y,ct);
 		parts[i].ctype = PT_NONE;
 		parts[i].life = 4;

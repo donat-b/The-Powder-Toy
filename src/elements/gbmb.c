@@ -11,7 +11,7 @@ int update_GBMB(UPDATE_FUNC_ARGS) {
 					continue;
 				if((r&0xFF)!=PT_BOMB && (r&0xFF)!=PT_GBMB &&
 				   (r&0xFF)!=PT_CLNE && (r&0xFF)!=PT_PCLN &&
-				   (r&0xFF)!=PT_DMND)
+				   (r&0xFF)!=PT_DMND && (r&0xFF)!=PT_INDI)
 				{
 					parts[i].life=60;
 					break;

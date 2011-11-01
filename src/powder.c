@@ -105,6 +105,7 @@ void init_can_move()
 		}
 	}
 	can_move[PT_DEST][PT_DMND] = 0;
+	can_move[PT_DEST][PT_INDI] = 0;
 	can_move[PT_BIZR][PT_FILT] = 2;
 	can_move[PT_BIZRG][PT_FILT] = 2;
 	for (t=0;t<PT_NUM;t++)
