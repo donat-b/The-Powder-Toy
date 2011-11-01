@@ -2392,6 +2392,8 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 			{
 				*sl = h;
 				*dae = 51;
+				if (finding)
+					finding = h;
 			}
 		}
 	}

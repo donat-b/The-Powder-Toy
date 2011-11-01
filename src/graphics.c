@@ -1828,6 +1828,26 @@ void render_parts(pixel *vid)
 			if(cola>255) cola = 255;
 			else if(cola<0) cola = 0;
 #endif
+			if (finding && parts[i].type == finding)
+			{
+				colr = 255;
+				colg = 0;
+				colb = 0;
+				cola = 255;
+				firer = 255;
+				fireg = 0;
+				fireb = 0;
+				cola = 255;
+			}
+			else if (finding)
+			{
+				colr /= 10;
+				colg /= 10;
+				colb /= 10;
+				firer /= 10;
+				fireg /= 10;
+				fireb /= 10;
+			}
 				
 			if(cmode == CM_NOTHING)
 			{
@@ -2343,14 +2363,6 @@ void render_parts(pixel *vid)
 #endif
 				}
 			}
-		}
-		if (finding && parts[i].type == finding)
-		{
-			drawpixel(vid, nx, ny, 255, 0, 0, 255);
-		}
-		else if (finding)
-		{
-			drawpixel(vid, nx, ny, 0, 0, 0, 230);
 		}
 	}
 #ifdef OGLR		
