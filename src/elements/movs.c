@@ -3,7 +3,7 @@
 int update_MOVS(UPDATE_FUNC_ARGS) {
 	int bn = parts[i].life;
 	float tmp = 0, tmp2 = 0;
-	int type = pmap[y+1][x]&0xFF;
+	int type;
 	if (parts[i].tmp != 0)
 	{
 		float angle = atan((float)parts[i].tmp2/parts[i].tmp);
@@ -22,25 +22,28 @@ int update_MOVS(UPDATE_FUNC_ARGS) {
 		else
 			tmp2 = -1*parts[i].tmp2*sin(angle+msrotation[bn]);
 	}
-	if (y+1 < YRES && type && (type != PT_MOVS || (type == PT_MOVS && parts[pmap[y+1][x]>>8].life != bn)))
+	if (!tmp && !tmp2 && pv[y/CELL][x/CELL] > 10 || pv[y/CELL][x/CELL] < -10)
+		kill_part(i);
+	type = pmap[y+1][x]&0xFF;
+	if (y+1 < YRES && tmp2 > 0 && type && (type != PT_MOVS || (type == PT_MOVS && parts[pmap[y+1][x]>>8].life != bn)))
 	{
 		parts[i].vy -= tmp2;
 		msrotation[bn] -= tmp/5000;
 	}
 	type = pmap[y-1][x]&0xFF;
-	if (y-1 >= 0 && type && (type != PT_MOVS || (type == PT_MOVS && parts[pmap[y-1][x]>>8].life != bn)))
+	if (y-1 >= 0 && tmp2 < 0 && type && (type != PT_MOVS || (type == PT_MOVS && parts[pmap[y-1][x]>>8].life != bn)))
 	{
 		parts[i].vy -= tmp2;
 		msrotation[bn] -= tmp/5000;
 	}
 	type = pmap[y][x+1]&0xFF;
-	if (x+1 < XRES && type && (type != PT_MOVS || (type == PT_MOVS && parts[pmap[y][x+1]>>8].life != bn)))
+	if (x+1 < XRES && tmp > 0 && type && (type != PT_MOVS || (type == PT_MOVS && parts[pmap[y][x+1]>>8].life != bn)))
 	{
 		parts[i].vx -= tmp;
 		msrotation[bn] -= tmp2/5000;
 	}
 	type = pmap[y][x-1]&0xFF;
-	if (x-1 >= 0 && type && (type != PT_MOVS || (type == PT_MOVS && parts[pmap[y][x-1]>>8].life != bn)))
+	if (x-1 >= 0 && tmp < 0 && type && (type != PT_MOVS || (type == PT_MOVS && parts[pmap[y][x-1]>>8].life != bn)))
 	{
 		parts[i].vx -= tmp;
 		msrotation[bn] -= tmp2/5000;

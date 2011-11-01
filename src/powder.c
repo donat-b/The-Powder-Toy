@@ -308,53 +308,25 @@ int try_move(int i, int x, int y, int nx, int ny)
 
 	if ((r&0xFF)==PT_VOID || (r&0xFF)==PT_PVOD) //this is where void eats particles
 	{
-		if (parts[i].type == PT_STKM)
-		{
-			player.spwn = 0;
-		}
-		if (parts[i].type == PT_STKM2)
-		{
-			player2.spwn = 0;
-		}
-		if (parts[i].type == PT_FIGH)
-		{
-			fighters[(unsigned char)parts[i].tmp].spwn = 0;
-			fighcount--;
-		}
-		parts[i].type=PT_NONE;
+		kill_part(i);
 		return 0;
 	}
 	if ((r&0xFF)==PT_BHOL || (r&0xFF)==PT_NBHL) //this is where blackhole eats particles
 	{
-		if (parts[i].type == PT_STKM)
-		{
-			player.spwn = 0;
-		}
-		if (parts[i].type == PT_STKM2)
-		{
-			player2.spwn = 0;
-		}
-		if (parts[i].type == PT_FIGH)
-		{
-			fighters[(unsigned char)parts[i].tmp].spwn = 0;
-			fighcount--;
-		}
-		parts[i].type=PT_NONE;
+		kill_part(i);
 		if (!legacy_enable)
 		{
 			parts[r>>8].temp = restrict_flt(parts[r>>8].temp+parts[i].temp/2, MIN_TEMP, MAX_TEMP);//3.0f;
 		}
-
 		return 0;
 	}
 	if (((r&0xFF)==PT_WHOL||(r&0xFF)==PT_NWHL) && parts[i].type==PT_ANAR) //whitehole eats anar
 	{
-		parts[i].type=PT_NONE;
+		kill_part(i);
 		if (!legacy_enable)
 		{
 			parts[r>>8].temp = restrict_flt(parts[r>>8].temp- (MAX_TEMP-parts[i].temp)/2, MIN_TEMP, MAX_TEMP);
 		}
-
 		return 0;
 	}
 
@@ -901,26 +873,35 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		parts[i].life = 10;
 	}
 	if (t==PT_MOVS) {
-		if (creatingsolid)
+		if (p == -2)
 		{
-			parts[i].life = numballs-1;
-			parts[i].tmp = x - (int)parts[msindex[parts[i].life]].x;
-			parts[i].tmp2 = y - (int)parts[msindex[parts[i].life]].y;
-			msnum[numballs-1]++;
+			if (creatingsolid)
+			{
+				parts[i].life = numballs-1;
+				parts[i].tmp = x - (int)parts[msindex[parts[i].life]].x;
+				parts[i].tmp2 = y - (int)parts[msindex[parts[i].life]].y;
+				msnum[numballs-1]++;
+			}
+			else
+			{
+				int j;
+				parts[i].life = numballs;
+				parts[i].tmp = 0;
+				parts[i].tmp2 = 0;
+				msindex[numballs] = i;
+				msnum[numballs] = 1;
+				msvx[numballs] = 0;
+				msvy[numballs] = 0;
+				msrotation[numballs] = 0;
+				numballs = numballs + 1;
+				creatingsolid = 1;
+			}
 		}
 		else
 		{
-			int j;
-			parts[i].life = numballs;
-			parts[i].tmp = 0;
-			parts[i].tmp2 = 0;
-			msindex[numballs] = i;
-			msnum[numballs] = 1;
-			msvx[numballs] = 0;
-			msvy[numballs] = 0;
-			msrotation[numballs] = 0;
-			numballs = numballs + 1;
-			creatingsolid = 1;
+			parts[i].life = 255;
+			parts[i].tmp = rand()%20;
+			parts[i].tmp2 = rand()%20;
 		}
 	}
 	if (t==PT_LIGH && p==-2)
