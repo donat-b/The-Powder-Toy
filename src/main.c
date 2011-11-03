@@ -191,7 +191,7 @@ int finding = 0;
 int locked = 0;
 int highesttemp = MAX_TEMP;
 int lowesttemp = MIN_TEMP;
-int heatmode = 2;
+int heatmode = 0;
 
 int drawinfo = 0;
 int currentTime = 0;
