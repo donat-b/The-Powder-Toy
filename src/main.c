@@ -189,6 +189,9 @@ int favMenu[19] = {300,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17};
 int alt_hud = 0;
 int finding = 0;
 int locked = 0;
+int highesttemp = MAX_TEMP;
+int lowesttemp = MIN_TEMP;
+int heatmode = 2;
 
 int drawinfo = 0;
 int currentTime = 0;

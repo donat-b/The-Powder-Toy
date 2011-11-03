@@ -1756,7 +1756,10 @@ void render_parts(pixel *vid)
 			switch(cmode)
 			{
 			case CM_HEAT:
-				caddress = restrict_flt((int)( restrict_flt((float)(parts[i].temp+(-MIN_TEMP)), 0.0f, MAX_TEMP+(-MIN_TEMP)) / ((MAX_TEMP+(-MIN_TEMP))/1024) ) *3, 0.0f, (1024.0f*3)-3);
+				if (heatmode == 0)
+					caddress = restrict_flt((int)( restrict_flt((float)(parts[i].temp+(-MIN_TEMP)), 0.0f, MAX_TEMP+(-MIN_TEMP)) / ((MAX_TEMP+(-MIN_TEMP))/1024) ) *3, 0.0f, (1024.0f*3)-3); //Not having that second (float) might be a bug, and is definetely needed if min&max temps are less than 1024 apart
+				else
+					caddress = restrict_flt((int)( restrict_flt((float)(parts[i].temp+(-lowesttemp)), 0.0f, highesttemp+(-lowesttemp)) / ((float)(highesttemp+(-lowesttemp))/1024) ) *3, 0.0f, (1024.0f*3)-3);
 				firea = 255;
 				firer = colr = (unsigned char)color_data[caddress];
 				fireg = colg = (unsigned char)color_data[caddress+1];

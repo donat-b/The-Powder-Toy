@@ -2358,6 +2358,8 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 				drawinfo = !drawinfo;
 			else if (h == FAV_ROTATE)
 				ms_rotation = !ms_rotation;
+			else if (h == FAV_HEAT)
+				heatmode = (heatmode + 1)%3;
 		}
 		else if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
 		{
@@ -2410,6 +2412,11 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 		int j;
 		if (h >= FAV_START && h <= FAV_END)
 		{
+			if (h == FAV_HEAT)
+			{
+				lowesttemp = atoi(input_ui(vid_buf,"Manual Heat Display","Enter a Minimum Temperature","",""));
+				highesttemp = atoi(input_ui(vid_buf,"Manual Heat Display","Enter a Maximum Temperature","",""));
+			}
 		}
 		else if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
 		{

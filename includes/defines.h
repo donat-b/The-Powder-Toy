@@ -174,6 +174,9 @@ extern int favMenu[19];
 extern int alt_hud;
 extern int finding;
 extern int locked;
+extern int highesttemp;
+extern int lowesttemp;
+extern int heatmode;
 
 extern int drawinfo;
 extern int currentTime;

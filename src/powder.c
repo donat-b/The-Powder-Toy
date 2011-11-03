@@ -2538,6 +2538,13 @@ killed:
 					}
 				}
 			}
+			if (heatmode != 2)
+			{
+				if (parts[i].temp > highesttemp)
+					highesttemp = parts[i].temp;
+				if (parts[i].temp < lowesttemp)
+					lowesttemp = parts[i].temp;
+			}
 movedone:
 			if (parts[i].type == PT_MOVS)
 			{
@@ -2546,6 +2553,13 @@ movedone:
 				{
 					msvx[bn] = msvx[bn] + parts[i].vx;
 					msvy[bn] = msvy[bn] + parts[i].vy;
+				}
+				if (heatmode != 2)
+				{
+					if (parts[i].temp > highesttemp)
+						highesttemp = parts[i].temp;
+					if (parts[i].temp < lowesttemp)
+						lowesttemp = parts[i].temp;
 				}
 			}
 			continue;
@@ -2567,6 +2581,11 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 	memset(pmap, 0, sizeof(pmap));
 	memset(photons, 0, sizeof(photons));
 	NUM_PARTS = 0;
+	if (heatmode == 1)
+	{
+		highesttemp = MIN_TEMP;
+		lowesttemp = MAX_TEMP;
+	}
 	for (i=0; i<=parts_lastActiveIndex; i++)//the particle loop that resets the pmap/photon maps every frame, to update them.
 	{
 		if (parts[i].type)
