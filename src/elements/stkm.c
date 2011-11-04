@@ -233,7 +233,7 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS) {
 				}
 				if (bmap[(ry+y)/CELL][(rx+x)/CELL]==WL_FAN)
 					playerp->elem = SPC_AIR;
-				if ((r&0xFF)==PT_PRTI)
+				if ((r&0xFF)==PT_PRTI || (r&0xFF)==PT_PPTI)
 					STKM_interact(playerp, i, rx, ry);
 				if (!parts[i].type)//STKM_interact may kill STKM
 					return 1;
@@ -436,7 +436,7 @@ void STKM_interact(playerst* playerp, int i, int x, int y)
 		if (ptypes[r&0xFF].properties&PROP_DEADLY)
 			parts[i].life -= 1;
 
-		if ((r&0xFF)==PT_PRTI && parts[i].type)
+		if (((r&0xFF)==PT_PRTI || (r&0xFF)==PT_PPTI) && parts[i].type)
 		{
 			int nnx, count=1;//gives rx=0, ry=1 in update_PRTO
 			parts[r>>8].tmp = (int)((parts[r>>8].temp-73.15f)/100+1);

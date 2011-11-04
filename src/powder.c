@@ -242,7 +242,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 			if (!parts[r>>8].ctype)
 				parts[r>>8].ctype = PT_NEUT;
 		}
-		if ((r&0xFF)==PT_PRTI && (parts[i].type==PT_PHOT || parts[i].type==PT_NEUT))
+		if (((r&0xFF)==PT_PRTI || (r&0xFF)==PT_PPTI) && (parts[i].type==PT_PHOT || parts[i].type==PT_NEUT))
 		{
 			int nnx, count;
 			for (count=0; count<8; count++)

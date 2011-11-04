@@ -12,6 +12,35 @@ int portal_ry[8] = {-1,-1,-1, 0, 1, 1, 1, 0};
 int update_PRTI(UPDATE_FUNC_ARGS) {
 	int r, nnx, rx, ry, fe = 0;
 	int count =0;
+	if (parts[i].type == PT_PPTI)
+	{
+		if (parts[i].tmp2>0 && parts[i].tmp2!=10)
+			parts[i].tmp2--;
+		for (rx=-2; rx<3; rx++)
+			for (ry=-2; ry<3; ry++)
+				if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+				{
+					r = pmap[y+ry][x+rx];
+					if (!r)
+						continue;
+					if ((r&0xFF)==PT_SPRK)
+					{
+						if (parts[r>>8].ctype==PT_PSCN)
+							parts[i].tmp2 = 10;
+						else if (parts[r>>8].ctype==PT_NSCN)
+							parts[i].tmp2 = 9;
+					}
+					if ((r&0xFF)==PT_PPTI)
+					{
+						if (parts[i].tmp2==10&&parts[r>>8].tmp2<10&&parts[r>>8].tmp2>0)
+							parts[i].tmp2 = 9;
+						else if (parts[i].tmp2==0&&parts[r>>8].tmp2==10)
+							parts[i].tmp2 = 10;
+					}
+				}
+		if (parts[i].tmp2 < 10)
+			return 0;
+	}
 	parts[i].tmp = (int)((parts[i].temp-73.15f)/100+1);
 	if (parts[i].tmp>=CHANNELS) parts[i].tmp = CHANNELS-1;
 	else if (parts[i].tmp<0) parts[i].tmp = 0;
@@ -24,10 +53,10 @@ int update_PRTI(UPDATE_FUNC_ARGS) {
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					fe = 1;
-				if (!r || (r&0xFF)==PT_PRTI || (r&0xFF)==PT_PRTO || (ptypes[r&0xFF].falldown== 0 && ptypes[r&0xFF].state != ST_GAS && (r&0xFF)!=PT_SPRK))
+				if (!r || (r&0xFF)==PT_PRTI || (r&0xFF)==PT_PRTO || (r&0xFF)==PT_PPTI || (r&0xFF)==PT_PPTO || (ptypes[r&0xFF].falldown== 0 && ptypes[r&0xFF].state != ST_GAS && (r&0xFF)!=PT_SPRK))
 				{
 					r = photons[y+ry][x+rx];
-					if (!r || (r&0xFF)==PT_PRTI || (r&0xFF)==PT_PRTO || (ptypes[r&0xFF].falldown== 0 && ptypes[r&0xFF].state != ST_GAS && (r&0xFF)!=PT_SPRK))
+					if (!r || (r&0xFF)==PT_PRTI || (r&0xFF)==PT_PRTO || (r&0xFF)==PT_PPTI || (r&0xFF)==PT_PPTO || (ptypes[r&0xFF].falldown== 0 && ptypes[r&0xFF].state != ST_GAS && (r&0xFF)!=PT_SPRK))
 						continue;
 				}
 
