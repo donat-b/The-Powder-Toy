@@ -2538,13 +2538,6 @@ killed:
 					}
 				}
 			}
-			if (heatmode != 2)
-			{
-				if (parts[i].temp > highesttemp)
-					highesttemp = parts[i].temp;
-				if (parts[i].temp < lowesttemp)
-					lowesttemp = parts[i].temp;
-			}
 movedone:
 			if (parts[i].type == PT_MOVS)
 			{
@@ -2553,13 +2546,6 @@ movedone:
 				{
 					msvx[bn] = msvx[bn] + parts[i].vx;
 					msvy[bn] = msvy[bn] + parts[i].vy;
-				}
-				if (heatmode != 2)
-				{
-					if (parts[i].temp > highesttemp)
-						highesttemp = parts[i].temp;
-					if (parts[i].temp < lowesttemp)
-						lowesttemp = parts[i].temp;
 				}
 			}
 			continue;
@@ -2705,6 +2691,13 @@ void update_moving_solids()
 				parts[i].vx = msvx[bn];
 				parts[i].vy = msvy[bn];
 			}
+		}
+		if (heatmode != 2)
+		{
+			if (parts[i].temp > highesttemp)
+				highesttemp = parts[i].temp;
+			if (parts[i].temp < lowesttemp)
+				lowesttemp = parts[i].temp;
 		}
 	}
 }
