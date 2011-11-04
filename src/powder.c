@@ -2667,7 +2667,17 @@ void update_moving_solids()
 		msvy[bn] = msvy[bn]/msnum[bn];
 		msvy[bn] = msvy[bn] + .2;
 		if (!ms_rotation)
+		{
 			msrotation[bn] = 0;
+		}
+		else if (msrotation[bn] > 6.283185307179586476925286766559)
+		{
+			msrotation[bn] -= 6.283185307179586476925286766559;
+		}
+		else if (msrotation[bn] < -6.283185307179586476925286766559)
+		{
+			msrotation[bn] += 6.283185307179586476925286766559;
+		}
 	}
 	for (i=0; i<=parts_lastActiveIndex; i++)
 	{
@@ -2687,7 +2697,7 @@ void update_moving_solids()
 				}
 				else if (parts[i].tmp2 != 0)
 				{
-					float angle = 3.1415926535/2;
+					float angle = 3.1415926535897932384626433832795/2;
 					parts[i].x = parts[msindex[bn]].x + parts[i].tmp2*cos(angle+msrotation[bn]);
 					if (parts[i].tmp2 < 0)
 						parts[i].y = parts[msindex[bn]].y + parts[i].tmp2*sin(angle+msrotation[bn]);

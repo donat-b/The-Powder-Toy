@@ -446,7 +446,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	for (j=0; j<w*h; j++)
 	{
 		i = m[j];
-		if (i && (parts[i-1].type==PT_PBCN || parts[i-1].type==PT_MOVS || parts[i-1].type==PT_ANIM || parts[i-1].type==PT_PSCN || parts[i-1].type==PT_NSCN)) {
+		if (i && (parts[i-1].type==PT_PBCN || parts[i-1].type==PT_MOVS || parts[i-1].type==PT_ANIM || parts[i-1].type==PT_PSCN || parts[i-1].type==PT_NSCN || parts[i-1].type==PT_PPTI || parts[i-1].type==PT_PPTO)) {
 			//Save tmp2
 			d[p++] = parts[i-1].tmp2;
 		}
@@ -588,7 +588,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, unsigned pmap[YRES][XRES])
 {
 	unsigned char *d=NULL,*c=save;
-	int q,i,j,k,x,y,p=0,*m=NULL, ver, pty, ty, legacy_beta=0, tempGrav = 0, modver = 0;
+	int q,i,j,k,x,y,p=0,*m=NULL, ver, pty, ty, legacy_beta=0, tempGrav = 0, modver = 0, oldnumballs = numballs;
 	int bx0=x0/CELL, by0=y0/CELL, bw, bh, w, h;
 	int nf=0, new_format = 0, ttv = 0;
 	particle *parts = partsptr;
@@ -608,10 +608,13 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 	if (c[4]>SAVE_VERSION && c[4] < 238)
 		return 2;
 	ver = c[4];
-	if (ver == 240)
-	{
+	if (ver == 240) {
 		ver = 65;
 		modver = 3;
+	}
+	else if (ver == 242) {
+		ver = 66;
+		modver = 5;
 	}
 
 	if (ver<34)
@@ -682,6 +685,15 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 			airMode = 0;
 		}
 		clear_sim();
+	}
+	if (modver >= 3 && replace)
+	{
+		memset(msindex, 0, sizeof(msindex));
+		memset(msnum, 0, sizeof(msnum));
+		memset(msvx, 0, sizeof(msvx));
+		memset(msvy, 0, sizeof(msvy));
+		memset(msrotation, 0, sizeof(msrotation));
+		oldnumballs = 0;
 	}
 	m = calloc(XRES*YRES, sizeof(int));
 
@@ -834,6 +846,18 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 					ttv = (d[p++])<<8;
 					ttv |= (d[p++]);
 					parts[i-1].life = ttv;
+					if (parts[i-1].type == PT_MOVS)
+					{
+						if (parts[i-1].life+oldnumballs < 256)
+						{
+							parts[i-1].life += oldnumballs;
+							msnum[parts[i-1].life]++;
+						}
+						else
+						{
+							parts[i-1].type = PT_NONE;
+						}
+					}
 				} else {
 					p+=2;
 				}
@@ -881,12 +905,19 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 		{
 			i = m[j];
 			ty = d[pty+j];
-			if (i && (ty==PT_PBCN || ty==PT_MOVS || ty==PT_ANIM || ((ty==PT_PSCN || ty==PT_NSCN) && modver >= 3)))
+			if (i && (ty==PT_PBCN || ty==PT_MOVS || ty==PT_ANIM || ((ty==PT_PSCN || ty==PT_NSCN) && modver >= 3) || ty==PT_PPTI || ty==PT_PPTO))
 			{
 				if (p >= size)
 					goto corrupt;
 				if (i <= NPART)
+				{
 					parts[i-1].tmp2 = d[p++];
+					if (parts[i-1].type == PT_MOVS && !parts[i-1].tmp && !parts[i-1].tmp2)
+					{
+						if (parts[i-1].life < 256)
+							msindex[parts[i-1].life] = i-1;
+					}
+				}
 				else
 					p++;
 			}
@@ -1176,42 +1207,12 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 
 	if (modver >= 3)
 	{
-		int oldnumballs = numballs;
 		if (p >= size)
 			goto version1;
-		if (replace)
-		{
-			memset(msindex, 0, sizeof(msindex));
-			memset(msnum, 0, sizeof(msnum));
-			memset(msvx, 0, sizeof(msvx));
-			memset(msvy, 0, sizeof(msvy));
-			memset(msrotation, 0, sizeof(msrotation));
-			oldnumballs = 0;
-		}
 		numballs += d[p++];
 		for (i = 0; i < NPART; i++)
 		{
-			if (parts[i].type == PT_MOVS &&!parts[i].tmp && !parts[i].tmp2)
-			{
-				if (parts[i].life+oldnumballs < 256)
-					msindex[parts[i].life+oldnumballs] = i;
-			}
-			if (parts[i].type == PT_MOVS)
-			{
-				if (parts[i].life+oldnumballs < 256)
-				{
-					parts[i].life += oldnumballs;
-					msnum[parts[i].life]++;
-				}
-				else
-				{
-					parts[i].type = PT_NONE;
-				}
-			}
-		}
-		for (i = 0; i < NPART; i++)
-		{
-			if (parts[i].type == PT_MOVS)
+			if (parts[i].type == PT_MOVS && parts[i].life >= oldnumballs)
 			{
 				if (parts[i].x < parts[msindex[parts[i].life]].x)
 				{
