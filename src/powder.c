@@ -2567,11 +2567,6 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 	memset(pmap, 0, sizeof(pmap));
 	memset(photons, 0, sizeof(photons));
 	NUM_PARTS = 0;
-	if (heatmode == 1)
-	{
-		highesttemp = MIN_TEMP;
-		lowesttemp = MAX_TEMP;
-	}
 	for (i=0; i<=parts_lastActiveIndex; i++)//the particle loop that resets the pmap/photon maps every frame, to update them.
 	{
 		if (parts[i].type)
@@ -2645,8 +2640,10 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 				}
 				drawtext(vid, x*CELL, y*CELL-2, "\x8D", 255, 255, 255, 128);
 			}
-	if (heatmode != 2)
+	if (heatmode == 1)
 	{
+		highesttemp = MIN_TEMP;
+		lowesttemp = MAX_TEMP;
 		for (i=0; i<=parts_lastActiveIndex; i++)
 		{
 			if (parts[i].temp > highesttemp)
