@@ -2645,13 +2645,24 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 				}
 				drawtext(vid, x*CELL, y*CELL-2, "\x8D", 255, 255, 255, 128);
 			}
-
+	if (heatmode != 2)
+	{
+		for (i=0; i<=parts_lastActiveIndex; i++)
+		{
+			if (parts[i].temp > highesttemp)
+				highesttemp = parts[i].temp;
+			if (parts[i].temp < lowesttemp)
+				lowesttemp = parts[i].temp;
+		}
+	}
 }
 
 void update_moving_solids()
 {
 	int i, bn;
 	if (sys_pause && !framerender)
+		return;
+	if (numballs == 0)
 		return;
 	for (bn = 0; bn < numballs; bn++)
 	{
@@ -2691,13 +2702,6 @@ void update_moving_solids()
 				parts[i].vx = msvx[bn];
 				parts[i].vy = msvy[bn];
 			}
-		}
-		if (heatmode != 2)
-		{
-			if (parts[i].temp > highesttemp)
-				highesttemp = parts[i].temp;
-			if (parts[i].temp < lowesttemp)
-				lowesttemp = parts[i].temp;
 		}
 	}
 }
