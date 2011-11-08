@@ -47,7 +47,12 @@ int update_VIRS(UPDATE_FUNC_ARGS) {
 							newtmp = 65280;
 						parts[r>>8].tmp2 = (r&0xFF);
 						parts[r>>8].tmp = newtmp;
-						part_change_type(r>>8,x,y,PT_VIRS);
+						if (parts[r>>8].temp < 305)
+							part_change_type(r>>8,x,y,PT_VRSS);
+						else if (parts[r>>8].temp > 673)
+							part_change_type(r>>8,x,y,PT_VRSG);
+						else
+							part_change_type(r>>8,x,y,PT_VIRS);
 					}
 				}
 			}
