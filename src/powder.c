@@ -905,6 +905,10 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 			parts[i].tmp2 = rand()%20;
 		}
 	}
+	if (t==PT_VIRS || t==PT_VRSG || t==PT_VRSS)
+	{
+		parts[i].tmp = 6400;
+	}
 	if (t==PT_LIGH && p==-2)
 	{
 	    switch (gravityMode)

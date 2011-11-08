@@ -446,7 +446,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	for (j=0; j<w*h; j++)
 	{
 		i = m[j];
-		if (i && (parts[i-1].type==PT_PBCN || parts[i-1].type==PT_MOVS || parts[i-1].type==PT_ANIM || parts[i-1].type==PT_PSCN || parts[i-1].type==PT_NSCN || parts[i-1].type==PT_PPTI || parts[i-1].type==PT_PPTO)) {
+		if (i && (parts[i-1].type==PT_PBCN || parts[i-1].type==PT_MOVS || parts[i-1].type==PT_ANIM || parts[i-1].type==PT_PSCN || parts[i-1].type==PT_NSCN || parts[i-1].type==PT_PPTI || parts[i-1].type==PT_PPTO || parts[i-1].type==PT_VIRS || parts[i-1].type==PT_VRSS || parts[i-1].type==PT_VRSG)) {
 			//Save tmp2
 			d[p++] = parts[i-1].tmp2;
 		}
@@ -905,7 +905,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 		{
 			i = m[j];
 			ty = d[pty+j];
-			if (i && (ty==PT_PBCN || ty==PT_MOVS || ty==PT_ANIM || ((ty==PT_PSCN || ty==PT_NSCN) && modver >= 3) || ty==PT_PPTI || ty==PT_PPTO))
+			if (i && (ty==PT_PBCN || ty==PT_MOVS || ty==PT_ANIM || ((ty==PT_PSCN || ty==PT_NSCN) && modver >= 3) || ty==PT_PPTI || ty==PT_PPTO || ty==PT_VIRS || ty==PT_VRSS || ty==PT_VRSG))
 			{
 				if (p >= size)
 					goto corrupt;
