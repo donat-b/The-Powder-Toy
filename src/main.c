@@ -613,7 +613,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 		modver = 3;
 	}
 	else if (ver == 242) {
-		ver = 65;
+		ver = 66;
 		modver = 5;
 	}
 	else if (ver == 243) {
