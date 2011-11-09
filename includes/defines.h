@@ -8,11 +8,12 @@
 #endif
  
 //VersionInfoStart
-#define SAVE_VERSION 66
-#define MINOR_VERSION 1
+#define SAVE_VERSION 68
+#define MINOR_VERSION 3
+#define BETA
+#define BUILD_NUM 109
 #define MOD_SAVE_VERSION 5
 #define MOD_MINOR_VERSION 0
-#define BUILD_NUM 102
 //VersionInfoEnd
 
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter.
