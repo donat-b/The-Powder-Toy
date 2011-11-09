@@ -12,7 +12,7 @@
 #define MINOR_VERSION 3
 #define BETA
 #define BUILD_NUM 109
-#define MOD_SAVE_VERSION 5
+#define MOD_SAVE_VERSION 6
 #define MOD_MINOR_VERSION 0
 //VersionInfoEnd
 

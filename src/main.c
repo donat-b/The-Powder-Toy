@@ -613,8 +613,12 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 		modver = 3;
 	}
 	else if (ver == 242) {
-		ver = 66;
+		ver = 65;
 		modver = 5;
+	}
+	else if (ver == 243) {
+		ver = 68;
+		modver = 6;
 	}
 
 	if (ver<34)
@@ -780,6 +784,14 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 			gol[x][y]=0;
 			if (j)
 			{
+				if (modver <= 5)
+				{
+					if (j >= 136 && j <= 140)
+						j += (PT_NORMAL_NUM - 136);
+					else if (j >= 142 && j <= 146)
+						j += (PT_NORMAL_NUM - 137);
+					d[p-1] = j;
+				}
 				if (pmap[y][x])
 				{
 					k = pmap[y][x]>>8;
