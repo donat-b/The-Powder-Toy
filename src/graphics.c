@@ -1924,9 +1924,6 @@ void render_parts(pixel *vid)
 					int legr, legg, legb;
 					pixel pc;
 					playerst *cplayer;
-					char buff[20];  //Buffer for HP
-					int s;
-					pixel pc;
 					if(t==PT_STKM)
 						cplayer = &player;
 					else if(t==PT_STKM2)

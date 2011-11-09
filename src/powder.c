@@ -243,7 +243,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 			if (!parts[r>>8].ctype)
 				parts[r>>8].ctype = parts[i].type;
 		}
-		if ((r&0xFF)==PT_PRTI || (r&0xFF)==PT_PPTI) && (parts[i].type==PT_PHOT || parts[i].type==PT_NEUT || parts[i].type==PT_ELEC))
+		if (((r&0xFF)==PT_PRTI || (r&0xFF)==PT_PPTI) && (parts[i].type==PT_PHOT || parts[i].type==PT_NEUT || parts[i].type==PT_ELEC))
 		{
 			int nnx, count;
 			for (count=0; count<8; count++)
@@ -873,6 +873,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		parts[i].tmp2 = 1;
 		parts[i].numframes = 0;
 		parts[i].life = 10;
+		parts[i].tmp = 1;
 	}
 	if (t==PT_MOVS) {
 		if (p == -2)
