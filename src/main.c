@@ -2918,7 +2918,7 @@ int main(int argc, char *argv[])
 
 					sprintf(nametext, "Molten %s", ptypes[parts[cr>>8].ctype].name);
 				}
-				else if ((cr&0xFF)==PT_PIPE && (parts[cr>>8].tmp&0xFF) > 0 && (parts[cr>>8].tmp&0xFF) < PT_NUM )
+				else if (alt_hud == 0 && (cr&0xFF)==PT_PIPE && (parts[cr>>8].tmp&0xFF) > 0 && (parts[cr>>8].tmp&0xFF) < PT_NUM )
 				{
 					char lowername[6];
 					int ix;
