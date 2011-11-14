@@ -123,11 +123,11 @@ void save_presets(int do_update)
 	//*/
 	int i;
 	char * outputdata;
-	cJSON *root, *userobj, *versionobj, *recobj;
+	cJSON *root, *userobj, *versionobj, *recobj, *graphicsobj;
 	FILE *f = fopen("powder.pref", "wb");
 	if(!f)
 		return;
-	root = cJSON_CreateObject();	
+	root = cJSON_CreateObject();
 	
 	cJSON_AddStringToObject(root, "Powder Toy Preferences", "Don't modify this file unless you know what you're doing. P.S: editing the admin/mod fields in your user info doesn't give you magical powers");
 	
@@ -177,9 +177,16 @@ void save_presets(int do_update)
 	cJSON_AddNumberToObject(recobj, "Total AFK Time", ((double)totalafktime/1000)+((double)afktime/1000)+((double)prevafktime/1000));
 	cJSON_AddNumberToObject(recobj, "Times Played", timesplayed);
 
+	//Display settings
+	cJSON_AddItemToObject(root, "graphics", graphicsobj=cJSON_CreateObject());
+	cJSON_AddNumberToObject(graphicsobj, "colour", colour_mode);
+	count = 0; i = 0; while(display_modes[i++]){ count++; }
+	cJSON_AddItemToObject(graphicsobj, "display", cJSON_CreateIntArray(display_modes, count));
+	count = 0; i = 0; while(render_modes[i++]){ count++; }
+	cJSON_AddItemToObject(graphicsobj, "render", cJSON_CreateIntArray(render_modes, count));
+	
 	//General settings
 	cJSON_AddStringToObject(root, "proxy", http_proxy_string);
-	cJSON_AddNumberToObject(root, "cmode", cmode);
 	cJSON_AddNumberToObject(root, "scale", sdl_scale);
 	cJSON_AddNumberToObject(root, "Debug mode", DEBUG_MODE);
 	
@@ -188,9 +195,9 @@ void save_presets(int do_update)
 	
 	fwrite(outputdata, 1, strlen(outputdata), f);
 	fclose(f);
-	/*/
-	//Old format, don't bother with this
-	FILE *f=fopen("powder.def", "wb");
+	free(outputdata);
+	//Old format, here for reference only
+	/*/FILE *f=fopen("powder.def", "wb");
 	unsigned char sig[4] = {0x50, 0x44, 0x65, 0x68};
 	unsigned char tmp = sdl_scale;
 	if (!f)
@@ -233,11 +240,11 @@ int sregexp(const char *str, char *pattern)
 
 void load_presets(void)
 {
-	int prefdatasize = 0, i;
+	int prefdatasize = 0, i, count;
 	char * prefdata = file_load("powder.pref", &prefdatasize);
 	if(prefdata)
 	{
-		cJSON *root, *userobj, *versionobj, *recobj, *tmpobj;
+		cJSON *root, *userobj, *versionobj, *recobj, *tmpobj, *graphicsobj, *tmparray;
 		root = cJSON_Parse(prefdata);
 		
 		//Read user data
@@ -302,13 +309,45 @@ void load_presets(void)
 			if(tmpobj = cJSON_GetObjectItem(recobj, "Times Played")) timesplayed = tmpobj->valueint;
 		}
 
+		//Read display settings
+		graphicsobj = cJSON_GetObjectItem(root, "graphics");
+		if(graphicsobj)
+		{
+			if(tmpobj = cJSON_GetObjectItem(graphicsobj, "colour")) colour_mode = tmpobj->valueint;
+			if(tmpobj = cJSON_GetObjectItem(graphicsobj, "display"))
+			{
+				count = cJSON_GetArraySize(tmpobj);
+				free(display_modes);
+				display_mode = 0;
+				display_modes = calloc(count+1, sizeof(unsigned int));
+				for(i = 0; i < count; i++)
+				{
+					display_mode |= cJSON_GetArrayItem(tmpobj, i)->valueint;
+					display_modes[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
+				}
+			}
+			if(tmpobj = cJSON_GetObjectItem(graphicsobj, "render"))
+			{
+				count = cJSON_GetArraySize(tmpobj);
+				free(render_modes);
+				render_mode = 0;
+				render_modes = calloc(count+1, sizeof(unsigned int));
+				for(i = 0; i < count; i++)
+				{
+					render_mode |= cJSON_GetArrayItem(tmpobj, i)->valueint;
+					render_modes[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
+				}
+			}
+		}
+		
 		//Read general settings
 		if((tmpobj = cJSON_GetObjectItem(root, "proxy")) && tmpobj->type == cJSON_String) strncpy(http_proxy_string, tmpobj->valuestring, 255); else http_proxy_string[0] = 0;
-		if(tmpobj = cJSON_GetObjectItem(root, "cmode")) cmode = tmpobj->valueint;
+		//TODO: Translate old cmode value into new *_mode values
 		if(tmpobj = cJSON_GetObjectItem(root, "scale")) sdl_scale = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "Debug mode")) DEBUG_MODE = tmpobj->valueint;
 		
 		cJSON_Delete(root);
+		free(prefdata);
 	} else { //Fallback and read from old def file
 		FILE *f=fopen("powder.def", "rb");
 		unsigned char sig[4], tmp;
@@ -357,7 +396,8 @@ void load_presets(void)
 		sdl_scale = (tmp == 2) ? 2 : 1;
 		if (fread(&tmp, 1, 1, f) != 1)
 			goto fail;
-		cmode = tmp%CM_COUNT;
+		//TODO: Translate old cmode value into new *_mode values
+		//cmode = tmp%CM_COUNT;
 		if (fread(&tmp, 1, 1, f) != 1)
 			goto fail;
 		svf_admin = tmp;

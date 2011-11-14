@@ -9,9 +9,9 @@
  
 //VersionInfoStart
 #define SAVE_VERSION 68
-#define MINOR_VERSION 3
+#define MINOR_VERSION 5
 #define BETA
-#define BUILD_NUM 109
+#define BUILD_NUM 111
 #define MOD_SAVE_VERSION 6
 #define MOD_MINOR_VERSION 0
 //VersionInfoEnd
@@ -88,8 +88,6 @@ extern unsigned char ZSIZE;
 #define CATALOGUE_S 6
 #define CATALOGUE_Z 3
 
-#define STAMP_X 5
-#define STAMP_Y 4
 #define STAMP_MAX 240
 
 #define NGOL 25
