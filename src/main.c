@@ -2395,7 +2395,7 @@ int main(int argc, char *argv[])
 				save_mode = 1;
 			}
 			//TODO: Superseded by new display mode switching, need some keyboard shortcuts
-			/*if (sdl_key=='1')
+			if (sdl_key=='1')
 			{
 				set_cmode(CM_VEL);
 			}
@@ -2438,7 +2438,7 @@ int main(int argc, char *argv[])
 			if (sdl_key=='1'&& (sdl_mod & (KMOD_SHIFT)) && DEBUG_MODE)
 			{
 				set_cmode(CM_LIFE);
-			}*/
+			}
 			if (sdl_key==SDLK_TAB)
 			{
 				CURRENT_BRUSH =(CURRENT_BRUSH + 1)%BRUSH_NUM ;
