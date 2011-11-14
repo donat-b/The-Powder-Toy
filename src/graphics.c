@@ -904,11 +904,8 @@ inline int drawchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a)
 	return x + w;
 }
 
-#if defined(WIN32) && !defined(__GNUC__)
-_inline int addchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a)
-#else
-inline int addchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a)
-#endif
+
+int addchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a)
 {
 	int i, j, w, bn = 0, ba = 0;
 	char *rp = font_data + font_ptrs[c];

@@ -121,7 +121,7 @@ void clean_text(char *text, int vwidth)
 void save_presets(int do_update)
 {
 	//*/
-	int i;
+	int i, count;
 	char * outputdata;
 	cJSON *root, *userobj, *versionobj, *recobj, *graphicsobj;
 	FILE *f = fopen("powder.pref", "wb");

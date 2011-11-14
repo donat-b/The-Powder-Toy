@@ -540,7 +540,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 			memcpy(d+p, signs[i].text, x);
 			p+=x;
 		}
-	d[p++] =  decorations_enable|((aheat_enable<<1)&0x02)|((hud_enable<<2)&0x04)|((water_equal_test<<3)&0x08)|((cmode<<4)&0xF0);
+	d[p++] =  decorations_enable|((aheat_enable<<1)&0x02)|((hud_enable<<2)&0x04)|((water_equal_test<<3)&0x08);//|((cmode<<4)&0xF0);
 	for (j=0; j<w*h; j++)
 	{
 		i = m[j];
@@ -1231,8 +1231,8 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 		aheat_enable = (d[p]>>1)&0x01;
 		hud_enable = (d[p]>>2)&0x01;
 		water_equal_test = (d[p]>>3)&0x01;
-		if (replace)
-			cmode = (d[p]>>4)&0x0F;
+		//if (replace)
+		//	cmode = (d[p]>>4)&0x0F;
 	}
 
 	if (modver >= 3)
