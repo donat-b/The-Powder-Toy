@@ -5320,6 +5320,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 	ui_edit box_R;
 	ui_edit box_G;
 	ui_edit box_B;
+	char frametext[64];
 
 	zoom_en = 0;
 	framenum = 0;
@@ -5406,6 +5407,8 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 		drawrect(vid_buf, -1, -1, XRES+1, YRES+1, 220, 220, 220, 255);
 		drawrect(vid_buf, -1, -1, XRES+2, YRES+2, 70, 70, 70, 255);
 		drawtext(vid_buf, 2, 388, "Welcome to the decoration editor v.3 (by cracker64) \n\nClicking the current color on the window will move it to the other side. Right click is eraser. ", 255, 255, 255, 255);
+		sprintf(frametext,"Frame %i/%i",framenum+1,maxframes);
+		drawtext(vid_buf, 2, 400, frametext, 255, 255, 255, 255);
 
 		if(!hidden)
 		{
@@ -5827,7 +5830,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 			zoom_en = 1;
 			hidden = 1;
 		}
-		if (sdl_key==SDLK_RIGHT && framenum < 24)
+		if (sdl_key==SDLK_RIGHT && framenum < maxframes-1)
 		{
 			int i;
 			framenum++;

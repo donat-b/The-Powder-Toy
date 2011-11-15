@@ -74,6 +74,7 @@ void luacon_open(){
 		{"reset_temp",&luatpt_reset_temp},
 		{"get_pressure",&luatpt_get_pressure},
 		{"get_gravity",&luatpt_get_gravity},
+		{"maxframes",&luatpt_maxframes},
 		{NULL,NULL}
 	};
 
@@ -1351,5 +1352,19 @@ int luatpt_get_gravity(lua_State* l)
 		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
 	lua_pushnumber(l, (double)gravx[y][x]);
 	return 1;
+}
+
+int luatpt_maxframes(lua_State* l)
+{
+	int newmaxframes = luaL_optint(l,1,1), i;
+	if (newmaxframes > 0)
+		maxframes = newmaxframes;
+	for (i = 0; i < NPART; i++)
+		if (parts[i].type == PT_ANIM)
+		{
+			kill_part(i);
+			create_part(-1, parts[i].x, parts[i].y, PT_ANIM);
+		}
+	return 0;
 }
 #endif

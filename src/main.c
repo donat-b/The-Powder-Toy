@@ -193,6 +193,7 @@ int locked = 0;
 int highesttemp = MAX_TEMP;
 int lowesttemp = MIN_TEMP;
 int heatmode = 0;
+int maxframes = 25;
 
 int drawinfo = 0;
 int currentTime = 0;
@@ -497,7 +498,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 				d[p++] = (parts[i-1].animations[k]&0x00FF0000)>>16;
 				d[p++] = (parts[i-1].animations[k]&0x0000FF00)>>8;
 				d[p++] = (parts[i-1].animations[k]&0x000000FF);
-				}
+			}
 		}
 	}
 	for (j=0; j<w*h; j++)
@@ -1020,7 +1021,9 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 				if (i <= NPART) {
 					int k;
 					parts[i-1].numframes = d[p++];
-					parts[i-1].animations = calloc(25,sizeof(unsigned int));
+					if (parts[i-1],numframes > maxframes)
+						maxframes = parts[i-1].numframes;
+					parts[i-1].animations = calloc(maxframes,sizeof(unsigned int));
 					memset(parts[i-1].animations, 0, sizeof(parts[i-1].animations));
 					for (k = 0; k <= parts[i-1].numframes; k++)
 					{

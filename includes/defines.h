@@ -176,6 +176,7 @@ extern int locked;
 extern int highesttemp;
 extern int lowesttemp;
 extern int heatmode;
+extern int maxframes;
 
 extern int drawinfo;
 extern int currentTime;

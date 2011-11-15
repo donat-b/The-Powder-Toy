@@ -868,7 +868,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 	}
 	if (t==PT_ANIM)
 	{
-		parts[i].animations = calloc(25,sizeof(unsigned int));
+		parts[i].animations = calloc(maxframes,sizeof(unsigned int));
 		memset(parts[i].animations, 0, sizeof(parts[i].animations));
 		parts[i].tmp2 = 1;
 		parts[i].numframes = 0;
