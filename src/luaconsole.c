@@ -72,6 +72,8 @@ void luacon_open(){
 		{"bubble",&luatpt_bubble},
 		{"reset_pressure",&luatpt_reset_pressure},
 		{"reset_temp",&luatpt_reset_temp},
+		{"get_pressure",&luatpt_get_pressure},
+		{"get_gravity",&luatpt_get_gravity},
 		{NULL,NULL}
 	};
 
@@ -1327,5 +1329,27 @@ int luatpt_reset_temp(lua_State* l)
 		}
 	}
 	return 0;
+}
+
+int luatpt_get_pressure(lua_State* l)
+{
+	int x, y, pressure;
+	x = luaL_optint(l, 1, 0);
+	y = luaL_optint(l, 2, 0);
+	if (x*CELL<0 || y*CELL<0 || x*CELL>=XRES || y*CELL>=YRES)
+		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
+	lua_pushnumber(l, pv[y][x]);
+	return 1;
+}
+
+int luatpt_get_gravity(lua_State* l)
+{
+	int x, y, pressure;
+	x = luaL_optint(l, 1, 0);
+	y = luaL_optint(l, 2, 0);
+	if (x*CELL<0 || y*CELL<0 || x*CELL>=XRES || y*CELL>=YRES)
+		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
+	lua_pushnumber(l, (double)gravx[y][x]);
+	return 1;
 }
 #endif
