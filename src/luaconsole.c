@@ -3,6 +3,7 @@
 #include <powder.h>
 #include <console.h>
 #include <luaconsole.h>
+#include <math.h>
 
 lua_State *l;
 int step_functions[6] = {0, 0, 0, 0, 0, 0};
@@ -66,6 +67,11 @@ void luacon_open(){
 		{"setwindowsize",&luatpt_setwindowsize},
 		{"watertest",&luatpt_togglewater},
 		{"screenshot",&luatpt_screenshot},
+		{"sound",&luatpt_sound},
+		{"load",&luatpt_load},
+		{"bubble",&luatpt_bubble},
+		{"reset_pressure",&luatpt_reset_pressure},
+		{"reset_temp",&luatpt_reset_temp},
 		{NULL,NULL}
 	};
 
@@ -1241,4 +1247,85 @@ int luatpt_screenshot(lua_State* l)
 	return luaL_error(l, "Screen buffer does not exist");
 }
 
+int luatpt_sound(lua_State* l)
+{
+	char *filename;
+	filename = mystrdup(luaL_optstring(l, 1, ""));
+	if (sound_enable) play_sound(filename);
+	else return luaL_error(l, "Audio device not available - cannot play sounds");
+	return 0;
+}
+
+int luatpt_load(lua_State* l)
+{
+	char *savenum;
+	savenum = mystrdup(luaL_optstring(l, 1, ""));
+	open_ui(vid_buf, savenum, NULL);
+	console_mode = 0;
+	return 0;
+}
+
+int luatpt_bubble(lua_State* l)
+{
+	int x = luaL_optint(l, 1, 0);
+	int y = luaL_optint(l, 1, 0);
+	int first, rem1, rem2, i;
+
+	first = create_part(-1, x+18, y, PT_SOAP);
+	rem1 = first;
+
+	for (i = 1; i<=30; i++)
+	{
+		rem2 = create_part(-1, x+18*cosf(i/5.0), y+18*sinf(i/5.0), PT_SOAP);
+
+		parts[rem1].ctype = 7;
+		parts[rem1].tmp = rem2;
+		parts[rem2].tmp2 = rem1;
+
+		rem1 = rem2;
+	}
+
+	parts[rem1].ctype = 7;
+	parts[rem1].tmp = first;
+	parts[first].tmp2 = rem1;
+	parts[first].ctype = 7;
+	return 0;
+}
+
+int luatpt_reset_pressure(lua_State* l)
+{
+	int nx, ny;
+	int x1, y1, width, height;
+	x1 = abs(luaL_optint(l, 1, 0));
+	y1 = abs(luaL_optint(l, 2, 0));
+	width = abs(luaL_optint(l, 3, XRES/CELL));
+	height = abs(luaL_optint(l, 4, YRES/CELL));
+	if(x1 > (XRES/CELL)-1)
+		x1 = (XRES/CELL)-1;
+	if(y1 > (YRES/CELL)-1)
+		y1 = (YRES/CELL)-1;
+	if(x1+width > (XRES/CELL)-1)
+		width = (XRES/CELL)-x1;
+	if(y1+height > (YRES/CELL)-1)
+		height = (YRES/CELL)-y1;
+	for (nx = x1; nx<x1+width; nx++)
+		for (ny = y1; ny<y1+height; ny++)
+		{
+			pv[ny][nx] = 0;
+		}
+	return 0;
+}
+
+int luatpt_reset_temp(lua_State* l)
+{
+	int i;
+	for (i=0; i<NPART; i++)
+	{
+		if (parts[i].type)
+		{
+			parts[i].temp = ptypes[parts[i].type].heat;
+		}
+	}
+	return 0;
+}
 #endif
