@@ -331,6 +331,17 @@ int graphics_SWCH(GRAPHICS_FUNC_ARGS)
 	}
 	return 0;
 }
+int graphics_ACTV(GRAPHICS_FUNC_ARGS)
+{
+	if(cpart->life >= 10)
+	{
+		*colr = 19;
+		*colg = 229;
+		*colb = 233;
+		*pixel_mode |= PMODE_GLOW;
+	}
+	return 0;
+}
 int graphics_THDR(GRAPHICS_FUNC_ARGS)
 {
 	*firea = 160;
