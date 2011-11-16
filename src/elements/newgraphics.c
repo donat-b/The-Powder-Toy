@@ -227,6 +227,19 @@ int graphics_INVS(GRAPHICS_FUNC_ARGS)
 	} 
 	return 0;
 }
+int graphics_PINV(GRAPHICS_FUNC_ARGS)
+{
+	if(cpart->life >= 10)
+	{
+		*cola = 100;
+		*colr = 15;
+		*colg = 0;
+		*colb = 150;
+		*pixel_mode &= PMODE;
+		*pixel_mode |= PMODE_BLEND;
+	} 
+	return 0;
+}
 int graphics_ACID(GRAPHICS_FUNC_ARGS)
 {
 	int s = cpart->life;

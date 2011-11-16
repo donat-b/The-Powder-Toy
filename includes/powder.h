@@ -224,7 +224,8 @@
 #define PT_VRSG PT_NORMAL_NUM+8
 #define PT_CURE PT_NORMAL_NUM+9
 #define PT_ACTV PT_NORMAL_NUM+10
-#define PT_NUM 170
+#define PT_PINV PT_NORMAL_NUM+11
+#define PT_NUM 171
 
 #define FAV_START 300
 #define FAV_MORE 300
@@ -341,6 +342,7 @@ int graphics_WIRE(GRAPHICS_FUNC_ARGS);
 int graphics_ACEL(GRAPHICS_FUNC_ARGS);
 int graphics_DCEL(GRAPHICS_FUNC_ARGS);
 int graphics_ACTV(GRAPHICS_FUNC_ARGS);
+int graphics_PINV(GRAPHICS_FUNC_ARGS);
 
 #define UPDATE_FUNC_ARGS int i, int x, int y, int surround_space, int nt
 // to call another update function with same arguments:
@@ -388,6 +390,7 @@ int update_GOO(UPDATE_FUNC_ARGS);
 int update_HSWC(UPDATE_FUNC_ARGS);
 int update_IRON(UPDATE_FUNC_ARGS);
 int update_ICEI(UPDATE_FUNC_ARGS);
+int update_PINV(UPDATE_FUNC_ARGS);
 int update_ISZ(UPDATE_FUNC_ARGS);
 int update_LCRY(UPDATE_FUNC_ARGS);
 int update_MORT(UPDATE_FUNC_ARGS);
@@ -690,6 +693,7 @@ static const part_type ptypes[PT_NUM] =
 	{"VRSG",	PIXPACK(0xFE68FE),	1.0f,	0.01f * CFDS,	0.99f,	0.30f,	-0.1f,	0.0f,	0.75f,	0.000f	* CFDS,	0,	500,	0,	0,	0,	0,	1,	1,		SC_GAS,			R_TEMP+500.0f+273.15f,	251,	"Gas Virus. Turns everything it touches into virus", ST_GAS, TYPE_GAS, &update_VIRS, NULL},
 	{"CURE",	PIXPACK(0x8BE700),	0.6f,	0.01f * CFDS,	0.98f,	0.95f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	2,	1,		0,	0,	20,	1,	1,	32,		SC_LIQUID,		R_TEMP+0.0f +273.15f,	251,	"Cure. Turns virus back into what it was before", ST_LIQUID, TYPE_LIQUID, NULL, NULL},
 	{"ACTV",	PIXPACK(0x005254),	0.0f,	0.00f * CFDS,	0.90f,  0.00f,  0.0f,	0.0f,	0.00f,  0.000f  * CFDS, 0,	0,		0,	0,	0,	1,	1,	100,	SC_POWERED,		R_TEMP+0.0f	+273.15f,	251,	"Activator. Can only be sparked when activated", ST_SOLID, TYPE_SOLID, &update_ACTV, &graphics_ACTV},
+	{"PINV",	PIXPACK(0x00CCCC),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	15,	1,	1,	100,	SC_POWERED,		R_TEMP+0.0f	+273.15f,	164,	"Invisible to everything when activated.", ST_SOLID, TYPE_SOLID | PROP_NEUTPASS, &update_PINV, &graphics_PINV},
 	//Name		Colour				Advec	Airdrag			Airloss	Loss	Collid	Grav	Diffus	Hotair			Fal	Burn	Exp	Mel	Hrd M	Use	Weight	Section			H						Ins		Description
 };
 
@@ -876,6 +880,7 @@ static part_transition ptransitions[PT_NUM] =
 	/* VRSG */ {IPL,	NT,			IPH,	NT,			673.0f,	PT_VRSG,	ITH,	NT},
 	/* CURE */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* ACTV */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* PINV */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 };
 #undef IPL
 #undef IPH

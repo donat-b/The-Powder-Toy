@@ -129,6 +129,7 @@ void init_can_move()
 		can_move[PT_FIGH][t] = 2;
 		//INVIS behaviour varies with pressure
 		can_move[t][PT_INVIS] = 3;
+		can_move[t][PT_PINV] = 3;
 		//stop CNCT being displaced by other particles
 		can_move[t][PT_CNCT] = 0;
 		//Powered void behaviour varies on powered state
@@ -179,6 +180,11 @@ int eval_move(int pt, int nx, int ny, unsigned *rr)
 		if ((r&0xFF)==PT_INVIS)
 		{
 			if (pv[ny/CELL][nx/CELL]>4.0f || pv[ny/CELL][nx/CELL]<-4.0f) result = 2;
+			else result = 0;
+		}
+		if ((r&0xFF)==PT_PINV)
+		{
+			if (parts[r>>8].life >= 10) result = 2;
 			else result = 0;
 		}
 		if ((r&0xFF)==PT_PVOD)
