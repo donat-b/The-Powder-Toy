@@ -1357,8 +1357,10 @@ int luatpt_get_gravity(lua_State* l)
 int luatpt_maxframes(lua_State* l)
 {
 	int newmaxframes = luaL_optint(l,1,1), i;
-	if (newmaxframes > 0)
+	if (newmaxframes > 0 && newmaxframes <= 256)
 		maxframes = newmaxframes;
+	else
+		return luaL_error(l, "must be between 1 and 256");
 	for (i = 0; i < NPART; i++)
 		if (parts[i].type == PT_ANIM)
 		{

@@ -1024,6 +1024,9 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 					if (parts[i-1].numframes > maxframes)
 						maxframes = parts[i-1].numframes;
 					parts[i-1].animations = calloc(maxframes,sizeof(unsigned int));
+					if (parts[i].animations == 0) {
+						goto corrupt;
+					}
 					memset(parts[i-1].animations, 0, sizeof(parts[i-1].animations));
 					for (k = 0; k <= parts[i-1].numframes; k++)
 					{
