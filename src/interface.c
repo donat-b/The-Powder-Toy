@@ -2859,17 +2859,22 @@ void set_cmode(int cm) // sets to given view mode
 	}
 	else if (cmode==CM_HEAT)
 	{
+		display_modes = calloc(1, sizeof(unsigned int));
+		display_mode |= DISPLAY_AIRH;
+		display_modes[0] = DISPLAY_AIRH;
 		colour_mode = COLOUR_HEAT;
 		strcpy(itc_msg, "Heat Display");
 	}
 	else if (cmode==CM_FANCY)
 	{
 		free(render_modes);
-		render_modes = calloc(2, sizeof(unsigned int));
+		render_modes = calloc(3, sizeof(unsigned int));
 		render_mode |= RENDER_FIRE;
 		render_mode |= RENDER_GLOW;
+		render_mode |= RENDER_BLUR;
 		render_modes[0] = RENDER_FIRE;
 		render_modes[1] = RENDER_GLOW;
+		render_modes[2] = RENDER_BLUR;
 		display_modes = calloc(1, sizeof(unsigned int));
 		display_mode |= DISPLAY_WARP;
 		display_modes[0] = DISPLAY_WARP;
