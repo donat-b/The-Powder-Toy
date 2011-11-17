@@ -2894,7 +2894,8 @@ void set_cmode(int cm) // sets to given view mode
 	{
 		free(display_modes);
 		display_modes = calloc(0, sizeof(unsigned int));
-		strcpy(itc_msg, "Not Implemented");//strcpy(itc_msg, "Heat Gradient Display");
+		colour_mode = COLOUR_GRAD;
+		strcpy(itc_msg, "Heat Gradient Display");
 	}
 	else if (cmode==CM_LIFE)
 	{
@@ -6431,10 +6432,10 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 	int display_optionicons[] = {10, 1, 0, 5, 6, 2, 4, -1};
 	char * display_desc[] = {"Air: Cracker", "Air: Pressure", "Air: Velocity", "Air: Heat", "Warp effect", "Persistent", "Blob", "Effects"};
 	
-	int colour_optioncount = 2;
-	int colour_options[] = {COLOUR_LIFE, COLOUR_HEAT};
-	int colour_optionicons[] = {9, 5};
-	char * colour_desc[] = {"Life", "Heat"};
+	int colour_optioncount = 3;
+	int colour_options[] = {COLOUR_LIFE, COLOUR_HEAT, COLOUR_GRAD};
+	int colour_optionicons[] = {9, 5, 8};
+	char * colour_desc[] = {"Life", "Heat", "Heat Gradient"};
 
 	yoffset = 16;
 	xoffset = 0;
