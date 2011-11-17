@@ -2813,25 +2813,22 @@ void set_cmode(int cm) // sets to given view mode
 	render_modes[0] = RENDER_BASC;
 	free(display_modes);
 	display_mode = 0;
-	display_modes = calloc(0, sizeof(unsigned int));
+	display_modes = calloc(1, sizeof(unsigned int));
 	itc = 51;
 	if (cmode==CM_VEL)
 	{
-		display_modes = calloc(1, sizeof(unsigned int));
 		display_mode |= DISPLAY_AIRV;
 		display_modes[0] = DISPLAY_AIRV;
 		strcpy(itc_msg, "Velocity Display");
 	}
 	else if (cmode==CM_PRESS)
 	{
-		display_modes = calloc(1, sizeof(unsigned int));
 		display_mode |= DISPLAY_AIRP;
 		display_modes[0] = DISPLAY_AIRP;
 		strcpy(itc_msg, "Pressure Display");
 	}
 	else if (cmode==CM_PERS)
 	{
-		display_modes = calloc(1, sizeof(unsigned int));
 		display_mode |= DISPLAY_PERS;
 		display_modes[0] = DISPLAY_PERS;
 		memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
@@ -2839,6 +2836,8 @@ void set_cmode(int cm) // sets to given view mode
 	}
 	else if (cmode==CM_FIRE)
 	{
+		free(display_modes);
+		display_modes = calloc(0, sizeof(unsigned int));
 		free(render_modes);
 		render_modes = calloc(2, sizeof(unsigned int));
 		render_mode |= RENDER_FIRE;
@@ -2852,14 +2851,15 @@ void set_cmode(int cm) // sets to given view mode
 	}
 	else if (cmode==CM_BLOB)
 	{
+		display_mode |= DISPLAY_BLOB;
+		display_modes[0] = DISPLAY_BLOB;
 		memset(fire_r, 0, sizeof(fire_r));
 		memset(fire_g, 0, sizeof(fire_g));
 		memset(fire_b, 0, sizeof(fire_b));
-		strcpy(itc_msg, "Not Implemented");//strcpy(itc_msg, "Blob Display");
+		strcpy(itc_msg, "Blob Display");
 	}
 	else if (cmode==CM_HEAT)
 	{
-		display_modes = calloc(1, sizeof(unsigned int));
 		display_mode |= DISPLAY_AIRH;
 		display_modes[0] = DISPLAY_AIRH;
 		colour_mode = COLOUR_HEAT;
@@ -2875,7 +2875,6 @@ void set_cmode(int cm) // sets to given view mode
 		render_modes[0] = RENDER_FIRE;
 		render_modes[1] = RENDER_GLOW;
 		render_modes[2] = RENDER_BLUR;
-		display_modes = calloc(1, sizeof(unsigned int));
 		display_mode |= DISPLAY_WARP;
 		display_modes[0] = DISPLAY_WARP;
 		memset(fire_r, 0, sizeof(fire_r));
@@ -2885,18 +2884,24 @@ void set_cmode(int cm) // sets to given view mode
 	}
 	else if (cmode==CM_NOTHING)
 	{
+		free(display_modes);
+		display_modes = calloc(0, sizeof(unsigned int));
 		render_mode = RENDER_NONE;
 		render_modes[0] = RENDER_NONE;
 		strcpy(itc_msg, "Nothing Display");
 	}
 	else if (cmode==CM_GRAD)
 	{
+		free(display_modes);
+		display_modes = calloc(0, sizeof(unsigned int));
 		strcpy(itc_msg, "Not Implemented");//strcpy(itc_msg, "Heat Gradient Display");
 	}
 	else if (cmode==CM_LIFE)
 	{
 		if (DEBUG_MODE) //can only get to Life view in debug mode
 		{
+			free(display_modes);
+			display_modes = calloc(0, sizeof(unsigned int));
 			colour_mode = COLOUR_LIFE;
 			strcpy(itc_msg, "Life Display");
 		}
@@ -2907,7 +2912,6 @@ void set_cmode(int cm) // sets to given view mode
 	}
 	else if (cmode==CM_CRACK)
 	{
-		display_modes = calloc(1, sizeof(unsigned int));
 		display_mode |= DISPLAY_AIRC;
 		display_modes[0] = DISPLAY_AIRC;
 		strcpy(itc_msg, "Alternate Velocity Display");
@@ -6374,15 +6378,15 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 	ui_checkbox *render_cb;
 	ui_checkbox *display_cb;
 	ui_checkbox *colour_cb;
-	int render_optioncount = 7;
-	int render_options[] = {RENDER_EFFE, RENDER_GLOW, RENDER_FIRE, RENDER_BLUR, RENDER_BASC, RENDER_BLOB, RENDER_NONE};
+	int render_optioncount = 6;
+	int render_options[] = {RENDER_EFFE, RENDER_GLOW, RENDER_FIRE, RENDER_BLUR, RENDER_BASC, RENDER_NONE};
 	int render_optionicons[] = {0xCC, 0xC3, 0x9B, 0xC4, 0xD1, 0xD1, 0xD1};
-	char * render_desc[] = {"Effects", "Glow", "Fire", "Blur", "Basic", "Blob", "None"};
+	char * render_desc[] = {"Effects", "Glow", "Fire", "Blur", "Basic", "None"};
 	
-	int display_optioncount = 7;
-	int display_options[] = {DISPLAY_AIRC, DISPLAY_AIRP, DISPLAY_AIRV, DISPLAY_AIRH, DISPLAY_WARP, DISPLAY_PERS, DISPLAY_EFFE};
-	int display_optionicons[] = {0xCC, 0xC3, 0x9B, 0xC4, 0xD1, 0xD1, 0xD1};
-	char * display_desc[] = {"Air: Cracker", "Air: Pressure", "Air: Velocity", "Air: Heat", "Warp effect", "Persistent", "Effects"};
+	int display_optioncount = 8;
+	int display_options[] = {DISPLAY_AIRC, DISPLAY_AIRP, DISPLAY_AIRV, DISPLAY_AIRH, DISPLAY_WARP, DISPLAY_PERS, DISPLAY_BLOB, DISPLAY_EFFE};
+	int display_optionicons[] = {0xCC, 0xC3, 0x9B, 0xC4, 0xD1, 0xD1, 0xD1, 0xD1};
+	char * display_desc[] = {"Air: Cracker", "Air: Pressure", "Air: Velocity", "Air: Heat", "Warp effect", "Persistent", "Blob", "Effects"};
 	
 	int colour_optioncount = 2;
 	int colour_options[] = {COLOUR_LIFE, COLOUR_HEAT};

@@ -1884,8 +1884,6 @@ void render_parts(pixel *vid)
 					pixel_mode |= PMODE_FLAT;
 				if(pixel_mode & PMODE_GLOW && !(render_mode & PMODE_GLOW))
 					pixel_mode |= PMODE_FLAT;
-				if (render_mode & PMODE_BLOB)
-					pixel_mode |= PMODE_BLOB;
 					
 				pixel_mode &= render_mode;
 				
@@ -2138,7 +2136,7 @@ void render_parts(pixel *vid)
 					addpixel(vid, nx, ny, colr, colg, colb, cola);
 #endif
 				}
-				if(pixel_mode & PMODE_BLOB)
+				if(display_mode & DISPLAY_BLOB)
 				{
 #ifdef OGLR
                     blobV[cblobV++] = nx;
@@ -2806,7 +2804,7 @@ void draw_walls(pixel *vid)
 								vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = PIXPACK(0x242424);
 					}
 				}
-				if (render_mode & PMODE_BLOB)
+				if (display_mode & DISPLAY_BLOB)
 				{
 					// when in blob view, draw some blobs...
 					if (wtypes[wt].drawstyle==1)
