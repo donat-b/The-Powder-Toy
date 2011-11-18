@@ -2861,6 +2861,7 @@ void set_cmode(int cm) // sets to given view mode
 	}
 	else if (cmode==CM_HEAT)
 	{
+		free(render_modes);
 		render_modes = calloc(1, sizeof(unsigned int));
 		render_mode = RENDER_BASC;
 		render_modes[0] = RENDER_BASC;
@@ -2888,13 +2889,15 @@ void set_cmode(int cm) // sets to given view mode
 	{
 		free(display_modes);
 		display_modes = calloc(0, sizeof(unsigned int));
+		free(render_modes);
 		render_modes = calloc(1, sizeof(unsigned int));
-		render_mode = RENDER_NONE;
-		render_modes[0] = RENDER_NONE;
+		render_mode = RENDER_BASC;
+		render_modes[0] = RENDER_BASC;
 		strcpy(itc_msg, "Nothing Display");
 	}
 	else if (cmode==CM_GRAD)
 	{
+		free(render_modes);
 		render_modes = calloc(1, sizeof(unsigned int));
 		render_mode = RENDER_BASC;
 		render_modes[0] = RENDER_BASC;
@@ -2907,6 +2910,7 @@ void set_cmode(int cm) // sets to given view mode
 	{
 		if (DEBUG_MODE) //can only get to Life view in debug mode
 		{
+			free(render_modes);
 			render_modes = calloc(1, sizeof(unsigned int));
 			render_mode = RENDER_BASC;
 			render_modes[0] = RENDER_BASC;

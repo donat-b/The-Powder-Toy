@@ -1993,6 +1993,7 @@ void render_parts(pixel *vid)
 				if(cola>255) cola = 255;
 				else if(cola<0) cola = 0;
 	#endif
+
 				//Pixel rendering
 				if (pixel_mode & EFFECT_GRAVIN)
 				{
