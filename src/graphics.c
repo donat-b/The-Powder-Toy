@@ -1732,7 +1732,7 @@ GLfloat lineC[(((YRES*XRES)*2)*6)];
 #endif
 void render_parts(pixel *vid)
 {
-	int deca, decr, decg, decb, cola, colr, colg, colb, firea, firer, fireg, fireb, pixel_mode, q, i, t, nx, ny, x, y, caddress;
+	int deca, decr, decg, decb, cola, colr, colg, colb, firea, firer, fireg, fireb, pixel_mode, q, i, t, nx, ny, x, y, caddress, orbd[4] = {0, 0, 0, 0}, orbl[4] = {0, 0, 0, 0};
 	float gradv, flicker, fnx, fny;
 #ifdef OGLR
 	int cfireV = 0, cfireC = 0, cfire = 0;
@@ -1869,11 +1869,15 @@ void render_parts(pixel *vid)
 				{
 					int lifemod = ((parts[i].tmp2>10?10:parts[i].tmp2)*10);
 					colr = 155 + lifemod;
+					if (parts[i].tmp2 < 10)
+						pixel_mode &= ~EFFECT_GRAVIN;
 				}
 				if (parts[i].type == PT_PPTO)
 				{
 					int lifemod = ((parts[i].tmp2>10?10:parts[i].tmp2)*20);
 					colb = 55 + lifemod;
+					if (parts[i].tmp2 < 10)
+						pixel_mode &= ~EFFECT_GRAVOUT;
 				}
 				
 				if(pixel_mode & FIRE_ADD && !(render_mode & FIRE_ADD))
@@ -1912,7 +1916,7 @@ void render_parts(pixel *vid)
 					cola = 255;
 					if(pixel_mode & (FIREMODE | PMODE_GLOW)) pixel_mode = (pixel_mode & ~(FIREMODE|PMODE_GLOW)) | PMODE_BLUR;
 				}
-				if (colour_mode & COLOUR_GRAD)
+				else if (colour_mode & COLOUR_GRAD)
 				{
 					float frequency = 0.05;
 					int q = parts[i].temp-40;
@@ -1989,8 +1993,67 @@ void render_parts(pixel *vid)
 				if(cola>255) cola = 255;
 				else if(cola<0) cola = 0;
 	#endif
-					
 				//Pixel rendering
+				if (pixel_mode & EFFECT_GRAVIN)
+				{
+					int nxo = 0;
+					int nyo = 0;
+					int r;
+					int fire_rv = 0;
+					float drad = 0.0f;
+					float ddist = 0.0f;
+					orbitalparts_get(parts[i].life, parts[i].ctype, orbd, orbl);
+					for (r = 0; r < 4; r++) {
+						ddist = ((float)orbd[r])/16.0f;
+						drad = (M_PI * ((float)orbl[r]) / 180.0f)*1.41f;
+						nxo = ddist*cos(drad);
+						nyo = ddist*sin(drad);
+						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES)
+							addpixel(vid, nx+nxo, ny+nyo, PIXR(ptypes[t].pcolors), PIXG(ptypes[t].pcolors), PIXB(ptypes[t].pcolors), 255-orbd[r]);
+					}
+				}
+				if (pixel_mode & EFFECT_GRAVOUT)
+				{
+					int nxo = 0;
+					int nyo = 0;
+					int r;
+					int fire_bv = 0;
+					float drad = 0.0f;
+					float ddist = 0.0f;
+					orbitalparts_get(parts[i].life, parts[i].ctype, orbd, orbl);
+					for (r = 0; r < 4; r++) {
+						ddist = ((float)orbd[r])/16.0f;
+						drad = (M_PI * ((float)orbl[r]) / 180.0f)*1.41f;
+						nxo = ddist*cos(drad);
+						nyo = ddist*sin(drad);
+						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES)
+							addpixel(vid, nx+nxo, ny+nyo, PIXR(ptypes[t].pcolors), PIXG(ptypes[t].pcolors), PIXB(ptypes[t].pcolors), 255-orbd[r]);
+					}
+				}
+				if (pixel_mode & EFFECT_LINES)
+				{
+					if (mousex==(nx) && mousey==(ny) && DEBUG_MODE)//draw lines connecting wifi/portal channels
+					{
+						int z;
+						int type = parts[i].type;
+						int type2 = parts[i].type;
+						if (type == PT_PRTI || type == PT_PPTI)
+							type = PT_PRTO;
+						else if (type == PT_PRTO || type == PT_PPTO)
+							type = PT_PRTI;
+						if (type == PT_PRTI)
+							type2 = PT_PPTI;
+						else if (type == PT_PRTO)
+							type2 = PT_PPTO;
+						for (z = 0; z<NPART; z++) {
+							if (parts[z].type)
+							{
+								if ((parts[z].type==type||parts[z].type==type2)&&parts[z].tmp==parts[i].tmp)
+									xor_line(nx,ny,(int)(parts[z].x+0.5f),(int)(parts[z].y+0.5f),vid);
+							}
+						}
+					}
+				}
 				if(pixel_mode & PSPEC_STICKMAN)
 				{
 					char buff[20];  //Buffer for HP

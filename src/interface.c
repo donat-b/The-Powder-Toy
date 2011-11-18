@@ -2808,28 +2808,29 @@ void set_cmode(int cm) // sets to given view mode
 	int cmode = cm;
 	colour_mode = COLOUR_DEFAULT;
 	free(render_modes);
-	render_modes = calloc(1, sizeof(unsigned int));
-	render_mode = RENDER_BASC;
+	render_modes = calloc(2, sizeof(unsigned int));
+	render_mode = RENDER_BASC | RENDER_EFFE;
 	render_modes[0] = RENDER_BASC;
+	render_modes[1] = RENDER_EFFE;
 	free(display_modes);
 	display_mode = 0;
 	display_modes = calloc(1, sizeof(unsigned int));
 	itc = 51;
 	if (cmode==CM_VEL)
 	{
-		display_mode |= DISPLAY_AIRV;
+		display_mode = DISPLAY_AIRV;
 		display_modes[0] = DISPLAY_AIRV;
 		strcpy(itc_msg, "Velocity Display");
 	}
 	else if (cmode==CM_PRESS)
 	{
-		display_mode |= DISPLAY_AIRP;
+		display_mode = DISPLAY_AIRP;
 		display_modes[0] = DISPLAY_AIRP;
 		strcpy(itc_msg, "Pressure Display");
 	}
 	else if (cmode==CM_PERS)
 	{
-		display_mode |= DISPLAY_PERS;
+		display_mode = DISPLAY_PERS;
 		display_modes[0] = DISPLAY_PERS;
 		memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
 		strcpy(itc_msg, "Persistent Display");
@@ -2839,11 +2840,11 @@ void set_cmode(int cm) // sets to given view mode
 		free(display_modes);
 		display_modes = calloc(0, sizeof(unsigned int));
 		free(render_modes);
-		render_modes = calloc(2, sizeof(unsigned int));
-		render_mode |= RENDER_FIRE;
-		render_mode |= RENDER_GLOW;
+		render_modes = calloc(3, sizeof(unsigned int));
+		render_mode = RENDER_FIRE | RENDER_GLOW | RENDER_EFFE;
 		render_modes[0] = RENDER_FIRE;
 		render_modes[1] = RENDER_GLOW;
+		render_modes[2] = RENDER_EFFE;
 		memset(fire_r, 0, sizeof(fire_r));
 		memset(fire_g, 0, sizeof(fire_g));
 		memset(fire_b, 0, sizeof(fire_b));
@@ -2851,7 +2852,7 @@ void set_cmode(int cm) // sets to given view mode
 	}
 	else if (cmode==CM_BLOB)
 	{
-		display_mode |= DISPLAY_BLOB;
+		display_mode = DISPLAY_BLOB;
 		display_modes[0] = DISPLAY_BLOB;
 		memset(fire_r, 0, sizeof(fire_r));
 		memset(fire_g, 0, sizeof(fire_g));
@@ -2860,7 +2861,10 @@ void set_cmode(int cm) // sets to given view mode
 	}
 	else if (cmode==CM_HEAT)
 	{
-		display_mode |= DISPLAY_AIRH;
+		render_modes = calloc(1, sizeof(unsigned int));
+		render_mode = RENDER_BASC;
+		render_modes[0] = RENDER_BASC;
+		display_mode = DISPLAY_AIRH;
 		display_modes[0] = DISPLAY_AIRH;
 		colour_mode = COLOUR_HEAT;
 		strcpy(itc_msg, "Heat Display");
@@ -2869,13 +2873,11 @@ void set_cmode(int cm) // sets to given view mode
 	{
 		free(render_modes);
 		render_modes = calloc(3, sizeof(unsigned int));
-		render_mode |= RENDER_FIRE;
-		render_mode |= RENDER_GLOW;
-		render_mode |= RENDER_BLUR;
+		render_mode = RENDER_FIRE | RENDER_GLOW | RENDER_BLUR;
 		render_modes[0] = RENDER_FIRE;
 		render_modes[1] = RENDER_GLOW;
 		render_modes[2] = RENDER_BLUR;
-		display_mode |= DISPLAY_WARP;
+		display_mode = DISPLAY_WARP;
 		display_modes[0] = DISPLAY_WARP;
 		memset(fire_r, 0, sizeof(fire_r));
 		memset(fire_g, 0, sizeof(fire_g));
@@ -2886,12 +2888,16 @@ void set_cmode(int cm) // sets to given view mode
 	{
 		free(display_modes);
 		display_modes = calloc(0, sizeof(unsigned int));
+		render_modes = calloc(1, sizeof(unsigned int));
 		render_mode = RENDER_NONE;
 		render_modes[0] = RENDER_NONE;
 		strcpy(itc_msg, "Nothing Display");
 	}
 	else if (cmode==CM_GRAD)
 	{
+		render_modes = calloc(1, sizeof(unsigned int));
+		render_mode = RENDER_BASC;
+		render_modes[0] = RENDER_BASC;
 		free(display_modes);
 		display_modes = calloc(0, sizeof(unsigned int));
 		colour_mode = COLOUR_GRAD;
@@ -2901,6 +2907,9 @@ void set_cmode(int cm) // sets to given view mode
 	{
 		if (DEBUG_MODE) //can only get to Life view in debug mode
 		{
+			render_modes = calloc(1, sizeof(unsigned int));
+			render_mode = RENDER_BASC;
+			render_modes[0] = RENDER_BASC;
 			free(display_modes);
 			display_modes = calloc(0, sizeof(unsigned int));
 			colour_mode = COLOUR_LIFE;

@@ -9,6 +9,9 @@
 int update_PRTO(UPDATE_FUNC_ARGS) {
 	int r, nnx, rx, ry, np, fe = 0;
 	int count = 0;
+	parts[i].tmp = (int)((parts[i].temp-73.15f)/100+1);
+	if (parts[i].tmp>=CHANNELS) parts[i].tmp = CHANNELS-1;
+	else if (parts[i].tmp<0) parts[i].tmp = 0;
 	if (parts[i].type == PT_PPTO)
 	{
 		if (parts[i].tmp2>0 && parts[i].tmp2!=10)
@@ -38,9 +41,6 @@ int update_PRTO(UPDATE_FUNC_ARGS) {
 		if (parts[i].tmp2 < 10)
 			return 0;
 	}
-	parts[i].tmp = (int)((parts[i].temp-73.15f)/100+1);
-	if (parts[i].tmp>=CHANNELS) parts[i].tmp = CHANNELS-1;
-	else if (parts[i].tmp<0) parts[i].tmp = 0;
 	for (count=0; count<8; count++)
 	{
 		rx = portal_rx[count];
