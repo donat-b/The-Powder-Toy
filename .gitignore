@@ -1,6 +1,7 @@
 *.*.swp
 .directory
 powder.def
+powder.pref
 gmon.out
 *.*.orig
 build/stamps/*
@@ -14,3 +15,9 @@ src/python/stdlib/*
 /stamps/
 /Debug/
 /ipch/
+*.*sdf
+*.sln
+*.suo
+*.vcxproj*
+*.lua
+elements.txt
