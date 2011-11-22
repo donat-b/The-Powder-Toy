@@ -3210,11 +3210,21 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags)
 			f = 1;
 	}
 	else
-		for (j=-ry; j<=ry; j++)
-			for (i=-rx; i<=rx; i++)
-				if (InCurrentBrush(i ,j ,rx ,ry))
-					if (create_part_add_props(-2, x+i, y+j, c, rx, ry)==-1)
-						f = 1;
+	{
+		int tempy = y, i, j;
+        for (i = x - rx; i <= x; i++) {
+			while (InCurrentBrush(i-x,tempy-y,rx,ry)) {
+				tempy = tempy - 1;
+			}
+            tempy = tempy + 1;
+            for (j = tempy; j <= 2 * y - tempy; j++) {
+				if (create_part_add_props(-2, i, j, c, rx, ry)==-1)
+					f = 1;
+				if (create_part_add_props(-2, 2*x-i, j, c, rx, ry)==-1)
+					f = 1;
+            }
+        }
+	}
 	return !f;
 }
 
@@ -3222,7 +3232,7 @@ void create_moving_solid(int x, int y, int rx, int ry)
 {
 	int j, i;
 	creatingsolid = 0;
-	if (CURRENT_BRUSH == SQUARE_BRUSH || rx < 3 || ry < 3 || numballs >= 255)
+	if (rx < 3 || ry < 3 || numballs >= 255)
 		return;
 	create_part(-2, x, y, PT_MOVS);
 	if (!creatingsolid)
@@ -3239,10 +3249,10 @@ int InCurrentBrush(int i, int j, int rx, int ry)
 	switch(CURRENT_BRUSH)
 	{
 		case CIRCLE_BRUSH:
-			return (pow(i,2)*pow(ry,2)+pow(j,2)*pow(rx,2)<=pow(rx,2)*pow(ry,2));
+			return (pow((double)i,2)*pow((double)ry,2)+pow((double)j,2)*pow((double)rx,2)<=pow((double)rx,2)*pow((double)ry,2));
 			break;
 		case SQUARE_BRUSH:
-			return (i*j<=ry*rx);
+			return (abs(i) <= rx && abs(j) <= ry);
 			break;
 		case TRI_BRUSH:
 			return (j <= ry ) && ( j >= (((-2.0*ry)/rx)*i) -ry) && ( j >= (((-2.0*ry)/(-rx))*i)-ry ) ;
