@@ -360,6 +360,7 @@ struct playerst
 };
 typedef struct playerst playerst;
 
+int update_ACEL(UPDATE_FUNC_ARGS);
 int update_ACID(UPDATE_FUNC_ARGS);
 int update_ACTV(UPDATE_FUNC_ARGS);
 int update_ANAR(UPDATE_FUNC_ARGS);
@@ -368,15 +369,27 @@ int update_AMTR(UPDATE_FUNC_ARGS);
 int update_ARAY(UPDATE_FUNC_ARGS);
 int update_BCLN(UPDATE_FUNC_ARGS);
 int update_BCOL(UPDATE_FUNC_ARGS);
+int update_BIZR(UPDATE_FUNC_ARGS);
 int update_BMTL(UPDATE_FUNC_ARGS);
 int update_BOMB(UPDATE_FUNC_ARGS);
 int update_BOYL(UPDATE_FUNC_ARGS);
 int update_BTRY(UPDATE_FUNC_ARGS);
 int update_C5(UPDATE_FUNC_ARGS);
+int update_CAUS(UPDATE_FUNC_ARGS);
+int update_CBNW(UPDATE_FUNC_ARGS);
 int update_CLNE(UPDATE_FUNC_ARGS);
+int update_CLST(UPDATE_FUNC_ARGS);
+int update_CO2(UPDATE_FUNC_ARGS);
 int update_COAL(UPDATE_FUNC_ARGS);
+int update_CONV(UPDATE_FUNC_ARGS);
+int update_DCEL(UPDATE_FUNC_ARGS);
+int update_DEST(UPDATE_FUNC_ARGS);
 int update_DEUT(UPDATE_FUNC_ARGS);
+int update_DLAY(UPDATE_FUNC_ARGS);
 int update_DSTW(UPDATE_FUNC_ARGS);
+int update_ELEC(UPDATE_FUNC_ARGS);
+int update_EMP(UPDATE_FUNC_ARGS);
+int update_FIGH(UPDATE_FUNC_ARGS);
 int update_FOG(UPDATE_FUNC_ARGS);
 int update_FRZW(UPDATE_FUNC_ARGS);
 int update_FRZZ(UPDATE_FUNC_ARGS);
@@ -384,19 +397,28 @@ int update_FSEP(UPDATE_FUNC_ARGS);
 int update_FUSE(UPDATE_FUNC_ARGS);
 int update_FIRW(UPDATE_FUNC_ARGS);
 int update_FWRK(UPDATE_FUNC_ARGS);
+int update_GBMB(UPDATE_FUNC_ARGS);
 int update_GLAS(UPDATE_FUNC_ARGS);
 int update_GLOW(UPDATE_FUNC_ARGS);
 int update_GOO(UPDATE_FUNC_ARGS);
+int update_GPMP(UPDATE_FUNC_ARGS);
+int update_H2(UPDATE_FUNC_ARGS);
 int update_HSWC(UPDATE_FUNC_ARGS);
 int update_IRON(UPDATE_FUNC_ARGS);
 int update_ICEI(UPDATE_FUNC_ARGS);
 int update_PINV(UPDATE_FUNC_ARGS);
 int update_ISZ(UPDATE_FUNC_ARGS);
 int update_LCRY(UPDATE_FUNC_ARGS);
+int update_LIGH(UPDATE_FUNC_ARGS);
+int update_MERC(UPDATE_FUNC_ARGS);
 int update_MORT(UPDATE_FUNC_ARGS);
 int update_MOVS(UPDATE_FUNC_ARGS);
+int update_NBHL(UPDATE_FUNC_ARGS);
 int update_NEUT(UPDATE_FUNC_ARGS);
+int update_NWHL(UPDATE_FUNC_ARGS);
 int update_NPTCT(UPDATE_FUNC_ARGS);
+int update_O2(UPDATE_FUNC_ARGS);
+int update_PBCN(UPDATE_FUNC_ARGS);
 int update_PCLN(UPDATE_FUNC_ARGS);
 int update_PHOT(UPDATE_FUNC_ARGS);
 int update_PIPE(UPDATE_FUNC_ARGS);
@@ -404,6 +426,7 @@ int update_PLNT(UPDATE_FUNC_ARGS);
 int update_PLUT(UPDATE_FUNC_ARGS);
 int update_PRTI(UPDATE_FUNC_ARGS);
 int update_PRTO(UPDATE_FUNC_ARGS);
+int update_PVOD(UPDATE_FUNC_ARGS);
 int update_PYRO(UPDATE_FUNC_ARGS);
 int update_PUMP(UPDATE_FUNC_ARGS);
 int update_QRTZ(UPDATE_FUNC_ARGS);
@@ -414,12 +437,14 @@ int update_SHLD3(UPDATE_FUNC_ARGS);
 int update_SHLD4(UPDATE_FUNC_ARGS);
 int update_SING(UPDATE_FUNC_ARGS);
 int update_SLTW(UPDATE_FUNC_ARGS);
+int update_SOAP(UPDATE_FUNC_ARGS);
 int update_SPAWN(UPDATE_FUNC_ARGS);
 int update_SPAWN2(UPDATE_FUNC_ARGS);
 int update_SPNG(UPDATE_FUNC_ARGS);
 int update_SPRK(UPDATE_FUNC_ARGS);
 int update_STKM(UPDATE_FUNC_ARGS);
 int update_STKM2(UPDATE_FUNC_ARGS);
+int update_STOR(UPDATE_FUNC_ARGS);
 int update_SWCH(UPDATE_FUNC_ARGS);
 int update_THDR(UPDATE_FUNC_ARGS);
 int update_THRM(UPDATE_FUNC_ARGS);
@@ -429,34 +454,9 @@ int update_VIRS(UPDATE_FUNC_ARGS);
 int update_WARP(UPDATE_FUNC_ARGS);
 int update_WATR(UPDATE_FUNC_ARGS);
 int update_WIFI(UPDATE_FUNC_ARGS);
+int update_WIRE(UPDATE_FUNC_ARGS);
 int update_WTRV(UPDATE_FUNC_ARGS);
 int update_YEST(UPDATE_FUNC_ARGS);
-int update_SOAP(UPDATE_FUNC_ARGS);
-int update_O2(UPDATE_FUNC_ARGS);
-int update_H2(UPDATE_FUNC_ARGS);
-int update_NBHL(UPDATE_FUNC_ARGS);
-int update_NWHL(UPDATE_FUNC_ARGS);
-int update_MERC(UPDATE_FUNC_ARGS);
-int update_PBCN(UPDATE_FUNC_ARGS);
-int update_GPMP(UPDATE_FUNC_ARGS);
-int update_CLST(UPDATE_FUNC_ARGS);
-int update_DLAY(UPDATE_FUNC_ARGS);
-int update_WIRE(UPDATE_FUNC_ARGS);
-int update_GBMB(UPDATE_FUNC_ARGS);
-int update_CO2(UPDATE_FUNC_ARGS);
-int update_CBNW(UPDATE_FUNC_ARGS);
-int update_STOR(UPDATE_FUNC_ARGS);
-int update_BIZR(UPDATE_FUNC_ARGS);
-int update_PVOD(UPDATE_FUNC_ARGS);
-int update_CONV(UPDATE_FUNC_ARGS);
-int update_CAUS(UPDATE_FUNC_ARGS);
-int update_DEST(UPDATE_FUNC_ARGS);
-int update_EMP(UPDATE_FUNC_ARGS);
-int update_LIGH(UPDATE_FUNC_ARGS);
-int update_FIGH(UPDATE_FUNC_ARGS);
-int update_ELEC(UPDATE_FUNC_ARGS);
-int update_ACEL(UPDATE_FUNC_ARGS);
-int update_DCEL(UPDATE_FUNC_ARGS);
 
 int update_MISC(UPDATE_FUNC_ARGS);
 int update_legacy_PYRO(UPDATE_FUNC_ARGS);
@@ -570,8 +570,8 @@ static const part_type ptypes[PT_NUM] =
 	{"GLAS",	PIXPACK(0x404040),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_SOLIDS,		R_TEMP+0.0f	+273.15f,	150,	"Solid. Meltable. Shatters under pressure", ST_SOLID, TYPE_SOLID | PROP_NEUTPASS | PROP_HOT_GLOW, &update_GLAS, NULL},
 	{"PTCT",	PIXPACK(0x405050),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	1,	1,	1,	100,	SC_ELEC,		R_TEMP+0.0f	+273.15f,	251,	"Semi-conductor. Only conducts electricity when cold (Less than 100C)", ST_SOLID, TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC, &update_NPTCT, NULL},
 	{"BGLA",	PIXPACK(0x606060),	0.4f,	0.04f * CFDS,	0.94f,	0.95f,	-0.1f,	0.3f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	5,	2,	1,	1,	90,		SC_POWDERS,		R_TEMP+0.0f	+273.15f,	150,	"Broken Glass, Heavy particles. Meltable. Bagels.", ST_SOLID, TYPE_PART | PROP_HOT_GLOW, NULL, NULL},
-	{"THDR",	PIXPACK(0xFFFFA0),	0.0f,	0.00f * CFDS,	1.0f,	0.30f,	-0.99f,	0.6f,	0.62f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	1,		SC_EXPLOSIVE,	9000.0f		+273.15f,	1,	"Lightning! Very hot, inflicts damage upon most materials, transfers current to metals.", ST_NONE, TYPE_ENERGY, &update_THDR, &graphics_THDR},
-	{"PLSM",	PIXPACK(0xBB99FF),	0.9f,	0.04f * CFDS,	0.97f,	0.20f,	0.0f,	-0.1f,	0.30f,	0.001f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	1,		SC_GAS,			10000.0f		+273.15f,	5,	"Plasma, extremely hot.", ST_NONE, TYPE_GAS|PROP_LIFE_DEC|PROP_LIFE_KILL, &update_PYRO, &graphics_PLSM},
+	{"THDR",	PIXPACK(0xFFFFA0),	0.0f,	0.00f * CFDS,	1.0f,	0.30f,	-0.99f,	0.6f,	0.62f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	1,		SC_EXPLOSIVE,	9000.0f		+273.15f,	1,		"Lightning! Very hot, inflicts damage upon most materials, transfers current to metals.", ST_NONE, TYPE_ENERGY, &update_THDR, &graphics_THDR},
+	{"PLSM",	PIXPACK(0xBB99FF),	0.9f,	0.04f * CFDS,	0.97f,	0.20f,	0.0f,	-0.1f,	0.30f,	0.001f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	1,		SC_GAS,			10000.0f	+273.15f,	5,		"Plasma, extremely hot.", ST_NONE, TYPE_GAS|PROP_LIFE_DEC|PROP_LIFE_KILL, &update_PYRO, &graphics_PLSM},
 	{"ETRD",	PIXPACK(0x404040),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	1,	1,	1,	100,	SC_ELEC,		R_TEMP+0.0f	+273.15f,	251,	"Electrode. Creates a surface that allows Plasma arcs. (Use sparingly)", ST_NONE, TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC, NULL, NULL},
 	{"NICE",	PIXPACK(0xC0E0FF),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	-0.0005f* CFDS,	0,	0,		0,	0,	20,	1,	1,	100,	SC_SOLIDS,		35.0f,					46,		"Nitrogen Ice.", ST_SOLID, TYPE_SOLID, NULL, NULL},
 	{"NBLE",	PIXPACK(0xEB4917),	1.0f,	0.01f * CFDS,	0.99f,	0.30f,	-0.1f,	0.0f,	0.75f,	0.001f	* CFDS,	0,	0,		0,	0,	1,	1,	1,	1,		SC_GAS,			R_TEMP+2.0f	+273.15f,	106,	"Noble Gas. Diffuses. Conductive. Ionizes into plasma when introduced to electricity", ST_GAS, TYPE_GAS|PROP_CONDUCTS|PROP_LIFE_DEC, NULL, NULL},
@@ -635,7 +635,7 @@ static const part_type ptypes[PT_NUM] =
 	{"PRTO",	PIXPACK(0x0020EB),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.005f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	0,		"Portal OUT.  Things come out here, now with channels (same as WIFI)", ST_SOLID, TYPE_SOLID, &update_PRTO, &graphics_PRTO},
 	{"PSTE",	PIXPACK(0xAA99AA),	0.6f,	0.01f * CFDS,	0.98f,	0.95f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	2,	0,		0,	0,	20,	1,	1,	31,		SC_LIQUID,		R_TEMP-2.0f	+273.15f,	29,		"Colloid, Hardens under pressure", ST_LIQUID, TYPE_LIQUID, NULL, NULL},
 	{"PSTS",	PIXPACK(0x776677),	0.0f,	0.00f * CFDS,	0.00f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	20,	0,	1,	100,	SC_CRACKER,		R_TEMP-2.0f	+273.15f,	29,		"Solid form of PSTE, temporary", ST_SOLID, TYPE_SOLID, NULL, NULL},
-	{"ANAR",	PIXPACK(0xFFFFEE),	-0.7f,	-0.02f * CFDS,	0.96f,	0.80f,	0.1f,	-0.1f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	0,	30,	1,	1,	85,		SC_POWDERS,		R_TEMP+0.0f	+273.15f,	70,		"Very light dust. Behaves opposite gravity", ST_SOLID, TYPE_PART, &update_ANAR, NULL},
+	{"ANAR",	PIXPACK(0xFFFFEE),	-0.7f,	-0.02f* CFDS,	0.96f,	0.80f,	0.1f,	-0.1f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	0,	30,	1,	1,	85,		SC_POWDERS,		R_TEMP+0.0f	+273.15f,	70,		"Very light dust. Behaves opposite gravity", ST_SOLID, TYPE_PART, &update_ANAR, NULL},
 	{"VINE",	PIXPACK(0x079A00),	0.0f,	0.00f * CFDS,	0.95f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	20,		0,	0,	10,	1,	1,	100,	SC_SOLIDS,		R_TEMP+0.0f +273.15f,	65,		"Vine, grows", ST_SOLID, TYPE_SOLID, &update_VINE, NULL},
 	{"INVS",	PIXPACK(0x00CCCC),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	15,	1,	1,	100,	SC_SOLIDS,		R_TEMP+0.0f	+273.15f,	164,	"Invisible to everything while under pressure.", ST_SOLID, TYPE_SOLID | PROP_NEUTPASS, NULL, &graphics_INVS},
 	{"EQVE",	PIXPACK(0xFFE0A0),	0.7f,	0.02f * CFDS,	0.96f,	0.80f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	0,	30,	0,	1,	85,		SC_CRACKER2,	R_TEMP+0.0f	+273.15f,	70,		"Shared velocity test", ST_SOLID, TYPE_PART, NULL, NULL},
@@ -682,9 +682,9 @@ static const part_type ptypes[PT_NUM] =
 	{"GBMB",	PIXPACK(0x1144BB),	0.6f,	0.01f * CFDS,	0.98f,	0.95f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	0,	20,	1,	1,	30,		SC_EXPLOSIVE,	R_TEMP-2.0f	+273.15f,	29,		"Sticks to first object it touches then produces strong gravity push.", ST_NONE, TYPE_PART|PROP_LIFE_DEC|PROP_LIFE_KILL_DEC, &update_GBMB, &graphics_GBMB},
 	{"FIGH",	PIXPACK(0x000000),	0.5f,	0.00f * CFDS,	0.2f,	1.0f,	0.0f,	0.0f,	0.0f,	0.00f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	50,		SC_SPECIAL,		R_TEMP+14.6f+273.15f,	0,		"Fighter. Tries to kill stickmans.", ST_NONE, 0, &update_FIGH, &graphics_FIGH},
 	//Mod elements past this point
-	{"BALL",	PIXPACK(0x0010A0),	0.7f,	0.02f * CFDS,	0.96f,	0.80f,	0.00f,	0.1f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	30,	1,	1,	85,		SC_SPECIAL,	R_TEMP+0.0f	+273.15f,	70,		"Moving solid. Acts like a bouncy ball", ST_NONE, TYPE_PART, &update_MOVS, NULL},
-	{"ANIM",	PIXPACK(0x505050),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	1,	1,	1,	100,	SC_POWERED,		R_TEMP+0.0f	+273.15f,	0,	"Animated Liquid Crystal", ST_SOLID, TYPE_SOLID, &update_ANIM, NULL},
-	{"INDI",	PIXPACK(0xCCCCCC),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	0,	"Indestructible Insulator", ST_SOLID, TYPE_SOLID, NULL, NULL},
+	{"BALL",	PIXPACK(0x0010A0),	0.7f,	0.02f * CFDS,	0.96f,	0.80f,	0.00f,	0.1f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	30,	1,	1,	85,		SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	70,		"Moving solid. Acts like a bouncy ball", ST_NONE, TYPE_PART, &update_MOVS, NULL},
+	{"ANIM",	PIXPACK(0x505050),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	1,	1,	1,	100,	SC_POWERED,		R_TEMP+0.0f	+273.15f,	0,		"Animated Liquid Crystal", ST_SOLID, TYPE_SOLID, &update_ANIM, NULL},
+	{"INDI",	PIXPACK(0xCCCCCC),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	0,		"Indestructible Insulator", ST_SOLID, TYPE_SOLID, NULL, NULL},
 	{"OTWR",	PIXPACK(0x604040),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	1,	1,	1,	100,	SC_ELEC,		R_TEMP+0.0f	+273.15f,	251,	"One Time Wire", ST_SOLID, TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW, NULL, NULL},
 	{"PPTI",	PIXPACK(0xEB5917),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	-0.005f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_POWERED,		R_TEMP+0.0f	+273.15f,	0,		"Powered Portal IN.  Things go in here, now with channels (same as WIFI)", ST_SOLID, TYPE_SOLID, &update_PRTI, &graphics_PRTI},
 	{"PPTO",	PIXPACK(0x0020EB),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.005f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_POWERED,		R_TEMP	+273.15f,   	0,		"Powered Portal OUT.  Things come out here, now with channels (same as WIFI)", ST_SOLID, TYPE_SOLID, &update_PRTO, &graphics_PRTO},
@@ -793,12 +793,12 @@ static part_transition ptransitions[PT_NUM] =
 	/* DRIC */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			195.65f,PT_CO2},
 	/* CBNW */ {IPL,	NT,			IPH,	NT,			273.15f,PT_ICEI,	373.0f,	PT_WTRV},
 	/* STOR */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
-	/* STOR */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
-	/*FREE*//* GOL  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
-	/*FREE*//* GOL  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
-	/*FREE*//* GOL  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
-	/*FREE*//* GOL  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
-	/*FREE*//* GOL  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* PVOD */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* CONV */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* CAUS */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* LIGH */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* TESC */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* DEST */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* SPNG */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			2730.0f,PT_FIRE},
 	/* RIME */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			273.15f,PT_WATR},
 	/* FOG  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			373.15f,PT_WTRV},
@@ -843,19 +843,19 @@ static part_transition ptransitions[PT_NUM] =
 	/* SING */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* QRTZ */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			2573.15f,PT_LAVA},
 	/* PQRT */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			2573.15f,PT_LAVA},
-	/*FREE*//* GOL  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
-	/*FREE*//* GOL  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
-	/*FREE*//* GOL  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
-	/*FREE*//* GOL  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
-	/*FREE*//* GOL  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
-	/* OTWR */ {IPL,	NT,			10.0f,	PT_BREC,			ITL,	NT,			1273.0f,PT_LAVA},
-	/*FREE*//* GOL  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* EMP  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* BREC */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* ELEC */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* ACEL */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* DCEL */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* OTWR */ {IPL,	NT,			10.0f,	PT_BREC,	ITL,	NT,			1273.0f,PT_LAVA},
+	/* FREE */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* BOYL */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
-	/*FREE*//* GOL  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* FREE */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* VIRS */ {IPL,	NT,			IPH,	NT,			305.0f,	PT_VRSS,	673.0f,PT_VRSG},
 	/* VRSS */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			305.0f,PT_VIRS},
 	/* VRSG */ {IPL,	NT,			IPH,	NT,			673.0f,	PT_VRSG,	ITH,	NT},
-	/*FREE*//* GOL  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* FREE */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* WIND */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* H2   */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* SOAP */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITL,	NT},
@@ -864,7 +864,7 @@ static part_transition ptransitions[PT_NUM] =
 	/* MERC */ {IPL,    NT,         IPH,    NT,         ITL,    NT,         ITH,	NT},
 	/* PBCN */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* GPMP */ {IPL,    NT,         IPH,    NT,         ITL,    NT,         ITH,	NT},
-	/* CLST */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			1256.0f,	PT_LAVA},
+	/* CLST */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			1256.0f,PT_LAVA},
 	/* WIRE */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* GBMB */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* FIGH */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			620.0f,	PT_FIRE},
@@ -882,12 +882,6 @@ static part_transition ptransitions[PT_NUM] =
 	/* ACTV */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* PINV */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 };
-#undef IPL
-#undef IPH
-#undef ITL
-#undef ITH
-#undef NT
-#undef ST
 
 //Old IDs for GOL types
 #define GT_GOL 78
