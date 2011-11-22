@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 This is a mod that basically does the same thing as the Lua script I made. 
-It has I favorites menu under the Tools menu, that has all of the elements 
+It has a favorites menu under the Tools menu, that has all of the elements 
 you selected recently, including walls and tools. Ctrl+Shift+left clicking 
 an element in any menu will save it permanantely to the menu, even after 
 you exit the Powder Toy. Ctrl+Shift+ right clicking an element will unsave 
