@@ -6,8 +6,6 @@ an element in any menu will save it permanantely to the menu, even after
 you exit the Powder Toy. Ctrl+Shift+ right clicking an element will unsave 
 an element.
 
-
-
 If you click the more button, a new menu will appear with 4 
 options. The HUD button activates a better HUD that fixes some problems, 
 has less useless info, and has more decimal places in debug mode. The Find 
@@ -15,11 +13,8 @@ button colors whatever element you have selected red, and dims everything
 else. The info button displays statistics about how long and how many times 
 you have played powder toy, and your average and highest FPS.
 
-
-
 I will take any suggestions for new elements or other features, no matter 
 how hard they are to code, and if I like it, I will try to add it in.
-
 
 Things in my mod suggested by other people:
 Atrayin - Powered Portals, other things I haven't added yet
@@ -33,11 +28,11 @@ Explanation of other new features:
 
 Moving Solids: No lag, and it actually works. They are found in the special
 menu, and you can have a maximum of 256 at once. They are drawn the same 
-shape as your brush, no matter what shape or size it is, unless it's a square.
-They are very bouncy, and fall with gravity. Pressure over 4.0 will destroy
-them, and if the center particle is destroyed, it will fall apart, making 
-really tiny bouncing pixels. Go into the fav2 menu and click SPIN to make 
-them be able to rotate.
+shape as your brush, no matter what shape or size it is. They are very 
+bouncy, and fall with gravity. Pressure over 4.0 will destroy them, and if 
+the center particle is destroyed, it will fall apart, making really tiny 
+bouncing pixels. Go into the fav2 menu and click SPIN to make them be able 
+to rotate.
 
 Animated LCRY: Found in the powered elements menu. In the decoration editor, 
 press left or right to change frames, and paint each frame normally. 
@@ -117,6 +112,9 @@ get_gravity(doesn't work for some reason),
 and maxframes(sets the number of frames ANIM can have when created, 1-256). 
 Also, render_ui uses the old cmode pictures in color.
 
+Next Version
+Added readme. Faster drawing and deleting of elements. 
+
 
 
 
@@ -137,6 +135,6 @@ More deco tools
 Include lua code in save (like autorun.lua does)
 RAZR: Heavy silver particles
 SPNG can move in any direction/can move nonmoving solids like CLNE
-Increase speed of drawing using circle drawing code from autorun.lua
 PRHC - powered heater/cooler - dark purple deactivated - insl when inactivated - Tetracon
 old console commands destroy/safe that I made a long time ago
+ability to make saves compatible with latest beta/release versions and load future saves if nothing new is in it
