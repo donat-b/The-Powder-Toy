@@ -177,6 +177,7 @@ extern int highesttemp;
 extern int lowesttemp;
 extern int heatmode;
 extern int maxframes;
+extern int secret_els;
 
 extern int drawinfo;
 extern int currentTime;

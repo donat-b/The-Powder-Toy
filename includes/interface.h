@@ -47,8 +47,7 @@ typedef struct menu_wall menu_wall;
 #define SC_TOOL 11
 #define SC_FAV 12
 #define SC_CRACKER 13
-#define SC_CRACKER2 14
-#define SC_FAV2 15
+#define SC_FAV2 14
 #define SC_TOTAL 13
 
 static menu_section msections[] = //doshow does not do anything currently.
@@ -66,7 +65,6 @@ static menu_section msections[] = //doshow does not do anything currently.
 	{"\xD2", "Life", 0, 1},
 	{"\xD7", "Tools", 0, 1},
 	{"\xCC", "Favorite", 0, 1},
-	{"\xC8", "Cracker", 0, 0},
 	{"\xC8", "Cracker!", 0, 0},
 	{"\xCC", "Favorite2", 0, 0},
 };

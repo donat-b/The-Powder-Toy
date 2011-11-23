@@ -194,6 +194,7 @@ int highesttemp = MAX_TEMP;
 int lowesttemp = MIN_TEMP;
 int heatmode = 0;
 int maxframes = 25;
+int secret_els = 0;
 
 int drawinfo = 0;
 int currentTime = 0;
@@ -2444,6 +2445,10 @@ int main(int argc, char *argv[])
 			if (sdl_key=='1'&& (sdl_mod & (KMOD_SHIFT)) && DEBUG_MODE)
 			{
 				set_cmode(CM_LIFE);
+			}
+			if (active_menu == SC_FAV2 && (sdl_mod & KMOD_RCTRL) && (sdl_mod & KMOD_RSHIFT))
+			{
+				active_menu = SC_CRACKER;
 			}
 			if (sdl_key==SDLK_TAB)
 			{

@@ -94,13 +94,16 @@ int drawgrav_enable = 0;
 void menu_count(void)//puts the number of elements in each section into .itemcount
 {
 	int i=0;
-	msections[SC_LIFE].itemcount = NGOLALT;
-	msections[SC_WALL].itemcount = UI_WALLCOUNT-4;
+	for (i=0; i<=SC_TOTAL; i++)
+	{
+		msections[i].itemcount = 0;
+	}
 	for (i=0; i<PT_NUM; i++)
 	{
-		msections[ptypes[i].menusection].itemcount+=ptypes[i].menu;
+		msections[ptypes[i].menusection].itemcount+=(ptypes[i].menu || (secret_els && ptypes[i].enabled));
 	}
-
+	msections[SC_LIFE].itemcount = NGOLALT;
+	msections[SC_WALL].itemcount = UI_WALLCOUNT-8;
 }
 
 void get_sign_pos(int i, int *x0, int *y0, int *w, int *h)
@@ -2314,7 +2317,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 		}
 		for (n = 0; n<PT_NUM; n++)
 		{
-			if (ptypes[n].menusection==i&&ptypes[n].menu==1)
+			if (ptypes[n].menusection==i && (ptypes[n].menu==1 || (secret_els && ptypes[n].enabled == 1)))
 			{
 				x -= draw_tool_xy(vid_buf, x-xoff, y, n, ptypes[n].pcolors)+5;
 				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
@@ -2403,6 +2406,11 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 				ms_rotation = !ms_rotation;
 			else if (h == FAV_HEAT)
 				heatmode = (heatmode + 1)%3;
+			else if (h == FAV_SECR)
+			{
+				secret_els = !secret_els;
+				menu_count();
+			}
 		}
 		else if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
 		{
