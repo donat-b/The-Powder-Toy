@@ -17,7 +17,7 @@ I will take any suggestions for new elements or other features, no matter
 how hard they are to code, and if I like it, I will try to add it in.
 
 Things in my mod suggested by other people:
-Atrayin - Powered Portals, other things I haven't added yet
+Atrayin - Powered Portals, RAZR
 OmegaSupreme - Animated LCRY
 Videogamer555 - New heat displays
 
@@ -133,7 +133,6 @@ get_gravity doesn't work as a lua command or in the HUD, but gravity somehow
 Future Ideas/TODO:
 More deco tools
 Include lua code in save (like autorun.lua does)
-RAZR: Heavy silver particles
 SPNG can move in any direction/can move nonmoving solids like CLNE
 PRHC - powered heater/cooler - dark purple deactivated - insl when inactivated - Tetracon
 old console commands destroy/safe that I made a long time ago

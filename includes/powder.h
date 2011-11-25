@@ -225,7 +225,8 @@
 #define PT_CURE PT_NORMAL_NUM+9
 #define PT_ACTV PT_NORMAL_NUM+10
 #define PT_PINV PT_NORMAL_NUM+11
-#define PT_NUM 171
+#define PT_RAZR PT_NORMAL_NUM+12
+#define PT_NUM 172
 
 #define FAV_START 300
 #define FAV_MORE 300
@@ -551,7 +552,7 @@ static const part_type ptypes[PT_NUM] =
 	{"DSTW",	PIXPACK(0x1020C0),	0.6f,	0.01f * CFDS,	0.98f,	0.95f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	2,	0,		0,	0,	20,	1,	1,	30,		SC_LIQUID,		R_TEMP-2.0f	+273.15f,	23,		"Distilled water, does not conduct electricity.", ST_LIQUID, TYPE_LIQUID|PROP_NEUTPENETRATE, &update_DSTW, NULL},
 	{"SALT",	PIXPACK(0xFFFFFF),	0.4f,	0.04f * CFDS,	0.94f,	0.95f,	-0.1f,	0.3f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	5,	1,	1,	1,	75,		SC_POWDERS,		R_TEMP+0.0f	+273.15f,	110,	"Salt, dissolves in water.", ST_SOLID, TYPE_PART, NULL, NULL},
 	{"SLTW",	PIXPACK(0x4050F0),	0.6f,	0.01f * CFDS,	0.98f,	0.95f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	2,	0,		0,	0,	20,	1,	1,	35,		SC_LIQUID,		R_TEMP+0.0f	+273.15f,	75,		"Saltwater, conducts electricity, difficult to freeze.", ST_LIQUID, TYPE_LIQUID|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_NEUTPENETRATE, &update_SLTW, NULL},
-	{"DMND",	PIXPACK(0xCCFFFF),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_SOLIDS,		R_TEMP+0.0f	+273.15f,	186,	"Diamond. Indestructible.", ST_SOLID, TYPE_SOLID, NULL, NULL},
+	{"DMND",	PIXPACK(0xCCFFFF),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	501,	SC_SOLIDS,		R_TEMP+0.0f	+273.15f,	186,	"Diamond. Indestructible.", ST_SOLID, TYPE_SOLID, NULL, NULL},
 	{"BMTL",	PIXPACK(0x505070),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	1,	1,	1,	100,	SC_SOLIDS,		R_TEMP+0.0f	+273.15f,	251,	"Breakable metal.", ST_SOLID, TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW, &update_BMTL, NULL},
 	{"BRMT",	PIXPACK(0x705060),	0.4f,	0.04f * CFDS,	0.94f,	0.95f,	-0.1f,	0.3f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	2,	2,	1,	1,	90,		SC_POWDERS,		R_TEMP+0.0f	+273.15f,	211,	"Broken metal.", ST_SOLID, TYPE_PART|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW, NULL, NULL},
 	{"PHOT",	PIXPACK(0xFFFFFF),	0.0f,	0.00f * CFDS,	1.00f,	1.00f,	-0.99f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	-1,		SC_NUCLEAR,		R_TEMP+900.0f+273.15f,	251,	"Photons. Travel in straight lines.", ST_GAS, TYPE_ENERGY|PROP_LIFE_DEC|PROP_LIFE_KILL_DEC, &update_PHOT, &graphics_PHOT},
@@ -685,7 +686,7 @@ static const part_type ptypes[PT_NUM] =
 	//Mod elements past this point
 	{"BALL",	PIXPACK(0x0010A0),	0.7f,	0.02f * CFDS,	0.96f,	0.80f,	0.00f,	0.1f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	30,	1,	1,	85,		SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	70,		"Moving solid. Acts like a bouncy ball", ST_NONE, TYPE_PART, &update_MOVS, NULL},
 	{"ANIM",	PIXPACK(0x505050),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	1,	1,	1,	100,	SC_POWERED,		R_TEMP+0.0f	+273.15f,	0,		"Animated Liquid Crystal", ST_SOLID, TYPE_SOLID, &update_ANIM, NULL},
-	{"INDI",	PIXPACK(0xCCCCCC),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	0,		"Indestructible Insulator", ST_SOLID, TYPE_SOLID, NULL, NULL},
+	{"INDI",	PIXPACK(0xCCCCCC),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	501,	SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	0,		"Indestructible Insulator", ST_SOLID, TYPE_SOLID, NULL, NULL},
 	{"OTWR",	PIXPACK(0x604040),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	1,	1,	1,	100,	SC_ELEC,		R_TEMP+0.0f	+273.15f,	251,	"One Time Wire", ST_SOLID, TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW, NULL, NULL},
 	{"PPTI",	PIXPACK(0xEB5917),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	-0.005f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_POWERED,		R_TEMP+0.0f	+273.15f,	0,		"Powered Portal IN.  Things go in here, now with channels (same as WIFI)", ST_SOLID, TYPE_SOLID, &update_PRTI, &graphics_PRTI},
 	{"PPTO",	PIXPACK(0x0020EB),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.005f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_POWERED,		R_TEMP	+273.15f,   	0,		"Powered Portal OUT.  Things come out here, now with channels (same as WIFI)", ST_SOLID, TYPE_SOLID, &update_PRTO, &graphics_PRTO},
@@ -695,8 +696,62 @@ static const part_type ptypes[PT_NUM] =
 	{"CURE",	PIXPACK(0x8BE700),	0.6f,	0.01f * CFDS,	0.98f,	0.95f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	2,	1,		0,	0,	20,	1,	1,	32,		SC_LIQUID,		R_TEMP+0.0f +273.15f,	251,	"Cure. Turns virus back into what it was before", ST_LIQUID, TYPE_LIQUID, NULL, NULL},
 	{"ACTV",	PIXPACK(0x005254),	0.0f,	0.00f * CFDS,	0.90f,  0.00f,  0.0f,	0.0f,	0.00f,  0.000f  * CFDS, 0,	0,		0,	0,	0,	1,	1,	100,	SC_POWERED,		R_TEMP+0.0f	+273.15f,	251,	"Activator. Can only be sparked when activated", ST_SOLID, TYPE_SOLID, &update_ACTV, &graphics_ACTV},
 	{"PINV",	PIXPACK(0x00CCCC),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	15,	1,	1,	100,	SC_POWERED,		R_TEMP+0.0f	+273.15f,	164,	"Invisible to everything when activated.", ST_SOLID, TYPE_SOLID | PROP_NEUTPASS, &update_PINV, &graphics_PINV},
+	{"RAZR",	PIXPACK(0xC0C0C0),	0.7f,	0.07f * CFDS,	0.97f,	0.00f,	0.0f,	1.5f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	0,	0,	1,	1,	500,	SC_POWDERS,		R_TEMP+0.0f	+273.15f,	50,		"Heavy silver particles", ST_SOLID, TYPE_PART, NULL, NULL},
 	//Name		Colour				Advec	Airdrag			Airloss	Loss	Collid	Grav	Diffus	Hotair			Fal	Burn	Exp	Mel	Hrd M	Use	Weight	Section			H						Ins		Description
 };
+
+/*
+Name: The name of the element.
+
+Colour: Color in hexadecimal code.
+
+Advec: How much the particle is accelerated by moving air.
+
+Airdrag: How much air the particle generates in the direction of travel.
+
+Airloss: How much the particle slows down moving air (although this won't have as big an effect as a wall). 1 = no effect, 0 = maximum effect.
+
+Loss: How much velocity the particle loses each frame. 1 = no loss, .5 = half loss.
+
+Collid: Velocity is multiplied by this when the particle collides with something.
+
+Grav: How fast the particle falls. A negative number means it floats.
+
+Diffus: How much the particle "wiggles" around (think GAS).
+
+Hotair: How much the particle increases the pressure by.
+
+Fal: How does the particle move? 0 = solid, 1 = powder, 2 = liquid
+
+Burn: Does it burn? 0 = no, higher numbers = higher "burnage".
+
+Exp: Does it explode? 0 = no, 1 = when touching fire, 2 = when touching fire or when pressure > 2.5
+
+Mel: Does it melt? 1 = yes, 0 = no.
+
+Hrd: How much does acid affect it? 0 = no effect, higher numbers = higher effect.
+
+M: Does it show up on the menu? 1 = yes, 0 = no.
+
+Weight: Heavier elements sink beneath lighter ones. 1 = Gas. 2 = Light, 98 = Heavy (liquids 0-49, powder 50-99). 100 = Solid. -1 is Neutrons and Photons.
+
+Section: The section of the menu it is in.
+
+H: What temperature does it have when created? Temperature is in Kelvin (Kelvin = degrees C + 273.15). R_TEMP+273.15f gives room temperature.
+
+Ins: specific heat value (how fast it transfers heat to particles touching it), can be found by using the real life heat value in J/G K (or KJ/KG K) by 96.635/RealLifeValue. 0 - no heat transfer, 250 - maximum heat transfer speed.
+
+Description: A short one sentence description of the element, shown when you mouse over it in-game.
+
+State: What state is this element? Options are ST_NONE, ST_SOLID, ST_LIQUID, ST_GAS.
+
+Properties: Does this element have special properties? The properties can be found at ~214. Separate each property with | inside the property variable.
+
+Function:
+
+Graphics function:
+
+*/
 
 // temporarily define abbreviations for impossible p/t values
 #define IPL -257.0f
@@ -882,6 +937,7 @@ static part_transition ptransitions[PT_NUM] =
 	/* CURE */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* ACTV */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* PINV */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* RAZR */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 };
 
 //Old IDs for GOL types
