@@ -23,7 +23,10 @@ int update_MOVS(UPDATE_FUNC_ARGS) {
 			tmp2 = -1*parts[i].tmp2*sin(angle+msrotation[bn]);
 	}
 	if (!tmp && !tmp2 && pv[y/CELL][x/CELL] > 10 || pv[y/CELL][x/CELL] < -10)
+	{
 		kill_part(i);
+		return 1;
+	}
 	type = pmap[y+1][x]&0xFF;
 	if (y+1 < YRES && tmp2 > 0 && type && (type != PT_MOVS || (type == PT_MOVS && parts[pmap[y+1][x]>>8].life != bn)))
 	{

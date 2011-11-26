@@ -19,7 +19,10 @@ int update_VIRS(UPDATE_FUNC_ARGS) {
 			parts[i].tmp -= 256;
 	}
 	else
+	{
 		kill_part(i);
+		return 1;
+	}
 	for (rx=-2; rx<3; rx++)
 		for (ry=-2; ry<3; ry++)
 			if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
