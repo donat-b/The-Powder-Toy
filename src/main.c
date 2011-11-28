@@ -646,9 +646,9 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 	if (c[2]==0x76 && c[1]==0x53 && c[0]==0x50) {
 		new_format = 1;
 	}
-	if (c[4]>SAVE_VERSION && c[4] < 238)
-		return 2;
 	ver = c[4];
+	if ((ver>SAVE_VERSION && ver < 238) || ver > 243)
+		info_ui(vid_buf,"Save is from a newer version","Attempting to load it anyway, this may cause a crash");
 	if (ver == 240) {
 		ver = 65;
 		modver = 3;
@@ -657,7 +657,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 		ver = 66;
 		modver = 5;
 	}
-	else if (ver == 243) {
+	else if (ver >= 243) {
 		ver = 68;
 		modver = 6;
 	}

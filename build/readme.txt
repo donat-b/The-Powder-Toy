@@ -114,7 +114,10 @@ Also, render_ui uses the old cmode pictures in color.
 
 Next Version
 Added readme. Faster drawing and deleting of elements. Added RAZR, an element
-heavier than all other elements.
+heavier than all other elements. Added new button in FAV2 menu that can make
+saves compatible with the latest beta or release version and able to be
+published. It makes sure that you don't add in any new elements not in those
+versions.
 
 
 
@@ -137,7 +140,6 @@ Include lua code in save (like autorun.lua does)
 SPNG can move in any direction/can move nonmoving solids like CLNE
 PRHC - powered heater/cooler - dark purple deactivated - insl when inactivated - Tetracon
 old console commands destroy/safe that I made a long time ago
-ability to make saves compatible with latest beta/release versions and load future saves if nothing new is in it
 rechargeable battery - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11652
 buttons to decide what is in the HUD
 change message of the day, its been the same for a long time
