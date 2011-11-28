@@ -353,12 +353,22 @@ void *build_thumb(int *size, int bzip2)
 void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr)
 {
 	unsigned char *d=calloc(1,3*(XRES/CELL)*(YRES/CELL)+(XRES*YRES)*(16+numframes*4)+MAXSIGNS*262+numballs*6), *c;
-	int i,j,x,y,p=0,*m=calloc(XRES*YRES, sizeof(int)),nummovs = 0;
+	int i,j,x,y,p=0,*m=calloc(XRES*YRES, sizeof(int)),nummovs = 0,saveversion = MOD_SAVE_VERSION+237;
 	int x0, y0, w, h, bx0=orig_x0/CELL, by0=orig_y0/CELL, bw, bh;
 	particle *parts = partsptr;
 	bw=(orig_w+orig_x0-bx0*CELL+CELL-1)/CELL;
 	bh=(orig_h+orig_y0-by0*CELL+CELL-1)/CELL;
 
+	if (check_save())
+	{
+		free(d);
+		free(m);
+		return NULL;
+	}
+	if (save_as == 1)
+		saveversion = 68;
+	else if (save_as == 2)
+		saveversion = 65;
 	// normalize coordinates
 	x0 = bx0*CELL;
 	y0 = by0*CELL;
@@ -450,7 +460,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	for (j=0; j<w*h; j++)
 	{
 		i = m[j];
-		if (i && (parts[i-1].type==PT_PBCN || parts[i-1].type==PT_MOVS || parts[i-1].type==PT_ANIM || parts[i-1].type==PT_PSCN || parts[i-1].type==PT_NSCN || parts[i-1].type==PT_PPTI || parts[i-1].type==PT_PPTO || parts[i-1].type==PT_VIRS || parts[i-1].type==PT_VRSS || parts[i-1].type==PT_VRSG)) {
+		if (i && (parts[i-1].type==PT_PBCN || parts[i-1].type==PT_MOVS || parts[i-1].type==PT_ANIM || ((parts[i-1].type==PT_PSCN || parts[i-1].type==PT_NSCN) && save_as == 0) || parts[i-1].type==PT_PPTI || parts[i-1].type==PT_PPTO || parts[i-1].type==PT_VIRS || parts[i-1].type==PT_VRSS || parts[i-1].type==PT_VRSG)) {
 			//Save tmp2
 			d[p++] = parts[i-1].tmp2;
 		}
@@ -487,22 +497,23 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 			d[p++] = (parts[i-1].dcolour&0x000000FF);
 		}
 	}
-	for (j=0; j<w*h; j++)
-	{
-		i = m[j];
-		if (i && parts[i-1].type==PT_ANIM)
+	if (save_as == 0)
+		for (j=0; j<w*h; j++)
 		{
-			int k;
-			d[p++] = parts[i-1].numframes;
-			for (k = 0; k <= parts[i-1].numframes;k++)
+			i = m[j];
+			if (i && parts[i-1].type==PT_ANIM)
 			{
-				d[p++] = (parts[i-1].animations[k]&0xFF000000)>>24;
-				d[p++] = (parts[i-1].animations[k]&0x00FF0000)>>16;
-				d[p++] = (parts[i-1].animations[k]&0x0000FF00)>>8;
-				d[p++] = (parts[i-1].animations[k]&0x000000FF);
+				int k;
+				d[p++] = parts[i-1].numframes;
+				for (k = 0; k <= parts[i-1].numframes;k++)
+				{
+					d[p++] = (parts[i-1].animations[k]&0xFF000000)>>24;
+					d[p++] = (parts[i-1].animations[k]&0x00FF0000)>>16;
+					d[p++] = (parts[i-1].animations[k]&0x0000FF00)>>8;
+					d[p++] = (parts[i-1].animations[k]&0x000000FF);
+				}
 			}
 		}
-	}
 	for (j=0; j<w*h; j++)
 	{
 		i = m[j];
@@ -543,16 +554,19 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 			memcpy(d+p, signs[i].text, x);
 			p+=x;
 		}
-	d[p++] =  decorations_enable|((aheat_enable<<1)&0x02)|((hud_enable<<2)&0x04)|((water_equal_test<<3)&0x08);//|((cmode<<4)&0xF0);
-	for (j=0; j<w*h; j++)
+	if (save_as == 0)
 	{
-		i = m[j];
-		if (i && parts[i-1].type==PT_MOVS && !parts[i].tmp && !parts[i].tmp2)
+		d[p++] =  decorations_enable|((aheat_enable<<1)&0x02)|((hud_enable<<2)&0x04)|((water_equal_test<<3)&0x08);//|((cmode<<4)&0xF0);
+		for (j=0; j<w*h; j++)
 		{
-			nummovs++;
+			i = m[j];
+			if (i && parts[i-1].type==PT_MOVS && !parts[i].tmp && !parts[i].tmp2)
+			{
+				nummovs++;
+			}
 		}
+		d[p++] = nummovs;
 	}
-	d[p++] = nummovs;
 
 	i = (p*101+99)/100 + 612;
 	c = malloc(i);
@@ -564,7 +578,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	c[1] = 0x53;	//0x75;
 	c[2] = 0x76;	//0x43;
 	c[3] = legacy_enable|((sys_pause<<1)&0x02)|((gravityMode<<2)&0x0C)|((airMode<<4)&0x70)|((ngrav_enable<<7)&0x80);
-	c[4] = MOD_SAVE_VERSION+237;
+	c[4] = saveversion;
 	c[5] = CELL;
 	c[6] = bw;
 	c[7] = bh;
@@ -587,6 +601,29 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 
 	*size = i+12;
 	return c;
+}
+
+int check_save()
+{
+	int i;
+	for (i=0; i<NPART; i++)
+	{
+		if (save_as > 0 && (parts[i].type >= PT_NORMAL_NUM || ptypes[parts[i].type].enabled == 0))
+		{
+			char errortext[256] = "";
+			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].type].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
+			info_ui(vid_buf,"Error",errortext);
+			return 1;
+		}
+		if (save_as > 1 && (parts[i].type == PT_ELEC || parts[i].type == PT_FIGH))
+		{
+			char errortext[256] = "";
+			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].type].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
+			info_ui(vid_buf,"Error",errortext);
+			return 1;
+		}
+	}
+	return 0;
 }
 
 int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, unsigned pmap[YRES][XRES])
@@ -1421,6 +1458,8 @@ void stamp_save(int x, int y, int w, int h)
 	int n;
 	char fn[64], sn[16];
 	void *s=build_save(&n, x, y, w, h, bmap, fvx, fvy, signs, parts);
+	if (!s)
+		return;
 
 #ifdef WIN32
 	_mkdir("stamps");
