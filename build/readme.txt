@@ -113,7 +113,8 @@ and maxframes(sets the number of frames ANIM can have when created, 1-256).
 Also, render_ui uses the old cmode pictures in color.
 
 Next Version
-Added readme. Faster drawing and deleting of elements. 
+Added readme. Faster drawing and deleting of elements. Added RAZR, an element
+heavier than all other elements.
 
 
 
@@ -137,3 +138,7 @@ SPNG can move in any direction/can move nonmoving solids like CLNE
 PRHC - powered heater/cooler - dark purple deactivated - insl when inactivated - Tetracon
 old console commands destroy/safe that I made a long time ago
 ability to make saves compatible with latest beta/release versions and load future saves if nothing new is in it
+rechargeable battery - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11652
+buttons to decide what is in the HUD
+change message of the day, its been the same for a long time
+PHOT + PINV = ELEC - for lasers
