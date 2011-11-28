@@ -236,8 +236,9 @@
 #define FAV_INFO 304
 #define FAV_ROTATE 305
 #define FAV_HEAT 306
-#define FAV_SECR 307
-#define FAV_END 308
+#define FAV_SAVE 307
+#define FAV_SECR 308
+#define FAV_END 309
 
 #define R_TEMP 22
 #define MAX_TEMP 9999
@@ -1160,12 +1161,13 @@ static fav_menu fav[] =
 {
 	{"MORE", PIXPACK(0xFF7F00), "Display different options"},
 	{"BACK", PIXPACK(0xFF7F00), "Go back to the favorites menu"},
-	{"HUD", PIXPACK(0x20D8FF), "Left click to toggle a different HUD"},
+	{"HUD",  PIXPACK(0x20D8FF), "Left click to toggle a different HUD"},
 	{"FIND", PIXPACK(0xFF0000), "Finds the currently selected element on the screen and temporarily colors it red"},
 	{"INFO", PIXPACK(0x00FF00), "Displays statistics and records about The Powder Toy. Left click to toggle display"},
 	{"SPIN", PIXPACK(0x0010A0), "Makes moving solids rotate"},
-	{"HEAT", PIXPACK(0xFF00D4), "Changes heat display mode between normal, automatic, and manual"},
-	{"", PIXPACK(0x000000), ""},
+	{"HEAT", PIXPACK(0xFF00D4), "Changes heat display mode. current mode: "},
+	{"SAVE", PIXPACK(0x2B1AC9), "Makes save/stamps compatible with: "},
+	{"", PIXPACK(0x000000), ""}
 };
 
 #define CHANNELS ((int)(MAX_TEMP-73)/100+2)

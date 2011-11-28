@@ -195,6 +195,7 @@ int lowesttemp = MIN_TEMP;
 int heatmode = 0;
 int maxframes = 25;
 int secret_els = 0;
+int save_as = 0;
 
 int drawinfo = 0;
 int currentTime = 0;

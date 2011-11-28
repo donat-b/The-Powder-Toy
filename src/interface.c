@@ -2368,7 +2368,27 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 	}
 	else if (i == SC_FAV2||favdesc == 3)
 	{
-		drawtext(vid_buf, XRES-textwidth((char *)fav[h-300].description)-BARSIZE, sy-10, (char *)fav[h-300].description, 255, 255, 255, 255);
+		char favtext[512] = "";
+		sprintf(favtext, fav[h-FAV_START].description);
+		if (h == FAV_HEAT)
+		{
+			if (heatmode == 0)
+				strappend(favtext, "normal: -273.15C - 9725.85C");
+			else if (heatmode == 1)
+				sprintf(favtext, "%s automatic: %iC - %iC",fav[h-FAV_START].description,lowesttemp-273,highesttemp-273);
+			else
+				sprintf(favtext, "%s manual: %iC - %iC",fav[h-FAV_START].description,lowesttemp-273,highesttemp-273);
+		}
+		else if (h == FAV_SAVE)
+		{
+			if (save_as == 0)
+				strappend(favtext, "Jacob's Mod ver. 6+");
+			else if (save_as == 1)
+				strappend(favtext, "Powder Toy beta ver. 68+");
+			else
+				strappend(favtext, "Powder Toy release ver. 65+");
+		}
+		drawtext(vid_buf, XRES-textwidth(favtext)-BARSIZE, sy-10, favtext, 255, 255, 255, 255);
 	}
 	else
 	{
@@ -2406,6 +2426,8 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 				ms_rotation = !ms_rotation;
 			else if (h == FAV_HEAT)
 				heatmode = (heatmode + 1)%3;
+			else if (h == FAV_SAVE)
+				save_as = (save_as + 1)%3;
 			else if (h == FAV_SECR)
 			{
 				secret_els = !secret_els;
@@ -2465,8 +2487,9 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 		{
 			if (h == FAV_HEAT)
 			{
-				lowesttemp = atoi(input_ui(vid_buf,"Manual Heat Display","Enter a Minimum Temperature","",""));
-				highesttemp = atoi(input_ui(vid_buf,"Manual Heat Display","Enter a Maximum Temperature","",""));
+				heatmode = 2;
+				lowesttemp = atoi(input_ui(vid_buf,"Manual Heat Display","Enter a Minimum Temperature in Celcius","",""))+273;
+				highesttemp = atoi(input_ui(vid_buf,"Manual Heat Display","Enter a Maximum Temperature in Celcius","",""))+273;
 			}
 		}
 		else if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
