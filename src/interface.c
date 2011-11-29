@@ -4881,6 +4881,13 @@ void execute_save(pixel *vid_buf)
 	uploadparts[3] = build_thumb(plens+3, 1);
 	uploadparts[4] = (svf_publish==1)?"Public":"Private";
 	plens[4] = strlen((svf_publish==1)?"Public":"Private");
+	if (svf_publish == 1 && save_as != 2)
+	{
+		error_ui(vid_buf, 0, "You must save this as the non beta version");
+		return;
+	}
+	if (svf_publish == 1 && check_save(2))
+		return;
 
 	if (svf_id[0])
 	{

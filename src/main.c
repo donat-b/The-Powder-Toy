@@ -359,7 +359,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	bw=(orig_w+orig_x0-bx0*CELL+CELL-1)/CELL;
 	bh=(orig_h+orig_y0-by0*CELL+CELL-1)/CELL;
 
-	if (check_save())
+	if (check_save(save_as))
 	{
 		free(d);
 		free(m);
@@ -603,19 +603,19 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	return c;
 }
 
-int check_save()
+int check_save(int saveas)
 {
 	int i;
 	for (i=0; i<NPART; i++)
 	{
-		if (save_as > 0 && (parts[i].type >= PT_NORMAL_NUM || ptypes[parts[i].type].enabled == 0))
+		if (saveas > 0 && (parts[i].type >= PT_NORMAL_NUM || ptypes[parts[i].type].enabled == 0))
 		{
 			char errortext[256] = "";
 			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].type].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
 			info_ui(vid_buf,"Error",errortext);
 			return 1;
 		}
-		if (save_as > 1 && (parts[i].type == PT_ELEC || parts[i].type == PT_FIGH))
+		if (saveas > 1 && (parts[i].type == PT_ELEC || parts[i].type == PT_FIGH))
 		{
 			char errortext[256] = "";
 			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].type].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
