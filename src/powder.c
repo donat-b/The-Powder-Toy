@@ -880,7 +880,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		}
 		memset(parts[i].animations, 0, sizeof(parts[i].animations));
 		parts[i].tmp2 = 1;
-		parts[i].numframes = 0;
+		parts[i].ctype = 0;
 		parts[i].life = 10;
 		parts[i].tmp = 1;
 	}

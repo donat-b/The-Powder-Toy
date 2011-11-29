@@ -5895,8 +5895,8 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 				if (parts[i].type == PT_ANIM)
 				{
 					parts[i].tmp2 = framenum;
-					if (parts[i].numframes < numframes)
-						parts[i].numframes = numframes;
+					if (parts[i].ctype < numframes)
+						parts[i].ctype = numframes;
 					if (sdl_mod & (KMOD_CTRL))
 						parts[i].animations[numframes] = parts[i].animations[numframes-1];
 				}
@@ -5917,10 +5917,10 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 				if (parts[i].type == PT_ANIM)
 				{
 					int j;
-					for (j = framenum; j <= parts[i].numframes; j++)
+					for (j = framenum; j <= parts[i].ctype; j++)
 						parts[i].animations[j] = parts[i].animations[j+1];
-					parts[i].animations[parts[i].numframes] = 0;
-					parts[i].numframes--;
+					parts[i].animations[parts[i].ctype] = 0;
+					parts[i].ctype--;
 					if (framenum == numframes+1)
 						parts[i].tmp2 = framenum-1;
 				}

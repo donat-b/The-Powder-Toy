@@ -504,8 +504,8 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 			if (i && parts[i-1].type==PT_ANIM)
 			{
 				int k;
-				d[p++] = parts[i-1].numframes;
-				for (k = 0; k <= parts[i-1].numframes;k++)
+				d[p++] = parts[i-1].ctype;
+				for (k = 0; k <= parts[i-1].ctype;k++)
 				{
 					d[p++] = (parts[i-1].animations[k]&0xFF000000)>>24;
 					d[p++] = (parts[i-1].animations[k]&0x00FF0000)>>16;
@@ -1059,15 +1059,15 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 				}
 				if (i <= NPART) {
 					int k;
-					parts[i-1].numframes = d[p++];
-					if (parts[i-1].numframes > maxframes)
-						maxframes = parts[i-1].numframes;
+					parts[i-1].ctype = d[p++];
+					if (parts[i-1].ctype > maxframes)
+						maxframes = parts[i-1].ctype;
 					parts[i-1].animations = calloc(maxframes,sizeof(unsigned int));
-					if (parts[i].animations == 0) {
+					if (parts[i-1].animations == 0) {
 						goto corrupt;
 					}
 					memset(parts[i-1].animations, 0, sizeof(parts[i-1].animations));
-					for (k = 0; k <= parts[i-1].numframes; k++)
+					for (k = 0; k <= parts[i-1].ctype; k++)
 					{
 						parts[i-1].animations[k] = d[p++]<<24;
 						parts[i-1].animations[k] |= d[p++]<<16;

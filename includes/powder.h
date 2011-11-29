@@ -289,7 +289,6 @@ struct particle
 	int tmp2;
 	unsigned int dcolour;
 	unsigned int *animations;
-	int numframes;
 };
 typedef struct particle particle;
 
