@@ -1116,7 +1116,15 @@ int textwidth(char *s)
 {
 	int x = 0;
 	for (; *s; s++)
-		x += font_data[font_ptrs[(int)(*(unsigned char *)s)]];
+		if (*s == '\n')
+		{
+		}
+		else if (*s == '\b')
+		{
+			s++;
+		}
+		else
+			x += font_data[font_ptrs[(int)(*(unsigned char *)s)]];
 	return x-1;
 }
 
