@@ -3657,6 +3657,7 @@ int search_ui(pixel *vid_buf)
 				memset(v_buf, 0, ((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 				nmp = -1;
 			
+				sprintf(server_motd,"Links: {a:http://powdertoy.co.uk|Powder Toy main page}, {a:http://powdertoy.co.uk/Discussions/Categories/Index.html|Forums}, {a:https://github.com/FacialTurd/The-Powder-Toy|Official github}, {a:https://github.com/jacob1/The-Powder-Toy|Jacob's mod github}, {a:http://powdertoy.co.uk/Wiki/W/Main_Page.html|Wiki}, {a:http://www.lua.org/manual/5.1/|Lua reference guide}");
 				ui_richtext_settext(server_motd, &motd);
 				motd.x = (XRES-textwidth(motd.printstr))/2;
 			}
