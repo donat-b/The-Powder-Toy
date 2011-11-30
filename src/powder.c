@@ -140,12 +140,13 @@ void init_can_move()
 		if (t==PT_GLAS || t==PT_PHOT || t==PT_CLNE || t==PT_PCLN
 			|| t==PT_GLOW || t==PT_WATR || t==PT_DSTW || t==PT_SLTW
 			|| t==PT_ISOZ || t==PT_ISZS || t==PT_FILT || t==PT_INVIS
-			|| t==PT_QRTZ || t==PT_PQRT)
+			|| t==PT_QRTZ || t==PT_PQRT || t==PT_PINV)
 			can_move[PT_PHOT][t] = 2;
 	}
 	can_move[PT_ELEC][PT_LCRY] = 2;
 	can_move[PT_PHOT][PT_LCRY] = 3;//varies according to LCRY life
 	can_move[PT_NEUT][PT_INVIS] = 2;
+	can_move[PT_ELEC][PT_PINV] = 2;
 	//whol eats anar
 	can_move[PT_ANAR][PT_WHOL] = 1;
 	can_move[PT_ANAR][PT_NWHL] = 1;
@@ -301,6 +302,10 @@ int try_move(int i, int x, int y, int nx, int ny)
 		}
 		if (parts[i].type == PT_PHOT && (r&0xFF)==PT_INVIS && pv[ny/CELL][nx/CELL]<=4.0f && pv[ny/CELL][nx/CELL]>=-4.0f) {
 			part_change_type(i,x,y,PT_NEUT);
+			parts[i].ctype = 0;
+		}
+		if (parts[i].type == PT_PHOT && (r&0xFF)==PT_PINV && parts[r>>8].life == 0) {
+			part_change_type(i,x,y,PT_ELEC);
 			parts[i].ctype = 0;
 		}
 		if ((parts[i].type==PT_BIZR||parts[i].type==PT_BIZRG) && (r&0xFF)==PT_FILT)

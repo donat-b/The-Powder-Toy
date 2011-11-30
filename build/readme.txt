@@ -20,6 +20,7 @@ Things in my mod suggested by other people:
 Atrayin - Powered Portals, RAZR
 OmegaSupreme - Animated LCRY
 Videogamer555 - New heat displays
+disturbed666 - A way to turn PHOT into ELEC (but I used PINV instead of TESC)
 
 
 
@@ -117,7 +118,7 @@ Added readme. Faster drawing and deleting of elements. Added RAZR, an element
 heavier than all other elements. Added new button in FAV2 menu that can make
 saves compatible with the latest beta or release version and able to be
 published. It makes sure that you don't add in any new elements not in those
-versions.
+versions. PINV+PHOT = ELEC
 
 
 
@@ -139,8 +140,6 @@ More deco tools
 Include lua code in save (like autorun.lua does)
 SPNG can move in any direction/can move nonmoving solids like CLNE
 PRHC - powered heater/cooler - dark purple deactivated - insl when inactivated - Tetracon
-old console commands destroy/safe that I made a long time ago
+old console commands destroy/safe that I made a long time ago, + still more lua commands
 rechargeable battery - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11652
 buttons to decide what is in the HUD
-change message of the day, its been the same for a long time
-PHOT + PINV = ELEC - for lasers
