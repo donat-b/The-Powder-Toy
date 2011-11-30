@@ -2,16 +2,16 @@
 This is a mod that basically does the same thing as the Lua script I made. 
 It has a favorites menu under the Tools menu, that has all of the elements 
 you selected recently, including walls and tools. Ctrl+Shift+left clicking 
-an element in any menu will save it permanantely to the menu, even after 
-you exit the Powder Toy. Ctrl+Shift+ right clicking an element will unsave 
-an element.
+an element in any menu will pin it permanantely to the menu, even after you 
+exit the Powder Toy. Ctrl+Shift+ right clicking an element will unpin an 
+element from the menu.
 
-If you click the more button, a new menu will appear with 4 
-options. The HUD button activates a better HUD that fixes some problems, 
-has less useless info, and has more decimal places in debug mode. The Find 
-button colors whatever element you have selected red, and dims everything 
-else. The info button displays statistics about how long and how many times 
-you have played powder toy, and your average and highest FPS.
+If you click the more button, a new menu will appear with 4 options. The HUD 
+button activates a better HUD that fixes some problems, has less useless 
+info, and has more decimal places in debug mode. The FIND button colors 
+whatever element you have selected red, and dims everything else. The INFO 
+button displays statistics about how long and how many times you have played 
+powder toy, and your average and highest FPS.
 
 I will take any suggestions for new elements or other features, no matter 
 how hard they are to code, and if I like it, I will try to add it in.
@@ -33,38 +33,39 @@ shape as your brush, no matter what shape or size it is. They are very
 bouncy, and fall with gravity. Pressure over 4.0 will destroy them, and if 
 the center particle is destroyed, it will fall apart, making really tiny 
 bouncing pixels. Go into the fav2 menu and click SPIN to make them be able 
-to rotate.
+to rotate. Don't save moving solids if you allowed them to rotate, reloading 
+them after that is glitchy and won't work.
 
 Animated LCRY: Found in the powered elements menu. In the decoration editor, 
-press left or right to change frames, and paint each frame normally. 
-Press Del to delete a frame or press Ctrl+right when going to a new frame 
-to copy the old one over to the new one. PSCN activates it, and the speed 
-that it changes depends on its temperature. NSCN deactivates it. METL 
-pauses/unpauses it. If you set the tmp2 of the PSCN or NSCN that 
-(de)activates it, you can set which frame ANIM starts or freezes at. 
-Also, you can use the tmp of the PSCN to set the delay for the first frame. 
-You can have a maximum of 25 frames, unless you use the lua command 
-tpt.maxframes(num), where num is the new maximum, between 1 and 256. 
-Using that command will reset all existing ANIM. If you delete a lot of it 
-at once, the game will freeze for a while, just wait until it keeps working.
+press left or right to change frames, and paint each frame normally. Press 
+Del to delete a frame or press Ctrl+right when going to a new frame to copy 
+the old one over to the new one. PSCN activates it, and the speed that it 
+changes depends on its temperature. NSCN deactivates it. METL pauses/unpauses
+it. If you set the tmp2 of the PSCN or NSCN that (de)activates it, you can 
+set which frame ANIM starts or freezes at. Also, you can use the tmp of the 
+PSCN to set the delay for the first frame. You can have a maximum of 25 
+frames, unless you use the lua command tpt.maxframes(num), where num is the 
+new maximum, between 1 and 256. Using that command will reset all existing 
+ANIM. If you delete a lot of it at once, the game will freeze for a while, 
+just wait until it keeps working.
 
-New heat displays: Found in the Fav2 menu. Click it once to go to automatic
-display mode, where the hottest temp is always pink, the lowest is dark blue,
-and everything else in between is based off of that. Click it again to go 
-into manual heat display. The min and max temps will stop changing when you
-go into this, so it will help if automatic mode flickers because of something
-like fire clone constantly changing the max temp. If you right click the 
-button, it will ask you to enter the new maximum and minimum temp. Only do 
-this in manual heat display, because if not, the values will just change
-again the next frame.
+New heat displays: Found in the Fav2 menu. Click the HEAT button once to go 
+to automatic display mode, where the hottest temp is always pink, the lowest 
+is dark blue, and everything else in between is based off of that. Click it 
+again to go into manual heat display. The min and max temps will stop 
+changing when you go into this, so it will help if automatic mode flickers 
+because of something like fire clone constantly changing the max temp. If 
+you right click the  button, it will ask you to enter the new maximum and 
+minimum temp. Enter the temperatures in Celcius. It will change the display 
+mode into manual automatically after this.
 
-Virus: Found in liquids. Turns everything it touches into virs. It has 3
+Virus: Found in liquids. Turns everything it touches into VIRS. It has 3
 states: Solid, liquid, and gas; depending on the temperature. If you infect
-something room temp or less, it will all be solid virs, and you will be able
+something room temp or less, it will all be solid virus, and you will be able
 to cure it with CURE (in liquids) without noticing any difference in the
 save. If you don't cure it in time, it will start to die slowly and randomly.
-It is also cured randomly, and not instantly. Note: virs can burn and be 
-destroyed, even if it infected something like diamond.
+It is also cured randomly, and not instantly. Note:VIRS can burn and be 
+destroyed, even if it infected something like DMND.
 
 
 
@@ -112,6 +113,11 @@ There are three new lua commands: get_pressure,
 get_gravity(doesn't work for some reason), 
 and maxframes(sets the number of frames ANIM can have when created, 1-256). 
 Also, render_ui uses the old cmode pictures in color.
+Note: the button keys to change display modes, blob & heat gradient 
+display, portal effects (Simon forgot the wifi/portal lines), and new 
+icons all got into the official version. Not much of this code was 
+actually written by me, a lot of it was taken from github after Simon 
+deleted it. He said he might add in more stuff that I wrote later.
 
 Next Version
 Added readme. Faster drawing and deleting of elements. Added RAZR, an element
