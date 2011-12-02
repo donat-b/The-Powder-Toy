@@ -124,7 +124,8 @@ Added readme. Faster drawing and deleting of elements. Added RAZR, an element
 heavier than all other elements. Added new button in FAV2 menu that can make
 saves compatible with the latest beta or release version and able to be
 published. It makes sure that you don't add in any new elements not in those
-versions. PINV+PHOT = ELEC
+versions. PINV+PHOT = ELEC. SPNG drags along other particles with it, even 
+solids that normally can't move.
 
 
 
@@ -144,7 +145,6 @@ get_gravity doesn't work as a lua command or in the HUD, but gravity somehow
 Future Ideas/TODO:
 More deco tools
 Include lua code in save (like autorun.lua does)
-SPNG can move in any direction/can move nonmoving solids like CLNE
 PRHC - powered heater/cooler - dark purple deactivated - insl when inactivated - Tetracon
 old console commands destroy/safe that I made a long time ago, + still more lua commands
 rechargeable battery - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11652
