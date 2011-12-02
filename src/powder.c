@@ -150,6 +150,8 @@ void init_can_move()
 	//whol eats anar
 	can_move[PT_ANAR][PT_WHOL] = 1;
 	can_move[PT_ANAR][PT_NWHL] = 1;
+	can_move[PT_SPNG][PT_SPNG] = 2;
+	can_move[PT_RAZR][PT_CNCT] = 1;
 }
 
 /*
@@ -192,6 +194,14 @@ int eval_move(int pt, int nx, int ny, unsigned *rr)
 		{
 			if (parts[r>>8].life == 10) result = 1;
 			else result = 0;
+		}
+		if (pt == PT_SPNG)
+		{
+			int vx = parts[pt].vx;
+			int vy = parts[pt].vy;
+			parts[r>>8].x += vy;
+			parts[r>>8].x += vy;
+			result = 2;
 		}
 	}
 	if (bmap[ny/CELL][nx/CELL])
@@ -273,6 +283,25 @@ int try_move(int i, int x, int y, int nx, int ny)
 		return 0;
 	}
 
+	if (parts[i].type == PT_SPNG)
+	{
+		int vx = parts[i].vx, vy = parts[i].vy, x2, y2;
+		int vx2 = vx, vy2 = vy;
+		unsigned int r2;
+		if (vx > 0) vx2 = -1; else if (vx < 0) vx2 = 1;
+		if (vy > 0) vy2 = -1; else if (vy < 0) vy2 = 1;
+		x2 = x + vx2;
+		y2 = y + vy2;
+		r2 = pmap[y2][x2];
+		while ((r2&0xFF) && ((r2&0xFF) != PT_SPNG) && ((r2&0xFF) != PT_DMND) && ((r2&0xFF) != PT_INDI))
+		{
+			parts[r2>>8].x += vx;
+			parts[r2>>8].y += vy;
+			x2 += vx2;
+			y2 += vy2;
+			r2 = pmap[y2][x2];
+		}
+	}
 	if (e == 2) //if occupy same space
 	{
 		if (parts[i].type == PT_PHOT && (r&0xFF)==PT_GLOW && !parts[r>>8].life)
