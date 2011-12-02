@@ -412,6 +412,12 @@ void clearScreen(float alpha)
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
+void clearScreenNP(float alpha)
+{
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
 void ogl_blit(int x, int y, int w, int h, pixel *src, int pitch, int scale)
 {
 
@@ -1679,7 +1685,7 @@ void draw_other(pixel *vid) // EMP effect
 	if (emp_decor>0 && !sys_pause) emp_decor-=emp_decor/25+2;
 	if (emp_decor>40) emp_decor=40;
 	if (emp_decor<0) emp_decor = 0;
-	if (!(display_mode & display_mode == DISPLAY_EFFE)) // no in nothing mode
+	if (!(display_mode & DISPLAY_EFFE)) // no in nothing mode
 		return;
 	if (emp_decor>0)
 	{
@@ -1740,7 +1746,8 @@ GLfloat lineC[(((YRES*XRES)*2)*6)];
 #endif
 void render_parts(pixel *vid)
 {
-	int deca, decr, decg, decb, cola, colr, colg, colb, firea, firer, fireg, fireb, pixel_mode, q, i, t, nx, ny, x, y, caddress, orbd[4] = {0, 0, 0, 0}, orbl[4] = {0, 0, 0, 0};
+	int deca, decr, decg, decb, cola, colr, colg, colb, firea, firer, fireg, fireb, pixel_mode, q, i, t, nx, ny, x, y, caddress;
+	int orbd[4] = {0, 0, 0, 0}, orbl[4] = {0, 0, 0, 0};
 	float gradv, flicker, fnx, fny;
 #ifdef OGLR
 	int cfireV = 0, cfireC = 0, cfire = 0;
@@ -1896,6 +1903,8 @@ void render_parts(pixel *vid)
 					pixel_mode |= PMODE_FLAT;
 				if(pixel_mode & PMODE_GLOW && !(render_mode & PMODE_GLOW))
 					pixel_mode |= PMODE_FLAT;
+				if (render_mode & PMODE_BLOB)
+					pixel_mode |= PMODE_BLOB;
 					
 				pixel_mode &= render_mode;
 				
@@ -1928,11 +1937,10 @@ void render_parts(pixel *vid)
 				{
 					float frequency = 0.05;
 					int q = parts[i].temp-40;
-					colr = sin(frequency*q) * 16 + PIXR(ptypes[t].pcolors);
-					colg = sin(frequency*q) * 16 + PIXG(ptypes[t].pcolors);
-					colb = sin(frequency*q) * 16 + PIXB(ptypes[t].pcolors);
+					colr = sin(frequency*q) * 16 + colr;
+					colg = sin(frequency*q) * 16 + colg;
+					colb = sin(frequency*q) * 16 + colb;
 					if(pixel_mode & (FIREMODE | PMODE_GLOW)) pixel_mode = (pixel_mode & ~(FIREMODE|PMODE_GLOW)) | PMODE_BLUR;
-					pixel_mode |= PMODE_BLEND;
 				}
 								
 				//Apply decoration colour
@@ -2077,9 +2085,30 @@ void render_parts(pixel *vid)
 						cplayer = &fighters[(unsigned char)parts[i].tmp];
 					else
 						continue;
+
+					if (mousex>(nx-3) && mousex<(nx+3) && mousey<(ny+3) && mousey>(ny-3)) //If mous is in the head
+					{
+						sprintf(buff, "%3d", parts[i].life);  //Show HP
+						drawtext(vid, mousex-8-2*(parts[i].life<100)-2*(parts[i].life<10), mousey-12, buff, 255, 255, 255, 255);
+					}
+
+					if (colour_mode!=COLOUR_HEAT)
+					{
+						if (cplayer->elem<PT_NUM)
+						{
+							colr = PIXR(ptypes[cplayer->elem].pcolors);
+							colg = PIXG(ptypes[cplayer->elem].pcolors);
+							colb = PIXB(ptypes[cplayer->elem].pcolors);
+						}
+						else
+						{
+							colr = 0x80;
+							colg = 0x80;
+							colb = 0xFF;
+						}
+					}
 #ifdef OGLR
 					glColor4f(((float)colr)/255.0f, ((float)colg)/255.0f, ((float)colb)/255.0f, 1.0f);
-					glEnable(GL_LINE_SMOOTH);
 					glBegin(GL_LINE_STRIP);
 					if(t==PT_FIGH)
 					{
@@ -2099,6 +2128,15 @@ void render_parts(pixel *vid)
 					}
 					glEnd();
 					glBegin(GL_LINES);
+
+					if (colour_mode!=COLOUR_HEAT)
+					{
+						if (t==PT_STKM2)
+							glColor4f(100.0f/255.0f, 100.0f/255.0f, 1.0f, 1.0f);
+						else
+							glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+					}
+
 					glVertex2f(nx, ny+3);
 					glVertex2f(cplayer->legs[0], cplayer->legs[1]);
 					
@@ -2111,27 +2149,7 @@ void render_parts(pixel *vid)
 					glVertex2f(cplayer->legs[8], cplayer->legs[9]);
 					glVertex2f(cplayer->legs[12], cplayer->legs[13]);
 					glEnd();
-					glDisable(GL_LINE_SMOOTH);
 #else
-
-					if (mousex>(nx-3) && mousex<(nx+3) && mousey<(ny+3) && mousey>(ny-3)) //If mouse is in the head
-					{
-						sprintf(buff, "%3d", parts[i].life);  //Show HP
-						drawtext(vid, mousex-8-2*(parts[i].life<100)-2*(parts[i].life<10), mousey-12, buff, 255, 255, 255, 255);
-					}
-
-					if (cplayer->elem<PT_NUM)
-					{
-						colr = PIXR(ptypes[cplayer->elem].pcolors);
-						colg = PIXG(ptypes[cplayer->elem].pcolors);
-						colb = PIXB(ptypes[cplayer->elem].pcolors);
-					}
-					else
-					{
-						colr = 0x80;
-						colg = 0x80;
-						colb = 0xFF;
-					}
 					s = XRES+BARSIZE;
 
 					if (t==PT_STKM2)
@@ -2147,7 +2165,7 @@ void render_parts(pixel *vid)
 						legb = 255;
 					}
 
-					if (colour_mode)
+					if (colour_mode==COLOUR_HEAT)
 					{
 						legr = colr;
 						legg = colg;
@@ -2509,6 +2527,42 @@ void render_parts(pixel *vid)
 						gradv = gradv/1.01f;
 					}
 #endif
+				}
+				if (pixel_mode & EFFECT_GRAVIN)
+				{
+					int nxo = 0;
+					int nyo = 0;
+					int r;
+					int fire_rv = 0;
+					float drad = 0.0f;
+					float ddist = 0.0f;
+					orbitalparts_get(parts[i].life, parts[i].ctype, orbd, orbl);
+					for (r = 0; r < 4; r++) {
+						ddist = ((float)orbd[r])/16.0f;
+						drad = (M_PI * ((float)orbl[r]) / 180.0f)*1.41f;
+						nxo = ddist*cos(drad);
+						nyo = ddist*sin(drad);
+						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES)
+							addpixel(vid, nx+nxo, ny+nyo, colr, colg, colb, 255-orbd[r]);
+					}
+				}
+				if (pixel_mode & EFFECT_GRAVOUT)
+				{
+					int nxo = 0;
+					int nyo = 0;
+					int r;
+					int fire_bv = 0;
+					float drad = 0.0f;
+					float ddist = 0.0f;
+					orbitalparts_get(parts[i].life, parts[i].ctype, orbd, orbl);
+					for (r = 0; r < 4; r++) {
+						ddist = ((float)orbd[r])/16.0f;
+						drad = (M_PI * ((float)orbl[r]) / 180.0f)*1.41f;
+						nxo = ddist*cos(drad);
+						nyo = ddist*sin(drad);
+						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES)
+							addpixel(vid, nx+nxo, ny+nyo, colr, colg, colb, 255-orbd[r]);
+					}
 				}
 				//Fire effects
 				if(firea && (pixel_mode & FIRE_BLEND))

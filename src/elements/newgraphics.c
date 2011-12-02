@@ -382,11 +382,11 @@ int graphics_GLOW(GRAPHICS_FUNC_ARGS)
 }
 int graphics_LCRY(GRAPHICS_FUNC_ARGS)
 {
-	int lifemod = ((cpart->life>10?10:cpart->life)*10);
+	int lifemod = ((cpart->tmp2>10?10:cpart->tmp2)*10);
 	*colr += lifemod; 
 	*colg += lifemod; 
 	*colb += lifemod; 
-	if(cpart->dcolour && cpart->dcolour&0xFF000000)
+	if(decorations_enable && cpart->dcolour && cpart->dcolour&0xFF000000)
 	{
 		lifemod *= 2.5f;
 		if(lifemod < 40)
