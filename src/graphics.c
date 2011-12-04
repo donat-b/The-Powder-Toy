@@ -1011,6 +1011,11 @@ int drawtext(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a
 				g = 170;
 				r = 32;
 				break;
+			case 'p':
+				b = 100;
+				g = 10;
+				r = 100;
+				break;
 			}
 			s++;
 		}
