@@ -2917,7 +2917,7 @@ int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 	}
 	if (bm==-1)
 	{
-		if (c-UI_WALLSTART+UI_ACTUALSTART==WL_ERASE)
+		if (c-UI_WALLSTART+UI_ACTUALSTART==WL_ERASE || c-UI_WALLSTART+UI_ACTUALSTART==WL_ERASEALL)
 		{
 			bm = bmap[y/CELL][x/CELL];
 			if (!bm)
@@ -3102,7 +3102,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 		{
 			if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM || c == SPC_PGRV || c == SPC_NGRV)
 				break;
-			if (wall == WL_ERASE)
+			if (wall == WL_ERASE || wall == WL_ERASEALL)
 				b = 0;
 			else
 				b = wall;
@@ -3181,6 +3181,14 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 					}
 					if (b==0 && bmap[j][i]==WL_GRAV) gravwl_timeout = 60;
 					bmap[j][i] = b;
+					if (c-100==WL_ERASEALL)
+					{
+						for (v=0; v<CELL; v++)
+							for (u=0; u<CELL; u++)
+							{
+								delete_part(i*CELL+u, j*CELL+v, 0);
+							}
+					}
 				}
 			}
 		}

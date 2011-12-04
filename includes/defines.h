@@ -8,10 +8,10 @@
 #endif
  
 //VersionInfoStart
-#define SAVE_VERSION 68
-#define MINOR_VERSION 7
+#define SAVE_VERSION 69
+#define MINOR_VERSION 0
 #define BETA
-#define BUILD_NUM 113
+#define BUILD_NUM 115
 #define MOD_SAVE_VERSION 6
 #define MOD_MINOR_VERSION 0
 //VersionInfoEnd

@@ -25,7 +25,7 @@
 
 #define UI_WALLSTART 222
 #define UI_ACTUALSTART 122
-#define UI_WALLCOUNT 25
+#define UI_WALLCOUNT 26
 
 #define WL_WALLELEC	122
 #define WL_EWALL	123
@@ -42,6 +42,7 @@
 #define WL_ALLOWSOLID	133
 #define WL_ALLOWALLELEC	134
 #define WL_EHOLE	135
+#define WL_ERASEALL 147
 
 #define SPC_AIR 236
 #define SPC_HEAT 237
@@ -1146,6 +1147,7 @@ static wall_type wtypes[] =
 	{PIXPACK(0x000099), PIXPACK(0x000000), -1, "Negative gravity tool."},
 	{PIXPACK(0xFFAA00), PIXPACK(0xAA5500), 4, "Energy wall, allows only energy type particles to pass"},
 	{PIXPACK(0xFFAA00), PIXPACK(0xAA5500), -1, "Property edit tool"},
+	{PIXPACK(0x808080), PIXPACK(0x000000), 0, "Erases walls and particles"},
 };
 
 struct fav_menu

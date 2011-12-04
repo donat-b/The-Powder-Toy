@@ -119,7 +119,7 @@ icons all got into the official version. Not much of this code was
 actually written by me, a lot of it was taken from github after Simon 
 deleted it. He said he might add in more stuff that I wrote later.
 
-Next Version
+Version 7.0 http://min.us/lK604TH6bFNV4
 Added readme. Faster drawing and deleting of elements. Added RAZR, an element
 heavier than all other elements. Added new button in FAV2 menu that can make
 saves compatible with the latest beta or release version and able to be

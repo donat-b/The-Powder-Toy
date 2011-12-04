@@ -732,6 +732,27 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, int b, unsigned pc)
 				}
 			}
 			break;
+		case WL_ERASEALL+100:
+			for (j=1; j<15; j++)
+			{
+				int r = 100, g = 150, b = 50;
+				int rd = 1, gd = -1, bd = -1;
+				for (i=1; i<27; i++)
+				{
+					int rc, gc, bc;
+					r+=15*rd; g+=15*gd; b+=15*bd;
+					if (r > 200) rd = -1;
+					if (g > 200) gd = -1;
+					if (b > 200) bd = -1;
+					if (r < 15) rd = 1;
+					if (g < 15) gd = 1;
+					if (b < 15) bd = 1;
+					rc = max(0,r); gc = max(0,g); bc = max(0,b);
+					rc = min(150,rc); gc = min(200,gc); bc = min(200,bc);
+					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = rc*256*256+gc*256+bc;
+				}
+			}
+			break;
 		case SPC_AIR:
 		case SPC_HEAT:
 		case SPC_COOL:
@@ -782,6 +803,21 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, int b, unsigned pc)
 				vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+7)] = PIXPACK(0xFF0000);
 				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+21)] = PIXPACK(0xFF0000);
 				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+22)] = PIXPACK(0xFF0000);
+			}
+		}
+		if (b==WL_ERASEALL+100)
+		{
+			for (j=4; j<12; j++)
+			{
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+0)] = PIXPACK(0xFF0000);
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+1)] = PIXPACK(0xFF0000);
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+15)] = PIXPACK(0xFF0000);
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+16)] = PIXPACK(0xFF0000);
+
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+11)] = PIXPACK(0xFF0000);
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+12)] = PIXPACK(0xFF0000);
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+26)] = PIXPACK(0xFF0000);
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+27)] = PIXPACK(0xFF0000);
 			}
 		}
 	}
