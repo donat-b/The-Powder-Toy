@@ -6560,6 +6560,7 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 	ui_checkbox *render_cb;
 	ui_checkbox *display_cb;
 	ui_checkbox *colour_cb;
+
 	int render_optioncount = 6;
 	int render_options[] = {RENDER_EFFE, RENDER_GLOW, RENDER_FIRE, RENDER_BLUR, RENDER_BASC, RENDER_NONE};
 	int render_optionicons[] = {-1, -1, 3, 6, 7, 7};
