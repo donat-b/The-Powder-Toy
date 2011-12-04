@@ -48,7 +48,7 @@ int graphics_WIRE(GRAPHICS_FUNC_ARGS)
 		*colb = 0;
 		return 0;
 	}
-	if (cpart->ctype==1)
+	else if (cpart->ctype==1)
 	{
 		*colr = 50;
 		*colg = 100;
@@ -56,7 +56,7 @@ int graphics_WIRE(GRAPHICS_FUNC_ARGS)
 		//*pixel_mode |= PMODE_GLOW;
 		return 0;
 	}
-	if (cpart->ctype==2)
+	else if (cpart->ctype==2)
 	{
 		*colr = 255;
 		*colg = 100;
@@ -64,4 +64,5 @@ int graphics_WIRE(GRAPHICS_FUNC_ARGS)
 		//*pixel_mode |= PMODE_GLOW;
 		return 0;
 	}
+	return 0;
 }

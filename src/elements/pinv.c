@@ -26,4 +26,5 @@ int update_PINV(UPDATE_FUNC_ARGS) {
 						parts[i].life = 10;
 				}
 			}
+	return 0;
 }

@@ -3189,6 +3189,12 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 							{
 								delete_part(i*CELL+u, j*CELL+v, 0);
 							}
+						for (u=0; u<MAXSIGNS; u++)
+							if (signs[u].text[0])
+							{
+								if (signs[u].x >= i*CELL && signs[u].y >= j*CELL && signs[u].x <= (i+1)*CELL && signs[u].y <= (j+1)*CELL)
+									signs[u].text[0] = 0;
+							}
 					}
 				}
 			}
