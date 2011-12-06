@@ -655,7 +655,7 @@ void kill_part(int i)//kills particle number i
 		int bn = parts[i].life;
 		msnum[bn]--;
 		if (msindex[bn] == i)
-			msindex[bn] = NULL;
+			msindex[bn] = 0;
 	}
 	else if (parts[i].type == PT_ANIM)
 	{
@@ -2820,7 +2820,7 @@ void create_box(int x1, int y1, int x2, int y2, int c, int flags)
 {
 	int i, j;
 	if (c==SPC_PROP)
-		return 0;
+		return;
 	if (x1>x2)
 	{
 		i = x2;
@@ -2835,7 +2835,7 @@ void create_box(int x1, int y1, int x2, int y2, int c, int flags)
 	}
 	for (j=y1; j<=y2; j++)
 		for (i=x1; i<=x2; i++)
-			create_parts(i, j, 0, 0, c, flags);
+			create_parts(i, j, 0, 0, c, flags, 1);
 }
 
 int flood_prop_2(int x, int y, size_t propoffset, void * propvalue, int proptype, int parttype, char * bitmap)
@@ -2888,9 +2888,12 @@ int flood_prop(int x, int y, size_t propoffset, void * propvalue, int proptype)
 	int r = 0;
 	char * bitmap = malloc(XRES*YRES); //Bitmap for checking
 	memset(bitmap, 0, XRES*YRES);
+	if (bitmap == 0)
+		return 0;
 	r = pmap[y][x];
 	flood_prop_2(x, y, propoffset, propvalue, proptype, r&0xFF, bitmap);
 	free(bitmap);
+	return 0;
 }
 
 int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
@@ -2960,7 +2963,7 @@ int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 			if (create_part(-1,x, y, fullc)==-1)
 				return 0;
 		}
-		else if (!create_parts(x, y, 0, 0, fullc, flags))
+		else if (!create_parts(x, y, 0, 0, fullc, flags, 1))
 			return 0;
 	}
 	// fill children
@@ -3011,6 +3014,7 @@ int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 	}
 	if (!(cm==PT_INST&&co==PT_SPRK))
 		return 1;
+	return 0;
 }
 
 int flood_water(int x, int y, int i, int originaly, int check)
@@ -3607,7 +3611,7 @@ void gravity_mask()
 					c_mask_el->next = NULL;
 				}
 				//Fill the shape
-				grav_mask_r(x, y, checkmap, c_mask_el->shape, &c_mask_el->shapeout);
+				grav_mask_r(x, y, checkmap, (char (*)[153])c_mask_el->shape, &c_mask_el->shapeout);
 			}
 		}
 	}

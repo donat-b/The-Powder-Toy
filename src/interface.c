@@ -2713,7 +2713,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 			if(x >= (XRES+BARSIZE)-16 && x <= (XRES+BARSIZE)-2 && y >= (i*16)+1 && y <= (i*16)+15)
 			{
 				quickoptions_tooltip_fade+=2;
-				quickoptions_tooltip = quickmenu[i].name;
+				quickoptions_tooltip = (char*)quickmenu[i].name;
 				quickoptions_tooltip_y = (i*16)+5;
 				if(b && !bq)
 				{

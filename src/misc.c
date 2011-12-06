@@ -665,6 +665,7 @@ char * clipboard_pull_text()
 	printf("Not implemented: get text from clipboard\n");
 	return "";
 #endif
+	return "";
 }
 
 int register_extension()
@@ -688,7 +689,7 @@ int register_extension()
 		goto finalise;
 	}*/
 	
-	AppDataPath = _getcwd(NULL, 0);
+	AppDataPath = (char*)_getcwd(NULL, 0);
 
 	//Move Game executable into application data folder
 	//TODO: Implement

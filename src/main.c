@@ -1700,6 +1700,7 @@ void* update_grav_async(void* unused)
 		}
 	}
 	pthread_exit(NULL);
+	return 0;
 }
 
 void start_grav_async()
@@ -3598,7 +3599,7 @@ int main(int argc, char *argv[])
 						if (c!=WL_STREAM+100&&c!=SPC_AIR&&c!=SPC_HEAT&&c!=SPC_COOL&&c!=SPC_VACUUM&&!REPLACE_MODE&&c!=SPC_WIND&&c!=SPC_PGRV&&c!=SPC_NGRV)
 							flood_parts(x, y, c, -1, -1, get_brush_flags());
 						if (c==SPC_HEAT || c==SPC_COOL)
-							create_parts(x, y, bsx, bsy, c, get_brush_flags());
+							create_parts(x, y, bsx, bsy, c, get_brush_flags(), 1);
 						lx = x;
 						ly = y;
 						lb = 0;
@@ -3654,7 +3655,7 @@ int main(int argc, char *argv[])
 						if (c == PT_MOVS)
 							create_moving_solid(x,y,bsx,bsy);
 						else
-							create_parts(x, y, bsx, bsy, c, get_brush_flags());
+							create_parts(x, y, bsx, bsy, c, get_brush_flags(), 1);
 						lx = x;
 						ly = y;
 						lb = b;

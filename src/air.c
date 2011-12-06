@@ -304,9 +304,9 @@ void update_grav()
 		}
 	}
 	memcpy(th_ogravmap, th_gravmap, sizeof(th_gravmap));
-	bilinear_interpolation(th_gravy, th_gravyf, XRES/CELL, YRES/CELL, XRES, YRES);
-	bilinear_interpolation(th_gravx, th_gravxf, XRES/CELL, YRES/CELL, XRES, YRES);
-	bilinear_interpolation(th_gravp, th_gravpf, XRES/CELL, YRES/CELL, XRES, YRES);
+	bilinear_interpolation((float*)th_gravy, th_gravyf, XRES/CELL, YRES/CELL, XRES, YRES);
+	bilinear_interpolation((float*)th_gravx, th_gravxf, XRES/CELL, YRES/CELL, XRES, YRES);
+	bilinear_interpolation((float*)th_gravp, th_gravpf, XRES/CELL, YRES/CELL, XRES, YRES);
 }
 
 #else
@@ -362,9 +362,9 @@ void update_grav(void)
 			}
 		}
 	}
-	bilinear_interpolation(th_gravy, th_gravyf, XRES/CELL, YRES/CELL, XRES, YRES);
-	bilinear_interpolation(th_gravx, th_gravxf, XRES/CELL, YRES/CELL, XRES, YRES);
-	bilinear_interpolation(th_gravp, th_gravpf, XRES/CELL, YRES/CELL, XRES, YRES);
+	bilinear_interpolation((float*)th_gravy, th_gravyf, XRES/CELL, YRES/CELL, XRES, YRES);
+	bilinear_interpolation((float*)th_gravx, th_gravxf, XRES/CELL, YRES/CELL, XRES, YRES);
+	bilinear_interpolation((float*)th_gravp, th_gravpf, XRES/CELL, YRES/CELL, XRES, YRES);
 fin:
 	memcpy(th_ogravmap, th_gravmap, sizeof(th_gravmap));
 	memset(th_gravmap, 0, sizeof(th_gravmap));

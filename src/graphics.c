@@ -4519,4 +4519,5 @@ int draw_debug_info(pixel* vid, int lm, int lx, int ly, int cx, int cy, int line
 		fillrect(vid, 7, YRES-26, textwidth(infobuf)+5, 14, 0, 0, 0, 180);		
 		drawtext(vid, 10, YRES-22, infobuf, 255, 255, 255, 255);
 	}
+	return 0;
 }

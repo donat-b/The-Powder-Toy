@@ -221,7 +221,7 @@ int luacon_part_update(int t, int i, int x, int y, int surround_space, int nt)
 	return retval;
 }
 char *luacon_geterror(){
-	char *error = lua_tostring(l, -1);
+	char *error = (char*)lua_tostring(l, -1);
 	if(error==NULL || !error[0]){
 		error = "failed to execute";
 	}
@@ -273,7 +273,7 @@ int luatpt_test(lua_State* l)
 int luatpt_getelement(lua_State *l)
 {
 	int t;
-	char * name = luaL_optstring(l, 1, "dust");
+	char * name = (char*)luaL_optstring(l, 1, "dust");
 	if (!console_parse_type(name, &t, NULL))
 		return luaL_error(l,"Unrecognised element '%s'", name);
 	lua_pushinteger(l, t);
@@ -305,7 +305,7 @@ int luatpt_element_func(lua_State *l)
 int luatpt_error(lua_State* l)
 {
 	char *error = "";
-	error = mystrdup(luaL_optstring(l, 1, "Error text"));
+	error = mystrdup((char*)luaL_optstring(l, 1, "Error text"));
 	if(vid_buf!=NULL){
 		error_ui(vid_buf, 0, error);
 		free(error);
@@ -320,7 +320,7 @@ int luatpt_drawtext(lua_State* l)
 	int textx, texty, textred, textgreen, textblue, textalpha;
 	textx = luaL_optint(l, 1, 0);
 	texty = luaL_optint(l, 2, 0);
-	string = luaL_optstring(l, 3, "");
+	string = (char*)luaL_optstring(l, 3, "");
 	textred = luaL_optint(l, 4, 255);
 	textgreen = luaL_optint(l, 5, 255);
 	textblue = luaL_optint(l, 6, 255);
@@ -354,7 +354,7 @@ int luatpt_create(lua_State* l)
 			if (t<0 || t >= PT_NUM || !ptypes[t].enabled)
 				return luaL_error(l, "Unrecognised element number '%d'", t);
 		} else {
-			name = luaL_optstring(l, 3, "dust");
+			name = (char*)luaL_optstring(l, 3, "dust");
 			if (!console_parse_type(name, &t, NULL))
 				return luaL_error(l,"Unrecognised element '%s'", name);
 		}
@@ -397,7 +397,7 @@ int luatpt_setconsole(lua_State* l)
 int luatpt_log(lua_State* l)
 {
 	char *buffer;
-	buffer = luaL_optstring(l, 1, "");
+	buffer = (char*)luaL_optstring(l, 1, "");
 	strncpy(console_error, buffer, 254);
 	return 0;
 }
@@ -535,7 +535,7 @@ int luatpt_set_property(lua_State* l)
 	float f;
 	size_t offset;
 	acount = lua_gettop(l);
-	prop = luaL_optstring(l, 1, "");
+	prop = (char*)luaL_optstring(l, 1, "");
 	if(lua_isnumber(l, 3))
 		i = abs(luaL_optint(l, 3, -1));
 	else
@@ -590,7 +590,7 @@ int luatpt_set_property(lua_State* l)
 	}
 	if(acount>2){
 		if(!lua_isnumber(l, acount) && lua_isstring(l, acount)){
-			name = luaL_optstring(l, acount, "none");
+			name = (char*)luaL_optstring(l, acount, "none");
 			if (!console_parse_type(name, &partsel, NULL))
 				return luaL_error(l, "Unrecognised element '%s'", name);
 		}
@@ -604,7 +604,7 @@ int luatpt_set_property(lua_State* l)
 		if (format == 3 && (t<0 || t>=PT_NUM))
 			return luaL_error(l, "Unrecognised element number '%d'", t);
 	} else {
-		name = luaL_optstring(l, 2, "dust");
+		name = (char*)luaL_optstring(l, 2, "dust");
 		if (!console_parse_type(name, &t, NULL))
 			return luaL_error(l, "Unrecognised element '%s'", name);
 	}
@@ -670,7 +670,7 @@ int luatpt_get_property(lua_State* l)
 {
 	int i, r, y;
 	char *prop;
-	prop = luaL_optstring(l, 1, "");
+	prop = (char*)luaL_optstring(l, 1, "");
 	i = luaL_optint(l, 2, 0);
 	y = luaL_optint(l, 3, -1);
 	if(y!=-1 && y < YRES && y >= 0 && i < XRES && i >= 0){
@@ -878,7 +878,7 @@ int luatpt_textwidth(lua_State* l)
 {
 	char * string;
 	int strwidth = 0;
-	string = luaL_optstring(l, 1, "");
+	string = (char*)luaL_optstring(l, 1, "");
 	strwidth = textwidth(string);
 	lua_pushinteger(l, strwidth);
 	return 1;
@@ -1076,10 +1076,10 @@ int luatpt_unregister_mouseclick(lua_State* l)
 int luatpt_input(lua_State* l)
 {
 	char *prompt, *title, *result, *shadow, *text;
-	title = mystrdup(luaL_optstring(l, 1, "Title"));
-	prompt = mystrdup(luaL_optstring(l, 2, "Enter some text:"));
-	text = mystrdup(luaL_optstring(l, 3, ""));
-	shadow = mystrdup(luaL_optstring(l, 4, ""));
+	title = mystrdup((char*)luaL_optstring(l, 1, "Title"));
+	prompt = mystrdup((char*)luaL_optstring(l, 2, "Enter some text:"));
+	text = mystrdup((char*)luaL_optstring(l, 3, ""));
+	shadow = mystrdup((char*)luaL_optstring(l, 4, ""));
 
 	if (vid_buf!=NULL)
 	{
@@ -1101,8 +1101,8 @@ int luatpt_input(lua_State* l)
 int luatpt_message_box(lua_State* l)
 {
 	char *title, *text;
-	title = mystrdup(luaL_optstring(l, 1, "Title"));
-	text = mystrdup(luaL_optstring(l, 2, "Message"));
+	title = mystrdup((char*)luaL_optstring(l, 1, "Title"));
+	text = mystrdup((char*)luaL_optstring(l, 2, "Message"));
 	if (vid_buf!=NULL)
 	{
 		info_ui(vid_buf, title, text);
@@ -1232,8 +1232,8 @@ int luatpt_getscript(lua_State* l)
 	int len, ret,run_script;
 	FILE * outputfile;
 
-	fileauthor = mystrdup(luaL_optstring(l, 1, ""));
-	fileid = mystrdup(luaL_optstring(l, 2, ""));
+	fileauthor = mystrdup((char*)luaL_optstring(l, 1, ""));
+	fileid = mystrdup((char*)luaL_optstring(l, 2, ""));
 	run_script = luaL_optint(l, 3, 0);
 	if(!fileauthor || !fileid || strlen(fileauthor)<1 || strlen(fileid)<1)
 		goto fin;
@@ -1243,7 +1243,7 @@ int luatpt_getscript(lua_State* l)
 	fileuri = malloc(strlen(SCRIPTSERVER)+strlen(fileauthor)+strlen(fileid)+44);
 	sprintf(fileuri, "http://" SCRIPTSERVER "/GetScript.api?Author=%s&Filename=%s", fileauthor, fileid);
 	
-	filedata = http_auth_get(fileuri, svf_user_id, NULL, svf_session_id, &ret, &len);
+	filedata = (char*)http_auth_get(fileuri, svf_user_id, NULL, svf_session_id, &ret, &len);
 	
 	if(len <= 0 || !filedata)
 	{
@@ -1252,7 +1252,7 @@ int luatpt_getscript(lua_State* l)
 	}
 	if(ret != 200)
 	{
-		lastError = http_ret_text(ret);
+		lastError = (char*)http_ret_text(ret);
 		goto fin;
 	}
 	
@@ -1345,7 +1345,7 @@ int luatpt_screenshot(lua_State* l)
 int luatpt_sound(lua_State* l)
 {
 	char *filename;
-	filename = mystrdup(luaL_optstring(l, 1, ""));
+	filename = mystrdup((char*)luaL_optstring(l, 1, ""));
 	if (sound_enable) play_sound(filename);
 	else return luaL_error(l, "Audio device not available - cannot play sounds");
 	return 0;
@@ -1354,7 +1354,7 @@ int luatpt_sound(lua_State* l)
 int luatpt_load(lua_State* l)
 {
 	char *savenum;
-	savenum = mystrdup(luaL_optstring(l, 1, ""));
+	savenum = mystrdup((char*)luaL_optstring(l, 1, ""));
 	open_ui(vid_buf, savenum, NULL);
 	console_mode = 0;
 	return 0;
