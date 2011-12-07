@@ -81,6 +81,8 @@ void luacon_open(){
 		{"get_pressure",&luatpt_get_pressure},
 		{"get_gravity",&luatpt_get_gravity},
 		{"maxframes",&luatpt_maxframes},
+		{"get_wall",&luatpt_getwall},
+		{"set_wall",&luatpt_setwall},
 		{NULL,NULL}
 	};
 
@@ -1205,7 +1207,9 @@ int luatpt_heat(lua_State* l)
 }
 int luatpt_cmode_set(lua_State* l)
 {
-    return luaL_error(l, "Not implemented");
+	int aheatstate = luaL_optint(l, 1, CM_FIRE);
+	set_cmode(aheatstate);
+	return 0;
 }
 int luatpt_setfire(lua_State* l)
 {
@@ -1460,5 +1464,26 @@ int luatpt_maxframes(lua_State* l)
 			create_part(-1, parts[i].x, parts[i].y, PT_ANIM);
 		}
 	return 0;
+}
+
+int luatpt_setwall(lua_State* l)
+{
+	int wx = luaL_optint(l,1,-1);
+	int wy = luaL_optint(l,2,-1);
+	int wt = luaL_optint(l,3,2);
+	if (wx < 0 || wx > XRES/CELL || wy < 0 || wy > YRES/CELL)
+		return luaL_error(l, "coordinates out of range (%d,%d)", wx, wy);
+	bmap[wy][wx] = wt;
+	return 0;
+}
+
+int luatpt_getwall(lua_State* l)
+{
+	int wx = luaL_optint(l,1,1);
+	int wy = luaL_optint(l,2,2);
+	if (wx < 0 || wx > XRES/CELL || wy < 0 || wy > YRES/CELL)
+		return luaL_error(l, "coordinates out of range (%d,%d)", wx, wy);
+	lua_pushnumber(l, bmap[wy][wx]);
+	return 1;
 }
 #endif

@@ -2956,12 +2956,16 @@ int main(int argc, char *argv[])
 		}
 		if (y>=0 && y<sdl_scale*YRES && x>=0 && x<sdl_scale*XRES)
 		{
-			int cr; //cr is particle under mouse, for drawing HUD information
+			int cr,wl; //cr is particle under mouse, for drawing HUD information
 			char nametext[50];
 			if (photons[y/sdl_scale][x/sdl_scale]) {
 				cr = photons[y/sdl_scale][x/sdl_scale];
 			} else {
 				cr = pmap[y/sdl_scale][x/sdl_scale];
+			}
+			if (!cr && alt_hud == 1)
+			{
+				wl = bmap[y/sdl_scale/CELL][x/sdl_scale/CELL];
 			}
 			if (cr)
 			{
@@ -3036,6 +3040,20 @@ int main(int argc, char *argv[])
 					}
 				}
 				if ((cr&0xFF)==PT_PHOT) wavelength_gfx = parts[cr>>8].ctype;
+			}
+			else if (wl)
+			{
+				sprintf(nametext, "%s", wtypes[wl-UI_ACTUALSTART].name);
+				if (DEBUG_MODE)
+				{
+					sprintf(heattext, "%s, Pressure: %3.4f", nametext, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+					if (ngrav_enable)
+						sprintf(coordtext, "X:%d Y:%d GX: %.4f GY: %.4f", x/sdl_scale, y/sdl_scale, gravx[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], gravy[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+					else
+						sprintf(coordtext, "X:%d Y:%d", x/sdl_scale, y/sdl_scale);
+				}
+				else
+					sprintf(heattext, "%s, Pressure: %3.2f", nametext, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
 			}
 			else
 			{

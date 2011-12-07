@@ -93,4 +93,6 @@ int luatpt_reset_temp(lua_State* l);
 int luatpt_get_pressure(lua_State* l);
 int luatpt_get_gravity(lua_State* l);
 int luatpt_maxframes(lua_State* l);
+int luatpt_getwall(lua_State* l);
+int luatpt_setwall(lua_State* l);
 #endif
