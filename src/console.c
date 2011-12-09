@@ -10,7 +10,7 @@ char console_more=0;
 char console_error[255] = "";
 int file_script = 0;
 
-//takes a a string and compares it to element names, and puts it value into element.
+//takes a a string and compares it to element names, and puts it's value into element.
 int console_parse_type(char *txt, int *element, char *err)
 {
 	int i = -1;
@@ -25,7 +25,7 @@ int console_parse_type(char *txt, int *element, char *err)
 		return 1;
 	}
 	for (i=1; i<PT_NUM; i++) {
-		if (strcasecmp(txt,ptypes[i].name)==0 && ptypes[i].enabled)
+		if (strcasecmp(txt,ptypes[i].name)==0 && (ptypes[i].enabled || secret_els))
 		{
 			*element = i;
 			if (err) strcpy(err,"");
@@ -33,6 +33,19 @@ int console_parse_type(char *txt, int *element, char *err)
 		}
 	}
 	if (err) strcpy(err, "Particle type not recognised");
+	return 0;
+}
+//takes a a string and compares it to wall names, and puts it's value into element.
+int console_parse_wall_type(char *txt, int *wall)
+{
+	int i;
+	for (i=0; i<UI_WALLCOUNT; i++) {
+		if (strcasecmp(txt,wtypes[i].name)==0 && (wtypes[i].drawstyle != -1 || secret_els))
+		{
+			*wall = i+UI_ACTUALSTART;
+			return 1;
+		}
+	}
 	return 0;
 }
 //takes a string of coords "x,y" and puts the values into x and y.

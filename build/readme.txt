@@ -1,4 +1,6 @@
 ------------------------------------------------------------------------------
+If you're missing any DLL's, download them here: http://min.us/lYzg3yW4VN2ce
+
 This is a mod that basically does the same thing as the Lua script I made. 
 It has a favorites menu under the Tools menu, that has all of the elements 
 you selected recently, including walls and tools. Ctrl+Shift+left clicking 
@@ -127,6 +129,9 @@ published. It makes sure that you don't add in any new elements not in those
 versions. PINV+PHOT = ELEC. SPNG drags along other particles with it, even 
 solids that normally can't move.
 
+Next Version
+Wall names display in the hud. New lua functions: get_wall and create_wall.
+
 
 
 
@@ -149,3 +154,5 @@ PRHC - powered heater/cooler - dark purple deactivated - insl when inactivated -
 old console commands destroy/safe that I made a long time ago, + still more lua commands
 rechargeable battery - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11652
 buttons to decide what is in the HUD
+brush rotation - slurms
+ambient heat blocking wall

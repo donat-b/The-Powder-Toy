@@ -3092,7 +3092,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 	int i, j, r, f = 0, u, v, oy, ox, b = 0, dw = 0, stemp = 0, p, fn;
 
 	int wall = c - 100;
-	if (c==SPC_WIND || c==PT_FIGH)
+	if (c==SPC_WIND || c==PT_FIGH || c==WL_SIGN+100)
 		return 0;
 
 	if(c==SPC_PROP){

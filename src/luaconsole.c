@@ -82,7 +82,7 @@ void luacon_open(){
 		{"get_gravity",&luatpt_get_gravity},
 		{"maxframes",&luatpt_maxframes},
 		{"get_wall",&luatpt_getwall},
-		{"set_wall",&luatpt_setwall},
+		{"create_wall",&luatpt_createwall},
 		{NULL,NULL}
 	};
 
@@ -1466,21 +1466,31 @@ int luatpt_maxframes(lua_State* l)
 	return 0;
 }
 
-int luatpt_setwall(lua_State* l)
+int luatpt_createwall(lua_State* l)
 {
 	int wx = luaL_optint(l,1,-1);
 	int wy = luaL_optint(l,2,-1);
-	int wt = luaL_optint(l,3,2);
-	if (wx < 0 || wx > XRES/CELL || wy < 0 || wy > YRES/CELL)
+	int wt;
+	if(lua_isnumber(l, 3))
+		wt = luaL_optint(l,3,WL_WALL);
+	else
+	{
+		char* name = (char*)luaL_optstring(l, 3, "WALL");
+		if (!console_parse_wall_type(name, &wt))
+			return luaL_error(l, "Unrecognised wall '%s'", name);
+	}
+	if (wx < 0 || wx >= XRES/CELL || wy < 0 || wy >= YRES/CELL)
 		return luaL_error(l, "coordinates out of range (%d,%d)", wx, wy);
+	if (wt < UI_ACTUALSTART || wt >= UI_ACTUALSTART+UI_WALLCOUNT || (wtypes[wt-UI_ACTUALSTART].drawstyle == -1 && !secret_els))
+		return luaL_error(l, "Unrecognised wall number %i", wt);
 	bmap[wy][wx] = wt;
 	return 0;
 }
 
 int luatpt_getwall(lua_State* l)
 {
-	int wx = luaL_optint(l,1,1);
-	int wy = luaL_optint(l,2,2);
+	int wx = luaL_optint(l,1,-1);
+	int wy = luaL_optint(l,2,-1);
 	if (wx < 0 || wx > XRES/CELL || wy < 0 || wy > YRES/CELL)
 		return luaL_error(l, "coordinates out of range (%d,%d)", wx, wy);
 	lua_pushnumber(l, bmap[wy][wx]);
