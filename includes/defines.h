@@ -9,15 +9,15 @@
  
 //VersionInfoStart
 #define SAVE_VERSION 69
-#define MINOR_VERSION 0
+#define MINOR_VERSION 2
 #define BETA
-#define BUILD_NUM 116
+#define BUILD_NUM 120
+//VersionInfoEnd
 
 #define MOD_SAVE_VERSION 6
 #define MOD_MINOR_VERSION 0
-//VersionInfoEnd
 
-#define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter.
+#define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter
 
 #define MTOS_EXPAND(str) #str
 #define MTOS(str) MTOS_EXPAND(str)

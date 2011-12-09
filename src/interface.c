@@ -2907,8 +2907,7 @@ void set_cmode(int cm) // sets to given view mode
 	{
 		free(render_modes);
 		render_modes = calloc(3, sizeof(unsigned int));
-		render_mode |= RENDER_BASC;
-		render_mode |= RENDER_EFFE;
+		render_mode |= RENDER_EFFE | RENDER_BASC;
 		render_modes[0] = RENDER_EFFE;
 		render_modes[1] = RENDER_BASC;
 		render_modes[2] = 0;
@@ -2923,8 +2922,7 @@ void set_cmode(int cm) // sets to given view mode
 	{
 		free(render_modes);
 		render_modes = calloc(3, sizeof(unsigned int));
-		render_mode |= RENDER_BASC;
-		render_mode |= RENDER_EFFE;
+		render_mode |= RENDER_EFFE | RENDER_BASC;
 		render_modes[0] = RENDER_EFFE;
 		render_modes[1] = RENDER_BASC;
 		render_modes[2] = 0;
@@ -2939,8 +2937,7 @@ void set_cmode(int cm) // sets to given view mode
 	{
 		free(render_modes);
 		render_modes = calloc(3, sizeof(unsigned int));
-		render_mode |= RENDER_BASC;
-		render_mode |= RENDER_EFFE;
+		render_mode |= RENDER_EFFE | RENDER_BASC;
 		render_modes[0] = RENDER_EFFE;
 		render_modes[1] = RENDER_BASC;
 		render_modes[2] = 0;
@@ -2993,14 +2990,16 @@ void set_cmode(int cm) // sets to given view mode
 	else if (cmode==CM_FANCY)
 	{
 		free(render_modes);
-		render_modes = calloc(4, sizeof(unsigned int));
+		render_modes = calloc(5, sizeof(unsigned int));
 		render_mode |= RENDER_FIRE;
 		render_mode |= RENDER_GLOW;
 		render_mode |= RENDER_BLUR;
+		render_mode |= RENDER_EFFE;
 		render_modes[0] = RENDER_FIRE;
 		render_modes[1] = RENDER_GLOW;
 		render_modes[2] = RENDER_BLUR;
-		render_modes[3] = 0;
+		render_modes[3] = RENDER_EFFE;
+		render_modes[4] = 0;
 		free(display_modes);
 		display_modes = calloc(2, sizeof(unsigned int));
 		display_mode |= DISPLAY_WARP;
@@ -3029,8 +3028,7 @@ void set_cmode(int cm) // sets to given view mode
 	{
 		free(render_modes);
 		render_modes = calloc(3, sizeof(unsigned int));
-		render_mode |= RENDER_BASC;
-		render_mode |= RENDER_EFFE;
+		render_mode |= RENDER_EFFE | RENDER_BASC;
 		render_modes[0] = RENDER_EFFE;
 		render_modes[1] = RENDER_BASC;
 		render_modes[2] = 0;
