@@ -2004,15 +2004,33 @@ void addluastuff()
 	create_part(-1,4,4,PT_INDI);
 	i = create_part(-1,5,4,PT_INDI);
 	parts[i].animations = calloc(256,sizeof(int));
-	parts[i].animations[0] = 16;
-	parts[i].animations[1] = 100;
+	parts[i].animations[0] = 44445;
+	parts[i].animations[1] = 16;
 	parts[i].animations[2] = 100;
-	parts[i].animations[3] = 20;
-	parts[i].animations[4] = 50;
-	parts[i].animations[5] = 0;
+	parts[i].animations[3] = 100;
+	parts[i].animations[4] = 20;
+	parts[i].animations[5] = 50;
 	parts[i].animations[6] = 0;
-	parts[i].animations[7] = 255;
+	parts[i].animations[7] = 0;
 	parts[i].animations[8] = 255;
+	parts[i].animations[9] = 255;
+	parts[i].animations[10] = 44446;
+	parts[i].animations[11] = 44445;
+	parts[i].animations[12] = 15;
+	parts[i].animations[13] = 200;
+	parts[i].animations[14] = 100;
+	parts[i].animations[15] = 30;
+	parts[i].animations[16] = 10;
+	parts[i].animations[17] = 0;
+	parts[i].animations[18] = 255;
+	parts[i].animations[19] = 0;
+	parts[i].animations[20] = 255;
+	parts[i].animations[21] = 44446;
+	parts[i].animations[22] = 44445;
+	parts[i].animations[23] = 41;
+	parts[i].animations[24] = 5;
+	parts[i].animations[25] = 44446;
+	parts[i].animations[26] = 44444;
 }
 
 void readluastuff()
@@ -2020,16 +2038,24 @@ void readluastuff()
 	if ((pmap[4][5]&0xFF) == PT_INDI)
 	{
 		int i = pmap[4][5]>>8;
-		lua_pushcfunction(l,tptluaapi[parts[i].animations[0]].func);
-		lua_pushnumber(l, parts[i].animations[1]);
-		lua_pushnumber(l, parts[i].animations[2]);
-		lua_pushnumber(l, parts[i].animations[3]);
-		lua_pushnumber(l, parts[i].animations[4]);
-		lua_pushnumber(l, parts[i].animations[5]);
-		lua_pushnumber(l, parts[i].animations[6]);
-		lua_pushnumber(l, parts[i].animations[7]);
-		lua_pushnumber(l, parts[i].animations[8]);
-		lua_call(l, 8, 0);
+		int j = 0;
+		while (parts[i].animations[j] != 44444)
+		{
+			if (parts[i].animations[j] == 44445)
+			{
+				int k = 0;
+				lua_pushcfunction(l,tptluaapi[parts[i].animations[j+1]].func);
+				j+=2;
+				while (parts[i].animations[j] != 44446)
+				{
+					lua_pushnumber(l, parts[i].animations[j]);
+					j++;
+					k++;
+				}
+				lua_call(l, k, 0);
+			}
+			j++;
+		}
 	}
 }
 
