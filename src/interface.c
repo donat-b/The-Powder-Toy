@@ -2480,6 +2480,8 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 				heatmode = (heatmode + 1)%3;
 			else if (h == FAV_SAVE)
 				save_as = (save_as + 1)%3;
+			else if (h == FAV_LUA)
+				addluastuff();
 			else if (h == FAV_SECR)
 			{
 				secret_els = !secret_els;

@@ -238,8 +238,9 @@
 #define FAV_ROTATE 305
 #define FAV_HEAT 306
 #define FAV_SAVE 307
-#define FAV_SECR 308
-#define FAV_END 309
+#define FAV_LUA 308
+#define FAV_SECR 309
+#define FAV_END 310
 
 #define R_TEMP 22
 #define MAX_TEMP 9999
@@ -746,6 +747,7 @@ static fav_menu fav[] =
 	{"SPIN", PIXPACK(0x0010A0), "Makes moving solids rotate"},
 	{"HEAT", PIXPACK(0xFF00D4), "Changes heat display mode. current mode: "},
 	{"SAVE", PIXPACK(0x2B1AC9), "Makes save/stamps compatible with: "},
+	{"LUA",  PIXPACK(0xFFFF00), "Add Lua code to a save (unfinished)"},
 	{"", PIXPACK(0x000000), ""}
 };
 

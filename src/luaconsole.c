@@ -15,77 +15,78 @@ int tptProperties; //Table for some TPT properties
 int tptPropertiesVersion;
 int tptElements; //Table for TPT element names
 int tptParts, tptPartsMeta, tptElementTransitions;
+
+const static struct luaL_reg tptluaapi [] = {
+	{"test", &luatpt_test},
+	{"drawtext", &luatpt_drawtext},
+	{"create", &luatpt_create},
+	{"set_pause", &luatpt_setpause},
+	{"toggle_pause", &luatpt_togglepause},
+	{"set_console", &luatpt_setconsole},
+	{"log", &luatpt_log},
+	{"set_pressure", &luatpt_set_pressure},
+	{"set_gravity", &luatpt_set_gravity},
+	{"reset_gravity_field", &luatpt_reset_gravity_field},
+	{"reset_velocity", &luatpt_reset_velocity},
+	{"reset_spark", &luatpt_reset_spark},
+	{"set_property", &luatpt_set_property},
+	{"get_property", &luatpt_get_property},
+	{"drawpixel", &luatpt_drawpixel},
+	{"drawrect", &luatpt_drawrect},
+	{"fillrect", &luatpt_fillrect},
+	{"drawline", &luatpt_drawline},
+	{"textwidth", &luatpt_textwidth},
+	{"get_name", &luatpt_get_name},
+	{"set_shortcuts", &luatpt_set_shortcuts},
+	{"delete", &luatpt_delete},
+	{"register_step", &luatpt_register_step},
+	{"unregister_step", &luatpt_unregister_step},
+	{"register_mouseclick", &luatpt_register_mouseclick},
+	{"unregister_mouseclick", &luatpt_unregister_mouseclick},
+	{"register_keypress", &luatpt_register_keypress},
+	{"unregister_keypress", &luatpt_unregister_keypress},
+	{"register_mouseevent", &luatpt_register_mouseclick},
+	{"unregister_mouseevent", &luatpt_unregister_mouseclick},
+	{"register_keyevent", &luatpt_register_keypress},
+	{"unregister_keyevent", &luatpt_unregister_keypress},
+	{"input", &luatpt_input},
+	{"message_box", &luatpt_message_box},
+	{"get_numOfParts", &luatpt_get_numOfParts},
+	{"start_getPartIndex", &luatpt_start_getPartIndex},
+	{"next_getPartIndex", &luatpt_next_getPartIndex},
+	{"getPartIndex", &luatpt_getPartIndex},
+	{"hud", &luatpt_hud},
+	{"newtonian_gravity", &luatpt_gravity},
+	{"ambient_heat", &luatpt_airheat},
+	{"active_menu", &luatpt_active_menu},
+	{"decorations_enable", &luatpt_decorations_enable},
+	{"display_mode", &luatpt_cmode_set},
+	{"throw_error", &luatpt_error},
+	{"heat", &luatpt_heat},
+	{"setfire", &luatpt_setfire},
+	{"setdebug", &luatpt_setdebug},
+	{"setfpscap",&luatpt_setfpscap},
+	{"getscript",&luatpt_getscript},
+	{"setwindowsize",&luatpt_setwindowsize},
+	{"watertest",&luatpt_togglewater},
+	{"screenshot",&luatpt_screenshot},
+	{"element",&luatpt_getelement},
+	{"element_func",&luatpt_element_func},
+	{"sound",&luatpt_sound},
+	{"load",&luatpt_load},
+	{"bubble",&luatpt_bubble},
+	{"reset_pressure",&luatpt_reset_pressure},
+	{"reset_temp",&luatpt_reset_temp},
+	{"get_pressure",&luatpt_get_pressure},
+	{"get_gravity",&luatpt_get_gravity},
+	{"maxframes",&luatpt_maxframes},
+	{"get_wall",&luatpt_getwall},
+	{"create_wall",&luatpt_createwall},
+	{NULL,NULL}
+};
 void luacon_open(){
 	int i = 0, j;
 	char tmpname[12];
-	const static struct luaL_reg tptluaapi [] = {
-		{"test", &luatpt_test},
-		{"drawtext", &luatpt_drawtext},
-		{"create", &luatpt_create},
-		{"set_pause", &luatpt_setpause},
-		{"toggle_pause", &luatpt_togglepause},
-		{"set_console", &luatpt_setconsole},
-		{"log", &luatpt_log},
-		{"set_pressure", &luatpt_set_pressure},
-		{"set_gravity", &luatpt_set_gravity},
-		{"reset_gravity_field", &luatpt_reset_gravity_field},
-		{"reset_velocity", &luatpt_reset_velocity},
-		{"reset_spark", &luatpt_reset_spark},
-		{"set_property", &luatpt_set_property},
-		{"get_property", &luatpt_get_property},
-		{"drawpixel", &luatpt_drawpixel},
-		{"drawrect", &luatpt_drawrect},
-		{"fillrect", &luatpt_fillrect},
-		{"drawline", &luatpt_drawline},
-		{"textwidth", &luatpt_textwidth},
-		{"get_name", &luatpt_get_name},
-		{"set_shortcuts", &luatpt_set_shortcuts},
-		{"delete", &luatpt_delete},
-		{"register_step", &luatpt_register_step},
-		{"unregister_step", &luatpt_unregister_step},
-		{"register_mouseclick", &luatpt_register_mouseclick},
-		{"unregister_mouseclick", &luatpt_unregister_mouseclick},
-		{"register_keypress", &luatpt_register_keypress},
-		{"unregister_keypress", &luatpt_unregister_keypress},
-		{"register_mouseevent", &luatpt_register_mouseclick},
-		{"unregister_mouseevent", &luatpt_unregister_mouseclick},
-		{"register_keyevent", &luatpt_register_keypress},
-		{"unregister_keyevent", &luatpt_unregister_keypress},
-		{"input", &luatpt_input},
-		{"message_box", &luatpt_message_box},
-		{"get_numOfParts", &luatpt_get_numOfParts},
-		{"start_getPartIndex", &luatpt_start_getPartIndex},
-		{"next_getPartIndex", &luatpt_next_getPartIndex},
-		{"getPartIndex", &luatpt_getPartIndex},
-		{"hud", &luatpt_hud},
-		{"newtonian_gravity", &luatpt_gravity},
-		{"ambient_heat", &luatpt_airheat},
-		{"active_menu", &luatpt_active_menu},
-		{"decorations_enable", &luatpt_decorations_enable},
-		{"display_mode", &luatpt_cmode_set},
-		{"throw_error", &luatpt_error},
-		{"heat", &luatpt_heat},
-		{"setfire", &luatpt_setfire},
-		{"setdebug", &luatpt_setdebug},
-		{"setfpscap",&luatpt_setfpscap},
-		{"getscript",&luatpt_getscript},
-		{"setwindowsize",&luatpt_setwindowsize},
-		{"watertest",&luatpt_togglewater},
-		{"screenshot",&luatpt_screenshot},
-		{"element",&luatpt_getelement},
-		{"element_func",&luatpt_element_func},
-		{"sound",&luatpt_sound},
-		{"load",&luatpt_load},
-		{"bubble",&luatpt_bubble},
-		{"reset_pressure",&luatpt_reset_pressure},
-		{"reset_temp",&luatpt_reset_temp},
-		{"get_pressure",&luatpt_get_pressure},
-		{"get_gravity",&luatpt_get_gravity},
-		{"maxframes",&luatpt_maxframes},
-		{"get_wall",&luatpt_getwall},
-		{"create_wall",&luatpt_createwall},
-		{NULL,NULL}
-	};
 
 	l = lua_open();
 	luaL_openlibs(l);
@@ -1996,4 +1997,40 @@ int luatpt_getwall(lua_State* l)
 	lua_pushnumber(l, bmap[wy][wx]);
 	return 1;
 }
+
+void addluastuff()
+{
+	int i;
+	create_part(-1,4,4,PT_INDI);
+	i = create_part(-1,5,4,PT_INDI);
+	parts[i].animations = calloc(256,sizeof(int));
+	parts[i].animations[0] = 16;
+	parts[i].animations[1] = 100;
+	parts[i].animations[2] = 100;
+	parts[i].animations[3] = 20;
+	parts[i].animations[4] = 50;
+	parts[i].animations[5] = 0;
+	parts[i].animations[6] = 0;
+	parts[i].animations[7] = 255;
+	parts[i].animations[8] = 255;
+}
+
+void readluastuff()
+{
+	if ((pmap[4][5]&0xFF) == PT_INDI)
+	{
+		int i = pmap[4][5]>>8;
+		lua_pushcfunction(l,tptluaapi[parts[i].animations[0]].func);
+		lua_pushnumber(l, parts[i].animations[1]);
+		lua_pushnumber(l, parts[i].animations[2]);
+		lua_pushnumber(l, parts[i].animations[3]);
+		lua_pushnumber(l, parts[i].animations[4]);
+		lua_pushnumber(l, parts[i].animations[5]);
+		lua_pushnumber(l, parts[i].animations[6]);
+		lua_pushnumber(l, parts[i].animations[7]);
+		lua_pushnumber(l, parts[i].animations[8]);
+		lua_call(l, 8, 0);
+	}
+}
+
 #endif
