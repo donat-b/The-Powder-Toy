@@ -1935,11 +1935,18 @@ int luatpt_get_pressure(lua_State* l)
 int luatpt_get_gravity(lua_State* l)
 {
 	int x, y, pressure;
+	char* xy;
 	x = luaL_optint(l, 1, 0);
 	y = luaL_optint(l, 2, 0);
+	xy = (char*)luaL_optstring(l, 3, "x");
 	if (x*CELL<0 || y*CELL<0 || x*CELL>=XRES || y*CELL>=YRES)
 		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
-	lua_pushnumber(l, (double)gravx[y][x]);
+	if (strcmp(xy,"x")==0)
+		lua_pushnumber(l, (double)gravxf[y*XRES+x]);
+	else if (strcmp(xy,"y")==0)
+		lua_pushnumber(l, (double)gravyf[y*XRES+x]);
+	else
+		return luaL_error(l, "invalid direction: %s", xy);
 	return 1;
 }
 

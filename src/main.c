@@ -3030,7 +3030,7 @@ int main(int argc, char *argv[])
 					{
 						sprintf(heattext, "%s, Temp: %4.4f C, Temp: %4.4f F, Life: %d, Pressure: %3.4f", nametext, parts[cr>>8].temp-273.15f, ((parts[cr>>8].temp-273.15f)*9/5)+32, parts[cr>>8].life, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
 						if (ngrav_enable)
-							sprintf(coordtext, "#%d, X:%d Y:%d GX: %.4f GY: %.4f", cr>>8, x/sdl_scale, y/sdl_scale, gravx[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], gravy[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+							sprintf(coordtext, "#%d, X:%d Y:%d GX: %.4f GY: %.4f", cr>>8, x/sdl_scale, y/sdl_scale, gravxf[(y/sdl_scale)*XRES+(x/sdl_scale)], gravyf[(y/sdl_scale)*XRES+(x/sdl_scale)]);
 						else
 							sprintf(coordtext, "#%d, X:%d Y:%d", cr>>8, x/sdl_scale, y/sdl_scale);
 					}
@@ -3048,7 +3048,7 @@ int main(int argc, char *argv[])
 				{
 					sprintf(heattext, "%s, Pressure: %3.4f", nametext, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
 					if (ngrav_enable)
-						sprintf(coordtext, "X:%d Y:%d GX: %.4f GY: %.4f", x/sdl_scale, y/sdl_scale, gravx[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], gravy[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+						sprintf(coordtext, "X:%d Y:%d GX: %.4f GY: %.4f", x/sdl_scale, y/sdl_scale, gravxf[(y/sdl_scale)*XRES+(x/sdl_scale)], gravyf[(y/sdl_scale)*XRES+(x/sdl_scale)]);
 					else
 						sprintf(coordtext, "X:%d Y:%d", x/sdl_scale, y/sdl_scale);
 				}
@@ -3062,7 +3062,7 @@ int main(int argc, char *argv[])
 					sprintf(heattext, "Empty, Pressure: %3.2f", pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
 					if (DEBUG_MODE)
 					{
-						sprintf(coordtext, "X:%d Y:%d. GX: %.2f GY: %.2f", x/sdl_scale, y/sdl_scale, gravx[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], gravy[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+						sprintf(coordtext, "X:%d Y:%d. GX: %.2f GY: %.2f", x/sdl_scale, y/sdl_scale, gravxf[(y/sdl_scale)*XRES+(x/sdl_scale)], gravyf[(y/sdl_scale)*XRES+(x/sdl_scale)]);
 					}
 				}
 				else
@@ -3071,7 +3071,7 @@ int main(int argc, char *argv[])
 					{
 						sprintf(heattext, "Empty, Pressure: %3.4f", pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
 						if (ngrav_enable)
-							sprintf(coordtext, "X:%d Y:%d GX: %.4f GY: %.4f", x/sdl_scale, y/sdl_scale, gravx[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], gravy[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+							sprintf(coordtext, "X:%d Y:%d GX: %.4f GY: %.4f", x/sdl_scale, y/sdl_scale, gravxf[(y/sdl_scale)*XRES+(x/sdl_scale)], gravyf[(y/sdl_scale)*XRES+(x/sdl_scale)]);
 						else
 							sprintf(coordtext, "X:%d Y:%d", x/sdl_scale, y/sdl_scale);
 					}
