@@ -105,6 +105,8 @@ void init_can_move()
 				can_move[t][rt] = 0;
 			if (ptypes[t].properties&TYPE_ENERGY && ptypes[rt].properties&TYPE_ENERGY)
 				can_move[t][rt] = 2;
+			if (ptypes[rt].properties&PROP_INDESTRUCTIBLE)
+				can_move[t][rt] = 0;
 		}
 	}
 	can_move[PT_DEST][PT_DMND] = 0;
@@ -304,7 +306,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 		x2 = x + vx2;
 		y2 = y + vy2;
 		r2 = pmap[y2][x2];
-		while ((r2&0xFF) && ((r2&0xFF) != PT_SPNG) && ((r2&0xFF) != PT_DMND) && ((r2&0xFF) != PT_INDI))
+		while ((r2&0xFF) && ((r2&0xFF) != PT_SPNG) && !(ptypes[r2&0xFF].properties&PROP_INDESTRUCTIBLE))
 		{
 			parts[r2>>8].x += vx;
 			parts[r2>>8].y += vy;
@@ -684,6 +686,8 @@ inline void part_change_type(int i, int x, int y, int t)//changes the type of pa
 		return;
 	if (!ptypes[t].enabled)
 		t = PT_NONE;
+	if (ptypes[parts[i].type].properties&PROP_INDESTRUCTIBLE)
+		return;
 
 	if (parts[i].type == PT_STKM)
 		player.spwn = 0;
@@ -1992,81 +1996,84 @@ void update_particles_i(pixel *vid, int start, int inc)
 					         || t==PT_WTRV)
 						ctempl -= 2.0f*pv[y/CELL][x/CELL];
 					s = 1;
-					if (ctemph>ptransitions[t].thv&&ptransitions[t].tht>-1) {
-						// particle type change due to high temperature
-						if (ptransitions[t].tht!=PT_NUM)
-							t = ptransitions[t].tht;
-						else if (t==PT_ICEI) {
-							if (parts[i].ctype>0&&parts[i].ctype<PT_NUM&&parts[i].ctype!=PT_ICEI) {
-								if (ptransitions[parts[i].ctype].tlt==PT_ICEI&&pt<=ptransitions[parts[i].ctype].tlv) s = 0;
-								else {
-									t = parts[i].ctype;
-									parts[i].ctype = PT_NONE;
-									parts[i].life = 0;
-								}
-							}
-							else if (pt>274.0f) t = PT_WATR;
-							else s = 0;
-						}
-						else if (t==PT_SLTW) {
-							if (1>rand()%6) t = PT_SALT;
-							else t = PT_WTRV;
-						}
-						else s = 0;
-					} else if (ctempl<ptransitions[t].tlv&&ptransitions[t].tlt>-1) {
-						// particle type change due to low temperature
-						if (ptransitions[t].tlt!=PT_NUM)
-							t = ptransitions[t].tlt;
-						else if (t==PT_WTRV) {
-							if (pt<273.0f) t = PT_RIME;
-							else t = PT_DSTW;
-						}
-						else if (t==PT_LAVA) {
-							if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && parts[i].ctype!=PT_LAVA) {
-								if (parts[i].ctype==PT_THRM&&pt>=ptransitions[PT_BMTL].thv) s = 0;
-								else if (ptransitions[parts[i].ctype].tht==PT_LAVA) {
-									if (pt>=ptransitions[parts[i].ctype].thv) s = 0;
-								}
-								else if (pt>=973.0f) s = 0; // freezing point for lava with any other (not listed in ptransitions as turning into lava) ctype
-								if (s) {
-									t = parts[i].ctype;
-									parts[i].ctype = PT_NONE;
-									if (t==PT_THRM) {
-										parts[i].tmp = 0;
-										t = PT_BMTL;
-									}
-									if (t==PT_PLUT)
-									{
-										parts[i].tmp = 0;
-										t = PT_LAVA;
+					if (!(ptypes[t].properties&PROP_INDESTRUCTIBLE))
+					{
+						if (ctemph>ptransitions[t].thv&&ptransitions[t].tht>-1) {
+							// particle type change due to high temperature
+							if (ptransitions[t].tht!=PT_NUM)
+								t = ptransitions[t].tht;
+							else if (t==PT_ICEI) {
+								if (parts[i].ctype>0&&parts[i].ctype<PT_NUM&&parts[i].ctype!=PT_ICEI) {
+									if (ptransitions[parts[i].ctype].tlt==PT_ICEI&&pt<=ptransitions[parts[i].ctype].tlv) s = 0;
+									else {
+										t = parts[i].ctype;
+										parts[i].ctype = PT_NONE;
+										parts[i].life = 0;
 									}
 								}
+								else if (pt>274.0f) t = PT_WATR;
+								else s = 0;
 							}
-							else if (pt<973.0f) t = PT_STNE;
+							else if (t==PT_SLTW) {
+								if (1>rand()%6) t = PT_SALT;
+								else t = PT_WTRV;
+							}
+							else s = 0;
+						} else if (ctempl<ptransitions[t].tlv&&ptransitions[t].tlt>-1) {
+							// particle type change due to low temperature
+							if (ptransitions[t].tlt!=PT_NUM)
+								t = ptransitions[t].tlt;
+							else if (t==PT_WTRV) {
+								if (pt<273.0f) t = PT_RIME;
+								else t = PT_DSTW;
+							}
+							else if (t==PT_LAVA) {
+								if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && parts[i].ctype!=PT_LAVA) {
+									if (parts[i].ctype==PT_THRM&&pt>=ptransitions[PT_BMTL].thv) s = 0;
+									else if (ptransitions[parts[i].ctype].tht==PT_LAVA) {
+										if (pt>=ptransitions[parts[i].ctype].thv) s = 0;
+									}
+									else if (pt>=973.0f) s = 0; // freezing point for lava with any other (not listed in ptransitions as turning into lava) ctype
+									if (s) {
+										t = parts[i].ctype;
+										parts[i].ctype = PT_NONE;
+										if (t==PT_THRM) {
+											parts[i].tmp = 0;
+											t = PT_BMTL;
+										}
+										if (t==PT_PLUT)
+										{
+											parts[i].tmp = 0;
+											t = PT_LAVA;
+										}
+									}
+								}
+								else if (pt<973.0f) t = PT_STNE;
+								else s = 0;
+							}
 							else s = 0;
 						}
 						else s = 0;
-					}
-					else s = 0;
-					if (s) { // particle type change occurred
-						if (t==PT_ICEI||t==PT_LAVA)
-							parts[i].ctype = parts[i].type;
-						if (!(t==PT_ICEI&&parts[i].ctype==PT_FRZW)) parts[i].life = 0;
-						if (ptypes[t].state==ST_GAS&&ptypes[parts[i].type].state!=ST_GAS)
-							pv[y/CELL][x/CELL] += 0.50f;
-						part_change_type(i,x,y,t);
-						if (t==PT_FIRE||t==PT_PLSM||t==PT_HFLM)
-							parts[i].life = rand()%50+120;
-						if (t==PT_LAVA) {
-							if (parts[i].ctype==PT_BRMT) parts[i].ctype = PT_BMTL;
-							else if (parts[i].ctype==PT_SAND) parts[i].ctype = PT_GLAS;
-							else if (parts[i].ctype==PT_BGLA) parts[i].ctype = PT_GLAS;
-							else if (parts[i].ctype==PT_PQRT) parts[i].ctype = PT_QRTZ;
-							parts[i].life = rand()%120+240;
-						}
-						if (t==PT_NONE) {
-							kill_part(i);
-							goto killed;
+						if (s) { // particle type change occurred
+							if (t==PT_ICEI||t==PT_LAVA)
+								parts[i].ctype = parts[i].type;
+							if (!(t==PT_ICEI&&parts[i].ctype==PT_FRZW)) parts[i].life = 0;
+							if (ptypes[t].state==ST_GAS&&ptypes[parts[i].type].state!=ST_GAS)
+								pv[y/CELL][x/CELL] += 0.50f;
+							part_change_type(i,x,y,t);
+							if (t==PT_FIRE||t==PT_PLSM||t==PT_HFLM)
+								parts[i].life = rand()%50+120;
+							if (t==PT_LAVA) {
+								if (parts[i].ctype==PT_BRMT) parts[i].ctype = PT_BMTL;
+								else if (parts[i].ctype==PT_SAND) parts[i].ctype = PT_GLAS;
+								else if (parts[i].ctype==PT_BGLA) parts[i].ctype = PT_GLAS;
+								else if (parts[i].ctype==PT_PQRT) parts[i].ctype = PT_QRTZ;
+								parts[i].life = rand()%120+240;
+							}
+							if (t==PT_NONE) {
+								kill_part(i);
+								goto killed;
+							}
 						}
 					}
 
@@ -2131,7 +2138,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 			}
 
 			//the basic explosion, from the .explosive variable
-			if ((ptypes[t].explosive&2) && pv[y/CELL][x/CELL]>2.5f)
+			if (!(ptypes[t].properties&PROP_INDESTRUCTIBLE) && (ptypes[t].explosive&2) && pv[y/CELL][x/CELL]>2.5f)
 			{
 				parts[i].life = rand()%80+180;
 				parts[i].temp = restrict_flt(ptypes[PT_FIRE].heat + (ptypes[t].flammable/2), MIN_TEMP, MAX_TEMP);
@@ -2143,44 +2150,47 @@ void update_particles_i(pixel *vid, int start, int inc)
 
 			s = 1;
 			gravtot = fabs(gravyf[(y*XRES)+x])+fabs(gravxf[(y*XRES)+x]);
-			if (pv[y/CELL][x/CELL]>ptransitions[t].phv&&ptransitions[t].pht>-1) {
-				// particle type change due to high pressure
-				if (ptransitions[t].pht!=PT_NUM)
-					t = ptransitions[t].pht;
-				else if (t==PT_BMTL) {
-					if (pv[y/CELL][x/CELL]>2.5f)
-						t = PT_BRMT;
-					else if (pv[y/CELL][x/CELL]>1.0f && parts[i].tmp==1)
-						t = PT_BRMT;
+			if (!(ptypes[t].properties&PROP_INDESTRUCTIBLE))
+			{
+				if (pv[y/CELL][x/CELL]>ptransitions[t].phv&&ptransitions[t].pht>-1) {
+					// particle type change due to high pressure
+					if (ptransitions[t].pht!=PT_NUM)
+						t = ptransitions[t].pht;
+					else if (t==PT_BMTL) {
+						if (pv[y/CELL][x/CELL]>2.5f)
+							t = PT_BRMT;
+						else if (pv[y/CELL][x/CELL]>1.0f && parts[i].tmp==1)
+							t = PT_BRMT;
+						else s = 0;
+					}
 					else s = 0;
-				}
-				else s = 0;
-			} else if (pv[y/CELL][x/CELL]<ptransitions[t].plv&&ptransitions[t].plt>-1) {
-				// particle type change due to low pressure
-				if (ptransitions[t].plt!=PT_NUM)
-					t = ptransitions[t].plt;
-				else s = 0;
-			} else if (gravtot>(ptransitions[t].phv/4.0f)&&ptransitions[t].pht>-1) {
-				// particle type change due to high gravity
-				if (ptransitions[t].pht!=PT_NUM)
-					t = ptransitions[t].pht;
-				else if (t==PT_BMTL) {
-					if (gravtot>0.625f)
-						t = PT_BRMT;
-					else if (gravtot>0.25f && parts[i].tmp==1)
-						t = PT_BRMT;
+				} else if (pv[y/CELL][x/CELL]<ptransitions[t].plv&&ptransitions[t].plt>-1) {
+					// particle type change due to low pressure
+					if (ptransitions[t].plt!=PT_NUM)
+						t = ptransitions[t].plt;
 					else s = 0;
-				}
-				else s = 0;
-			} else s = 0;
-			if (s) { // particle type change occurred
-				parts[i].life = 0;
-				part_change_type(i,x,y,t);
-				if (t==PT_FIRE)
-					parts[i].life = rand()%50+120;
-				if (t==PT_NONE) {
-					kill_part(i);
-					goto killed;
+				} else if (gravtot>(ptransitions[t].phv/4.0f)&&ptransitions[t].pht>-1) {
+					// particle type change due to high gravity
+					if (ptransitions[t].pht!=PT_NUM)
+						t = ptransitions[t].pht;
+					else if (t==PT_BMTL) {
+						if (gravtot>0.625f)
+							t = PT_BRMT;
+						else if (gravtot>0.25f && parts[i].tmp==1)
+							t = PT_BRMT;
+						else s = 0;
+					}
+					else s = 0;
+				} else s = 0;
+				if (s) { // particle type change occurred
+					parts[i].life = 0;
+					part_change_type(i,x,y,t);
+					if (t==PT_FIRE)
+						parts[i].life = rand()%50+120;
+					if (t==PT_NONE) {
+						kill_part(i);
+						goto killed;
+					}
 				}
 			}
 

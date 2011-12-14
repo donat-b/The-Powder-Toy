@@ -73,7 +73,7 @@ int update_SING(UPDATE_FUNC_ARGS) {
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)!=PT_DMND&&(r&0xFF)!=PT_INDI&&33>=rand()/(RAND_MAX/100)+1)
+				if (!(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE)&&33>=rand()/(RAND_MAX/100)+1)
 				{
 					if ((r&0xFF)==PT_SING && parts[r>>8].life >10)
 					{

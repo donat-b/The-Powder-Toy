@@ -11,7 +11,7 @@ int update_WARP(UPDATE_FUNC_ARGS) {
 			r = pmap[y+ry][x+rx];
 			if (!r)
 				continue;
-			if ((r&0xFF)!=PT_WARP&&(r&0xFF)!=PT_STKM&&(r&0xFF)!=PT_STKM2&&(r&0xFF)!=PT_DMND&&(r&0xFF)!=PT_INDI&&(r&0xFF)!=PT_CLNE&&(r&0xFF)!=PT_BCLN&&(r&0xFF)!=PT_PCLN&&(10>=rand()%200))
+			if ((r&0xFF)!=PT_WARP&&(r&0xFF)!=PT_STKM&&(r&0xFF)!=PT_STKM2&&!(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE)&&(r&0xFF)!=PT_CLNE&&(r&0xFF)!=PT_BCLN&&(r&0xFF)!=PT_PCLN&&(10>=rand()%200))
 			{
 				parts[i].x = parts[r>>8].x;
 				parts[i].y = parts[r>>8].y;

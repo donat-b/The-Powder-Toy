@@ -48,7 +48,7 @@ int update_CBNW(UPDATE_FUNC_ARGS) {
 					//Start explode
 					parts[i].tmp = rand()%25;//(rand()%100)+50;
 				}
-				else if(ptypes[r&0xFF].properties&TYPE_SOLID && (r&0xFF)!=PT_DMND && (r&0xFF)!=PT_INDI && (r&0xFF)!=PT_GLAS && parts[i].tmp == 0 && (2-pv[y/CELL][x/CELL])>(rand()%20000))
+				else if(ptypes[r&0xFF].properties&TYPE_SOLID && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && (r&0xFF)!=PT_GLAS && parts[i].tmp == 0 && (2-pv[y/CELL][x/CELL])>(rand()%20000))
 				{
 					if(rand()%2)
 					{

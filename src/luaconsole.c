@@ -613,6 +613,8 @@ int luacon_elementwrite(lua_State* l){
 	{
 	case 0:
 		*((int*)(((char*)&ptypes[i])+offset)) = luaL_optinteger(l, 3, 0);
+		if (strcmp(key,"weight") == 0 || strcmp(key,"properties") == 0)
+			init_can_move();
 		break;
 	case 1:
 		*((float*)(((char*)&ptypes[i])+offset)) = luaL_optnumber(l, 3, 0);

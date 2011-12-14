@@ -41,7 +41,7 @@ int update_VIRS(UPDATE_FUNC_ARGS) {
 				{
 					parts[i].tmp = (parts[i].tmp&0xFF00) + 10;
 				}
-				else if (!(parts[i].tmp&0xFF) && (r&0xFF) != PT_VIRS && (r&0xFF) != PT_VRSS && (r&0xFF) != PT_VRSG && (r&0xFF) != PT_DMND && (r&0xFF) != PT_INDI)
+				else if (!(parts[i].tmp&0xFF) && (r&0xFF) != PT_VIRS && (r&0xFF) != PT_VRSS && (r&0xFF) != PT_VRSG && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE))
 				{
 					if (rand()%50<1)
 					{

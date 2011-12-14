@@ -271,7 +271,10 @@
 #define PROP_RADIOACTIVE	0x2000 //8192 Radioactive
 #define PROP_LIFE_DEC		0x4000 //2^14 Life decreases by one every frame if > zero
 #define PROP_LIFE_KILL		0x8000 //2^15 Kill when life value is <= zero
-#define PROP_LIFE_KILL_DEC	0x10000 //2^16 Kill when life value is decremented to <= zero
+#define PROP_LIFE_KILL_DEC	0x10000//2^16 Kill when life value is decremented to <= zero
+#define PROP_INDESTRUCTIBLE	0x20000//2^17 Makes elements invincible, even to bomb/dest
+#define PROP_CLONE			0x40000//2^18 Makes elements clone things that touch it
+#define PROP_POWERED		0x80000//2^19 Makes an element turn on/off with PSCN/NSCN
 
 #define FLAG_STAGNANT	1
 
