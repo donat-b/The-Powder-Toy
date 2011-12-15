@@ -147,9 +147,9 @@ In virs, after a long infection/cure time, everything past a certain point
 
 Future Ideas/TODO: > means currently being worked on/added next
 >Include lua code in save (like autorun.lua does)
->indestructible & clone properties that can be added with lua
 buttons to decide what is in the HUD
-brush rotation - slurms
+brush rotation
+more statistics - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11998
 ambient heat blocking wall
 old console commands destroy/safe that I made a long time ago, + still more lua commands
 rechargeable battery - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11652

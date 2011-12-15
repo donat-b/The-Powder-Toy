@@ -2,8 +2,6 @@
 
 int update_PBCN(UPDATE_FUNC_ARGS) {
 	int r, rx, ry;
-	if (parts[i].life>0 && parts[i].life!=10)
-		parts[i].life--;
 	if (!parts[i].tmp2 && pv[y/CELL][x/CELL]>4.0f)
 		parts[i].tmp2 = rand()%40+80;
 	if (parts[i].tmp2)
@@ -38,25 +36,6 @@ int update_PBCN(UPDATE_FUNC_ARGS) {
 							parts[i].tmp = parts[r>>8].ctype;
 					}
 				}
-	if (parts[i].life==10)
-	{
-		
-		for (rx=-2; rx<3; rx++)
-			for (ry=-2; ry<3; ry++)
-				if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
-				{
-					r = pmap[y+ry][x+rx];
-					if (!r)
-						continue;
-					if ((r&0xFF)==parts[i].type)
-					{
-						if (parts[r>>8].life<10&&parts[r>>8].life>0)
-							parts[i].life = 9;
-						else if (parts[r>>8].life==0)
-							parts[r>>8].life = 10;
-					}
-				}
-	}
 	if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && parts[i].life==10) {
 		if (parts[i].ctype==PT_PHOT) {//create photons a different way
 			for (rx=-1; rx<2; rx++) {

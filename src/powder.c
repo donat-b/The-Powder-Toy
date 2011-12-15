@@ -918,6 +918,8 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		parts[i].tmp = 0;
 		parts[i].tmp2 = 0;
 	}
+	if (ptypes[t].properties&PROP_POWERED)
+		parts[i].tmp = 1;
 	if (t==PT_ANIM)
 	{
 		parts[i].animations = calloc(maxframes,sizeof(unsigned int));
@@ -2224,6 +2226,8 @@ void update_particles_i(pixel *vid, int start, int inc)
 					else
 						update_BCLN(i,x,y,surround_space,nt);
 				}
+				if (ptypes[t].properties&PROP_POWERED)
+					update_POWERED(i,x,y,surround_space,nt);
 #ifdef LUACONSOLE
 			}
 #endif
