@@ -142,7 +142,7 @@ void init_can_move()
 	}
 	for (t=0;t<PT_NUM;t++)
 	{
-		if (t==PT_GLAS || t==PT_PHOT || t==PT_CLNE || t==PT_PCLN
+		if (t==PT_GLAS || t==PT_PHOT || (ptypes[t].properties&PROP_CLONE)
 			|| t==PT_GLOW || t==PT_WATR || t==PT_DSTW || t==PT_SLTW
 			|| t==PT_ISOZ || t==PT_ISZS || t==PT_FILT || t==PT_INVIS
 			|| t==PT_QRTZ || t==PT_PQRT || t==PT_PINV)
@@ -269,7 +269,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 			if ((r & 0xFF) < PT_NUM && ptypes[r&0xFF].hconduct && ((r&0xFF)!=PT_HSWC||parts[r>>8].life==10) && (r&0xFF)!=PT_FILT)
 				parts[i].temp = parts[r>>8].temp = restrict_flt((parts[r>>8].temp+parts[i].temp)/2, MIN_TEMP, MAX_TEMP);
 		}
-		if ((parts[i].type==PT_NEUT || parts[i].type==PT_ELEC) && ((r&0xFF)==PT_CLNE || (r&0xFF)==PT_PCLN || (r&0xFF)==PT_BCLN || (r&0xFF)==PT_PBCN)) {
+		if ((parts[i].type==PT_NEUT || parts[i].type==PT_ELEC) && ((ptypes[r&0xFF].properties&PROP_CLONE) || (ptypes[r&0xFF].properties&PROP_BREAKABLECLONE))) {
 			if (!parts[r>>8].ctype)
 				parts[r>>8].ctype = parts[i].type;
 		}
@@ -850,15 +850,12 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		{
 			if ((
 				((pmap[y][x]&0xFF)==PT_STOR&&!(ptypes[t].properties&TYPE_SOLID))||
-				(pmap[y][x]&0xFF)==PT_CLNE||
-				(pmap[y][x]&0xFF)==PT_BCLN||
 				(pmap[y][x]&0xFF)==PT_CONV||
-				((pmap[y][x]&0xFF)==PT_PCLN&&t!=PT_PSCN&&t!=PT_NSCN)||
-				((pmap[y][x]&0xFF)==PT_PBCN&&t!=PT_PSCN&&t!=PT_NSCN)
+				((ptypes[pmap[y][x]&0xFF].properties&PROP_CLONE || (ptypes[pmap[y][x]&0xFF].properties&PROP_BREAKABLECLONE)) && (!(ptypes[pmap[y][x]&0xFF].properties&PROP_POWERED) || (t!=PT_PSCN && t!=PT_NSCN)))
 			)&&(
-				t!=PT_CLNE&&t!=PT_PCLN&&
-				t!=PT_BCLN&&t!=PT_STKM&&
-				t!=PT_STKM2&&t!=PT_PBCN&&
+				!(ptypes[t].properties&PROP_CLONE)&&
+				!(ptypes[t].properties&PROP_BREAKABLECLONE)&&
+				t!=PT_STKM&&t!=PT_STKM2&&
 				t!=PT_STOR&&t!=PT_FIGH)
 			)
 			{
@@ -2209,6 +2206,25 @@ void update_particles_i(pixel *vid, int start, int inc)
 			{
 				if(luacon_part_update(t,i,x,y,surround_space,nt))
 					continue;
+			}
+			else
+			{
+#endif
+				if (ptypes[t].properties&PROP_CLONE)
+				{
+					if (ptypes[t].properties&PROP_POWERED)
+						update_PCLN(i,x,y,surround_space,nt);
+					else
+						update_CLNE(i,x,y,surround_space,nt);
+				}
+				else if (ptypes[t].properties&PROP_BREAKABLECLONE)
+				{
+					if (ptypes[t].properties&PROP_POWERED)
+						update_PBCN(i,x,y,surround_space,nt);
+					else
+						update_BCLN(i,x,y,surround_space,nt);
+				}
+#ifdef LUACONSOLE
 			}
 #endif
 			if (legacy_enable)//if heat sim is off

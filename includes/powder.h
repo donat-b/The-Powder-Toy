@@ -274,7 +274,8 @@
 #define PROP_LIFE_KILL_DEC	0x10000//2^16 Kill when life value is decremented to <= zero
 #define PROP_INDESTRUCTIBLE	0x20000//2^17 Makes elements invincible, even to bomb/dest
 #define PROP_CLONE			0x40000//2^18 Makes elements clone things that touch it
-#define PROP_POWERED		0x80000//2^19 Makes an element turn on/off with PSCN/NSCN
+#define PROP_BREAKABLECLONE	0x80000//2^19 Makes breakable elements clone things that touch it
+#define PROP_POWERED		0x100000//2^20 Makes an element turn on/off with PSCN/NSCN
 
 #define FLAG_STAGNANT	1
 

@@ -27,7 +27,7 @@ int update_ACID(UPDATE_FUNC_ARGS) {
 							kill_part(r>>8);
 						}
 					}
-					else if (((r&0xFF)!=PT_CLNE && (r&0xFF)!=PT_PCLN && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && ptypes[r&0xFF].hardness>(rand()%1000))&&parts[i].life>=50)
+					else if ((!(ptypes[r&0xFF].properties&PROP_CLONE) && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && ptypes[r&0xFF].hardness>(rand()%1000))&&parts[i].life>=50)
 					{
 						if (parts_avg(i, r>>8,PT_GLAS)!= PT_GLAS)//GLAS protects stuff from acid
 						{

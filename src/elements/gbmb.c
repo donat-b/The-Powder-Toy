@@ -10,7 +10,7 @@ int update_GBMB(UPDATE_FUNC_ARGS) {
 				if(!r)
 					continue;
 				if((r&0xFF)!=PT_BOMB && (r&0xFF)!=PT_GBMB &&
-				   (r&0xFF)!=PT_CLNE && (r&0xFF)!=PT_PCLN &&
+				   !(ptypes[r&0xFF].properties&PROP_CLONE) &&
 				   !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE))
 				{
 					parts[i].life=60;

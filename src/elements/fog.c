@@ -9,7 +9,7 @@ int update_FOG(UPDATE_FUNC_ARGS) {
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if (ptypes[r&0xFF].state==ST_SOLID&&5>=rand()%50&&parts[i].life==0&&!((r&0xFF)==PT_CLNE||(r&0xFF)==PT_PCLN)) // TODO: should this also exclude BCLN?
+				if (ptypes[r&0xFF].state==ST_SOLID&&5>=rand()%50&&parts[i].life==0&&!(ptypes[r&0xFF].properties&PROP_CLONE))
 				{
 					part_change_type(i,x,y,PT_RIME);
 				}

@@ -13,10 +13,10 @@ int update_CLNE(UPDATE_FUNC_ARGS) {
 						r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if ((r&0xFF)!=PT_CLNE && (r&0xFF)!=PT_PCLN &&
-				        (r&0xFF)!=PT_BCLN && (r&0xFF)!=PT_STKM &&
-				        (r&0xFF)!=PT_PBCN && (r&0xFF)!=PT_STKM2 &&
-				        (r&0xFF)<PT_NUM)
+					if (!(ptypes[r&0xFF].properties&PROP_CLONE) &&
+						!(ptypes[r&0xFF].properties&PROP_BREAKABLECLONE) &&
+				        (r&0xFF)!=PT_STKM && (r&0xFF)!=PT_STKM2 && 
+						(r&0xFF)<PT_NUM)
 					{
 						parts[i].ctype = r&0xFF;
 						if ((r&0xFF)==PT_LIFE)
