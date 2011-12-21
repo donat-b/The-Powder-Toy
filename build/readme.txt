@@ -130,7 +130,9 @@ versions. PINV+PHOT = ELEC. SPNG drags along other particles with it, even
 solids that normally can't move.
 
 Next Version
-Wall names display in the hud. New lua functions: get_wall and create_wall.
+Wall names display in the hud. New lua functions: get_wall and create_wall. A 
+New Wall: ERASEALL. It can erase walls, signs, and particles all at once. 
+Most powered elements drawn in this version are now activated instantly.
 
 
 
@@ -141,12 +143,15 @@ Moving solids destroyed by large pressure leave behind pieces inside solids
 Moving solid rotation doesn't save
 In virs, after a long infection/cure time, everything past a certain point 
     will be destroyed/cured at about the same time
+Hitting X doesn't close it when compiled from visual studio+takes forever
+	to launch, when ran normally, HUD might show (null) for empty spaces
+	and it may crash when you first start. Not sure if these are related
 
 
 
 
 Future Ideas/TODO: > means currently being worked on/added next
->Include lua code in save (like autorun.lua does)
+>>Include lua code in save (like autorun.lua does)
 buttons to decide what is in the HUD
 brush rotation
 more statistics - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11998

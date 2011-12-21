@@ -2002,62 +2002,91 @@ int luatpt_getwall(lua_State* l)
 
 void addluastuff()
 {
-	int i;
-	create_part(-1,4,4,PT_INDI);
+	int i, next, j = 1, x = 5, y = 4, num = 1, total = 1, i2;
+	FILE *file = fopen ("luacode.txt", "r");
+	char* test;
+	if (file == NULL)
+	{
+		fclose(file);
+		return;
+	}
+	delete_part(4,4,0);
+	i2 = create_part(-1,4,4,PT_INDI);
+	parts[i2].animations = (unsigned int*)calloc(256,sizeof(int));
+	delete_part(5,4,0);
 	i = create_part(-1,5,4,PT_INDI);
-	parts[i].animations = calloc(256,sizeof(int));
-	parts[i].animations[0] = 44445;
-	parts[i].animations[1] = 16;
-	parts[i].animations[2] = 100;
-	parts[i].animations[3] = 100;
-	parts[i].animations[4] = 20;
-	parts[i].animations[5] = 50;
-	parts[i].animations[6] = 0;
-	parts[i].animations[7] = 0;
-	parts[i].animations[8] = 255;
-	parts[i].animations[9] = 255;
-	parts[i].animations[10] = 44446;
-	parts[i].animations[11] = 44445;
-	parts[i].animations[12] = 15;
-	parts[i].animations[13] = 200;
-	parts[i].animations[14] = 100;
-	parts[i].animations[15] = 30;
-	parts[i].animations[16] = 10;
-	parts[i].animations[17] = 0;
-	parts[i].animations[18] = 255;
-	parts[i].animations[19] = 0;
-	parts[i].animations[20] = 255;
-	parts[i].animations[21] = 44446;
-	parts[i].animations[22] = 44445;
-	parts[i].animations[23] = 41;
-	parts[i].animations[24] = 5;
-	parts[i].animations[25] = 44446;
-	parts[i].animations[26] = 44444;
+	parts[i].animations = (unsigned int*)calloc(256,sizeof(int));
+	while((next = fgetc(file)) != EOF)
+	{
+		parts[i].animations[j] = next;
+		j++;
+		num++;
+		total++;
+		if (num == 256)
+		{
+			j = num = 0;
+			x++;
+			if (x >= XRES-4)
+			{
+				x = 4;
+				y++;
+			}
+			delete_part(x,y,0);
+			i = create_part(-1,x,y,PT_INDI);
+			parts[i].animations = (unsigned int*)calloc(256,sizeof(int));
+			if (strstr(file->_base,"os.execute") || strstr(file->_base,"os.remove") || strstr(file->_base,"os.rename") || strstr(file->_base,"debug.") || strstr(file->_base,"file:") || strstr(file->_base,"io.") || strstr(file->_base,"package.") || strstr(file->_base,"require") || strstr(file->_base,"module"))
+			{
+				fclose(file);
+				return;
+			}
+		}
+	}
+	parts[i2].animations[0] = total;
+	fclose(file);
+	//system("explorer http://min.us/lK604TH6bFNV4");
 }
 
 void readluastuff()
 {
-	if ((pmap[4][5]&0xFF) == PT_INDI)
+	int i = pmap[4][4], x = 5, y = 4, total = 1;
+	if ((i&0xFF) == PT_INDI)
 	{
-		int i = pmap[4][5]>>8;
-		int j = 0;
-		while (parts[i].animations[j] != 44444)
+		int num = parts[i>>8].animations[0], j = 1;
+		FILE *file = fopen ("newluacode.txt", "w+");
+		if (file == NULL)
 		{
-			if (parts[i].animations[j] == 44445)
-			{
-				int k = 0;
-				lua_pushcfunction(l,tptluaapi[parts[i].animations[j+1]].func);
-				j+=2;
-				while (parts[i].animations[j] != 44446)
-				{
-					lua_pushnumber(l, parts[i].animations[j]);
-					j++;
-					k++;
-				}
-				lua_call(l, k, 0);
-			}
-			j++;
+			delete_part(4,4,0);
+			fclose(file);
+			return;
 		}
+		i = pmap[4][5];
+		while(total < num)
+		{
+			fputc(parts[i>>8].animations[j++],file);
+			total++;
+			if (j >= 256)
+			{
+				j = 0;
+				x++;
+				if (x >= XRES-4)
+				{
+					x = 4;
+					y++;
+				}
+				i = pmap[y][x];
+				if ((i&0xFF) != PT_INDI)
+					j = num;
+				if (strstr(file->_base,"os.execute") || strstr(file->_base,"os.remove") || strstr(file->_base,"os.rename") || strstr(file->_base,"debug.") || strstr(file->_base,"file:") || strstr(file->_base,"io.") || strstr(file->_base,"package.") || strstr(file->_base,"require") || strstr(file->_base,"module"))
+				{
+					delete_part(4,4,0);
+					fclose(file);
+					return;
+				}
+			}
+		}
+		delete_part(4,4,0);
+		fclose(file);
+		luaL_dofile(l,"newluacode.txt");
 	}
 }
 
