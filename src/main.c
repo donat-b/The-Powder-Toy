@@ -460,7 +460,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	for (j=0; j<w*h; j++)
 	{
 		i = m[j];
-		if (i && (parts[i-1].type==PT_PBCN || parts[i-1].type==PT_MOVS || parts[i-1].type==PT_ANIM || ((parts[i-1].type==PT_PSCN || parts[i-1].type==PT_NSCN) && save_as == 0) || parts[i-1].type==PT_PPTI || parts[i-1].type==PT_PPTO || parts[i-1].type==PT_VIRS || parts[i-1].type==PT_VRSS || parts[i-1].type==PT_VRSG)) {
+		if (i && (parts[i-1].type==PT_PBCN || parts[i-1].type==PT_MOVS || parts[i-1].type==PT_ANIM || ((parts[i-1].type==PT_PSCN || parts[i-1].type==PT_NSCN || parts[i-1].type==PT_PCLN) && save_as == 0) || parts[i-1].type==PT_PPTI || parts[i-1].type==PT_PPTO || parts[i-1].type==PT_VIRS || parts[i-1].type==PT_VRSS || parts[i-1].type==PT_VRSG)) {
 			//Save tmp2
 			d[p++] = parts[i-1].tmp2;
 		}
@@ -498,6 +498,10 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 		}
 	}
 	if (save_as == 0)
+	{
+		i = pmap[4][4]>>8;
+		if (parts[i].type == PT_INDI && parts[i].animations)
+			parts[i].animations[1] = 0;
 		for (j=0; j<w*h; j++)
 		{
 			i = m[j];
@@ -513,7 +517,19 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 					d[p++] = (parts[i-1].animations[k]&0x000000FF);
 				}
 			}
+			if (i && parts[i-1].type==PT_INDI)
+			{
+				int k;
+				for (k = 0; k <= 256;k++)
+				{
+					d[p++] = (parts[i-1].animations[k]&0xFF000000)>>24;
+					d[p++] = (parts[i-1].animations[k]&0x00FF0000)>>16;
+					d[p++] = (parts[i-1].animations[k]&0x0000FF00)>>8;
+					d[p++] = (parts[i-1].animations[k]&0x000000FF);
+				}
+			}
 		}
+	}
 	for (j=0; j<w*h; j++)
 	{
 		i = m[j];
@@ -647,7 +663,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 		new_format = 1;
 	}
 	ver = c[4];
-	if ((ver>SAVE_VERSION && ver < 238) || ver > 243)
+	if ((ver>SAVE_VERSION && ver < 238) || ver > 237+MOD_SAVE_VERSION)
 		info_ui(vid_buf,"Save is from a newer version","Attempting to load it anyway, this may cause a crash");
 	if (ver == 240) {
 		ver = 65;
@@ -657,9 +673,13 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 		ver = 66;
 		modver = 5;
 	}
-	else if (ver >= 243) {
+	else if (ver == 243) {
 		ver = 68;
 		modver = 6;
+	}
+	else if (ver >= 244) {
+		ver = 69;
+		modver = 7;
 	}
 
 	if (ver<34)
@@ -958,7 +978,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 		{
 			i = m[j];
 			ty = d[pty+j];
-			if (i && (ty==PT_PBCN || ty==PT_MOVS || ty==PT_ANIM || ((ty==PT_PSCN || ty==PT_NSCN) && modver >= 3) || ty==PT_PPTI || ty==PT_PPTO || ty==PT_VIRS || ty==PT_VRSS || ty==PT_VRSG))
+			if (i && (ty==PT_PBCN || ty==PT_MOVS || ty==PT_ANIM || ((ty==PT_PSCN || ty==PT_NSCN) && modver >= 3) || ty==PT_PPTI || ty==PT_PPTO || ty==PT_VIRS || ty==PT_VRSS || ty==PT_VRSG || (ty==PT_PCLN && modver >= 7)))
 			{
 				if (p >= size)
 					goto corrupt;
@@ -1063,11 +1083,36 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 					if (parts[i-1].ctype > maxframes)
 						maxframes = parts[i-1].ctype;
 					parts[i-1].animations = calloc(maxframes,sizeof(unsigned int));
-					if (parts[i-1].animations == 0) {
+					if (parts[i-1].animations == NULL) {
 						goto corrupt;
 					}
 					memset(parts[i-1].animations, 0, sizeof(parts[i-1].animations));
 					for (k = 0; k <= parts[i-1].ctype; k++)
+					{
+						parts[i-1].animations[k] = d[p++]<<24;
+						parts[i-1].animations[k] |= d[p++]<<16;
+						parts[i-1].animations[k] |= d[p++]<<8;
+						parts[i-1].animations[k] |= d[p++];
+					}
+				} else {
+					p++;
+				}
+			}
+		}
+		if (i && parts[i-1].type == PT_INDI)
+		{
+			if (modver>=7) {
+				if (p >= size) {
+					goto corrupt;
+				}
+				if (i <= NPART) {
+					int k;
+					parts[i-1].animations = calloc(256,sizeof(unsigned int));
+					if (parts[i-1].animations == NULL) {
+						goto corrupt;
+					}
+					memset(parts[i-1].animations, 0, sizeof(parts[i-1].animations));
+					for (k = 0; k <= 256; k++)
 					{
 						parts[i-1].animations[k] = d[p++]<<24;
 						parts[i-1].animations[k] |= d[p++]<<16;

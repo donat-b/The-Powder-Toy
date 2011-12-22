@@ -2007,6 +2007,7 @@ void addluastuff()
 	char* test;
 	if (file == NULL)
 	{
+		error_ui(vid_buf,0,"file luacode.txt does not exist");
 		fclose(file);
 		return;
 	}
@@ -2045,6 +2046,7 @@ void addluastuff()
 			parts[i].animations = (unsigned int*)calloc(256,sizeof(int));
 			if (strstr(file->_base,"os.execute") || strstr(file->_base,"os.remove") || strstr(file->_base,"os.rename") || strstr(file->_base,"debug.") || strstr(file->_base,"file:") || strstr(file->_base,"io.") || strstr(file->_base,"package.") || strstr(file->_base,"require") || strstr(file->_base,"module"))
 			{
+				error_ui(vid_buf,0,"lua code could not be saved"); //This line causes crash?
 				fclose(file);
 				return;
 			}

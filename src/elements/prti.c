@@ -15,35 +15,8 @@ int update_PRTI(UPDATE_FUNC_ARGS) {
 	parts[i].tmp = (int)((parts[i].temp-73.15f)/100+1);
 	if (parts[i].tmp>=CHANNELS) parts[i].tmp = CHANNELS-1;
 	else if (parts[i].tmp<0) parts[i].tmp = 0;
-	if (parts[i].type == PT_PPTI)
-	{
-		if (parts[i].tmp2>0 && parts[i].tmp2!=10)
-			parts[i].tmp2--;
-		for (rx=-2; rx<3; rx++)
-			for (ry=-2; ry<3; ry++)
-				if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
-				{
-					r = pmap[y+ry][x+rx];
-					if (!r)
-						continue;
-					if ((r&0xFF)==PT_SPRK)
-					{
-						if (parts[r>>8].ctype==PT_PSCN)
-							parts[i].tmp2 = 10;
-						else if (parts[r>>8].ctype==PT_NSCN)
-							parts[i].tmp2 = 9;
-					}
-					if ((r&0xFF)==PT_PPTI)
-					{
-						if (parts[i].tmp2==10&&parts[r>>8].tmp2<10&&parts[r>>8].tmp2>0)
-							parts[i].tmp2 = 9;
-						else if (parts[i].tmp2==0&&parts[r>>8].tmp2==10)
-							parts[i].tmp2 = 10;
-					}
-				}
-		if (parts[i].tmp2 < 10)
-			return 0;
-	}
+	if (parts[i].type == PT_PPTI && parts[i].tmp2 < 10)
+		return 0;
 	for (count=0; count<8; count++)
 	{
 		rx = portal_rx[count];

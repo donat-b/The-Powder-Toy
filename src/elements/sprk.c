@@ -124,31 +124,33 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 				rt = parts[r>>8].type;
 				conduct_sprk = 1;
 
-
 				pavg = parts_avg(r>>8, i,PT_INSL);
-				if ((rt==PT_SWCH||(rt==PT_SPRK&&parts[r>>8].ctype==PT_SWCH)) && pavg!=PT_INSL) // make sparked SWCH turn off correctly
+				if (parts[r>>8].tmp == 0)
 				{
-					if (rt==PT_SWCH&&ct==PT_PSCN&&parts[r>>8].life<10) {
-						parts[r>>8].life = 10;
+					if ((rt==PT_SWCH||(rt==PT_SPRK&&parts[r>>8].ctype==PT_SWCH)) && pavg!=PT_INSL) // make sparked SWCH turn off correctly
+					{
+						if (rt==PT_SWCH&&ct==PT_PSCN&&parts[r>>8].life<10) {
+							parts[r>>8].life = 10;
+						}
+						if (ct==PT_NSCN) {
+							part_change_type(r>>8,x+rx,y+ry,PT_SWCH);
+							parts[r>>8].ctype = PT_NONE;
+							parts[r>>8].life = 9;
+						}
 					}
-					if (ct==PT_NSCN) {
-						part_change_type(r>>8,x+rx,y+ry,PT_SWCH);
-						parts[r>>8].ctype = PT_NONE;
-						parts[r>>8].life = 9;
+					else if ((rt==PT_ACTV||(rt==PT_SPRK&&parts[r>>8].ctype==PT_ACTV)) && pavg!=PT_INSL) // make sparked ACTV turn off correctly
+					{
+						if (rt==PT_ACTV&&ct==PT_PSCN&&parts[r>>8].life<10) {
+							parts[r>>8].life = 10;
+						}
+						if (ct==PT_NSCN) {
+							part_change_type(r>>8,x+rx,y+ry,PT_ACTV);
+							parts[r>>8].ctype = PT_NONE;
+							parts[r>>8].life = 9;
+						}
 					}
 				}
-				else if ((rt==PT_ACTV||(rt==PT_SPRK&&parts[r>>8].ctype==PT_ACTV)) && pavg!=PT_INSL) // make sparked ACTV turn off correctly
-				{
-					if (rt==PT_ACTV&&ct==PT_PSCN&&parts[r>>8].life<10) {
-						parts[r>>8].life = 10;
-					}
-					if (ct==PT_NSCN) {
-						part_change_type(r>>8,x+rx,y+ry,PT_ACTV);
-						parts[r>>8].ctype = PT_NONE;
-						parts[r>>8].life = 9;
-					}
-				}
-				else if ((ct==PT_PSCN||ct==PT_NSCN) && (rt==PT_PUMP||rt==PT_GPMP||rt==PT_HSWC||rt==PT_PBCN)) // PROP_PTOGGLE, Maybe? We seem to use 2 different methods for handling actived elements, this one seems better. Yes, use this one for new elements, PCLN is different for compatibility with existing saves
+				if ((ct==PT_PSCN||ct==PT_NSCN) && (((rt==PT_PUMP||rt==PT_GPMP||rt==PT_HSWC)&&parts[i].tmp==0)||rt==PT_PBCN)) // PROP_PTOGGLE, Maybe? We seem to use 2 different methods for handling actived elements, this one seems better. Yes, use this one for new elements, PCLN is different for compatibility with existing saves
 				{
 					if (ct==PT_PSCN) parts[r>>8].life = 10;
 					else if (ct==PT_NSCN && parts[r>>8].life>=10) parts[r>>8].life = 9;

@@ -14,8 +14,7 @@
 #define BUILD_NUM 120
 //VersionInfoEnd
 
-#define MOD_SAVE_VERSION 6
-#define MOD_MINOR_VERSION 0
+#define MOD_SAVE_VERSION 7 //This is not the version number of my mod anymore, it's only changed when I change the stamp/save saving code
 
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter
 

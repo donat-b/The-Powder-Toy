@@ -919,7 +919,12 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		parts[i].tmp2 = 0;
 	}
 	if (ptypes[t].properties&PROP_POWERED)
-		parts[i].tmp = 1;
+	{
+		if (t == PT_PCLN)
+			parts[i].tmp2 = 1;
+		else if (t != PT_PBCN)
+			parts[i].tmp = 1;
+	}
 	if (t==PT_ANIM)
 	{
 		parts[i].animations = calloc(maxframes,sizeof(unsigned int));
