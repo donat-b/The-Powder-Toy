@@ -2002,7 +2002,7 @@ int luatpt_getwall(lua_State* l)
 
 void addluastuff()
 {
-	int i, next, j = 1, x = 5, y = 4, num = 1, total = 1, i2;
+	int i, next, j = 0, x = 5, y = 4, num = 0, total = 1, i2, k;
 	FILE *file = fopen ("luacode.txt", "r");
 	char* test;
 	if (file == NULL)
@@ -2013,6 +2013,15 @@ void addluastuff()
 	delete_part(4,4,0);
 	i2 = create_part(-1,4,4,PT_INDI);
 	parts[i2].animations = (unsigned int*)calloc(256,sizeof(int));
+	parts[i2].animations[1] = 0;
+	parts[i2].animations[2] = SAVE_VERSION;
+	parts[i2].animations[3] = MINOR_VERSION;
+	parts[i2].animations[4] = BUILD_NUM;
+	parts[i2].animations[5] = 120;
+	parts[i2].animations[6] = 0;
+	for (k = 0; k < 64; k++)
+		parts[i2].animations[k+150] = svf_user[k];
+
 	delete_part(5,4,0);
 	i = create_part(-1,5,4,PT_INDI);
 	parts[i].animations = (unsigned int*)calloc(256,sizeof(int));
@@ -2043,15 +2052,14 @@ void addluastuff()
 	}
 	parts[i2].animations[0] = total;
 	fclose(file);
-	//system("explorer http://min.us/lK604TH6bFNV4");
 }
 
 void readluastuff()
 {
-	int i = pmap[4][4], x = 5, y = 4, total = 1;
-	if ((i&0xFF) == PT_INDI)
+	int i = pmap[4][5], i2 = pmap[4][4], x = 5, y = 4, total = 1;
+	if ((i2&0xFF) == PT_INDI && parts[i2>>8].animations && parts[i2>>8].animations[1] == 0)
 	{
-		int num = parts[i>>8].animations[0], j = 1;
+		int num = parts[i2>>8].animations[0], j = 0;
 		FILE *file = fopen ("newluacode.txt", "w+");
 		if (file == NULL)
 		{
@@ -2059,7 +2067,6 @@ void readluastuff()
 			fclose(file);
 			return;
 		}
-		i = pmap[4][5];
 		while(total < num)
 		{
 			fputc(parts[i>>8].animations[j++],file);
@@ -2078,15 +2085,25 @@ void readluastuff()
 					j = num;
 				if (strstr(file->_base,"os.execute") || strstr(file->_base,"os.remove") || strstr(file->_base,"os.rename") || strstr(file->_base,"debug.") || strstr(file->_base,"file:") || strstr(file->_base,"io.") || strstr(file->_base,"package.") || strstr(file->_base,"require") || strstr(file->_base,"module"))
 				{
-					delete_part(4,4,0);
+					parts[i2>>8].animations[1] = 1;
 					fclose(file);
+					error_ui(vid_buf,0,"lua code could not be run");
 					return;
 				}
 			}
 		}
-		delete_part(4,4,0);
+		if (strstr(file->_base,"os.execute") || strstr(file->_base,"os.remove") || strstr(file->_base,"os.rename") || strstr(file->_base,"debug.") || strstr(file->_base,"file:") || strstr(file->_base,"io.") || strstr(file->_base,"package.") || strstr(file->_base,"require") || strstr(file->_base,"module"))
+		{
+			parts[i2>>8].animations[1] = 1;
+			fclose(file);
+			error_ui(vid_buf,0,"lua code could not be run");
+			return;
+		}
+		parts[i2>>8].animations[1] = 1;
 		fclose(file);
 		luaL_dofile(l,"newluacode.txt");
+		if (parts[i2>>8].animations[6] == 1)
+			remove("newluacode.txt");
 	}
 }
 
