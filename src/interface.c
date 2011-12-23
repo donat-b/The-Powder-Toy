@@ -15,6 +15,7 @@
 #include <interface.h>
 #include <misc.h>
 #include <console.h>
+#include "gravity.h"
 #include <images.h>
 #if defined(WIN32) && !defined(__GNUC__)
 #include <io.h>
@@ -1023,7 +1024,7 @@ char *input_ui(pixel *vid_buf, char *title, char *prompt, char *text, char *shad
 void prop_edit_ui(pixel *vid_buf, int x, int y)
 {
 	float valuef;
-	char valuec;
+	unsigned char valuec;
 	int valuei;
 	int format;
 	size_t propoffset;
@@ -1105,7 +1106,6 @@ void prop_edit_ui(pixel *vid_buf, int x, int y)
 			break;
 	}
 
-	sscanf(ed2.str, "%f", &valuef);
 	if(ed.selected!=-1)
 	{
 		if (strcmp(ed.str,"type")==0){
@@ -1140,7 +1140,7 @@ void prop_edit_ui(pixel *vid_buf, int x, int y)
 			format = 2;
 		} else if (strcmp(ed.str,"dcolour")==0){
 			propoffset = offsetof(particle, dcolour);
-			format = 0;
+			format = 3;
 		}
 	} else {
 		error_ui(vid_buf, 0, "Invalid property");
@@ -1148,15 +1148,63 @@ void prop_edit_ui(pixel *vid_buf, int x, int y)
 	}
 	
 	if(format==0){
-		valuei = (int)valuef;
+		sscanf(ed2.str, "%d", &valuei);
 		flood_prop(x, y, propoffset, &valuei, format);
 	}
 	if(format==1){
-		valuec = (char)valuef;
+		int isint = 1, i;
+		//Check if it's an element name
+		for(i = 0; i < strlen(ed2.str); i++)
+		{
+			if(!(ed2.str[i] >= '0' && ed2.str[i] <= '9'))
+			{
+				isint = 0;
+				break;
+			}
+		}
+		if(isint)
+		{
+			sscanf(ed2.str, "%u", &valuei);
+		}
+		else
+		{
+			if(!console_parse_type(ed2.str, &valuei, NULL))
+			{
+				error_ui(vid_buf, 0, "Invalid element name");
+				goto exit;
+			}
+		}
+		valuec = (unsigned char)valuei;
 		flood_prop(x, y, propoffset, &valuec, format);
 	}
 	if(format==2){
+		sscanf(ed2.str, "%f", &valuef);
 		flood_prop(x, y, propoffset, &valuef, format);
+	}
+	if(format==3){
+		int j;
+		unsigned int valueui;
+		if(ed2.str[0] == '#') // #FFFFFFFF
+		{
+			//Convert to lower case
+			for(j = 0; j < strlen(ed2.str); j++)
+				ed2.str[j] = tolower(ed2.str[j]);
+			sscanf(ed2.str, "#%x", &valueui);
+			printf("%s, %u\n", ed2.str, valueui);
+		}
+		else if(ed2.str[0] == '0' && ed2.str[1] == 'x') // 0xFFFFFFFF
+		{
+			//Convert to lower case
+			for(j = 0; j < strlen(ed2.str); j++)
+				ed2.str[j] = tolower(ed2.str[j]);
+			sscanf(ed2.str, "0x%x", &valueui);
+			printf("%s, %u\n", ed2.str, valueui);
+		}
+		else
+		{
+			sscanf(ed2.str, "%d", &valueui);
+		}
+		flood_prop(x, y, propoffset, &valueui, 0);
 	}
 exit:
 	while (!sdl_poll())
@@ -6506,41 +6554,48 @@ void drawIcon(pixel * vid_buf, int x, int y, int cmode)
 {
 	switch (cmode)
 	{
-	case CM_VEL:
+	case 0x98:
 		drawtext(vid_buf, x, y, "\x98", 128, 160, 255, 255);
 		break;
-	case CM_PRESS:
+	case 0x99:
 		drawtext(vid_buf, x, y, "\x99", 255, 212, 32, 255);
 		break;
-	case CM_PERS:
+	case 0x9A:
 		drawtext(vid_buf, x, y, "\x9A", 212, 212, 212, 255);
 		break;
-	case CM_FIRE:
+	case 0x9B:
 		drawtext(vid_buf, x+1, y, "\x9B", 255, 0, 0, 255);
 		drawtext(vid_buf, x+1, y, "\x9C", 255, 255, 64, 255);
 		break;
-	case CM_BLOB:
+	case 0xBF:
 		drawtext(vid_buf, x, y, "\xBF", 55, 255, 55, 255);
 		break;
-	case CM_HEAT:
+	case 0xBE:
 		drawtext(vid_buf, x+2, y, "\xBE", 255, 0, 0, 255);
 		drawtext(vid_buf, x+2, y, "\xBD", 255, 255, 255, 255);
 		break;
-	case CM_FANCY:
+	case 0xC4:
 		drawtext(vid_buf, x, y, "\xC4", 100, 150, 255, 255);
 		break;
-	case CM_NOTHING:
-		//drawtext(vid_buf, x, y, "\xD1", 100, 150, 255, 255);
-		drawtext(vid_buf, x, y, "\x00", 100, 150, 255, 255);
-		break;
-	case CM_GRAD:
+	case 0xD3:
 		drawtext(vid_buf, x, y, "\xD3", 255, 50, 255, 255);
 		break;
-	case CM_LIFE:
-		//drawtext(vid_buf, x, y, "\xD1", 255, 50, 255, 255);
-		drawtext(vid_buf, x, y, "\x00", 255, 50, 255, 255);
+	case 0xE0:
+		drawtext(vid_buf, x, y, "\xE0", 255, 255, 255, 255);
 		break;
-	case CM_CRACK:
+	case 0xE1:
+		drawtext(vid_buf, x, y, "\xE1", 255, 255, 160, 255);
+		break;
+	case 0xDF:
+		drawtext(vid_buf, x, y, "\xDF", 200, 255, 255, 255);
+		break;
+	case 0xDE:
+		drawtext(vid_buf, x, y, "\xDE", 255, 255, 255, 255);
+		break;
+	case 0xDB:
+		drawtext(vid_buf, x, y, "\xDB", 255, 255, 200, 255);
+		break;
+	case 0xD4:
 		drawtext(vid_buf, x, y, "\xD4", 255, 55, 55, 255);
 		drawtext(vid_buf, x, y, "\xD5", 55, 255, 55, 255);
 		break;
@@ -6550,7 +6605,7 @@ void drawIcon(pixel * vid_buf, int x, int y, int cmode)
 void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 {
 	pixel * o_vid_buf;
-	int i, j, count;
+	int i, j, count, changed, temp;
 	int xsize;
 	int ysize;
 	int yoffset;
@@ -6563,17 +6618,17 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 
 	int render_optioncount = 6;
 	int render_options[] = {RENDER_EFFE, RENDER_GLOW, RENDER_FIRE, RENDER_BLUR, RENDER_BASC, RENDER_NONE};
-	int render_optionicons[] = {-1, -1, 3, 6, 7, 7};
+	int render_optionicons[] = {0xE1, 0xDF, 0x9B, 0xC4, 0xDB, 0xDB};
 	char * render_desc[] = {"Effects", "Glow", "Fire", "Blur", "Basic", "None"};
 	
 	int display_optioncount = 8;
 	int display_options[] = {DISPLAY_AIRC, DISPLAY_AIRP, DISPLAY_AIRV, DISPLAY_AIRH, DISPLAY_WARP, DISPLAY_PERS, DISPLAY_BLOB, DISPLAY_EFFE};
-	int display_optionicons[] = {10, 1, 0, 5, -1, 2, 4, -1};
+	int display_optionicons[] = {0xD4, 0x99, 0x98, 0xBE, 0xDE, 0x9A, 0xBF, -1};
 	char * display_desc[] = {"Air: Cracker", "Air: Pressure", "Air: Velocity", "Air: Heat", "Warp effect", "Persistent", "Blob", "Effects"};
-	
+
 	int colour_optioncount = 3;
 	int colour_options[] = {COLOUR_LIFE, COLOUR_HEAT, COLOUR_GRAD};
-	int colour_optionicons[] = {9, 5, 8};
+	int colour_optionicons[] = {0xE0, 0xBE, 0xD3};
 	char * colour_desc[] = {"Life", "Heat", "Heat Gradient"};
 
 	yoffset = 16;
@@ -6662,17 +6717,46 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 		clearrect(vid_buf, xcoord-2, ycoord-2, xsize+4, ysize+4);
 		drawrect(vid_buf, xcoord, ycoord, xsize, ysize, 192, 192, 192, 255);
 		
+		changed = 0;
 		for(i = 0; i < render_optioncount; i++)
 		{
+			temp = render_cb[i].checked;
 			drawIcon(vid_buf, render_cb[i].x + 16, render_cb[i].y+2, render_optionicons[i]);
 			ui_checkbox_draw(vid_buf, &(render_cb[i]));
 			ui_checkbox_process(mx, my, b, bq, &(render_cb[i]));
 			if(render_cb[i].focus)
 				drawtext(vid_buf, xcoord - textwidth(render_desc[i]) - 10, render_cb[i].y+2, render_desc[i], 255, 255, 255, 255);
+			if(temp != render_cb[i].checked)
+				changed = 1;
+		}
+		if(changed)
+		{
+			//Compile render options
+			count = 1;
+			for(i = 0; i < render_optioncount; i++)
+			{
+				if(render_cb[i].checked)
+					count++;
+			}
+			free(render_modes);
+			render_mode = 0;
+			render_modes = calloc(count, sizeof(unsigned int));
+			count = 0;
+			for(i = 0; i < render_optioncount; i++)
+			{
+				if(render_cb[i].checked)
+				{
+					render_modes[count] = render_options[i];
+					render_mode |= render_options[i];
+					count++;
+				}
+			}
 		}
 		
+		changed = 0;
 		for(i = 0; i < display_optioncount; i++)
 		{
+			temp = display_cb[i].checked;
 			drawIcon(vid_buf, display_cb[i].x + 16, display_cb[i].y+2, display_optionicons[i]);
 
 			if(display_options[i] & DISPLAY_AIR)
@@ -6697,10 +6781,37 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 			}
 			if(display_cb[i].focus)
 				drawtext(vid_buf, xcoord - textwidth(display_desc[i]) - 10, display_cb[i].y+2, display_desc[i], 255, 255, 255, 255);
+			if(temp != display_cb[i].checked)
+				changed = 1;
+		}
+		if(changed)
+		{
+			//Compile display options
+			count = 1;
+			for(i = 0; i < display_optioncount; i++)
+			{
+				if(display_cb[i].checked)
+					count++;
+			}
+			free(display_modes);
+			display_mode = 0;
+			display_modes = calloc(count, sizeof(unsigned int));
+			count = 0;
+			for(i = 0; i < display_optioncount; i++)
+			{
+				if(display_cb[i].checked)
+				{
+					display_modes[count] = display_options[i];
+					display_mode |= display_options[i];
+					count++;
+				}
+			}
 		}
 		
+		changed = 0;
 		for(i = 0; i < colour_optioncount; i++)
 		{
+			temp = colour_cb[i].checked;
 			drawIcon(vid_buf, colour_cb[i].x + 16, colour_cb[i].y+2, colour_optionicons[i]);
 			ui_radio_draw(vid_buf, &(colour_cb[i]));
 			ui_radio_process(mx, my, b, bq, &(colour_cb[i]));
@@ -6716,6 +6827,20 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 			}
 			if(colour_cb[i].focus)
 				drawtext(vid_buf, xcoord - textwidth(colour_desc[i]) - 10, colour_cb[i].y+2, colour_desc[i], 255, 255, 255, 255);
+			if(temp != colour_cb[i].checked)
+				changed = 1;
+		}
+		if(changed)
+		{
+			//Compile colour options
+			colour_mode = 0;
+			for(i = 0; i < colour_optioncount; i++)
+			{
+				if(colour_cb[i].checked)
+				{
+					colour_mode |= colour_options[i];
+				}
+			}
 		}
 		
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
@@ -6731,59 +6856,10 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 			break;
 	}
 	
-	//Compile colour options
-	colour_mode = 0;
-	for(i = 0; i < colour_optioncount; i++)
-	{
-		if(colour_cb[i].checked)
-		{
-			colour_mode |= colour_options[i];
-		}
-	}
 	free(colour_cb);
 	
-	//Compile render options
-	count = 1;
-	for(i = 0; i < render_optioncount; i++)
-	{
-		if(render_cb[i].checked)
-			count++;
-	}
-	free(render_modes);
-	render_mode = 0;
-	render_modes = calloc(count, sizeof(unsigned int));
-	count = 0;
-	for(i = 0; i < render_optioncount; i++)
-	{
-		if(render_cb[i].checked)
-		{
-			render_modes[count] = render_options[i];
-			render_mode |= render_options[i];
-			count++;
-		}
-	}
 	free(render_cb);
 	
-	//Compile render options
-	count = 1;
-	for(i = 0; i < display_optioncount; i++)
-	{
-		if(display_cb[i].checked)
-			count++;
-	}
-	free(display_modes);
-	display_mode = 0;
-	display_modes = calloc(count, sizeof(unsigned int));
-	count = 0;
-	for(i = 0; i < display_optioncount; i++)
-	{
-		if(display_cb[i].checked)
-		{
-			display_modes[count] = display_options[i];
-			display_mode |= display_options[i];
-			count++;
-		}
-	}
 	free(display_cb);
 	
 	while (!sdl_poll())

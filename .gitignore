@@ -21,3 +21,5 @@ src/python/stdlib/*
 *.vcxproj*
 *.lua
 elements.txt
+luacode.txt
+newluacode.txt

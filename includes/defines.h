@@ -8,10 +8,10 @@
 #endif
  
 //VersionInfoStart
-#define SAVE_VERSION 69
-#define MINOR_VERSION 2
+#define SAVE_VERSION 70
+#define MINOR_VERSION 1
 #define BETA
-#define BUILD_NUM 120
+#define BUILD_NUM 128
 //VersionInfoEnd
 
 #define MOD_SAVE_VERSION 7 //This is not the version number of my mod anymore, it's only changed when I change the stamp/save saving code
@@ -158,7 +158,6 @@ int GRAV_G2;
 int GRAV_B2;
 
 extern int legacy_enable;
-extern int ngrav_enable; //Newtonian gravity
 extern int sound_enable;
 extern int kiosk_enable;
 extern int aheat_enable;
@@ -281,7 +280,5 @@ void clear_sim(void);
 void del_stamp(int d);
 void sdl_seticon(void);
 void play_sound(char *file);
-void start_grav_async(void);
-void stop_grav_async(void);
 int set_scale(int scale, int kiosk);
 #endif

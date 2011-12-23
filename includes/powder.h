@@ -197,7 +197,8 @@
 #define PT_ELEC 136
 #define PT_ACEL 137
 #define PT_DCEL 138
-
+#define PT_BANG	139
+#define PT_IGNT 140
 #define PT_BOYL 141
 
 #define OLD_PT_WIND 147
@@ -252,9 +253,7 @@
 #define ST_SOLID 1
 #define ST_LIQUID 2
 #define ST_GAS 3
-/*
-   TODO: We should start to implement these.
-*/
+
 #define TYPE_PART			0x0001 //1 Powders
 #define TYPE_LIQUID			0x0002 //2 Liquids
 #define TYPE_SOLID			0x0004 //4 Solids
@@ -263,9 +262,9 @@
 #define PROP_CONDUCTS		0x0020 //32 Conducts electricity
 #define PROP_BLACK			0x0040 //64 Absorbs Photons (not currently implemented or used, a photwl attribute might be better)
 #define PROP_NEUTPENETRATE	0x0080 //128 Penetrated by neutrons
-#define PROP_NEUTABSORB		0x0100 //256 Absorbs neutrons, reflect is default (not currently implemented or used)
+#define PROP_NEUTABSORB		0x0100 //256 Absorbs neutrons, reflect is default
 #define PROP_NEUTPASS		0x0200 //512 Neutrons pass through, such as with glass
-#define PROP_DEADLY			0x0400 //1024 Is deadly for stickman (not currently implemented or used)
+#define PROP_DEADLY			0x0400 //1024 Is deadly for stickman
 #define PROP_HOT_GLOW		0x0800 //2048 Hot Metal Glow
 #define PROP_LIFE			0x1000 //4096 Is a GoL type
 #define PROP_RADIOACTIVE	0x2000 //8192 Radioactive
@@ -276,6 +275,7 @@
 #define PROP_CLONE			0x40000//2^18 Makes elements clone things that touch it
 #define PROP_BREAKABLECLONE	0x80000//2^19 Makes breakable elements clone things that touch it
 #define PROP_POWERED		0x100000//2^20 Makes an element turn on/off with PSCN/NSCN
+#define PROP_SPARKSETTLE	0x200000//2^21 Allow Sparks/Embers to settle
 
 #define FLAG_STAGNANT	1
 
@@ -413,6 +413,7 @@ int update_GPMP(UPDATE_FUNC_ARGS);
 int update_H2(UPDATE_FUNC_ARGS);
 int update_IRON(UPDATE_FUNC_ARGS);
 int update_ICEI(UPDATE_FUNC_ARGS);
+int update_IGNT(UPDATE_FUNC_ARGS);
 int update_ISZ(UPDATE_FUNC_ARGS);
 int update_LCRY(UPDATE_FUNC_ARGS);
 int update_LIGH(UPDATE_FUNC_ARGS);
@@ -473,7 +474,7 @@ void STKM_interact(playerst* playerp, int i, int x, int y);
 
 struct part_type
 {
-	const char *name;
+	char *name;
 	pixel pcolors;
 	float advection;
 	float airdrag;
@@ -761,15 +762,12 @@ extern int portal_ry[8];
 
 extern int wire_placed;
 
-extern int gravwl_timeout;
-
 extern playerst player;
 extern playerst player2;
 
 extern playerst fighters[256];
 extern unsigned char fighcount;
 
-extern int gravityMode;
 extern int airMode;
 
 extern particle *parts;
@@ -858,7 +856,5 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 void orbitalparts_get(int block1, int block2, int resblock1[], int resblock2[]);
 
 void orbitalparts_set(int *block1, int *block2, int resblock1[], int resblock2[]);
-
-void gravity_mask();
 
 #endif
