@@ -2484,7 +2484,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 			if (save_as == 0)
 				strappend(favtext, "Jacob's Mod ver. 6+");
 			else if (save_as == 1)
-				strappend(favtext, "Powder Toy beta ver. 68+");
+				strappend(favtext, "Powder Toy beta ver. 70+");
 			else
 				strappend(favtext, "Powder Toy release ver. 65+");
 		}

@@ -613,25 +613,55 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	return c;
 }
 
-int check_save(int saveas)
+int invalid_element(int save_as, int el)
+{
+	if (save_as > 0 && (el >= PT_NORMAL_NUM || ptypes[el].enabled == 0))
+		return 1;
+	if (save_as > 1 && (el == PT_ELEC || el == PT_FIGH || el == PT_ACEL || el == PT_DCEL || el == PT_BANG || el == PT_IGNT))
+		return 1;
+	return 0;
+}
+
+int check_save(int save_as)
 {
 	int i;
 	for (i=0; i<NPART; i++)
 	{
-		if (saveas > 0 && (parts[i].type >= PT_NORMAL_NUM || ptypes[parts[i].type].enabled == 0))
+		if (invalid_element(save_as,parts[i].type))
 		{
 			char errortext[256] = "";
 			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].type].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
 			info_ui(vid_buf,"Error",errortext);
 			return 1;
 		}
-		if (saveas > 1 && (parts[i].type == PT_ELEC || parts[i].type == PT_FIGH))
+		if (((ptypes[parts[i].type].properties&PROP_CLONE) || parts[i].type == PT_STOR || parts[i].type == PT_CONV || parts[i].type == PT_STKM || parts[i].type == PT_STKM2 || parts[i].type == PT_FIGH) && invalid_element(save_as,parts[i].ctype))
+		{
+			char errortext[256] = "";
+			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].ctype].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
+			info_ui(vid_buf,"Error",errortext);
+			return 1;
+		}
+		if (parts[i].type == PT_PIPE && invalid_element(save_as,parts[i].tmp))
+		{
+			char errortext[256] = "";
+			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].tmp].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
+			info_ui(vid_buf,"Error",errortext);
+			return 1;
+		}
+		/*if (save_as > 0 && (parts[i].type >= PT_NORMAL_NUM || ptypes[parts[i].type].enabled == 0))
 		{
 			char errortext[256] = "";
 			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].type].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
 			info_ui(vid_buf,"Error",errortext);
 			return 1;
 		}
+		if (save_as > 1 && (parts[i].type == PT_ELEC || parts[i].type == PT_FIGH || parts[i].type == PT_ACEL || parts[i].type == PT_DCEL || parts[i].type == PT_BANG || parts[i].type == PT_IGNT))
+		{
+			char errortext[256] = "";
+			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].type].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
+			info_ui(vid_buf,"Error",errortext);
+			return 1;
+		}*/
 	}
 	return 0;
 }
