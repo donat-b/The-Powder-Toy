@@ -132,7 +132,9 @@ solids that normally can't move.
 Next Version
 Wall names display in the hud. New lua functions: get_wall and create_wall. A 
 New Wall: ERASEALL. It can erase walls, signs, and particles all at once. 
-Most powered elements drawn in this version are now activated instantly.
+Most powered elements drawn in this version are now activated instantly. Set 
+the tmp to zero to keep the old way of activating. Lua code can now be saved. 
+Put it in luacode.txt, and it will be saved and run in stamps.
 
 
 
@@ -151,7 +153,6 @@ Hitting X doesn't close it when compiled from visual studio+takes forever
 
 
 Future Ideas/TODO: > means currently being worked on/added next
->>Include lua code in save (like autorun.lua does)
 buttons to decide what is in the HUD
 brush rotation
 more statistics - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11998
