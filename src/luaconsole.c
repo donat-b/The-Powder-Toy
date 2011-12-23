@@ -2122,13 +2122,6 @@ void readluastuff()
 				}
 			}
 		}
-		if (strstr(file->_base,"os.execute") || strstr(file->_base,"os.remove") || strstr(file->_base,"os.rename") || strstr(file->_base,"debug.") || strstr(file->_base,"file:") || strstr(file->_base,"io.") || strstr(file->_base,"package.") || strstr(file->_base,"require") || strstr(file->_base,"module"))
-		{
-			parts[i2>>8].animations[1] = 1;
-			fclose(file);
-			error_ui(vid_buf,0,"lua code could not be run");
-			return;
-		}
 		parts[i2>>8].animations[1] = 1;
 		fclose(file);
 		luaL_dofile(l,"newluacode.txt");
