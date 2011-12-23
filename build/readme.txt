@@ -69,6 +69,25 @@ save. If you don't cure it in time, it will start to die slowly and randomly.
 It is also cured randomly, and not instantly. Note:VIRS can burn and be 
 destroyed, even if it infected something like DMND.
 
+Powered elements: Most powered elements are now activated instantly. The 
+elements that don't are LCRY, ANIM, and PBCN. When you draw a powered element,
+it's tmp is set to 1, which causes it to be instantly activated. Use PROP to 
+change it's tmp back to 0 if you want to keep the old way. Also, PCLN uses 
+tmp2, not tmp, to do this.
+
+Lua code: Put a lua script in luacode.txt and click the LUA button in the 
+FAV2 menu. It will change the script into INDI and put it in the top left 
+corner. It will then run the code once, so if you want it to run every frame, 
+use tpt.register_step. When you save it in a stamp, and will allow it to be 
+run one more time when you open it. After you save a stamp/save or open one, 
+you can delete the INDI. The code will already be in newluacode.txt, and you 
+can look at it to see what it does. I also added in virus checks. You can't 
+add any code that reads or writes files, renames or deletes things, uses the 
+os.execute command, and a few other things. It checks for these things when 
+you try to save and try to run it. There is a bug that may cause it to crash 
+when it finds one of these things.
+
+
 
 
 
@@ -134,7 +153,7 @@ Wall names display in the hud. New lua functions: get_wall and create_wall. A
 New Wall: ERASEALL. It can erase walls, signs, and particles all at once. 
 Most powered elements drawn in this version are now activated instantly. Set 
 the tmp to zero to keep the old way of activating. Lua code can now be saved. 
-Put it in luacode.txt, and it will be saved and run in stamps.
+Put it in luacode.txt, and it will be saved and run in stamps/saves.
 
 
 
@@ -145,9 +164,9 @@ Moving solids destroyed by large pressure leave behind pieces inside solids
 Moving solid rotation doesn't save
 In virs, after a long infection/cure time, everything past a certain point 
     will be destroyed/cured at about the same time
-Hitting X doesn't close it when compiled from visual studio+takes forever
-	to launch, when ran normally, HUD might show (null) for empty spaces
-	and it may crash when you first start. Not sure if these are related
+HUD might show (null) for empty spaces and it may crash when you put your 
+    mouse on the screen. This only happens when I launch it from the 
+    build folder.
 
 
 

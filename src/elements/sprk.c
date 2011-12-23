@@ -150,7 +150,7 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 						}
 					}
 				}
-				if ((ct==PT_PSCN||ct==PT_NSCN) && (((rt==PT_PUMP||rt==PT_GPMP||rt==PT_HSWC)&&parts[i].tmp==0)||rt==PT_PBCN)) // PROP_PTOGGLE, Maybe? We seem to use 2 different methods for handling actived elements, this one seems better. Yes, use this one for new elements, PCLN is different for compatibility with existing saves
+				if ((ct==PT_PSCN||ct==PT_NSCN) && (((rt==PT_PUMP||rt==PT_GPMP||rt==PT_HSWC)&&parts[r>>8].tmp==0)||rt==PT_PBCN)) // PROP_PTOGGLE, Maybe? We seem to use 2 different methods for handling actived elements, this one seems better. Yes, use this one for new elements, PCLN is different for compatibility with existing saves
 				{
 					if (ct==PT_PSCN) parts[r>>8].life = 10;
 					else if (ct==PT_NSCN && parts[r>>8].life>=10) parts[r>>8].life = 9;
