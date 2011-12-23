@@ -16,8 +16,8 @@ int update_STOR(UPDATE_FUNC_ARGS) {
 					parts[i].tmp = parts[r>>8].type;
 					parts[i].temp = parts[r>>8].temp;
 					parts[i].flags = parts[r>>8].life;
-					parts[i].pavg[0] = parts[r>>8].tmp;
-					parts[i].pavg[1] = parts[r>>8].ctype;
+					parts[i].pavg[0] = (float)parts[r>>8].tmp;
+					parts[i].pavg[1] = (float)parts[r>>8].ctype;
 					kill_part(r>>8);
 				}
 				if(parts[i].tmp && (r&0xFF)==PT_SPRK && parts[r>>8].ctype==PT_PSCN)
@@ -29,8 +29,8 @@ int update_STOR(UPDATE_FUNC_ARGS) {
 							{
 								parts[np].temp = parts[i].temp;
 								parts[np].life = parts[i].flags;
-								parts[np].tmp = parts[i].pavg[0];
-								parts[np].ctype = parts[i].pavg[1];
+								parts[np].tmp = (int)parts[i].pavg[0];
+								parts[np].ctype = (int)parts[i].pavg[1];
 								parts[i].tmp = 0;
 								parts[i].life = 10;
 								break;

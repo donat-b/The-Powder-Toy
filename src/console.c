@@ -261,7 +261,7 @@ int process_command_old(pixel *vid_buf, char *console, char *console_error)
 
 					for (i = 1; i<=30; i++)
 					{
-						rem2 = create_part(-1, nx+18*cosf(i/5.0), ny+18*sinf(i/5.0), PT_SOAP);
+						rem2 = create_part(-1, (int)(nx+18*cosf(i/5.0)), (int)(ny+18*sinf(i/5.0)), PT_SOAP);
 
 						parts[rem1].ctype = 7;
 						parts[rem1].tmp = rem2;
@@ -448,7 +448,7 @@ int process_command_old(pixel *vid_buf, char *console, char *console_error)
 						for (i=0; i<NPART; i++)
 						{
 							if (parts[i].type)
-								parts[i].x = j;
+								parts[i].x = (float)j;
 						}
 					}
 					else if (console_parse_type(console4, &j, console_error))
@@ -457,7 +457,7 @@ int process_command_old(pixel *vid_buf, char *console, char *console_error)
 						for (i=0; i<NPART; i++)
 						{
 							if (parts[i].type == j)
-								parts[i].x = k;
+								parts[i].x = (float)k;
 						}
 					}
 					else
@@ -465,7 +465,7 @@ int process_command_old(pixel *vid_buf, char *console, char *console_error)
 						if (console_parse_partref(console4, &i, console_error))
 						{
 							j = atoi(console5);
-							parts[i].x = j;
+							parts[i].x = (float)j;
 						}
 					}
 				}
@@ -477,7 +477,7 @@ int process_command_old(pixel *vid_buf, char *console, char *console_error)
 						for (i=0; i<NPART; i++)
 						{
 							if (parts[i].type)
-								parts[i].y = j;
+								parts[i].y = (float)j;
 						}
 					}
 					else if (console_parse_type(console4, &j, console_error))
@@ -486,7 +486,7 @@ int process_command_old(pixel *vid_buf, char *console, char *console_error)
 						for (i=0; i<NPART; i++)
 						{
 							if (parts[i].type == j)
-								parts[i].y = k;
+								parts[i].y = (float)k;
 						}
 					}
 					else
@@ -494,7 +494,7 @@ int process_command_old(pixel *vid_buf, char *console, char *console_error)
 						if (console_parse_partref(console4, &i, console_error))
 						{
 							j = atoi(console5);
-							parts[i].y = j;
+							parts[i].y = (float)j;
 						}
 					}
 				}

@@ -29,8 +29,8 @@ int update_PCLN(UPDATE_FUNC_ARGS) {
 				for (ry=-1; ry<2; ry++) {
 					int r = create_part(-1, x+rx, y+ry, parts[i].ctype);
 					if (r!=-1) {
-						parts[r].vx = rx*3;
-						parts[r].vy = ry*3;
+						parts[r].vx = rx*3.0f;
+						parts[r].vy = ry*3.0f;
 					}
 				}
 			}

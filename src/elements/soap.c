@@ -103,7 +103,7 @@ int update_SOAP(UPDATE_FUNC_ARGS)
 										|| (r && ptypes[r&0xFF].state != ST_GAS 
 											&& (r&0xFF) != PT_SOAP && (r&0xFF) != PT_GLAS) 
 										|| (parts[r>>8].ctype == 0 && (r&0xFF) == PT_SOAP 
-											&& (abs(parts[r>>8].vx)<2 || abs(parts[r>>8].vy)<2)))
+											&& (abs((int)parts[r>>8].vx)<2 || abs((int)parts[r>>8].vy)<2)))
 								{
 									detach(i);
 									continue;
@@ -216,15 +216,15 @@ int update_SOAP(UPDATE_FUNC_ARGS)
 				if ((r&0xFF)!=PT_SOAP)
 				{
 					blend = 0.85f;
-					tr = (parts[r>>8].dcolour>>16)&0xFF;
-					tg = (parts[r>>8].dcolour>>8)&0xFF;
-					tb = (parts[r>>8].dcolour)&0xFF;
-					ta = (parts[r>>8].dcolour>>24)&0xFF;
+					tr = (float)((parts[r>>8].dcolour>>16)&0xFF);
+					tg = (float)((parts[r>>8].dcolour>>8)&0xFF);
+					tb = (float)((parts[r>>8].dcolour)&0xFF);
+					ta = (float)((parts[r>>8].dcolour>>24)&0xFF);
 					
-					nr = (tr*blend);
-					ng = (tg*blend);
-					nb = (tb*blend);
-					na = (ta*blend);
+					nr = (int)(tr*blend);
+					ng = (int)(tg*blend);
+					nb = (int)(tb*blend);
+					na = (int)(ta*blend);
 					
 					parts[r>>8].dcolour = nr<<16 | ng<<8 | nb | na<<24;
 				}

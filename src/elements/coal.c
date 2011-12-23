@@ -70,6 +70,6 @@ int update_COAL(UPDATE_FUNC_ARGS) {
 		}
 	}*/
 	if(parts[i].temp > parts[i].tmp2)
-		parts[i].tmp2 = parts[i].temp;
+		parts[i].tmp2 = (int)parts[i].temp;
 	return 0;
 }

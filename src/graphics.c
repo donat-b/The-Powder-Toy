@@ -133,9 +133,9 @@ char * generate_gradient(pixel * colours, float * points, int pointcount, int si
 		cccpos = ccpos / (pose - poss);
 		if(cccpos > 1.0f)
 			cccpos = 1.0f;
-		newdata[(cp*3)] = PIXR(colours[i])*(1.0f-cccpos) + PIXR(colours[j])*(cccpos);
-		newdata[(cp*3)+1] = PIXG(colours[i])*(1.0f-cccpos) + PIXG(colours[j])*(cccpos);
-		newdata[(cp*3)+2] = PIXB(colours[i])*(1.0f-cccpos) + PIXB(colours[j])*(cccpos);
+		newdata[(cp*3)] = (char)(PIXR(colours[i])*(1.0f-cccpos) + PIXR(colours[j])*(cccpos));
+		newdata[(cp*3)+1] = (char)(PIXG(colours[i])*(1.0f-cccpos) + PIXG(colours[j])*(cccpos));
+		newdata[(cp*3)+2] = (char)(PIXB(colours[i])*(1.0f-cccpos) + PIXB(colours[j])*(cccpos));
 	}
 	return newdata;
 }
@@ -310,8 +310,8 @@ pixel *resample_img(pixel *src, int sw, int sh, int rw, int rh)
 		rw = sw;
 		rh = sh;
 		while(rrw != rw && rrh != rh){
-			rw *= 0.7;
-			rh *= 0.7;
+			rw = (int)(rw*0.7);
+			rh = (int)(rh*0.7);
 			if(rw <= rrw || rh <= rrh){
 				rw = rrw;
 				rh = rrh;
@@ -1395,7 +1395,7 @@ void draw_air(pixel *vid)
 				else
 				{
 					float ttemp = hv[y][x]+(-MIN_TEMP);
-					int caddress = restrict_flt((int)( restrict_flt(ttemp, 0.0f, MAX_TEMP+(-MIN_TEMP)) / ((MAX_TEMP+(-MIN_TEMP))/1024) ) *3, 0.0f, (1024.0f*3)-3);
+					int caddress = (int)restrict_flt((int)( restrict_flt(ttemp, 0.0f, (float)MAX_TEMP+(-MIN_TEMP)) / ((MAX_TEMP+(-MIN_TEMP))/1024) ) *3.0f, 0.0f, (1024.0f*3)-3);
 					c = PIXRGB((int)((unsigned char)color_data[caddress]*0.7f), (int)((unsigned char)color_data[caddress+1]*0.7f), (int)((unsigned char)color_data[caddress+2]*0.7f));
 				}
 			}
@@ -1524,8 +1524,8 @@ void draw_grav(pixel *vid)
 			ca = y*(XRES/CELL)+x;
 			if(fabsf(gravx[ca]) <= 0.001f && fabsf(gravy[ca]) <= 0.001f)
 				continue;
-			nx = x*CELL;
-			ny = y*CELL;
+			nx = (float)x*CELL;
+			ny = (float)y*CELL;
 			dist = fabsf(gravy[ca])+fabsf(gravx[ca]);
 			for(i = 0; i < 4; i++)
 			{
@@ -1543,8 +1543,8 @@ void draw_line(pixel *vid, int x1, int y1, int x2, int y2, int r, int g, int b, 
 
 	dx = abs(x1-x2);
 	dy = abs(y1-y2);
-	sx = isign(x2-x1);
-	sy = isign(y2-y1);
+	sx = isign((float)x2-x1);
+	sy = isign((float)y2-y1);
 	x = x1;
 	y = y1;
 	check = 0;
@@ -1747,8 +1747,8 @@ void draw_other(pixel *vid) // EMP effect
 		glVertex2f(0, YRES+MENUSIZE);
 		glEnd();
 #else
-		int r=emp_decor*2.5, g=100+emp_decor*1.5, b=255;
-		int a=(1.0*emp_decor/110)*255;
+		int r=(int)(emp_decor*2.5), g=(int)(100+emp_decor*1.5), b=255;
+		int a=(int)((1.0*emp_decor/110)*255);
 		if (r>255) r=255;
 		if (g>255) g=255;
 		if (b>255) g=255;
@@ -1916,10 +1916,10 @@ void render_parts(pixel *vid)
 				if(ptypes[t].properties & PROP_HOT_GLOW && parts[i].temp>(ptransitions[t].thv-800.0f))
 				{
 					gradv = 3.1415/(2*ptransitions[t].thv-(ptransitions[t].thv-800.0f));
-					caddress = (parts[i].temp>ptransitions[t].thv)?ptransitions[t].thv-(ptransitions[t].thv-800.0f):parts[i].temp-(ptransitions[t].thv-800.0f);
-					colr += sin(gradv*caddress) * 226;;
-					colg += sin(gradv*caddress*4.55 +3.14) * 34;
-					colb += sin(gradv*caddress*2.22 +3.14) * 64;
+					caddress = (int)((parts[i].temp>ptransitions[t].thv)?ptransitions[t].thv-(ptransitions[t].thv-800.0f):parts[i].temp-(ptransitions[t].thv-800.0f));
+					colr += (int)(sin(gradv*caddress) * 226);
+					colg += (int)(sin(gradv*caddress*4.55 +3.14) * 34);
+					colb += (int)(sin(gradv*caddress*2.22 +3.14) * 64);
 				}
 
 				if (parts[i].type == PT_PPTI)
@@ -1954,9 +1954,9 @@ void render_parts(pixel *vid)
 				if(colour_mode & COLOUR_HEAT)
 				{
 					if (heatmode == 0)
-						caddress = restrict_flt((int)( restrict_flt((float)(parts[i].temp+(-MIN_TEMP)), 0.0f, MAX_TEMP+(-MIN_TEMP)) / ((MAX_TEMP+(-MIN_TEMP))/1024) ) *3, 0.0f, (1024.0f*3)-3); //Not having that second (float) might be a bug, and is definetely needed if min&max temps are less than 1024 apart
+						caddress = (int)restrict_flt((int)( restrict_flt((float)(parts[i].temp+(-MIN_TEMP)), 0.0f, MAX_TEMP+(-MIN_TEMP)) / ((MAX_TEMP+(-MIN_TEMP))/1024) ) *3.0f, 0.0f, (1024.0f*3)-3); //Not having that second (float) might be a bug, and is definetely needed if min&max temps are less than 1024 apart
 					else
-						caddress = restrict_flt((int)( restrict_flt((float)(parts[i].temp+(-lowesttemp)), 0.0f, highesttemp+(-lowesttemp)) / ((float)(highesttemp+(-lowesttemp))/1024) ) *3, 0.0f, (1024.0f*3)-3);
+						caddress = (int)restrict_flt((int)( restrict_flt((float)(parts[i].temp+(-lowesttemp)), 0.0f, (float)highesttemp+(-lowesttemp)) / ((float)(highesttemp+(-lowesttemp))/1024) ) *3.0f, 0.0f, (1024.0f*3)-3);
 					firea = 255;
 					firer = colr = (unsigned char)color_data[caddress];
 					fireg = colg = (unsigned char)color_data[caddress+1];
@@ -1968,20 +1968,20 @@ void render_parts(pixel *vid)
 				{
 					gradv = 0.4f;
 					if (!(parts[i].life<5))
-						q = sqrt(parts[i].life);
+						q = (int)sqrt(parts[i].life);
 					else
 						q = parts[i].life;
-					colr = colg = colb = sin(gradv*q) * 100 + 128;
+					colr = colg = colb = (int)(sin(gradv*q) * 100 + 128);
 					cola = 255;
 					if(pixel_mode & (FIREMODE | PMODE_GLOW)) pixel_mode = (pixel_mode & ~(FIREMODE|PMODE_GLOW)) | PMODE_BLUR;
 				}
 				else if (colour_mode & COLOUR_GRAD)
 				{
 					float frequency = 0.05;
-					int q = parts[i].temp-40;
-					colr = sin(frequency*q) * 16 + colr;
-					colg = sin(frequency*q) * 16 + colg;
-					colb = sin(frequency*q) * 16 + colb;
+					int q = (int)parts[i].temp-40;
+					colr = (int)(sin(frequency*q) * 16 + colr);
+					colg = (int)(sin(frequency*q) * 16 + colg);
+					colb = (int)(sin(frequency*q) * 16 + colb);
 					if(pixel_mode & (FIREMODE | PMODE_GLOW)) pixel_mode = (pixel_mode & ~(FIREMODE|PMODE_GLOW)) | PMODE_BLUR;
 				}
 								
@@ -2065,8 +2065,8 @@ void render_parts(pixel *vid)
 					for (r = 0; r < 4; r++) {
 						ddist = ((float)orbd[r])/16.0f;
 						drad = (M_PI * ((float)orbl[r]) / 180.0f)*1.41f;
-						nxo = ddist*cos(drad);
-						nyo = ddist*sin(drad);
+						nxo = (int)(ddist*cos(drad));
+						nyo = (int)(ddist*sin(drad));
 						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES)
 							addpixel(vid, nx+nxo, ny+nyo, PIXR(ptypes[t].pcolors), PIXG(ptypes[t].pcolors), PIXB(ptypes[t].pcolors), 255-orbd[r]);
 					}
@@ -2083,8 +2083,8 @@ void render_parts(pixel *vid)
 					for (r = 0; r < 4; r++) {
 						ddist = ((float)orbd[r])/16.0f;
 						drad = (M_PI * ((float)orbl[r]) / 180.0f)*1.41f;
-						nxo = ddist*cos(drad);
-						nyo = ddist*sin(drad);
+						nxo = (int)(ddist*cos(drad));
+						nyo = (int)(ddist*sin(drad));
 						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES)
 							addpixel(vid, nx+nxo, ny+nyo, PIXR(ptypes[t].pcolors), PIXG(ptypes[t].pcolors), PIXB(ptypes[t].pcolors), 255-orbd[r]);
 					}
@@ -2230,10 +2230,10 @@ void render_parts(pixel *vid)
 						draw_line(vid , nx+2, ny-2, nx+2, ny+2, colr, colg, colb, s);
 					}
 					//legs
-					draw_line(vid , nx, ny+3, cplayer->legs[0], cplayer->legs[1], legr, legg, legb, s);
-					draw_line(vid , cplayer->legs[0], cplayer->legs[1], cplayer->legs[4], cplayer->legs[5], legr, legg, legb, s);
-					draw_line(vid , nx, ny+3, cplayer->legs[8], cplayer->legs[9], legr, legg, legb, s);
-					draw_line(vid , cplayer->legs[8], cplayer->legs[9], cplayer->legs[12], cplayer->legs[13], legr, legg, legb, s);
+					draw_line(vid , nx, ny+3, (int)cplayer->legs[0], (int)cplayer->legs[1], legr, legg, legb, s);
+					draw_line(vid , (int)cplayer->legs[0], (int)cplayer->legs[1], (int)cplayer->legs[4], (int)cplayer->legs[5], legr, legg, legb, s);
+					draw_line(vid , nx, ny+3, (int)cplayer->legs[8], (int)cplayer->legs[9], legr, legg, legb, s);
+					draw_line(vid , (int)cplayer->legs[8], (int)cplayer->legs[9], (int)cplayer->legs[12], (int)cplayer->legs[13], legr, legg, legb, s);
 #endif
 				}
 				if(pixel_mode & PMODE_FLAT)
@@ -2362,7 +2362,7 @@ void render_parts(pixel *vid)
 				}
 				if(pixel_mode & PMODE_SPARK)
 				{
-					flicker = rand()%20;
+					flicker = (float)(rand()%20);
 #ifdef OGLR
 					//Oh god, this is awful
 				    lineC[clineC++] = ((float)colr)/255.0f;
@@ -2415,18 +2415,18 @@ void render_parts(pixel *vid)
 #else
 					gradv = 4*parts[i].life + flicker;
 					for (x = 0; gradv>0.5; x++) {
-						addpixel(vid, nx+x, ny, colr, colg, colb, gradv);
-						addpixel(vid, nx-x, ny, colr, colg, colb, gradv);
+						addpixel(vid, nx+x, ny, colr, colg, colb, (int)gradv);
+						addpixel(vid, nx-x, ny, colr, colg, colb, (int)gradv);
 
-						addpixel(vid, nx, ny+x, colr, colg, colb, gradv);
-						addpixel(vid, nx, ny-x, colr, colg, colb, gradv);
+						addpixel(vid, nx, ny+x, colr, colg, colb, (int)gradv);
+						addpixel(vid, nx, ny-x, colr, colg, colb, (int)gradv);
 						gradv = gradv/1.5f;
 					}
 #endif
 				}
 				if(pixel_mode & PMODE_FLARE)
 				{
-					flicker = rand()%20;
+					flicker = (float)(rand()%20);
 #ifdef OGLR
 					//Oh god, this is awful
 				    lineC[clineC++] = ((float)colr)/255.0f;
@@ -2478,28 +2478,28 @@ void render_parts(pixel *vid)
 				    cline++;
 #else
 					gradv = flicker + fabs(parts[i].vx)*17 + fabs(parts[i].vy)*17;
-					blendpixel(vid, nx, ny, colr, colg, colb, (gradv*4)>255?255:(gradv*4) );
-					blendpixel(vid, nx+1, ny, colr, colg, colb, (gradv*2)>255?255:(gradv*2) );
-					blendpixel(vid, nx-1, ny, colr, colg, colb, (gradv*2)>255?255:(gradv*2) );
-					blendpixel(vid, nx, ny+1, colr, colg, colb, (gradv*2)>255?255:(gradv*2) );
-					blendpixel(vid, nx, ny-1, colr, colg, colb, (gradv*2)>255?255:(gradv*2) );
+					blendpixel(vid, nx, ny, colr, colg, colb, (int)((gradv*4)>255?255:(gradv*4)));
+					blendpixel(vid, nx+1, ny, colr, colg, colb, (int)((gradv*2)>255?255:(gradv*2)));
+					blendpixel(vid, nx-1, ny, colr, colg, colb, (int)((gradv*2)>255?255:(gradv*2)));
+					blendpixel(vid, nx, ny+1, colr, colg, colb, (int)((gradv*2)>255?255:(gradv*2)));
+					blendpixel(vid, nx, ny-1, colr, colg, colb, (int)((gradv*2)>255?255:(gradv*2)));
 					if (gradv>255) gradv=255;
-					blendpixel(vid, nx+1, ny-1, colr, colg, colb, gradv);
-					blendpixel(vid, nx-1, ny-1, colr, colg, colb, gradv);
-					blendpixel(vid, nx+1, ny+1, colr, colg, colb, gradv);
-					blendpixel(vid, nx-1, ny+1, colr, colg, colb, gradv);
+					blendpixel(vid, nx+1, ny-1, colr, colg, colb, (int)gradv);
+					blendpixel(vid, nx-1, ny-1, colr, colg, colb, (int)gradv);
+					blendpixel(vid, nx+1, ny+1, colr, colg, colb, (int)gradv);
+					blendpixel(vid, nx-1, ny+1, colr, colg, colb, (int)gradv);
 					for (x = 1; gradv>0.5; x++) {
-						addpixel(vid, nx+x, ny, colr, colg, colb, gradv);
-						addpixel(vid, nx-x, ny, colr, colg, colb, gradv);
-						addpixel(vid, nx, ny+x, colr, colg, colb, gradv);
-						addpixel(vid, nx, ny-x, colr, colg, colb, gradv);
+						addpixel(vid, nx+x, ny, colr, colg, colb, (int)gradv);
+						addpixel(vid, nx-x, ny, colr, colg, colb, (int)gradv);
+						addpixel(vid, nx, ny+x, colr, colg, colb, (int)gradv);
+						addpixel(vid, nx, ny-x, colr, colg, colb, (int)gradv);
 						gradv = gradv/1.2f;
 					}
 #endif
 				}
 				if(pixel_mode & PMODE_LFLARE)
 				{
-					flicker = rand()%20;
+					flicker = (float)(rand()%20);
 #ifdef OGLR
 					//Oh god, this is awful
 				    lineC[clineC++] = ((float)colr)/255.0f;
@@ -2551,21 +2551,21 @@ void render_parts(pixel *vid)
 				    cline++;
 #else
 					gradv = flicker + fabs(parts[i].vx)*17 + fabs(parts[i].vy)*17;
-					blendpixel(vid, nx, ny, colr, colg, colb, (gradv*4)>255?255:(gradv*4) );
-					blendpixel(vid, nx+1, ny, colr, colg, colb, (gradv*2)>255?255:(gradv*2) );
-					blendpixel(vid, nx-1, ny, colr, colg, colb, (gradv*2)>255?255:(gradv*2) );
-					blendpixel(vid, nx, ny+1, colr, colg, colb, (gradv*2)>255?255:(gradv*2) );
-					blendpixel(vid, nx, ny-1, colr, colg, colb, (gradv*2)>255?255:(gradv*2) );
+					blendpixel(vid, nx, ny, colr, colg, colb, (int)((gradv*4)>255?255:(gradv*4)));
+					blendpixel(vid, nx+1, ny, colr, colg, colb, (int)((gradv*2)>255?255:(gradv*2)));
+					blendpixel(vid, nx-1, ny, colr, colg, colb, (int)((gradv*2)>255?255:(gradv*2)));
+					blendpixel(vid, nx, ny+1, colr, colg, colb, (int)((gradv*2)>255?255:(gradv*2)));
+					blendpixel(vid, nx, ny-1, colr, colg, colb, (int)((gradv*2)>255?255:(gradv*2)));
 					if (gradv>255) gradv=255;
-					blendpixel(vid, nx+1, ny-1, colr, colg, colb, gradv);
-					blendpixel(vid, nx-1, ny-1, colr, colg, colb, gradv);
-					blendpixel(vid, nx+1, ny+1, colr, colg, colb, gradv);
-					blendpixel(vid, nx-1, ny+1, colr, colg, colb, gradv);
+					blendpixel(vid, nx+1, ny-1, colr, colg, colb, (int)gradv);
+					blendpixel(vid, nx-1, ny-1, colr, colg, colb, (int)gradv);
+					blendpixel(vid, nx+1, ny+1, colr, colg, colb, (int)gradv);
+					blendpixel(vid, nx-1, ny+1, colr, colg, colb, (int)gradv);
 					for (x = 1; gradv>0.5; x++) {
-						addpixel(vid, nx+x, ny, colr, colg, colb, gradv);
-						addpixel(vid, nx-x, ny, colr, colg, colb, gradv);
-						addpixel(vid, nx, ny+x, colr, colg, colb, gradv);
-						addpixel(vid, nx, ny-x, colr, colg, colb, gradv);
+						addpixel(vid, nx+x, ny, colr, colg, colb, (int)gradv);
+						addpixel(vid, nx-x, ny, colr, colg, colb, (int)gradv);
+						addpixel(vid, nx, ny+x, colr, colg, colb, (int)gradv);
+						addpixel(vid, nx, ny-x, colr, colg, colb, (int)gradv);
 						gradv = gradv/1.01f;
 					}
 #endif
@@ -2582,8 +2582,8 @@ void render_parts(pixel *vid)
 					for (r = 0; r < 4; r++) {
 						ddist = ((float)orbd[r])/16.0f;
 						drad = (M_PI * ((float)orbl[r]) / 180.0f)*1.41f;
-						nxo = ddist*cos(drad);
-						nyo = ddist*sin(drad);
+						nxo = (int)(ddist*cos(drad));
+						nyo = (int)(ddist*sin(drad));
 						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES)
 							addpixel(vid, nx+nxo, ny+nyo, colr, colg, colb, 255-orbd[r]);
 					}
@@ -2600,8 +2600,8 @@ void render_parts(pixel *vid)
 					for (r = 0; r < 4; r++) {
 						ddist = ((float)orbd[r])/16.0f;
 						drad = (M_PI * ((float)orbl[r]) / 180.0f)*1.41f;
-						nxo = ddist*cos(drad);
-						nyo = ddist*sin(drad);
+						nxo = (int)(ddist*cos(drad));
+						nyo = (int)(ddist*sin(drad));
 						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES)
 							addpixel(vid, nx+nxo, ny+nyo, colr, colg, colb, 255-orbd[r]);
 					}
@@ -3511,7 +3511,7 @@ void draw_rgba_image(pixel *vid, unsigned char *data, int x, int y, float alpha)
 			g = *(data++)&0xFF;
 			b = *(data++)&0xFF;
 			a = *(data++)&0xFF;
-			drawpixel(vid, x+i, y+j, r, g, b, a*alpha);
+			drawpixel(vid, x+i, y+j, r, g, b, (int)(a*alpha));
 		}
 	}
 }
@@ -4446,12 +4446,12 @@ int draw_debug_info(pixel* vid, int lm, int lx, int ly, int cx, int cy, int line
 		}
 		
 		if(debug_flags & DEBUG_PERFORMANCE_CALC)
-			t1 = abs(partiavg / x);
+			t1 = abs((int)(partiavg / x));
 		else
 			t1 = 0;
 			
 		if(debug_flags & DEBUG_PERFORMANCE_FRAME)
-			t2 = abs(frameavg / x);
+			t2 = abs((int)(frameavg / x));
 		else
 			t2 = 0;
 		

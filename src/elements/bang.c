@@ -61,8 +61,8 @@ int update_BANG(UPDATE_FUNC_ARGS) {
 				parts[i].tmp = 1;
 				parts[i].life = 50;
 				parts[i].temp = (MAX_TEMP/3)+otemp;
-				parts[i].vx = rand()%20-10;
-				parts[i].vy = rand()%20-10;
+				parts[i].vx = (float)(rand()%20-10);
+				parts[i].vy = (float)(rand()%20-10);
 			}
 			else
 			{

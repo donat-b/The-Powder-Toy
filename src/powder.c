@@ -208,8 +208,8 @@ int eval_move(int pt, int nx, int ny, unsigned *rr)
 		}
 		if (pt == PT_SPNG)
 		{
-			int vx = parts[pt].vx;
-			int vy = parts[pt].vy;
+			int vx = (int)parts[pt].vx;
+			int vy = (int)parts[pt].vy;
 			parts[r>>8].x += vy;
 			parts[r>>8].x += vy;
 			result = 2;
@@ -276,7 +276,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 			int nnx, count;
 			for (count=0; count<8; count++)
 			{
-				if (isign(x-nx)==isign(portal_rx[count]) && isign(y-ny)==isign(portal_ry[count]))
+				if (isign((float)x-nx)==isign((float)portal_rx[count]) && isign((float)y-ny)==isign((float)portal_ry[count]))
 					break;
 			}
 			count = count%8;
@@ -296,7 +296,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 
 	if (parts[i].type == PT_SPNG)
 	{
-		int vx = parts[i].vx, vy = parts[i].vy, x2, y2;
+		int vx = (int)parts[i].vx, vy = (int)parts[i].vy, x2, y2;
 		int vx2 = vx, vy2 = vy;
 		unsigned int r2;
 		if (vx > 0) vx2 = -1; else if (vx < 0) vx2 = 1;
@@ -404,12 +404,12 @@ int try_move(int i, int x, int y, int nx, int ny)
 			if (s)
 			{
 				pmap[ny][nx] = (s&~(0xFF))|parts[s>>8].type;
-				parts[s>>8].x = nx;
-				parts[s>>8].y = ny;
+				parts[s>>8].x = (float)nx;
+				parts[s>>8].y = (float)ny;
 			}
 			else pmap[ny][nx] = 0;
-			parts[e].x = x;
-			parts[e].y = y;
+			parts[e].x = (float)x;
+			parts[e].y = (float)y;
 			pmap[y][x] = (e<<8)|parts[e].type;
 			return 1;
 		}
@@ -568,8 +568,8 @@ int get_normal(int pt, int x, int y, float dx, float dy, float *nx, float *ny)
 	if ((lx == rx) && (ly == ry))
 		return 0;
 
-	ex = rx - lx;
-	ey = ry - ly;
+	ex = (float)rx - lx;
+	ey = (float)ry - ly;
 	r = 1.0f/hypot(ex, ey);
 	*nx =  ey * r;
 	*ny = -ex * r;
@@ -983,7 +983,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
             parts[i].tmp = rand()%360;
             break;
         case 2:
-            parts[i].tmp = atan2(x-XCNTR, y-YCNTR)*(180.0f/M_PI)+90;
+            parts[i].tmp = (int)(atan2(x-XCNTR, y-YCNTR)*(180.0f/M_PI)+90);
         }
         parts[i].tmp2 = 4;
 	}
@@ -1439,7 +1439,7 @@ inline int parts_avg(int ci, int ni,int t)
 
 int nearest_part(int ci, int t, int max_d)
 {
-	int distance = (max_d!=-1)?max_d:MAX_DISTANCE;
+	int distance = (int)((max_d!=-1)?max_d:MAX_DISTANCE);
 	int ndistance = 0;
 	int id = -1;
 	int i = 0;
@@ -1449,7 +1449,7 @@ int nearest_part(int ci, int t, int max_d)
 	{
 		if ((parts[i].type==t||(t==-1&&parts[i].type))&&!parts[i].life&&i!=ci)
 		{
-			ndistance = abs(cx-parts[i].x)+abs(cy-parts[i].y);// Faster but less accurate  Older: sqrt(pow(cx-parts[i].x, 2)+pow(cy-parts[i].y, 2));
+			ndistance = abs(cx-(int)parts[i].x)+abs(cy-(int)parts[i].y);// Faster but less accurate  Older: sqrt(pow(cx-parts[i].x, 2)+pow(cy-parts[i].y, 2));
 			if (ndistance<distance)
 			{
 				distance = ndistance;
@@ -1477,8 +1477,8 @@ void create_arc(int sx, int sy, int dx, int dy, int midpoints, int variance, int
 	
 	for(i = 1; i <= midpoints; i++)
 	{
-		ymid[i] = ymid[i-1]+yint;
-		xmid[i] = xmid[i-1]+xint;
+		ymid[i] = ymid[i-1]+(int)yint;
+		xmid[i] = xmid[i-1]+(int)xint;
 	}
 	
 	for(i = 0; i <= midpoints; i++)
@@ -1881,7 +1881,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				pGravX = pGravY = 0.0f;
 				break;
 			case 2:
-				pGravD = 0.01f - hypotf((x - XCNTR), (y - YCNTR));
+				pGravD = 0.01f - hypotf(((float)x - XCNTR), ((float)y - YCNTR));
 				pGravX = ptypes[t].gravity * ((float)(x - XCNTR) / pGravD);
 				pGravY = ptypes[t].gravity * ((float)(y - YCNTR) / pGravD);
 			}
@@ -2084,7 +2084,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 
 					pt = parts[i].temp = restrict_flt(parts[i].temp, MIN_TEMP, MAX_TEMP);
 					if (t==PT_LAVA) {
-						parts[i].life = restrict_flt((parts[i].temp-700)/7, 0.0f, 400.0f);
+						parts[i].life = (int)restrict_flt((parts[i].temp-700)/7, 0.0f, 400.0f);
 						if (parts[i].ctype==PT_THRM&&parts[i].tmp>0)
 						{
 							parts[i].tmp--;
@@ -2371,8 +2371,8 @@ killed:
 						parts[r>>8].tmp =  (parts[r>>8].tmp&~0xFF) | parts[i].type;
 						parts[r>>8].temp = parts[i].temp;
 						parts[r>>8].flags = parts[i].life;
-						parts[r>>8].pavg[0] = parts[i].tmp;
-						parts[r>>8].pavg[1] = parts[i].ctype;
+						parts[r>>8].pavg[0] = (float)parts[i].tmp;
+						parts[r>>8].pavg[1] = (float)parts[i].ctype;
 						kill_part(i);
 						continue;
 					}
@@ -2559,7 +2559,7 @@ killed:
 										pGravX = pGravY = 0.0f;
 										break;
 									case 2:
-										pGravD = 0.01f - hypotf((nx - XCNTR), (ny - YCNTR));
+										pGravD = 0.01f - hypotf(((float)nx - XCNTR), ((float)ny - YCNTR));
 										pGravX = ptGrav * ((float)(nx - XCNTR) / pGravD);
 										pGravY = ptGrav * ((float)(ny - YCNTR) / pGravD);
 								}
@@ -2618,7 +2618,7 @@ killed:
 											pGravX = pGravY = 0.0f;
 											break;
 										case 2:
-											pGravD = 0.01f - hypotf((nx - XCNTR), (ny - YCNTR));
+											pGravD = 0.01f - hypotf(((float)nx - XCNTR), ((float)ny - YCNTR));
 											pGravX = ptGrav * ((float)(nx - XCNTR) / pGravD);
 											pGravY = ptGrav * ((float)(ny - YCNTR) / pGravD);
 									}
@@ -2771,9 +2771,9 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 		for (i=0; i<=parts_lastActiveIndex; i++)
 		{
 			if (parts[i].temp > highesttemp)
-				highesttemp = parts[i].temp;
+				highesttemp = (int)parts[i].temp;
 			if (parts[i].temp < lowesttemp)
-				lowesttemp = parts[i].temp;
+				lowesttemp = (int)parts[i].temp;
 		}
 	}
 }
@@ -3088,8 +3088,8 @@ int flood_water(int x, int y, int i, int originaly, int check)
 			int oldy = (int)(parts[i].y + 0.5f);
 			pmap[y-1][x] = pmap[oldy][oldx];
 			pmap[oldy][oldx] = 0;
-			parts[i].x = x;
-			parts[i].y = y-1;
+			parts[i].x = (float)x;
+			parts[i].y = y-1.0f;
 			return 0;
 		}
 	}
@@ -3168,7 +3168,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
             parts[p].life=rx+ry;
             if (parts[p].life>55)
                 parts[p].life=55;
-            parts[p].temp=parts[p].life*150; // temperature of the lighting shows the power of the lighting
+            parts[p].temp=parts[p].life*150.0f; // temperature of the lighting shows the power of the lighting
             lighting_recreate+=parts[p].life/2+1;
             return 1;
         }
@@ -3463,9 +3463,9 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 	h = odatac[7]*CELL;
 	// undo any translation caused by rotation
 	cornerso[0] = v2d_new(0,0);
-	cornerso[1] = v2d_new(w-1,0);
-	cornerso[2] = v2d_new(0,h-1);
-	cornerso[3] = v2d_new(w-1,h-1);
+	cornerso[1] = v2d_new(w-1.0f,0);
+	cornerso[2] = v2d_new(0,h-1.0f);
+	cornerso[3] = v2d_new(w-1.0f,h-1.0f);
 	for (i=0; i<4; i++)
 	{
 		tmp = m2d_multiply_v2d(transform,cornerso[i]);
@@ -3478,18 +3478,18 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 	// casting as int doesn't quite do what we want with negative numbers, so use floor()
 	tmp = v2d_new(floor(ctl.x+0.5f),floor(ctl.y+0.5f));
 	translate = v2d_sub(translate,tmp);
-	nw = floor(cbr.x+0.5f)-floor(ctl.x+0.5f)+1;
-	nh = floor(cbr.y+0.5f)-floor(ctl.y+0.5f)+1;
+	nw = (int)(floor(cbr.x+0.5f)-floor(ctl.x+0.5f)+1);
+	nh = (int)((cbr.y+0.5f)-floor(ctl.y+0.5f)+1);
 	if (nw>XRES) nw = XRES;
 	if (nh>YRES) nh = YRES;
 	// rotate and translate signs, parts, walls
 	for (i=0; i<MAXSIGNS; i++)
 	{
 		if (!signst[i].text[0]) continue;
-		pos = v2d_new(signst[i].x, signst[i].y);
+		pos = v2d_new((float)signst[i].x, (float)signst[i].y);
 		pos = v2d_add(m2d_multiply_v2d(transform,pos),translate);
-		nx = floor(pos.x+0.5f);
-		ny = floor(pos.y+0.5f);
+		nx = (int)floor(pos.x+0.5f);
+		ny = (int)floor(pos.y+0.5f);
 		if (nx<0 || nx>=nw || ny<0 || ny>=nh)
 		{
 			signst[i].text[0] = 0;
@@ -3503,23 +3503,23 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 		if (!partst[i].type) continue;
 		pos = v2d_new(partst[i].x, partst[i].y);
 		pos = v2d_add(m2d_multiply_v2d(transform,pos),translate);
-		nx = floor(pos.x+0.5f);
-		ny = floor(pos.y+0.5f);
+		nx = (int)floor(pos.x+0.5f);
+		ny = (int)floor(pos.y+0.5f);
 		if (nx<0 || nx>=nw || ny<0 || ny>=nh)
 		{
 			partst[i].type = PT_NONE;
 			continue;
 		}
-		partst[i].x = nx;
-		partst[i].y = ny;
+		partst[i].x = (float)nx;
+		partst[i].y = (float)ny;
 	}
 	for (y=0; y<YRES/CELL; y++)
 		for (x=0; x<XRES/CELL; x++)
 		{
 			pos = v2d_new(x*CELL+CELL*0.4f, y*CELL+CELL*0.4f);
 			pos = v2d_add(m2d_multiply_v2d(transform,pos),translate);
-			nx = pos.x/CELL;
-			ny = pos.y/CELL;
+			nx = (int)(pos.x/CELL);
+			ny = (int)(pos.y/CELL);
 			if (nx<0 || nx>=nw || ny<0 || ny>=nh)
 				continue;
 			if (bmapo[y][x])

@@ -138,7 +138,7 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS) {
 	{
 		if (dl>dr)
 		{
-			if (!eval_move(PT_DUST, playerp->legs[4], playerp->legs[5], NULL))
+			if (!eval_move(PT_DUST, (int)playerp->legs[4], (int)playerp->legs[5], NULL))
 			{
 				playerp->accs[2] = -3*gvy-3*gvx;
 				playerp->accs[3] = 3*gvx-3*gvy;
@@ -148,7 +148,7 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS) {
 		}
 		else
 		{
-			if (!eval_move(PT_DUST, playerp->legs[12], playerp->legs[13], NULL))
+			if (!eval_move(PT_DUST, (int)playerp->legs[12], (int)playerp->legs[13], NULL))
 			{
 				playerp->accs[6] = -3*gvy-3*gvx;
 				playerp->accs[7] = 3*gvx-3*gvy;
@@ -163,7 +163,7 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS) {
 	{
 		if (dl<dr)
 		{
-			if (!eval_move(PT_DUST, playerp->legs[4], playerp->legs[5], NULL))
+			if (!eval_move(PT_DUST, (int)playerp->legs[4], (int)playerp->legs[5], NULL))
 			{
 				playerp->accs[2] = 3*gvy-3*gvx;
 				playerp->accs[3] = -3*gvx-3*gvy;
@@ -173,7 +173,7 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS) {
 		}
 		else
 		{
-			if (!eval_move(PT_DUST, playerp->legs[12], playerp->legs[13], NULL))
+			if (!eval_move(PT_DUST, (int)playerp->legs[12], (int)playerp->legs[13], NULL))
 			{
 				playerp->accs[6] = 3*gvy-3*gvx;
 				playerp->accs[7] = -3*gvx-3*gvy;
@@ -185,7 +185,7 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS) {
 
 	//Jump
 	if (((int)(playerp->comm)&0x04) == 0x04 && 
-			(!eval_move(PT_DUST, playerp->legs[4], playerp->legs[5], NULL) || !eval_move(PT_DUST, playerp->legs[12], playerp->legs[13], NULL)))
+			(!eval_move(PT_DUST, (int)playerp->legs[4], (int)playerp->legs[5], NULL) || !eval_move(PT_DUST, (int)playerp->legs[12], (int)playerp->legs[13], NULL)))
 	{
 		parts[i].vy -= 4*gvy;
 		playerp->accs[3] -= gvy;
@@ -228,7 +228,7 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS) {
 				if ((r&0xFF) == PT_NEUT)
 				{
 					if (parts[i].life<=100) parts[i].life -= (102-parts[i].life)/2;
-					else parts[i].life *= 0.9f;
+					else parts[i].life = (int)(parts[i].life * 0.9f);
 					kill_part(r>>8);
 				}
 				if (bmap[(ry+y)/CELL][(rx+x)/CELL]==WL_FAN)
@@ -275,9 +275,9 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS) {
 					{
 						parts[np].vy = 0;
 						if (((int)playerp->pcomm)&(0x01|0x02))
-							parts[np].vx = (((((int)playerp->pcomm)&0x02) == 0x02) - (((int)(playerp->pcomm)&0x01) == 0x01))*random;
+							parts[np].vx = (float)(((((int)playerp->pcomm)&0x02) == 0x02) - (((int)(playerp->pcomm)&0x01) == 0x01))*random;
 						else
-							parts[np].vx = random;
+							parts[np].vx = (float)random;
 					}
 				}
 				else if (playerp->elem == PT_LIGH)
@@ -287,14 +287,14 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS) {
 					if (gvx!=0 || gvy!=0)
 						angle = atan2(gvx, gvy)*180.0f/M_PI;
 					else
-						angle = rand()%360;
+						angle = (float)(rand()%360);
 					if (((int)playerp->comm)&0x01)
 						angle += 180;
 					if (angle>360)
 						angle-=360;
 					if (angle<0)
 						angle+=360;
-					parts[np].tmp = angle;
+					parts[np].tmp = (int)angle;
 					parts[np].life=rand()%(2+power/15)+power/7;
 					parts[np].temp=parts[np].life*power/2.5;
 					parts[np].tmp2=1;
@@ -336,27 +336,27 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS) {
 	playerp->legs[8] += (playerp->legs[8]-parts[i].x)*d;
 	playerp->legs[9] += (playerp->legs[9]-parts[i].y)*d;
 
-	if (!eval_move(PT_DUST, playerp->legs[4], playerp->legs[5], NULL))
+	if (!eval_move(PT_DUST, (int)playerp->legs[4], (int)playerp->legs[5], NULL))
 	{
 		playerp->legs[4] = playerp->legs[6];
 		playerp->legs[5] = playerp->legs[7];
 	}
 
-	if (!eval_move(PT_DUST, playerp->legs[12], playerp->legs[13], NULL))
+	if (!eval_move(PT_DUST, (int)playerp->legs[12], (int)playerp->legs[13], NULL))
 	{
 		playerp->legs[12] = playerp->legs[14];
 		playerp->legs[13] = playerp->legs[15];
 	}
 
 	//This makes stick man "pop" from obstacles
-	if (!eval_move(PT_DUST, playerp->legs[4], playerp->legs[5], NULL))
+	if (!eval_move(PT_DUST, (int)playerp->legs[4], (int)playerp->legs[5], NULL))
 	{
 		float t;
 		t = playerp->legs[4]; playerp->legs[4] = playerp->legs[6]; playerp->legs[6] = t;
 		t = playerp->legs[5]; playerp->legs[5] = playerp->legs[7]; playerp->legs[7] = t;
 	}
 
-	if (!eval_move(PT_DUST, playerp->legs[12], playerp->legs[13], NULL))
+	if (!eval_move(PT_DUST, (int)playerp->legs[12], (int)playerp->legs[13], NULL))
 	{
 		float t;
 		t = playerp->legs[12]; playerp->legs[12] = playerp->legs[14]; playerp->legs[14] = t;
@@ -465,23 +465,23 @@ void STKM_init_legs(playerst* playerp, int i)
 	x = (int)(parts[i].x+0.5f);
 	y = (int)(parts[i].y+0.5f);
 
-	playerp->legs[0] = x-1;
-	playerp->legs[1] = y+6;
-	playerp->legs[2] = x-1;
-	playerp->legs[3] = y+6;
+	playerp->legs[0] = x-1.0f;
+	playerp->legs[1] = y+6.0f;
+	playerp->legs[2] = x-1.0f;
+	playerp->legs[3] = y+6.0f;
 
-	playerp->legs[4] = x-3;
-	playerp->legs[5] = y+12;
-	playerp->legs[6] = x-3;
-	playerp->legs[7] = y+12;
+	playerp->legs[4] = x-3.0f;
+	playerp->legs[5] = y+12.0f;
+	playerp->legs[6] = x-3.0f;
+	playerp->legs[7] = y+12.0f;
 
-	playerp->legs[8] = x+1;
-	playerp->legs[9] = y+6;
-	playerp->legs[10] = x+1;
-	playerp->legs[11] = y+6;
+	playerp->legs[8] = x+1.0f;
+	playerp->legs[9] = y+6.0f;
+	playerp->legs[10] = x+1.0f;
+	playerp->legs[11] = y+6.0f;
 
-	playerp->legs[12] = x+3;
-	playerp->legs[13] = y+12;
-	playerp->legs[14] = x+3;
-	playerp->legs[15] = y+12;
+	playerp->legs[12] = x+3.0f;
+	playerp->legs[13] = y+12.0f;
+	playerp->legs[14] = x+3.0f;
+	playerp->legs[15] = y+12.0f;
 }

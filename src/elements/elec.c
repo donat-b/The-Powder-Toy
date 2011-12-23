@@ -3,8 +3,8 @@
 int update_ELEC(UPDATE_FUNC_ARGS) {
 	int r, rt, rx, ry, nb, rrx, rry;
 	float rr, rrr;
-	parts[i].pavg[0] = x;
-	parts[i].pavg[1] = y;
+	parts[i].pavg[0] = (float)x;
+	parts[i].pavg[1] = (float)y;
 	if(pmap[y][x]==PT_GLOW)
 	{
 		part_change_type(i, x, y, PT_PHOT);
@@ -32,8 +32,8 @@ int update_ELEC(UPDATE_FUNC_ARGS) {
 									parts[nb].tmp = 1;
 									parts[nb].life = 50;
 									parts[nb].temp = 400.0f;
-									parts[nb].vx = rand()%20-10;
-									parts[nb].vy = rand()%20-10;
+									parts[nb].vx = (float)(rand()%20-10);
+									parts[nb].vy = (float)(rand()%20-10);
 								}
 							}
 						}

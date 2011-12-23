@@ -934,7 +934,7 @@ int luatpt_set_pressure(lua_State* l)
 	y1 = abs(luaL_optint(l, 2, 0));
 	width = abs(luaL_optint(l, 3, XRES/CELL));
 	height = abs(luaL_optint(l, 4, YRES/CELL));
-	value = (float)luaL_optint(l, 5, 0.0f);
+	value = (float)luaL_optint(l, 5, 0);
 	if(value > 256.0f)
 		value = 256.0f;
 	else if(value < -256.0f)
@@ -965,7 +965,7 @@ int luatpt_set_gravity(lua_State* l)
 	y1 = abs(luaL_optint(l, 2, 0));
 	width = abs(luaL_optint(l, 3, XRES/CELL));
 	height = abs(luaL_optint(l, 4, YRES/CELL));
-	value = (float)luaL_optint(l, 5, 0.0f);
+	value = (float)luaL_optint(l, 5, 0);
 	if(value > 256.0f)
 		value = 256.0f;
 	else if(value < -256.0f)
@@ -1899,7 +1899,7 @@ int luatpt_bubble(lua_State* l)
 
 	for (i = 1; i<=30; i++)
 	{
-		rem2 = create_part(-1, x+18*cosf(i/5.0), y+18*sinf(i/5.0), PT_SOAP);
+		rem2 = create_part(-1, (int)(x+18*cosf(i/5.0)), (int)(y+18*sinf(i/5.0)), PT_SOAP);
 
 		parts[rem1].ctype = 7;
 		parts[rem1].tmp = rem2;
@@ -1992,7 +1992,7 @@ int luatpt_maxframes(lua_State* l)
 		if (parts[i].type == PT_ANIM)
 		{
 			kill_part(i);
-			create_part(-1, parts[i].x, parts[i].y, PT_ANIM);
+			create_part(-1, (int)parts[i].x, (int)parts[i].y, PT_ANIM);
 		}
 	return 0;
 }

@@ -2,7 +2,7 @@
 
 int update_MERC(UPDATE_FUNC_ARGS) {
 	int r, rx, ry, trade, np;
-	int maxtmp = ((10000/(parts[i].temp + 1))-1);
+	int maxtmp = (int)((10000/(parts[i].temp + 1))-1);
 	if ((10000%((int)parts[i].temp+1))>rand()%((int)parts[i].temp+1))
 		maxtmp ++;
 	if (parts[i].tmp < maxtmp)

@@ -301,11 +301,11 @@ void load_presets(void)
 				if(tmpobj = cJSON_GetObjectItem(recobj, eltext)) favMenu[18-i] = tmpobj->valueint;
 			}
 			if(tmpobj = cJSON_GetObjectItem(recobj, "Alternate HUD ON")) alt_hud = tmpobj->valueint;
-			if(tmpobj = cJSON_GetObjectItem(recobj, "Total Time Played")) totaltime = (tmpobj->valuedouble)*1000;
+			if(tmpobj = cJSON_GetObjectItem(recobj, "Total Time Played")) totaltime = (int)((tmpobj->valuedouble)*1000);
 			if(tmpobj = cJSON_GetObjectItem(recobj, "Average FPS")) totalfps = tmpobj->valuedouble;
 			if(tmpobj = cJSON_GetObjectItem(recobj, "Number of frames")) frames = tmpobj->valueint; totalfps = totalfps * frames;
 			if(tmpobj = cJSON_GetObjectItem(recobj, "Max FPS")) maxfps = tmpobj->valuedouble;
-			if(tmpobj = cJSON_GetObjectItem(recobj, "Total AFK Time")) prevafktime = (tmpobj->valuedouble)*1000;
+			if(tmpobj = cJSON_GetObjectItem(recobj, "Total AFK Time")) prevafktime = (int)((tmpobj->valuedouble)*1000);
 			if(tmpobj = cJSON_GetObjectItem(recobj, "Times Played")) timesplayed = tmpobj->valueint;
 		}
 
@@ -909,7 +909,7 @@ void RGB_to_HSV(int r,int g,int b,int *h,int *s,int *v)//convert 0-255 RGB value
 	else
 	{
  		c = (rr==a) ? gg-bb : ((bb==a) ? rr-gg : bb-rr);
- 		d = (rr==a) ? 3 : ((bb==a) ? 1 : 5);
+ 		d = (float)((rr==a) ? 3 : ((bb==a) ? 1 : 5));
  		*h = (int)(60.0*(d - c/(x - a)));
  		*s = (int)(255.0*((x - a)/x));
  		*v = (int)(255.0*x);

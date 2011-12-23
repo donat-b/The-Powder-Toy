@@ -1137,13 +1137,13 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 							if (parts[i-1].type==PT_PUMP) {
 								parts[i-1].temp = ttv + 0.15;//fix PUMP saved at 0, so that it loads at 0.
 							} else {
-								parts[i-1].temp = ttv;
+								parts[i-1].temp = (float)ttv;
 							}
 						} else {
-							parts[i-1].temp = (d[p++]*((MAX_TEMP+(-MIN_TEMP))/255))+MIN_TEMP;
+							parts[i-1].temp = (float)(d[p++]*((MAX_TEMP+(-MIN_TEMP))/255))+MIN_TEMP;
 						}
 					} else {
-						parts[i-1].temp = ((d[p++]*((O_MAX_TEMP+(-O_MIN_TEMP))/255))+O_MIN_TEMP)+273;
+						parts[i-1].temp = ((d[p++]*((O_MAX_TEMP+(-O_MIN_TEMP))/255))+O_MIN_TEMP)+273.0f;
 					}
 				}
 				else
@@ -1483,8 +1483,8 @@ void stamp_gen_thumb(int i)
 		stamps[i].thumb = prerender_save(data, size, &(stamps[i].thumb_w), &(stamps[i].thumb_h));
 		if (stamps[i].thumb && (stamps[i].thumb_w>XRES/GRID_S || stamps[i].thumb_h>YRES/GRID_S))
 		{
-			factor_x = ceil((float)stamps[i].thumb_w/(float)(XRES/GRID_S));
-			factor_y = ceil((float)stamps[i].thumb_h/(float)(YRES/GRID_S));
+			factor_x = (int)ceil((float)stamps[i].thumb_w/(float)(XRES/GRID_S));
+			factor_y = (int)ceil((float)stamps[i].thumb_h/(float)(YRES/GRID_S));
 			if (factor_y > factor_x)
 				factor_x = factor_y;
 			tmp = rescale_img(stamps[i].thumb, stamps[i].thumb_w, stamps[i].thumb_h, &(stamps[i].thumb_w), &(stamps[i].thumb_h), factor_x);
@@ -2462,8 +2462,8 @@ int main(int argc, char *argv[])
 					}
 					else
 					{
-						bsx -= ceil((bsx/5)+0.5f);
-						bsy -= ceil((bsy/5)+0.5f);
+						bsx = bsx - (int)ceil((bsx/5)+0.5f);
+						bsy = bsy - (int)ceil((bsy/5)+0.5f);
 					}
 					if (bsx>1180)
 						bsx = 1180;
@@ -2502,8 +2502,8 @@ int main(int argc, char *argv[])
 					}
 					else
 					{
-						bsx += ceil((bsx/5)+0.5f);
-						bsy += ceil((bsy/5)+0.5f);
+						bsx = bsx + (int)ceil((bsx/5)+0.5f);
+						bsy = bsy + (int)ceil((bsy/5)+0.5f);
 					}
 					if (bsx>1180)
 						bsx = 1180;
@@ -3859,24 +3859,24 @@ int main(int argc, char *argv[])
 			{
 				if (zoom_x<XRES/2)
 				{
-					fillrect(vid_buf, XRES-20-textwidth(heattext), 266, textwidth(heattext)+8, 15, 0, 0, 0, quickoptions_tooltip_fade_invert*0.5);
-					drawtext(vid_buf, XRES-16-textwidth(heattext), 270, heattext, 255, 255, 255, quickoptions_tooltip_fade_invert*0.75);
+					fillrect(vid_buf, XRES-20-textwidth(heattext), 266, textwidth(heattext)+8, 15, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
+					drawtext(vid_buf, XRES-16-textwidth(heattext), 270, heattext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
 					if (DEBUG_MODE)
 					{
-						fillrect(vid_buf, XRES-20-textwidth(coordtext), 280, textwidth(coordtext)+8, 13, 0, 0, 0, quickoptions_tooltip_fade_invert*0.5);
-						drawtext(vid_buf, XRES-16-textwidth(coordtext), 282, coordtext, 255, 255, 255, quickoptions_tooltip_fade_invert*0.75);
+						fillrect(vid_buf, XRES-20-textwidth(coordtext), 280, textwidth(coordtext)+8, 13, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
+						drawtext(vid_buf, XRES-16-textwidth(coordtext), 282, coordtext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
 					}
 					if (wavelength_gfx)
 						draw_wavelengths(vid_buf,XRES-20-textwidth(heattext),265,2,wavelength_gfx);
 				}
 				else
 				{
-					fillrect(vid_buf, 12, 266, textwidth(heattext)+8, 15, 0, 0, 0, quickoptions_tooltip_fade_invert*0.5);
-					drawtext(vid_buf, 16, 270, heattext, 255, 255, 255, quickoptions_tooltip_fade_invert*0.75);
+					fillrect(vid_buf, 12, 266, textwidth(heattext)+8, 15, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
+					drawtext(vid_buf, 16, 270, heattext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
 					if (DEBUG_MODE)
 					{
-						fillrect(vid_buf, 12, 280, textwidth(coordtext)+8, 13, 0, 0, 0, quickoptions_tooltip_fade_invert*0.5);
-						drawtext(vid_buf, 16, 282, coordtext, 255, 255, 255, quickoptions_tooltip_fade_invert*0.75);
+						fillrect(vid_buf, 12, 280, textwidth(coordtext)+8, 13, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
+						drawtext(vid_buf, 16, 282, coordtext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
 					}
 					if (wavelength_gfx)
 						draw_wavelengths(vid_buf,12,265,2,wavelength_gfx);
@@ -3884,18 +3884,18 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
-				fillrect(vid_buf, XRES-20-textwidth(heattext), 12, textwidth(heattext)+8, 15, 0, 0, 0, quickoptions_tooltip_fade_invert*0.5);
-				drawtext(vid_buf, XRES-16-textwidth(heattext), 16, heattext, 255, 255, 255, quickoptions_tooltip_fade_invert*0.75);
+				fillrect(vid_buf, XRES-20-textwidth(heattext), 12, textwidth(heattext)+8, 15, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
+				drawtext(vid_buf, XRES-16-textwidth(heattext), 16, heattext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
 				if (DEBUG_MODE)
 				{
-					fillrect(vid_buf, XRES-20-textwidth(coordtext), 26, textwidth(coordtext)+8, 11, 0, 0, 0, quickoptions_tooltip_fade_invert*0.5);
-					drawtext(vid_buf, XRES-16-textwidth(coordtext), 27, coordtext, 255, 255, 255, quickoptions_tooltip_fade_invert*0.75);
+					fillrect(vid_buf, XRES-20-textwidth(coordtext), 26, textwidth(coordtext)+8, 11, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
+					drawtext(vid_buf, XRES-16-textwidth(coordtext), 27, coordtext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
 				}
 				if (wavelength_gfx)
 					draw_wavelengths(vid_buf,XRES-20-textwidth(heattext),11,2,wavelength_gfx);
 			}
 			wavelength_gfx = 0;
-			fillrect(vid_buf, 12, 12, textwidth(uitext)+8, 15, 0, 0, 0, it_invert*2.5);
+			fillrect(vid_buf, 12, 12, textwidth(uitext)+8, 15, 0, 0, 0, (int)(it_invert*2.5));
 			drawtext(vid_buf, 16, 16, uitext, 32, 216, 255, it_invert * 4);
 
 			if (drawinfo)

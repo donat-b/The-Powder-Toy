@@ -37,8 +37,8 @@ int update_BOMB(UPDATE_FUNC_ARGS) {
 										parts[nb].tmp = 1;
 										parts[nb].life = 50;
 										parts[nb].temp = MAX_TEMP;
-										parts[nb].vx = rand()%20-10;
-										parts[nb].vy = rand()%20-10;
+										parts[nb].vx = (float)(rand()%20-10);
+										parts[nb].vy = (float)(rand()%20-10);
 									}
 								}
 						for (nxj=-rad; nxj<=rad; nxj++)

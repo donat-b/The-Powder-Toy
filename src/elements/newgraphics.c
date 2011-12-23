@@ -7,10 +7,10 @@ int graphics_QRTZ(GRAPHICS_FUNC_ARGS) //QRTZ and PQRT
 	if (cpart->temp>(ptransitions[t].thv-800.0f))//hotglow for quartz
 	{
 		float frequency = 3.1415/(2*ptransitions[t].thv-(ptransitions[t].thv-800.0f));
-		int q = (cpart->temp>ptransitions[t].thv)?ptransitions[t].thv-(ptransitions[t].thv-800.0f):cpart->temp-(ptransitions[t].thv-800.0f);
-		*colr += sin(frequency*q) * 226 + (z * 16);
-		*colg += sin(frequency*q*4.55 +3.14) * 34 + (z * 16);
-		*colb += sin(frequency*q*2.22 +3.14) * 64 + (z * 16);
+		int q = (int)((cpart->temp>ptransitions[t].thv)?ptransitions[t].thv-(ptransitions[t].thv-800.0f):cpart->temp-(ptransitions[t].thv-800.0f));
+		*colr += (int)(sin(frequency*q) * 226 + (z * 16));
+		*colg += (int)(sin(frequency*q*4.55 +3.14) * 34 + (z * 16));
+		*colb += (int)(sin(frequency*q*2.22 +3.14) * 64 + (z * 16));
 	}
 	else
 	{
@@ -131,29 +131,29 @@ int graphics_GRAV(GRAPHICS_FUNC_ARGS)
 	*colb = 20;
 	if (cpart->vx>0)
 	{
-		*colr += (cpart->vx)*GRAV_R;
-		*colg += (cpart->vx)*GRAV_G;
-		*colb += (cpart->vx)*GRAV_B;
+		*colr += (int)(cpart->vx)*GRAV_R;
+		*colg += (int)(cpart->vx)*GRAV_G;
+		*colb += (int)(cpart->vx)*GRAV_B;
 	}
 	if (cpart->vy>0)
 	{
-		*colr += (cpart->vy)*GRAV_G;
-		*colg += (cpart->vy)*GRAV_B;
-		*colb += (cpart->vy)*GRAV_R;
+		*colr += (int)(cpart->vy)*GRAV_G;
+		*colg += (int)(cpart->vy)*GRAV_B;
+		*colb += (int)(cpart->vy)*GRAV_R;
 
 	}
 	if (cpart->vx<0)
 	{
-		*colr -= (cpart->vx)*GRAV_B;
-		*colg -= (cpart->vx)*GRAV_R;
-		*colb -= (cpart->vx)*GRAV_G;
+		*colr -= (int)(cpart->vx)*GRAV_B;
+		*colg -= (int)(cpart->vx)*GRAV_R;
+		*colb -= (int)(cpart->vx)*GRAV_G;
 
 	}
 	if (cpart->vy<0)
 	{
-		*colr -= (cpart->vy)*GRAV_R2;
-		*colg -= (cpart->vy)*GRAV_G2;
-		*colb -= (cpart->vy)*GRAV_B2;
+		*colr -= (int)(cpart->vy)*GRAV_R2;
+		*colg -= (int)(cpart->vy)*GRAV_G2;
+		*colb -= (int)(cpart->vy)*GRAV_B2;
 	}
 	return 0;
 }
@@ -161,9 +161,9 @@ int graphics_WIFI(GRAPHICS_FUNC_ARGS)
 {
 	float frequency = 0.0628;
 	int q = cpart->tmp;
-	*colr = sin(frequency*q + 0) * 127 + 128;
-	*colg = sin(frequency*q + 2) * 127 + 128;
-	*colb = sin(frequency*q + 4) * 127 + 128;
+	*colr = (int)(sin(frequency*q + 0) * 127 + 128);
+	*colg = (int)(sin(frequency*q + 2) * 127 + 128);
+	*colb = (int)(sin(frequency*q + 4) * 127 + 128);
 	*pixel_mode |= EFFECT_LINES;
 	return 0;
 }
@@ -210,9 +210,9 @@ int graphics_BIZR(GRAPHICS_FUNC_ARGS) //BIZR, BIZRG, BIZRS
 	if(fabs(cpart->vx)+fabs(cpart->vy)>0)
 	{
 		*firea = 255;
-		*fireg = *colg/5 * fabs(cpart->vx)+fabs(cpart->vy);
-		*fireb = *colb/5 * fabs(cpart->vx)+fabs(cpart->vy);
-		*firer = *colr/5 * fabs(cpart->vx)+fabs(cpart->vy);
+		*fireg = (int)(*colg/5 * fabs(cpart->vx)+fabs(cpart->vy));
+		*fireb = (int)(*colb/5 * fabs(cpart->vx)+fabs(cpart->vy));
+		*firer = (int)(*colr/5 * fabs(cpart->vx)+fabs(cpart->vy));
 		*pixel_mode |= FIRE_ADD;
 	}
 	return 0;
@@ -369,13 +369,13 @@ int graphics_THDR(GRAPHICS_FUNC_ARGS)
 }
 int graphics_GLOW(GRAPHICS_FUNC_ARGS)
 {
-	*firer = restrict_flt(cpart->temp-(275.13f+32.0f), 0, 128)/50.0f;
-	*fireg = restrict_flt(cpart->ctype, 0, 128)/50.0f;
-	*fireb = restrict_flt(cpart->tmp, 0, 128)/50.0f;
+	*firer = (int)(restrict_flt(cpart->temp-(275.13f+32.0f), 0, 128)/50.0f);
+	*fireg = (int)(restrict_flt((float)cpart->ctype, 0, 128)/50.0f);
+	*fireb = (int)(restrict_flt((float)cpart->tmp, 0, 128)/50.0f);
 
-	*colr = restrict_flt(64.0f+cpart->temp-(275.13f+32.0f), 0, 255);
-	*colg = restrict_flt(64.0f+cpart->ctype, 0, 255);
-	*colb = restrict_flt(64.0f+cpart->tmp, 0, 255);
+	*colr = (int)restrict_flt(64.0f+cpart->temp-(275.13f+32.0f), 0, 255);
+	*colg = (int)restrict_flt(64.0f+cpart->ctype, 0, 255);
+	*colb = (int)restrict_flt(64.0f+cpart->tmp, 0, 255);
 	
 	*pixel_mode |= FIRE_ADD;
 	return 0;
@@ -481,7 +481,7 @@ int graphics_GPMP(GRAPHICS_FUNC_ARGS)
 }
 int graphics_HFLM(GRAPHICS_FUNC_ARGS)
 {
-	int caddress = restrict_flt(restrict_flt((float)((int)(cpart->life/2)), 0.0f, 200.0f)*3, 0.0f, (200.0f*3)-3);
+	int caddress = (int)restrict_flt(restrict_flt((float)((int)(cpart->life/2)), 0.0f, 200.0f)*3, 0.0f, (200.0f*3)-3);
 	*colr = (unsigned char)hflm_data[caddress];
 	*colg = (unsigned char)hflm_data[caddress+1];
 	*colb = (unsigned char)hflm_data[caddress+2];
@@ -500,7 +500,7 @@ int graphics_FIRW(GRAPHICS_FUNC_ARGS)
 {
 	if(cpart->tmp>=3)
 	{
-		int caddress = restrict_flt(restrict_flt((float)(cpart->tmp-4), 0.0f, 200.0f)*3, 0.0f, (200.0f*3)-3);
+		int caddress = (int)restrict_flt(restrict_flt((float)(cpart->tmp-4), 0.0f, 200.0f)*3, 0.0f, (200.0f*3)-3);
 		*colr = (unsigned char)firw_data[caddress];
 		*colg = (unsigned char)firw_data[caddress+1];
 		*colb = (unsigned char)firw_data[caddress+2];
@@ -543,7 +543,7 @@ int graphics_GBMB(GRAPHICS_FUNC_ARGS)
 }
 int graphics_COAL(GRAPHICS_FUNC_ARGS) //Both COAL and Broken Coal
 {
-	*colr += (cpart->tmp2-295.15f)/3;
+	*colr += (int)((cpart->tmp2-295.15f)/3);
 	
 	if (*colr > 170)
 		*colr = 170;
@@ -555,11 +555,11 @@ int graphics_COAL(GRAPHICS_FUNC_ARGS) //Both COAL and Broken Coal
 	if((cpart->temp-295.15f) > 300.0f-200.0f)
 	{
 		float frequency = 3.1415/(2*300.0f-(300.0f-200.0f));
-		int q = ((cpart->temp-295.15f)>300.0f)?300.0f-(300.0f-200.0f):(cpart->temp-295.15f)-(300.0f-200.0f);
+		int q = (int)(((cpart->temp-295.15f)>300.0f)?300.0f-(300.0f-200.0f):(cpart->temp-295.15f)-(300.0f-200.0f));
 
-		*colr += sin(frequency*q) * 226;
-		*colg += sin(frequency*q*4.55 +3.14) * 34;
-		*colb += sin(frequency*q*2.22 +3.14) * 64;
+		*colr += (int)(sin(frequency*q) * 226);
+		*colg += (int)(sin(frequency*q*4.55 +3.14) * 34);
+		*colb += (int)(sin(frequency*q*2.22 +3.14) * 64);
 	}
 	return 0;
 }

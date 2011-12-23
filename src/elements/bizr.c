@@ -16,20 +16,20 @@ int update_BIZR(UPDATE_FUNC_ARGS) {
 					if ((r&0xFF)!=PT_BIZR && (r&0xFF)!=PT_BIZRG  && (r&0xFF)!=PT_BIZRS)
 					{
 						blend = 0.95f;
-						tr = (parts[r>>8].dcolour>>16)&0xFF;
-						tg = (parts[r>>8].dcolour>>8)&0xFF;
-						tb = (parts[r>>8].dcolour)&0xFF;
-						ta = (parts[r>>8].dcolour>>24)&0xFF;
+						tr = (float)((parts[r>>8].dcolour>>16)&0xFF);
+						tg = (float)((parts[r>>8].dcolour>>8)&0xFF);
+						tb = (float)((parts[r>>8].dcolour)&0xFF);
+						ta = (float)((parts[r>>8].dcolour>>24)&0xFF);
 						
-						mr = (parts[i].dcolour>>16)&0xFF;
-						mg = (parts[i].dcolour>>8)&0xFF;
-						mb = (parts[i].dcolour)&0xFF;
-						ma = (parts[i].dcolour>>24)&0xFF;
+						mr = (float)((parts[i].dcolour>>16)&0xFF);
+						mg = (float)((parts[i].dcolour>>8)&0xFF);
+						mb = (float)((parts[i].dcolour)&0xFF);
+						ma = (float)((parts[i].dcolour>>24)&0xFF);
 						
-						nr = (tr*blend) + (mr*(1-blend));
-						ng = (tg*blend) + (mg*(1-blend));
-						nb = (tb*blend) + (mb*(1-blend));
-						na = (ta*blend) + (ma*(1-blend));
+						nr = (int)((tr*blend) + (mr*(1-blend)));
+						ng = (int)((tg*blend) + (mg*(1-blend)));
+						nb = (int)((tb*blend) + (mb*(1-blend)));
+						na = (int)((ta*blend) + (ma*(1-blend)));
 						
 						parts[r>>8].dcolour = nr<<16 | ng<<8 | nb | na<<24;
 					}

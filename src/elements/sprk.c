@@ -82,7 +82,7 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 								parts[i].life=60;
 							parts[p].temp=parts[p].life*parts[i].tmp/2.5;
 							parts[p].tmp2=1;
-							parts[p].tmp=acos(1.0*rx/sqrt(rx*rx+ry*ry))/M_PI*360;
+							parts[p].tmp=(int)(acos(1.0*rx/sqrt(rx*rx+ry*ry))/M_PI*360);
 							parts[i].temp-=parts[i].tmp*2+parts[i].temp/5; // slight self-cooling
 							if (fabs(pv[y/CELL][x/CELL])!=0.0f)
 							{
@@ -165,7 +165,7 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 					if (ct==PT_PSCN)
 					{
 						parts[r>>8].life = 10;
-						parts[r>>8].tmp = parts[r>>8].temp - 273.25;
+						parts[r>>8].tmp = (int)(parts[r>>8].temp - 273.15);
 						parts[r>>8].tmp2 = parts[i].tmp2;
 					}
 					else if (ct==PT_NSCN && parts[r>>8].life > 0)

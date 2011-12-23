@@ -8,7 +8,7 @@ int update_ANIM(UPDATE_FUNC_ARGS) {
 		parts[i].tmp--;
 	if (parts[i].tmp == 0)
 	{
-		parts[i].tmp = parts[i].temp-273.15;
+		parts[i].tmp = (int)(parts[i].temp-273.15);
 		parts[i].tmp2++;
 	}
 	if (parts[i].tmp2 > parts[i].ctype)

@@ -65,8 +65,8 @@ int update_ARAY(UPDATE_FUNC_ARGS) {
 												{
 													parts[np].temp = parts[r>>8].temp;
 													parts[np].life = parts[r>>8].flags;
-													parts[np].tmp = parts[r>>8].pavg[0];
-													parts[np].ctype = parts[r>>8].pavg[1];
+													parts[np].tmp = (int)parts[r>>8].pavg[0];
+													parts[np].ctype = (int)parts[r>>8].pavg[1];
 													parts[r>>8].tmp = 0;
 													parts[r>>8].life = 10;
 													break;

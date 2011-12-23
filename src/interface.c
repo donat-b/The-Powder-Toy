@@ -2206,9 +2206,9 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 	SEC = SEC2;
 	mx /= sdl_scale;
 	my /= sdl_scale;
-	rows = ceil((float)msections[i].itemcount/16.0f);
-	height = (ceil((float)msections[i].itemcount/16.0f)*18);
-	width = restrict_flt(msections[i].itemcount*31, 0, 16*31);
+	rows = (int)ceil((float)msections[i].itemcount/16.0f);
+	height = (int)(ceil((float)msections[i].itemcount/16.0f)*18);
+	width = (int)restrict_flt(msections[i].itemcount*31.0f, 0, 16*31);
 	fwidth = msections[i].itemcount*31;
 	h = -1;
 	x = XRES-BARSIZE-18;
@@ -2300,7 +2300,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 	{
 		int n2;
 		if (fwidth > XRES-BARSIZE) { //fancy scrolling
-			float overflow = fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
+			float overflow = (float)fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
 			xoff = (int)(overflow / location);
 		}
 		for (n2 = 0; n2<NGOLALT; n2++)
@@ -2339,7 +2339,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 	{
 		int n2;
 		if (fwidth > XRES-BARSIZE) { //fancy scrolling
-			float overflow = fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
+			float overflow = (float)fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
 			xoff = (int)(overflow / location);
 		}
 		for (n2 = 0; n2<19; n2++)
@@ -2395,7 +2395,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 	{
 		int n2;
 		if (fwidth > XRES-BARSIZE) { //fancy scrolling
-			float overflow = fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
+			float overflow = (float)fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
 			xoff = (int)(overflow / location);
 		}
 		for (n = 1; n < FAV_END - FAV_START; n++)
@@ -2412,7 +2412,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 	else //all other menus
 	{
 		if (fwidth > XRES-BARSIZE) { //fancy scrolling
-			float overflow = fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
+			float overflow = (float)fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
 			xoff = (int)(overflow / location);
 		}
 		for (n = 0; n<PT_NUM; n++)
@@ -2642,7 +2642,7 @@ int color_menu_ui(pixel *vid_buf, int i, int *cr, int *cg, int *cb, int b, int b
 	if(i==0) //color menu
 	{
 		if (fwidth > XRES-BARSIZE) { //fancy scrolling
-			float overflow = fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
+			float overflow = (float)fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
 			xoff = (int)(overflow / location);
 		}
 		for (n = 0; n<7; n++)
@@ -2682,7 +2682,7 @@ int color_menu_ui(pixel *vid_buf, int i, int *cr, int *cg, int *cb, int b, int b
 	if(i==1) //deco tool menu
 	{
 		if (fwidth > XRES-BARSIZE) { //fancy scrolling
-			float overflow = fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
+			float overflow = (float)fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
 			xoff = (int)(overflow / location);
 		}
 		for (n = 0; n<3; n++)
@@ -3550,14 +3550,14 @@ int search_ui(pixel *vid_buf)
 						{
 							ry =  ry/(8-lv);
 						}
-						nyu = search_scoreup[pos]*ry;
-						nyd = search_scoredown[pos]*ry;
+						nyu = (int)(search_scoreup[pos]*ry);
+						nyd = (int)(search_scoredown[pos]*ry);
 					}
 					else
 					{
 						ry = ((float)lv/(float)((YRES/GRID_S+3)/2));
-						nyu = search_scoreup[pos]/ry;
-						nyd = search_scoredown[pos]/ry;
+						nyu = (int)(search_scoreup[pos]/ry);
+						nyd = (int)(search_scoredown[pos]/ry);
 					}
 
 
@@ -4254,14 +4254,14 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date)
 					//{
 					//	ry =  ry/(8-lv);
 					//}
-					nyu = info->voteup*ryf;
-					nyd = info->votedown*ryf;
+					nyu = (int)(info->voteup*ryf);
+					nyd = (int)(info->votedown*ryf);
 				}
 				else
 				{
 					ryf = ((float)lv)/50.0f;
-					nyu = info->voteup/ryf;
-					nyd = info->votedown/ryf;
+					nyu = (int)(info->voteup/ryf);
+					nyd = (int)(info->votedown/ryf);
 				}
 				nyu = nyu>50?50:nyu;
 				nyd = nyd>50?50:nyd;
@@ -5624,7 +5624,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 					cg = 0;
 					cb = 0;
 					HSV_to_RGB(hh,255-ss,255-ss,&cr,&cg,&cb);
-					vid_buf[(ss+grid_offset_y)*(XRES+BARSIZE)+(clamp_flt(hh, 0, 359)+grid_offset_x)] = PIXRGB(cr, cg, cb);
+					vid_buf[(ss+grid_offset_y)*(XRES+BARSIZE)+(clamp_flt((float)hh, 0, 359)+grid_offset_x)] = PIXRGB(cr, cg, cb);
 				}
 			//draw brightness bar
 			for(vv=0; vv<=255; vv++)
@@ -5636,10 +5636,10 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 					HSV_to_RGB(currH,currS,vv,&cr,&cg,&cb);
 					vid_buf[(vv+grid_offset_y)*(XRES+BARSIZE)+(i+grid_offset_x+255+4)] = PIXRGB(cr, cg, cb);
 				}
-			addpixel(vid_buf,grid_offset_x + clamp_flt(currH, 0, 359),grid_offset_y-1,255,255,255,255);
+			addpixel(vid_buf,grid_offset_x + clamp_flt((float)currH, 0, 359),grid_offset_y-1,255,255,255,255);
 			addpixel(vid_buf,grid_offset_x -1,grid_offset_y+(255-currS),255,255,255,255);
 
-			addpixel(vid_buf,grid_offset_x + clamp_flt(th, 0, 359),grid_offset_y-1,100,100,100,255);
+			addpixel(vid_buf,grid_offset_x + clamp_flt((float)th, 0, 359),grid_offset_y-1,100,100,100,255);
 			addpixel(vid_buf,grid_offset_x -1,grid_offset_y+(255-ts),100,100,100,255);
 
 			addpixel(vid_buf,grid_offset_x + 255 +3,grid_offset_y+tv,100,100,100,255);
@@ -5957,8 +5957,8 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 				}
 				else
 				{
-					*bsx -= ceil((*bsx/5)+0.5f);
-					*bsy -= ceil((*bsy/5)+0.5f);
+					*bsx -= (int)ceil((*bsx/5)+0.5f);
+					*bsy -= (int)ceil((*bsy/5)+0.5f);
 				}
 				if (*bsx>1180)
 					*bsx = 1180;
@@ -5997,8 +5997,8 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 				}
 				else
 				{
-					*bsx += ceil((*bsx/5)+0.5f);
-					*bsy += ceil((*bsy/5)+0.5f);
+					*bsx += (int)ceil((*bsx/5)+0.5f);
+					*bsy += (int)ceil((*bsy/5)+0.5f);
 				}
 				if (*bsx>1180)
 					*bsx = 1180;

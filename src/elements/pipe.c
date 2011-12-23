@@ -139,8 +139,8 @@ int update_PIPE(UPDATE_FUNC_ARGS) {
 						{
 							parts[np].temp = parts[i].temp;//pipe saves temp and life now
 							parts[np].life = parts[i].flags;
-							parts[np].tmp = parts[i].pavg[0];
-							parts[np].ctype = parts[i].pavg[1];
+							parts[np].tmp = (int)parts[i].pavg[0];
+							parts[np].ctype = (int)parts[i].pavg[1];
 							parts[i].tmp &= ~0xFF;
 						}
 					}
@@ -152,8 +152,8 @@ int update_PIPE(UPDATE_FUNC_ARGS) {
 						parts[i].tmp =  (parts[i].tmp&~0xFF) | parts[r>>8].type;
 						parts[i].temp = parts[r>>8].temp;
 						parts[i].flags = parts[r>>8].life;
-						parts[i].pavg[0] = parts[r>>8].tmp;
-						parts[i].pavg[1] = parts[r>>8].ctype;
+						parts[i].pavg[0] = (float)parts[r>>8].tmp;
+						parts[i].pavg[1] = (float)parts[r>>8].ctype;
 						kill_part(r>>8);
 					}
 					else if ((parts[i].tmp&0xFF) == 0 && (r&0xFF)==PT_STOR && parts[r>>8].tmp && (ptypes[parts[r>>8].tmp].falldown!= 0 || ptypes[parts[r>>8].tmp].state == ST_GAS))
@@ -254,8 +254,8 @@ int graphics_PIPE(GRAPHICS_FUNC_ARGS)
 		tpart.type = cpart->tmp&0xFF;
 		tpart.temp = cpart->temp;
 		tpart.life = cpart->flags;
-		tpart.tmp = cpart->pavg[0];
-		tpart.ctype = cpart->pavg[1];
+		tpart.tmp = (int)cpart->pavg[0];
+		tpart.ctype = (int)cpart->pavg[1];
 		t = tpart.type;
 		if (graphicscache[t].isready)
 		{

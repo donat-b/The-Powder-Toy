@@ -22,7 +22,7 @@ int update_FIRW(UPDATE_FUNC_ARGS) {
 		if (parts[i].life==0) {
 			parts[i].tmp=2;
 		} else {
-			float newVel = parts[i].life/25;
+			float newVel = parts[i].life/25.0f;
 			parts[i].flags = parts[i].flags&0xFFFFFFFE;
 			/* TODO:
 			if ((pmap[(int)(ly-newVel)][(int)lx]&0xFF)==PT_NONE && ly-newVel>0) {
@@ -44,8 +44,8 @@ int update_FIRW(UPDATE_FUNC_ARGS) {
 					np = create_part(-1, x+rx, y+ry, PT_FIRW);
 					if (np>-1)
 					{
-						parts[np].vx = (rand()%3-1)*tmul;
-						parts[np].vy = (rand()%3-1)*tmul;
+						parts[np].vx = (float)(rand()%3-1)*tmul;
+						parts[np].vy = (float)(rand()%3-1)*tmul;
 						parts[np].tmp = col;
 						parts[np].life = rand()%100+100;
 						parts[np].temp = 6000.0f;

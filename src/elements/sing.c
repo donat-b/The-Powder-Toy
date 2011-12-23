@@ -37,7 +37,7 @@ int update_SING(UPDATE_FUNC_ARGS) {
 		spawncount = (parts[i].tmp>255)?255:parts[i].tmp;
 		if (spawncount>=1)
 			spawncount = spawncount/8;
-		spawncount = spawncount*spawncount*M_PI;
+		spawncount = (int)(spawncount*spawncount*M_PI);
 		for (j=0;j<spawncount;j++)
 		{
 			switch(rand()%3)

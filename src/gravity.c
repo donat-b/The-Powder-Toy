@@ -167,6 +167,7 @@ void* update_grav_async(void* unused)
 		}
 	}
 	pthread_exit(NULL);
+	return 0;
 }
 
 void start_grav_async()
@@ -478,7 +479,7 @@ void gravity_mask()
 					c_mask_el->next = NULL;
 				}
 				//Fill the shape
-				grav_mask_r(x, y, checkmap, c_mask_el->shape, &c_mask_el->shapeout);
+				grav_mask_r(x, y, checkmap, (char (*)[153])c_mask_el->shape, &c_mask_el->shapeout);
 			}
 		}
 	}

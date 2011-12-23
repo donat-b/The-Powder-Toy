@@ -15,8 +15,8 @@ int update_WARP(UPDATE_FUNC_ARGS) {
 			{
 				parts[i].x = parts[r>>8].x;
 				parts[i].y = parts[r>>8].y;
-				parts[r>>8].x = x;
-				parts[r>>8].y = y;
+				parts[r>>8].x = (float)x;
+				parts[r>>8].y = (float)y;
 				parts[i].life += 4;
 				pmap[y][x] = r;
 				pmap[y+ry][x+rx] = (i<<8)|parts[i].type;

@@ -26,8 +26,8 @@ int update_EMP(UPDATE_FUNC_ARGS) {
 	for (r=0; r<=parts_lastActiveIndex; r++)
 	{
 		t=parts[r].type;
-		rx=parts[r].x;
-		ry=parts[r].y;
+		rx=(int)parts[r].x;
+		ry=(int)parts[r].y;
 		if (t==PT_SPRK || (t==PT_SWCH && parts[r].life!=0 && parts[r].life!=10) || (t==PT_WIRE && parts[r].ctype>0))
 		{
 			int is_elec=0, n,nx,ny;
@@ -75,8 +75,8 @@ int update_EMP(UPDATE_FUNC_ARGS) {
 							}
 							if ((n&0xFF)==PT_WIFI && rand()%8==0)
 							{
-								//Randomise channel
-								parts[n>>8].temp = rand()%MAX_TEMP;
+								//Randomize channel
+								parts[n>>8].temp = (float)(rand()%MAX_TEMP);
 							}
 							if ((n&0xFF)==PT_WIFI && rand()%16==0)
 							{
@@ -111,8 +111,8 @@ int graphics_EMP(GRAPHICS_FUNC_ARGS)
 {
 	if(cpart->life)
 	{
-		*colr = cpart->life*1.5;
-		*colg = cpart->life*1.5;
+		*colr = (int)(cpart->life*1.5);
+		*colg = (int)(cpart->life*1.5);
 		*colb = 200-(cpart->life);
 		if (*colr>255)
 			*colr = 255;

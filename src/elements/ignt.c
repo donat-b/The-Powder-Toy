@@ -29,8 +29,8 @@ int update_IGNT(UPDATE_FUNC_ARGS) {
 			if (nb!=-1) {
 				parts[nb].tmp = 1;
 				parts[nb].life = 30;
-				parts[nb].vx = rand()%20-10;
-				parts[nb].vy = rand()%20-10;
+				parts[nb].vx = rand()%20-10.0f;
+				parts[nb].vy = rand()%20-10.0f;
 				parts[nb].temp = 400.0f+parts[i].temp-273.15;
 			}
 		}
