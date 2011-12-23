@@ -148,12 +148,13 @@ published. It makes sure that you don't add in any new elements not in those
 versions. PINV+PHOT = ELEC. SPNG drags along other particles with it, even 
 solids that normally can't move.
 
-Next Version
+Version 8.0 http://min.us/muN92vQxC It looks like item links are missing right now, so use this gallery link
 Wall names display in the hud. New lua functions: get_wall and create_wall. A 
 New Wall: ERASEALL. It can erase walls, signs, and particles all at once. 
 Most powered elements drawn in this version are now activated instantly. Set 
 the tmp to zero to keep the old way of activating. Lua code can now be saved. 
-Put it in luacode.txt, and it will be saved and run in stamps/saves.
+Put it in luacode.txt, and it will be saved and run in stamps/saves. Press up 
+in the console and then enter to load an example.
 
 
 

@@ -5477,8 +5477,11 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 				}
 				else
 				{
-					ci = -1;
-					strcpy(ed.str, "");
+					currentcommand = malloc(sizeof(command_history));
+					memset(currentcommand, 0, sizeof(command_history));
+					currentcommand->prev_command = last_command;
+					currentcommand->command = "tpt.load(644543)";
+					strcpy(ed.str, currentcommand->command);
 					ed.cursor = strlen(ed.str);
 				}
 			}
