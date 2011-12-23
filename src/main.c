@@ -634,7 +634,7 @@ int check_save(int save_as)
 			info_ui(vid_buf,"Error",errortext);
 			return 1;
 		}
-		if (((ptypes[parts[i].type].properties&PROP_CLONE) || parts[i].type == PT_STOR || parts[i].type == PT_CONV || parts[i].type == PT_STKM || parts[i].type == PT_STKM2 || parts[i].type == PT_FIGH) && invalid_element(save_as,parts[i].ctype))
+		if ((parts[i].type == PT_CLNE || parts[i].type == PT_PCLN || parts[i].type == PT_BCLN || parts[i].type == PT_PBCN || parts[i].type == PT_STOR || parts[i].type == PT_CONV || parts[i].type == PT_STKM || parts[i].type == PT_STKM2 || parts[i].type == PT_FIGH) && invalid_element(save_as,parts[i].ctype))
 		{
 			char errortext[256] = "";
 			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].ctype].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
@@ -648,20 +648,6 @@ int check_save(int save_as)
 			info_ui(vid_buf,"Error",errortext);
 			return 1;
 		}
-		/*if (save_as > 0 && (parts[i].type >= PT_NORMAL_NUM || ptypes[parts[i].type].enabled == 0))
-		{
-			char errortext[256] = "";
-			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].type].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
-			info_ui(vid_buf,"Error",errortext);
-			return 1;
-		}
-		if (save_as > 1 && (parts[i].type == PT_ELEC || parts[i].type == PT_FIGH || parts[i].type == PT_ACEL || parts[i].type == PT_DCEL || parts[i].type == PT_BANG || parts[i].type == PT_IGNT))
-		{
-			char errortext[256] = "";
-			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].type].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
-			info_ui(vid_buf,"Error",errortext);
-			return 1;
-		}*/
 	}
 	return 0;
 }
