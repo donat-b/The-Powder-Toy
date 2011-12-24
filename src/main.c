@@ -1114,7 +1114,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 				}
 				if (i <= NPART) {
 					int k;
-					parts[i-1].animations = calloc(256,sizeof(unsigned int));
+					parts[i-1].animations = (unsigned int*)calloc(257,sizeof(unsigned int));
 					if (parts[i-1].animations == NULL) {
 						goto corrupt;
 					}

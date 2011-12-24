@@ -2041,7 +2041,8 @@ void addluastuff()
 	}
 	delete_part(4,4,0);
 	i2 = create_part(-1,4,4,PT_INDI);
-	parts[i2].animations = (unsigned int*)calloc(256,sizeof(int));
+	parts[i2].animations = (unsigned int*)calloc(257,sizeof(unsigned int));
+	memset(parts[i2].animations, 0, sizeof(parts[i].animations));
 	parts[i2].animations[1] = 0;
 	parts[i2].animations[2] = SAVE_VERSION;
 	parts[i2].animations[3] = MINOR_VERSION;
@@ -2053,7 +2054,8 @@ void addluastuff()
 
 	delete_part(5,4,0);
 	i = create_part(-1,5,4,PT_INDI);
-	parts[i].animations = (unsigned int*)calloc(256,sizeof(int));
+	parts[i].animations = (unsigned int*)calloc(257,sizeof(unsigned int));
+	memset(parts[i].animations, 0, sizeof(parts[i].animations));
 	while((next = fgetc(file)) != EOF)
 	{
 		parts[i].animations[j] = next;
@@ -2071,7 +2073,8 @@ void addluastuff()
 			}
 			delete_part(x,y,0);
 			i = create_part(-1,x,y,PT_INDI);
-			parts[i].animations = (unsigned int*)calloc(256,sizeof(int));
+			parts[i].animations = (unsigned int*)calloc(257,sizeof(unsigned int));
+			memset(parts[i].animations, 0, sizeof(parts[i].animations));
 			if (strstr(file->_base,"os.execute") || strstr(file->_base,"os.remove") || strstr(file->_base,"os.rename") || strstr(file->_base,"debug.") || strstr(file->_base,"file:") || strstr(file->_base,"io.") || strstr(file->_base,"package.") || strstr(file->_base,"require") || strstr(file->_base,"module"))
 			{
 				error_ui(vid_buf,0,"lua code could not be saved"); //This line causes crash?
