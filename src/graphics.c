@@ -1921,21 +1921,6 @@ void render_parts(pixel *vid)
 					colg += (int)(sin(gradv*caddress*4.55 +3.14) * 34);
 					colb += (int)(sin(gradv*caddress*2.22 +3.14) * 64);
 				}
-
-				if (parts[i].type == PT_PPTI)
-				{
-					int lifemod = ((parts[i].tmp2>10?10:parts[i].tmp2)*10);
-					colr = 155 + lifemod;
-					if (parts[i].tmp2 < 10)
-						pixel_mode &= ~EFFECT_GRAVIN;
-				}
-				if (parts[i].type == PT_PPTO)
-				{
-					int lifemod = ((parts[i].tmp2>10?10:parts[i].tmp2)*20);
-					colb = 55 + lifemod;
-					if (parts[i].tmp2 < 10)
-						pixel_mode &= ~EFFECT_GRAVOUT;
-				}
 				
 				if(pixel_mode & FIRE_ADD && !(render_mode & FIRE_ADD))
 					pixel_mode |= PMODE_GLOW;

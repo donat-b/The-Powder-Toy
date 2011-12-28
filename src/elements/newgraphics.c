@@ -191,6 +191,36 @@ int graphics_PRTO(GRAPHICS_FUNC_ARGS)
 	*pixel_mode |= PMODE_ADD;
 	return 1;
 }
+int graphics_PPTI(GRAPHICS_FUNC_ARGS)
+{
+	int lifemod;
+	*firea = 8;
+	*firer = 255;
+	*fireg = 0;
+	*fireb = 0;
+	*pixel_mode |= EFFECT_GRAVIN;
+	*pixel_mode |= EFFECT_LINES;
+	lifemod = ((cpart->tmp2>10?10:cpart->tmp2)*10);
+	*colr = 155 + lifemod;
+	if (cpart->tmp2 < 10)
+		*pixel_mode &= ~EFFECT_GRAVIN;
+	return 0;
+}
+int graphics_PPTO(GRAPHICS_FUNC_ARGS)
+{
+	int lifemod;
+	*firea = 8;
+	*firer = 0;
+	*fireg = 0;
+	*fireb = 255;
+	*pixel_mode |= EFFECT_GRAVOUT;
+	*pixel_mode |= EFFECT_LINES;
+	lifemod = ((cpart->tmp2>10?10:cpart->tmp2)*20);
+	*colb = 55 + lifemod;
+	if (cpart->tmp2 < 10)
+		*pixel_mode &= ~EFFECT_GRAVOUT;
+	return 0;
+}
 int graphics_BIZR(GRAPHICS_FUNC_ARGS) //BIZR, BIZRG, BIZRS
 {
 	int x = 0;

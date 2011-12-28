@@ -351,6 +351,8 @@ int graphics_ACEL(GRAPHICS_FUNC_ARGS);
 int graphics_DCEL(GRAPHICS_FUNC_ARGS);
 int graphics_ACTV(GRAPHICS_FUNC_ARGS);
 int graphics_PINV(GRAPHICS_FUNC_ARGS);
+int graphics_PPTI(GRAPHICS_FUNC_ARGS);
+int graphics_PPTO(GRAPHICS_FUNC_ARGS);
 
 #define UPDATE_FUNC_ARGS int i, int x, int y, int surround_space, int nt
 // to call another update function with same arguments:

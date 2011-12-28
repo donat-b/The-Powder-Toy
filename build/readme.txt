@@ -131,7 +131,7 @@ and wifi/portal lines. Also added the old lua console commands:
 sound(must be enable with a shortcut), load, bubble, reset_temp, and 
 reset_pressure(works with the same parameters reset_velocity does). 
 There are three new lua commands: get_pressure, 
-get_gravity(doesn't work for some reason), 
+get_gravity, 
 and maxframes(sets the number of frames ANIM can have when created, 1-256). 
 Also, render_ui uses the old cmode pictures in color.
 Note: the button keys to change display modes, blob & heat gradient 
@@ -140,7 +140,7 @@ icons all got into the official version. Not much of this code was
 actually written by me, a lot of it was taken from github after Simon 
 deleted it. He said he might add in more stuff that I wrote later.
 
-Version 7.0 http://min.us/lK604TH6bFNV4
+Version 7.0: http://min.us/lK604TH6bFNV4
 Added readme. Faster drawing and deleting of elements. Added RAZR, an element
 heavier than all other elements. Added new button in FAV2 menu that can make
 saves compatible with the latest beta or release version and able to be
@@ -148,13 +148,18 @@ published. It makes sure that you don't add in any new elements not in those
 versions. PINV+PHOT = ELEC. SPNG drags along other particles with it, even 
 solids that normally can't move.
 
-Version 8.0 http://min.us/muN92vQxC It looks like item links are missing right now, so use this gallery link
+Version 8.0: http://min.us/mELg5R3DZ In a new gallery because of the constant minus.com changes
 Wall names display in the hud. New lua functions: get_wall and create_wall. A 
 New Wall: ERASEALL. It can erase walls, signs, and particles all at once. 
 Most powered elements drawn in this version are now activated instantly. Set 
-the tmp to zero to keep the old way of activating. Lua code can now be saved. 
-Put it in luacode.txt, and it will be saved and run in stamps/saves. Press up 
-in the console and then enter to load an example.
+the tmp to zero to keep the old way of activating. New properties that can be 
+set using the lua console: CLONE (0x40000), BREAKABLECLONE (0x80000), 
+POWERED (0x100000), and INDESTRUCTIBLE (0x20000). Use the first 3 together to 
+make different kinds of clone using elements. The last one makes things 
+invincible to every element, and even prevents it from being destroyed in 
+reactions. You can make things like indestructible WATR or METL. Lua code can 
+now be saved. Put it in luacode.txt, and it will be saved and run in 
+stamps/saves. Press up in the console and then enter to load an example.
 
 
 
@@ -173,8 +178,10 @@ HUD might show (null) for empty spaces and it may crash when you put your
 
 
 Future Ideas/TODO: > means currently being worked on/added next
+display mode toggles
 buttons to decide what is in the HUD
 brush rotation
+new lua elements - Videogamer555 - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
 more statistics - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11998
 ambient heat blocking wall
 old console commands destroy/safe that I made a long time ago, + still more lua commands
