@@ -1420,10 +1420,14 @@ void clear_sim(void)
 	memset(fire_r, 0, sizeof(fire_r));
 	memset(fire_g, 0, sizeof(fire_g));
 	memset(fire_b, 0, sizeof(fire_b));
-	memset(gravmask, 0xFFFFFFFF, (XRES/CELL)*(YRES/CELL)*sizeof(unsigned));
-	memset(gravy, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-	memset(gravx, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-	memset(gravp, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+	if(gravmask)
+		memset(gravmask, 0xFFFFFFFF, (XRES/CELL)*(YRES/CELL)*sizeof(unsigned));
+	if(gravy)
+		memset(gravy, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+	if(gravx)
+		memset(gravx, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+	if(gravp)
+		memset(gravp, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
 	for(x = 0; x < XRES/CELL; x++){
 		for(y = 0; y < YRES/CELL; y++){
 			hv[y][x] = 273.15f+22.0f; //Set to room temperature
@@ -1762,7 +1766,11 @@ int main(int argc, char *argv[])
 
 	pers_bg = calloc((XRES+BARSIZE)*YRES, PIXELSIZE);
 	
-	prepare_alpha(4, 1.0f);
+	prepare_alpha(CELL, 1.0f);
+	prepare_graphicscache();
+	flm_data = generate_gradient(flm_data_colours, flm_data_pos, flm_data_points, 200);
+	plasma_data = generate_gradient(plasma_data_colours, plasma_data_pos, plasma_data_points, 200);
+	
 	player.elem = player2.elem = PT_DUST;
 	player.frames = player2.frames = 0;
 
@@ -3838,7 +3846,7 @@ int main(int argc, char *argv[])
 				if (DEBUG_MODE)
 					sprintf(uitext, "Build %d FPS:%d Parts:%d Gravity:%d Air:%d", BUILD_NUM, FPSB, NUM_PARTS, gravityMode, airMode);
 				else
-					sprintf(uitext, "FPS:%d", SAVE_VERSION, MINOR_VERSION, FPSB);
+					sprintf(uitext, "FPS:%d", FPSB);
 #endif
 				if (REPLACE_MODE)
 					strappend(uitext, " [REPLACE MODE]");
