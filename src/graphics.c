@@ -2902,7 +2902,7 @@ void draw_walls(pixel *vid)
 						for (i=0; i<CELL; i+=2)
 							vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = pc;
 				}
-				else if (wtypes[wt].drawstyle==3 || wtypes[wt].drawstyle==-1)
+				else if (wtypes[wt].drawstyle==3 || (wtypes[wt].drawstyle==-1 && secret_els))
 				{
 					for (j=0; j<CELL; j++)
 						for (i=0; i<CELL; i++)

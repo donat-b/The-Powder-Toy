@@ -855,7 +855,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 			gol[x][y]=0;
 			if (j)
 			{
-				if (modver <= 5)
+				if (modver > 0 && modver <= 5)
 				{
 					if (j >= 136 && j <= 140)
 						j += (PT_NORMAL_NUM - 136);
@@ -3063,6 +3063,7 @@ int main(int argc, char *argv[])
 			update_flag = 0;
 		}
 
+		old_version = 0;
 		if (b && !bq && x>=(XRES-19-old_ver_len)*sdl_scale &&
 		        x<=(XRES-14)*sdl_scale && y>=(YRES-22)*sdl_scale && y<=(YRES-9)*sdl_scale && old_version)
 		{
@@ -3086,7 +3087,7 @@ int main(int argc, char *argv[])
 				sprintf(tmp, "Your version: %d.%d (%d)\nNew version: %d.%d (%d)", SAVE_VERSION, MINOR_VERSION, BUILD_NUM, major, minor, buildnum);
 			}
 #endif
-			if (confirm_ui(vid_buf, "Do you want to update The Powder Toy?", tmp, "Update"))
+			if (b == 1 && confirm_ui(vid_buf, "Do you want to update The Powder Toy?", tmp, "Update"))
 			{
 				free(tmp);
 				tmp = download_ui(vid_buf, my_uri, &i);
