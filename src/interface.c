@@ -2482,11 +2482,11 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 		else if (h == FAV_SAVE)
 		{
 			if (save_as == 0)
-				strappend(favtext, "Jacob's Mod ver. 6+");
+				strappend(favtext, "Jacob's Mod ver. 8");
 			else if (save_as == 1)
-				strappend(favtext, "Powder Toy beta ver. 70+");
+				save_as = 2;//strappend(favtext, "Powder Toy beta ver. ??");
 			else
-				strappend(favtext, "Powder Toy release ver. 65+");
+				strappend(favtext, "Powder Toy release ver. 70");
 		}
 		drawtext(vid_buf, XRES-textwidth(favtext)-BARSIZE, sy-10, favtext, 255, 255, 255, 255);
 	}

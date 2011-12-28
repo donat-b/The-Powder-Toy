@@ -617,8 +617,8 @@ int invalid_element(int save_as, int el)
 {
 	if (save_as > 0 && (el >= PT_NORMAL_NUM || ptypes[el].enabled == 0))
 		return 1;
-	if (save_as > 1 && (el == PT_ELEC || el == PT_FIGH || el == PT_ACEL || el == PT_DCEL || el == PT_BANG || el == PT_IGNT))
-		return 1;
+	//if (save_as > 1 && (el == PT_ELEC || el == PT_FIGH || el == PT_ACEL || el == PT_DCEL || el == PT_BANG || el == PT_IGNT))
+	//	return 1;
 	return 0;
 }
 
@@ -634,7 +634,7 @@ int check_save(int save_as)
 			info_ui(vid_buf,"Error",errortext);
 			return 1;
 		}
-		if ((parts[i].type == PT_CLNE || parts[i].type == PT_PCLN || parts[i].type == PT_BCLN || parts[i].type == PT_PBCN || parts[i].type == PT_STOR || parts[i].type == PT_CONV || parts[i].type == PT_STKM || parts[i].type == PT_STKM2 || parts[i].type == PT_FIGH) && invalid_element(save_as,parts[i].ctype))
+		if ((parts[i].type == PT_CLNE || parts[i].type == PT_PCLN || parts[i].type == PT_BCLN || parts[i].type == PT_PBCN || parts[i].type == PT_STOR || parts[i].type == PT_CONV || parts[i].type == PT_STKM || parts[i].type == PT_STKM2 || parts[i].type == PT_FIGH || parts[i].type == PT_LAVA) && invalid_element(save_as,parts[i].ctype))
 		{
 			char errortext[256] = "";
 			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].ctype].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
