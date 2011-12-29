@@ -3664,8 +3664,8 @@ void render_zoom(pixel *img) //draws the zoom box
 //gets the thumbnail preview for stamps
 pixel *prerender_save(void *save, int size, int *width, int *height)
 {
-	unsigned char *d,*c=save;
-	int i,j,k,x,y,rx,ry,p=0;
+	unsigned char *d,*c=save,*m=NULL;
+	int i,j,k,x,y,rx,ry,p=0,p2=0;
 	int bw,bh,w,h,new_format = 0;
 	pixel *fb;
 
@@ -3695,7 +3695,8 @@ pixel *prerender_save(void *save, int size, int *width, int *height)
 	if (!d)
 		return NULL;
 	fb = calloc(w*h, PIXELSIZE);
-	if (!fb)
+	m = calloc(w*h, sizeof(int));
+	if (!fb || !m)
 	{
 		free(d);
 		return NULL;
@@ -3839,8 +3840,96 @@ pixel *prerender_save(void *save, int size, int *width, int *height)
 				}
 				else
 					fb[y*w+x] = ptypes[j].pcolors;
+				if (i && (j==PT_PBCN || j==PT_MOVS || j==PT_ANIM || ((j==PT_PSCN || j==PT_NSCN) && c[4] >= 240) || j==PT_PPTI || j==PT_PPTO || j==PT_VIRS || j==PT_VRSS || j==PT_VRSG || (j==PT_PCLN && c[4] >= 244)))
+					p2++;
+				m[(x-0)+(y-0)*w] = j;
 			}
 		}
+	for (j=0; j<w*h; j++)
+	{
+		if (m[j])
+			p += 2;
+	}
+	for (j=0; j<w*h; j++)
+	{
+		if (m[j])
+		{
+			if (c[4]>=44)
+				p+=2;
+			else
+				p++;
+		}
+	}
+	if (c[4]>=44) {
+		for (j=0; j<w*h; j++)
+		{
+			if (m[j])
+			{
+				p+=2;
+			}
+		}
+	}
+	if (c[4]>=53) {
+		p += p2;
+	}
+	if (c[4]>=49) {
+		for (j=0; j<w*h; j++)
+		{
+			if (m[j])
+			{
+				if (p >= size) {
+					goto corrupt;
+				}
+				if (d[p++])
+					fb[j] = 0;
+			}
+		}
+		//Read RED component
+		for (j=0; j<w*h; j++)
+		{
+			if (m[j])
+			{
+				if (p >= size) {
+					goto corrupt;
+				}
+				if (m[j] <= NPART) {
+					fb[j] |= d[p++]<<16;
+				} else {
+					p++;
+				}
+			}
+		}
+		//Read GREEN component
+		for (j=0; j<w*h; j++)
+		{
+			if (m[j])
+			{
+				if (p >= size) {
+					goto corrupt;
+				}
+				if (m[j] <= NPART) {
+					fb[j] |= d[p++]<<8;
+				} else {
+					p++;
+				}
+			}
+		}
+		//Read BLUE component
+		for (j=0; j<w*h; j++)
+		{
+			if (m[j])
+			{
+				if (p >= size) {
+					goto corrupt;
+				}
+				if (m[j] <= NPART) {
+					fb[j] |= d[p++];
+				} else {
+					p++;
+				}
+			}
+		}
+	}
 
 	free(d);
 	*width = w;

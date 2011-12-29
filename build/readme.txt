@@ -161,6 +161,10 @@ reactions. You can make things like indestructible WATR or METL. Lua code can
 now be saved. Put it in luacode.txt, and it will be saved and run in 
 stamps/saves. Press up in the console and then enter to load an example.
 
+Next Verion: (Version 8.1) 
+Fix loading some saves, remove update button permanetely, update to latest 
+source. Also, decoration color is now drawn on stamps in the stamp browser.
+
 
 
 
@@ -179,7 +183,7 @@ HUD might show (null) for empty spaces and it may crash when you put your
 
 Future Ideas/TODO: > means currently being worked on/added next
 display mode toggles
-buttons to decide what is in the HUD
+>buttons to decide what is in the HUD
 brush rotation
 new lua elements - Videogamer555 - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
 more statistics - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11998
