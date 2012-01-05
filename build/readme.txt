@@ -162,8 +162,9 @@ now be saved. Put it in luacode.txt, and it will be saved and run in
 stamps/saves. Press up in the console and then enter to load an example.
 
 Next Verion: (Version 8.1) 
-Fix loading some saves, remove update button permanetely, update to latest 
-source. Also, decoration color is now drawn on stamps in the stamp browser.
+Fix loading some saves, remove update button permanetely, updated to latest 
+source. Also, decoration color is now drawn on stamps in the stamp browser. 
+Fixed crash.
 
 
 
@@ -174,9 +175,6 @@ Moving solids destroyed by large pressure leave behind pieces inside solids
 Moving solid rotation doesn't save
 In virs, after a long infection/cure time, everything past a certain point 
     will be destroyed/cured at about the same time
-HUD might show (null) for empty spaces and it may crash when you put your 
-    mouse on the screen. This only happens when I launch it from the 
-    build folder.
 
 
 

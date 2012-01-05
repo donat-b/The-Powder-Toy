@@ -187,7 +187,7 @@ int frameidx = 0;
 //int GSPEED = 1;//causes my .exe to crash..
 int sound_enable = 0;
 int favMenu[19] = {300,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17};
-int alt_hud = 0;
+int alt_hud = 1;
 int finding = 0;
 int locked = 0;
 int highesttemp = MAX_TEMP;
@@ -196,6 +196,11 @@ int heatmode = 0;
 int maxframes = 25;
 int secret_els = 0;
 int save_as = 0;
+int hud_modnormal[34] = {1,0,1,0,0,0,0,0,1,0,1,0,1,2,0,2,0,1,2,0,2,0,2,0,2,0,2,0,0,0,0,0,0,0};
+int hud_moddebug[34] =  {1,1,1,2,1,0,0,0,1,0,1,1,1,4,1,4,1,1,4,0,4,0,4,0,4,0,4,0,0,1,1,1,1,1};
+int hud_normal[34] =    {0,0,1,0,0,0,0,0,1,1,1,0,1,2,0,2,0,1,2,0,2,0,2,0,2,0,2,0,0,0,0,0,0,0};
+int hud_debug[34] =     {0,1,1,0,1,0,1,1,1,1,1,1,1,2,1,2,1,1,2,0,2,0,2,0,2,0,2,1,0,1,1,1,1,1};
+int hud_current[34];
 
 int drawinfo = 0;
 int currentTime = 0;
@@ -1850,6 +1855,7 @@ int main(int argc, char *argv[])
 	char coordtext[128] = "";
 	char infotext[512] = "";
 	char timeinfotext[512] = "";
+	char tempstring[256] = "";
 	int FPS = 0, pastFPS = 0, elapsedTime = 0; 
 	void *http_ver_check, *http_session_check = NULL;
 	char *ver_data=NULL, *check_data=NULL, *tmp;
@@ -1878,6 +1884,7 @@ int main(int argc, char *argv[])
 	part_vbuf = calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE); //Extra video buffer
 	part_vbuf_store = part_vbuf;
 	pers_bg = calloc((XRES+BARSIZE)*YRES, PIXELSIZE);
+	memcpy(hud_current,hud_modnormal,sizeof(hud_current));
 
 	gravity_init();
 	GSPEED = 1;
@@ -2540,7 +2547,23 @@ int main(int argc, char *argv[])
 				}
 			}
 			if (sdl_key=='d' && ((sdl_mod & (KMOD_CTRL)) || !player2.spwn))
+			{
+				if (alt_hud == 1)
+				{
+					if (DEBUG_MODE)
+						memcpy(hud_current,hud_modnormal,sizeof(hud_current));
+					else
+						memcpy(hud_current,hud_moddebug,sizeof(hud_current));
+				}
+				else
+				{
+					if (DEBUG_MODE)
+						memcpy(hud_current,hud_normal,sizeof(hud_current));
+					else
+						memcpy(hud_current,hud_debug,sizeof(hud_current));
+				}
 				DEBUG_MODE = !DEBUG_MODE;
+			}
 			if (sdl_key=='i')
 			{
 				int nx, ny;
@@ -2912,7 +2935,7 @@ int main(int argc, char *argv[])
 		}
 		if (y>=0 && y<sdl_scale*YRES && x>=0 && x<sdl_scale*XRES)
 		{
-			int cr,wl; //cr is particle under mouse, for drawing HUD information
+			int cr,wl = 0; //cr is particle under mouse, for drawing HUD information
 			char nametext[50];
 			if (photons[y/sdl_scale][x/sdl_scale]) {
 				cr = photons[y/sdl_scale][x/sdl_scale];
@@ -2923,6 +2946,13 @@ int main(int argc, char *argv[])
 			{
 				wl = bmap[y/sdl_scale/CELL][x/sdl_scale/CELL];
 			}
+			/*   //TODO: figure out what these numbers mean and make them change the HUD on the right, also have a way to change them and make a custom hud save/load
+			int hud_modnormal[34] = {1,0,1,0,0,0,0,0,1,0,1,0,1,2,0,2,0,1,2,0,2,0,2,0,2,0,2,0,0,0,0,0,0,0};
+			int hud_moddebug[34] =  {1,1,1,2,1,0,0,0,1,0,1,1,1,4,1,4,1,1,4,0,4,0,4,0,4,0,4,0,0,1,1,1,1,1};
+			int hud_normal[34] =    {0,0,1,0,0,0,0,0,1,1,1,0,1,2,0,2,0,1,2,0,2,0,2,0,2,0,2,0,0,0,0,0,0,0};
+			int hud_debug[34] =     {0,1,1,0,1,0,1,1,1,1,1,1,1,2,1,2,1,1,2,0,2,0,2,0,2,0,2,1,0,1,1,1,1,1};
+			                                            |                                     |
+			*/
 			if (cr)
 			{
 				if ((cr&0xFF)==PT_LIFE && parts[cr>>8].ctype>=0 && parts[cr>>8].ctype<NGOLALT)
@@ -3838,42 +3868,61 @@ int main(int argc, char *argv[])
 
 		if (hud_enable)
 		{
-			if (alt_hud == 0)
-			{
 #ifdef BETA
-				sprintf(uitext, "Beta Build %d FPS:%d Parts:%d Gravity:%d Air:%d", BUILD_NUM, FPSB, NUM_PARTS, gravityMode, airMode);
+			if (hud_current[0] && hud_current[1])
+				sprintf(uitext, "Version %d Beta %d (%d) ", SAVE_VERSION, MINOR_VERSION, BUILD_NUM);
+			else if (hud_current[0] && !hud_current[1])
+				sprintf(uitext, "Version %d Beta %d ", SAVE_VERSION, MINOR_VERSION);
+			else if (!hud_current[0] && hud_current[1])
+				sprintf(uitext, "Beta Build %d ", BUILD_NUM);
 #else
-				if (DEBUG_MODE)
-					sprintf(uitext, "Build %d FPS:%d Parts:%d Gravity:%d Air:%d", BUILD_NUM, FPSB, NUM_PARTS, gravityMode, airMode);
-				else
-					sprintf(uitext, "FPS:%d", FPSB);
+			if (hud_current[0] && hud_current[1])
+				sprintf(uitext, "Version %d.%d (%d) ", SAVE_VERSION, MINOR_VERSION, BUILD_NUM);
+			else if (hud_current[0] && !hud_current[1])
+				sprintf(uitext, "Version %d.%d ", SAVE_VERSION, MINOR_VERSION);
+			else if (!hud_current[0] && hud_current[1])
+				sprintf(uitext, "Build %d ", BUILD_NUM);
 #endif
-				if (REPLACE_MODE)
-					strappend(uitext, " [REPLACE MODE]");
-				if (sdl_mod&(KMOD_CAPS))
-					strappend(uitext, " [CAP LOCKS]");
-				if (GRID_MODE)
-				{
-					char gridtext[15];
-					sprintf(gridtext, " [GRID: %d]", GRID_MODE);
-					strappend(uitext, gridtext);
-				}
-#ifdef INTERNAL
-				if (vs)
-					strappend(uitext, " [FRAME CAPTURE]");
-#endif
-			}
 			else
+				sprintf(uitext,"");
+			if (hud_current[2])
 			{
-				if (DEBUG_MODE)
-					sprintf(uitext, "Version %d.%d (%d) FPS:%.2f Parts:%d", SAVE_VERSION, MINOR_VERSION, BUILD_NUM, FPSB2, NUM_PARTS);
-				else
-					sprintf(uitext, "Version %d.%d FPS:%d", SAVE_VERSION, MINOR_VERSION, FPSB);
-				if (REPLACE_MODE)
-					strappend(uitext, " [REPLACE MODE]");
-				if (sdl_mod&(KMOD_CAPS))
-					strappend(uitext, " [CAP LOCKS]");
+				sprintf(tempstring,"FPS:%0.*f ",hud_current[3],FPSB2);
+				strappend(uitext,tempstring);
 			}
+			if (hud_current[4])
+			{
+				sprintf(tempstring,"Parts:%d ",NUM_PARTS);
+				strappend(uitext,tempstring);
+			}
+			if (hud_current[5])
+			{
+				sprintf(tempstring," Generation:%d",GENERATION);
+				strappend(uitext,tempstring);
+			}
+			if (hud_current[6])
+			{
+				sprintf(tempstring,"Gravity:%d ",gravityMode);
+				strappend(uitext,tempstring);
+			}
+			if (hud_current[7])
+			{
+				sprintf(tempstring,"Air:%d ",airMode);
+				strappend(uitext,tempstring);
+			}
+			if (REPLACE_MODE && hud_current[8])
+				strappend(uitext, "[REPLACE MODE] ");
+			if (sdl_mod&(KMOD_CAPS) && hud_current[8])
+				strappend(uitext, "[CAP LOCKS] ");
+			if (GRID_MODE && hud_current[9])
+			{
+				sprintf(tempstring, "[GRID: %d]", GRID_MODE);
+				strappend(uitext, tempstring);
+			}
+#ifdef INTERNAL
+			if (vs)
+				strappend(uitext, " [FRAME CAPTURE]");
+#endif
 			quickoptions_tooltip_fade_invert = 255 - (quickoptions_tooltip_fade*20);
 			it_invert = 50 - it;
 			if(it_invert < 0)

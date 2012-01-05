@@ -2514,7 +2514,23 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 			else if (h == FAV_BACK)
 				active_menu = SC_FAV;
 			else if (h == FAV_HUD)
+			{
 				alt_hud = !alt_hud;
+				if (alt_hud == 1)
+				{
+					if (!DEBUG_MODE)
+						memcpy(hud_current,hud_modnormal,sizeof(hud_current));
+					else
+						memcpy(hud_current,hud_moddebug,sizeof(hud_current));
+				}
+				else
+				{
+					if (!DEBUG_MODE)
+						memcpy(hud_current,hud_normal,sizeof(hud_current));
+					else
+						memcpy(hud_current,hud_debug,sizeof(hud_current));
+				}
+			}
 			else if (h == FAV_FIND)
 				if (finding)
 					finding = 0;

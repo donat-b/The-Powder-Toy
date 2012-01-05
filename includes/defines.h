@@ -177,6 +177,11 @@ extern int heatmode;
 extern int maxframes;
 extern int secret_els;
 extern int save_as;
+extern int hud_current[34];
+extern int hud_modnormal[34];
+extern int hud_moddebug[34];
+extern int hud_normal[34];
+extern int hud_debug[34];
 
 extern int drawinfo;
 extern int currentTime;
