@@ -196,11 +196,11 @@ int heatmode = 0;
 int maxframes = 25;
 int secret_els = 0;
 int save_as = 0;
-int hud_modnormal[34] = {1,0,1,0,0,0,0,0,1,0,1,0,1,2,0,2,0,1,2,0,2,0,2,0,2,0,2,0,0,0,0,0,0,0};
-int hud_moddebug[34] =  {1,1,1,2,1,0,0,0,1,0,1,1,1,4,1,4,1,1,4,0,4,0,4,0,4,0,4,0,0,1,1,1,1,1};
-int hud_normal[34] =    {0,0,1,0,0,0,0,0,1,1,1,0,1,2,0,2,0,1,2,0,2,0,2,0,2,0,2,0,0,0,0,0,0,0};
-int hud_debug[34] =     {0,1,1,0,1,0,1,1,1,1,1,1,1,2,1,2,1,1,2,0,2,0,2,0,2,0,2,1,0,1,1,1,1,1};
-int hud_current[34];
+int hud_modnormal[32] = {1,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2};
+int hud_moddebug[32] =  {1,1,1,2,1,0,0,0,1,0,1,1,1,0,0,1,1,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4};
+int hud_normal[32] =    {0,0,1,0,0,0,0,0,1,1,1,0,0,1,1,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2};
+int hud_debug[32] =     {0,1,1,0,1,0,1,1,1,1,1,1,0,1,1,1,0,0,2,1,1,0,0,2,0,2,1,2,1,1,1,2};
+int hud_current[32];
 
 int drawinfo = 0;
 int currentTime = 0;
@@ -1852,6 +1852,7 @@ int main(int argc, char *argv[])
 	pixel *part_vbuf_store;
 	char uitext[512] = "";
 	char heattext[256] = "";
+	char heattext2[256] = "";
 	char coordtext[128] = "";
 	char infotext[512] = "";
 	char timeinfotext[512] = "";
@@ -2936,7 +2937,7 @@ int main(int argc, char *argv[])
 		if (y>=0 && y<sdl_scale*YRES && x>=0 && x<sdl_scale*XRES)
 		{
 			int cr,wl = 0; //cr is particle under mouse, for drawing HUD information
-			char nametext[50];
+			char nametext[50] = "";
 			if (photons[y/sdl_scale][x/sdl_scale]) {
 				cr = photons[y/sdl_scale][x/sdl_scale];
 			} else {
@@ -2946,133 +2947,142 @@ int main(int argc, char *argv[])
 			{
 				wl = bmap[y/sdl_scale/CELL][x/sdl_scale/CELL];
 			}
-			/*   //TODO: figure out what these numbers mean and make them change the HUD on the right, also have a way to change them and make a custom hud save/load
-			int hud_modnormal[34] = {1,0,1,0,0,0,0,0,1,0,1,0,1,2,0,2,0,1,2,0,2,0,2,0,2,0,2,0,0,0,0,0,0,0};
-			int hud_moddebug[34] =  {1,1,1,2,1,0,0,0,1,0,1,1,1,4,1,4,1,1,4,0,4,0,4,0,4,0,4,0,0,1,1,1,1,1};
-			int hud_normal[34] =    {0,0,1,0,0,0,0,0,1,1,1,0,1,2,0,2,0,1,2,0,2,0,2,0,2,0,2,0,0,0,0,0,0,0};
-			int hud_debug[34] =     {0,1,1,0,1,0,1,1,1,1,1,1,1,2,1,2,1,1,2,0,2,0,2,0,2,0,2,1,0,1,1,1,1,1};
-			                                            |                                     |
-			*/
+			sprintf(heattext,""); sprintf(heattext2,""); sprintf(coordtext,""); sprintf(tempstring,"");
 			if (cr)
 			{
-				if ((cr&0xFF)==PT_LIFE && parts[cr>>8].ctype>=0 && parts[cr>>8].ctype<NGOLALT)
+				if (hud_current[10])
 				{
-					sprintf(nametext, "%s (%s)", ptypes[cr&0xFF].name, gmenu[parts[cr>>8].ctype].name);
-				}
-				else if (alt_hud == 0 && (cr&0xFF)==PT_LAVA && parts[cr>>8].ctype > 0 && parts[cr>>8].ctype < PT_NUM )
-				{
-					//char lowername[6];
-					//int ix;
-					//strcpy(lowername, ptypes[parts[cr>>8].ctype].name);
-					//for (ix = 0; lowername[ix]; ix++)
-					//	lowername[ix] = tolower(lowername[ix]);
+					if ((cr&0xFF)==PT_LIFE && parts[cr>>8].ctype>=0 && parts[cr>>8].ctype<NGOLALT)
+					{
+						sprintf(nametext, "%s (%s),", ptypes[cr&0xFF].name, gmenu[parts[cr>>8].ctype].name);
+					}
+					else if (hud_current[13] && (cr&0xFF)==PT_LAVA && parts[cr>>8].ctype > 0 && parts[cr>>8].ctype < PT_NUM )
+					{
+						sprintf(nametext, "Molten %s,", ptypes[parts[cr>>8].ctype].name);
+					}
+					else if (hud_current[14] && (cr&0xFF)==PT_PIPE && (parts[cr>>8].tmp&0xFF) > 0 && (parts[cr>>8].tmp&0xFF) < PT_NUM )
+					{
+						char lowername[6];
+						int ix;
+						strcpy(lowername, ptypes[parts[cr>>8].tmp&0xFF].name);
+						for (ix = 0; lowername[ix]; ix++)
+							lowername[ix] = tolower(lowername[ix]);
 
-					sprintf(nametext, "Molten %s", ptypes[parts[cr>>8].ctype].name);
-				}
-				else if (alt_hud == 0 && (cr&0xFF)==PT_PIPE && (parts[cr>>8].tmp&0xFF) > 0 && (parts[cr>>8].tmp&0xFF) < PT_NUM )
-				{
-					char lowername[6];
-					int ix;
-					strcpy(lowername, ptypes[parts[cr>>8].tmp&0xFF].name);
-					for (ix = 0; lowername[ix]; ix++)
-						lowername[ix] = tolower(lowername[ix]);
-
-					sprintf(nametext, "Pipe with %s", lowername);
-				}
-				else if (DEBUG_MODE)
-				{
-					int tctype = parts[cr>>8].ctype;
-					if ((cr&0xFF)==PT_PIPE)
-					{
-						tctype = parts[cr>>8].tmp&0xFF;
+						sprintf(nametext, "Pipe with %s,", lowername);
 					}
-					if (tctype>=PT_NUM || tctype<0 || (cr&0xFF)==PT_PHOT)
-						tctype = 0;
-					sprintf(nametext, "%s (%s)", ptypes[cr&0xFF].name, ptypes[tctype].name);
-				}
-				else
-				{
-					strcpy(nametext, ptypes[cr&0xFF].name);
-				}
-				if (alt_hud == 0)
-				{
-					if (DEBUG_MODE)
+					else if (hud_current[11])
 					{
-						sprintf(heattext, "%s, Pressure: %3.2f, Temp: %4.2f C, Life: %d", nametext, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life);
-						sprintf(coordtext, "#%d, X:%d Y:%d", cr>>8, x/sdl_scale, y/sdl_scale);
-					}
-					else
-					{
-#ifdef BETA
-						sprintf(heattext, "%s, Pressure: %3.2f, Temp: %4.2f C, Life: %d", nametext, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life);
-#else
-						sprintf(heattext, "%s, Pressure: %3.2f, Temp: %4.2f C", nametext, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f);
-#endif
-					}
-				}
-				else
-				{
-					if (DEBUG_MODE)
-					{
-						sprintf(heattext, "%s, Temp: %4.4f C, Temp: %4.4f F, Life: %d, Pressure: %3.4f", nametext, parts[cr>>8].temp-273.15f, ((parts[cr>>8].temp-273.15f)*9/5)+32, parts[cr>>8].life, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
-						if (ngrav_enable)
-							sprintf(coordtext, "#%d, X:%d Y:%d GX: %.4f GY: %.4f", cr>>8, x/sdl_scale, y/sdl_scale, gravx[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)], gravy[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)]);
+						int tctype = parts[cr>>8].ctype;
+						if ((cr&0xFF)==PT_PIPE && !hud_current[12])
+						{
+							tctype = parts[cr>>8].tmp&0xFF;
+						}
+						if (!hud_current[12] && (tctype>=PT_NUM || tctype<0 || (cr&0xFF)==PT_PHOT))
+							tctype = 0;
+						if (tctype >= 0 && tctype < PT_NUM)
+							sprintf(nametext, "%s (%s),", ptypes[cr&0xFF].name, ptypes[tctype].name);
 						else
-							sprintf(coordtext, "#%d, X:%d Y:%d", cr>>8, x/sdl_scale, y/sdl_scale);
+							sprintf(nametext, "%s (%d),", ptypes[cr&0xFF].name, tctype);
 					}
 					else
 					{
-						sprintf(heattext, "%s, Temp: %4.2f C, Pressure: %3.2f", nametext, parts[cr>>8].temp-273.15f, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+						sprintf(nametext, "%s,", ptypes[cr&0xFF].name);
 					}
+				}
+				else if (hud_current[11])
+				{
+					if (parts[cr>>8].ctype > 0 && parts[cr>>8].ctype < PT_NUM)
+						sprintf(nametext," Ctype: %s", ptypes[parts[cr>>8].ctype].name);
+					else if (hud_current[12])
+						sprintf(nametext," Ctype: %d", parts[cr>>8].ctype);
+				}
+				else
+					sprintf(nametext,"");
+				strncpy(heattext2,nametext,50);
+				if (hud_current[15])
+				{
+					sprintf(tempstring," Temp: %0.*f C,",hud_current[18],parts[cr>>8].temp-273.15f);
+					strappend(heattext2,tempstring);
+				}
+				if (hud_current[16])
+				{
+					sprintf(tempstring," Temp: %0.*f F,",hud_current[18],((parts[cr>>8].temp-273.15f)*9/5)+32);
+					strappend(heattext2,tempstring);
+				}
+				if (hud_current[17])
+				{
+					sprintf(tempstring," Temp: %0.*f K,",hud_current[18],parts[cr>>8].temp);
+					strappend(heattext2,tempstring);
+				}
+				if (hud_current[19])
+				{
+					sprintf(tempstring," Life: %d,",parts[cr>>8].life);
+					strappend(heattext2,tempstring);
+				}
+				if (hud_current[20])
+				{
+					sprintf(tempstring," Tmp: %d,",parts[cr>>8].tmp);
+					strappend(heattext2,tempstring);
+				}
+				if (hud_current[21])
+				{
+					sprintf(tempstring," Tmp2: %d,",parts[cr>>8].tmp2);
+					strappend(heattext2,tempstring);
+				}
+				if (hud_current[22])
+				{
+					sprintf(tempstring," X: %0.*f, Y: %0.*f,",hud_current[23],parts[cr>>8].x,hud_current[23],parts[cr>>8].y);
+					strappend(heattext2,tempstring);
+				}
+				if (hud_current[24])
+				{
+					sprintf(tempstring," Vx: %0.*f, Vy: %0.*f,",hud_current[25],parts[cr>>8].vx,hud_current[25],parts[cr>>8].vy);
+					strappend(heattext2,tempstring);
 				}
 				if ((cr&0xFF)==PT_PHOT) wavelength_gfx = parts[cr>>8].ctype;
 			}
 			else if (wl)
 			{
-				sprintf(nametext, "%s", wtypes[wl-UI_ACTUALSTART].name);
-				if (DEBUG_MODE)
-				{
-					sprintf(heattext, "%s, Pressure: %3.4f", nametext, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
-					if (ngrav_enable)
-						sprintf(coordtext, "X:%d Y:%d GX: %.4f GY: %.4f", x/sdl_scale, y/sdl_scale, gravx[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)], gravy[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)]);
-					else
-						sprintf(coordtext, "X:%d Y:%d", x/sdl_scale, y/sdl_scale);
-				}
-				else
-					sprintf(heattext, "%s, Pressure: %3.2f", nametext, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+				if (hud_current[10])
+					sprintf(heattext2, "%s,", wtypes[wl-UI_ACTUALSTART].name);
 			}
 			else
 			{
-				if (alt_hud == 0)
-				{
-					sprintf(heattext, "Empty, Pressure: %3.2f", pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
-					if (DEBUG_MODE)
-					{
-						sprintf(coordtext, "X:%d Y:%d. GX: %.2f GY: %.2f", x/sdl_scale, y/sdl_scale, gravx[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)], gravy[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)]);
-					}
-				}
+				if (hud_current[10])
+					sprintf(heattext2,"Empty,");
+			}
+			if (hud_current[26])
+			{
+				sprintf(tempstring," Pressure: %3.*f,",hud_current[27],pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+				strappend(heattext2,tempstring);
+			}
+			heattext2[strlen(heattext2)-1] = '\0'; // delete comma at end
+			strcpy(heattext,heattext2);
+
+			if (hud_current[28] && cr)
+			{
+				if (hud_current[29] || (ngrav_enable && hud_current[30]))
+					sprintf(tempstring," #%d,",cr>>8);
 				else
-				{
-					if (DEBUG_MODE)
-					{
-						sprintf(heattext, "Empty, Pressure: %3.4f", pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
-						if (ngrav_enable)
-							sprintf(coordtext, "X:%d Y:%d GX: %.4f GY: %.4f", x/sdl_scale, y/sdl_scale, gravx[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)], gravy[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)]);
-						else
-							sprintf(coordtext, "X:%d Y:%d", x/sdl_scale, y/sdl_scale);
-					}
-					else
-						sprintf(heattext, "Empty, Pressure: %3.2f", pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
-				}
+					sprintf(tempstring," #%d",cr>>8);
+				strappend(coordtext,tempstring);
+			}
+			if (hud_current[29])
+			{
+				sprintf(tempstring," X:%d Y:%d",x/sdl_scale,y/sdl_scale);
+				strappend(coordtext,tempstring);
+			}
+			if (hud_current[30] && ngrav_enable)
+			{
+				sprintf(tempstring," GX: %0.*f GY: %0.*f",hud_current[31],gravx[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)],hud_current[31],gravy[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)]);
+				strappend(coordtext,tempstring);
 			}
 		}
 		else
 		{
 			sprintf(heattext, "Empty");
-			if (DEBUG_MODE)
-			{
+			if (hud_current[29])
 				sprintf(coordtext, "X:%d Y:%d", x/sdl_scale, y/sdl_scale);
-			}
 		}
 
 
