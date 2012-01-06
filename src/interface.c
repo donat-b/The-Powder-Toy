@@ -2342,7 +2342,14 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 		for (n2 = 0; n2<19; n2++)
 		{
 			n = favMenu[n2];
-			if (n >= FAV_START && n < FAV_END)
+			if (n >= HUD_START && n < HUD_START+HUD_NUM)
+			{
+				pixel color = hud_menu[n].color;
+				if (color == 0)
+					color = ptypes[(n*53+7)%(PT_NUM-1)+1].pcolors;
+				x -= draw_tool_xy(vid_buf, x-xoff, y, n, color)+5;
+			}
+			else if (n >= FAV_START && n < FAV_END)
 				x -= draw_tool_xy(vid_buf, x-xoff, y, n, fav[n-FAV_START].colour)+5;
 			else if (n % 256 == PT_LIFE)
 				x -= draw_tool_xy(vid_buf, x-xoff, y, n, gmenu[n/256].colour)+5;
@@ -2357,7 +2364,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 				h = n;
 				if (n >= HUD_START && n < HUD_START+HUD_NUM)
 					favdesc = 4;
-				if (n >= FAV_START && n < FAV_END)
+				else if (n >= FAV_START && n < FAV_END)
 					favdesc = 3;
 				else if (n % 256 == PT_LIFE)
 					favdesc = 2;
@@ -2423,6 +2430,10 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 				{
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 					h = n+HUD_START;
+				}
+				else if (n >= HUD_REALSTART-HUD_START && hud_current[n-HUD_REALSTART+HUD_START] && !strstr(hud_menu[n].name,"#"))
+				{
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
 				}
 			}
 		}
@@ -2675,6 +2686,9 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 				lowesttemp = atoi(input_ui(vid_buf,"Manual Heat Display","Enter a Minimum Temperature in Celcius","",""))+273;
 				highesttemp = atoi(input_ui(vid_buf,"Manual Heat Display","Enter a Maximum Temperature in Celcius","",""))+273;
 			}
+		}
+		else if (h >= HUD_START && h < HUD_START+HUD_NUM)
+		{
 		}
 		else if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
 		{
