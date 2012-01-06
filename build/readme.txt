@@ -27,7 +27,7 @@ disturbed666 - A way to turn PHOT into ELEC (but I used PINV instead of TESC)
 
 
 
-Explanation of other new features:
+Explanation of other new features that need a long explanation:
 
 Moving Solids: No lag, and it actually works. They are found in the special
 menu, and you can have a maximum of 256 at once. They are drawn the same 
@@ -148,7 +148,7 @@ published. It makes sure that you don't add in any new elements not in those
 versions. PINV+PHOT = ELEC. SPNG drags along other particles with it, even 
 solids that normally can't move.
 
-Version 8.0: http://min.us/mELg5R3DZ In a new gallery because of the constant minus.com changes
+Version 8.0: http://min.us/muN92vQxC#1o
 Wall names display in the hud. New lua functions: get_wall and create_wall. A 
 New Wall: ERASEALL. It can erase walls, signs, and particles all at once. 
 Most powered elements drawn in this version are now activated instantly. Set 
@@ -162,7 +162,7 @@ now be saved. Put it in luacode.txt, and it will be saved and run in
 stamps/saves. Press up in the console and then enter to load an example.
 
 Next Verion: (Version 8.1) 
-Fix loading some saves, remove update button permanetely, updated to latest 
+Fix loading some saves, remove update button permanetely, updated to newer 
 source. Also, decoration color is now drawn on stamps in the stamp browser. 
 Fixed crash. 2 new quickoptions: Newtonian gravity and ambient heat.
 
@@ -181,7 +181,7 @@ In virs, after a long infection/cure time, everything past a certain point
 
 Future Ideas/TODO: > means currently being worked on/added next
 display mode toggles
->buttons to decide what is in the HUD
+>>buttons to decide what is in the HUD
 brush rotation
 new lua elements - Videogamer555 - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
 more statistics - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11998
