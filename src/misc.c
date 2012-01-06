@@ -123,7 +123,7 @@ void save_presets(int do_update)
 	//*/
 	int i, count;
 	char * outputdata;
-	cJSON *root, *userobj, *versionobj, *recobj, *graphicsobj;
+	cJSON *root, *userobj, *versionobj, *recobj, *graphicsobj, *hudobj;
 	FILE *f = fopen("powder.pref", "wb");
 	if(!f)
 		return;
@@ -185,6 +185,13 @@ void save_presets(int do_update)
 	count = 0; i = 0; while(render_modes[i++]){ count++; }
 	cJSON_AddItemToObject(graphicsobj, "render", cJSON_CreateIntArray(render_modes, count));
 	
+	//HUDs
+	cJSON_AddItemToObject(root, "HUD", hudobj=cJSON_CreateObject());
+	cJSON_AddItemToObject(hudobj, "normal", cJSON_CreateIntArray(hud_normal, HUD_OPTIONS));
+	cJSON_AddItemToObject(hudobj, "debug", cJSON_CreateIntArray(hud_debug, HUD_OPTIONS));
+	cJSON_AddItemToObject(hudobj, "modnormal", cJSON_CreateIntArray(hud_modnormal, HUD_OPTIONS));
+	cJSON_AddItemToObject(hudobj, "moddebug", cJSON_CreateIntArray(hud_moddebug, HUD_OPTIONS));
+
 	//General settings
 	cJSON_AddStringToObject(root, "proxy", http_proxy_string);
 	cJSON_AddNumberToObject(root, "scale", sdl_scale);
@@ -244,7 +251,7 @@ void load_presets(void)
 	char * prefdata = file_load("powder.pref", &prefdatasize);
 	if(prefdata)
 	{
-		cJSON *root, *userobj, *versionobj, *recobj, *tmpobj, *graphicsobj, *tmparray;
+		cJSON *root, *userobj, *versionobj, *recobj, *tmpobj, *graphicsobj, *hudobj, *tmparray;
 		root = cJSON_Parse(prefdata);
 		
 		//Read user data
@@ -336,6 +343,44 @@ void load_presets(void)
 				{
 					render_mode |= cJSON_GetArrayItem(tmpobj, i)->valueint;
 					render_modes[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
+				}
+			}
+		}
+
+		//Read HUDs
+		hudobj = cJSON_GetObjectItem(root, "HUD");
+		if(hudobj)
+		{
+			if(tmpobj = cJSON_GetObjectItem(hudobj, "normal"))
+			{
+				count = min(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
+				for(i = 0; i < count; i++)
+				{
+					hud_normal[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
+				}
+			}
+			if(tmpobj = cJSON_GetObjectItem(hudobj, "debug"))
+			{
+				count = min(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
+				for(i = 0; i < count; i++)
+				{
+					hud_debug[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
+				}
+			}
+			if(tmpobj = cJSON_GetObjectItem(hudobj, "modnormal"))
+			{
+				count = min(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
+				for(i = 0; i < count; i++)
+				{
+					hud_modnormal[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
+				}
+			}
+			if(tmpobj = cJSON_GetObjectItem(hudobj, "moddebug"))
+			{
+				count = min(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
+				for(i = 0; i < count; i++)
+				{
+					hud_moddebug[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
 				}
 			}
 		}

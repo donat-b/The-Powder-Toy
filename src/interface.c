@@ -2585,6 +2585,20 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 				hud_current[h-HUD_START] = atoi(input_ui(vid_buf,(char*)hud_menu[h-HUD_START].name,"Enter number of decimal places","",""));
 			else
 				hud_current[h-HUD_START] = !hud_current[h-HUD_START];
+			if (alt_hud == 1)
+			{
+				if (DEBUG_MODE)
+					memcpy(hud_moddebug,hud_current,sizeof(hud_moddebug));
+				else
+					memcpy(hud_modnormal,hud_current,sizeof(hud_modnormal));
+			}
+			else
+			{
+				if (DEBUG_MODE)
+					memcpy(hud_debug,hud_current,sizeof(hud_debug));
+				else
+					memcpy(hud_normal,hud_current,sizeof(hud_normal));
+			}
 		}
 		else if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
 		{

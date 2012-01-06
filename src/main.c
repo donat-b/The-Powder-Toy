@@ -196,11 +196,11 @@ int heatmode = 0;
 int maxframes = 25;
 int secret_els = 0;
 int save_as = 0;
-int hud_modnormal[32] = {1,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2};
-int hud_moddebug[32] =  {1,1,1,2,1,0,0,0,1,0,1,1,1,0,0,1,1,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4};
-int hud_normal[32] =    {0,0,1,0,0,0,0,0,1,1,1,0,0,1,1,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2};
-int hud_debug[32] =     {0,1,1,0,1,0,1,1,1,1,1,1,0,1,1,1,0,0,2,1,1,0,0,2,0,2,1,2,1,1,1,2};
-int hud_current[32];
+int hud_modnormal[HUD_OPTIONS] = {1,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2};
+int hud_moddebug[HUD_OPTIONS] =  {1,1,1,2,1,0,0,0,1,0,1,1,1,0,0,1,1,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4};
+int hud_normal[HUD_OPTIONS] =    {0,0,1,0,0,0,0,0,1,1,1,0,0,1,1,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2};
+int hud_debug[HUD_OPTIONS] =     {0,1,1,0,1,0,1,1,1,1,1,1,0,1,1,1,0,0,2,1,1,0,0,2,0,2,1,2,1,1,1,2};
+int hud_current[HUD_OPTIONS];
 
 int drawinfo = 0;
 int currentTime = 0;
@@ -1952,6 +1952,20 @@ int main(int argc, char *argv[])
 	
 	load_presets();
 	timesplayed = timesplayed + 1;
+	if (alt_hud == 1)
+	{
+		if (DEBUG_MODE)
+			memcpy(hud_current,hud_moddebug,sizeof(hud_current));
+		else
+			memcpy(hud_current,hud_modnormal,sizeof(hud_current));
+	}
+	else
+	{
+		if (DEBUG_MODE)
+			memcpy(hud_current,hud_debug,sizeof(hud_current));
+		else
+			memcpy(hud_current,hud_normal,sizeof(hud_current));
+	}
 
 	for (i=1; i<argc; i++)
 	{
@@ -3054,7 +3068,7 @@ int main(int argc, char *argv[])
 			}
 			if (hud_current[26])
 			{
-				sprintf(tempstring," Pressure: %3.*f,",hud_current[27],pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+				sprintf(tempstring," Pressure: %0.*f,",hud_current[27],pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
 				strappend(heattext2,tempstring);
 			}
 			heattext2[strlen(heattext2)-1] = '\0'; // delete comma at end

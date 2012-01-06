@@ -178,11 +178,12 @@ extern int heatmode;
 extern int maxframes;
 extern int secret_els;
 extern int save_as;
-extern int hud_current[32];
-extern int hud_modnormal[32];
-extern int hud_moddebug[32];
-extern int hud_normal[32];
-extern int hud_debug[32];
+#define HUD_OPTIONS 32
+extern int hud_current[HUD_OPTIONS];
+extern int hud_modnormal[HUD_OPTIONS];
+extern int hud_moddebug[HUD_OPTIONS];
+extern int hud_normal[HUD_OPTIONS];
+extern int hud_debug[HUD_OPTIONS];
 
 extern int drawinfo;
 extern int currentTime;

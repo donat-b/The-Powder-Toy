@@ -164,7 +164,10 @@ stamps/saves. Press up in the console and then enter to load an example.
 Next Verion: (Version 8.1) 
 Fix loading some saves, remove update button permanetely, updated to newer 
 source. Also, decoration color is now drawn on stamps in the stamp browser. 
-Fixed crash. 2 new quickoptions: Newtonian gravity and ambient heat.
+Fixed crash. 2 new quickoptions: Newtonian gravity and ambient heat. Custom 
+HUDs. To change one, click the HUD2 button in the second favorites menu and 
+different options will come up. You can change all 4 of the original HUD's 
+and it will save and be loaded the next time you start.
 
 
 
