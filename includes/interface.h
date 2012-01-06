@@ -48,6 +48,7 @@ typedef struct menu_wall menu_wall;
 #define SC_FAV 12
 #define SC_CRACKER 13
 #define SC_FAV2 14
+#define SC_HUD 15
 #define SC_TOTAL 13
 
 static menu_section msections[] = //doshow does not do anything currently.
@@ -64,9 +65,10 @@ static menu_section msections[] = //doshow does not do anything currently.
 	{"\xCC", "Special", 0, 1},
 	{"\xD2", "Life", 0, 1},
 	{"\xD7", "Tools", 0, 1},
-	{"\xCC", "\brF\bla\bov\bgo\btr\bbi\bpt\bwe", 0, 1},
+	{"\xCC", "\brF\bla\bov\bgo\btr\bbi\bpt\bwe", 0, 1}, //This says Favorite in rainbow colors
 	{"\xC8", "Cracker!", 0, 0},
 	{"\xCC", "Favorite2", 0, 0},
+	{"\xCC", "HUD", 0, 0}
 };
 
 static quick_option quickmenu[] =
@@ -74,6 +76,8 @@ static quick_option quickmenu[] =
 	{"P", "Sand effect", QM_TOGGLE, &pretty_powder},
 	{"G", "Draw gravity grid", QM_TOGGLE, &drawgrav_enable},
 	{"D", "Show decorations", QM_TOGGLE, &decorations_enable},
+	{"N", "Newtonian gravity", QM_TOGGLE, &ngrav_enable},
+	{"A", "Ambient heat", QM_TOGGLE, &aheat_enable},
 	{NULL}
 };
 

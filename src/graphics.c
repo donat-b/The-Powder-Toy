@@ -591,6 +591,30 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, int b, unsigned pc)
 		}
 		drawtext(vid_buf, x+14-textwidth((char *)gmenu[(b>>8)&0xFF].name)/2, y+4, (char *)gmenu[(b>>8)&0xFF].name, c, c, c, 255);
 	}
+	else if (b >= HUD_START)
+	{
+#ifdef OpenGL
+		fillrect(vid_buf, x, y, 28, 16, PIXR(pc), PIXG(pc), PIXB(pc), 255);
+#else
+		for (j=1; j<15; j++)
+		{
+			for (i=1; i<27; i++)
+			{
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = pc;
+			}
+		}
+#endif
+		c = PIXB(pc) + 3*PIXG(pc) + 2*PIXR(pc);
+		if (c<544)
+		{
+			c = 255;
+		}
+		else
+		{
+			c = 0;
+		}
+		drawtext(vid_buf, x+14-textwidth((char *)hud_menu[b-HUD_START].name)/2, y+4, (char *)hud_menu[b-HUD_START].name, c, c, c, 255);
+	}
 	else if (b >= FAV_START)
 	{
 #ifdef OpenGL
@@ -863,7 +887,7 @@ void draw_menu(pixel *vid_buf, int i, int hover)
 		drawrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16), 14, 14, 0, 255, 255, 255);
 	else
 		drawrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16), 14, 14, 255, 255, 255, 255);
-	if (hover == i || (i == SC_FAV & hover == SC_FAV2))
+	if (hover == i || (i == SC_FAV && (hover == SC_FAV2 || hover == SC_HUD)))
 	{
 		fillrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16), 14, 14, 255, 255, 255, 255);
 		drawtext(vid_buf, (XRES+BARSIZE)-13, (i*16)+YRES+MENUSIZE-14-(SC_TOTAL*16), msections[i].icon, 0, 0, 0, 255);

@@ -2934,6 +2934,7 @@ int main(int argc, char *argv[])
 			x = (((x/sdl_scale-zoom_wx)/ZFACTOR)+zoom_x)*sdl_scale;
 			y = (((y/sdl_scale-zoom_wy)/ZFACTOR)+zoom_y)*sdl_scale;
 		}
+		sprintf(heattext,""); sprintf(coordtext,"");
 		if (y>=0 && y<sdl_scale*YRES && x>=0 && x<sdl_scale*XRES)
 		{
 			int cr,wl = 0; //cr is particle under mouse, for drawing HUD information
@@ -2947,7 +2948,7 @@ int main(int argc, char *argv[])
 			{
 				wl = bmap[y/sdl_scale/CELL][x/sdl_scale/CELL];
 			}
-			sprintf(heattext,""); sprintf(heattext2,""); sprintf(coordtext,""); sprintf(tempstring,"");
+			sprintf(heattext2,""); sprintf(tempstring,"");
 			if (cr)
 			{
 				if (hud_current[10])
@@ -3080,7 +3081,8 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			sprintf(heattext, "Empty");
+			if (hud_current[10])
+				sprintf(heattext, "Empty");
 			if (hud_current[29])
 				sprintf(coordtext, "X:%d Y:%d", x/sdl_scale, y/sdl_scale);
 		}
@@ -3469,7 +3471,7 @@ int main(int argc, char *argv[])
 					}
 					if (x>=(XRES+BARSIZE-(510-476)) && x<=(XRES+BARSIZE-(510-491)) && !bq)
 					{
-						render_ui(vid_buf, XRES+BARSIZE-(510-491), YRES+(MENUSIZE-19), 3);
+						render_ui(vid_buf, XRES+BARSIZE-(510-491), YRES-2, 3);
 					}
 					if (x>=(XRES+BARSIZE-(510-494)) && x<=(XRES+BARSIZE-(510-509)) && !bq)
 						sys_pause = !sys_pause;
@@ -3907,7 +3909,7 @@ int main(int argc, char *argv[])
 			}
 			if (hud_current[5])
 			{
-				sprintf(tempstring," Generation:%d",GENERATION);
+				sprintf(tempstring,"Generation:%d ",GENERATION);
 				strappend(uitext,tempstring);
 			}
 			if (hud_current[6])
@@ -3926,12 +3928,12 @@ int main(int argc, char *argv[])
 				strappend(uitext, "[CAP LOCKS] ");
 			if (GRID_MODE && hud_current[9])
 			{
-				sprintf(tempstring, "[GRID: %d]", GRID_MODE);
+				sprintf(tempstring, "[GRID: %d] ", GRID_MODE);
 				strappend(uitext, tempstring);
 			}
 #ifdef INTERNAL
 			if (vs)
-				strappend(uitext, " [FRAME CAPTURE]");
+				strappend(uitext, "[FRAME CAPTURE]");
 #endif
 			quickoptions_tooltip_fade_invert = 255 - (quickoptions_tooltip_fade*20);
 			it_invert = 50 - it;

@@ -164,7 +164,7 @@ stamps/saves. Press up in the console and then enter to load an example.
 Next Verion: (Version 8.1) 
 Fix loading some saves, remove update button permanetely, updated to latest 
 source. Also, decoration color is now drawn on stamps in the stamp browser. 
-Fixed crash.
+Fixed crash. 2 new quickoptions: Newtonian gravity and ambient heat.
 
 
 

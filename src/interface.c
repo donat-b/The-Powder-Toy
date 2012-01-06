@@ -2338,10 +2338,6 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 	else if (i == SC_FAV) //Favorite
 	{
 		int n2;
-		if (fwidth > XRES-BARSIZE) { //fancy scrolling
-			float overflow = (float)fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
-			xoff = (int)(overflow / location);
-		}
 		for (n2 = 0; n2<19; n2++)
 		{
 			n = favMenu[n2];
@@ -2393,7 +2389,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 	}
 	else if (i == SC_FAV2) //Favorite
 	{
-		int n2;
+		fwidth = (FAV_END - FAV_START - 1)*31;
 		if (fwidth > XRES-BARSIZE) { //fancy scrolling
 			float overflow = (float)fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
 			xoff = (int)(overflow / location);
@@ -2406,6 +2402,24 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 			{
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 				h = n+FAV_START;
+			}
+		}
+	}
+	else if (i == SC_HUD) //HUD changer
+	{
+		fwidth = HUD_NUM*31;
+		if (fwidth > XRES-BARSIZE) { //fancy scrolling
+			float overflow = (float)fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
+			xoff = (int)(overflow / location);
+		}
+		for (n = 0; n < HUD_NUM; n++)
+		{
+			x -= draw_tool_xy(vid_buf, x-xoff, y, HUD_START+n, ptypes[(n*53+7)%(PT_NUM-1)+1].pcolors)+5;
+
+			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
+			{
+				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
+				h = n+HUD_START;
 			}
 		}
 	}
@@ -2490,6 +2504,17 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 		}
 		drawtext(vid_buf, XRES-textwidth(favtext)-BARSIZE, sy-10, favtext, 255, 255, 255, 255);
 	}
+	else if (i==SC_HUD)
+	{
+		if (!strstr(hud_menu[h-HUD_START].name,"#"))
+			drawtext(vid_buf, XRES-textwidth((char *)hud_menu[h-HUD_START].description)-BARSIZE, sy-10, (char *)hud_menu[h-HUD_START].description, 255, 255, 255, 255);
+		else
+		{
+			char description[512] = "";
+			sprintf(description,"%s %i decimal places",hud_menu[h-HUD_START].description,hud_current[h-HUD_START]);
+			drawtext(vid_buf, XRES-textwidth(description)-BARSIZE, sy-10, description, 255, 255, 255, 255);
+		}
+	}
 	else
 	{
 		drawtext(vid_buf, XRES-textwidth((char *)ptypes[h].descs)-BARSIZE, sy-10, (char *)ptypes[h].descs, 255, 255, 255, 255);
@@ -2546,11 +2571,20 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 				save_as = (save_as + 1)%3;
 			else if (h == FAV_LUA)
 				addluastuff();
+			else if (h == FAV_CUSTOMHUD)
+				active_menu = SC_HUD;
 			else if (h == FAV_SECR)
 			{
 				secret_els = !secret_els;
 				menu_count();
 			}
+		}
+		else if (h >= HUD_START && h < HUD_START+HUD_NUM)
+		{
+			if (strstr(hud_menu[h-HUD_START].name,"#"))
+				hud_current[h-HUD_START] = atoi(input_ui(vid_buf,(char*)hud_menu[h-HUD_START].name,"Enter number of decimal places","",""));
+			else
+				hud_current[h-HUD_START] = !hud_current[h-HUD_START];
 		}
 		else if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
 		{
@@ -2783,7 +2817,15 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 				quickoptions_tooltip_y = (i*16)+5;
 				if(b && !bq)
 				{
-					*(quickmenu[i].variable) = !(*(quickmenu[i].variable));
+					if (!strcmp(quickmenu[i].name,"Newtonian gravity"))
+					{
+						if(!ngrav_enable)
+							start_grav_async();
+						else
+							stop_grav_async();
+					}
+					else
+						*(quickmenu[i].variable) = !(*(quickmenu[i].variable));
 				}
 			}
 		}
@@ -3052,6 +3094,11 @@ void set_cmode(int cm) // sets to given view mode
 	{
 		colour_mode = COLOUR_HEAT;
 		strcpy(itc_msg, "Heat Display");
+		free(display_modes);
+		display_modes = calloc(2, sizeof(unsigned int));
+		display_mode |= DISPLAY_AIRH;
+		display_modes[0] = DISPLAY_AIRH;
+		display_modes[1] = 0;
 	}
 	else if (cmode==CM_FANCY)
 	{

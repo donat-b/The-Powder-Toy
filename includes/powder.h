@@ -240,8 +240,9 @@
 #define FAV_HEAT 306
 #define FAV_SAVE 307
 #define FAV_LUA 308
-#define FAV_SECR 309
-#define FAV_END 310
+#define FAV_CUSTOMHUD 309
+#define FAV_SECR 310
+#define FAV_END 311
 
 #define R_TEMP 22
 #define MAX_TEMP 9999
@@ -751,9 +752,52 @@ static fav_menu fav[] =
 	{"SPIN", PIXPACK(0x0010A0), "Makes moving solids rotate"},
 	{"HEAT", PIXPACK(0xFF00D4), "Changes heat display mode. current mode: "},
 	{"SAVE", PIXPACK(0x2B1AC9), "Makes save/stamps compatible with: "},
-	{"LUA",  PIXPACK(0xFFFF00), "Add Lua code to a save (unfinished)"},
+	{"LUA",  PIXPACK(0xFFFF00), "Add Lua code to a save"},
+	{"HUD2",  PIXPACK(0x20D8FF), "Make a custom HUD (doesn't save yet, unless I forgot to remove the unfinished text again"},
 	{"", PIXPACK(0x000000), ""}
 };
+
+static fav_menu hud_menu[] =
+{
+	{"VERS", PIXPACK(0x000000), "The version number"},
+	{"BLD", PIXPACK(0x000000), "The current build number"},
+	{"FPS",  PIXPACK(0x000000), "Show the current frames per second"},
+	{"FPS#", PIXPACK(0x000000), "Show FPS to"},
+	{"PART", PIXPACK(0x000000), "The number of particles on the screen"},
+	{"GEN",  PIXPACK(0x000000), "The current life generation"},
+	{"GRAV", PIXPACK(0x000000), "Shows the current gravity mode, changed by pressing w"},
+	{"AIR",  PIXPACK(0x000000), "Shows the current air mode, change it with y"},
+	{"XTRA", PIXPACK(0x000000), "Shows when replace mode or caps lock is activated"},
+	{"GRID", PIXPACK(0x000000), "Adds the current grid mode to the end, when it's activated."},
+	
+	//10
+	{"NAME", PIXPACK(0x000000), "Why would you want to disable this?"},
+	{"CTYP", PIXPACK(0x000000), "Puts the ctype in parentheses"},
+	{"CTP2", PIXPACK(0x000000), "Enable this to also display invalid ctypes as numbers and not display pipes tmp as ctype"},
+	{"MOLT", PIXPACK(0x000000), "Molten ... instead of name & ctype"},
+	{"PIPE", PIXPACK(0x000000), "Pipe with ... instead of name & ctype"},
+	{"CELC", PIXPACK(0x000000), "Show temperatures in Celcius"},
+	{"FARH", PIXPACK(0x000000), "Show temperatures in Farenheit"},
+	{"KELV", PIXPACK(0x000000), "Show temperatures in Kelvin"},
+	{"TEM#", PIXPACK(0x000000), "Show all temperatures to"},
+	{"LIFE", PIXPACK(0x000000), "Show a particle's life value"},
+	{"TMP",  PIXPACK(0x000000), "Show a particle's tmp value"},
+	{"TMP2", PIXPACK(0x000000), "Show a particle's tmp2 value"},
+	{"CORD", PIXPACK(0x000000), "Show a particle's coordinates (not always the same as mouse coordinates)"},
+	{"CRD#", PIXPACK(0x000000), "Show x and y coordinates to"},
+	{"VEL",  PIXPACK(0x000000), "Show a particle's x and y velocities"},
+	{"VEL#", PIXPACK(0x000000), "Show x and y velocities to"},
+	{"PRES", PIXPACK(0x000000), "Show the pressure"},
+	{"PRS#", PIXPACK(0x000000), "Show pressure to"},
+	
+	//28
+	{"INDX", PIXPACK(0x000000), "The index of a particle"},
+	{"MCRD", PIXPACK(0x000000), "Shows the mouse coordinates"},
+	{"GRAV", PIXPACK(0x000000), "Shows the gravity at a spot if newtonian gravity is enabled"},
+	{"GRV#", PIXPACK(0x000000), "Show gravity to"},
+};
+#define HUD_START 400
+#define HUD_NUM 32
 
 #define CHANNELS ((int)(MAX_TEMP-73)/100+2)
 particle portalp[CHANNELS][8][80];
