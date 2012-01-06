@@ -234,6 +234,7 @@ extern int zoom_wx, zoom_wy;
 
 extern int numframes;
 extern int framenum;
+extern int hud_menunum;
 
 void menu_count(void);
 

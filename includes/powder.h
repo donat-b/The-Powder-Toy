@@ -757,47 +757,62 @@ static fav_menu fav[] =
 	{"", PIXPACK(0x000000), ""}
 };
 
-static fav_menu hud_menu[] =
+struct hud
 {
-	{"VERS", PIXPACK(0x000000), "The version number"},
-	{"BLD", PIXPACK(0x000000), "The current build number"},
-	{"FPS",  PIXPACK(0x000000), "Show the current frames per second"},
-	{"FPS#", PIXPACK(0x000000), "Show FPS to"},
-	{"PART", PIXPACK(0x000000), "The number of particles on the screen"},
-	{"GEN",  PIXPACK(0x000000), "The current life generation"},
-	{"GRAV", PIXPACK(0x000000), "Shows the current gravity mode, changed by pressing w"},
-	{"AIR",  PIXPACK(0x000000), "Shows the current air mode, change it with y"},
-	{"XTRA", PIXPACK(0x000000), "Shows when replace mode or caps lock is activated"},
-	{"GRID", PIXPACK(0x000000), "Adds the current grid mode to the end, when it's activated."},
+	const char *name;
+	pixel color;
+	int menunum;
+	const char *description;
+};
+typedef struct hud hud;
+
+static hud hud_menu[] =
+{
+	{"BACK", PIXPACK(0xFF7F00), 0, "Go Back"},
+	{"LEFT", PIXPACK(0x20D8FF), 0, "Change the HUD on the left"},
+	{"TR",   PIXPACK(0xFFFFFF), 0, "Change the top right HUD with particle properties"},
+	{"BR",   PIXPACK(0xFFFFFF), 0, "Change the bottom right HUD"},
+
+	{"VERS", PIXPACK(0x000000), 1, "The version number"},
+	{"BLD",  PIXPACK(0x000000), 1, "The current build number"},
+	{"FPS",  PIXPACK(0x000000), 1, "Show the current frames per second"},
+	{"FPS#", PIXPACK(0x000000), 1, "Show FPS to"},
+	{"PART", PIXPACK(0x000000), 1, "The number of particles on the screen"},
+	{"GEN",  PIXPACK(0x000000), 1, "The current life generation"},
+	{"GRAV", PIXPACK(0x000000), 1, "Shows the current gravity mode, changed by pressing w"},
+	{"AIR",  PIXPACK(0x000000), 1, "Shows the current air mode, change it with y"},
+	{"XTRA", PIXPACK(0x000000), 1, "Shows when replace mode or caps lock is activated"},
+	{"GRID", PIXPACK(0x000000), 1, "Adds the current grid mode to the end, when it's activated."},
 	
 	//10
-	{"NAME", PIXPACK(0x000000), "Why would you want to disable this?"},
-	{"CTYP", PIXPACK(0x000000), "Puts the ctype in parentheses"},
-	{"CTP2", PIXPACK(0x000000), "Enable this to also display invalid ctypes as numbers and not display pipes tmp as ctype"},
-	{"MOLT", PIXPACK(0x000000), "Molten ... instead of name & ctype"},
-	{"PIPE", PIXPACK(0x000000), "Pipe with ... instead of name & ctype"},
-	{"CELC", PIXPACK(0x000000), "Show temperatures in Celcius"},
-	{"FARH", PIXPACK(0x000000), "Show temperatures in Farenheit"},
-	{"KELV", PIXPACK(0x000000), "Show temperatures in Kelvin"},
-	{"TEM#", PIXPACK(0x000000), "Show all temperatures to"},
-	{"LIFE", PIXPACK(0x000000), "Show a particle's life value"},
-	{"TMP",  PIXPACK(0x000000), "Show a particle's tmp value"},
-	{"TMP2", PIXPACK(0x000000), "Show a particle's tmp2 value"},
-	{"CORD", PIXPACK(0x000000), "Show a particle's coordinates (not always the same as mouse coordinates)"},
-	{"CRD#", PIXPACK(0x000000), "Show x and y coordinates to"},
-	{"VEL",  PIXPACK(0x000000), "Show a particle's x and y velocities"},
-	{"VEL#", PIXPACK(0x000000), "Show x and y velocities to"},
-	{"PRES", PIXPACK(0x000000), "Show the pressure"},
-	{"PRS#", PIXPACK(0x000000), "Show pressure to"},
+	{"NAME", PIXPACK(0x000000), 2, "Why would you want to disable this?"},
+	{"CTYP", PIXPACK(0x000000), 2, "Puts the ctype in parentheses"},
+	{"CTP2", PIXPACK(0x000000), 2, "Enable this to also display invalid ctypes as numbers and not display pipes tmp as ctype"},
+	{"MOLT", PIXPACK(0x000000), 2, "Molten ... instead of name & ctype"},
+	{"PIPE", PIXPACK(0x000000), 2, "Pipe with ... instead of name & ctype"},
+	{"CELC", PIXPACK(0x000000), 2, "Show temperatures in Celcius"},
+	{"FARH", PIXPACK(0x000000), 2, "Show temperatures in Farenheit"},
+	{"KELV", PIXPACK(0x000000), 2, "Show temperatures in Kelvin"},
+	{"TEM#", PIXPACK(0x000000), 2, "Show all temperatures to"},
+	{"LIFE", PIXPACK(0x000000), 2, "Show a particle's life value"},
+	{"TMP",  PIXPACK(0x000000), 2, "Show a particle's tmp value"},
+	{"TMP2", PIXPACK(0x000000), 2, "Show a particle's tmp2 value"},
+	{"CORD", PIXPACK(0x000000), 2, "Show a particle's coordinates (not always the same as mouse coordinates)"},
+	{"CRD#", PIXPACK(0x000000), 2, "Show x and y coordinates to"},
+	{"VEL",  PIXPACK(0x000000), 2, "Show a particle's x and y velocities"},
+	{"VEL#", PIXPACK(0x000000), 2, "Show x and y velocities to"},
+	{"PRES", PIXPACK(0x000000), 2, "Show the pressure"},
+	{"PRS#", PIXPACK(0x000000), 2, "Show pressure to"},
 	
 	//28
-	{"INDX", PIXPACK(0x000000), "The index of a particle"},
-	{"MCRD", PIXPACK(0x000000), "Shows the mouse coordinates"},
-	{"GRAV", PIXPACK(0x000000), "Shows the gravity at a spot if newtonian gravity is enabled"},
-	{"GRV#", PIXPACK(0x000000), "Show gravity to"},
+	{"INDX", PIXPACK(0x000000), 3, "The index of a particle"},
+	{"MCRD", PIXPACK(0x000000), 3, "Shows the mouse coordinates"},
+	{"GRAV", PIXPACK(0x000000), 3, "Shows the gravity at a spot if newtonian gravity is enabled"},
+	{"GRV#", PIXPACK(0x000000), 3, "Show gravity to"},
 };
 #define HUD_START 400
-#define HUD_NUM 32
+#define HUD_REALSTART 404
+#define HUD_NUM 36
 
 #define CHANNELS ((int)(MAX_TEMP-73)/100+2)
 particle portalp[CHANNELS][8][80];

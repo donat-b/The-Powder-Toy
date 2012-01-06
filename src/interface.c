@@ -89,6 +89,7 @@ unsigned char ZSIZE = ZSIZE_D;
 
 int numframes = 0;
 int framenum = 0;
+int hud_menunum = 0;
 
 int drawgrav_enable = 0;
 
@@ -2354,6 +2355,8 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 			{
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 				h = n;
+				if (n >= HUD_START && n < HUD_START+HUD_NUM)
+					favdesc = 4;
 				if (n >= FAV_START && n < FAV_END)
 					favdesc = 3;
 				else if (n % 256 == PT_LIFE)
@@ -2407,19 +2410,20 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 	}
 	else if (i == SC_HUD) //HUD changer
 	{
-		fwidth = HUD_NUM*31;
-		if (fwidth > XRES-BARSIZE) { //fancy scrolling
-			float overflow = (float)fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
-			xoff = (int)(overflow / location);
-		}
 		for (n = 0; n < HUD_NUM; n++)
 		{
-			x -= draw_tool_xy(vid_buf, x-xoff, y, HUD_START+n, ptypes[(n*53+7)%(PT_NUM-1)+1].pcolors)+5;
-
-			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
+			if (hud_menu[n].menunum == hud_menunum || n == 0)
 			{
-				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-				h = n+HUD_START;
+				pixel color = hud_menu[n].color;
+				if (color == 0)
+					color = ptypes[(n*53+7)%(PT_NUM-1)+1].pcolors;
+				x -= draw_tool_xy(vid_buf, x-xoff, y, HUD_START+n, color)+5;
+
+				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
+				{
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
+					h = n+HUD_START;
+				}
 			}
 		}
 	}
@@ -2504,14 +2508,14 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 		}
 		drawtext(vid_buf, XRES-textwidth(favtext)-BARSIZE, sy-10, favtext, 255, 255, 255, 255);
 	}
-	else if (i==SC_HUD)
+	else if (i==SC_HUD||favdesc == 4)
 	{
 		if (!strstr(hud_menu[h-HUD_START].name,"#"))
 			drawtext(vid_buf, XRES-textwidth((char *)hud_menu[h-HUD_START].description)-BARSIZE, sy-10, (char *)hud_menu[h-HUD_START].description, 255, 255, 255, 255);
 		else
 		{
 			char description[512] = "";
-			sprintf(description,"%s %i decimal places",hud_menu[h-HUD_START].description,hud_current[h-HUD_START]);
+			sprintf(description,"%s %i decimal places",hud_menu[h-HUD_START].description,hud_current[h-HUD_REALSTART]);
 			drawtext(vid_buf, XRES-textwidth(description)-BARSIZE, sy-10, description, 255, 255, 255, 255);
 		}
 	}
@@ -2581,23 +2585,37 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 		}
 		else if (h >= HUD_START && h < HUD_START+HUD_NUM)
 		{
-			if (strstr(hud_menu[h-HUD_START].name,"#"))
-				hud_current[h-HUD_START] = atoi(input_ui(vid_buf,(char*)hud_menu[h-HUD_START].name,"Enter number of decimal places","",""));
-			else
-				hud_current[h-HUD_START] = !hud_current[h-HUD_START];
-			if (alt_hud == 1)
+			if (h == HUD_START)
 			{
-				if (DEBUG_MODE)
-					memcpy(hud_moddebug,hud_current,sizeof(hud_moddebug));
+				if (hud_menunum != 0)
+					hud_menunum = 0;
 				else
-					memcpy(hud_modnormal,hud_current,sizeof(hud_modnormal));
+					active_menu = SC_FAV2;
+			}
+			else if (h < HUD_REALSTART)
+			{
+				hud_menunum = h - HUD_START;
 			}
 			else
 			{
-				if (DEBUG_MODE)
-					memcpy(hud_debug,hud_current,sizeof(hud_debug));
+				if (strstr(hud_menu[h-HUD_START].name,"#"))
+					hud_current[h-HUD_REALSTART] = atoi(input_ui(vid_buf,(char*)hud_menu[h-HUD_START].name,"Enter number of decimal places","",""));
 				else
-					memcpy(hud_normal,hud_current,sizeof(hud_normal));
+					hud_current[h-HUD_REALSTART] = !hud_current[h-HUD_REALSTART];
+				if (alt_hud == 1)
+				{
+					if (DEBUG_MODE)
+						memcpy(hud_moddebug,hud_current,sizeof(hud_moddebug));
+					else
+						memcpy(hud_modnormal,hud_current,sizeof(hud_modnormal));
+				}
+				else
+				{
+					if (DEBUG_MODE)
+						memcpy(hud_debug,hud_current,sizeof(hud_debug));
+					else
+						memcpy(hud_normal,hud_current,sizeof(hud_normal));
+				}
 			}
 		}
 		else if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
