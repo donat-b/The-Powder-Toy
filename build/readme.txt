@@ -161,13 +161,14 @@ reactions. You can make things like indestructible WATR or METL. Lua code can
 now be saved. Put it in luacode.txt, and it will be saved and run in 
 stamps/saves. Press up in the console and then enter to load an example.
 
-Next Verion: (Version 8.1) 
-Fix loading some saves, remove update button permanetely, updated to newer 
-source. Also, decoration color is now drawn on stamps in the stamp browser. 
-Fixed crash. 2 new quickoptions: Newtonian gravity and ambient heat. Custom 
-HUDs. To change one, click the HUD2 button in the second favorites menu and 
-different options will come up. You can change all 4 of the original HUD's 
-and it will save and be loaded the next time you start.
+Version 9
+Fix loading some saves and fixed crash with HUD. Removed update button 
+permanetely and updated to newer source. Also, decoration color is now drawn 
+on stamps in the stamp browser. 2 new quickoptions: Newtonian gravity and 
+ambient heat. Custom HUDs. To change one, click the HUD2 button in the second 
+favorites menu and different options will come up. You can change all 4 of 
+the original HUD's and it will save and be loaded the next time you start. 
+Also added a few more options not in any normal HUD.
 
 
 
