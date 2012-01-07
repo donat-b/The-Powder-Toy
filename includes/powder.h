@@ -809,10 +809,23 @@ static hud hud_menu[] =
 	{"MCRD", PIXPACK(0x000000), 3, "Shows the mouse coordinates"},
 	{"GRAV", PIXPACK(0x000000), 3, "Shows the gravity at a spot if newtonian gravity is enabled"},
 	{"GRV#", PIXPACK(0x000000), 3, "Show gravity to"},
+	{"PRES", PIXPACK(0x000000), 3, "Show the pressure"},
+	{"PRS#", PIXPACK(0x000000), 3, "Show pressure to"},
+	{"AMB",  PIXPACK(0x000000), 3, "Show the ambient heat"},
+	{"AMB#", PIXPACK(0x000000), 3, "Show ambient heat to"},
+
+	//36
+	{"DAY",  PIXPACK(0x000000), 1, "Show the weekday, month, and day"},
+	{"TIME", PIXPACK(0x000000), 1, "Show the time of day"},
+	{"YEAR", PIXPACK(0x000000), 1, "Show the year"},
+	{"TIME", PIXPACK(0x000000), 1, "The time played since The Powder Toy was started"},
+	{"TTME", PIXPACK(0x000000), 1, "The total time played ever"},
+	{"AFPS", PIXPACK(0x000000), 1, "Show the average FPS"},
+	{"AFS#", PIXPACK(0x000000), 1, "Show the average FPS to"},
 };
 #define HUD_START 400
 #define HUD_REALSTART 404
-#define HUD_NUM 36
+#define HUD_NUM 47
 
 #define CHANNELS ((int)(MAX_TEMP-73)/100+2)
 particle portalp[CHANNELS][8][80];

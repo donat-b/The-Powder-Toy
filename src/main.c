@@ -196,10 +196,10 @@ int heatmode = 0;
 int maxframes = 25;
 int secret_els = 0;
 int save_as = 0;
-int hud_modnormal[HUD_OPTIONS] = {1,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2};
-int hud_moddebug[HUD_OPTIONS] =  {1,1,1,2,1,0,0,0,1,0,1,1,1,0,0,1,1,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4};
-int hud_normal[HUD_OPTIONS] =    {0,0,1,0,0,0,0,0,1,1,1,0,0,1,1,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2};
-int hud_debug[HUD_OPTIONS] =     {0,1,1,0,1,0,1,1,1,1,1,1,0,1,1,1,0,0,2,1,1,0,0,2,0,2,1,2,1,1,1,2};
+int hud_modnormal[HUD_OPTIONS] = {1,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,0,0,0,0,0,2};
+int hud_moddebug[HUD_OPTIONS] =  {1,1,1,2,1,0,0,0,1,0,1,1,1,0,0,1,1,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,0,0,0,0,0,4};
+int hud_normal[HUD_OPTIONS] =    {0,0,1,0,0,0,0,0,1,1,1,0,0,1,1,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,0,0,0,0,0,2};
+int hud_debug[HUD_OPTIONS] =     {0,1,1,0,1,0,1,1,1,1,1,1,0,1,1,1,0,0,2,1,1,0,0,2,0,2,1,2,1,1,1,2,0,2,0,2,0,0,0,0,0,0,2};
 int hud_current[HUD_OPTIONS];
 
 int drawinfo = 0;
@@ -1732,21 +1732,32 @@ int set_scale(int scale, int kiosk){
 	return 1;
 }
 
-void timestring(int currtime, char *string)
+void timestring(int currtime, char *string, int length)
 {
 	int years, days, hours, minutes, seconds, milliseconds;
-	years = currtime/31557600000;
-	currtime = currtime%31557600000;
-	days = currtime/86400000;
-	currtime = currtime%86400000;
-	hours = currtime/3600000;
-	currtime = currtime%3600000;
+	if (length == 0)
+	{
+		years = currtime/31557600000;
+		currtime = currtime%31557600000;
+		days = currtime/86400000;
+		currtime = currtime%86400000;
+	}
+	if (length <= 1)
+	{
+		hours = currtime/3600000;
+		currtime = currtime%3600000;
+	}
 	minutes = currtime/60000;
 	currtime = currtime%60000;
 	seconds = currtime/1000;
 	currtime = currtime%1000;
 	milliseconds = currtime;
-	sprintf(string,"%i years, %i days, %i hours, %i minutes, %i seconds, %i milliseconds",years,days,hours,minutes,seconds,milliseconds);
+	if (length == 0)
+		sprintf(string,"%i year%s, %i day%s, %i hour%s, %i minute%s, %i second%s, %i millisecond%s",years,(years == 1)?"":"s",days,(days == 1)?"":"s",hours,(hours == 1)?"":"s",minutes,(minutes == 1)?"":"s",seconds,(seconds == 1)?"":"s",milliseconds,(milliseconds == 1)?"":"s");
+	else if (length == 1)
+		sprintf(string,"%i hour%s, %i minute%s, %i second%s",hours,(hours == 1)?"":"s",minutes,(minutes == 1)?"":"s",seconds,(seconds == 1)?"":"s");
+	else if (length == 2)
+		sprintf(string,"%i minute%s, %i second%s",minutes,(minutes == 1)?"":"s",seconds,(seconds == 1)?"":"s");
 }
 
 #ifdef RENDERER
@@ -3092,6 +3103,16 @@ int main(int argc, char *argv[])
 				sprintf(tempstring," GX: %0.*f GY: %0.*f",hud_current[31],gravx[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)],hud_current[31],gravy[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)]);
 				strappend(coordtext,tempstring);
 			}
+			if (hud_current[34] && aheat_enable)
+			{
+				sprintf(tempstring," A.Heat: %0.*f K",hud_current[35],hv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+				strappend(coordtext,tempstring);
+			}
+			if (hud_current[32])
+			{
+				sprintf(tempstring," Pressure: %0.*f",hud_current[33],pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+				strappend(coordtext,tempstring);
+			}
 		}
 		else
 		{
@@ -3911,6 +3932,36 @@ int main(int argc, char *argv[])
 #endif
 			else
 				sprintf(uitext,"");
+			if (hud_current[36] || hud_current[37] || hud_current[38])
+			{
+				time_t time2 = time(0);
+				struct tm* time = localtime(&time2);
+				uitext[strlen(uitext)-1] = ',';
+				strappend(uitext," ");
+				if (hud_current[36])
+				{
+					sprintf(tempstring,asctime(time));
+					tempstring[7] = 0;
+					strappend(uitext,tempstring);
+					sprintf(tempstring," %i ",time->tm_mday);
+					strappend(uitext,tempstring);
+				}
+				if (hud_current[37])
+				{
+					int hour = time->tm_hour%12;
+					if (hour == 0)
+						hour = 12;
+					sprintf(tempstring,"%i:%.2i:%.2i ",hour,time->tm_min,time->tm_sec);
+					strappend(uitext,tempstring);
+				}
+				if (hud_current[38])
+				{
+					sprintf(tempstring,"%i ",time->tm_year+1900);
+					strappend(uitext,tempstring);
+				}
+				uitext[strlen(uitext)-1] = ',';
+				strappend(uitext," ");
+			}
 			if (hud_current[2])
 			{
 				sprintf(tempstring,"FPS:%0.*f ",hud_current[3],FPSB2);
@@ -3936,10 +3987,29 @@ int main(int argc, char *argv[])
 				sprintf(tempstring,"Air:%d ",airMode);
 				strappend(uitext,tempstring);
 			}
+			if (hud_current[39])
+			{
+				timestring(currentTime-totalafktime-afktime, timeinfotext, 2);
+				sprintf(tempstring,"Time Played: %s ", timeinfotext);
+				strappend(uitext,tempstring);
+			}
+			if (hud_current[40])
+			{
+				timestring(totaltime+currentTime-totalafktime-afktime, timeinfotext, 1);
+				sprintf(tempstring,"Total Time Played: %s ", timeinfotext);
+				strappend(uitext,tempstring);
+			}
+			if (hud_current[41] && frames)
+			{
+				sprintf(tempstring,"Average FPS: %0.*f ", hud_current[42], totalfps/frames);
+				strappend(uitext,tempstring);
+			}
 			if (REPLACE_MODE && hud_current[8])
 				strappend(uitext, "[REPLACE MODE] ");
 			if (sdl_mod&(KMOD_CAPS) && hud_current[8])
 				strappend(uitext, "[CAP LOCKS] ");
+			if (finding && hud_current[8])
+				strappend(uitext, "[FIND] ");
 			if (GRID_MODE && hud_current[9])
 			{
 				sprintf(tempstring, "[GRID: %d] ", GRID_MODE);
@@ -4000,15 +4070,15 @@ int main(int argc, char *argv[])
 
 			if (drawinfo)
 			{
-				timestring(currentTime-totalafktime-afktime, timeinfotext);
+				timestring(currentTime-totalafktime-afktime, timeinfotext, 0);
 				sprintf(infotext,"Time Played: %s", timeinfotext);
 				fillrect(vid_buf, 12, 296, textwidth(infotext)+8, 15, 0, 0, 0, 140);
 				drawtext(vid_buf, 16, 300, infotext, 255, 255, 255, 200);
-				timestring(totaltime+currentTime-totalafktime-afktime, timeinfotext);
+				timestring(totaltime+currentTime-totalafktime-afktime, timeinfotext, 0);
 				sprintf(infotext,"Total Time Played: %s", timeinfotext);
 				fillrect(vid_buf, 12, 310, textwidth(infotext)+8, 15, 0, 0, 0, 140);
 				drawtext(vid_buf, 16, 314, infotext, 255, 255, 255, 200);
-				timestring(totalafktime+afktime+prevafktime, timeinfotext);
+				timestring(totalafktime+afktime+prevafktime, timeinfotext, 0);
 				sprintf(infotext,"Total AFK Time: %s", timeinfotext);
 				fillrect(vid_buf, 12, 324, textwidth(infotext)+8, 15, 0, 0, 0, 140);
 				drawtext(vid_buf, 16, 328, infotext, 255, 255, 255, 200);

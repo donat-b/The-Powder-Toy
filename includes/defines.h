@@ -178,7 +178,7 @@ extern int heatmode;
 extern int maxframes;
 extern int secret_els;
 extern int save_as;
-#define HUD_OPTIONS 32
+#define HUD_OPTIONS 43
 extern int hud_current[HUD_OPTIONS];
 extern int hud_modnormal[HUD_OPTIONS];
 extern int hud_moddebug[HUD_OPTIONS];
