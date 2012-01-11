@@ -177,15 +177,13 @@ Bugs:
 Moving solids can't be drawn on an empty screen.
 Moving solids destroyed by large pressure leave behind pieces inside solids
 Moving solid rotation doesn't save
-In virs, after a long infection/cure time, everything past a certain point 
-    will be destroyed/cured at about the same time
+Some complicated electronics don't work right in this mod
 
 
 
 
 Future Ideas/TODO: > means currently being worked on/added next
 display mode toggles
->>buttons to decide what is in the HUD
 brush rotation
 new lua elements - Videogamer555 - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
 more statistics - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11998
