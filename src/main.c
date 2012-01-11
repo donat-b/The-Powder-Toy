@@ -2439,18 +2439,29 @@ int main(int argc, char *argv[])
 					it = 50;
 				save_mode = 1;
 			}
-			//TODO: Superseded by new display mode switching, need some keyboard shortcuts
 			if (sdl_key=='1')
 			{
-				set_cmode(CM_VEL);
+				if (sdl_mod & (KMOD_CTRL))
+					display_mode = display_mode&DISPLAY_AIRV ? display_mode&!DISPLAY_AIRV:display_mode|DISPLAY_AIRV;
+				else
+					set_cmode(CM_VEL);
 			}
 			if (sdl_key=='2')
 			{
-				set_cmode(CM_PRESS);
+				if (sdl_mod & (KMOD_CTRL))
+					display_mode = display_mode&DISPLAY_AIRP ? display_mode&!DISPLAY_AIRP:display_mode|DISPLAY_AIRP;
+				else
+					set_cmode(CM_PRESS);
 			}
 			if (sdl_key=='3')
 			{
-				set_cmode(CM_PERS);
+				if (sdl_mod & (KMOD_CTRL))
+				{
+					display_mode = display_mode&DISPLAY_PERS ? display_mode&!DISPLAY_PERS:display_mode|DISPLAY_PERS;
+					memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
+				}
+				else
+					set_cmode(CM_PERS);
 			}
 			if (sdl_key=='4')
 			{
@@ -2458,15 +2469,24 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='5')
 			{
-				set_cmode(CM_BLOB);
+				if (sdl_mod & (KMOD_CTRL))
+					display_mode = display_mode&DISPLAY_BLOB ? display_mode&!DISPLAY_BLOB:display_mode|DISPLAY_BLOB;
+				else
+					set_cmode(CM_BLOB);
 			}
 			if (sdl_key=='6')
 			{
-				set_cmode(CM_HEAT);
+				if (sdl_mod & (KMOD_CTRL))
+					colour_mode = colour_mode == COLOUR_HEAT ? 0:COLOUR_HEAT;
+				else
+					set_cmode(CM_HEAT);
 			}
 			if (sdl_key=='7')
 			{
-				set_cmode(CM_FANCY);
+				if (sdl_mod & (KMOD_CTRL))
+					display_mode = display_mode&DISPLAY_WARP ? display_mode&!DISPLAY_WARP:display_mode|DISPLAY_WARP;
+				else
+					set_cmode(CM_FANCY);
 			}
 			if (sdl_key=='8')
 			{
@@ -2474,15 +2494,24 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='9')
 			{
-				set_cmode(CM_GRAD);
+				if (sdl_mod & (KMOD_CTRL))
+					colour_mode = colour_mode == COLOUR_GRAD ? 0:COLOUR_GRAD;
+				else
+					set_cmode(CM_GRAD);
 			}
 			if (sdl_key=='0')
 			{
+				if (sdl_mod & (KMOD_CTRL))
+					display_mode = display_mode&DISPLAY_AIRC ? display_mode&!DISPLAY_AIRC:display_mode|DISPLAY_AIRC;
+				else
 				set_cmode(CM_CRACK);
 			}
 			if (sdl_key=='1'&& (sdl_mod & (KMOD_SHIFT)) && DEBUG_MODE)
 			{
-				set_cmode(CM_LIFE);
+				if (sdl_mod & (KMOD_CTRL))
+					colour_mode = colour_mode == COLOUR_LIFE ? 0:COLOUR_LIFE;
+				else
+					set_cmode(CM_LIFE);
 			}
 			if (active_menu == SC_FAV2 && (sdl_mod & KMOD_RCTRL) && (sdl_mod & KMOD_RSHIFT))
 			{

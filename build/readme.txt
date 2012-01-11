@@ -170,6 +170,12 @@ favorites menu and different options will come up. You can change all 4 of
 the original HUD's and it will save and be loaded the next time you start. 
 Also added a few more options not in any normal HUD.
 
+Next Version (Version 10)
+Fixed SWCH/ACTV not conducting and being activated through INSL. Added display 
+mode toggles, press Ctrl+a number key besides 4 and 8 to toggle the main 
+feature of that display temporarily without changing anything about your 
+current display mode.
+
 
 
 
@@ -183,7 +189,6 @@ Some complicated electronics don't work right in this mod
 
 
 Future Ideas/TODO: > means currently being worked on/added next
-display mode toggles
 brush rotation
 new lua elements - Videogamer555 - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
 more statistics - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11998
