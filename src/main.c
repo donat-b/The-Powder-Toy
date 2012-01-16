@@ -4099,30 +4099,73 @@ int main(int argc, char *argv[])
 
 			if (drawinfo)
 			{
+				int ytop = 230, num_parts = 0, totalselected = 0;
+				float totaltemp = 0, totalpressure = 0;
+				for (i=0; i<NPART; i++)
+				{
+					if (parts[i].type)
+					{
+						totaltemp += parts[i].temp;
+						num_parts++;
+					}
+					if (parts[i].type == sl)
+						totalselected++;
+				}
+				for (y=0; y<YRES/CELL; y++)
+					for (x=0; x<XRES/CELL; x++)
+					{
+						totalpressure += pv[y][x];
+					}
+
 				timestring(currentTime-totalafktime-afktime, timeinfotext, 0);
 				sprintf(infotext,"Time Played: %s", timeinfotext);
-				fillrect(vid_buf, 12, 296, textwidth(infotext)+8, 15, 0, 0, 0, 140);
-				drawtext(vid_buf, 16, 300, infotext, 255, 255, 255, 200);
+				fillrect(vid_buf, 12, ytop-4, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+				drawtext(vid_buf, 16, ytop, infotext, 255, 255, 255, 200);
 				timestring(totaltime+currentTime-totalafktime-afktime, timeinfotext, 0);
 				sprintf(infotext,"Total Time Played: %s", timeinfotext);
-				fillrect(vid_buf, 12, 310, textwidth(infotext)+8, 15, 0, 0, 0, 140);
-				drawtext(vid_buf, 16, 314, infotext, 255, 255, 255, 200);
+				fillrect(vid_buf, 12, ytop+10, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+				drawtext(vid_buf, 16, ytop+14, infotext, 255, 255, 255, 200);
 				timestring(totalafktime+afktime+prevafktime, timeinfotext, 0);
 				sprintf(infotext,"Total AFK Time: %s", timeinfotext);
-				fillrect(vid_buf, 12, 324, textwidth(infotext)+8, 15, 0, 0, 0, 140);
-				drawtext(vid_buf, 16, 328, infotext, 255, 255, 255, 200);
+				fillrect(vid_buf, 12, ytop+24, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+				drawtext(vid_buf, 16, ytop+28, infotext, 255, 255, 255, 200);
 				if (frames)
 				{
 					sprintf(infotext,"Average FPS: %f", totalfps/frames);
-					fillrect(vid_buf, 12, 338, textwidth(infotext)+8, 15, 0, 0, 0, 140);
-					drawtext(vid_buf, 16, 342, infotext, 255, 255, 255, 200);
+					fillrect(vid_buf, 12, ytop+38, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+					drawtext(vid_buf, 16, ytop+42, infotext, 255, 255, 255, 200);
 				}
 				sprintf(infotext,"Max FPS: %f", maxfps);
-				fillrect(vid_buf, 12, 352, textwidth(infotext)+8, 15, 0, 0, 0, 140);
-				drawtext(vid_buf, 16, 356, infotext, 255, 255, 255, 200);
+				fillrect(vid_buf, 12, ytop+52, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+				drawtext(vid_buf, 16, ytop+56, infotext, 255, 255, 255, 200);
 				sprintf(infotext,"Number of Times Played: %i", timesplayed);
-				fillrect(vid_buf, 12, 366, textwidth(infotext)+8, 15, 0, 0, 0, 140);
-				drawtext(vid_buf, 16, 370, infotext, 255, 255, 255, 200);
+				fillrect(vid_buf, 12, ytop+66, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+				drawtext(vid_buf, 16, ytop+70, infotext, 255, 255, 255, 200);
+				if (timesplayed)
+				{
+					timestring((totaltime+currentTime-totalafktime-afktime)/timesplayed, timeinfotext, 0);
+					sprintf(infotext,"Average Time Played: %s", timeinfotext);
+					fillrect(vid_buf, 12, ytop+80, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+					drawtext(vid_buf, 16, ytop+84, infotext, 255, 255, 255, 200);
+				}
+				if (num_parts)
+				{
+					sprintf(infotext,"Average Temp: %f C", totaltemp/num_parts-273.15f);
+					fillrect(vid_buf, 12, ytop+94, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+					drawtext(vid_buf, 16, ytop+98, infotext, 255, 255, 255, 200);
+				}
+				sprintf(infotext,"Average Pressure: %f", totalpressure/(XRES*YRES/CELL/CELL));
+				fillrect(vid_buf, 12, ytop+108, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+				drawtext(vid_buf, 16, ytop+112, infotext, 255, 255, 255, 200);
+				if (num_parts && sl >= 0 && sl < PT_NUM)
+				{
+					if (sl != 0)
+						sprintf(infotext,"%%%s: %f", ptypes[sl].name,(float)totalselected/num_parts*100);
+					else
+						sprintf(infotext,"%%Empty: %f", (float)totalselected/XRES/YRES*100);
+					fillrect(vid_buf, 12, ytop+122, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+					drawtext(vid_buf, 16, ytop+126, infotext, 255, 255, 255, 200);
+				}
 			}
 
 		}

@@ -2770,10 +2770,13 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 		lowesttemp = MAX_TEMP;
 		for (i=0; i<=parts_lastActiveIndex; i++)
 		{
-			if (parts[i].temp > highesttemp)
-				highesttemp = (int)parts[i].temp;
-			if (parts[i].temp < lowesttemp)
-				lowesttemp = (int)parts[i].temp;
+			if (parts[i].type)
+			{
+				if (parts[i].temp > highesttemp)
+					highesttemp = (int)parts[i].temp;
+				if (parts[i].temp < lowesttemp)
+					lowesttemp = (int)parts[i].temp;
+			}
 		}
 	}
 }

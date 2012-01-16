@@ -23,6 +23,7 @@ Atrayin - Powered Portals, RAZR
 OmegaSupreme - Animated LCRY
 Videogamer555 - New heat displays
 disturbed666 - A way to turn PHOT into ELEC (but I used PINV instead of TESC)
+Dynotec - new statistics
 
 
 
@@ -86,7 +87,6 @@ add any code that reads or writes files, renames or deletes things, uses the
 os.execute command, and a few other things. It checks for these things when 
 you try to save and try to run it. There is a bug that may cause it to crash 
 when it finds one of these things.
-
 
 
 
@@ -172,9 +172,9 @@ Also added a few more options not in any normal HUD.
 
 Next Version (Version 10)
 Fixed SWCH/ACTV not conducting and being activated through INSL. Added display 
-mode toggles, press Ctrl+a number key besides 4 and 8 to toggle the main 
+mode toggles, press Ctrl+ a number key besides 4 and 8 to toggle the main 
 feature of that display temporarily without changing anything about your 
-current display mode.
+current display mode. Added more statistics.
 
 
 
@@ -189,7 +189,6 @@ Some complicated electronics don't work right in this mod
 
 
 Future Ideas/TODO: > means currently being worked on/added next
-more statistics - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11998
 PRHC - powered heater/cooler - dark purple deactivated - insl when inactivated - Tetracon
 rechargeable battery - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11652
 ambient heat blocking wall
