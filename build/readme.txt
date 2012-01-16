@@ -189,11 +189,12 @@ Some complicated electronics don't work right in this mod
 
 
 Future Ideas/TODO: > means currently being worked on/added next
-brush rotation
-new lua elements - Videogamer555 - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
 more statistics - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11998
-ambient heat blocking wall
-old console commands destroy/safe that I made a long time ago, + still more lua commands
-rechargeable battery - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11652
 PRHC - powered heater/cooler - dark purple deactivated - insl when inactivated - Tetracon
+rechargeable battery - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11652
+ambient heat blocking wall
+sensor? - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12361
+new lua elements - Videogamer555 - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
+old console commands destroy/safe that I made a long time ago, + still more lua commands
 More deco tools
+brush rotation

@@ -4122,13 +4122,13 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 					int i2 = 2*x-i, j2 = 2*y-j;
 					if (CURRENT_BRUSH == TRI_BRUSH)
 						j2 = y+ry;
-					xor_pixel(i, j, vid);
+					xor_pixel(i, j, vid);//cursor_rotation(vid, x, y, i, j);
 					if (i2 != i)
-						xor_pixel(i2, j, vid);
+						xor_pixel(i2, j, vid);//cursor_rotation(vid, x, y, i2, j);
 					if (j2 != j)
-						xor_pixel(i, j2, vid);
+						xor_pixel(i, j2, vid);//cursor_rotation(vid, x, y, i, j2);
 					if (i2 != i && j2 != j)
-						xor_pixel(i2, j2, vid);
+						xor_pixel(i2, j2, vid);//cursor_rotation(vid, x, y, i2, j2);
 				}
 			}
 		}
@@ -4161,6 +4161,22 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 	}
 #endif
 }
+
+/*void cursor_rotation(pixel* vid, int xc, int yc, int x, int y)
+{
+	if (brush_angle != 0)
+	{
+		float angle = 3.1415926535897932384626433832795/2;
+		float distance = sqrt(pow((float)xc-x,2)+pow((float)yc-y,2));
+		if (xc-x != 0)
+			angle = atan((float)(yc-y)/(xc-x));
+		if (xc-x > 0)
+			angle += 3.1415926535;
+		x = xc+(int)(distance*cos(angle + brush_angle));
+		y = yc+(int)(distance*sin(angle + brush_angle));
+	}
+	xor_pixel(x, y, vid);
+}*/
 
 int sdl_opened = 0;
 int sdl_open(void)
