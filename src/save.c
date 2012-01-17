@@ -22,6 +22,7 @@ pixel *prerender_save(void *save, int size, int *width, int *height)
 	{
 		return prerender_save_PSv(save, size, width, height);
 	}
+	return NULL;
 }
 
 void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr)
@@ -48,6 +49,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 	{
 		return parse_save_PSv(save, size, replace, x0, y0, bmap, fvx, fvy, signs, partsptr, pmap);
 	}
+	return 1;
 }
 
 pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
@@ -126,7 +128,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 		{
 			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (partsDataLen = bson_iterator_bin_len(&iter)) > 0)
 			{
-				partsData = bson_iterator_bin_data(&iter);
+				partsData = (unsigned char*)bson_iterator_bin_data(&iter);
 			}
 			else
 			{
@@ -137,7 +139,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 		{
 			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (partsPosDataLen = bson_iterator_bin_len(&iter)) > 0)
 			{
-				partsPosData = bson_iterator_bin_data(&iter);
+				partsPosData = (unsigned char*)bson_iterator_bin_data(&iter);
 			}
 			else
 			{
@@ -148,7 +150,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 		{
 			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (wallDataLen = bson_iterator_bin_len(&iter)) > 0)
 			{
-				wallData = bson_iterator_bin_data(&iter);
+				wallData = (unsigned char*)bson_iterator_bin_data(&iter);
 			}
 			else
 			{
@@ -450,13 +452,13 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 				//Store temperature as an offset of 21C(294.15K) or go into a 16byte int and store the whole thing
 				if(fabs(partsptr[i].temp-294.15f)<127)
 				{
-					tempTemp = (partsptr[i].temp-294.15f);
+					tempTemp = (int)(partsptr[i].temp-294.15f);
 					partsData[partsDataLen++] = tempTemp;
 				}
 				else
 				{
 					fieldDesc |= 1;
-					tempTemp = partsptr[i].temp;
+					tempTemp = (int)partsptr[i].temp;
 					partsData[partsDataLen++] = tempTemp;
 					partsData[partsDataLen++] = tempTemp >> 8;
 				}
@@ -591,10 +593,10 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	bson_finish(&b);
 	bson_print(&b);
 	
-	finalData = bson_data(&b);
+	finalData = (unsigned char*)bson_data(&b);
 	finalDataLen = bson_size(&b);
 	outputDataLen = finalDataLen*2+12;
-	outputData = malloc(outputDataLen);
+	outputData = (unsigned char*)malloc(outputDataLen);
 
 	outputData[0] = 'O';
 	outputData[1] = 'P';
@@ -770,7 +772,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (partsDataLen = bson_iterator_bin_len(&iter)) > 0)
 			{
-				partsData = bson_iterator_bin_data(&iter);
+				partsData = (unsigned char*)bson_iterator_bin_data(&iter);
 			}
 			else
 			{
@@ -781,7 +783,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (partsPosDataLen = bson_iterator_bin_len(&iter)) > 0)
 			{
-				partsPosData = bson_iterator_bin_data(&iter);
+				partsPosData = (unsigned char*)bson_iterator_bin_data(&iter);
 			}
 			else
 			{
@@ -792,7 +794,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (wallDataLen = bson_iterator_bin_len(&iter)) > 0)
 			{
-				wallData = bson_iterator_bin_data(&iter);
+				wallData = (unsigned char*)bson_iterator_bin_data(&iter);
 			}
 			else
 			{
@@ -803,7 +805,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (fanDataLen = bson_iterator_bin_len(&iter)) > 0)
 			{
-				fanData = bson_iterator_bin_data(&iter);
+				fanData = (unsigned char*)bson_iterator_bin_data(&iter);
 			}
 			else
 			{
@@ -1022,8 +1024,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					
 					//Required fields
 					partsptr[newIndex].type = partsData[i];
-					partsptr[newIndex].x = x;
-					partsptr[newIndex].y = y;
+					partsptr[newIndex].x = (float)x;
+					partsptr[newIndex].y = (float)y;
 					i+=3;
 					
 					//Read temp
@@ -1032,7 +1034,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						//Full 16bit int
 						tempTemp = partsData[i++];
 						tempTemp |= (((unsigned)partsData[i++]) << 8);
-						partsptr[newIndex].temp = tempTemp;
+						partsptr[newIndex].temp = (float)tempTemp;
 					}
 					else
 					{
@@ -1927,13 +1929,13 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 							if (parts[i-1].type==PT_PUMP) {
 								parts[i-1].temp = ttv + 0.15;//fix PUMP saved at 0, so that it loads at 0.
 							} else {
-								parts[i-1].temp = ttv;
+								parts[i-1].temp = (float)ttv;
 							}
 						} else {
-							parts[i-1].temp = (d[p++]*((MAX_TEMP+(-MIN_TEMP))/255))+MIN_TEMP;
+							parts[i-1].temp = (float)(d[p++]*((MAX_TEMP+(-MIN_TEMP))/255))+MIN_TEMP;
 						}
 					} else {
-						parts[i-1].temp = ((d[p++]*((O_MAX_TEMP+(-O_MIN_TEMP))/255))+O_MIN_TEMP)+273;
+						parts[i-1].temp = ((d[p++]*((O_MAX_TEMP+(-O_MIN_TEMP))/255))+O_MIN_TEMP)+273.0f;
 					}
 				}
 				else

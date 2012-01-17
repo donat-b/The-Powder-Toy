@@ -2768,7 +2768,7 @@ int main(int argc, char *argv[])
 					else if (sdl_key==SDLK_DOWN) translate = v2d_new(0,1);
 					else doTransform = 0;
 				}
-				if (doTransform)
+				if (0 && doTransform)
 				{
 					ndata = transform_save(load_data, &load_size, transform, translate);
 					if (ndata!=load_data) free(load_data);
