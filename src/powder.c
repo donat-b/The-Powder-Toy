@@ -827,7 +827,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		return -1;
 	if (p==-1)//creating from anything but brush
 	{
-		if (pmap[y][x] || (bmap[y/CELL][x/CELL] && !eval_move(t, x, y, NULL)))
+		if ((pmap[y][x] || bmap[y/CELL][x/CELL]) && !eval_move(t, x, y, NULL))
 		{
 			if ((pmap[y][x]&0xFF)!=PT_SPAWN&&(pmap[y][x]&0xFF)!=PT_SPAWN2)
 			{
@@ -3143,7 +3143,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 	{
 		if (wall==r)
 		{
-			if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM || c == SPC_PGRV || c == SPC_NGRV)
+			if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM || c == SPC_PGRV || c == SPC_NGRV || wall == WL_SIGN)
 				break;
 			if (wall == WL_ERASE || wall == WL_ERASEALL)
 				b = 0;
@@ -3535,7 +3535,7 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 				}
 			}
 		}
-	ndata = build_save(size,0,0,nw,nh,bmapn,fvxn,fvyn,signst,partst);
+	ndata = (void*)build_save(size,0,0,nw,nh,bmapn,fvxn,fvyn,signst,partst);
 	free(bmapo);
 	free(bmapn);
 	free(partst);

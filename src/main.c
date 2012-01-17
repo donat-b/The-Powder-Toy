@@ -60,6 +60,7 @@
 #ifdef LUACONSOLE
 #include "luaconsole.h"
 #endif
+#include "save.h"
 
 pixel *vid_buf;
 
@@ -297,59 +298,8 @@ void dump_frame(pixel *src, int w, int h, int pitch)
  *                    STATE MANAGEMENT                     *
  ***********************************************************/
 
-void *build_thumb(int *size, int bzip2)
-{
-	unsigned char *d=calloc(1,XRES*YRES), *c;
-	int i,j,x,y;
-	for (i=0; i<NPART; i++)
-		if (parts[i].type)
-		{
-			x = (int)(parts[i].x+0.5f);
-			y = (int)(parts[i].y+0.5f);
-			if (x>=0 && x<XRES && y>=0 && y<YRES)
-				d[x+y*XRES] = parts[i].type;
-		}
-	for (y=0; y<YRES/CELL; y++)
-		for (x=0; x<XRES/CELL; x++)
-			if (bmap[y][x])
-				for (j=0; j<CELL; j++)
-					for (i=0; i<CELL; i++)
-						d[x*CELL+i+(y*CELL+j)*XRES] = 0xFF;
-	j = XRES*YRES;
-
-	if (bzip2)
-	{
-		i = (j*101+99)/100 + 608;
-		c = malloc(i);
-
-		c[0] = 0x53;
-		c[1] = 0x68;
-		c[2] = 0x49;
-		c[3] = 0x74;
-		c[4] = PT_NUM;
-		c[5] = CELL;
-		c[6] = XRES/CELL;
-		c[7] = YRES/CELL;
-
-		i -= 8;
-
-		if (BZ2_bzBuffToBuffCompress((char *)(c+8), (unsigned *)&i, (char *)d, j, 9, 0, 0) != BZ_OK)
-		{
-			free(d);
-			free(c);
-			return NULL;
-		}
-		free(d);
-		*size = i+8;
-		return c;
-	}
-
-	*size = j;
-	return d;
-}
-
 //the saving function
-void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr)
+/*void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr)
 {
 	unsigned char *d=calloc(1,3*(XRES/CELL)*(YRES/CELL)+(XRES*YRES)*(16+numframes*4)+MAXSIGNS*262+numballs*6), *c;
 	int i,j,x,y,p=0,*m=calloc(XRES*YRES, sizeof(int)),nummovs = 0,saveversion = MOD_SAVE_VERSION+237;
@@ -616,7 +566,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 
 	*size = i+12;
 	return c;
-}
+}*/
 
 int invalid_element(int save_as, int el)
 {
@@ -657,7 +607,7 @@ int check_save(int save_as)
 	return 0;
 }
 
-int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, unsigned pmap[YRES][XRES])
+/*int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, unsigned pmap[YRES][XRES])
 {
 	unsigned char *d=NULL,*c=save;
 	int q,i,j,k,x,y,p=0,*m=NULL, ver, pty, ty, legacy_beta=0, tempGrav = 0, modver = 0, oldnumballs = numballs;
@@ -1327,7 +1277,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 		{
 			memcpy(signs[k].text, d+p, x);
 			signs[k].text[x] = 0;
-			clean_text(signs[k].text, 158-14 /* Current max sign length */);
+			clean_text(signs[k].text, 158-14); // Current max sign length
 		}
 		p += x;
 	}
@@ -1384,7 +1334,7 @@ corrupt:
 		clear_sim();
 	}
 	return 1;
-}
+}*/
 
 void clear_sim(void)
 {
@@ -1530,7 +1480,7 @@ void stamp_save(int x, int y, int w, int h)
 	FILE *f;
 	int n;
 	char fn[64], sn[16];
-	void *s=build_save(&n, x, y, w, h, bmap, fvx, fvy, signs, parts);
+	void *s=build_save(&n, x, y, w, h, bmap, vx, vy, pv, fvx, fvy, signs, parts);
 	if (!s)
 		return;
 
@@ -1797,7 +1747,7 @@ int main(int argc, char *argv[])
 	if(load_data && load_size){
 		int parsestate = 0;
 		//parsestate = parse_save(load_data, load_size, 1, 0, 0);
-		parsestate = parse_save(load_data, load_size, 1, 0, 0, bmap, fvx, fvy, signs, parts, pmap);
+		parsestate = parse_save(load_data, load_size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 		
 		for(i=0; i<30; i++){
 			memset(vid_buf, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
@@ -1944,7 +1894,7 @@ int main(int argc, char *argv[])
 			{
 				svf_last = file_data;
 				svf_lsize = size;
-				if(!parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, signs, parts, pmap))
+				if(!parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap))
 				{
 					it=0;
 					svf_filename[0] = 0;
@@ -2192,7 +2142,7 @@ int main(int argc, char *argv[])
 		
 		gravity_update_async(); //Check for updated velocity maps from gravity thread
 		if (!sys_pause||framerender) //Only update if not paused
-			memset(gravmap, 0, sizeof(gravmap)); //Clear the old gravmap
+			memset(gravmap, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float)); //Clear the old gravmap
 
 		if (framerender) {
 			framerender = 0;
@@ -2315,6 +2265,8 @@ int main(int argc, char *argv[])
 							} else {
 								//Check for messages
 								svf_messages = atoi(check_data+3);
+								if (!strncmp(svf_user,"jacob1",10))
+									svf_admin = 1;
 							}
 						}
 					}
@@ -3345,7 +3297,7 @@ int main(int argc, char *argv[])
 			if (load_y<0) load_y=0;
 			if (bq==1 && !b)
 			{
-				parse_save(load_data, load_size, 0, load_x, load_y, bmap, fvx, fvy, signs, parts, pmap);
+				parse_save(load_data, load_size, 0, load_x, load_y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 				free(load_data);
 				free(load_img);
 				load_mode = 0;
@@ -3387,14 +3339,14 @@ int main(int argc, char *argv[])
 			{
 				if (copy_mode==1)//CTRL-C, copy
 				{
-					clipboard_data=build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, fvx, fvy, signs, parts);
+					clipboard_data=build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts);
 					clipboard_ready = 1;
 					save_mode = 0;
 					copy_mode = 0;
 				}
 				else if (copy_mode==2)//CTRL-X, cut
 				{
-					clipboard_data=build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, fvx, fvy, signs, parts);
+					clipboard_data=build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts);
 					clipboard_ready = 1;
 					save_mode = 0;
 					copy_mode = 0;
@@ -3530,7 +3482,7 @@ int main(int argc, char *argv[])
 					}
 					if (x>=19 && x<=35 && svf_last && (svf_open || svf_fileopen) && !bq) {
 						//int tpval = sys_pause;
-						parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, fvx, fvy, signs, parts, pmap);
+						parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 						//sys_pause = tpval;
 					}
 					if (x>=(XRES+BARSIZE-(510-476)) && x<=(XRES+BARSIZE-(510-491)) && !bq)
@@ -3578,8 +3530,7 @@ int main(int argc, char *argv[])
 					if (!bq)
 						add_sign_ui(vid_buf, x, y);
 				}
-
-				if (c==PT_FIGH)
+				else if (c==PT_FIGH)
 				{
 					if (!bq)
 						create_part(-1, x, y, PT_FIGH);

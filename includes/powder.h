@@ -382,6 +382,7 @@ int update_BCLN(UPDATE_FUNC_ARGS);
 int update_BCOL(UPDATE_FUNC_ARGS);
 int update_BIZR(UPDATE_FUNC_ARGS);
 int update_BMTL(UPDATE_FUNC_ARGS);
+int update_BRMT(UPDATE_FUNC_ARGS);
 int update_BOMB(UPDATE_FUNC_ARGS);
 int update_BOYL(UPDATE_FUNC_ARGS);
 int update_BTRY(UPDATE_FUNC_ARGS);

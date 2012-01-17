@@ -442,7 +442,7 @@ int luacon_transitionwrite(lua_State* l){
 	}
 	return 0;
 }
-int luacon_element_getproperty(char * key, int * format)
+int luacon_element_getproperty(char * key, int * format, unsigned int * modified_stuff)
 {
 	int offset;
 	if (strcmp(key, "name")==0){
@@ -452,10 +452,14 @@ int luacon_element_getproperty(char * key, int * format)
 	else if (strcmp(key, "color")==0){
 		offset = offsetof(part_type, pcolors);
 		*format = 0;
+		if (modified_stuff)
+			*modified_stuff |= LUACON_EL_MODIFIED_GRAPHICS;
 	}
 	else if (strcmp(key, "colour")==0){
 		offset = offsetof(part_type, pcolors);
 		*format = 0;
+		if (modified_stuff)
+			*modified_stuff |= LUACON_EL_MODIFIED_GRAPHICS;
 	}
 	else if (strcmp(key, "advection")==0){
 		offset = offsetof(part_type, advection);
@@ -512,6 +516,8 @@ int luacon_element_getproperty(char * key, int * format)
 	else if (strcmp(key, "menu")==0){
 		offset = offsetof(part_type, menu);
 		*format = 0;
+		if (modified_stuff)
+			*modified_stuff |= LUACON_EL_MODIFIED_MENUS;
 	}
 	else if (strcmp(key, "enabled")==0){
 		offset = offsetof(part_type, enabled);
@@ -520,10 +526,14 @@ int luacon_element_getproperty(char * key, int * format)
 	else if (strcmp(key, "weight")==0){
 		offset = offsetof(part_type, weight);
 		*format = 0;
+		if (modified_stuff)
+			*modified_stuff |= LUACON_EL_MODIFIED_CANMOVE;
 	}
 	else if (strcmp(key, "menusection")==0){
 		offset = offsetof(part_type, menusection);
 		*format = 0;
+		if (modified_stuff)
+			*modified_stuff |= LUACON_EL_MODIFIED_MENUS;
 	}
 	else if (strcmp(key, "heat")==0){
 		offset = offsetof(part_type, heat);
@@ -540,6 +550,8 @@ int luacon_element_getproperty(char * key, int * format)
 	else if (strcmp(key, "properties")==0){
 		offset = offsetof(part_type, properties);
 		*format = 0;
+		if (modified_stuff)
+			*modified_stuff |= LUACON_EL_MODIFIED_GRAPHICS | LUACON_EL_MODIFIED_CANMOVE;
 	}
 	else if (strcmp(key, "description")==0){
 		offset = offsetof(part_type, descs);
@@ -557,7 +569,7 @@ int luacon_elementread(lua_State* l){
 	float tempfloat;
 	int i;
 	char * key = mystrdup((char*)luaL_optstring(l, 2, ""));
-	offset = luacon_element_getproperty(key, &format);
+	offset = luacon_element_getproperty(key, &format, NULL);
 	free(key);
 	
 	//Get Raw Index value for element
@@ -599,8 +611,9 @@ int luacon_elementwrite(lua_State* l){
 	int tempinteger;
 	float tempfloat;
 	int i;
+	unsigned int modified_stuff = 0;
 	char * key = mystrdup((char*)luaL_optstring(l, 2, ""));
-	offset = luacon_element_getproperty(key, &format);
+	offset = luacon_element_getproperty(key, &format, &modified_stuff);
 	
 	//Get Raw Index value for element
 	lua_pushstring(l, "id");
@@ -619,8 +632,6 @@ int luacon_elementwrite(lua_State* l){
 	{
 	case 0:
 		*((int*)(((char*)&ptypes[i])+offset)) = luaL_optinteger(l, 3, 0);
-		if (strcmp(key,"weight") == 0 || strcmp(key,"properties") == 0)
-			init_can_move();
 		break;
 	case 1:
 		*((float*)(((char*)&ptypes[i])+offset)) = luaL_optnumber(l, 3, 0);
@@ -652,6 +663,15 @@ int luacon_elementwrite(lua_State* l){
 	case 3:
 		*((unsigned char*)(((char*)&ptypes[i])+offset)) = luaL_optinteger(l, 3, 0);
 		break;
+	}
+	if (modified_stuff)
+	{
+		if (modified_stuff & LUACON_EL_MODIFIED_MENUS)
+			menu_count();
+		if (modified_stuff & LUACON_EL_MODIFIED_CANMOVE)
+			init_can_move();
+		if (modified_stuff & LUACON_EL_MODIFIED_GRAPHICS)
+			memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
 	}
 	free(key);
 	return 0;

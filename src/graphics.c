@@ -3686,7 +3686,7 @@ void render_zoom(pixel *img) //draws the zoom box
 }
 
 //gets the thumbnail preview for stamps
-pixel *prerender_save(void *save, int size, int *width, int *height)
+/*pixel *prerender_save(void *save, int size, int *width, int *height)
 {
 	unsigned char *d,*c=save,*m=NULL;
 	int i,j,k,x,y,rx,ry,p=0,p2=0;
@@ -3964,7 +3964,7 @@ corrupt:
 	free(d);
 	free(fb);
 	return NULL;
-}
+}*/
 
 int render_thumb(void *thumb, int size, int bzip2, pixel *vid_buf, int px, int py, int scl)
 {
