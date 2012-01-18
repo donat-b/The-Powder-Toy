@@ -211,6 +211,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 				//Put the next posTotal particles at this position
 				for (posCount=0; posCount<posTotal; posCount++)
 				{
+					int type = 0, ctype = 0;
 					//i+3 because we have 4 bytes of required fields (type (1), descriptor (2), temp (1))
 					if (i+3 >= partsDataLen)
 						goto fail;
@@ -223,12 +224,13 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 						fprintf(stderr, "Out of range [%d]: %d %d, [%d, %d], [%d, %d]\n", i, x, y, (unsigned)partsData[i+1], (unsigned)partsData[i+2], (unsigned)partsData[i+3], (unsigned)partsData[i+4]);
 						goto fail;
 					}
-					if(partsData[i] >= PT_NUM)
-						partsData[i] = PT_DMND;	//Replace all invalid elements with diamond
+					type = partsData[i];
+					if(type >= PT_NUM)
+						type = PT_DMND;	//Replace all invalid elements with diamond
 					
 					//Draw type
-					vidBuf[(fullY+y)*fullW+(fullX+x)] = ptypes[partsData[i]].pcolors;
-					i+=3; //Skip Type an Descriptor
+					vidBuf[(fullY+y)*fullW+(fullX+x)] = ptypes[type].pcolors;
+					i+=3; //Skip Type and Descriptor
 					
 					//Skip temp
 					if(fieldDescriptor & 0x01)
@@ -263,11 +265,14 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 					//Skip ctype
 					if(fieldDescriptor & 0x20)
 					{
-						if(i++ >= partsDataLen) goto fail;
+						if(i+1 >= partsDataLen) goto fail;
+						ctype = partsData[i++];
 						if(fieldDescriptor & 0x200)
 						{
 							if(i+2 >= partsDataLen) goto fail;
-							i+=3;
+							ctype |= (((unsigned)partsData[i++]) << 24);
+							ctype |= (((unsigned)partsData[i++]) << 16);
+							ctype |= (((unsigned)partsData[i++]) << 8);
 						}
 					}
 					
@@ -297,6 +302,17 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 					if(fieldDescriptor & 0x400)
 					{
 						if(i++ >= partsDataLen) goto fail;
+					}
+
+					//Skip animations
+					if ((type == PT_ANIM || type == PT_INDI) && ctype)
+					{
+						int k;
+						if (type == PT_ANIM)
+							i += 4*ctype+4;
+						else
+							i += 1028;
+						if(i > partsDataLen) goto fail;
 					}
 				}
 			}
@@ -426,6 +442,9 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 		}
 	}
 
+	i = pmap[4][4]>>8;
+	if (parts[i].type == PT_INDI && parts[i].animations)
+		parts[i].animations[1] = 0; //Save lua code as not being run yet, so it will run when the save is opened
 	//Copy parts data
 	/* Field descriptor format:
 	|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|
@@ -545,6 +564,20 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 				{
 					fieldDesc |= 1 << 10;
 					partsData[partsDataLen++] = partsptr[i].tmp2;
+				}
+
+				if ((partsptr[i].type == PT_ANIM || partsptr[i].type == PT_INDI) &&  partsptr[i].ctype)
+				{
+					int j, max = partsptr[i].ctype;
+					if (partsptr[i].type == PT_INDI)
+						max = 256;
+					for (j = 0; j <=max;j++)
+					{
+						partsData[partsDataLen++] = (partsptr[i].animations[j]&0xFF000000)>>24;
+						partsData[partsDataLen++] = (partsptr[i].animations[j]&0x00FF0000)>>16;
+						partsData[partsDataLen++] = (partsptr[i].animations[j]&0x0000FF00)>>8;
+						partsData[partsDataLen++] = (partsptr[i].animations[j]&0x000000FF);
+					}
 				}
 				
 				//Write the field descriptor;
@@ -1129,6 +1162,29 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					{
 						if(i >= partsDataLen) goto fail;
 						partsptr[newIndex].tmp2 = partsData[i++];
+					}
+
+					if ((partsptr[newIndex].type == PT_ANIM || partsptr[newIndex].type == PT_INDI) && partsptr[newIndex].ctype)
+					{
+						int k;
+						if (partsptr[newIndex].type == PT_ANIM)
+						{
+							if (partsptr[newIndex].ctype > maxframes)
+								maxframes = partsptr[newIndex].ctype;
+							partsptr[newIndex].animations = (unsigned int*)calloc(maxframes,sizeof(unsigned int));
+						}
+						else
+							partsptr[newIndex].animations = (unsigned int*)calloc(257,sizeof(unsigned int));
+						if (partsptr[newIndex].animations == NULL)
+							goto fail;
+						memset(partsptr[newIndex].animations, 0, sizeof(partsptr[newIndex].animations));
+						for (k = 0; k <= partsptr[newIndex].ctype; k++)
+						{
+							partsptr[newIndex].animations[k] = partsData[i++]<<24;
+							partsptr[newIndex].animations[k] |= partsData[i++]<<16;
+							partsptr[newIndex].animations[k] |= partsData[i++]<<8;
+							partsptr[newIndex].animations[k] |= partsData[i++];
+						}
 					}
 				}
 			}

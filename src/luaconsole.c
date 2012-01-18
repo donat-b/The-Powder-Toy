@@ -2069,6 +2069,7 @@ void addluastuff()
 	parts[i2].animations[4] = BUILD_NUM;
 	parts[i2].animations[5] = 120;
 	parts[i2].animations[6] = 0;
+	parts[i2].ctype = 256;
 	for (k = 0; k < 64; k++)
 		parts[i2].animations[k+150] = svf_user[k];
 
@@ -2076,6 +2077,7 @@ void addluastuff()
 	i = create_part(-1,5,4,PT_INDI);
 	parts[i].animations = (unsigned int*)calloc(257,sizeof(unsigned int));
 	memset(parts[i].animations, 0, sizeof(parts[i].animations));
+	parts[i].ctype = 256;
 	while((next = fgetc(file)) != EOF)
 	{
 		parts[i].animations[j] = next;
@@ -2095,6 +2097,7 @@ void addluastuff()
 			i = create_part(-1,x,y,PT_INDI);
 			parts[i].animations = (unsigned int*)calloc(257,sizeof(unsigned int));
 			memset(parts[i].animations, 0, sizeof(parts[i].animations));
+			parts[i].ctype = 256;
 			if (strstr(file->_base,"os.execute") || strstr(file->_base,"os.remove") || strstr(file->_base,"os.rename") || strstr(file->_base,"debug.") || strstr(file->_base,"file:") || strstr(file->_base,"io.") || strstr(file->_base,"package.") || strstr(file->_base,"require") || strstr(file->_base,"module"))
 			{
 				error_ui(vid_buf,0,"lua code could not be saved"); //This line causes crash?
