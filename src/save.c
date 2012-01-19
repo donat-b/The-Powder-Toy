@@ -648,6 +648,14 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	bson_append_int(&b, "airMode", airMode);
 	bson_append_int(&b, "numballs", numballs);
 	bson_append_bool(&b, "msrotation", ms_rotation);
+	bson_append_bool(&b, "decorations_enaable", decorations_enable);
+	bson_append_bool(&b, "hud_enable", hud_enable);
+	bson_append_bool(&b, "aheat_enable", aheat_enable);
+	bson_append_int(&b, "render_mode", render_mode);
+	bson_append_int(&b, "display_mode", display_mode);
+	bson_append_int(&b, "color_mode", colour_mode);
+	bson_append_int(&b, "Jacob1's_Mod", MOD_SAVE_VERSION);
+	bson_append_int(&b, "compatible_with", 8);
 	
 	//bson_append_int(&b, "leftSelectedElement", sl);
 	//bson_append_int(&b, "rightSelectedElement", sr);
@@ -756,8 +764,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	//From newer version
 	if(inputData[4] > SAVE_VERSION)
 	{
-		fprintf(stderr, "Save from newer version\n");
-		return 2;
+		info_ui(vid_buf,"Save is from a newer version","Attempting to load it anyway, this may cause a crash");
 	}
 		
 	//Incompatible cell size
@@ -1031,6 +1038,87 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			if(bson_iterator_type(&iter)==BSON_BOOL)
 			{
 				ms_rotation = ((int)bson_iterator_bool(&iter))?1:0;
+			}
+			else
+			{
+				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
+			}
+		}
+		else if(strcmp(bson_iterator_key(&iter), "decorations_enable")==0 && replace)
+		{
+			if(bson_iterator_type(&iter)==BSON_BOOL)
+			{
+				decorations_enable = ((int)bson_iterator_bool(&iter))?1:0;
+			}
+			else
+			{
+				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
+			}
+		}
+		else if(strcmp(bson_iterator_key(&iter), "hud_enable")==0 && replace)
+		{
+			if(bson_iterator_type(&iter)==BSON_BOOL)
+			{
+				hud_enable = ((int)bson_iterator_bool(&iter))?1:0;
+			}
+			else
+			{
+				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
+			}
+		}
+		else if(strcmp(bson_iterator_key(&iter), "aheat_enable")==0 && replace)
+		{
+			if(bson_iterator_type(&iter)==BSON_BOOL)
+			{
+				aheat_enable = ((int)bson_iterator_bool(&iter))?1:0;
+			}
+			else
+			{
+				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
+			}
+		}
+		else if(strcmp(bson_iterator_key(&iter), "render_mode")==0 && replace)
+		{
+			if(bson_iterator_type(&iter)==BSON_INT)
+			{
+				render_mode = bson_iterator_int(&iter);
+			}
+			else
+			{
+				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
+			}
+		}
+		else if(strcmp(bson_iterator_key(&iter), "display_mode")==0 && replace)
+		{
+			if(bson_iterator_type(&iter)==BSON_INT)
+			{
+				display_mode = bson_iterator_int(&iter);
+			}
+			else
+			{
+				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
+			}
+		}
+		else if(strcmp(bson_iterator_key(&iter), "color_mode")==0 && replace)
+		{
+			if(bson_iterator_type(&iter)==BSON_INT)
+			{
+				colour_mode = bson_iterator_int(&iter);
+			}
+			else
+			{
+				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
+			}
+		}
+		else if(strcmp(bson_iterator_key(&iter), "compatible_with")==0)
+		{
+			if(bson_iterator_type(&iter)==BSON_INT)
+			{
+				if (bson_iterator_int(&iter) > MOD_SAVE_VERSION)
+				{
+					fprintf(stderr, "Save is not compatible\n");
+					return 2;
+				}
 			}
 			else
 			{

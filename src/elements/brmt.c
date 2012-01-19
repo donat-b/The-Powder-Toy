@@ -13,7 +13,7 @@ int update_BRMT(UPDATE_FUNC_ARGS) {
 					if (!r)
 						continue;
 					rt = parts[r>>8].type;
-					tempFactor = 1000 - (((250.0f+273.15f)-parts[i].temp)*2);
+					tempFactor = 1000 - (int)(((250.0f+273.15f)-parts[i].temp)*2);
 					if(tempFactor < 2)
 						tempFactor = 2;
 					if ((rt==PT_BREC) && 1 > (rand()%tempFactor))
