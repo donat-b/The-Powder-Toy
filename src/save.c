@@ -56,7 +56,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 {
 	unsigned char * inputData = save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *wallData = NULL;
 	int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, wallDataLen;
-	int i, x, y, j;
+	int i, x, y, j, type, ctype;
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	pixel * vidBuf = NULL;
 	bson b;
@@ -211,7 +211,6 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 				//Put the next posTotal particles at this position
 				for (posCount=0; posCount<posTotal; posCount++)
 				{
-					int type = 0, ctype = 0;
 					//i+3 because we have 4 bytes of required fields (type (1), descriptor (2), temp (1))
 					if (i+3 >= partsDataLen)
 						goto fail;
@@ -337,6 +336,8 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 					if(fieldDescriptor & 0x400)
 					{
 						if(i++ >= partsDataLen) goto fail;
+						if (type == PT_MOVS)
+							if(i++ >= partsDataLen) goto fail;
 					}
 
 					//Skip animations
@@ -349,6 +350,8 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 							i += 1028;
 						if(i > partsDataLen) goto fail;
 					}
+					if (type == PT_MOVS && !(fieldDescriptor & 0x08) && !(fieldDescriptor & 0x400))
+						if(i++ >= partsDataLen) goto fail;
 				}
 			}
 		}
@@ -543,7 +546,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 				{
 					fieldDesc |= 1 << 3;
 					partsData[partsDataLen++] = partsptr[i].tmp;
-					if(partsptr[i].tmp > 255)
+					if(partsptr[i].tmp > 255 || partsptr[i].type == PT_MOVS)
 					{
 						fieldDesc |= 1 << 4;
 						partsData[partsDataLen++] = partsptr[i].tmp >> 8;
@@ -599,6 +602,8 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 				{
 					fieldDesc |= 1 << 10;
 					partsData[partsDataLen++] = partsptr[i].tmp2;
+					if (partsptr[i].type == PT_MOVS)
+						partsData[partsDataLen++] = partsptr[i].tmp2 >> 8;
 				}
 
 				if ((partsptr[i].type == PT_ANIM || partsptr[i].type == PT_INDI) &&  partsptr[i].ctype)
@@ -613,6 +618,10 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 						partsData[partsDataLen++] = (partsptr[i].animations[j]&0x0000FF00)>>8;
 						partsData[partsDataLen++] = (partsptr[i].animations[j]&0x000000FF);
 					}
+				}
+				if (partsptr[i].type == PT_MOVS && !partsptr[i].tmp && !partsptr[i].tmp2 && i == msindex[partsptr[i].life])
+				{
+					partsData[partsDataLen++] = (int)((msrotation[partsptr[i].life] + 6.283185307179586476925286766559)*20);
 				}
 				
 				//Write the field descriptor;
@@ -637,6 +646,8 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	bson_append_bool(&b, "paused", sys_pause);
 	bson_append_int(&b, "gravityMode", gravityMode);
 	bson_append_int(&b, "airMode", airMode);
+	bson_append_int(&b, "numballs", numballs);
+	bson_append_bool(&b, "msrotation", ms_rotation);
 	
 	//bson_append_int(&b, "leftSelectedElement", sl);
 	//bson_append_int(&b, "rightSelectedElement", sr);
@@ -724,7 +735,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	particle *partsptr = o_partsptr;
 	unsigned char * inputData = save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL;
 	int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, fanDataLen, wallDataLen;
-	int i, freeIndicesCount, x, y, returnCode = 0, j;
+	int i, freeIndicesCount, x, y, returnCode = 0, j, oldnumballs = numballs;
 	int *freeIndices = NULL;
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	bson b;
@@ -1002,6 +1013,30 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong value for %s\n", bson_iterator_key(&iter));
 			}
 		}
+		else if(strcmp(bson_iterator_key(&iter), "numballs")==0)
+		{
+			if(bson_iterator_type(&iter)==BSON_INT)
+			{
+				numballs += bson_iterator_int(&iter);
+				if (numballs >= 256)
+					numballs = 255;
+			}
+			else
+			{
+				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
+			}
+		}
+		else if(strcmp(bson_iterator_key(&iter), "msrotation")==0 && replace)
+		{
+			if(bson_iterator_type(&iter)==BSON_BOOL)
+			{
+				ms_rotation = ((int)bson_iterator_bool(&iter))?1:0;
+			}
+			else
+			{
+				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
+			}
+		}
 	}
 	
 	//Read wall and fan data
@@ -1197,6 +1232,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					{
 						if(i >= partsDataLen) goto fail;
 						partsptr[newIndex].tmp2 = partsData[i++];
+						if (partsptr[newIndex].type == PT_MOVS)
+							partsptr[newIndex].tmp2 |= (((unsigned)partsData[i++]) << 8);
 					}
 
 					if ((partsptr[newIndex].type == PT_ANIM || partsptr[newIndex].type == PT_INDI) && partsptr[newIndex].ctype)
@@ -1210,7 +1247,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						}
 						else
 							partsptr[newIndex].animations = (unsigned int*)calloc(257,sizeof(unsigned int));
-						if (partsptr[newIndex].animations == NULL)
+						if (i+4+4*partsptr[newIndex].ctype >= partsDataLen || partsptr[newIndex].animations == NULL)
 							goto fail;
 						memset(partsptr[newIndex].animations, 0, sizeof(partsptr[newIndex].animations));
 						for (k = 0; k <= partsptr[newIndex].ctype; k++)
@@ -1253,6 +1290,32 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					}
 					if (!ptypes[partsptr[newIndex].type].enabled)
 						partsptr[newIndex].type = PT_NONE;
+					if (partsptr[newIndex].type == PT_MOVS)
+					{
+						if (partsptr[newIndex].life+oldnumballs < 256)
+						{
+							partsptr[newIndex].life += oldnumballs;
+							msnum[partsptr[newIndex].life]++;
+						}
+						else
+						{
+							partsptr[newIndex].type = PT_NONE;
+						}
+						if (!partsptr[newIndex].tmp && !partsptr[newIndex].tmp2)
+						{
+							msindex[partsptr[newIndex].life] = newIndex;
+							if(i >= partsDataLen) goto fail;
+							msrotation[partsptr[newIndex].life] = partsData[i++]/20.0f - 6.283185307179586476925286766559;
+						}
+						if (partsptr[newIndex].tmp > 32768)
+							partsptr[newIndex].tmp -= 65536;
+						if (partsptr[newIndex].tmp2 > 32768)
+							partsptr[newIndex].tmp2 -= 65536;
+						if (partsptr[newIndex].type == PT_MOVS && !partsptr[newIndex].tmp && !partsptr[newIndex].tmp2)
+						{
+							partsData[partsDataLen++] = (int)(msrotation[partsptr[i].life] + 6.283185307179586476925286766559)*20;
+						}
+					}
 				}
 			}
 		}
