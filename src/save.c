@@ -229,7 +229,42 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 						type = PT_DMND;	//Replace all invalid elements with diamond
 					
 					//Draw type
-					vidBuf[(fullY+y)*fullW+(fullX+x)] = ptypes[type].pcolors;
+					if (type==PT_STKM || type==PT_STKM2 || type==PT_FIGH)
+					{
+						pixel lc, hc=PIXRGB(255, 224, 178);
+						if (type==PT_STKM || type==PT_FIGH) lc = PIXRGB(255, 255, 255);
+						else lc = PIXRGB(100, 100, 255);
+						//only need to check upper bound of y coord - lower bounds and x<w are checked in draw_line
+						if (type==PT_STKM || type==PT_STKM2)
+						{
+							draw_line(vidBuf, x-2, y-2, x+2, y-2, PIXR(hc), PIXG(hc), PIXB(hc), *width);
+							if (y+2<*height)
+							{
+								draw_line(vidBuf, x-2, y+2, x+2, y+2, PIXR(hc), PIXG(hc), PIXB(hc), *width);
+								draw_line(vidBuf, x-2, y-2, x-2, y+2, PIXR(hc), PIXG(hc), PIXB(hc), *width);
+								draw_line(vidBuf, x+2, y-2, x+2, y+2, PIXR(hc), PIXG(hc), PIXB(hc), *width);
+							}
+						}
+						else if (y+2<*height)
+						{
+							draw_line(vidBuf, x-2, y, x, y-2, PIXR(hc), PIXG(hc), PIXB(hc), *width);
+							draw_line(vidBuf, x-2, y, x, y+2, PIXR(hc), PIXG(hc), PIXB(hc), *width);
+							draw_line(vidBuf, x, y-2, x+2, y, PIXR(hc), PIXG(hc), PIXB(hc), *width);
+							draw_line(vidBuf, x, y+2, x+2, y, PIXR(hc), PIXG(hc), PIXB(hc), *width);
+						}
+						if (y+6<*height)
+						{
+							draw_line(vidBuf, x, y+3, x-1, y+6, PIXR(lc), PIXG(lc), PIXB(lc), *width);
+							draw_line(vidBuf, x, y+3, x+1, y+6, PIXR(lc), PIXG(lc), PIXB(lc), *width);
+						}
+						if (y+12<*height)
+						{
+							draw_line(vidBuf, x-1, y+6, x-3, y+12, PIXR(lc), PIXG(lc), PIXB(lc), *width);
+							draw_line(vidBuf, x+1, y+6, x+3, y+12, PIXR(lc), PIXG(lc), PIXB(lc), *width);
+						}
+					}
+					else
+						vidBuf[(fullY+y)*fullW+(fullX+x)] = ptypes[type].pcolors;
 					i+=3; //Skip Type and Descriptor
 					
 					//Skip temp
@@ -1186,6 +1221,38 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							partsptr[newIndex].animations[k] |= partsData[i++];
 						}
 					}
+					// no more particle properties to load, so we can change type here without messing up loading
+					if ((player.spwn == 1 && partsptr[newIndex].type==PT_STKM) || (player2.spwn == 1 && partsptr[newIndex].type==PT_STKM2))
+					{
+						partsptr[newIndex].type = PT_NONE;
+					}
+					else if (partsptr[newIndex].type == PT_STKM)
+					{
+						STKM_init_legs(&player, newIndex);
+						player.spwn = 1;
+						player.elem = PT_DUST;
+					}
+					else if (partsptr[newIndex].type == PT_STKM2)
+					{
+						STKM_init_legs(&player2, newIndex);
+						player2.spwn = 1;
+						player2.elem = PT_DUST;
+					}
+					else if (partsptr[newIndex].type == PT_FIGH)
+					{
+						unsigned char fcount = 0;
+						while (fcount < 100 && fcount < (fighcount+1) && fighters[fcount].spwn==1) fcount++;
+						if (fcount < 100 && fighters[fcount].spwn==0)
+						{
+							partsptr[newIndex].tmp = fcount;
+							fighters[fcount].spwn = 1;
+							fighters[fcount].elem = PT_DUST;
+							fighcount++;
+							STKM_init_legs(&(fighters[fcount]), newIndex);
+						}
+					}
+					if (!ptypes[partsptr[newIndex].type].enabled)
+						partsptr[newIndex].type = PT_NONE;
 				}
 			}
 		}
@@ -1360,12 +1427,22 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 					if (j==PT_STKM || j==PT_FIGH) lc = PIXRGB(255, 255, 255);
 					else lc = PIXRGB(100, 100, 255);
 					//only need to check upper bound of y coord - lower bounds and x<w are checked in draw_line
-					draw_line(fb , x-2, y-2, x+2, y-2, PIXR(hc), PIXG(hc), PIXB(hc), w);
-					if (y+2<h)
+					if (j==PT_STKM || j==PT_STKM2)
 					{
-						draw_line(fb , x-2, y+2, x+2, y+2, PIXR(hc), PIXG(hc), PIXB(hc), w);
-						draw_line(fb , x-2, y-2, x-2, y+2, PIXR(hc), PIXG(hc), PIXB(hc), w);
-						draw_line(fb , x+2, y-2, x+2, y+2, PIXR(hc), PIXG(hc), PIXB(hc), w);
+						draw_line(fb , x-2, y-2, x+2, y-2, PIXR(hc), PIXG(hc), PIXB(hc), w);
+						if (y+2<h)
+						{
+							draw_line(fb , x-2, y+2, x+2, y+2, PIXR(hc), PIXG(hc), PIXB(hc), w);
+							draw_line(fb , x-2, y-2, x-2, y+2, PIXR(hc), PIXG(hc), PIXB(hc), w);
+							draw_line(fb , x+2, y-2, x+2, y+2, PIXR(hc), PIXG(hc), PIXB(hc), w);
+						}
+					}
+					else if (y+2<h)
+					{
+						draw_line(fb, x-2, y, x, y-2, PIXR(hc), PIXG(hc), PIXB(hc), w);
+						draw_line(fb, x-2, y, x, y+2, PIXR(hc), PIXG(hc), PIXB(hc), w);
+						draw_line(fb, x, y-2, x+2, y, PIXR(hc), PIXG(hc), PIXB(hc), w);
+						draw_line(fb, x, y+2, x+2, y, PIXR(hc), PIXG(hc), PIXB(hc), w);
 					}
 					if (y+6<h)
 					{
