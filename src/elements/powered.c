@@ -25,15 +25,16 @@ int update_POWERED(UPDATE_FUNC_ARGS) {
 
 					if (tmp != 1)
 					{
-						if (parts[r>>8].ctype==PT_PSCN)
+						if (parts[r>>8].ctype==PT_PSCN && parts[i].life < 10)
 							parts[i].life = 10;
 						else if (parts[r>>8].ctype==PT_NSCN)
 							parts[i].life = 9;
-						else if ((parts[i].type == PT_SWCH || parts[i].type == PT_ACTV) && parts[i].life == 10)
+						else if ((parts[i].type == PT_SWCH || parts[i].type == PT_ACTV) && parts[r>>8].ctype != PT_PSCN && parts[r>>8].ctype != PT_NSCN && parts[i].life == 10)
 						{
 							parts[i].ctype = parts[i].type;
 							part_change_type(i,x,y,PT_SPRK);
 							parts[i].life = 4;
+							return 0;
 						}
 					}
 					else if (parts[i].type == PT_PPTI || parts[i].type == PT_PPTO)
@@ -75,6 +76,7 @@ int update_POWERED(UPDATE_FUNC_ARGS) {
 							parts[i].ctype = parts[i].type;
 							part_change_type(i,x,y,PT_SPRK);
 							parts[i].life = 4;
+							return 0;
 						}
 					}
 				}

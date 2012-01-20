@@ -171,12 +171,13 @@ the original HUD's and it will save and be loaded the next time you start.
 Also added a few more options not in any normal HUD.
 
 Next Version (Version 10)
-Fixed SWCH/ACTV not conducting and being activated through INSL. Added display 
-mode toggles, press Ctrl+ a number key besides 4 and 8 to toggle the main 
-feature of that display temporarily without changing anything about your 
-current display mode. Added more statistics. Fixed some moving solid bugs and 
-made rotation save. Updated to newest source, which includes the new save 
-format. You can delete corrupted stamps now.
+Added display mode toggles, press Ctrl+ a number key besides 4 and 8 to 
+toggle the main feature of that display temporarily without changing 
+anything about your current display mode. Added more statistics. Fixed some 
+moving solid bugs and made rotation save. Updated to newest source, which 
+includes the new save format. You can delete corrupted stamps now. Fix three 
+powered electronic related bugs, most electronics should work like they're 
+supposed to now.
 
 
 
@@ -184,7 +185,7 @@ format. You can delete corrupted stamps now.
 Bugs:
 >Moving solids can't be drawn on an empty screen.
 >Moving solids destroyed by large pressure leave behind pieces inside solids
-Some complicated electronics don't work right in this mod
+A few complicated electronics don't work right in this mod (ex. switch tetris)
 
 
 

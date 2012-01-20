@@ -2200,21 +2200,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 
 			//call the particle update function, if there is one
 #ifdef LUACONSOLE
-			if (ptypes[t].update_func && lua_el_mode[t] != 2)
-#else
-			if (ptypes[t].update_func)
-#endif
-			{
-				if ((*(ptypes[t].update_func))(i,x,y,surround_space,nt))
-					continue;
-			}
-#ifdef LUACONSOLE
-			if(lua_el_mode[t])
-			{
-				if(luacon_part_update(t,i,x,y,surround_space,nt))
-					continue;
-			}
-			else
+			if (lua_el_mode[t] != 2)
 			{
 #endif
 				if (ptypes[t].properties&PROP_CLONE)
@@ -2233,7 +2219,15 @@ void update_particles_i(pixel *vid, int start, int inc)
 				}
 				if (ptypes[t].properties&PROP_POWERED)
 					update_POWERED(i,x,y,surround_space,nt);
+				if (ptypes[t].update_func)
+					if ((*(ptypes[t].update_func))(i,x,y,surround_space,nt))
+						continue;
 #ifdef LUACONSOLE
+			}
+			if(lua_el_mode[t])
+			{
+				if(luacon_part_update(t,i,x,y,surround_space,nt))
+					continue;
 			}
 #endif
 			if (legacy_enable)//if heat sim is off
