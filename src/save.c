@@ -1711,13 +1711,23 @@ corrupt:
 
 void *build_save_PSv(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr)
 {
-	unsigned char *d=calloc(1,3*(XRES/CELL)*(YRES/CELL)+(XRES*YRES)*15+MAXSIGNS*262), *c;
-	int i,j,x,y,p=0,*m=calloc(XRES*YRES, sizeof(int));
+	unsigned char *d=calloc(1,3*(XRES/CELL)*(YRES/CELL)+(XRES*YRES)*(16+numframes*4)+MAXSIGNS*262+numballs*6), *c;
+	int i,j,x,y,p=0,*m=calloc(XRES*YRES, sizeof(int)),nummovs = 0,saveversion = MOD_SAVE_VERSION+237;
 	int x0, y0, w, h, bx0=orig_x0/CELL, by0=orig_y0/CELL, bw, bh;
 	particle *parts = partsptr;
 	bw=(orig_w+orig_x0-bx0*CELL+CELL-1)/CELL;
 	bh=(orig_h+orig_y0-by0*CELL+CELL-1)/CELL;
 
+	if (check_save(save_as))
+	{
+		free(d);
+		free(m);
+		return NULL;
+	}
+	if (save_as == 1)
+		saveversion = 71;
+	else if (save_as == 2)
+		saveversion = 71;
 	// normalize coordinates
 	x0 = bx0*CELL;
 	y0 = by0*CELL;
@@ -1754,9 +1764,7 @@ void *build_save_PSv(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 			x = (int)(parts[i].x+0.5f);
 			y = (int)(parts[i].y+0.5f);
 			if (x>=orig_x0 && x<orig_x0+orig_w && y>=orig_y0 && y<orig_y0+orig_h) {
-				if (!m[(x-x0)+(y-y0)*w] ||
-				        parts[m[(x-x0)+(y-y0)*w]-1].type == PT_PHOT ||
-				        parts[m[(x-x0)+(y-y0)*w]-1].type == PT_NEUT)
+				if (!m[(x-x0)+(y-y0)*w] || parts[m[(x-x0)+(y-y0)*w]-1].type == PT_PHOT || parts[m[(x-x0)+(y-y0)*w]-1].type == PT_NEUT)
 					m[(x-x0)+(y-y0)*w] = i+1;
 			}
 		}
@@ -1811,7 +1819,7 @@ void *build_save_PSv(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	for (j=0; j<w*h; j++)
 	{
 		i = m[j];
-		if (i && (parts[i-1].type==PT_PBCN)) {
+		if (i && (parts[i-1].type==PT_PBCN || parts[i-1].type==PT_MOVS || parts[i-1].type==PT_ANIM || ((parts[i-1].type==PT_PSCN || parts[i-1].type==PT_NSCN || parts[i-1].type==PT_PCLN) && save_as == 0) || parts[i-1].type==PT_PPTI || parts[i-1].type==PT_PPTO || parts[i-1].type==PT_VIRS || parts[i-1].type==PT_VRSS || parts[i-1].type==PT_VRSG)) {
 			//Save tmp2
 			d[p++] = parts[i-1].tmp2;
 		}
@@ -1846,6 +1854,39 @@ void *build_save_PSv(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 		if (i) {
 			//Save colour (BLUE)
 			d[p++] = (parts[i-1].dcolour&0x000000FF);
+		}
+	}
+	if (save_as == 0)
+	{
+		i = pmap[4][4]>>8;
+		if (parts[i].type == PT_INDI && parts[i].animations)
+			parts[i].animations[1] = 0;
+		for (j=0; j<w*h; j++)
+		{
+			i = m[j];
+			if (i && parts[i-1].type==PT_ANIM)
+			{
+				int k;
+				d[p++] = parts[i-1].ctype;
+				for (k = 0; k <= parts[i-1].ctype;k++)
+				{
+					d[p++] = (parts[i-1].animations[k]&0xFF000000)>>24;
+					d[p++] = (parts[i-1].animations[k]&0x00FF0000)>>16;
+					d[p++] = (parts[i-1].animations[k]&0x0000FF00)>>8;
+					d[p++] = (parts[i-1].animations[k]&0x000000FF);
+				}
+			}
+			if (i && parts[i-1].type==PT_INDI)
+			{
+				int k;
+				for (k = 0; k <= 256;k++)
+				{
+					d[p++] = (parts[i-1].animations[k]&0xFF000000)>>24;
+					d[p++] = (parts[i-1].animations[k]&0x00FF0000)>>16;
+					d[p++] = (parts[i-1].animations[k]&0x0000FF00)>>8;
+					d[p++] = (parts[i-1].animations[k]&0x000000FF);
+				}
+			}
 		}
 	}
 	for (j=0; j<w*h; j++)
@@ -1888,6 +1929,19 @@ void *build_save_PSv(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 			memcpy(d+p, signs[i].text, x);
 			p+=x;
 		}
+	if (save_as == 0)
+	{
+		d[p++] =  decorations_enable|((aheat_enable<<1)&0x02)|((hud_enable<<2)&0x04)|((water_equal_test<<3)&0x08);//|((cmode<<4)&0xF0);
+		for (j=0; j<w*h; j++)
+		{
+			i = m[j];
+			if (i && parts[i-1].type==PT_MOVS && !parts[i].tmp && !parts[i].tmp2)
+			{
+				nummovs++;
+			}
+		}
+		d[p++] = nummovs;
+	}
 
 	i = (p*101+99)/100 + 612;
 	c = malloc(i);
@@ -1899,7 +1953,7 @@ void *build_save_PSv(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	c[1] = 0x53;	//0x75;
 	c[2] = 0x76;	//0x43;
 	c[3] = legacy_enable|((sys_pause<<1)&0x02)|((gravityMode<<2)&0x0C)|((airMode<<4)&0x70)|((ngrav_enable<<7)&0x80);
-	c[4] = SAVE_VERSION;
+	c[4] = saveversion;
 	c[5] = CELL;
 	c[6] = bw;
 	c[7] = bh;
@@ -1927,7 +1981,7 @@ void *build_save_PSv(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, unsigned pmap[YRES][XRES])
 {
 	unsigned char *d=NULL,*c=save;
-	int q,i,j,k,x,y,p=0,*m=NULL, ver, pty, ty, legacy_beta=0, tempGrav = 0;
+	int q,i,j,k,x,y,p=0,*m=NULL, ver, pty, ty, legacy_beta=0, tempGrav = 0, modver = 0, oldnumballs = numballs;
 	int bx0=x0/CELL, by0=y0/CELL, bw, bh, w, h;
 	int nf=0, new_format = 0, ttv = 0;
 	particle *parts = partsptr;
@@ -1943,9 +1997,29 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 	if (c[2]==0x76 && c[1]==0x53 && c[0]==0x50) {
 		new_format = 1;
 	}
-	if (c[4]>SAVE_VERSION)
-		return 2;
 	ver = c[4];
+	if ((ver>SAVE_VERSION && ver < 238) || ver > 237+MOD_SAVE_VERSION)
+		info_ui(vid_buf,"Save is from a newer version","Attempting to load it anyway, this may cause a crash");
+	if (ver == 240) {
+		ver = 65;
+		modver = 3;
+	}
+	else if (ver == 242) {
+		ver = 66;
+		modver = 5;
+	}
+	else if (ver == 243) {
+		ver = 68;
+		modver = 6;
+	}
+	else if (ver >= 244) {
+		ver = 69;
+		modver = 7;
+	}
+	else if (ver >= 245) {
+		ver = 71;
+		modver = 8;
+	}
 
 	if (ver<34)
 	{
@@ -2015,6 +2089,15 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 			airMode = 0;
 		}
 		clear_sim();
+	}
+	if (modver >= 3 && replace)
+	{
+		memset(msindex, 0, sizeof(msindex));
+		memset(msnum, 0, sizeof(msnum));
+		memset(msvx, 0, sizeof(msvx));
+		memset(msvy, 0, sizeof(msvy));
+		memset(msrotation, 0, sizeof(msrotation));
+		oldnumballs = 0;
 	}
 	parts_lastActiveIndex = NPART-1;
 	m = calloc(XRES*YRES, sizeof(int));
@@ -2110,6 +2193,14 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 			gol[x][y]=0;
 			if (j)
 			{
+				if (modver > 0 && modver <= 5)
+				{
+					if (j >= 136 && j <= 140)
+						j += (PT_NORMAL_NUM - 136);
+					else if (j >= 142 && j <= 146)
+						j += (PT_NORMAL_NUM - 137);
+					d[p-1] = j;
+				}
 				if (pmap[y][x])
 				{
 					k = pmap[y][x]>>8;
@@ -2173,6 +2264,18 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					ttv = (d[p++])<<8;
 					ttv |= (d[p++]);
 					parts[i-1].life = ttv;
+					if (parts[i-1].type == PT_MOVS)
+					{
+						if (parts[i-1].life+oldnumballs < 256)
+						{
+							parts[i-1].life += oldnumballs;
+							msnum[parts[i-1].life]++;
+						}
+						else
+						{
+							parts[i-1].type = PT_NONE;
+						}
+					}
 				} else {
 					p+=2;
 				}
@@ -2220,12 +2323,19 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			i = m[j];
 			ty = d[pty+j];
-			if (i && ty==PT_PBCN)
+			if (i && (ty==PT_PBCN || ty==PT_MOVS || ty==PT_ANIM || ((ty==PT_PSCN || ty==PT_NSCN) && modver >= 3) || ty==PT_PPTI || ty==PT_PPTO || ty==PT_VIRS || ty==PT_VRSS || ty==PT_VRSG || (ty==PT_PCLN && modver >= 7)))
 			{
 				if (p >= size)
 					goto corrupt;
 				if (i <= NPART)
+				{
 					parts[i-1].tmp2 = d[p++];
+					if (parts[i-1].type == PT_MOVS && !parts[i-1].tmp && !parts[i-1].tmp2)
+					{
+						if (parts[i-1].life < 256)
+							msindex[parts[i-1].life] = i-1;
+					}
+				}
 				else
 					p++;
 			}
@@ -2297,6 +2407,63 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 				}
 				if (i <= NPART) {
 					parts[i-1].dcolour |= d[p++];
+				} else {
+					p++;
+				}
+			}
+		}
+	}
+	for (j=0; j<w*h; j++)
+	{
+		i = m[j];
+		if (i && parts[i-1].type == PT_ANIM)
+		{
+			if (modver>=3) {
+				if (p >= size) {
+					goto corrupt;
+				}
+				if (i <= NPART) {
+					int k;
+					parts[i-1].ctype = d[p++];
+					if (parts[i-1].ctype > maxframes)
+						maxframes = parts[i-1].ctype;
+					parts[i-1].animations = calloc(maxframes,sizeof(unsigned int));
+					if (parts[i-1].animations == NULL) {
+						goto corrupt;
+					}
+					memset(parts[i-1].animations, 0, sizeof(parts[i-1].animations));
+					for (k = 0; k <= parts[i-1].ctype; k++)
+					{
+						parts[i-1].animations[k] = d[p++]<<24;
+						parts[i-1].animations[k] |= d[p++]<<16;
+						parts[i-1].animations[k] |= d[p++]<<8;
+						parts[i-1].animations[k] |= d[p++];
+					}
+				} else {
+					p++;
+				}
+			}
+		}
+		if (i && parts[i-1].type == PT_INDI)
+		{
+			if (modver>=7) {
+				if (p >= size) {
+					goto corrupt;
+				}
+				if (i <= NPART) {
+					int k;
+					parts[i-1].animations = (unsigned int*)calloc(257,sizeof(unsigned int));
+					if (parts[i-1].animations == NULL) {
+						goto corrupt;
+					}
+					memset(parts[i-1].animations, 0, sizeof(parts[i-1].animations));
+					for (k = 0; k <= 256; k++)
+					{
+						parts[i-1].animations[k] = d[p++]<<24;
+						parts[i-1].animations[k] |= d[p++]<<16;
+						parts[i-1].animations[k] |= d[p++]<<8;
+						parts[i-1].animations[k] |= d[p++];
+					}
 				} else {
 					p++;
 				}
@@ -2496,6 +2663,41 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 			clean_text(signs[k].text, 158-14 /* Current max sign length */);
 		}
 		p += x;
+	}
+
+	if (modver >= 3)
+	{
+		if (p >= size)
+			goto version1;
+		if (!decorations_enable) {
+			decorations_enable = (d[p++])&0x01;
+		}
+		aheat_enable = (d[p]>>1)&0x01;
+		hud_enable = (d[p]>>2)&0x01;
+		water_equal_test = (d[p]>>3)&0x01;
+		//if (replace)
+		//	cmode = (d[p]>>4)&0x0F;
+	}
+
+	if (modver >= 3)
+	{
+		if (p >= size)
+			goto version1;
+		numballs += d[p++];
+		for (i = 0; i < NPART; i++)
+		{
+			if (parts[i].type == PT_MOVS && parts[i].life >= oldnumballs)
+			{
+				if (parts[i].x < parts[msindex[parts[i].life]].x)
+				{
+					parts[i].tmp -= 65536;
+				}
+				if (parts[i].y < parts[msindex[parts[i].life]].y)
+				{
+					parts[i].tmp2 -= 256;
+				}
+			}
+		}
 	}
 
 version1:

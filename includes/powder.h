@@ -752,7 +752,7 @@ static fav_menu fav[] =
 	{"INFO", PIXPACK(0x00FF00), "Displays statistics and records about The Powder Toy. Left click to toggle display"},
 	{"SPIN", PIXPACK(0x0010A0), "Makes moving solids rotate"},
 	{"HEAT", PIXPACK(0xFF00D4), "Changes heat display mode. current mode: "},
-	{"SAVE", PIXPACK(0x2B1AC9), "Makes save/stamps compatible with: "},
+	{"SAVE", PIXPACK(0x2B1AC9), "Makes saves/stamps compatible with: "},
 	{"LUA",  PIXPACK(0xFFFF00), "Add Lua code to a save"},
 	{"HUD2",  PIXPACK(0x20D8FF), "Make a custom HUD (doesn't save yet, unless I forgot to remove the unfinished text again"},
 	{"", PIXPACK(0x000000), ""}
