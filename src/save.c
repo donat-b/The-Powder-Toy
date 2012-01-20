@@ -806,6 +806,12 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	{
 		//Remove everything
 		clear_sim();
+		memset(msindex, 0, sizeof(msindex));
+		memset(msnum, 0, sizeof(msnum));
+		memset(msvx, 0, sizeof(msvx));
+		memset(msvy, 0, sizeof(msvy));
+		memset(msrotation, 0, sizeof(msrotation));
+		oldnumballs = 0;
 	}
 	
 	bson_init_data(&b, bsonData);
