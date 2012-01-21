@@ -411,7 +411,7 @@ part_transition ptransitions[PT_NUM] =
 	/* GBMB */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* FIGH */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			620.0f,	PT_FIRE},
 	// Mod elements past this point
-	/* BALL */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* BALL */ {25.0f,	PT_NONE,	25.0f,	PT_NONE,	ITL,	NT,			ITH,	NT},
 	/* ANIM */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* OTWR */ {IPL,	NT,			10.0f,	PT_BREC,	ITL,	NT,			1273.0f,PT_LAVA},
 	/* INDI */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},

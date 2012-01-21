@@ -654,7 +654,7 @@ void kill_part(int i)//kills particle number i
 	{
 		int bn = parts[i].life;
 		msnum[bn]--;
-		if (msindex[bn] == i)
+		if (msindex[bn]-1 == i)
 			msindex[bn] = 0;
 	}
 	else if (parts[i].type == PT_ANIM)
@@ -941,8 +941,8 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 			if (creatingsolid)
 			{
 				parts[i].life = numballs-1;
-				parts[i].tmp = x - (int)parts[msindex[parts[i].life]].x;
-				parts[i].tmp2 = y - (int)parts[msindex[parts[i].life]].y;
+				parts[i].tmp = x - (int)parts[msindex[parts[i].life]-1].x;
+				parts[i].tmp2 = y - (int)parts[msindex[parts[i].life]-1].y;
 				msnum[numballs-1]++;
 			}
 			else
@@ -951,7 +951,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 				parts[i].life = numballs;
 				parts[i].tmp = 0;
 				parts[i].tmp2 = 0;
-				msindex[numballs] = i;
+				msindex[numballs] = i+1;
 				msnum[numballs] = 1;
 				msvx[numballs] = 0;
 				msvy[numballs] = 0;
@@ -2813,17 +2813,17 @@ void update_moving_solids()
 					float distance = sqrt(pow((float)parts[i].tmp,2)+pow((float)parts[i].tmp2,2));
 					if (parts[i].tmp < 0)
 						angle += 3.1415926535;
-					parts[i].x = parts[msindex[bn]].x + distance*cos(angle+msrotation[bn]);
-					parts[i].y = parts[msindex[bn]].y + distance*sin(angle+msrotation[bn]);
+					parts[i].x = parts[msindex[bn]-1].x + distance*cos(angle+msrotation[bn]);
+					parts[i].y = parts[msindex[bn]-1].y + distance*sin(angle+msrotation[bn]);
 				}
 				else if (parts[i].tmp2 != 0)
 				{
 					float angle = 3.1415926535897932384626433832795/2;
-					parts[i].x = parts[msindex[bn]].x + parts[i].tmp2*cos(angle+msrotation[bn]);
+					parts[i].x = parts[msindex[bn]-1].x + parts[i].tmp2*cos(angle+msrotation[bn]);
 					if (parts[i].tmp2 < 0)
-						parts[i].y = parts[msindex[bn]].y + parts[i].tmp2*sin(angle+msrotation[bn]);
+						parts[i].y = parts[msindex[bn]-1].y + parts[i].tmp2*sin(angle+msrotation[bn]);
 					else
-						parts[i].y = parts[msindex[bn]].y - parts[i].tmp2*sin(-angle+msrotation[bn]);
+						parts[i].y = parts[msindex[bn]-1].y - parts[i].tmp2*sin(-angle+msrotation[bn]);
 				}
 				if (parts[i].x < 0 || parts[i].x >= XRES || parts[i].y < 0 || parts[i].y >= YRES)
 					kill_part(i);

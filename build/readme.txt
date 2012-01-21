@@ -183,8 +183,8 @@ supposed to now.
 
 
 Bugs:
->Moving solids can't be drawn on an empty screen.
 >Moving solids destroyed by large pressure leave behind pieces inside solids
+>Rotating moving solids move left too much
 
 
 

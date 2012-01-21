@@ -687,7 +687,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 							partsData[partsDataLen++] = (partsptr[i].animations[j]&0x000000FF);
 						}
 					}
-					if (partsptr[i].type == PT_MOVS && !partsptr[i].tmp && !partsptr[i].tmp2 && i == msindex[partsptr[i].life])
+					if (partsptr[i].type == PT_MOVS && !partsptr[i].tmp && !partsptr[i].tmp2 && i == msindex[partsptr[i].life]-1)
 					{
 						partsData[partsDataLen++] = (int)((msrotation[partsptr[i].life] + 6.283185307179586476925286766559)*20);
 					}
@@ -1466,7 +1466,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						}
 						if (!partsptr[newIndex].tmp && !partsptr[newIndex].tmp2)
 						{
-							msindex[partsptr[newIndex].life] = newIndex;
+							msindex[partsptr[newIndex].life] = newIndex+1;
 							if(i >= partsDataLen) goto fail;
 							msrotation[partsptr[newIndex].life] = partsData[i++]/20.0f - 6.283185307179586476925286766559;
 						}
@@ -2398,7 +2398,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					if (parts[i-1].type == PT_MOVS && !parts[i-1].tmp && !parts[i-1].tmp2)
 					{
 						if (parts[i-1].life < 256)
-							msindex[parts[i-1].life] = i-1;
+							msindex[parts[i-1].life] = i;
 					}
 				}
 				else
@@ -2753,11 +2753,11 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			if (parts[i].type == PT_MOVS && parts[i].life >= oldnumballs)
 			{
-				if (parts[i].x < parts[msindex[parts[i].life]].x)
+				if (parts[i].x < parts[msindex[parts[i].life]-1].x)
 				{
 					parts[i].tmp -= 65536;
 				}
-				if (parts[i].y < parts[msindex[parts[i].life]].y)
+				if (parts[i].y < parts[msindex[parts[i].life]-1].y)
 				{
 					parts[i].tmp2 -= 256;
 				}
