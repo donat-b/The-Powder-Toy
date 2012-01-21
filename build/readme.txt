@@ -176,7 +176,7 @@ toggle the main feature of that display temporarily without changing
 anything about your current display mode. Added more statistics. Fixed some 
 moving solid bugs and made rotation save. Updated to newest source, which 
 includes the new save format. You can delete corrupted stamps now. Fix three 
-powered electronic related bugs, most electronics should work like they're 
+powered electronic related bugs, all electronics should work like they're 
 supposed to now.
 
 
@@ -185,7 +185,6 @@ supposed to now.
 Bugs:
 >Moving solids can't be drawn on an empty screen.
 >Moving solids destroyed by large pressure leave behind pieces inside solids
-A few complicated electronics don't work right in this mod (ex. switch tetris)
 
 
 
