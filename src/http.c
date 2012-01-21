@@ -486,7 +486,7 @@ int http_async_req_status(void *ctx)
 			if (save_as != 2)
 				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dB%d\n", IDENT_VERSION, SAVE_VERSION, MINOR_VERSION);
 			else
-				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dS%d\n", IDENT_VERSION, 65, 5);
+				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dS%d\n", IDENT_VERSION, RELEASE_VERSION, 0);
 //#endif
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "\n");
 			memcpy(cx->tbuf+cx->tlen, cx->txd, cx->txdl);

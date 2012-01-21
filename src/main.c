@@ -196,7 +196,7 @@ int lowesttemp = MIN_TEMP;
 int heatmode = 0;
 int maxframes = 25;
 int secret_els = 0;
-int save_as = 0;
+int save_as = 3;
 int hud_modnormal[HUD_OPTIONS] = {1,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,0,0,0,0,0,2};
 int hud_moddebug[HUD_OPTIONS] =  {1,1,1,2,1,0,0,0,1,0,1,1,1,0,0,1,1,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,0,0,0,0,0,4};
 int hud_normal[HUD_OPTIONS] =    {0,0,1,0,0,0,0,0,1,1,1,0,0,1,1,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,0,0,0,0,0,2};
@@ -292,45 +292,6 @@ void dump_frame(pixel *src, int w, int h, int pitch)
 	}
 	fclose(f);
 	frame_idx++;
-}
-
-int invalid_element(int save_as, int el)
-{
-	if (save_as > 0 && (el >= PT_NORMAL_NUM || ptypes[el].enabled == 0))
-		return 1;
-	//if (save_as > 1 && (el == PT_ELEC || el == PT_FIGH || el == PT_ACEL || el == PT_DCEL || el == PT_BANG || el == PT_IGNT))
-	//	return 1;
-	return 0;
-}
-
-int check_save(int save_as)
-{
-	int i;
-	for (i=0; i<NPART; i++)
-	{
-		if (invalid_element(save_as,parts[i].type))
-		{
-			char errortext[256] = "";
-			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].type].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
-			info_ui(vid_buf,"Error",errortext);
-			return 1;
-		}
-		if ((parts[i].type == PT_CLNE || parts[i].type == PT_PCLN || parts[i].type == PT_BCLN || parts[i].type == PT_PBCN || parts[i].type == PT_STOR || parts[i].type == PT_CONV || parts[i].type == PT_STKM || parts[i].type == PT_STKM2 || parts[i].type == PT_FIGH || parts[i].type == PT_LAVA) && invalid_element(save_as,parts[i].ctype))
-		{
-			char errortext[256] = "";
-			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].ctype].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
-			info_ui(vid_buf,"Error",errortext);
-			return 1;
-		}
-		if (parts[i].type == PT_PIPE && invalid_element(save_as,parts[i].tmp))
-		{
-			char errortext[256] = "";
-			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].tmp].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
-			info_ui(vid_buf,"Error",errortext);
-			return 1;
-		}
-	}
-	return 0;
 }
 
 void clear_sim(void)

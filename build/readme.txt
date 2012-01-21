@@ -199,3 +199,4 @@ new lua elements - Videogamer555 - http://powdertoy.co.uk/Discussions/Thread/Vie
 old console commands destroy/safe that I made a long time ago, + still more lua commands
 More deco tools
 brush rotation
+Maybe convert this mod to c++ when Simon finishes converting The Powder Toy to c++

@@ -6,6 +6,7 @@
 #include "gravity.h"
 #include "BSON.h"
 
+int saveversion;
 //Pop
 pixel *prerender_save(void *save, int size, int *width, int *height)
 {
@@ -27,11 +28,22 @@ pixel *prerender_save(void *save, int size, int *width, int *height)
 
 void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr)
 {
-#ifdef SAVE_OPS
-	return build_save_OPS(size, orig_x0, orig_y0, orig_w, orig_h, bmap, vx, vy, pv, fvx, fvy, signs, partsptr);
-#else
-	return build_save_PSv(size, orig_x0, orig_y0, orig_w, orig_h, bmap, fvx, fvy, signs, partsptr);
-#endif
+	if (save_as == 5 || save_as == 6) //Beta & Release don't have OPS format
+		return NULL;
+
+	if (check_save(save_as%3))
+		return NULL;
+	if (save_as%3 == 1) //Beta
+		saveversion = BETA_VERSION;
+	else if (save_as%3 == 2) //Release
+		saveversion = RELEASE_VERSION;
+	else //Mod
+		saveversion = MOD_SAVE_VERSION+192;
+
+	if (save_as >= 3)
+		return build_save_OPS(size, orig_x0, orig_y0, orig_w, orig_h, bmap, vx, vy, pv, fvx, fvy, signs, partsptr);
+	else
+		return build_save_PSv(size, orig_x0, orig_y0, orig_w, orig_h, bmap, fvx, fvy, signs, partsptr);
 }
 
 int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, unsigned pmap[YRES][XRES])
@@ -50,6 +62,45 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 		return parse_save_PSv(save, size, replace, x0, y0, bmap, fvx, fvy, signs, partsptr, pmap);
 	}
 	return 1;
+}
+
+int invalid_element(int save_as, int el)
+{
+	if (save_as > 0 && (el >= PT_NORMAL_NUM || ptypes[el].enabled == 0))
+		return 1;
+	//if (save_as > 1 && (el == PT_ELEC || el == PT_FIGH || el == PT_ACEL || el == PT_DCEL || el == PT_BANG || el == PT_IGNT))
+	//	return 1;
+	return 0;
+}
+
+int check_save(int save_as)
+{
+	int i;
+	for (i=0; i<NPART; i++)
+	{
+		if (invalid_element(save_as,parts[i].type))
+		{
+			char errortext[256] = "";
+			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].type].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
+			info_ui(vid_buf,"Error",errortext);
+			return 1;
+		}
+		if ((parts[i].type == PT_CLNE || parts[i].type == PT_PCLN || parts[i].type == PT_BCLN || parts[i].type == PT_PBCN || parts[i].type == PT_STOR || parts[i].type == PT_CONV || parts[i].type == PT_STKM || parts[i].type == PT_STKM2 || parts[i].type == PT_FIGH || parts[i].type == PT_LAVA) && invalid_element(save_as,parts[i].ctype))
+		{
+			char errortext[256] = "";
+			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].ctype].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
+			info_ui(vid_buf,"Error",errortext);
+			return 1;
+		}
+		if (parts[i].type == PT_PIPE && invalid_element(save_as,parts[i].tmp))
+		{
+			char errortext[256] = "";
+			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].tmp].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
+			info_ui(vid_buf,"Error",errortext);
+			return 1;
+		}
+	}
+	return 0;
 }
 
 pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
@@ -79,10 +130,10 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 	*height = fullH;
 	
 	//From newer version
-	if(inputData[4] > SAVE_VERSION)
+	if(inputData[4] > SAVE_VERSION && inputData[4] < 200)
 	{
 		fprintf(stderr, "Save from newer version\n");
-		goto fail;
+		//goto fail;
 	}
 		
 	//Incompatible cell size
@@ -155,6 +206,21 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 			else
 			{
 				fprintf(stderr, "Invalid datatype of wall data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
+			}
+		}
+		else if(strcmp(bson_iterator_key(&iter), "compatible_with")==0)
+		{
+			if(bson_iterator_type(&iter)==BSON_INT)
+			{
+				if (bson_iterator_int(&iter) > MOD_SAVE_VERSION)
+				{
+					fprintf(stderr, "Save is not compatible\n");
+					goto fail;
+				}
+			}
+			else
+			{
+				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
 	}
@@ -299,7 +365,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 					//Skip ctype
 					if(fieldDescriptor & 0x20)
 					{
-						if(i+1 >= partsDataLen) goto fail;
+						if(i >= partsDataLen) goto fail;
 						ctype = partsData[i++];
 						if(fieldDescriptor & 0x200)
 						{
@@ -597,31 +663,34 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 					partsData[partsDataLen++] = vTemp;
 				}
 
-				//Tmp2 (optional), 1 byte
-				if(partsptr[i].tmp2)
+				if (save_as == 0)
 				{
-					fieldDesc |= 1 << 10;
-					partsData[partsDataLen++] = partsptr[i].tmp2;
-					if (partsptr[i].type == PT_MOVS)
-						partsData[partsDataLen++] = partsptr[i].tmp2 >> 8;
-				}
-
-				if ((partsptr[i].type == PT_ANIM || partsptr[i].type == PT_INDI) &&  partsptr[i].ctype)
-				{
-					int j, max = partsptr[i].ctype;
-					if (partsptr[i].type == PT_INDI)
-						max = 256;
-					for (j = 0; j <=max;j++)
+					//Tmp2 (optional), 1 byte
+					if(partsptr[i].tmp2)
 					{
-						partsData[partsDataLen++] = (partsptr[i].animations[j]&0xFF000000)>>24;
-						partsData[partsDataLen++] = (partsptr[i].animations[j]&0x00FF0000)>>16;
-						partsData[partsDataLen++] = (partsptr[i].animations[j]&0x0000FF00)>>8;
-						partsData[partsDataLen++] = (partsptr[i].animations[j]&0x000000FF);
+						fieldDesc |= 1 << 10;
+						partsData[partsDataLen++] = partsptr[i].tmp2;
+						if (partsptr[i].type == PT_MOVS)
+							partsData[partsDataLen++] = partsptr[i].tmp2 >> 8;
 					}
-				}
-				if (partsptr[i].type == PT_MOVS && !partsptr[i].tmp && !partsptr[i].tmp2 && i == msindex[partsptr[i].life])
-				{
-					partsData[partsDataLen++] = (int)((msrotation[partsptr[i].life] + 6.283185307179586476925286766559)*20);
+
+					if ((partsptr[i].type == PT_ANIM || partsptr[i].type == PT_INDI) &&  partsptr[i].ctype)
+					{
+						int j, max = partsptr[i].ctype;
+						if (partsptr[i].type == PT_INDI)
+							max = 256;
+						for (j = 0; j <=max;j++)
+						{
+							partsData[partsDataLen++] = (partsptr[i].animations[j]&0xFF000000)>>24;
+							partsData[partsDataLen++] = (partsptr[i].animations[j]&0x00FF0000)>>16;
+							partsData[partsDataLen++] = (partsptr[i].animations[j]&0x0000FF00)>>8;
+							partsData[partsDataLen++] = (partsptr[i].animations[j]&0x000000FF);
+						}
+					}
+					if (partsptr[i].type == PT_MOVS && !partsptr[i].tmp && !partsptr[i].tmp2 && i == msindex[partsptr[i].life])
+					{
+						partsData[partsDataLen++] = (int)((msrotation[partsptr[i].life] + 6.283185307179586476925286766559)*20);
+					}
 				}
 				
 				//Write the field descriptor;
@@ -762,7 +831,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	fullH = blockH*CELL;
 	
 	//From newer version
-	if(inputData[4] > SAVE_VERSION)
+	if(inputData[4] > SAVE_VERSION && inputData[4] > SAVE_VERSION < 200)
 	{
 		info_ui(vid_buf,"Save is from a newer version","Attempting to load it anyway, this may cause a crash");
 	}
@@ -1440,8 +1509,8 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 	if (c[2]==0x43 && c[1]==0x75 && c[0]==0x66) {
 		new_format = 1;
 	}
-	if (c[4]>SAVE_VERSION)
-		return NULL;
+	//if (c[4]>SAVE_VERSION)
+	//	return NULL;
 
 	bw = c[6];
 	bh = c[7];
@@ -1718,22 +1787,12 @@ corrupt:
 void *build_save_PSv(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr)
 {
 	unsigned char *d=calloc(1,3*(XRES/CELL)*(YRES/CELL)+(XRES*YRES)*(16+numframes*4)+MAXSIGNS*262+numballs*6), *c;
-	int i,j,x,y,p=0,*m=calloc(XRES*YRES, sizeof(int)),nummovs = 0,saveversion = MOD_SAVE_VERSION+237;
+	int i,j,x,y,p=0,*m=calloc(XRES*YRES, sizeof(int)),nummovs = 0;
 	int x0, y0, w, h, bx0=orig_x0/CELL, by0=orig_y0/CELL, bw, bh;
 	particle *parts = partsptr;
 	bw=(orig_w+orig_x0-bx0*CELL+CELL-1)/CELL;
 	bh=(orig_h+orig_y0-by0*CELL+CELL-1)/CELL;
 
-	if (check_save(save_as))
-	{
-		free(d);
-		free(m);
-		return NULL;
-	}
-	if (save_as == 1)
-		saveversion = 71;
-	else if (save_as == 2)
-		saveversion = 71;
 	// normalize coordinates
 	x0 = bx0*CELL;
 	y0 = by0*CELL;
@@ -2004,7 +2063,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 		new_format = 1;
 	}
 	ver = c[4];
-	if ((ver>SAVE_VERSION && ver < 238) || ver > 237+MOD_SAVE_VERSION)
+	if ((ver>SAVE_VERSION && ver < 200) || (ver < 237 && ver > 200+MOD_SAVE_VERSION))
 		info_ui(vid_buf,"Save is from a newer version","Attempting to load it anyway, this may cause a crash");
 	if (ver == 240) {
 		ver = 65;
@@ -2018,11 +2077,11 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 		ver = 68;
 		modver = 6;
 	}
-	else if (ver >= 244) {
+	else if (ver == 244) {
 		ver = 69;
 		modver = 7;
 	}
-	else if (ver >= 245) {
+	else if (ver >= 200) {
 		ver = 71;
 		modver = 8;
 	}
