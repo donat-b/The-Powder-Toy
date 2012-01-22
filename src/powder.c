@@ -655,7 +655,16 @@ void kill_part(int i)//kills particle number i
 		int bn = parts[i].life;
 		msnum[bn]--;
 		if (msindex[bn]-1 == i)
+		{
 			msindex[bn] = 0;
+			for (i=0; i<=parts_lastActiveIndex; i++)
+			{
+				if (parts[i].type == PT_MOVS && parts[i].life == bn && (pmap[(int)(parts[i].y+.5)][(int)(parts[i].x+.5)]>>8) != i)
+				{
+					kill_part(i); //kill moving solid particles from a destroyed ball hidden under other particles
+				}
+			}
+		}
 	}
 	else if (parts[i].type == PT_ANIM)
 	{
@@ -2233,6 +2242,12 @@ void update_particles_i(pixel *vid, int start, int inc)
 			if (legacy_enable)//if heat sim is off
 				update_legacy_all(i,x,y,surround_space,nt);
 
+			if (pmap[(int)(parts[i].y+.5)][(int)(parts[i].x+.5)]>>8 != i)
+			{
+				int p = pmap[(int)(parts[i].y+.5)][(int)(parts[i].x+.5)]>>8;
+				if (parts[p].type == PT_MOVS && msindex[parts[p].life] == 0)
+					kill_part(p); // kill moving solid particles on top of other particles not attached to a ball
+			}
 killed:
 			if (parts[i].type == PT_NONE)//if its dead, skip to next particle
 				continue;

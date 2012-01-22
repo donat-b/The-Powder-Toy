@@ -183,7 +183,6 @@ supposed to now.
 
 
 Bugs:
->Moving solids destroyed by large pressure leave behind pieces inside solids
 >Rotating moving solids move left too much
 
 
