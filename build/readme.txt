@@ -24,6 +24,7 @@ OmegaSupreme - Animated LCRY
 Videogamer555 - New heat displays
 disturbed666 - A way to turn PHOT into ELEC (but I used PINV instead of TESC)
 Dynotec - new statistics
+therocketeer - smudge tool
 
 
 
@@ -172,12 +173,12 @@ Also added a few more options not in any normal HUD.
 
 Next Version (Version 10)
 Added display mode toggles, press Ctrl+ a number key besides 4 and 8 to 
-toggle the main feature of that display temporarily without changing 
-anything about your current display mode. Added more statistics. Fixed some 
-moving solid bugs and made rotation save. Updated to newest source, which 
-includes the new save format. You can delete corrupted stamps now. Fix three 
-powered electronic related bugs, all electronics should work like they're 
-supposed to now.
+toggle the main feature of that display temporarily. Added more statistics. 
+Fixed some moving solid bugs and made rotation save. Updated to newest 
+source, which includes the new save format, but you can choose to save in the 
+old format instead. You can delete corrupted stamps now. Fix three powered 
+electronic related bugs, all electronics should work like they're supposed 
+to now. Added a decoration smudge tool
 
 
 

@@ -2819,7 +2819,7 @@ int color_menu_ui(pixel *vid_buf, int i, int *cr, int *cg, int *cb, int b, int b
 			float overflow = (float)fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
 			xoff = (int)(overflow / location);
 		}
-		for (n = 0; n<3; n++)
+		for (n = 0; n<4; n++)
 		{
 				for (a=1; a<15; a++)
 				{
@@ -2829,6 +2829,8 @@ int color_menu_ui(pixel *vid_buf, int i, int *cr, int *cg, int *cb, int b, int b
 							vid_buf[(XRES+BARSIZE)*(y+a)+((x-xoff)+c)] = PIXRGB(PIXR(toollist[n].colour)-10*a, PIXG(toollist[n].colour)-10*a, PIXB(toollist[n].colour)-10*a);
 						else if (n == DECO_DARKEN)
 							vid_buf[(XRES+BARSIZE)*(y+a)+((x-xoff)+c)] = PIXRGB(PIXR(toollist[n].colour)+10*a, PIXG(toollist[n].colour)+10*a, PIXB(toollist[n].colour)+10*a);
+						else if (n == DECO_SMUDGE)
+							vid_buf[(XRES+BARSIZE)*(y+a)+((x-xoff)+c)] = PIXRGB(PIXR(toollist[n].colour), PIXG(toollist[n].colour)-5*c, PIXB(toollist[n].colour)+5*c);
 						else if (n == DECO_DRAW)
 							vid_buf[(XRES+BARSIZE)*(y+a)+((x-xoff)+c)] = PIXRGB(*cr,*cg,*cb);
 						else
