@@ -31,25 +31,25 @@ int update_MOVS(UPDATE_FUNC_ARGS) {
 	if (y+1 < YRES && tmp2 > 0 && type && (type != PT_MOVS || (type == PT_MOVS && parts[pmap[y+1][x]>>8].life != bn)))
 	{
 		parts[i].vy -= tmp2;
-		msrotation[bn] -= tmp/5000;
+		newmsrotation[bn] -= tmp/5000;
 	}
 	type = pmap[y-1][x]&0xFF;
 	if (y-1 >= 0 && tmp2 < 0 && type && (type != PT_MOVS || (type == PT_MOVS && parts[pmap[y-1][x]>>8].life != bn)))
 	{
 		parts[i].vy -= tmp2;
-		msrotation[bn] -= tmp/5000;
+		newmsrotation[bn] -= tmp/5000;
 	}
 	type = pmap[y][x+1]&0xFF;
 	if (x+1 < XRES && tmp > 0 && type && (type != PT_MOVS || (type == PT_MOVS && parts[pmap[y][x+1]>>8].life != bn)))
 	{
 		parts[i].vx -= tmp;
-		msrotation[bn] -= tmp2/5000;
+		newmsrotation[bn] -= tmp2/5000;
 	}
 	type = pmap[y][x-1]&0xFF;
 	if (x-1 >= 0 && tmp < 0 && type && (type != PT_MOVS || (type == PT_MOVS && parts[pmap[y][x-1]>>8].life != bn)))
 	{
 		parts[i].vx -= tmp;
-		msrotation[bn] -= tmp2/5000;
+		newmsrotation[bn] -= tmp2/5000;
 	}
 	return 0;
 }

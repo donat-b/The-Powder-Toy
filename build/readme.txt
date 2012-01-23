@@ -178,13 +178,13 @@ Fixed some moving solid bugs and made rotation save. Updated to newest
 source, which includes the new save format, but you can choose to save in the 
 old format instead. You can delete corrupted stamps now. Fix three powered 
 electronic related bugs, all electronics should work like they're supposed 
-to now. Added a decoration smudge tool
+to now. Added a decoration smudge (blend) tool
 
 
 
 
 Bugs:
->Rotating moving solids move left too much
+None that I know of
 
 
 

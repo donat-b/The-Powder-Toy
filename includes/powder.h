@@ -867,6 +867,7 @@ extern int msnum[256];
 extern float msvx[256];
 extern float msvy[256];
 extern float msrotation[256];
+extern float newmsrotation[256];
 extern int numballs;
 extern int ms_rotation;
 

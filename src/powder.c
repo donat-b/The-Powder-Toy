@@ -37,7 +37,7 @@ unsigned pmap[YRES][XRES];
 unsigned cb_pmap[YRES][XRES];
 unsigned photons[YRES][XRES];
 
-float msvx[256], msvy[256], msrotation[256];
+float msvx[256], msvy[256], msrotation[256], newmsrotation[256];
 int msindex[256], msnum[256], numballs = 0, creatingsolid = 0, ms_rotation = 0;
 
 static int pn_junction_sprk(int x, int y, int pt)
@@ -2802,6 +2802,7 @@ void update_moving_solids()
 		msvx[bn] = msvx[bn]/msnum[bn];
 		msvy[bn] = msvy[bn]/msnum[bn];
 		msvy[bn] = msvy[bn] + .2;
+		msrotation[bn] = newmsrotation[bn];
 		if (!ms_rotation)
 		{
 			msrotation[bn] = 0;
