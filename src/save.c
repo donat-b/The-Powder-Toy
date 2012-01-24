@@ -663,7 +663,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 					partsData[partsDataLen++] = vTemp;
 				}
 
-				if (save_as == 0)
+				if (save_as == 3)
 				{
 					//Tmp2 (optional), 1 byte
 					if(partsptr[i].tmp2)
@@ -2751,7 +2751,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 		numballs += d[p++];
 		for (i = 0; i < NPART; i++)
 		{
-			if (parts[i].type == PT_MOVS && parts[i].life >= oldnumballs)
+			if (parts[i].type == PT_MOVS && parts[i].life >= oldnumballs && msindex[parts[i].life])
 			{
 				if (parts[i].x < parts[msindex[parts[i].life]-1].x)
 				{
