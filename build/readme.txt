@@ -149,7 +149,7 @@ published. It makes sure that you don't add in any new elements not in those
 versions. PINV+PHOT = ELEC. SPNG drags along other particles with it, even 
 solids that normally can't move.
 
-Version 8.0: http://min.us/muN92vQxC#1o
+Version 8.0: http://min.us/muN92vQxC
 Wall names display in the hud. New lua functions: get_wall and create_wall. A 
 New Wall: ERASEALL. It can erase walls, signs, and particles all at once. 
 Most powered elements drawn in this version are now activated instantly. Set 
@@ -162,7 +162,7 @@ reactions. You can make things like indestructible WATR or METL. Lua code can
 now be saved. Put it in luacode.txt, and it will be saved and run in 
 stamps/saves. Press up in the console and then enter to load an example.
 
-Version 9
+Version 9 http://min.us/muN92vQxC
 Fix loading some saves and fixed crash with HUD. Removed update button 
 permanetely and updated to newer source. Also, decoration color is now drawn 
 on stamps in the stamp browser. 2 new quickoptions: Newtonian gravity and 
@@ -171,7 +171,7 @@ favorites menu and different options will come up. You can change all 4 of
 the original HUD's and it will save and be loaded the next time you start. 
 Also added a few more options not in any normal HUD.
 
-Next Version (Version 10)
+Version 10
 Added display mode toggles, press Ctrl+ a number key besides 4 and 8 to 
 toggle the main feature of that display temporarily. Added more statistics. 
 Fixed some moving solid bugs and made rotation save. Updated to newest 

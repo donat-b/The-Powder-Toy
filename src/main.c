@@ -146,16 +146,18 @@ static const char *it_msg =
     "\n\boUse 'Z' for a zoom tool. Click to make the drawable zoom window stay around. Use the wheel to change the zoom strength\n"
     "Use 'S' to save parts of the window as 'stamps'.\n"
     "'L' will load the most recent stamp, 'K' shows a library of stamps you saved.\n"
-    "'C' will cycle the display mode (Fire, Blob, Velocity, etc.). The numbers on the keyboard do the same\n"
-    "Use the mouse scroll wheel to change the tool size for particles.\n"
-    "The spacebar can be used to pause physics.\n"
+    "The numbers on the keyboard will change the display mode\n"
+    "Use the mouse scroll wheel or '[' and ']' to change the tool size for particles.\n"
+    "The spacebar can be used to pause and unpause physics.\n"
     "'P' will take a screenshot and save it into the current directory.\n"
     "\n"
     "Contributors: \bgStanislaw K Skowronek (\brhttp://powder.unaligned.org\bg, \bbirc.unaligned.org #wtf\bg),\n"
     "\bgSimon Robertshaw, Skresanov Savely, cracker64, Catelite, Bryan Hoyle, Nathan Cousins, jacksonmj,\n"
 	"\bgLieuwe Mosch, Anthony Boot, Matthew \"me4502\", MaksProg\n"
     "\n"
-    "\bgTo use online features such as saving, you need to register at: \brhttp://powdertoy.co.uk/Register.html"
+    "\bgTo use online features such as saving, you need to register at: \brhttp://powdertoy.co.uk/Register.html\n"
+    "\n"
+    "\brJ\bla\boc\bgo\btb\bb1\bp'\bws \bbMod version 10"
     ;
 
 typedef struct
