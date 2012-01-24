@@ -5778,7 +5778,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 					cr = 0;
 					cg = 0;
 					cb = 0;
-					HSV_to_RGB(hh,255-ss,255-ss,&cr,&cg,&cb);
+					HSV_to_RGB(hh,255-ss,currV,&cr,&cg,&cb);
 					vid_buf[(ss+grid_offset_y)*(XRES+BARSIZE)+(clamp_flt((float)hh, 0, 359)+grid_offset_x)] = PIXRGB(cr, cg, cb);
 				}
 			//draw brightness bar
