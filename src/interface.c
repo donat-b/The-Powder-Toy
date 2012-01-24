@@ -5758,6 +5758,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 
 		if(!hidden)
 		{
+			char hex[32] = "";
 			clearrect(vid_buf, window_offset_x, window_offset_y, 2+255+4+10+5, 2+255+20);
 			drawrect(vid_buf, window_offset_x, window_offset_y, 2+255+4+10+5, 2+255+20, 255, 255, 255, 255);//window around whole thing
 
@@ -5767,6 +5768,8 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 			ui_edit_draw(vid_buf, &box_R);
 			ui_edit_draw(vid_buf, &box_G);
 			ui_edit_draw(vid_buf, &box_B);
+			sprintf(hex,"0x%.6X",cr*65536+cg*256+cb);
+			drawtext(vid_buf,110,264,hex,cr,cg,cb,255);
 
 			//draw color square
 			for(ss=0; ss<=255; ss++)
