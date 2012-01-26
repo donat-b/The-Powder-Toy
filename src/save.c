@@ -28,7 +28,7 @@ pixel *prerender_save(void *save, int size, int *width, int *height)
 
 void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr)
 {
-	if (save_as == 5 || save_as == 6) //Beta & Release don't have OPS format
+	if (save_as == 1 || save_as == 5) //Beta doesn't have PSv format & Release don't have OPS format
 		return NULL;
 
 	if (check_save(save_as%3))
@@ -663,17 +663,17 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 					partsData[partsDataLen++] = vTemp;
 				}
 
+				//Tmp2 (optional), 1 byte
+				if(partsptr[i].tmp2)
+				{
+					fieldDesc |= 1 << 10;
+					partsData[partsDataLen++] = partsptr[i].tmp2;
+					if (partsptr[i].type == PT_MOVS)
+						partsData[partsDataLen++] = partsptr[i].tmp2 >> 8;
+				}
+
 				if (save_as == 3)
 				{
-					//Tmp2 (optional), 1 byte
-					if(partsptr[i].tmp2)
-					{
-						fieldDesc |= 1 << 10;
-						partsData[partsDataLen++] = partsptr[i].tmp2;
-						if (partsptr[i].type == PT_MOVS)
-							partsData[partsDataLen++] = partsptr[i].tmp2 >> 8;
-					}
-
 					if ((partsptr[i].type == PT_ANIM || partsptr[i].type == PT_INDI) &&  partsptr[i].ctype)
 					{
 						int j, max = partsptr[i].ctype;
@@ -1451,6 +1451,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							STKM_init_legs(&(fighters[fcount]), newIndex);
 						}
 					}
+					if (partsptr[newIndex].type == PT_SOAP)
+						partsptr[newIndex].ctype = 0; // delete all soap connections, but it looks like if tmp & tmp2 were saved to 3 bytes, connections would load properly
 					if (!ptypes[partsptr[newIndex].type].enabled)
 						partsptr[newIndex].type = PT_NONE;
 					if (partsptr[newIndex].type == PT_MOVS)

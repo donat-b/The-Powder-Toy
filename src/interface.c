@@ -2531,11 +2531,6 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 		}
 		else if (h == FAV_SAVE)
 		{
-			if (save_as == 4 || save_as == 5)
-				save_as = 0;
-			else if (save_as == 1)
-				save_as = 2;
-
 			if (save_as%3 == 0)
 				strappend(favtext, "Jacob's Mod ver. 10");
 			else if (save_as%3 == 1)
@@ -2621,7 +2616,13 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 			else if (h == FAV_HEAT)
 				heatmode = (heatmode + 1)%3;
 			else if (h == FAV_SAVE)
+			{
 				save_as = (save_as + 1)%6;
+				if (save_as == 5)
+					save_as = 0;
+				else if (save_as == 1)
+					save_as = 2;
+			}
 			else if (h == FAV_LUA)
 				addluastuff();
 			else if (h == FAV_CUSTOMHUD)

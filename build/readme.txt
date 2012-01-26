@@ -180,11 +180,12 @@ old format instead. You can delete corrupted stamps now. Fix three powered
 electronic related bugs, all electronics should work like they're supposed 
 to now. Added a decoration smudge (blend) tool
 
+Next Version
 
 
 
 Bugs:
-decoration hex number doesn't only drawn on left side of the screen
+decoration hex number is only drawn on left side of the screen
 //None that I know of
 
 
@@ -192,7 +193,8 @@ decoration hex number doesn't only drawn on left side of the screen
 
 Future Ideas/TODO: > means currently being worked on/added next
 draw property + PROP2 element, also will make drawing decoration faster
-PRHC - powered heater/cooler - dark purple deactivated - insl when inactivated - Tetracon
+INDC - indestructible conductor, conducts diferently than normal sprk
+PRHC - powered heater/cooler - flood fill heats stuff
 rechargeable battery - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11652
 ambient heat blocking wall
 sensor? - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12361

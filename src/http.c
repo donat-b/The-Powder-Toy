@@ -480,14 +480,14 @@ int http_async_req_status(void *ctx)
 				cx->thlen = 0;
 			}
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "Content-Length: %d\n", cx->txdl);
-//#ifdef BETA
-//			cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dB%d\n", IDENT_VERSION, SAVE_VERSION, MINOR_VERSION);
-//#else
-			if (save_as != 2)
-				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dB%d\n", IDENT_VERSION, SAVE_VERSION, MINOR_VERSION);
+
+			if (save_as%3 == 0)
+				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dB%d\n", "J", SAVE_VERSION, MINOR_VERSION);
+			else if (save_as%3 == 1)
+				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dB%d\n", IDENT_VERSION, BETA_VERSION, BETA_MINOR_VER);
 			else
-				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dS%d\n", IDENT_VERSION, RELEASE_VERSION, 0);
-//#endif
+				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dS%d\n", IDENT_VERSION, RELEASE_VERSION, RELEASE_MINOR_VER);
+
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "\n");
 			memcpy(cx->tbuf+cx->tlen, cx->txd, cx->txdl);
 			cx->tlen += cx->txdl;
