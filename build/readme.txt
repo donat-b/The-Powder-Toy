@@ -194,7 +194,9 @@ decoration hex number is only drawn on left side of the screen
 
 
 Future Ideas/TODO: > means currently being worked on/added next
+INWR with tmp of 1 doesn't conduct to switch - cip - should be really easy to do
 make drawing decoration faster, add deco floodfill, & fix the small bugs I created in the editor
+save pressure in stamps - I just realized this right before it was posted on the forums
 INDC - indestructible conductor, conducts diferently than normal sprk
 PRHC - powered heater/cooler - flood fill heats stuff
 rechargeable battery - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11652

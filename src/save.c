@@ -1725,7 +1725,7 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 					goto corrupt;
 				}
 				if (d[p++])
-					fb[j] = 0;
+					fb[j] = PIXRGB(0,0,0);
 			}
 		}
 		//Read RED component
@@ -1737,7 +1737,7 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 					goto corrupt;
 				}
 				if (m[j] <= NPART) {
-					fb[j] |= d[p++]<<16;
+					fb[j] |= PIXRGB(d[p++],0,0);
 				} else {
 					p++;
 				}
@@ -1752,7 +1752,7 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 					goto corrupt;
 				}
 				if (m[j] <= NPART) {
-					fb[j] |= d[p++]<<8;
+					fb[j] |= PIXRGB(0,d[p++],0);
 				} else {
 					p++;
 				}
@@ -1767,7 +1767,7 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 					goto corrupt;
 				}
 				if (m[j] <= NPART) {
-					fb[j] |= d[p++];
+					fb[j] |= PIXRGB(0,0,d[p++]);
 				} else {
 					p++;
 				}
