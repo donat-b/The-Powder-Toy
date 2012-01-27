@@ -734,12 +734,16 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 	int t = tv & 0xFF;
 	int v = (tv >> 8) & 0xFF;
 	
-	if (x<0 || y<0 || x>=XRES || y>=YRES || ((t<0 || t>=PT_NUM)&&t!=SPC_HEAT&&t!=SPC_COOL&&t!=SPC_AIR&&t!=SPC_VACUUM&&t!=SPC_PGRV&&t!=SPC_NGRV))
+	if (x<0 || y<0 || x>=XRES || y>=YRES || ((t<0 || t>=PT_NUM)&&t!=SPC_HEAT&&t!=SPC_COOL&&t!=SPC_AIR&&t!=SPC_VACUUM&&t!=SPC_PGRV&&t!=SPC_NGRV&&t!=SPC_PROP2))
 		return -1;
 	if (t>=0 && t<PT_NUM && !ptypes[t].enabled)
 		return -1;
 	if(t==SPC_PROP) {
 		return -1;	//Prop tool works on a mouse click basic, make sure it doesn't do anything here
+	}
+	else if (t==SPC_PROP2)
+	{
+		return create_property(x, y, prop_offset, prop_value, prop_format);
 	}
 
 	if (t==SPC_HEAT||t==SPC_COOL)
@@ -1191,6 +1195,25 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 	}
 	
 	return i;
+}
+
+int create_property(int x, int y, size_t propoffset, void * propvalue, int proptype)
+{
+	int i = pmap[y][x];
+	if (!propvalue)
+		prop_edit_ui(vid_buf, x, y, 0);
+	if (i&0xFF)
+	{
+		if(proptype==2){
+			*((float*)(((char*)&parts[i>>8])+propoffset)) = *((float*)propvalue);
+		} else if(proptype==0) {
+			*((int*)(((char*)&parts[i>>8])+propoffset)) = *((int*)propvalue);
+		} else if(proptype==1) {
+			*((char*)(((char*)&parts[i>>8])+propoffset)) = *((char*)propvalue);
+		}
+		return i>>8;
+	}
+	return -1;
 }
 
 static void create_gain_photon(int pp)//photons from PHOT going through GLOW
@@ -2908,14 +2931,7 @@ int flood_prop_2(int x, int y, size_t propoffset, void * propvalue, int proptype
 	}
 	for (x=x1; x<=x2; x++)
 	{
-		i = pmap[y][x]>>8;
-		if(proptype==2){
-			*((float*)(((char*)&parts[i])+propoffset)) = *((float*)propvalue);
-		} else if(proptype==0) {
-			*((int*)(((char*)&parts[i])+propoffset)) = *((int*)propvalue);
-		} else if(proptype==1) {
-			*((char*)(((char*)&parts[i])+propoffset)) = *((char*)propvalue);
-		}
+		create_property(x, y, propoffset, propvalue, proptype);
 		bitmap[(y*XRES)+x] = 1;
 	}
 	if (y>=CELL+dy)
@@ -3144,7 +3160,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 		return 0;
 
 	if(c==SPC_PROP){
-		prop_edit_ui(vid_buf, x, y);
+		prop_edit_ui(vid_buf, x, y, 1);
 		return 0;
 	}
 	if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM || c == SPC_PGRV || c == SPC_NGRV)
@@ -3153,7 +3169,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 	{
 		if (wall==r)
 		{
-			if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM || c == SPC_PGRV || c == SPC_NGRV || wall == WL_SIGN)
+			if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM || c == SPC_PGRV || c == SPC_NGRV || wall == WL_SIGN || c == SPC_PROP2)
 				break;
 			if (wall == WL_ERASE || wall == WL_ERASEALL)
 				b = 0;

@@ -25,7 +25,7 @@
 
 #define UI_WALLSTART 222
 #define UI_ACTUALSTART 122
-#define UI_WALLCOUNT 26
+#define UI_WALLCOUNT 27
 
 #define WL_WALLELEC	122
 #define WL_EWALL	123
@@ -52,6 +52,7 @@
 #define SPC_PGRV 243
 #define SPC_NGRV 244
 #define SPC_PROP 246
+#define SPC_PROP2 248
 
 #define WL_ALLOWGAS	140
 #define WL_GRAV		142
@@ -733,6 +734,7 @@ static wall_type wtypes[] =
 	{"ENERGYWALL",	PIXPACK(0xFFAA00), PIXPACK(0xAA5500), 4,  "Energy wall, allows only energy type particles to pass"},
 	{"PROP",		PIXPACK(0xFFAA00), PIXPACK(0x000000), -1, "Property edit tool"},
 	{"ERASEALL",	PIXPACK(0x808080), PIXPACK(0x000000), -1, "Erases walls, particles, and signs"},
+	{"PROP2",		PIXPACK(0xFFAA00), PIXPACK(0x000000), -1, "Property drawing tool"},
 };
 
 struct fav_menu
@@ -892,6 +894,8 @@ int InCurrentBrush(int i, int j, int rx, int ry);
 int get_brush_flags();
 
 int create_part(int p, int x, int y, int t);
+
+int create_property(int x, int y, size_t propoffset, void * propvalue, int proptype);
 
 void delete_part(int x, int y, int flags);
 

@@ -181,6 +181,8 @@ electronic related bugs, all electronics should work like they're supposed
 to now. Added a decoration smudge (blend) tool
 
 Next Version
+Added PROP2 tool, you can draw properties on with the normal brush now.
+
 
 
 
@@ -192,7 +194,7 @@ decoration hex number is only drawn on left side of the screen
 
 
 Future Ideas/TODO: > means currently being worked on/added next
-draw property + PROP2 element, also will make drawing decoration faster
+make drawing decoration faster, add deco floodfill, & fix the small bugs I created in the editor
 INDC - indestructible conductor, conducts diferently than normal sprk
 PRHC - powered heater/cooler - flood fill heats stuff
 rechargeable battery - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11652

@@ -2,6 +2,11 @@
 
 int update_ANIM(UPDATE_FUNC_ARGS) {
 	int oldtmp = parts[i].tmp, oldtmp2 = parts[i].tmp2;
+	if (!parts[i].animations)
+	{
+		parts[i].type = PT_NONE;
+		return 1;
+	}
 	if (parts[i].life>0 && parts[i].life!=10)
 		parts[i].life--;
 	if (parts[i].tmp >= 0 && parts[i].life == 10)

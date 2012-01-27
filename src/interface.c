@@ -1036,11 +1036,12 @@ char *input_ui(pixel *vid_buf, char *title, char *prompt, char *text, char *shad
 	return mystrdup(ed.str);
 }
 
-void prop_edit_ui(pixel *vid_buf, int x, int y)
+void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 {
 	float valuef;
 	unsigned char valuec;
 	int valuei;
+	unsigned int valueui;
 	int format;
 	size_t propoffset;
 	char *listitems[] = {"type", "life", "ctype", "temp", "tmp", "tmp2", "vy", "vx", "x", "y", "dcolour"};
@@ -1164,7 +1165,8 @@ void prop_edit_ui(pixel *vid_buf, int x, int y)
 	
 	if(format==0){
 		sscanf(ed2.str, "%d", &valuei);
-		flood_prop(x, y, propoffset, &valuei, format);
+		if (flood)
+			flood_prop(x, y, propoffset, &valuei, format);
 	}
 	if(format==1){
 		int isint = 1, i;
@@ -1190,15 +1192,16 @@ void prop_edit_ui(pixel *vid_buf, int x, int y)
 			}
 		}
 		valuec = (unsigned char)valuei;
-		flood_prop(x, y, propoffset, &valuec, format);
+		if (flood)
+			flood_prop(x, y, propoffset, &valuec, format);
 	}
 	if(format==2){
 		sscanf(ed2.str, "%f", &valuef);
-		flood_prop(x, y, propoffset, &valuef, format);
+		if (flood)
+			flood_prop(x, y, propoffset, &valuef, format);
 	}
 	if(format==3){
 		int j;
-		unsigned int valueui;
 		if(ed2.str[0] == '#') // #FFFFFFFF
 		{
 			//Convert to lower case
@@ -1219,7 +1222,34 @@ void prop_edit_ui(pixel *vid_buf, int x, int y)
 		{
 			sscanf(ed2.str, "%d", &valueui);
 		}
-		flood_prop(x, y, propoffset, &valueui, 0);
+		if (flood)
+			flood_prop(x, y, propoffset, &valueui, 0);
+	}
+	if (!flood)
+	{
+		prop_offset = propoffset;
+		prop_format = format;
+		if (format == 0)
+		{
+			prop_value = malloc(sizeof(int));
+			memcpy(prop_value,&valuei,sizeof(int));
+		}
+		else if (format == 1)
+		{
+			prop_value = malloc(sizeof(unsigned char));
+			memcpy(prop_value,&valuec,sizeof(unsigned char));
+		}
+		else if (format == 2)
+		{
+			prop_value = malloc(sizeof(float));
+			memcpy(prop_value,&valuef,sizeof(float));
+		}
+		else if (format == 3)
+		{
+			prop_format = 0;
+			prop_value = malloc(sizeof(unsigned int));
+			memcpy(prop_value,&valueui,sizeof(unsigned int));
+		}
 	}
 exit:
 	while (!sdl_poll())
@@ -2240,7 +2270,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 	{
 		for (n = UI_WALLSTART; n<UI_WALLSTART+UI_WALLCOUNT; n++)
 		{
-			if (n!=SPC_AIR&&n!=SPC_HEAT&&n!=SPC_COOL&&n!=SPC_VACUUM&&n!=SPC_WIND&&n!=SPC_PGRV&&n!=SPC_NGRV&&n!=SPC_PROP)
+			if (n!=SPC_AIR&&n!=SPC_HEAT&&n!=SPC_COOL&&n!=SPC_VACUUM&&n!=SPC_WIND&&n!=SPC_PGRV&&n!=SPC_NGRV&&n!=SPC_PROP&&n!=SPC_PROP2)
 			{
 				/*if (x-18<=2)
 				{
@@ -2281,7 +2311,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 	{
 		for (n = UI_WALLSTART; n<UI_WALLSTART+UI_WALLCOUNT; n++)
 		{
-			if (n==SPC_AIR||n==SPC_HEAT||n==SPC_COOL||n==SPC_VACUUM||n==SPC_WIND||n==SPC_PGRV||n==SPC_NGRV||n==SPC_PROP)
+			if (n==SPC_AIR||n==SPC_HEAT||n==SPC_COOL||n==SPC_VACUUM||n==SPC_WIND||n==SPC_PGRV||n==SPC_NGRV||n==SPC_PROP||n==SPC_PROP2)
 			{
 				/*if (x-18<=0)
 				{
@@ -2293,6 +2323,8 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 				{
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 					h = n;
+					if (b && h==SPC_PROP2)
+						prop_edit_ui(vid_buf, x, y, 0);
 				}
 				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
 				{
