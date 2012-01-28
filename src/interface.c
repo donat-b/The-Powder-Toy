@@ -5804,7 +5804,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 			ui_edit_draw(vid_buf, &box_G);
 			ui_edit_draw(vid_buf, &box_B);
 			sprintf(hex,"0x%.6X",cr*65536+cg*256+cb);
-			drawtext(vid_buf,110,264,hex,cr,cg,cb,255);
+			drawtext(vid_buf,on_left?110:469,264,hex,cr,cg,cb,255);
 
 			//draw color square
 			for(ss=0; ss<=255; ss++)
@@ -6014,7 +6014,12 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 			}
 			else //first click
 			{
-				if ((sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_CTRL)))
+				if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL)))
+				{
+					unsigned int value = b != 4 ? 0xFF000000 | PIXRGB(currR,currG,currB) : PIXRGB(0,0,0);
+					flood_prop(mx, my, offsetof(particle,dcolour), &value, 0);
+				}
+				else if ((sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_CTRL)))
 				{
 					lx = mx;
 					ly = my;

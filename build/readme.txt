@@ -188,15 +188,13 @@ Improved decoration drawing speed and added a hex value display to it.
 
 
 Bugs:
-decoration hex number is only drawn on left side of the screen
-//None that I know of
+None that I know of
 
 
 
 
 Future Ideas/TODO: > means currently being worked on/added next
 INWR with tmp of 1 doesn't conduct to switch - cip - should be really easy to do
-add deco floodfill, & fix the small bugs I created in the editor
 save pressure in stamps - I just realized this right before it was posted on the forums
 INDC - indestructible conductor, conducts diferently than normal sprk
 PRHC - powered heater/cooler - flood fill heats stuff
