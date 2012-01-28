@@ -31,7 +31,7 @@ int update_POWERED(UPDATE_FUNC_ARGS) {
 								parts[i].life = 10;
 							else if (parts[r>>8].ctype==PT_NSCN)
 								parts[i].life = 9;
-							else if ((parts[i].type == PT_SWCH || parts[i].type == PT_ACTV) && parts[r>>8].ctype != PT_PSCN && parts[r>>8].ctype != PT_NSCN && parts[i].life == 10)
+							else if ((parts[i].type == PT_SWCH || parts[i].type == PT_ACTV) && parts[r>>8].ctype != PT_PSCN && parts[r>>8].ctype != PT_NSCN && !(parts[r>>8].ctype == PT_INWR && parts[r>>8].tmp == 1) && parts[i].life == 10)
 							{
 								parts[i].ctype = parts[i].type;
 								part_change_type(i,x,y,PT_SPRK);
@@ -73,7 +73,7 @@ int update_POWERED(UPDATE_FUNC_ARGS) {
 								flood_prop(x,y,offsetof(particle, life),&tenlife,0);
 							else if (parts[r>>8].ctype==PT_NSCN && parts[i].life >= 10)
 								flood_prop(x,y,offsetof(particle, life),&ninelife,0);
-							else if ((parts[i].type == PT_SWCH || parts[i].type == PT_ACTV) && parts[r>>8].ctype != PT_PSCN && parts[r>>8].ctype != PT_NSCN && parts[i].life == 10)
+							else if ((parts[i].type == PT_SWCH || parts[i].type == PT_ACTV) && parts[r>>8].ctype != PT_PSCN && parts[r>>8].ctype != PT_NSCN && !(parts[r>>8].ctype == PT_INWR && parts[r>>8].tmp == 1) && parts[i].life == 10)
 							{
 								parts[i].ctype = parts[i].type;
 								part_change_type(i,x,y,PT_SPRK);
