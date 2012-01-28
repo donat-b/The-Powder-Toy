@@ -1229,6 +1229,8 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 	{
 		prop_offset = propoffset;
 		prop_format = format;
+		if (prop_value)
+			free(prop_value);
 		if (format == 0)
 		{
 			prop_value = malloc(sizeof(int));
@@ -6000,7 +6002,12 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 				}
 				else if(lb!=3)//while mouse is held down, it draws lines between previous and current positions
 				{
-					line_decorations(lx, ly, mx, my, *bsx, *bsy, currR, currG, currB, b, tool);
+					unsigned int value = b != 4 ? 0xFF000000 | PIXRGB(currR,currG,currB) : PIXRGB(0,0,0);
+					prop_format = 0;
+					prop_offset = offsetof(particle,dcolour);
+					prop_value = malloc(sizeof(unsigned int));
+					memcpy(prop_value,&value,sizeof(unsigned int));
+					create_line(lx, ly, mx, my, *bsx, *bsy, SPC_PROP2, 0);
 					lx = mx;
 					ly = my;
 				}
@@ -6045,7 +6052,12 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 				}
 				else //normal click, draw deco
 				{
-					create_decorations(mx,my,*bsx,*bsy,currR,currG,currB,b, tool);
+					unsigned int value = b != 4 ? 0xFF000000 | PIXRGB(currR,currG,currB) : PIXRGB(0,0,0);
+					prop_format = 0;
+					prop_offset = offsetof(particle,dcolour);
+					prop_value = malloc(sizeof(unsigned int));
+					memcpy(prop_value,&value,sizeof(unsigned int));
+					create_parts(mx, my, *bsx, *bsy, SPC_PROP2, 0, 1);
 					lx = mx;
 					ly = my;
 					lb = b;
@@ -6057,10 +6069,15 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 		{
 			if (lb && lm) //lm is box/line tool
 			{
+				unsigned int value = b != 4 ? 0xFF000000 | PIXRGB(currR,currG,currB) : PIXRGB(0,0,0);
+				prop_format = 0;
+				prop_offset = offsetof(particle,dcolour);
+				prop_value = malloc(sizeof(unsigned int));
+				memcpy(prop_value,&value,sizeof(unsigned int));
 				if (lm == 1)//line
-					line_decorations(lx, ly, mx, my, *bsx, *bsy, currR, currG, currB, lb, tool);
+					create_line(lx, ly, mx, my, *bsx, *bsy, SPC_PROP2, 0);
 				else//box
-					box_decorations(lx, ly, mx, my, currR, currG, currB, lb, tool);
+					create_box(lx, ly, mx, my, SPC_PROP2, 0);
 				lm = 0;
 			}
 			lb = 0;

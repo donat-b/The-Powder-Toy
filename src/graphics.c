@@ -3077,21 +3077,6 @@ void draw_walls(pixel *vid)
 			}
 }
 
-void create_decorations(int x, int y, int rx, int ry, int r, int g, int b, int click, int tool)
-{
-	int i,j,rp;
-	if (rx==0 && ry==0)
-	{
-		create_decoration(x,y,r,g,b,click,tool);
-		return;
-	}
-	for (j=-ry; j<=ry; j++)
-		for (i=-rx; i<=rx; i++)
-			if(y+j>=0 && x+i>=0 && x+i<XRES && y+j<YRES)
-				if (InCurrentBrush(i, j, rx, ry)){
-					create_decoration(x+i,y+j,r,g,b,click,tool);
-				}
-}
 void create_decoration(int x, int y, int r, int g, int b, int click, int tool)
 {
 	int rp, tr = 0, tg = 0, tb = 0;
@@ -3152,77 +3137,6 @@ void create_decoration(int x, int y, int r, int g, int b, int click, int tool)
 	{
 		parts[rp>>8].animations[framenum] = parts[rp>>8].dcolour;
 	}
-}
-void line_decorations(int x1, int y1, int x2, int y2, int rx, int ry, int r, int g, int b, int click, int tool)
-{
-	int cp=abs(y2-y1)>abs(x2-x1), x, y, dx, dy, sy;
-	float e, de;
-	if (cp)
-	{
-		y = x1;
-		x1 = y1;
-		y1 = y;
-		y = x2;
-		x2 = y2;
-		y2 = y;
-	}
-	if (x1 > x2)
-	{
-		y = x1;
-		x1 = x2;
-		x2 = y;
-		y = y1;
-		y1 = y2;
-		y2 = y;
-	}
-	dx = x2 - x1;
-	dy = abs(y2 - y1);
-	e = 0.0f;
-	if (dx)
-		de = dy/(float)dx;
-	else
-		de = 0.0f;
-	y = y1;
-	sy = (y1<y2) ? 1 : -1;
-	for (x=x1; x<=x2; x++)
-	{
-		if (cp)
-			create_decorations(y, x, rx, ry, r, g, b, click, tool);
-		else
-			create_decorations(x, y, rx, ry, r, g, b, click, tool);
-		e += de;
-		if (e >= 0.5f)
-		{
-			y += sy;
-			if (!(rx+ry))
-			{
-				if (cp)
-					create_decorations(y, x, rx, ry, r, g, b, click, tool);
-				else
-					create_decorations(x, y, rx, ry, r, g, b, click, tool);
-			}
-			e -= 1.0f;
-		}
-	}
-}
-void box_decorations(int x1, int y1, int x2, int y2, int r, int g, int b, int click, int tool)
-{
-	int i, j;
-	if (x1>x2)
-	{
-		i = x2;
-		x2 = x1;
-		x1 = i;
-	}
-	if (y1>y2)
-	{
-		j = y2;
-		y2 = y1;
-		y1 = j;
-	}
-	for (j=y1; j<=y2; j++)
-		for (i=x1; i<=x2; i++)
-			create_decorations(i, j, 0, 0, r, g, b, click, tool);
 }
 
 //draws the photon colors in the HUD
