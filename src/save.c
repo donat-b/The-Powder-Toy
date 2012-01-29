@@ -437,9 +437,9 @@ fin:
 void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* o_partsptr)
 {
 	particle *partsptr = o_partsptr;
-	unsigned char *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *finalData = NULL, *outputData = NULL;
+	unsigned char *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *pressData = NULL, *finalData = NULL, *outputData = NULL;
 	unsigned *partsPosLink = NULL, *partsPosFirstMap = NULL, *partsPosCount = NULL, *partsPosLastMap = NULL;
-	int partsDataLen, partsPosDataLen, fanDataLen, wallDataLen, finalDataLen, outputDataLen;
+	int partsDataLen, partsPosDataLen, fanDataLen, wallDataLen, pressDataLen, finalDataLen, outputDataLen;
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	int x, y, i, wallDataFound = 0;
 	int posCount, signsCount;
@@ -464,11 +464,19 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	wallDataLen = blockW*blockH;
 	fanData = malloc((blockW*blockH)*2);
 	fanDataLen = 0;
+	pressData = (unsigned char*)malloc((blockW*blockH)*2);
+	pressDataLen = 0;
 	for(x = blockX; x < blockX+blockW; x++)
 	{
 		for(y = blockY; y < blockY+blockH; y++)
 		{
 			wallData[(y-blockY)*blockW+(x-blockX)] = bmap[y][x];
+			if (0 && save_as == 3)
+			{
+				float pres = (max(-255,min(255,pv[y][x])))+256;
+				pressData[pressDataLen++] = (unsigned char)((int)(pres*128)&0xFF);
+				pressData[pressDataLen++] = (unsigned char)((int)(pres*128)>>8);
+			}
 			if(bmap[y][x] && !wallDataFound)
 				wallDataFound = 1;
 			if(bmap[y][x]==WL_FAN || bmap[y][x]==4)
@@ -737,6 +745,8 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 		bson_append_binary(&b, "wallMap", BSON_BIN_USER, wallData, wallDataLen);
 	if(fanData)
 		bson_append_binary(&b, "fanMap", BSON_BIN_USER, fanData, fanDataLen);
+	if(pressData)
+		bson_append_binary(&b, "pressMap", BSON_BIN_USER, (const char*)pressData, pressDataLen);
 	signsCount = 0;
 	for(i = 0; i < MAXSIGNS; i++)
 	{
@@ -810,8 +820,8 @@ fin:
 int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* o_partsptr, unsigned pmap[YRES][XRES])
 {
 	particle *partsptr = o_partsptr;
-	unsigned char * inputData = save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL;
-	int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, fanDataLen, wallDataLen;
+	unsigned char * inputData = save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *pressData = NULL;
+	int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, fanDataLen, wallDataLen, pressDataLen;
 	int i, freeIndicesCount, x, y, returnCode = 0, j, oldnumballs = numballs;
 	int *freeIndices = NULL;
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
@@ -976,6 +986,17 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			else
 			{
 				fprintf(stderr, "Invalid datatype of wall data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
+			}
+		}
+		else if(strcmp(bson_iterator_key(&iter), "pressMap")==0 && replace)
+		{
+			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (pressDataLen = bson_iterator_bin_len(&iter)) > 0)
+			{
+				pressData = (unsigned char*)bson_iterator_bin_data(&iter);
+			}
+			else
+			{
+				fprintf(stderr, "Invalid datatype of pressure data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
 			}
 		}
 		else if(strcmp(bson_iterator_key(&iter), "fanMap")==0)
@@ -1229,6 +1250,31 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		}
 	}
 	
+	//Read pressure data
+	if(pressData)
+	{
+		j = 0;
+		if(blockW * blockH > pressDataLen)
+		{
+			fprintf(stderr, "Not enough pressure data\n");
+			goto fail;
+		}
+		/*pressData[(y-blockY)*blockW+(x-blockX)*2] = (unsigned char)((int)(max(0,pv[y][x]+256)*128)&0xFF);
+		  pressData[(y-blockY)*blockW+(x-blockX)*2+1] = (unsigned char)((int)(max(0,pv[y][x]+256)*128)>>8);*/
+		for(x = 0; x < blockW; x++)
+		{
+			for(y = 0; y < blockH; y++)
+			{
+				int i2;
+				i = pressData[j++];
+				i2 = pressData[j++];
+				printf("%f\n",(i+(i2<<8)));
+				printf("%f\n\n",((i+(i2<<8))/128.0f)-256);
+				pv[blockY+y][blockX+x] = ((i+(i2<<8))/128.0f)-256;
+			}
+		}
+	}
+
 	//Read particle data
 	if(partsData && partsPosData)
 	{
