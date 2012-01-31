@@ -443,7 +443,7 @@ int do_move(int i, int x, int y, float nxf, float nyf)
 			}
 			if (t==PT_PHOT||t==PT_NEUT||t==PT_ELEC)
 				photons[ny][nx] = t|(i<<8);
-			else if (t)
+			else if (t && (pmap[ny][nx]&0xFF) != PT_PINV)
 				pmap[ny][nx] = t|(i<<8);
 		}
 	}
@@ -1328,7 +1328,7 @@ inline void delete_part(int x, int y, int flags)//calls kill_part with the parti
 
 	if (!i)
 		return;
-	if (!(flags&BRUSH_SPECIFIC_DELETE) || parts[i>>8].type==SLALT || SLALT==0)//specific deletiom
+	if (!(flags&BRUSH_SPECIFIC_DELETE) || parts[i>>8].type==SLALT || SLALT==0)//specific deletion
 	{
 		kill_part(i>>8);
 	}
@@ -2734,7 +2734,7 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 			{
 				if (t==PT_PHOT||t==PT_NEUT)
 					photons[y][x] = t|(i<<8);
-				else
+				else if ((pmap[y][x]&0xFF) != PT_PINV)
 					pmap[y][x] = t|(i<<8);
 			}
 			lastPartUsed = i;
