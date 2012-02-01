@@ -5198,7 +5198,7 @@ void execute_save(pixel *vid_buf)
 		error_ui(vid_buf, 0, "You must save this as the non beta version");
 		return;
 	}
-	if (svf_publish == 1 && check_save(2))
+	if (svf_publish == 1 && check_save(2,0,0,XRES,YRES))
 		return;
 
 	if (svf_id[0])

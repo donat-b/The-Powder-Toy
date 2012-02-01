@@ -31,7 +31,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	if (save_as == 1 || save_as == 5) //Beta doesn't have PSv format & Release don't have OPS format
 		return NULL;
 
-	if (check_save(save_as%3))
+	if (check_save(save_as%3, orig_x0, orig_y0, orig_w, orig_h))
 		return NULL;
 	if (save_as%3 == 1) //Beta
 		saveversion = BETA_VERSION;
@@ -66,38 +66,47 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 
 int invalid_element(int save_as, int el)
 {
-	if (save_as > 0 && (el >= PT_NORMAL_NUM || ptypes[el].enabled == 0))
+	if (save_as > 0 && (el >= PT_NORMAL_NUM || ptypes[el].enabled == 0)) //Check for mod/disabled elements
 		return 1;
-	//if (save_as > 1 && (el == PT_ELEC || el == PT_FIGH || el == PT_ACEL || el == PT_DCEL || el == PT_BANG || el == PT_IGNT))
+	//if (save_as > 1 && (el == PT_ELEC || el == PT_FIGH || el == PT_ACEL || el == PT_DCEL || el == PT_BANG || el == PT_IGNT)) //Check for beta elements (none right now)
 	//	return 1;
 	return 0;
 }
 
-int check_save(int save_as)
+//checks all elements and ctypes/tmps of certain elements to make sure there are no mod/beta elements in a save or stamp
+int check_save(int save_as, int orig_x0, int orig_y0, int orig_w, int orig_h)
 {
-	int i;
+	int i, x0, y0, w, h, bx0=orig_x0/CELL, by0=orig_y0/CELL, bw=(orig_w+orig_x0-bx0*CELL+CELL-1)/CELL, bh=(orig_h+orig_y0-by0*CELL+CELL-1)/CELL;
+	x0 = bx0*CELL;
+	y0 = by0*CELL;
+	w  = bw *CELL;
+	h  = bh *CELL;
+
 	for (i=0; i<NPART; i++)
 	{
-		if (invalid_element(save_as,parts[i].type))
+		if ((int)(parts[i].x+.5f) > x0 && (int)(parts[i].x+.5f) < x0+w && (int)(parts[i].y+.5f) > y0 && (int)(parts[i].y+.5f) < y0+h)
 		{
-			char errortext[256] = "";
-			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].type].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
-			info_ui(vid_buf,"Error",errortext);
-			return 1;
-		}
-		if ((parts[i].type == PT_CLNE || parts[i].type == PT_PCLN || parts[i].type == PT_BCLN || parts[i].type == PT_PBCN || parts[i].type == PT_STOR || parts[i].type == PT_CONV || parts[i].type == PT_STKM || parts[i].type == PT_STKM2 || parts[i].type == PT_FIGH || parts[i].type == PT_LAVA) && invalid_element(save_as,parts[i].ctype))
-		{
-			char errortext[256] = "";
-			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].ctype].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
-			info_ui(vid_buf,"Error",errortext);
-			return 1;
-		}
-		if (parts[i].type == PT_PIPE && invalid_element(save_as,parts[i].tmp))
-		{
-			char errortext[256] = "";
-			sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].tmp].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
-			info_ui(vid_buf,"Error",errortext);
-			return 1;
+			if (invalid_element(save_as,parts[i].type))
+			{
+				char errortext[256] = "";
+				sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].type].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
+				error_ui(vid_buf,0,errortext);
+				return 1;
+			}
+			if ((parts[i].type == PT_CLNE || parts[i].type == PT_PCLN || parts[i].type == PT_BCLN || parts[i].type == PT_PBCN || parts[i].type == PT_STOR || parts[i].type == PT_CONV || parts[i].type == PT_STKM || parts[i].type == PT_STKM2 || parts[i].type == PT_FIGH || parts[i].type == PT_LAVA) && invalid_element(save_as,parts[i].ctype))
+			{
+				char errortext[256] = "";
+				sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].ctype].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
+				error_ui(vid_buf,0,errortext);
+				return 1;
+			}
+			if (parts[i].type == PT_PIPE && invalid_element(save_as,parts[i].tmp))
+			{
+				char errortext[256] = "";
+				sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].tmp].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
+				error_ui(vid_buf,0,errortext);
+				return 1;
+			}
 		}
 	}
 	return 0;
