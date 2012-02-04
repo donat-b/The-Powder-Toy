@@ -482,7 +482,7 @@ int http_async_req_status(void *ctx)
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "Content-Length: %d\n", cx->txdl);
 
 			if (save_as%3 == 0)
-				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dB%d\n", "J", SAVE_VERSION, MINOR_VERSION);
+				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dB%d\n", IDENT_VERSION, SAVE_VERSION, MINOR_VERSION);
 			else if (save_as%3 == 1)
 				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dB%d\n", IDENT_VERSION, BETA_VERSION, BETA_MINOR_VER);
 			else
@@ -513,15 +513,14 @@ int http_async_req_status(void *ctx)
 			}
 			if (!cx->keep)
 				cx->tlen += sprintf(cx->tbuf+cx->tlen, "Connection: close\n");
-//#ifdef BETA
-//			cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dB%d\n", IDENT_VERSION, SAVE_VERSION, MINOR_VERSION);
-//#else
-			//cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dS%d\n", IDENT_VERSION, SAVE_VERSION, MINOR_VERSION);
-			if (save_as != 2)
+
+			if (save_as%3 == 0)
 				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dB%d\n", IDENT_VERSION, SAVE_VERSION, MINOR_VERSION);
+			else if (save_as%3 == 1)
+				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dB%d\n", IDENT_VERSION, BETA_VERSION, BETA_MINOR_VER);
 			else
-				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dS%d\n", IDENT_VERSION, 65, 5);
-//#endif
+				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dS%d\n", IDENT_VERSION, RELEASE_VERSION, RELEASE_MINOR_VER);
+
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "\n");
 		}
 		cx->state = HTS_XMIT;
