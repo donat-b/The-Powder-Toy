@@ -16,6 +16,7 @@ src/python/stdlib/*
 /stamps2/
 /Debug/
 /ipch/
+/font/
 *.*sdf
 *.sln
 *.suo

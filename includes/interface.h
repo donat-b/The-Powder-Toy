@@ -65,10 +65,10 @@ static menu_section msections[] = //doshow does not do anything currently.
 	{"\xCC", "Special", 0, 1},
 	{"\xD2", "Life", 0, 1},
 	{"\xD7", "Tools", 0, 1},
-	{"\xCC", "\brF\bla\bov\bgo\btr\bbi\bpt\bwe", 0, 1}, //This says Favorite in rainbow colors
+	{"\xE2", "\brF\bla\bov\bgo\btr\bbi\bpt\bwe", 0, 1}, //This says Favorite in rainbow colors
 	{"\xC8", "Cracker!", 0, 0},
-	{"\xCC", "Favorite2", 0, 0},
-	{"\xCC", "HUD", 0, 0}
+	{"\xE2", "Favorite2", 0, 0},
+	{"\xE2", "HUD", 0, 0}
 };
 
 static quick_option quickmenu[] =

@@ -11,6 +11,7 @@
 
 #define XRES	800
 #define YRES	600
+#define SCALE	1
 
 char xsize=CELLW, ysize=CELLH;
 char base=7, top=2;
@@ -189,6 +190,7 @@ int main(int argc, char *argv[])
     unsigned *vid_buf = calloc(XRES*YRES, sizeof(unsigned));
     int x, y, b = 0, lb, c = 0xA0, i, j, dc = 0;
     int mode = 0;
+	char hex[10] = "";
     FILE *f;
 
     f = fopen("font.bin", "r");
@@ -269,6 +271,9 @@ int main(int argc, char *argv[])
 	drawtext(vid_buf, 64, 192+34*CELLH, "0123456789 ~`!@#$%^&*()-=_+[]{}\\|;:'\",./<>?", 255, 255, 255);
 
 	drawchar(vid_buf, 32, 192+32*CELLH, c, 255, 255, 255);
+
+	sprintf(hex, "%02X", c);
+	drawtext(vid_buf, 32, 192+34*CELLH, hex, 255, 255, 255);
 
 	sdl_blit(0, 0, XRES, YRES, vid_buf, XRES*4);
     }

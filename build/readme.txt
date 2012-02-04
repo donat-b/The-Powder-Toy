@@ -184,7 +184,8 @@ to now. Added a decoration smudge (blend) tool
 Next Version
 Added PROP2 tool, you can draw properties on with the normal brush now. 
 Improved decoration drawing speed and added a hex value display and floodfill 
-to it. Changed menus of some elements.
+to it. Changed menus of some elements. Added a new test icon for the favorites 
+menu.
 
 
 
@@ -196,11 +197,11 @@ None that I know of
 
 
 Future Ideas/TODO: > means currently being worked on/added next
-choose what to save in saves/stamps, make check_save work better with stamps
 INDC - indestructible conductor, conducts diferently than normal sprk
 PRHC - powered heater/cooler - flood fill heats stuff
 rechargeable battery - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11652
 ambient heat blocking wall
+choose what to save in saves/stamps
 sensor? - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12361
 new lua elements - Videogamer555 - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
 old console commands destroy/safe that I made a long time ago, + still more lua commands
