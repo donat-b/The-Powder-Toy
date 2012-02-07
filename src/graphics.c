@@ -4032,7 +4032,7 @@ int sdl_open(void)
 		fprintf(stderr, "Creating window: %s\n", SDL_GetError());
 		return 0;
 	}
-	SDL_WM_SetCaption("The Powder Toy", "Powder Toy");
+	SDL_WM_SetCaption("Jacob1's Mod", "Powder Toy");
 	sdl_seticon();
 	SDL_EnableUNICODE(1);
 	//SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);

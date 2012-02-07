@@ -185,7 +185,9 @@ Next Version
 Added PROP2 tool, you can draw properties on with the normal brush now. 
 Improved decoration drawing speed and added a hex value display and floodfill 
 to it. Changed menus of some elements. Added a new test icon for the favorites 
-menu.
+menu. Added an update check, if there is a new version, you can use the link 
+in the message of the day to download a zip file containing the next version 
+of this mod.
 
 
 
