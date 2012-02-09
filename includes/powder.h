@@ -256,23 +256,23 @@
 #define ST_LIQUID 2
 #define ST_GAS 3
 
-#define TYPE_PART			0x0001 //1 Powders
-#define TYPE_LIQUID			0x0002 //2 Liquids
-#define TYPE_SOLID			0x0004 //4 Solids
-#define TYPE_GAS			0x0008 //8 Gasses (Includes plasma)
-#define TYPE_ENERGY			0x0010 //16 Energy (Thunder, Light, Neutrons etc.)
-#define PROP_CONDUCTS		0x0020 //32 Conducts electricity
-#define PROP_BLACK			0x0040 //64 Absorbs Photons (not currently implemented or used, a photwl attribute might be better)
-#define PROP_NEUTPENETRATE	0x0080 //128 Penetrated by neutrons
-#define PROP_NEUTABSORB		0x0100 //256 Absorbs neutrons, reflect is default
-#define PROP_NEUTPASS		0x0200 //512 Neutrons pass through, such as with glass
-#define PROP_DEADLY			0x0400 //1024 Is deadly for stickman
-#define PROP_HOT_GLOW		0x0800 //2048 Hot Metal Glow
-#define PROP_LIFE			0x1000 //4096 Is a GoL type
-#define PROP_RADIOACTIVE	0x2000 //8192 Radioactive
-#define PROP_LIFE_DEC		0x4000 //2^14 Life decreases by one every frame if > zero
-#define PROP_LIFE_KILL		0x8000 //2^15 Kill when life value is <= zero
-#define PROP_LIFE_KILL_DEC	0x10000//2^16 Kill when life value is decremented to <= zero
+#define TYPE_PART			0x00001 //1 Powders
+#define TYPE_LIQUID			0x00002 //2 Liquids
+#define TYPE_SOLID			0x00004 //4 Solids
+#define TYPE_GAS			0x00008 //8 Gasses (Includes plasma)
+#define TYPE_ENERGY			0x00010 //16 Energy (Thunder, Light, Neutrons etc.)
+#define PROP_CONDUCTS		0x00020 //32 Conducts electricity
+#define PROP_BLACK			0x00040 //64 Absorbs Photons (not currently implemented or used, a photwl attribute might be better)
+#define PROP_NEUTPENETRATE	0x00080 //128 Penetrated by neutrons
+#define PROP_NEUTABSORB		0x00100 //256 Absorbs neutrons, reflect is default
+#define PROP_NEUTPASS		0x00200 //512 Neutrons pass through, such as with glass
+#define PROP_DEADLY			0x00400 //1024 Is deadly for stickman
+#define PROP_HOT_GLOW		0x00800 //2048 Hot Metal Glow
+#define PROP_LIFE			0x01000 //4096 Is a GoL type
+#define PROP_RADIOACTIVE	0x02000 //8192 Radioactive
+#define PROP_LIFE_DEC		0x04000 //2^14 Life decreases by one every frame if > zero
+#define PROP_LIFE_KILL		0x08000 //2^15 Kill when life value is <= zero
+#define PROP_LIFE_KILL_DEC	0x10000 //2^16 Kill when life value is decremented to <= zero
 #define PROP_INDESTRUCTIBLE	0x20000//2^17 Makes elements invincible, even to bomb/dest
 #define PROP_CLONE			0x40000//2^18 Makes elements clone things that touch it
 #define PROP_BREAKABLECLONE	0x80000//2^19 Makes breakable elements clone things that touch it
@@ -930,8 +930,6 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill);
 void create_moving_solid(int x, int y, int rx, int ry);
 
 void create_line(int x1, int y1, int x2, int y2, int rx, int ry, int c, int flags);
-
-void *transform_save(void *odata, int *size, matrix2d transform, vector2d translate);
 
 void orbitalparts_get(int block1, int block2, int resblock1[], int resblock2[]);
 

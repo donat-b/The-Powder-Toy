@@ -1737,7 +1737,7 @@ int main(int argc, char *argv[])
 					else if (sdl_key==SDLK_DOWN) translate = v2d_new(0,1);
 					else doTransform = 0;
 				}
-				if (0 && doTransform)
+				if (doTransform)
 				{
 					ndata = transform_save(load_data, &load_size, transform, translate);
 					if (ndata!=load_data) free(load_data);
@@ -2463,7 +2463,7 @@ int main(int argc, char *argv[])
 					lb = 0;
 				}
 			}
-			else if (y<YRES)// mouse is in playing field
+			else if (y<YRES && x<XRES)// mouse is in playing field
 			{
 				int signi;
 
