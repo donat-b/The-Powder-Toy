@@ -2082,7 +2082,7 @@ void render_parts(pixel *vid)
 							addpixel(vid, nx+nxo, ny+nyo, PIXR(ptypes[t].pcolors), PIXG(ptypes[t].pcolors), PIXB(ptypes[t].pcolors), 255-orbd[r]);
 					}
 				}
-				if (pixel_mode & EFFECT_LINES)
+				if (pixel_mode & EFFECT_LINES && DEBUG_MODE)
 				{
 					if (mousex==(nx) && mousey==(ny) && DEBUG_MODE)//draw lines connecting wifi/portal channels
 					{
