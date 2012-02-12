@@ -3379,7 +3379,7 @@ corrupt:
 int search_ui(pixel *vid_buf)
 {
 	int nmp=-1,uih=0,nyu,nyd,b=1,bq,mx=0,my=0,mxq=0,myq=0,mmt=0,gi,gj,gx,gy,pos,i,mp,dp,dap,own,last_own=search_own,last_fav=search_fav,page_count=0,last_page=0,last_date=0,j,w,h,st=0,lv;
-	int is_p1=0, exp_res=GRID_X*GRID_Y, tp, view_own=0;
+	int is_p1=0, exp_res=GRID_X*GRID_Y, tp, view_own=0, p1_extra=0, last_p1_extra=0;
 	int thumb_drawn[GRID_X*GRID_Y];
 	pixel *v_buf = (pixel *)malloc(((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 	pixel *bthumb_rsdata = NULL;
@@ -3543,6 +3543,14 @@ int search_ui(pixel *vid_buf)
 			drawtext(vid_buf, 4, YRES+MENUSIZE-16, "\x96", 255, 255, 255, 255);
 			drawrect(vid_buf, 1, YRES+MENUSIZE-20, 16, 16, 255, 255, 255, 255);
 		}
+		else if (page_count > 9)
+		{
+			if (p1_extra)
+				drawtext(vid_buf, 4, YRES+MENUSIZE-17, "\x85", 255, 255, 255, 255);
+			else
+				drawtext(vid_buf, 4, YRES+MENUSIZE-17, "\x89", 255, 255, 255, 255);
+			drawrect(vid_buf, 1, YRES+MENUSIZE-20, 15, 15, 255, 255, 255, 255);
+		}
 		if (page_count > 9)
 		{
 			drawtext(vid_buf, XRES-15, YRES+MENUSIZE-16, "\x95", 255, 255, 255, 255);
@@ -3554,10 +3562,10 @@ int search_ui(pixel *vid_buf)
 		if ((b && !bq && mx>=1 && mx<=17 && my>=YRES+MENUSIZE-20 && my<YRES+MENUSIZE-4) || sdl_wheel>0)
 		{
 			if (search_page)
-			{
 				search_page --;
-				lasttime = TIMEOUT;
-			}
+			else
+				p1_extra = !p1_extra;
+			lasttime = TIMEOUT;
 			sdl_wheel = 0;
 			uih = 1;
 		}
@@ -3888,7 +3896,7 @@ int search_ui(pixel *vid_buf)
 		{
 			search = 1;
 		}
-		else if (!active && (strcmp(last, ed.str) || last_own!=search_own || last_date!=search_date || last_page!=search_page || last_fav!=search_fav))
+		else if (!active && (strcmp(last, ed.str) || last_own!=search_own || last_date!=search_date || last_page!=search_page || last_fav!=search_fav || last_p1_extra!=p1_extra))
 		{
 			search = 1;
 			if (strcmp(last, ed.str) || last_own!=search_own || last_fav!=search_fav || last_date!=search_date)
@@ -3910,6 +3918,7 @@ int search_ui(pixel *vid_buf)
 			last_date = search_date;
 			last_page = search_page;
 			last_fav = search_fav;
+			last_p1_extra = p1_extra;
 			active = 1;
 			uri = malloc(strlen(last)*3+180+strlen(SERVER)+strlen(svf_user)+20); //Increase "padding" from 80 to 180 to fix the search memory corruption bug
 			if (search_own || svf_admin || svf_mod)
@@ -3925,7 +3934,7 @@ int search_ui(pixel *vid_buf)
 				}
 				else
 				{
-					exp_res = GRID_X*GRID_P;
+					exp_res = p1_extra?GRID_X*GRID_Y:GRID_X*GRID_P;
 					sprintf(uri, "http://" SERVER "/Search.api?Start=%d&Count=%d&t=%d%s&Query=", 0, exp_res+1, ((GRID_Y-GRID_P)*YRES)/(GRID_Y*14)*GRID_X, tmp);
 				}
 			}
