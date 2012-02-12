@@ -229,7 +229,8 @@
 #define PT_ACTV PT_NORMAL_NUM+10
 #define PT_PINV PT_NORMAL_NUM+11
 #define PT_RAZR PT_NORMAL_NUM+12
-#define PT_NUM 172
+#define PT_COND PT_NORMAL_NUM+13
+#define PT_NUM 173
 
 #define FAV_START 300
 #define FAV_MORE 300

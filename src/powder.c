@@ -940,6 +940,10 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		parts[i].tmp = 0;
 		parts[i].tmp2 = 0;
 	}
+	if (t==PT_COND)
+	{
+		parts[i].tmp2 = 2;
+	}
 	if (ptypes[t].properties&PROP_POWERED)
 	{
 		if (t == PT_PCLN)

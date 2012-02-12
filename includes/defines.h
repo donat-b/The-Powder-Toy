@@ -60,7 +60,7 @@
 #define XCNTR   306
 #define YCNTR   192
 
-#define MAX_DISTANCE sqrt(pow(XRES, 2)+pow(YRES, 2))
+#define MAX_DISTANCE sqrt(pow(XRES, 2.0f)+pow(YRES, 2.0f))
 
 #define GRAV_DIFF
 

@@ -1,7 +1,7 @@
 #include <element.h>
 
 int update_SPRK(UPDATE_FUNC_ARGS) {
-	int r, rx, ry, rt, conduct_sprk, nearp, pavg, ct = parts[i].ctype;
+	int r, rx, ry, rt, conduct_sprk, nearp, pavg, ct = parts[i].ctype, rd = 2;
 	update_PYRO(UPDATE_FUNC_SUBCALL_ARGS);
 
 	if (parts[i].life<=0)
@@ -114,8 +114,10 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 					}
 				}
 	}
-	for (rx=-2; rx<3; rx++)
-		for (ry=-2; ry<3; ry++)
+	if (ct == PT_COND)
+		rd = parts[i].tmp2>MAX_DISTANCE?(int)MAX_DISTANCE:parts[i].tmp2;
+	for (rx=-rd; rx<=rd; rx++)
+		for (ry=-rd; ry<=rd; ry++)
 			if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
 			{
 				r = pmap[y+ry][x+rx];
@@ -186,7 +188,7 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 
 				if (pavg == PT_INSL) conduct_sprk = 0;
 				if (!(ptypes[rt].properties&PROP_CONDUCTS||rt==PT_INST||rt==PT_QRTZ)) conduct_sprk = 0;
-				if (abs(rx)+abs(ry)>=4 &&ct!=PT_SWCH&&rt!=PT_SWCH)
+				if (rd == 2 && abs(rx)+abs(ry)>=4 &&ct!=PT_SWCH&&rt!=PT_SWCH)
 					conduct_sprk = 0;
 
 
@@ -220,6 +222,8 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 				if (rt==PT_INST&&ct!=PT_PSCN)
 					conduct_sprk = 0;
 				if (ct==PT_ACTV && (rt==PT_PSCN||rt==PT_NSCN||rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR))
+					conduct_sprk = 0;
+				if (ct==PT_COND && rt == PT_COND && parts[i].tmp != parts[r>>8].tmp)
 					conduct_sprk = 0;
 
 				if (conduct_sprk) {
