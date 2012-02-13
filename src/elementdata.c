@@ -184,6 +184,7 @@ part_type ptypes[PT_NUM] =
 	{"PINV",	PIXPACK(0x00CCCC),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	15,	1,	1,	100,	SC_POWERED,		R_TEMP+0.0f	+273.15f,	164,	"Invisible to everything when activated.", ST_SOLID, TYPE_SOLID|PROP_NEUTPASS|PROP_POWERED, NULL, &graphics_PINV},
 	{"RAZR",	PIXPACK(0xC0C0C0),	0.7f,	0.07f * CFDS,	0.97f,	0.00f,	0.0f,	1.5f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	0,	0,	1,	1,	500,	SC_POWDERS,		R_TEMP+0.0f	+273.15f,	50,		"Heavy silver particles", ST_SOLID, TYPE_PART, NULL, NULL},
 	{"COND",	PIXPACK(0xFE7207),	0.0f,	0.00f * CFDS,	0.85f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	0,	1,	1,	100,	SC_ELEC,		R_TEMP+0.0f	+273.15f,	251,	"Conducts electricity. Customizable with tmp and tmp2", ST_SOLID, TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC, NULL, NULL},
+	{"PWHT",	PIXPACK(0x381D7C),	0.0f,	0.00f * CFDS,	0.97f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	0,	1,	1,	100,	SC_POWERED,		R_TEMP+0.0f	+273.15f,	0,		"Powered Heater. Flood fill heats particles to it's temp. Use only one", ST_NONE, TYPE_SOLID|PROP_POWERED, &update_PWHT, &graphics_PWHT},
 	//Name		Colour				Advec	Airdrag			Airloss	Loss	Collid	Grav	Diffus	Hotair			Fal	Burn	Exp	Mel	Hrd M	Use	Weight	Section			H						Ins		Description
 };
 
@@ -426,4 +427,5 @@ part_transition ptransitions[PT_NUM] =
 	/* PINV */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* RAZR */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* COND */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* PWHT */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 };

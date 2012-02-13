@@ -1081,6 +1081,9 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 	strncpy(ed2.str, "0", 254);
 	strncpy(ed.str, "ctype", 254);
 
+	if ((pmap[y][x]&0xFF) == PT_PWHT)
+		flood = 0;
+
 	while (!sdl_poll())
 	{
 		b = SDL_GetMouseState(&mx, &my);
@@ -1235,22 +1238,46 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 		{
 			prop_value = malloc(sizeof(int));
 			memcpy(prop_value,&valuei,sizeof(int));
+			if ((pmap[y][x]&0xFF) == PT_PWHT)
+			{
+				parts[pmap[y][x]>>8].ctype = prop_offset;
+				parts[pmap[y][x]>>8].tmp2 = format;
+				parts[pmap[y][x]>>8].temp = (float)valuei;
+			}
 		}
 		else if (format == 1)
 		{
 			prop_value = malloc(sizeof(unsigned char));
 			memcpy(prop_value,&valuec,sizeof(unsigned char));
+			if ((pmap[y][x]&0xFF) == PT_PWHT)
+			{
+				parts[pmap[y][x]>>8].ctype = prop_offset;
+				parts[pmap[y][x]>>8].tmp2 = format;
+				parts[pmap[y][x]>>8].temp = (float)valuei;
+			}
 		}
 		else if (format == 2)
 		{
 			prop_value = malloc(sizeof(float));
 			memcpy(prop_value,&valuef,sizeof(float));
+			if ((pmap[y][x]&0xFF) == PT_PWHT)
+			{
+				parts[pmap[y][x]>>8].ctype = prop_offset;
+				parts[pmap[y][x]>>8].tmp2 = format;
+				parts[pmap[y][x]>>8].temp = valuef;
+			}
 		}
 		else if (format == 3)
 		{
 			prop_format = 0;
 			prop_value = malloc(sizeof(unsigned int));
 			memcpy(prop_value,&valueui,sizeof(unsigned int));
+			if ((pmap[y][x]&0xFF) == PT_PWHT)
+			{
+				parts[pmap[y][x]>>8].ctype = prop_offset;
+				parts[pmap[y][x]>>8].tmp2 = format;
+				parts[pmap[y][x]>>8].temp = (float)valueui;
+			}
 		}
 	}
 exit:

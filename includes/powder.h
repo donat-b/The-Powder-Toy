@@ -230,7 +230,8 @@
 #define PT_PINV PT_NORMAL_NUM+11
 #define PT_RAZR PT_NORMAL_NUM+12
 #define PT_COND PT_NORMAL_NUM+13
-#define PT_NUM 173
+#define PT_PWHT PT_NORMAL_NUM+14
+#define PT_NUM 174
 
 #define FAV_START 300
 #define FAV_MORE 300
@@ -356,6 +357,7 @@ int graphics_ACTV(GRAPHICS_FUNC_ARGS);
 int graphics_PINV(GRAPHICS_FUNC_ARGS);
 int graphics_PPTI(GRAPHICS_FUNC_ARGS);
 int graphics_PPTO(GRAPHICS_FUNC_ARGS);
+int graphics_PWHT(GRAPHICS_FUNC_ARGS);
 
 #define UPDATE_FUNC_ARGS int i, int x, int y, int surround_space, int nt
 // to call another update function with same arguments:
@@ -439,6 +441,7 @@ int update_PLNT(UPDATE_FUNC_ARGS);
 int update_PLUT(UPDATE_FUNC_ARGS);
 int update_PRTI(UPDATE_FUNC_ARGS);
 int update_PRTO(UPDATE_FUNC_ARGS);
+int update_PWHT(UPDATE_FUNC_ARGS);
 int update_PYRO(UPDATE_FUNC_ARGS);
 int update_PUMP(UPDATE_FUNC_ARGS);
 int update_QRTZ(UPDATE_FUNC_ARGS);

@@ -188,7 +188,7 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 
 				if (pavg == PT_INSL) conduct_sprk = 0;
 				if (!(ptypes[rt].properties&PROP_CONDUCTS||rt==PT_INST||rt==PT_QRTZ)) conduct_sprk = 0;
-				if (rd == 2 && abs(rx)+abs(ry)>=4 &&ct!=PT_SWCH&&rt!=PT_SWCH)
+				if (ct!=PT_COND && abs(rx)+abs(ry)>=4 &&ct!=PT_SWCH&&rt!=PT_SWCH)
 					conduct_sprk = 0;
 
 

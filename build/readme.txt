@@ -188,7 +188,8 @@ to it. Changed menus of some elements. Added a new test icon for the favorites
 menu. Added an update check, if there is a new version, you can use the link 
 in the message of the day to download a zip file containing the next version 
 of this mod. Added CONC, only conducts to other COND with same tmp within a 
-tmp2 radius.
+tmp2 radius. Added PWHT. flood fill heats the element above it to it's temp. 
+Use PROP on it to make it create other properties.
 
 
 
@@ -200,7 +201,6 @@ None that I know of
 
 
 Future Ideas/TODO: > means currently being worked on/added next
-PRHC - powered heater/cooler - flood fill heats stuff
 rechargeable battery - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11652
 ambient heat blocking wall
 choose what to save in saves/stamps
