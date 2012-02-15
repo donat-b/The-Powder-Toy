@@ -195,7 +195,8 @@ Use PROP on it to make it create other properties.
 
 
 Bugs:
-None that I know of
+TODO: PINV can be displayed over other particles, particles on top of it not displayed in HUD
+//None that I know of
 
 
 

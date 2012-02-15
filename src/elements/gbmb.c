@@ -6,7 +6,7 @@ int update_GBMB(UPDATE_FUNC_ARGS) {
 		for (rx=-2; rx<3; rx++)
 			for (ry=-2; ry<3; ry++)
 			{
-				r = pmap[y+ry][x+rx];
+				r = ((pmap[y+ry][x+rx]&0xFF)==PT_PINV&&parts[pmap[y+ry][x+rx]>>8].life==10)?0:pmap[y+ry][x+rx];
 				if(!r)
 					continue;
 				if((r&0xFF)!=PT_BOMB && (r&0xFF)!=PT_GBMB &&

@@ -5,7 +5,7 @@ int update_DEST(UPDATE_FUNC_ARGS) {
 	rx=rand()%5-2;
 	ry=rand()%5-2;
 
-	r = pmap[y+ry][x+rx];
+	r = ((pmap[y+ry][x+rx]&0xFF)==PT_PINV&&parts[pmap[y+ry][x+rx]>>8].life==10)?0:pmap[y+ry][x+rx];
 	if (!r || (r&0xFF)==PT_DEST || ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE)
 		return 0;
 
