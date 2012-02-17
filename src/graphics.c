@@ -1832,11 +1832,15 @@ void render_parts(pixel *vid)
 	for(i = 0; i<=parts_lastActiveIndex; i++) {
 		if (parts[i].type) {
 			t = parts[i].type;
+			if (t == PT_PINV && parts[i].tmp2 && (parts[i].tmp2>>8)<i)
+				continue;
 
 			nx = (int)(parts[i].x+0.5f);
 			ny = (int)(parts[i].y+0.5f);
 			fnx = parts[i].x;
 			fny = parts[i].y;
+			if ((pmap[ny][nx]&0xFF) == PT_PINV)
+				parts[pmap[ny][nx]>>8].tmp2 = (i<<8)|t;
 
 			if(photons[ny][nx]&0xFF && !(ptypes[t].properties & TYPE_ENERGY))
 				continue;

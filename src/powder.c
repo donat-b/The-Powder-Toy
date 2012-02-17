@@ -184,6 +184,8 @@ int eval_move(int pt, int nx, int ny, unsigned *rr)
 	r = pmap[ny][nx];
 	if (r)
 		r = (r&~0xFF) | parts[r>>8].type;
+	if ((r&0xFF) == PT_PINV && parts[r>>8].tmp2)
+		r = parts[r>>8].tmp2;
 	if (rr)
 		*rr = r;
 	if (pt>=PT_NUM || (r&0xFF)>=PT_NUM)
@@ -442,6 +444,7 @@ int do_move(int i, int x, int y, float nxf, float nyf)
 		if (ny!=y || nx!=x)
 		{
 			if ((pmap[y][x]>>8)==i) pmap[y][x] = 0;
+			else if ((pmap[y][x]&0xFF)==PT_PINV && (parts[pmap[y][x]>>8].tmp2>>8)==i) parts[pmap[y][x]>>8].tmp2 = 0;
 			else if ((photons[y][x]>>8)==i) photons[y][x] = 0;
 			if (nx<CELL || nx>=XRES-CELL || ny<CELL || ny>=YRES-CELL)//kill_part if particle is out of bounds
 			{
@@ -452,6 +455,8 @@ int do_move(int i, int x, int y, float nxf, float nyf)
 				photons[ny][nx] = t|(i<<8);
 			else if (t && (pmap[ny][nx]&0xFF) != PT_PINV)
 				pmap[ny][nx] = t|(i<<8);
+			else if (t && (pmap[ny][nx]&0xFF) == PT_PINV)
+				parts[pmap[ny][nx]>>8].tmp2 = t|(i<<8);
 		}
 	}
 	return result;
@@ -2763,10 +2768,14 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 			y = (int)(parts[i].y+0.5f);
 			if (x>=0 && y>=0 && x<XRES && y<YRES)
 			{
+				if (parts[i].type == PT_PINV && (parts[i].tmp2>>8) >= i)
+					parts[i].tmp2 = 0;
 				if (t==PT_PHOT||t==PT_NEUT)
 					photons[y][x] = t|(i<<8);
 				else if ((pmap[y][x]&0xFF) != PT_PINV)
 					pmap[y][x] = t|(i<<8);
+				else if ((pmap[y][x]&0xFF) == PT_PINV)
+					parts[pmap[y][x]>>8].tmp2 = t|(i<<8);
 			}
 			lastPartUsed = i;
 			NUM_PARTS ++;

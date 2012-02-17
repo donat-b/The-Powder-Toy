@@ -1918,6 +1918,8 @@ int main(int argc, char *argv[])
 				cr = photons[y/sdl_scale][x/sdl_scale];
 			} else {
 				cr = pmap[y/sdl_scale][x/sdl_scale];
+				if ((cr&0xFF) == PT_PINV && parts[cr>>8].tmp2)
+					cr = parts[cr>>8].tmp2;
 			}
 			if (!cr && alt_hud == 1)
 			{
