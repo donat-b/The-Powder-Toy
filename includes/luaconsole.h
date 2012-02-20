@@ -111,4 +111,6 @@ int luatpt_get_gravity(lua_State* l);
 int luatpt_maxframes(lua_State* l);
 int luatpt_getwall(lua_State* l);
 int luatpt_createwall(lua_State* l);
+int luatpt_set_elecmap(lua_State* l);
+int luatpt_get_elecmap(lua_State* l);
 #endif

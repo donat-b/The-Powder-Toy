@@ -35,6 +35,10 @@ void luacon_open(){
 	{"reset_spark", &luatpt_reset_spark},
 	{"set_property", &luatpt_set_property},
 	{"get_property", &luatpt_get_property},
+	{"set_wallmap",&luatpt_createwall},
+	{"get_wallmap",&luatpt_getwall},
+	{"set_elecmap",&luatpt_set_elecmap},
+	{"get_elecmap",&luatpt_get_elecmap},
 	{"drawpixel", &luatpt_drawpixel},
 	{"drawrect", &luatpt_drawrect},
 	{"fillrect", &luatpt_fillrect},
@@ -2019,22 +2023,58 @@ int luatpt_maxframes(lua_State* l)
 
 int luatpt_createwall(lua_State* l)
 {
-	int wx = luaL_optint(l,1,-1);
-	int wy = luaL_optint(l,2,-1);
-	int wt;
-	if(lua_isnumber(l, 3))
-		wt = luaL_optint(l,3,WL_WALL);
+	int acount, wx, wy, wt, width = 0, height = 0, nx, ny;
+	acount = lua_gettop(l);
+	wx = luaL_optint(l,1,-1);
+	wy = luaL_optint(l,2,-1);
+	if (acount > 3)
+	{
+		width = luaL_optint(l,3,1);
+		height = luaL_optint(l,4,1);
+	}
+	if(lua_isnumber(l, acount))
+		wt = luaL_optint(l,acount,WL_WALL);
 	else
 	{
-		char* name = (char*)luaL_optstring(l, 3, "WALL");
+		char* name = (char*)luaL_optstring(l, acount, "WALL");
 		if (!console_parse_wall_type(name, &wt))
 			return luaL_error(l, "Unrecognised wall '%s'", name);
 	}
 	if (wx < 0 || wx >= XRES/CELL || wy < 0 || wy >= YRES/CELL)
 		return luaL_error(l, "coordinates out of range (%d,%d)", wx, wy);
+	if (wx+width > (XRES/CELL))
+		width = (XRES/CELL)-wx;
+	if (wy+height > (YRES/CELL))
+		height = (YRES/CELL)-wy;
 	if (wt < UI_ACTUALSTART || wt >= UI_ACTUALSTART+UI_WALLCOUNT || (wtypes[wt-UI_ACTUALSTART].drawstyle == -1 && !secret_els))
-		return luaL_error(l, "Unrecognised wall number %i", wt);
-	bmap[wy][wx] = wt;
+		return luaL_error(l, "Unrecognised wall number %d", wt);
+	for (nx = wx; nx < wx+width; nx++)
+		for (ny = wy; ny < wy+height; ny++)
+			bmap[ny][nx] = wt;
+	return 0;
+}
+
+int luatpt_set_elecmap(lua_State* l)
+{
+	int acount = lua_gettop(l);
+	int x1 = luaL_optint(l,1,-1);
+	int y1 = luaL_optint(l,2,-1);
+	int width = luaL_optint(l,3,1);
+	int height = luaL_optint(l,4,1);
+	int value = luaL_optint(l,acount,0);
+	int nx, ny;
+
+	if (x1 < 0 || x1 >= XRES/CELL || y1 < 0 || y1 >= YRES/CELL)
+		return luaL_error(l, "coordinates out of range (%d,%d)", x1, y1);
+
+	if (x1+width > (XRES/CELL))
+		width = (XRES/CELL)-x1;
+	if (y1+height > (YRES/CELL))
+		height = (YRES/CELL)-y1;
+
+	for (nx = x1; nx < x1+width; nx++)
+		for (ny = y1; ny < y1+height; ny++)
+			emap[ny][nx] = value;
 	return 0;
 }
 
@@ -2045,6 +2085,16 @@ int luatpt_getwall(lua_State* l)
 	if (wx < 0 || wx > XRES/CELL || wy < 0 || wy > YRES/CELL)
 		return luaL_error(l, "coordinates out of range (%d,%d)", wx, wy);
 	lua_pushnumber(l, bmap[wy][wx]);
+	return 1;
+}
+
+int luatpt_get_elecmap(lua_State* l)
+{
+	int wx = luaL_optint(l,1,-1);
+	int wy = luaL_optint(l,2,-1);
+	if (wx < 0 || wx > XRES/CELL || wy < 0 || wy > YRES/CELL)
+		return luaL_error(l, "coordinates out of range (%d,%d)", wx, wy);
+	lua_pushnumber(l, emap[wy][wx]);
 	return 1;
 }
 
