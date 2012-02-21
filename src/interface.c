@@ -2281,7 +2281,7 @@ void menu_ui(pixel *vid_buf, int i, int *sl, int *sr)
 }
 */
 //current menu function
-void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq, int mx, int my)
+void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *su, int *dae, int b, int bq, int mx, int my)
 {
 	int h,x,y,n=0,height,width,sy,rows=0,xoff=0,fwidth,favdesc = 0;
 	SEC = SEC2;
@@ -2760,7 +2760,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 			}
 			else
 			{
-				*sl = h;
+				*sl = *su = h;
 				*dae = 51;
 				if (finding)
 					finding = h;
@@ -2813,7 +2813,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq
 			}
 			else
 			{
-				*sr = h;
+				*sr = *su = h;
 				*dae = 51;
 				while (pos < last)
 				{
