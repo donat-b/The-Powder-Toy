@@ -4005,7 +4005,7 @@ int search_ui(pixel *vid_buf)
 				memset(v_buf, 0, ((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 				nmp = -1;
 			
-				sprintf(server_motd,"Links: \bt{a:http://powdertoy.co.uk|Powder Toy main page}\bg, \bt{a:http://powdertoy.co.uk/Discussions/Categories/Index.html|Forums}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy|Jacob's mod github}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy/raw/master/build/Jacob's Mod ver 12.zip|Update Check}");
+				sprintf(server_motd,"Links: \bt{a:http://powdertoy.co.uk|Powder Toy main page}\bg, \bt{a:http://powdertoy.co.uk/Discussions/Categories/Index.html|Forums}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy|Jacob's mod github}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy/raw/master/build/Jacob1's Mod ver 12.zip|Update Check}");
 				ui_richtext_settext(server_motd, &motd);
 				motd.x = (XRES-textwidth(motd.printstr))/2;
 			}

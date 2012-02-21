@@ -181,7 +181,7 @@ old format instead. You can delete corrupted stamps now. Fix three powered
 electronic related bugs, all electronics should work like they're supposed 
 to now. Added a decoration smudge (blend) tool
 
-Next Version
+Version 11 - 2/21/12
 Added PROP2 tool, you can draw properties on with the normal brush now. 
 Improved decoration drawing speed and added a hex value display and floodfill 
 to it. Changed menus of some elements. Added a new test icon for the favorites 
@@ -191,7 +191,7 @@ of this mod. Added CONC, only conducts to other COND with same tmp within a
 tmp2 radius. Added PWHT, flood fill heats the element above it to it's temp. 
 Use PROP on it to make it create other properties. Added rechargeable 
 battery, set the tmp of battery to the maximum charge it can hold, METL to 
-charge, PSCN/NSCN to turn on/off.
+charge, PSCN/NSCN to turn on/off. Some other stuff not listed here.
 
 
 

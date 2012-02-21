@@ -9,7 +9,6 @@ build/stamps/*
 *.pyc
 utils/*
 *.log
-build/*
 src/python/stdlib/*
 /Release/
 /stamps/
@@ -25,3 +24,5 @@ src/python/stdlib/*
 elements.txt
 luacode.txt
 newluacode.txt
+stdout.txt
+build/The-Powder-Toy*
