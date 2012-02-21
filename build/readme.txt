@@ -187,11 +187,11 @@ Improved decoration drawing speed and added a hex value display and floodfill
 to it. Changed menus of some elements. Added a new test icon for the favorites 
 menu. Added an update check, if there is a new version, you can use the link 
 in the message of the day to download a zip file containing the next version 
-of this mod. Added CONC, only conducts to other COND with same tmp within a 
+of this mod. Added COND, only conducts to other COND with same tmp within a 
 tmp2 radius. Added PWHT, flood fill heats the element above it to it's temp. 
-Use PROP on it to make it create other properties. Added rechargeable 
-battery, set the tmp of battery to the maximum charge it can hold, METL to 
-charge, PSCN/NSCN to turn on/off. Some other stuff not listed here.
+Use PROP on it to make it create other properties. Added rechargeable battery, 
+set the tmp of battery to the maximum charge it can hold, METL to charge, 
+PSCN/NSCN to turn on/off. Some other stuff not listed here.
 
 
 
