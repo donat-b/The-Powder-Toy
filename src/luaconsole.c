@@ -1183,9 +1183,9 @@ int luatpt_set_property(lua_State* l)
 				}
 				i = r>>8;
 				if(format==2){
-					*((float*)((&parts[i])+offset)) = f;
+					*((float*)(((char*)&parts[i])+offset)) = f;
 				} else {
-					*((int*)((&parts[i])+offset)) = t;
+					*((int*)(((char*)&parts[i])+offset)) = t;
 				}
 			}
 	} else {
@@ -1207,9 +1207,9 @@ int luatpt_set_property(lua_State* l)
 		if (partsel && partsel != parts[i].type)
 			return 0;
 		if(format==2){
-			*((float*)((&parts[i])+offset)) = f;
+			*((float*)(((char*)&parts[i])+offset)) = f;
 		} else {
-			*((int*)((&parts[i])+offset)) = t;
+			*((int*)(((char*)&parts[i])+offset)) = t;
 		}
 	}
 	return 0;

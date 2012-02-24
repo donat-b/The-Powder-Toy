@@ -203,7 +203,9 @@ None that I know of
 
 
 Future Ideas/TODO: > means currently being worked on/added next
->more lua commands, in next version (12)
+draw something in empty space around ball to make it look solid
+multiple tabs open (it will probably just save them, not actually simulate multiple tabs at the same time)
+more lua commands, in next version (12)
 choose what to save in saves/stamps
 sensor? - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12361
 new lua elements - Videogamer555 - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127

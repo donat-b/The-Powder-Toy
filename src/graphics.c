@@ -1840,7 +1840,7 @@ void render_parts(pixel *vid)
 			fnx = parts[i].x;
 			fny = parts[i].y;
 			if ((pmap[ny][nx]&0xFF) == PT_PINV)
-				parts[pmap[ny][nx]>>8].tmp2 = (i<<8)|t;
+				parts[pmap[ny][nx]>>8].tmp2 = t|(i<<8);
 
 			if(photons[ny][nx]&0xFF && !(ptypes[t].properties & TYPE_ENERGY))
 				continue;
