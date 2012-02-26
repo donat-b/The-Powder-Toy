@@ -208,6 +208,8 @@ void *prop_value = 0;
 int prop_format = 0;
 size_t prop_offset = 0;
 int tab_num = 1;
+int num_tabs = 1;
+int show_tabs = 0;
 
 int drawinfo = 0;
 int currentTime = 0;
@@ -1362,34 +1364,6 @@ int main(int argc, char *argv[])
 			if (sdl_key=='f')
 			{
 				framerender = 1;
-			}
-			if (sdl_key=='1' && (sdl_mod & (KMOD_ALT)))
-			{
-				if (tab_num != 1)
-				{
-					tab_save(tab_num);
-					load_data = tab_load(1, &load_size);
-					if (load_data)
-						parse_save(load_data, load_size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-					tab_num = 1;
-				}
-				else
-				{
-				}
-			}
-			if (sdl_key=='2' && (sdl_mod & (KMOD_ALT)))
-			{
-				if (tab_num != 2)
-				{
-					tab_save(tab_num);
-					load_data = tab_load(2, &load_size);
-					if (load_data)
-						parse_save(load_data, load_size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-					tab_num = 2;
-				}
-				else
-				{
-				}
 			}
 			if ((sdl_key=='l' || sdl_key=='k') && stamps[0].name[0])
 			{

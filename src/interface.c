@@ -2943,41 +2943,109 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 		drawtext_outline(vid_buf, (XRES - 5) - textwidth(quickoptions_tooltip), quickoptions_tooltip_y, quickoptions_tooltip, 255, 255, 255, quickoptions_tooltip_fade*20, 0, 0, 0, quickoptions_tooltip_fade*15);
 		quickoptions_tooltip_fade--;
 	}
-	while(quickmenu[i].icon!=NULL)
+	if (!show_tabs && !(sdl_mod & KMOD_CTRL))
 	{
-		if(quickmenu[i].type == QM_TOGGLE)
+		while(quickmenu[i].icon!=NULL)
 		{
+			if(quickmenu[i].type == QM_TOGGLE)
+			{
+				drawrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+1, 14, 14, 255, 255, 255, 255);
+				if(*(quickmenu[i].variable))
+				{
+					fillrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+1, 14, 14, 255, 255, 255, 255);
+					drawtext(vid_buf, (XRES+BARSIZE)-11, (i*16)+5, quickmenu[i].icon, 0, 0, 0, 255);
+				}
+				else
+				{
+					fillrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+1, 14, 14, 0, 0, 0, 255);
+					drawtext(vid_buf, (XRES+BARSIZE)-11, (i*16)+5, quickmenu[i].icon, 255, 255, 255, 255);
+				}
+				if(x >= (XRES+BARSIZE)-16 && x <= (XRES+BARSIZE)-2 && y >= (i*16)+1 && y <= (i*16)+15)
+				{
+					quickoptions_tooltip_fade+=2;
+					quickoptions_tooltip = (char*)quickmenu[i].name;
+					quickoptions_tooltip_y = (i*16)+5;
+					if(b && !bq)
+					{
+						if (!strcmp(quickmenu[i].name,"Newtonian gravity"))
+						{
+							if(!ngrav_enable)
+								start_grav_async();
+							else
+								stop_grav_async();
+						}
+						else
+							*(quickmenu[i].variable) = !(*(quickmenu[i].variable));
+					}
+				}
+			}
+			i++;
+		}
+	}
+	else
+	{
+		while(i < num_tabs + 2 && i < 10)
+		{
+			char num[8];
+			sprintf(num,"%d",i);
 			drawrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+1, 14, 14, 255, 255, 255, 255);
-			if(*(quickmenu[i].variable))
+			if (i == 0)
 			{
 				fillrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+1, 14, 14, 255, 255, 255, 255);
 				drawtext(vid_buf, (XRES+BARSIZE)-11, (i*16)+5, quickmenu[i].icon, 0, 0, 0, 255);
 			}
+			else if (i == num_tabs + 1)
+			{
+				fillrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+1, 14, 14, 0, 0, 0, 255);
+				drawtext(vid_buf, (XRES+BARSIZE)-13, (i*16)+3, "\x89", 255, 255, 255, 255);
+			}
+			else if(tab_num == i)
+			{
+				fillrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+1, 14, 14, 255, 255, 255, 255);
+				drawtext(vid_buf, (XRES+BARSIZE)-11, (i*16)+5, num, 0, 0, 0, 255);
+			}
 			else
 			{
 				fillrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+1, 14, 14, 0, 0, 0, 255);
-				drawtext(vid_buf, (XRES+BARSIZE)-11, (i*16)+5, quickmenu[i].icon, 255, 255, 255, 255);
+				drawtext(vid_buf, (XRES+BARSIZE)-11, (i*16)+5, num, 255, 255, 255, 255);
 			}
 			if(x >= (XRES+BARSIZE)-16 && x <= (XRES+BARSIZE)-2 && y >= (i*16)+1 && y <= (i*16)+15)
 			{
 				quickoptions_tooltip_fade+=2;
-				quickoptions_tooltip = (char*)quickmenu[i].name;
+				if (i == 0)
+					quickoptions_tooltip = (char*)quickmenu[i].name;
+				else if (i == num_tabs + 1)
+					quickoptions_tooltip = "Add tab";
+				else
+					quickoptions_tooltip = "";
 				quickoptions_tooltip_y = (i*16)+5;
 				if(b && !bq)
 				{
-					if (!strcmp(quickmenu[i].name,"Newtonian gravity"))
+					if (i == 0)
+						*(quickmenu[i].variable) = !(*(quickmenu[i].variable));
+					else if (i == num_tabs + 1)
 					{
-						if(!ngrav_enable)
-							start_grav_async();
-						else
-							stop_grav_async();
+						tab_save(tab_num);
+						num_tabs++;
+						tab_num = i;
+					}
+					else if (tab_num != i)
+					{
+						void *load_data=NULL;
+						int load_size;
+						tab_save(tab_num);
+						load_data = (void*)tab_load(i, &load_size);
+						if (load_data)
+							parse_save(load_data, load_size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+						tab_num = i;
 					}
 					else
-						*(quickmenu[i].variable) = !(*(quickmenu[i].variable));
+					{
+					}
 				}
 			}
+			i++;
 		}
-		i++;
 	}
 	if(quickoptions_tooltip_fade > 12)
 		quickoptions_tooltip_fade = 12;

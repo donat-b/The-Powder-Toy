@@ -73,6 +73,7 @@ static menu_section msections[] = //doshow does not do anything currently.
 
 static quick_option quickmenu[] =
 {
+	{"T", "Show tabs", QM_TOGGLE, &show_tabs},
 	{"P", "Sand effect", QM_TOGGLE, &pretty_powder},
 	{"G", "Draw gravity grid", QM_TOGGLE, &drawgrav_enable},
 	{"D", "Show decorations", QM_TOGGLE, &decorations_enable},

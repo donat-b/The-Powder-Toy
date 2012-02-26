@@ -196,6 +196,11 @@ Use PROP on it to make it create other properties. Added rechargeable battery,
 set the tmp of battery to the maximum charge it can hold, METL to charge, 
 PSCN/NSCN to turn on/off. Some other stuff not listed here.
 
+Next Version
+Added tabs. Hit the tab button in the quickoptions menu or press Ctrl to show 
+a menu of all the tabs you have open. You can switch between them, or open a 
+new one (what you are doing is copied over). Tabs are saved and not simulated 
+when you are not using them.
 
 
 
@@ -206,7 +211,7 @@ None that I know of
 
 
 Future Ideas/TODO: > means currently being worked on/added next
->buttons on screen for tabs, not key presses
+>save pressure + some other stuff in tabs, delete tabs folder when done.
 nuclear fusion - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12901
 more lua commands, in next version (12)
 choose what to save in saves/stamps

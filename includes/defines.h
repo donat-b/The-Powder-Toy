@@ -202,6 +202,9 @@ extern int hud_debug[HUD_OPTIONS];
 extern void *prop_value;
 extern int prop_format;
 extern unsigned int prop_offset;
+extern int tab_num;
+extern int num_tabs;
+extern int show_tabs;
 
 extern int drawinfo;
 extern int currentTime;
