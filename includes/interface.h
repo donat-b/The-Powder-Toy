@@ -299,7 +299,7 @@ void menu_ui(pixel *vid_buf, int i, int *sl, int *sr);
 
 void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my);
 
-int color_menu_ui(pixel *vid_buf, int i, int *cr, int *cg, int *cb, int b, int bq, int mx, int my, int * tool);
+int color_menu_ui(pixel *vid_buf, int i, int *cr, int *cg, int *cb, int b, int bq, int mx, int my);
 
 int sdl_poll(void);
 

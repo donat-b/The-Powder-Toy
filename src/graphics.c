@@ -3081,7 +3081,7 @@ void draw_walls(pixel *vid)
 			}
 }
 
-void create_decoration(int x, int y, int r, int g, int b, int click, int tool)
+void create_decoration(int x, int y, int r, int g, int b, int a, int click, int tool)
 {
 	int rp, tr = 0, tg = 0, tb = 0;
 	rp = pmap[y][x];
@@ -3092,7 +3092,7 @@ void create_decoration(int x, int y, int r, int g, int b, int click, int tool)
 		if (click == 4)
 			parts[rp>>8].dcolour = 0;
 		else
-			parts[rp>>8].dcolour = ((255<<24)|(r<<16)|(g<<8)|b);
+			parts[rp>>8].dcolour = ((a<<24)|(r<<16)|(g<<8)|b);
 	}
 	else if (tool == DECO_LIGHTEN)
 	{//maybe get a better lighten/darken?

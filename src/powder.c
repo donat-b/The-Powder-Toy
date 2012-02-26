@@ -1224,6 +1224,11 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 int create_property(int x, int y, size_t propoffset, void * propvalue, int proptype)
 {
 	int i = pmap[y][x];
+	if (propoffset = offsetof(particle,dcolour))
+	{
+		create_decoration(x,y,(*((int*)propvalue)>>16)&0xFF,(*((int*)propvalue)>>8)&0xFF,(*((int*)propvalue))&0xFF,(*((int*)propvalue)>>24)&0xFF,1,tool);
+		return i>>8;
+	}
 	if (!propvalue)
 		prop_edit_ui(vid_buf, x, y, 0);
 	if (i&0xFF)
@@ -3343,7 +3348,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 				for (j = tempy; j <= jmax; j++) {
 					if (create_parts2(fn,i,j,c,rx,ry,flags))
 						f = 1;
-					if (create_parts2(fn,2*x-i,j,c,rx,ry,flags))
+					if (2*x-i != i && create_parts2(fn,2*x-i,j,c,rx,ry,flags))
 						f = 1;
 				}
 			}
@@ -3481,7 +3486,8 @@ void create_line(int x1, int y1, int x2, int y2, int rx, int ry, int c, int flag
 			create_parts(y, x, rx, ry, c, flags, fill);
 		else
 			create_parts(x, y, rx, ry, c, flags, fill);
-		fill = 0;
+		if (c != SPC_PROP2 || tool == 0)
+			fill = 0;
 		e += de;
 		if (e >= 0.5f)
 		{

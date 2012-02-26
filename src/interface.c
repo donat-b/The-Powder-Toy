@@ -91,6 +91,7 @@ unsigned char ZSIZE = ZSIZE_D;
 int numframes = 0;
 int framenum = 0;
 int hud_menunum = 0;
+int tool = DECO_DRAW;
 
 int drawgrav_enable = 0;
 
@@ -2827,7 +2828,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 	}
 }
 
-int color_menu_ui(pixel *vid_buf, int i, int *cr, int *cg, int *cb, int b, int bq, int mx, int my, int *tool)
+int color_menu_ui(pixel *vid_buf, int i, int *cr, int *cg, int *cb, int b, int bq, int mx, int my)
 {
 	int h,x,y,n=0,height,width,sy,rows=0,xoff=0,fwidth,a,c;
 	fwidth = colorsections[i].itemcount*31;
@@ -2905,7 +2906,7 @@ int color_menu_ui(pixel *vid_buf, int i, int *cr, int *cg, int *cb, int b, int b
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 					h = n;
 				}
-				else if (n==*tool)
+				else if (n==tool)
 				{
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 				}
@@ -2922,7 +2923,7 @@ int color_menu_ui(pixel *vid_buf, int i, int *cr, int *cg, int *cb, int b, int b
 		//h has the value of the element it is over, and -1 if not over an element
 		if (b==1 && h!=-1)
 		{
-			*tool = h;
+			tool = h;
 			return 0;
 		}
 	}
@@ -5790,7 +5791,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 }
 
 unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int savedColor)
-{//TODO: have the text boxes be editable and update the color.
+{
 	int i,ss,hh,vv,cr=127,cg=0,cb=0,b = 0,mx,my,bq = 0,j, lb=0,lx=0,ly=0,lm=0,hidden=0;
 	int window_offset_x_left = 2;
 	int window_offset_x_right = XRES - 279;
@@ -5807,7 +5808,6 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 	int currH = 0, currS = 255, currV = 127;
 	int currR = PIXR(savedColor), currG = PIXG(savedColor), currB = PIXB(savedColor);
 	int th = currH, ts = currS, tv = currV;
-	int tool = DECO_DRAW;
 	int active_color_menu= 0;
 	pixel *old_buf=calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	ui_edit box_R;
@@ -5817,6 +5817,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 
 	zoom_en = 0;
 	framenum = 0;
+	tool = DECO_DRAW;
 
 	box_R.x = 5;
 	box_R.y = 5+255+4;
@@ -5961,7 +5962,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 				active_color_menu = i;
 			}
 		}
-		if( color_menu_ui(vid_buf, active_color_menu, &currR, &currG, &currB, b, bq, mx, my, &tool) )
+		if( color_menu_ui(vid_buf, active_color_menu, &currR, &currG, &currB, b, bq, mx, my) )
 			RGB_to_HSV(currR,currG,currB,&currH,&currS,&currV);
 
 		if(!box_R.focus)//prevent text update if it is being edited
@@ -6397,6 +6398,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 				{
 					parts[i].tmp2 = 0;
 				}
+			tool = DECO_DRAW;
 			return PIXRGB(currR,currG,currB);
 		}
 	}
@@ -6406,6 +6408,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 		{
 			parts[i].tmp2 = 0;
 		}
+	tool = DECO_DRAW;
 	return PIXRGB(currR,currG,currB);
 }
 struct savelist_e {

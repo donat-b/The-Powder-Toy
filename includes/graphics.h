@@ -189,7 +189,7 @@ void draw_parts(pixel *vid);
 
 void draw_walls(pixel *vid);
 
-void create_decoration(int x, int y, int r, int g, int b, int click, int tool);
+void create_decoration(int x, int y, int r, int g, int b, int a, int click, int tool);
 
 void draw_color_menu(pixel *vid_buf, int i, int hover);
 

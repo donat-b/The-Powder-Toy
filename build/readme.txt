@@ -215,6 +215,7 @@ saving cloned BALL
 Future Ideas/TODO: > means currently being worked on/added next
 >delete tabs folder when done.
 nuclear fusion - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12901
+draw with alpha layer in decoration editor
 more lua commands, in next version (12)
 choose what to save in saves/stamps
 sensor? - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12361

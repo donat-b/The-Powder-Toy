@@ -208,6 +208,7 @@ extern int show_tabs;
 extern int sl;
 extern int sr;
 extern int su;
+extern int tool;
 
 extern int drawinfo;
 extern int currentTime;
