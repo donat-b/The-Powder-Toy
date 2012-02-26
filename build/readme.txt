@@ -38,8 +38,11 @@ shape as your brush, no matter what shape or size it is. They are very
 bouncy, and fall with gravity. Pressure over 4.0 will destroy them, and if 
 the center particle is destroyed, it will fall apart, making really tiny 
 bouncing pixels. Go into the fav2 menu and click SPIN to make them be able 
-to rotate. Don't save moving solids if you allowed them to rotate, reloading 
-them after that is glitchy and won't work.
+to rotate. Moving solid rotation doesn't save in PSv format. To draw shapes 
+other than the cursor shape, draw a center particle with shift + click, and 
+then the outer edges in the same way, all while paused. Before drawing 
+another ball this way, click somewhere on the screen using a small brush to 
+finish the first one.
 
 Animated LCRY: Found in the powered elements menu. In the decoration editor, 
 press left or right to change frames, and paint each frame normally. Press 
@@ -203,8 +206,8 @@ None that I know of
 
 
 Future Ideas/TODO: > means currently being worked on/added next
-draw something in empty space around ball to make it look solid
-multiple tabs open (it will probably just save them, not actually simulate multiple tabs at the same time)
+>buttons on screen for tabs, not key presses
+nuclear fusion - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12901
 more lua commands, in next version (12)
 choose what to save in saves/stamps
 sensor? - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12361

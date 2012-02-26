@@ -207,6 +207,7 @@ int hud_current[HUD_OPTIONS];
 void *prop_value = 0;
 int prop_format = 0;
 size_t prop_offset = 0;
+int tab_num = 1;
 
 int drawinfo = 0;
 int currentTime = 0;
@@ -483,6 +484,32 @@ void stamp_save(int x, int y, int w, int h)
 	stamp_update();
 }
 
+void tab_save(int num)
+{
+	FILE *f;
+	int n;
+	char fn[64];
+	void *s=build_save(&n, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+	if (!s)
+		return;
+
+#ifdef WIN32
+	_mkdir("tabs");
+#else
+	mkdir("tabs", 0755);
+#endif
+
+	sprintf(fn, "tabs" PATH_SEP "%d.stm", num);
+
+	f = fopen(fn, "wb");
+	if (!f)
+		return;
+	fwrite(s, n, 1, f);
+	fclose(f);
+
+	free(s);
+}
+
 void *stamp_load(int i, int *size)
 {
 	void *data;
@@ -505,6 +532,19 @@ void *stamp_load(int i, int *size)
 
 		stamp_update();
 	}
+
+	return data;
+}
+
+void *tab_load(int i, int *size)
+{
+	void *data;
+	char fn[64];
+
+	sprintf(fn, "tabs" PATH_SEP "%d.stm", i);
+	data = file_load(fn, size);
+	if (!data)
+		return NULL;
 
 	return data;
 }
@@ -1322,6 +1362,34 @@ int main(int argc, char *argv[])
 			if (sdl_key=='f')
 			{
 				framerender = 1;
+			}
+			if (sdl_key=='1' && (sdl_mod & (KMOD_ALT)))
+			{
+				if (tab_num != 1)
+				{
+					tab_save(tab_num);
+					load_data = tab_load(1, &load_size);
+					if (load_data)
+						parse_save(load_data, load_size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+					tab_num = 1;
+				}
+				else
+				{
+				}
+			}
+			if (sdl_key=='2' && (sdl_mod & (KMOD_ALT)))
+			{
+				if (tab_num != 2)
+				{
+					tab_save(tab_num);
+					load_data = tab_load(2, &load_size);
+					if (load_data)
+						parse_save(load_data, load_size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+					tab_num = 2;
+				}
+				else
+				{
+				}
 			}
 			if ((sdl_key=='l' || sdl_key=='k') && stamps[0].name[0])
 			{
