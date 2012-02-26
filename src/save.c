@@ -26,9 +26,9 @@ pixel *prerender_save(void *save, int size, int *width, int *height)
 	return NULL;
 }
 
-void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr)
+void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, int tab)
 {
-	if (save_as == 1 || save_as == 5) //Beta doesn't have PSv format & Release don't have OPS format
+	if (save_as == 1 || save_as == 5) //Beta didn't have PSv format (but does now for some reason) & Release don't have OPS format
 		return NULL;
 
 	if (check_save(save_as%3, orig_x0, orig_y0, orig_w, orig_h))
@@ -40,8 +40,8 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	else //Mod
 		saveversion = MOD_SAVE_VERSION+192;
 
-	if (save_as >= 3)
-		return build_save_OPS(size, orig_x0, orig_y0, orig_w, orig_h, bmap, vx, vy, pv, fvx, fvy, signs, partsptr);
+	if (save_as >= 3 || tab)
+		return build_save_OPS(size, orig_x0, orig_y0, orig_w, orig_h, bmap, vx, vy, pv, fvx, fvy, signs, partsptr, tab);
 	else
 		return build_save_PSv(size, orig_x0, orig_y0, orig_w, orig_h, bmap, fvx, fvy, signs, partsptr);
 }
@@ -449,7 +449,7 @@ fin:
 	return vidBuf;
 }
 
-void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* o_partsptr)
+void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* o_partsptr, int tab)
 {
 	particle *partsptr = o_partsptr;
 	unsigned char *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *pressData = NULL, *finalData = NULL, *outputData = NULL;
@@ -486,7 +486,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 		for(y = blockY; y < blockY+blockH; y++)
 		{
 			wallData[(y-blockY)*blockW+(x-blockX)] = bmap[y][x];
-			if (0 && save_as == 3)
+			if (tab || (0 && save_as == 3))
 			{
 				float pres = (max(-255,min(255,pv[y][x])))+256;
 				pressData[pressDataLen++] = (unsigned char)((int)(pres*128)&0xFF);
@@ -749,8 +749,8 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	bson_append_int(&b, "Jacob1's_Mod", MOD_SAVE_VERSION);
 	bson_append_int(&b, "compatible_with", 8);
 	
-	//bson_append_int(&b, "leftSelectedElement", sl);
-	//bson_append_int(&b, "rightSelectedElement", sr);
+	bson_append_int(&b, "leftSelectedElement", sl);
+	bson_append_int(&b, "rightSelectedElement", sr);
 	bson_append_int(&b, "activeMenu", active_menu);
 	if(partsData)
 		bson_append_binary(&b, "parts", BSON_BIN_USER, partsData, partsDataLen);
@@ -1003,7 +1003,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Invalid datatype of wall data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
 			}
 		}
-		else if(strcmp(bson_iterator_key(&iter), "pressMap")==0 && replace)
+		else if(strcmp(bson_iterator_key(&iter), "pressMap")==0)
 		{
 			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (pressDataLen = bson_iterator_bin_len(&iter)) > 0)
 			{
@@ -1069,7 +1069,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if(strcmp(bson_iterator_key(&iter), "paused")==0 && !sys_pause)
+		else if(strcmp(bson_iterator_key(&iter), "paused")==0 && (!sys_pause || replace == 2))
 		{
 			if(bson_iterator_type(&iter)==BSON_BOOL)
 			{
@@ -1102,7 +1102,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		/*else if((strcmp(bson_iterator_key(&iter), "leftSelectedElement")==0 || strcmp(bson_iterator_key(&iter), "rightSelectedElement")) && replace)
+		else if((strcmp(bson_iterator_key(&iter), "leftSelectedElement")==0 || strcmp(bson_iterator_key(&iter), "rightSelectedElement")==0) && replace)
 		{
 			if(bson_iterator_type(&iter)==BSON_INT && bson_iterator_int(&iter) > 0 && bson_iterator_int(&iter) < PT_NUM)
 			{
@@ -1119,10 +1119,10 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			{
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
-		}*/
+		}
 		else if(strcmp(bson_iterator_key(&iter), "activeMenu")==0 && replace)
 		{
-			if(bson_iterator_type(&iter)==BSON_INT && bson_iterator_int(&iter) > 0 && bson_iterator_int(&iter) < SC_TOTAL && msections[bson_iterator_int(&iter)].doshow)
+			if(bson_iterator_type(&iter)==BSON_INT && bson_iterator_int(&iter) > 0 && ((bson_iterator_int(&iter) < SC_TOTAL && msections[bson_iterator_int(&iter)].doshow) || replace == 2))
 			{
 				active_menu = bson_iterator_int(&iter);
 			}
@@ -1274,8 +1274,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			fprintf(stderr, "Not enough pressure data\n");
 			goto fail;
 		}
-		/*pressData[(y-blockY)*blockW+(x-blockX)*2] = (unsigned char)((int)(max(0,pv[y][x]+256)*128)&0xFF);
-		  pressData[(y-blockY)*blockW+(x-blockX)*2+1] = (unsigned char)((int)(max(0,pv[y][x]+256)*128)>>8);*/
 		for(x = 0; x < blockW; x++)
 		{
 			for(y = 0; y < blockH; y++)
@@ -1283,8 +1281,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				int i2;
 				i = pressData[j++];
 				i2 = pressData[j++];
-				printf("%f\n",(i+(i2<<8)));
-				printf("%f\n\n",((i+(i2<<8))/128.0f)-256);
 				pv[blockY+y][blockX+x] = ((i+(i2<<8))/128.0f)-256;
 			}
 		}
@@ -3018,7 +3014,7 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 			vyn[ny][nx] = vyo[y][x];
 			pvn[ny][nx] = pvo[y][x];
 		}
-	ndata = build_save(size,0,0,nw,nh,bmapn,vxn,vyn,pvn,fvxn,fvyn,signst,partst);
+	ndata = build_save(size,0,0,nw,nh,bmapn,vxn,vyn,pvn,fvxn,fvyn,signst,partst, (sdl_mod & KMOD_RCTRL));
 	free(bmapo);
 	free(bmapn);
 	free(partst);

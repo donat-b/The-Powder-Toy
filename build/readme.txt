@@ -200,18 +200,20 @@ Next Version
 Added tabs. Hit the tab button in the quickoptions menu or press Ctrl to show 
 a menu of all the tabs you have open. You can switch between them, or open a 
 new one (what you are doing is copied over). Tabs are saved and not simulated 
-when you are not using them.
+when you are not using them. Press shift to save pressure in stamps and saves, 
+RCTRL to keep it when transforming stamps.
 
 
 
 Bugs:
-None that I know of
+saving cloned BALL
+//None that I know of
 
 
 
 
 Future Ideas/TODO: > means currently being worked on/added next
->save pressure + some other stuff in tabs, delete tabs folder when done.
+>delete tabs folder when done.
 nuclear fusion - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12901
 more lua commands, in next version (12)
 choose what to save in saves/stamps

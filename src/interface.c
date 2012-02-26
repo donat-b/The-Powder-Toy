@@ -2281,7 +2281,7 @@ void menu_ui(pixel *vid_buf, int i, int *sl, int *sr)
 }
 */
 //current menu function
-void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *su, int *dae, int b, int bq, int mx, int my)
+void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 {
 	int h,x,y,n=0,height,width,sy,rows=0,xoff=0,fwidth,favdesc = 0;
 	SEC = SEC2;
@@ -2321,11 +2321,11 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *su, int *dae, int 
 				{
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
 				}
-				else if (n==*sl)
+				else if (n==sl)
 				{
 					drawrect(vid_buf, x+30, y-1, 29, 17, 255, 55, 55, 255);
 				}
-				else if (n==*sr)
+				else if (n==sr)
 				{
 					drawrect(vid_buf, x+30, y-1, 29, 17, 55, 55, 255, 255);
 				}
@@ -2364,11 +2364,11 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *su, int *dae, int 
 				{
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
 				}
-				else if (n==*sl)
+				else if (n==sl)
 				{
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 				}
-				else if (n==*sr)
+				else if (n==sr)
 				{
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
 				}
@@ -2404,11 +2404,11 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *su, int *dae, int 
 			{
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
 			}
-			else if (n==*sl)
+			else if (n==sl)
 			{
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 			}
-			else if (n==*sr)
+			else if (n==sr)
 			{
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
 			}
@@ -2461,11 +2461,11 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *su, int *dae, int 
 			{
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
 			}
-			else if (n==*sl)
+			else if (n==sl)
 			{
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 			}
-			else if (n==*sr)
+			else if (n==sr)
 			{
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
 			}
@@ -2545,11 +2545,11 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *su, int *dae, int 
 				{
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
 				}
-				else if (n==*sl)
+				else if (n==sl)
 				{
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 				}
-				else if (n==*sr)
+				else if (n==sr)
 				{
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
 				}
@@ -2669,7 +2669,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *su, int *dae, int 
 				if (finding)
 					finding = 0;
 				else
-					finding = *sl;
+					finding = sl;
 			else if (h == FAV_INFO)
 				drawinfo = !drawinfo;
 			else if (h == FAV_ROTATE)
@@ -2760,7 +2760,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *su, int *dae, int 
 			}
 			else
 			{
-				*sl = *su = h;
+				sl = su = h;
 				*dae = 51;
 				if (finding)
 					finding = h;
@@ -2813,7 +2813,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *su, int *dae, int 
 			}
 			else
 			{
-				*sr = *su = h;
+				sr = su = h;
 				*dae = 51;
 				while (pos < last)
 				{
@@ -3036,7 +3036,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 						tab_save(tab_num);
 						load_data = (void*)tab_load(i, &load_size);
 						if (load_data)
-							parse_save(load_data, load_size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+							parse_save(load_data, load_size, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 						tab_num = i;
 					}
 					else
@@ -5301,7 +5301,7 @@ void execute_save(pixel *vid_buf)
 	plens[0] = strlen(svf_name);
 	uploadparts[1] = svf_description;
 	plens[1] = strlen(svf_description);
-	uploadparts[2] = build_save(plens+2, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+	uploadparts[2] = build_save(plens+2, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, (save_as == 3 && (sdl_mod & KMOD_SHIFT)));
 	uploadparts[3] = build_thumb(plens+3, 1);
 	uploadparts[4] = (svf_publish==1)?"Public":"Private";
 	plens[4] = strlen((svf_publish==1)?"Public":"Private");
@@ -6513,7 +6513,7 @@ int save_filename_ui(pixel *vid_buf)
 	pixel *save = NULL;//calloc((XRES/3)*(YRES/3), PIXELSIZE);
 	ui_edit ed;
 
-	save_data = build_save(&save_size, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+	save_data = build_save(&save_size, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, (save_as == 3 && (sdl_mod & KMOD_SHIFT)));
 	save_data_image = prerender_save(save_data, save_size, &imgw, &imgh);
 	if(save_data_image!=NULL)
 	{

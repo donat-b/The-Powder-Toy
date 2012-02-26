@@ -205,6 +205,9 @@ extern unsigned int prop_offset;
 extern int tab_num;
 extern int num_tabs;
 extern int show_tabs;
+extern int sl;
+extern int sr;
+extern int su;
 
 extern int drawinfo;
 extern int currentTime;

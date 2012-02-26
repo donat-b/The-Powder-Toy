@@ -210,6 +210,9 @@ size_t prop_offset = 0;
 int tab_num = 1;
 int num_tabs = 1;
 int show_tabs = 0;
+int sl = 1;
+int sr = 0;
+int su = 0;
 
 int drawinfo = 0;
 int currentTime = 0;
@@ -452,7 +455,7 @@ void stamp_save(int x, int y, int w, int h)
 	FILE *f;
 	int n;
 	char fn[64], sn[16];
-	void *s=build_save(&n, x, y, w, h, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+	void *s=build_save(&n, x, y, w, h, bmap, vx, vy, pv, fvx, fvy, signs, parts, (sdl_mod & KMOD_SHIFT));
 	if (!s)
 		return;
 
@@ -491,7 +494,7 @@ void tab_save(int num)
 	FILE *f;
 	int n;
 	char fn[64];
-	void *s=build_save(&n, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+	void *s=build_save(&n, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, 1);
 	if (!s)
 		return;
 
@@ -838,7 +841,7 @@ int main(int argc, char *argv[])
 	int vs = 0;
 #endif
 	int wavelength_gfx = 0;
-	int x, y, line_x, line_y, b = 0, sl=1, sr=0, su=0, c, lb = 0, lx = 0, ly = 0, lm = 0;//, tx, ty;
+	int x, y, line_x, line_y, b = 0, c, lb = 0, lx = 0, ly = 0, lm = 0;//, tx, ty;
 	int da = 0, dae = 0, db = 0, it = 2047, mx, my, bsx = 2, bsy = 2, quickoptions_tooltip_fade_invert, it_invert = 0;
 	float nfvx, nfvy;
 	int load_mode=0, load_w=0, load_h=0, load_x=0, load_y=0, load_size=0;
@@ -1943,7 +1946,7 @@ int main(int argc, char *argv[])
 				active_menu = i;
 			}
 		}
-		menu_ui_v3(vid_buf, active_menu, &sl, &sr, &su, &dae, b, bq, x, y); //draw the elements in the current menu
+		menu_ui_v3(vid_buf, active_menu, &dae, b, bq, x, y); //draw the elements in the current menu
 		if (zoom_en && x>=sdl_scale*zoom_wx && y>=sdl_scale*zoom_wy //change mouse position while it is in a zoom window
 		        && x<sdl_scale*(zoom_wx+ZFACTOR*ZSIZE)
 		        && y<sdl_scale*(zoom_wy+ZFACTOR*ZSIZE))
@@ -2352,14 +2355,14 @@ int main(int argc, char *argv[])
 			{
 				if (copy_mode==1)//CTRL-C, copy
 				{
-					clipboard_data=build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+					clipboard_data=build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts, (sdl_mod & KMOD_SHIFT));
 					clipboard_ready = 1;
 					save_mode = 0;
 					copy_mode = 0;
 				}
 				else if (copy_mode==2)//CTRL-X, cut
 				{
-					clipboard_data=build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+					clipboard_data=build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts, (sdl_mod & KMOD_SHIFT));
 					clipboard_ready = 1;
 					save_mode = 0;
 					copy_mode = 0;
