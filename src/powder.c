@@ -1224,7 +1224,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 int create_property(int x, int y, size_t propoffset, void * propvalue, int proptype)
 {
 	int i = pmap[y][x];
-	if (propoffset = offsetof(particle,dcolour))
+	if (propoffset == offsetof(particle,dcolour))
 	{
 		create_decoration(x,y,(*((int*)propvalue)>>16)&0xFF,(*((int*)propvalue)>>8)&0xFF,(*((int*)propvalue))&0xFF,(*((int*)propvalue)>>24)&0xFF,1,tool);
 		return i>>8;
