@@ -429,6 +429,7 @@ int update_MERC(UPDATE_FUNC_ARGS);
 int update_MORT(UPDATE_FUNC_ARGS);
 int update_MOVS(UPDATE_FUNC_ARGS);
 int update_NBHL(UPDATE_FUNC_ARGS);
+int update_NBLE(UPDATE_FUNC_ARGS);
 int update_NEUT(UPDATE_FUNC_ARGS);
 int update_NWHL(UPDATE_FUNC_ARGS);
 int update_NPTCT(UPDATE_FUNC_ARGS);
