@@ -26,6 +26,7 @@ disturbed666 - A way to turn PHOT into ELEC (but I used PINV instead of TESC)
 Dynotec - new statistics
 therocketeer - smudge tool
 cip - INWR with tmp of 1 doesn't conduct to SWCH
+BoredInSchool - fusion
 
 
 
@@ -201,7 +202,8 @@ Added tabs. Hit the tab button in the quickoptions menu or press Ctrl to show
 a menu of all the tabs you have open. You can switch between them, or open a 
 new one (what you are doing is copied over). Tabs are saved and not simulated 
 when you are not using them. Press shift to save pressure in stamps and saves, 
-RCTRL to keep it when transforming stamps.
+RCTRL to keep it when transforming stamps. Added fusion. see thread 12901 for 
+more info (http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12901).
 
 
 
@@ -214,9 +216,8 @@ saving cloned BALL
 
 Future Ideas/TODO: > means currently being worked on/added next
 >delete tabs folder when done.
-nuclear fusion - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12901
 draw with alpha layer in decoration editor
-more lua commands, in next version (12)
+more lua commands
 choose what to save in saves/stamps
 sensor? - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12361
 new lua elements - Videogamer555 - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
