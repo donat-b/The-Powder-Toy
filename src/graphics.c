@@ -1892,7 +1892,7 @@ void render_parts(pixel *vid)
 					fireg = graphicscache[t].fireg;
 					fireb = graphicscache[t].fireb;
 				}
-				else
+				else if(!(colour_mode & COLOUR_BASC))	//Don't get special effects for BASIC colour mode
 				{
 					if (ptypes[t].graphics_func)
 					{
@@ -1980,6 +1980,13 @@ void render_parts(pixel *vid)
 					colg = (int)(sin(frequency*q) * 16 + colg);
 					colb = (int)(sin(frequency*q) * 16 + colb);
 					if(pixel_mode & (FIREMODE | PMODE_GLOW)) pixel_mode = (pixel_mode & ~(FIREMODE|PMODE_GLOW)) | PMODE_BLUR;
+				}
+				else if (colour_mode & COLOUR_BASC)
+				{
+					colr = PIXR(ptypes[t].pcolors);
+					colg = PIXG(ptypes[t].pcolors);
+					colb = PIXB(ptypes[t].pcolors);
+					pixel_mode = PMODE_FLAT;
 				}
 								
 				//Apply decoration colour
@@ -3302,8 +3309,8 @@ void render_fire(pixel *vid)
 			g = fire_g[j][i];
 			b = fire_b[j][i];
 			if (r || g || b)
-				for (y=-CELL+1; y<2*CELL; y++)
-					for (x=-CELL+1; x<2*CELL; x++)
+				for (y=-CELL; y<2*CELL; y++)
+					for (x=-CELL; x<2*CELL; x++)
 						addpixel(vid, i*CELL+x, j*CELL+y, r, g, b, fire_alpha[y+CELL][x+CELL]);
 			r *= 8;
 			g *= 8;

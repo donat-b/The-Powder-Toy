@@ -6618,6 +6618,13 @@ int save_filename_ui(pixel *vid_buf)
 						{
 							strncpy(svf_filename, savefname, 255);
 							svf_fileopen = 1;
+							
+							//Allow reloading
+							if(svf_last)
+								free(svf_last);
+							svf_last = malloc(save_size);
+							memcpy(svf_last, save_data, save_size);
+							svf_lsize = save_size;
 						}
 						break;
 					} else {
@@ -6957,10 +6964,10 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 	int display_optionicons[] = {0xD4, 0x99, 0x98, 0xBE, 0xDE, 0x9A, 0xBF, -1};
 	char * display_desc[] = {"Air: Cracker", "Air: Pressure", "Air: Velocity", "Air: Heat", "Warp effect", "Persistent", "Blob", "Effects"};
 
-	int colour_optioncount = 3;
-	int colour_options[] = {COLOUR_LIFE, COLOUR_HEAT, COLOUR_GRAD};
-	int colour_optionicons[] = {0xE0, 0xBE, 0xD3};
-	char * colour_desc[] = {"Life", "Heat", "Heat Gradient"};
+	int colour_optioncount = 4;
+	int colour_options[] = {COLOUR_BASC, COLOUR_LIFE, COLOUR_HEAT, COLOUR_GRAD};
+	int colour_optionicons[] = {0xDB, 0xE0, 0xBE, 0xD3};
+	char * colour_desc[] = {"Basic", "Life", "Heat", "Heat Gradient"};
 
 	yoffset = 16;
 	xoffset = 0;

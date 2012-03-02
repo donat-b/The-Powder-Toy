@@ -214,7 +214,9 @@
 #define PT_WIRE 156
 #define PT_GBMB 157
 #define PT_FIGH 158
-#define PT_NORMAL_NUM 159
+#define PT_FRAY 159
+#define PT_REPL 160
+#define PT_NORMAL_NUM 161
 
 #define PT_MOVS PT_NORMAL_NUM
 #define PT_ANIM PT_NORMAL_NUM+1
@@ -231,7 +233,7 @@
 #define PT_RAZR PT_NORMAL_NUM+12
 #define PT_COND PT_NORMAL_NUM+13
 #define PT_PWHT PT_NORMAL_NUM+14
-#define PT_NUM 174
+#define PT_NUM 176
 
 #define FAV_START 300
 #define FAV_MORE 300
@@ -282,6 +284,7 @@
 #define PROP_SPARKSETTLE	0x200000//2^21 Allow Sparks/Embers to settle
 
 #define FLAG_STAGNANT	1
+#define FLAG_SKIPMOVE	0x2 // skip movement for one frame, only implemented for PHOT
 
 #define GRAPHICS_FUNC_ARGS particle *cpart, int nx, int ny, int *pixel_mode, int* cola, int *colr, int *colg, int *colb, int *firea, int *firer, int *fireg, int *fireb
 #define GRAPHICS_FUNC_SUBCALL_ARGS cpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb
@@ -407,6 +410,7 @@ int update_ELEC(UPDATE_FUNC_ARGS);
 int update_EMP(UPDATE_FUNC_ARGS);
 int update_FIGH(UPDATE_FUNC_ARGS);
 int update_FOG(UPDATE_FUNC_ARGS);
+int update_FRAY(UPDATE_FUNC_ARGS);
 int update_FRZW(UPDATE_FUNC_ARGS);
 int update_FRZZ(UPDATE_FUNC_ARGS);
 int update_FSEP(UPDATE_FUNC_ARGS);
@@ -446,6 +450,7 @@ int update_PWHT(UPDATE_FUNC_ARGS);
 int update_PYRO(UPDATE_FUNC_ARGS);
 int update_PUMP(UPDATE_FUNC_ARGS);
 int update_QRTZ(UPDATE_FUNC_ARGS);
+int update_REPL(UPDATE_FUNC_ARGS);
 int update_RIME(UPDATE_FUNC_ARGS);
 int update_SHLD1(UPDATE_FUNC_ARGS);
 int update_SHLD2(UPDATE_FUNC_ARGS);

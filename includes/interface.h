@@ -36,26 +36,28 @@ typedef struct menu_wall menu_wall;
 #define SC_WALL 0
 #define SC_ELEC 1
 #define SC_POWERED 2
-#define SC_EXPLOSIVE 3
-#define SC_GAS 4
-#define SC_LIQUID 5
-#define SC_POWDERS 6
-#define SC_SOLIDS 7
-#define SC_NUCLEAR 8
-#define SC_SPECIAL 9
-#define SC_LIFE 10
-#define SC_TOOL 11
-#define SC_FAV 12
-#define SC_CRACKER 13
-#define SC_FAV2 14
-#define SC_HUD 15
-#define SC_TOTAL 13
+#define SC_FORCE 3
+#define SC_EXPLOSIVE 4
+#define SC_GAS 5
+#define SC_LIQUID 6
+#define SC_POWDERS 7
+#define SC_SOLIDS 8
+#define SC_NUCLEAR 9
+#define SC_SPECIAL 10
+#define SC_LIFE 11
+#define SC_TOOL 12
+#define SC_FAV 13
+#define SC_CRACKER 14
+#define SC_FAV2 15
+#define SC_HUD 16
+#define SC_TOTAL 14
 
 static menu_section msections[] = //doshow does not do anything currently.
 {
 	{"\xC1", "Walls", 0, 1},
 	{"\xC2", "Electronics", 0, 1},
 	{"\xD6", "Powered Materials", 0, 1},
+	{">",	 "Force", 0, 1},
 	{"\xC3", "Explosives", 0, 1},
 	{"\xC5", "Gasses", 0, 1},
 	{"\xC4", "Liquids", 0, 1},
