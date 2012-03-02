@@ -2594,7 +2594,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 		else if (h == FAV_SAVE)
 		{
 			if (save_as%3 == 0)
-				strappend(favtext, "Jacob's Mod ver. 10");
+				strappend(favtext, "Jacob's Mod ver. 12");
 			else if (save_as%3 == 1)
 			{
 				char versiontext[32];

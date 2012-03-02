@@ -213,6 +213,7 @@ int show_tabs = 0;
 int sl = 1;
 int sr = 0;
 int su = 0;
+int autosave = 0;
 
 int drawinfo = 0;
 int currentTime = 0;
@@ -1025,6 +1026,10 @@ int main(int argc, char *argv[])
 #ifdef LUACONSOLE
 	luacon_eval("dofile(\"autorun.lua\")"); //Autorun lua script
 #endif
+	tab_load(1,&load_size);
+	load_data = (void*)tab_load(i, &load_size);
+	if (load_data)
+		parse_save(load_data, load_size, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 	while (!sdl_poll()) //the main loop
 	{
 		frameidx++;
@@ -2910,6 +2915,10 @@ int main(int argc, char *argv[])
 		lastx = mousex;
 		lasty = mousey;
 
+		if (autosave > 0 && frames%autosave == 0)
+		{
+			tab_save(1);
+		}
 		if (hud_enable)
 		{
 #ifdef BETA
@@ -3203,6 +3212,13 @@ int main(int argc, char *argv[])
     pthread_win32_process_detach_np();
 #endif
 	save_presets(0);
+	for (i = 1; i < 10; i++)
+	{
+		char name[30] = {0};
+		sprintf(name,"tabs%s%d.stm",PATH_SEP,i);
+		remove(name);
+	}
+	rmdir("tabs");
 	return 0;
 }
 #endif

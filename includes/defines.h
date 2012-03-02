@@ -209,6 +209,7 @@ extern int sl;
 extern int sr;
 extern int su;
 extern int tool;
+extern int autosave;
 
 extern int drawinfo;
 extern int currentTime;

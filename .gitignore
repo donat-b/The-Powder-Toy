@@ -12,7 +12,8 @@ utils/*
 src/python/stdlib/*
 /Release/
 /stamps/
-/stamps2/
+/saves/
+/tabs/
 /Debug/
 /ipch/
 /font/
