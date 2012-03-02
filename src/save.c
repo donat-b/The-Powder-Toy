@@ -1534,10 +1534,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							partsptr[newIndex].tmp -= 65536;
 						if (partsptr[newIndex].tmp2 > 32768)
 							partsptr[newIndex].tmp2 -= 65536;
-						if (partsptr[newIndex].type == PT_MOVS && !partsptr[newIndex].tmp && !partsptr[newIndex].tmp2)
-						{
-							partsData[partsDataLen++] = (int)(msrotation[partsptr[i].life] + 6.283185307179586476925286766559)*20;
-						}
 					}
 					if (!ptypes[partsptr[newIndex].type].enabled && !secret_els)
 						partsptr[newIndex].type = PT_NONE;

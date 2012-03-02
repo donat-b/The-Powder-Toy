@@ -211,8 +211,7 @@ open it your work will appear. Fix decoration tools.
 
 
 Bugs:
-saving cloned BALL
-//None that I know of
+None that I know of
 
 
 
@@ -221,7 +220,7 @@ Future Ideas/TODO: > means currently being worked on/added next
 >delete tabs folder when done.
 draw with alpha layer in decoration editor
 more lua commands
-choose what to save in saves/stamps
+make moving solids solid inside
 sensor? - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12361
 new lua elements - Videogamer555 - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
 More deco tools
