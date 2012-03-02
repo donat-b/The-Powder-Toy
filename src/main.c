@@ -214,6 +214,7 @@ int sl = 1;
 int sr = 0;
 int su = 0;
 int autosave = 0;
+int realistic = 0;
 
 int drawinfo = 0;
 int currentTime = 0;

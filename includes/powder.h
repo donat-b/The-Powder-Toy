@@ -246,8 +246,10 @@
 #define FAV_SAVE 307
 #define FAV_LUA 308
 #define FAV_CUSTOMHUD 309
-#define FAV_SECR 310
-#define FAV_END 311
+#define FAV_AUTOSAVE 310
+#define FAV_REAL 311
+#define FAV_SECR 312
+#define FAV_END 313
 
 #define R_TEMP 22
 #define MAX_TEMP 9999
@@ -766,7 +768,9 @@ static fav_menu fav[] =
 	{"HEAT", PIXPACK(0xFF00D4), "Changes heat display mode. current mode: "},
 	{"SAVE", PIXPACK(0x2B1AC9), "Makes saves/stamps compatible with: "},
 	{"LUA",  PIXPACK(0xFFFF00), "Add Lua code to a save"},
-	{"HUD2",  PIXPACK(0x20D8FF), "Make a custom HUD (doesn't save yet, unless I forgot to remove the unfinished text again"},
+	{"HUD2", PIXPACK(0x20D8FF), "Make a custom HUD"},
+	{"AUTO", PIXPACK(0xDF1BFF), "Sets how often your work is autosaved, currently: "},
+	{"REAL", PIXPACK(0xFF6800), "Turns on realistic mode, changes heat simulation/movement a little. Now "},
 	{"", PIXPACK(0x000000), ""}
 };
 

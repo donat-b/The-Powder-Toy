@@ -203,7 +203,10 @@ a menu of all the tabs you have open. You can switch between them, or open a
 new one (what you are doing is copied over). Tabs are saved and not simulated 
 when you are not using them. Press shift to save pressure in stamps and saves, 
 RCTRL to keep it when transforming stamps. Added fusion. see thread 12901 for 
-more info (http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12901).
+more info (http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12901). 
+Added realistic mode, not by me and not too noticible. Autosave button, 
+disabled by default. If Powder Toy unexpectidely closes, the next time you 
+open it your work will appear. Fix decoration tools.
 
 
 

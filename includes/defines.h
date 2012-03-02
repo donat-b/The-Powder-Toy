@@ -210,6 +210,7 @@ extern int sr;
 extern int su;
 extern int tool;
 extern int autosave;
+extern int realistic;
 
 extern int drawinfo;
 extern int currentTime;

@@ -2612,6 +2612,24 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 			else
 				strappend(favtext, " OPS format");
 		}
+		else if (h == FAV_AUTOSAVE)
+		{
+			if (autosave == 0)
+				strappend(favtext, "off");
+			else
+			{
+				char versiontext[32];
+				sprintf(versiontext,"every %d seconds",autosave);
+				strappend(favtext, versiontext);
+			}
+		}
+		else if (h == FAV_REAL)
+		{
+			if (realistic == 0)
+				strappend(favtext, "off");
+			else
+				strappend(favtext, "on");
+		}
 		drawtext(vid_buf, XRES-textwidth(favtext)-BARSIZE, sy-10, favtext, 255, 255, 255, 255);
 	}
 	else if (i==SC_HUD||favdesc == 4)
@@ -2689,6 +2707,10 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 				addluastuff();
 			else if (h == FAV_CUSTOMHUD)
 				active_menu = SC_HUD;
+			else if (h == FAV_AUTOSAVE)
+				autosave = atoi(input_ui(vid_buf,"autosave","Input number of seconds between saves, 0 = off","",""));
+			else if (h == FAV_REAL)
+				realistic = !realistic;
 			else if (h == FAV_SECR)
 			{
 				secret_els = !secret_els;

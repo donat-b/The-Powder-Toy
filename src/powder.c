@@ -1970,14 +1970,17 @@ void update_particles_i(pixel *vid, int start, int inc)
 
 			if (ptypes[t].diffusion)//the random diffusion that gasses have
 			{
-#ifdef REALISTIC
-				//The magic number controlls diffusion speed
-				parts[i].vx += 0.05*squares[(unsigned int)round(parts[i].temp)]*ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
-				parts[i].vy += 0.05*squares[(unsigned int)round(parts[i].temp)]*ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
-#else
-				parts[i].vx += ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
-				parts[i].vy += ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
-#endif
+				if (realistic)
+				{
+					//The magic number controlls diffusion speed
+					parts[i].vx += 0.05*squares[(unsigned int)(parts[i].temp+0.5f)]*ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
+					parts[i].vy += 0.05*squares[(unsigned int)(parts[i].temp+0.5f)]*ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
+				}
+				else
+				{
+					parts[i].vx += ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
+					parts[i].vy += ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
+				}
 			}
 
 			j = surround_space = nt = 0;//if nt is 1 after this, then there is a particle around the current particle, that is NOT the current particle's type, for water movement.
@@ -2008,21 +2011,20 @@ void update_particles_i(pixel *vid, int start, int inc)
 
 				//heat transfer code
 				h_count = 0;
-#ifdef REALISTIC
-				if (t&&(t!=PT_HSWC||parts[i].life==10)&&ptypes[t].hconduct)
+				if (t&&(t!=PT_HSWC||parts[i].life==10)&&ptypes[t].hconduct&&(realistic||ptypes[t].hconduct>(rand()%250)))
 				{
 					float c_Cm = 0.0f;
-#else
-				if (t&&(t!=PT_HSWC||parts[i].life==10)&&ptypes[t].hconduct>(rand()%250))
-				{
-					float c_Cm = 0.0f;
-#endif
 					if (aheat_enable)
 					{
 						c_heat = (hv[y/CELL][x/CELL]-parts[i].temp)*0.04;
 						c_heat = restrict_flt(c_heat, -MAX_TEMP+MIN_TEMP, MAX_TEMP-MIN_TEMP);
 						parts[i].temp += c_heat;
 						hv[y/CELL][x/CELL] -= c_heat;
+						if (realistic)
+						{
+							//Volume increase from heat (temporary)
+							pv[y/CELL][x/CELL] -= c_heat*0.004;
+						}
 					}
 					c_heat = 0.0f;
 					for (j=0; j<8; j++)
@@ -2037,24 +2039,29 @@ void update_particles_i(pixel *vid, int start, int inc)
 						        &&(rt!=PT_FILT||(t!=PT_BRAY&&t!=PT_PHOT&&t!=PT_BIZR&&t!=PT_BIZRG)))
 						{
 							surround_hconduct[j] = r>>8;
-#ifdef REALISTIC 
-							c_heat += parts[r>>8].temp*96.645/ptypes[rt].hconduct*fabs(ptypes[rt].weight);
-							c_Cm += 96.645/ptypes[rt].hconduct*fabs(ptypes[rt].weight);
-#else
-							c_heat += parts[r>>8].temp;
-#endif
+							if (realistic)
+							{
+								c_heat += parts[r>>8].temp*96.645/ptypes[rt].hconduct*fabs(ptypes[rt].weight);
+								c_Cm += 96.645/ptypes[rt].hconduct*fabs(ptypes[rt].weight);
+							}
+							else
+							{
+								c_heat += parts[r>>8].temp;
+							}
 							h_count++;
 						}
 					}
-#ifdef REALISTIC
-					if (t == PT_PHOT)
-						pt = (c_heat+parts[i].temp*96.645)/(c_Cm+96.645);
+					if (realistic)
+					{
+						if (t == PT_PHOT)
+							pt = (c_heat+parts[i].temp*96.645)/(c_Cm+96.645);
+						else
+							pt = (c_heat+parts[i].temp*96.645/ptypes[t].hconduct*fabs(ptypes[t].weight))/(c_Cm+96.645/ptypes[t].hconduct*fabs(ptypes[t].weight));
+					}
 					else
-						pt = (c_heat+parts[i].temp*96.645/ptypes[t].hconduct*fabs(ptypes[t].weight))/(c_Cm+96.645/ptypes[t].hconduct*fabs(ptypes[t].weight));
-					
-#else
-					pt = (c_heat+parts[i].temp)/(h_count+1);
-#endif
+					{
+						pt = (c_heat+parts[i].temp)/(h_count+1);
+					}
 					pt = parts[i].temp = restrict_flt(pt, MIN_TEMP, MAX_TEMP);
 					for (j=0; j<8; j++)
 					{
