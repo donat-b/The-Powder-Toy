@@ -2698,10 +2698,10 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 			else if (h == FAV_SAVE)
 			{
 				save_as = (save_as + 1)%6;
-				if (save_as == 5)
+				if (save_as == 4)
 					save_as = 0;
-				else if (save_as == 1)
-					save_as = 2;
+				//else if (save_as == 1)
+				//	save_as = 2;
 			}
 			else if (h == FAV_LUA)
 				addluastuff();

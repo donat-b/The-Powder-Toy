@@ -28,7 +28,7 @@ pixel *prerender_save(void *save, int size, int *width, int *height)
 
 void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, int tab)
 {
-	if (save_as == 1 || save_as == 5) //Beta didn't have PSv format (but does now for some reason) & Release don't have OPS format
+	if (save_as == 4 || save_as == 5) //Beta & release don't have OPS format
 		return NULL;
 
 	if (check_save(save_as%3, orig_x0, orig_y0, orig_w, orig_h))
@@ -68,8 +68,8 @@ int invalid_element(int save_as, int el)
 {
 	if (save_as > 0 && (el >= PT_NORMAL_NUM || ptypes[el].enabled == 0)) //Check for mod/disabled elements
 		return 1;
-	//if (save_as > 1 && (el == PT_ELEC || el == PT_FIGH || el == PT_ACEL || el == PT_DCEL || el == PT_BANG || el == PT_IGNT)) //Check for beta elements (none right now)
-	//	return 1;
+	if (save_as > 1 && (el == PT_FRAY || el == PT_REPL))
+		return 1;
 	return 0;
 }
 
