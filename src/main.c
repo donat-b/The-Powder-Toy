@@ -157,7 +157,7 @@ static const char *it_msg =
     "\n"
     "\bgTo use online features such as saving, you need to register at: \brhttp://powdertoy.co.uk/Register.html\n"
     "\n"
-    "\brJ\bla\boc\bgo\btb\bb1\bp'\bws \bbMod version 10"
+    "\brJ\bla\boc\bgo\btb\bb1\bp'\bws \bbMod version " MTOS(MOD_VERSION)
     ;
 
 typedef struct

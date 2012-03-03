@@ -132,19 +132,17 @@ to prevent people from sparking buttons until specific times. Also, re-added
 in buttons to switch to the different modes, except blob and heat gradient.
 
 Version 6.0: http://min.us/lUgHNsGndzdbh
-Added powered invisible, blob and heat gradient display, portal effects, 
-and wifi/portal lines. Also added the old lua console commands: 
-sound(must be enable with a shortcut), load, bubble, reset_temp, and 
-reset_pressure(works with the same parameters reset_velocity does). 
-There are three new lua commands: get_pressure, 
-get_gravity, 
-and maxframes(sets the number of frames ANIM can have when created, 1-256). 
-Also, render_ui uses the old cmode pictures in color.
-Note: the button keys to change display modes, blob & heat gradient 
-display, portal effects (Simon forgot the wifi/portal lines), and new 
-icons all got into the official version. Not much of this code was 
-actually written by me, a lot of it was taken from github after Simon 
-deleted it. He said he might add in more stuff that I wrote later.
+Added powered invisible, blob and heat gradient display, portal effects, and 
+wifi/portal lines. Also added the old lua console commands: sound(must be 
+enable with a shortcut), load, bubble, reset_temp, and reset_pressure(works 
+with the same parameters reset_velocity does). There are three new lua 
+commands: get_pressure, get_gravity, and maxframes(sets the number of frames 
+ANIM can have when created, 1-256). Also, render_ui uses the old cmode 
+pictures in color.Note: the button keys to change display modes, blob & heat 
+gradient display, portal effects (Simon forgot the wifi/portal lines), and 
+new icons all got into the official version. Not much of this code was 
+actually written by me, a lot of it was taken from github after Simon deleted 
+it. He said he might add in more stuff that I wrote later.
 
 Version 7.0: http://min.us/lK604TH6bFNV4
 Added readme. Faster drawing and deleting of elements. Added RAZR, an element
@@ -208,10 +206,17 @@ Added realistic mode, not by me and not too noticible. Autosave button,
 disabled by default. If Powder Toy unexpectidely closes, the next time you 
 open it your work will appear. Fix decoration tools.
 
+Version 12.1 - 3/3/12
+Make text say version 12, not 10. Remove update check and replace it with 
+another link. Fix crash when you click the LUA button and luacode.txt was 
+missing
+
+
 
 
 Bugs:
 None that I know of
+
 
 
 

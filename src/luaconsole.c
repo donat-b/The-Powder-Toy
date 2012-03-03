@@ -2106,7 +2106,6 @@ void addluastuff()
 	if (file == NULL)
 	{
 		error_ui(vid_buf,0,"file luacode.txt does not exist");
-		fclose(file);
 		return;
 	}
 	delete_part(4,4,0);
@@ -2170,7 +2169,6 @@ void readluastuff()
 		if (file == NULL)
 		{
 			delete_part(4,4,0);
-			fclose(file);
 			return;
 		}
 		while(total < num)

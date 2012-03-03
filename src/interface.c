@@ -2594,7 +2594,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 		else if (h == FAV_SAVE)
 		{
 			if (save_as%3 == 0)
-				strappend(favtext, "Jacob's Mod ver. 12");
+				strappend(favtext, "Jacob's Mod ver. " MTOS(MOD_VERSION));
 			else if (save_as%3 == 1)
 			{
 				char versiontext[32];
@@ -4096,7 +4096,7 @@ int search_ui(pixel *vid_buf)
 				memset(v_buf, 0, ((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 				nmp = -1;
 			
-				sprintf(server_motd,"Links: \bt{a:http://powdertoy.co.uk|Powder Toy main page}\bg, \bt{a:http://powdertoy.co.uk/Discussions/Categories/Index.html|Forums}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy|Jacob's mod github}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy/raw/master/build/Jacob1's Mod ver 12.zip|Update Check}");
+				sprintf(server_motd,"Links: \bt{a:http://powdertoy.co.uk|Powder Toy main page}\bg, \bt{a:http://powdertoy.co.uk/Discussions/Categories/Index.html|Forums}\bg, \bt{a:https://github.com/FacialTurd/The-Powder-Toy|TPT github}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy|Jacob1's Mod github}");
 				ui_richtext_settext(server_motd, &motd);
 				motd.x = (XRES-textwidth(motd.printstr))/2;
 			}
