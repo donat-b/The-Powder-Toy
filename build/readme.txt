@@ -197,7 +197,7 @@ Use PROP on it to make it create other properties. Added rechargeable battery,
 set the tmp of battery to the maximum charge it can hold, METL to charge, 
 PSCN/NSCN to turn on/off. Some other stuff not listed here.
 
-Next Version
+Version 12 - 3/2/12
 Added tabs. Hit the tab button in the quickoptions menu or press Ctrl to show 
 a menu of all the tabs you have open. You can switch between them, or open a 
 new one (what you are doing is copied over). Tabs are saved and not simulated 
@@ -217,12 +217,11 @@ None that I know of
 
 
 Future Ideas/TODO: > means currently being worked on/added next
->delete tabs folder when done.
 draw with alpha layer in decoration editor
 more lua commands
 make moving solids solid inside
 sensor? - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12361
-new lua elements - Videogamer555 - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
+new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
 More deco tools
 brush rotation
 Maybe convert this mod to c++ when Simon finishes converting The Powder Toy to c++
