@@ -2541,7 +2541,7 @@ void render_parts(pixel *vid)
 						drad = (M_PI * ((float)orbl[r]) / 180.0f)*1.41f;
 						nxo = (int)(ddist*cos(drad));
 						nyo = (int)(ddist*sin(drad));
-						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES)
+						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES && (pmap[ny+nyo][nx+nxo]&0xFF) != PT_PRTI && (pmap[ny+nyo][nx+nxo]&0xFF) != PT_PPTI)
 							addpixel(vid, nx+nxo, ny+nyo, colr, colg, colb, 255-orbd[r]);
 					}
 				}
@@ -2559,7 +2559,7 @@ void render_parts(pixel *vid)
 						drad = (M_PI * ((float)orbl[r]) / 180.0f)*1.41f;
 						nxo = (int)(ddist*cos(drad));
 						nyo = (int)(ddist*sin(drad));
-						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES)
+						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES && (pmap[ny+nyo][nx+nxo]&0xFF) != PT_PRTO && (pmap[ny+nyo][nx+nxo]&0xFF) != PT_PPTO)
 							addpixel(vid, nx+nxo, ny+nyo, colr, colg, colb, 255-orbd[r]);
 					}
 				}

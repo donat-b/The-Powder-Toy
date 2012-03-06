@@ -211,6 +211,11 @@ Make text say version 12, not 10. Remove update check and replace it with
 another link. Fix crash when you click the LUA button and luacode.txt was 
 missing
 
+Next Version
+Fix glitch when VOID-like elements eat particles. Changes and fixes to FIND 
+tool, can also now find walls. Ctrl+F to quickly find and Ctrl+S to save the 
+current tab/create a backup in case of a crash.
+
 
 
 
