@@ -1373,7 +1373,15 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='f')
 			{
-				framerender = 1;
+				if ((sdl_mod & (KMOD_CTRL)))
+				{
+					if (!finding)
+						finding = sl;
+					else
+						finding = 0;
+				}
+				else
+					framerender = 1;
 			}
 			if ((sdl_key=='l' || sdl_key=='k') && stamps[0].name[0])
 			{
@@ -1406,11 +1414,15 @@ int main(int argc, char *argv[])
 						free(load_data);
 				}
 			}
-			if (sdl_key=='s' && ((sdl_mod & (KMOD_CTRL)) || !player2.spwn))
+			if (sdl_key=='s' && (!(sdl_mod & (KMOD_CTRL)) || ((sdl_mod & (KMOD_LCTRL)) && player2.spwn)))
 			{
 				if (it > 50)
 					it = 50;
 				save_mode = 1;
+			}
+			if (sdl_key=='s' && (sdl_mod & (KMOD_CTRL)) && ((sdl_mod & (KMOD_RCTRL)) || !player2.spwn))
+			{
+				tab_save(tab_num);
 			}
 			if (sdl_key=='1')
 			{

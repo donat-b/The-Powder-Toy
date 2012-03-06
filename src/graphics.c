@@ -1441,6 +1441,10 @@ void draw_air(pixel *vid)
 					c  = PIXRGB(r, g, b);
 				}
 			}
+			if (finding)
+			{
+				c = PIXRGB(PIXR(c)/10,PIXG(c)/10,PIXB(c)/10);
+			}
 			for (j=0; j<CELL; j++)//draws the colors
 				for (i=0; i<CELL; i++)
 					vid[(x*CELL+i) + (y*CELL+j)*(XRES+BARSIZE)] = c;
@@ -2023,7 +2027,7 @@ void render_parts(pixel *vid)
 					}
 				}
 
-				if (finding && parts[i].type == finding)
+				if (finding && (parts[i].type == finding || (finding%256 == PT_LIFE && finding == PT_LIFE+parts[i].ctype*256)))
 				{
 					colr = 255;
 					colg = 0;
@@ -2039,9 +2043,13 @@ void render_parts(pixel *vid)
 					colr /= 10;
 					colg /= 10;
 					colb /= 10;
-					firer /= 10;
-					fireg /= 10;
-					fireb /= 10;
+					firer /= 5;
+					fireg /= 5;
+					fireb /= 5;
+					if (colr + colg + colg < 10)
+						colr = colg = colb = 20;
+					if (firer + fireg + fireg < 35)
+						firer = fireg = fireb = 65;
 				}
 
 	#ifndef OGLR
@@ -2057,66 +2065,6 @@ void render_parts(pixel *vid)
 	#endif
 
 				//Pixel rendering
-				if (pixel_mode & EFFECT_GRAVIN)
-				{
-					int nxo = 0;
-					int nyo = 0;
-					int r;
-					int fire_rv = 0;
-					float drad = 0.0f;
-					float ddist = 0.0f;
-					orbitalparts_get(parts[i].life, parts[i].ctype, orbd, orbl);
-					for (r = 0; r < 4; r++) {
-						ddist = ((float)orbd[r])/16.0f;
-						drad = (M_PI * ((float)orbl[r]) / 180.0f)*1.41f;
-						nxo = (int)(ddist*cos(drad));
-						nyo = (int)(ddist*sin(drad));
-						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES)
-							addpixel(vid, nx+nxo, ny+nyo, PIXR(ptypes[t].pcolors), PIXG(ptypes[t].pcolors), PIXB(ptypes[t].pcolors), 255-orbd[r]);
-					}
-				}
-				if (pixel_mode & EFFECT_GRAVOUT)
-				{
-					int nxo = 0;
-					int nyo = 0;
-					int r;
-					int fire_bv = 0;
-					float drad = 0.0f;
-					float ddist = 0.0f;
-					orbitalparts_get(parts[i].life, parts[i].ctype, orbd, orbl);
-					for (r = 0; r < 4; r++) {
-						ddist = ((float)orbd[r])/16.0f;
-						drad = (M_PI * ((float)orbl[r]) / 180.0f)*1.41f;
-						nxo = (int)(ddist*cos(drad));
-						nyo = (int)(ddist*sin(drad));
-						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES)
-							addpixel(vid, nx+nxo, ny+nyo, PIXR(ptypes[t].pcolors), PIXG(ptypes[t].pcolors), PIXB(ptypes[t].pcolors), 255-orbd[r]);
-					}
-				}
-				if (pixel_mode & EFFECT_LINES && DEBUG_MODE)
-				{
-					if (mousex==(nx) && mousey==(ny) && DEBUG_MODE)//draw lines connecting wifi/portal channels
-					{
-						int z;
-						int type = parts[i].type;
-						int type2 = parts[i].type;
-						if (type == PT_PRTI || type == PT_PPTI)
-							type = PT_PRTO;
-						else if (type == PT_PRTO || type == PT_PPTO)
-							type = PT_PRTI;
-						if (type == PT_PRTI)
-							type2 = PT_PPTI;
-						else if (type == PT_PRTO)
-							type2 = PT_PPTO;
-						for (z = 0; z<NPART; z++) {
-							if (parts[z].type)
-							{
-								if ((parts[z].type==type||parts[z].type==type2)&&parts[z].tmp==parts[i].tmp)
-									xor_line(nx,ny,(int)(parts[z].x+0.5f),(int)(parts[z].y+0.5f),vid);
-							}
-						}
-					}
-				}
 				if (t==PT_SOAP)
 				{
 					if ((parts[i].ctype&7) == 7)
@@ -2615,6 +2563,30 @@ void render_parts(pixel *vid)
 							addpixel(vid, nx+nxo, ny+nyo, colr, colg, colb, 255-orbd[r]);
 					}
 				}
+				if (pixel_mode & EFFECT_LINES)
+				{
+					if (mousex==(nx) && mousey==(ny) && DEBUG_MODE)//draw lines connecting wifi/portal channels
+					{
+						int z;
+						int type = parts[i].type;
+						int type2 = parts[i].type;
+						if (type == PT_PRTI || type == PT_PPTI)
+							type = PT_PRTO;
+						else if (type == PT_PRTO || type == PT_PPTO)
+							type = PT_PRTI;
+						if (type == PT_PRTI)
+							type2 = PT_PPTI;
+						else if (type == PT_PRTO)
+							type2 = PT_PPTO;
+						for (z = 0; z<NPART; z++) {
+							if (parts[z].type)
+							{
+								if ((parts[z].type==type||parts[z].type==type2)&&parts[z].tmp==parts[i].tmp)
+									xor_line(nx,ny,(int)(parts[z].x+0.5f),(int)(parts[z].y+0.5f),vid);
+							}
+						}
+					}
+				}
 				//Fire effects
 				if(firea && (pixel_mode & FIRE_BLEND))
 				{
@@ -2912,6 +2884,17 @@ void draw_walls(pixel *vid)
 					continue;
 				pc = wtypes[wt].colour;
 				gc = wtypes[wt].eglow;
+
+				if (wt+UI_ACTUALSTART+100 == finding)
+				{
+					pc = PIXRGB(255,0,0);
+					gc = PIXRGB(255,0,0);
+				}
+				else if (finding)
+				{
+					pc = PIXRGB(PIXR(pc)/10,PIXG(pc)/10,PIXB(pc)/10);
+					gc = PIXRGB(PIXR(gc)/10,PIXG(gc)/10,PIXB(gc)/10);
+				}
 
 				// standard wall patterns
 				if (wtypes[wt].drawstyle==1)
@@ -3301,7 +3284,7 @@ void render_gravlensing(pixel *src, pixel * dst)
 
 void render_fire(pixel *vid)
 {
-	int i,j,x,y,r,g,b,nx,ny;
+	int i,j,x,y,r,g,b,a,nx,ny;
 	for (j=0; j<YRES/CELL; j++)
 		for (i=0; i<XRES/CELL; i++)
 		{
@@ -3311,7 +3294,12 @@ void render_fire(pixel *vid)
 			if (r || g || b)
 				for (y=-CELL; y<2*CELL; y++)
 					for (x=-CELL; x<2*CELL; x++)
-						addpixel(vid, i*CELL+x, j*CELL+y, r, g, b, fire_alpha[y+CELL][x+CELL]);
+					{
+						a = fire_alpha[y+CELL][x+CELL];
+						if (finding)
+							a /= 2;
+						addpixel(vid, i*CELL+x, j*CELL+y, r, g, b, a);
+					}
 			r *= 8;
 			g *= 8;
 			b *= 8;
