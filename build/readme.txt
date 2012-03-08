@@ -214,7 +214,8 @@ missing
 Next Version
 Fix glitch when VOID-like elements eat particles. Changes and fixes to FIND 
 tool, can also now find walls. Ctrl+F to quickly find and Ctrl+S to save the 
-current tab/create a backup in case of a crash.
+current tab/create a backup in case of a crash. You can now edit alpha in the 
+decoration editor.
 
 
 
@@ -227,7 +228,6 @@ None that I know of
 
 
 Future Ideas/TODO: > means currently being worked on/added next
-draw with alpha layer in decoration editor
 save more stuff in powder.pref
 figure out how to use static libraries
 more lua commands

@@ -390,12 +390,15 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 					//Read dcolour
 					if(fieldDescriptor & 0x40)
 					{
-						unsigned char r, g, b;
+						unsigned char r, g, b, a;
 						if(i+3 >= partsDataLen) goto fail;
-						i++;//Skip alpha
+						a = partsData[i++];
 						r = partsData[i++];
 						g = partsData[i++];
 						b = partsData[i++];
+						r = ((a*r + (255-a)*PIXR(ptypes[type].pcolors))>>8);
+						g = ((a*g + (255-a)*PIXG(ptypes[type].pcolors))>>8);
+						b = ((a*b + (255-a)*PIXB(ptypes[type].pcolors))>>8);
 						vidBuf[(fullY+y)*fullW+(fullX+x)] = PIXRGB(r, g, b);
 					}
 					

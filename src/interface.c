@@ -5814,7 +5814,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 
 unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int savedColor)
 {
-	int i,ss,hh,vv,cr=255,cg=0,cb=0,ca=255,b = 0,mx,my,bq = 0,j, lb=0,lx=0,ly=0,lm=0,hidden=0;
+	int i,ss,hh,vv,cr=255,cg=0,cb=0,ca=255,b = 0,mx,my,bq = 0,j, lb=0,lx=0,ly=0,lm=0,hidden=0,t;
 	int window_offset_x_left = 2;
 	int window_offset_x_right = XRES - 279;
 	int window_offset_y = 2;
@@ -5944,7 +5944,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 		if(!hidden)
 		{
 			char hex[32] = "";
-			clearrect(vid_buf, window_offset_x, window_offset_y, 2+255+4+10+5, 2+255+20);
+			fillrect(vid_buf, window_offset_x, window_offset_y, 2+255+4+10+5, 2+255+20, 0, 0, 0, currA);
 			drawrect(vid_buf, window_offset_x, window_offset_y, 2+255+4+10+5, 2+255+20, 255, 255, 255, 255);//window around whole thing
 
 			drawrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6, 12, 12, 255, 255, 255, 255);
@@ -5961,20 +5961,28 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 			for(ss=0; ss<=255; ss++)
 				for(hh=0;hh<=359;hh++)
 				{
+					t = old_buf[(ss+grid_offset_y)*(XRES+BARSIZE)+(clamp_flt((float)hh, 0, 359)+grid_offset_x)];
 					cr = 0;
 					cg = 0;
 					cb = 0;
 					HSV_to_RGB(hh,255-ss,currV,&cr,&cg,&cb);
+					cr = ((currA*cr + (255-currA)*PIXR(t))>>8);
+					cg = ((currA*cg + (255-currA)*PIXG(t))>>8);
+					cb = ((currA*cb + (255-currA)*PIXB(t))>>8);
 					vid_buf[(ss+grid_offset_y)*(XRES+BARSIZE)+(clamp_flt((float)hh, 0, 359)+grid_offset_x)] = PIXRGB(cr, cg, cb);
 				}
 			//draw brightness bar
 			for(vv=0; vv<=255; vv++)
 				for( i=0; i<10; i++)
 				{
+					t = old_buf[(vv+grid_offset_y)*(XRES+BARSIZE)+(i+grid_offset_x+255+4)];
 					cr = 0;
 					cg = 0;
 					cb = 0;
 					HSV_to_RGB(currH,currS,vv,&cr,&cg,&cb);
+					cr = ((currA*cr + (255-currA)*PIXR(t))>>8);
+					cg = ((currA*cg + (255-currA)*PIXG(t))>>8);
+					cb = ((currA*cb + (255-currA)*PIXB(t))>>8);
 					vid_buf[(vv+grid_offset_y)*(XRES+BARSIZE)+(i+grid_offset_x+255+4)] = PIXRGB(cr, cg, cb);
 				}
 			addpixel(vid_buf,grid_offset_x + clamp_flt((float)currH, 0, 359),grid_offset_y-1,255,255,255,255);
