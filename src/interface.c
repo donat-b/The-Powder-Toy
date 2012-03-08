@@ -5814,7 +5814,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 
 unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int savedColor)
 {
-	int i,ss,hh,vv,cr=255,cg=0,cb=0,b = 0,mx,my,bq = 0,j, lb=0,lx=0,ly=0,lm=0,hidden=0;
+	int i,ss,hh,vv,cr=255,cg=0,cb=0,ca=255,b = 0,mx,my,bq = 0,j, lb=0,lx=0,ly=0,lm=0,hidden=0;
 	int window_offset_x_left = 2;
 	int window_offset_x_right = XRES - 279;
 	int window_offset_y = 2;
@@ -5828,13 +5828,14 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 	int window_offset_x;
 	int onleft_button_offset_x;
 	int currH = 0, currS = 255, currV = 255;
-	int currR = PIXR(savedColor), currG = PIXG(savedColor), currB = PIXB(savedColor);
+	int currR = PIXR(savedColor), currG = PIXG(savedColor), currB = PIXB(savedColor), currA = savedColor>>24;
 	int th = currH, ts = currS, tv = currV;
 	int active_color_menu= 0;
 	pixel *old_buf=calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	ui_edit box_R;
 	ui_edit box_G;
 	ui_edit box_B;
+	ui_edit box_A;
 	char frametext[64];
 
 	zoom_en = 0;
@@ -5874,6 +5875,17 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 	box_B.multiline = 0;
 	box_B.cursor = 0;
 
+	box_A.x = 110;
+	box_A.y = 5+255+4;
+	box_A.w = 30;
+	box_A.nx = 1;
+	box_A.def = "";
+	strcpy(box_A.str, "255");
+	box_A.focus = 0;
+	box_A.hide = 0;
+	box_A.multiline = 0;
+	box_A.cursor = 0;
+
 	for (i = 0; i <= parts_lastActiveIndex; i++)
 		if (parts[i].type == PT_ANIM)
 		{
@@ -5893,6 +5905,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 		ui_edit_process(mx, my, b, &box_R);
 		ui_edit_process(mx, my, b, &box_G);
 		ui_edit_process(mx, my, b, &box_B);
+		ui_edit_process(mx, my, b, &box_A);
 
 		if(on_left==1)
 		{
@@ -5902,6 +5915,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 			box_R.x = 5;
 			box_G.x = 40;
 			box_B.x = 75;
+			box_A.x = 110;
 		}
 		else
 		{
@@ -5911,6 +5925,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 			box_R.x = XRES - 254 + 5;
 			box_G.x = XRES - 254 + 40;
 			box_B.x = XRES - 254 + 75;
+			box_A.x = XRES - 254 + 110;
 		}
 		if (zoom_en && mx>=zoom_wx && my>=zoom_wy //change mouse position while it is in a zoom window
 		        && mx<(zoom_wx+ZFACTOR*ZSIZE)
@@ -5938,8 +5953,9 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 			ui_edit_draw(vid_buf, &box_R);
 			ui_edit_draw(vid_buf, &box_G);
 			ui_edit_draw(vid_buf, &box_B);
-			sprintf(hex,"0x%.6X",cr*65536+cg*256+cb);
-			drawtext(vid_buf,on_left?110:469,264,hex,cr,cg,cb,255);
+			ui_edit_draw(vid_buf, &box_A);
+			sprintf(hex,"0x%.8X",(ca<<24)+(cr<<16)+(cg<<8)+cb);
+			drawtext(vid_buf,on_left?145:504,264,hex,cr,cg,cb,ca);
 
 			//draw color square
 			for(ss=0; ss<=255; ss++)
@@ -5970,7 +5986,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 			addpixel(vid_buf,grid_offset_x + 255 +3,grid_offset_y+tv,100,100,100,255);
 			addpixel(vid_buf,grid_offset_x + 255 +3,grid_offset_y +currV,255,255,255,255);
 
-			fillrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6, 12, 12, currR, currG, currB, 255);
+			fillrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6, 12, 12, currR, currG, currB, currA);
 		}
 		for (i=0; i<2; i++)//draw all the menu sections
 		{
@@ -6029,8 +6045,22 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 				box_B.focus = 0;
 			}
 		}
+		if(!box_A.focus)
+			sprintf(box_A.str,"%d",currA);
+		else
+		{
+			if(sdl_key == SDLK_RETURN)
+			{
+				ca = atoi(box_A.str);
+				if (ca > 255) ca = 255;
+				if (ca < 0) ca = 0;
+				currA = ca;
+				//RGB_to_HSV(currR,currG,currB,&currH,&currS,&currV);
+				box_A.focus = 0;
+			}
+		}
 
-		fillrect(vid_buf, 250, YRES+4, 40, 15, currR, currG, currB, 255);
+		fillrect(vid_buf, 250, YRES+4, 40, 15, currR, currG, currB, currA);
 
 		drawrect(vid_buf, 295, YRES+5, 25, 12, 255, 255, 255, 255);
 		if(hidden)
@@ -6051,13 +6081,15 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 				}
 				HSV_to_RGB(currH,currS,tv,&cr,&cg,&cb);
 				//clearrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6,12,12);
-				fillrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6, 12, 12, cr, cg, cb, 255);
+				fillrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6, 12, 12, cr, cg, cb, ca);
 				if(!box_R.focus)
 					sprintf(box_R.str,"%d",cr);
 				if(!box_G.focus)
 					sprintf(box_G.str,"%d",cg);
 				if(!box_B.focus)
 					sprintf(box_B.str,"%d",cb);
+				if(!box_A.focus)
+					sprintf(box_A.str,"%d",ca);
 			}
 			//inside color grid
 			if(mx >= grid_offset_x && my >= grid_offset_y && mx <= grid_offset_x+255 && my <= grid_offset_y+255)
@@ -6073,7 +6105,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 				}
 				HSV_to_RGB(th,ts,currV,&cr,&cg,&cb);
 				//clearrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6,12,12);
-				fillrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6, 12, 12, cr, cg, cb, 255);
+				fillrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6, 12, 12, cr, cg, cb, ca);
 				//sprintf(box_R.def,"%d",cr);
 				if(!box_R.focus)
 					sprintf(box_R.str,"%d",cr);
@@ -6081,6 +6113,8 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 					sprintf(box_G.str,"%d",cg);
 				if(!box_B.focus)
 					sprintf(box_B.str,"%d",cb);
+				if(!box_A.focus)
+					sprintf(box_A.str,"%d",ca);
 			}
 			//switch side button
 			if(b && !bq && mx >= window_offset_x + onleft_button_offset_x +1 && my >= window_offset_y +255+6 && mx <= window_offset_x + onleft_button_offset_x +13 && my <= window_offset_y +255+5 +13)
@@ -6137,7 +6171,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 				}
 				else if(lb!=3)//while mouse is held down, it draws lines between previous and current positions
 				{
-					unsigned int value = b != 4 ? 0xFF000000 | PIXRGB(currR,currG,currB) : PIXRGB(0,0,0);
+					unsigned int value = b != 4 ? (currA<<24) | PIXRGB(currR,currG,currB) : PIXRGB(0,0,0);
 					prop_format = 0;
 					prop_offset = offsetof(particle,dcolour);
 					prop_value = malloc(sizeof(unsigned int));
@@ -6151,7 +6185,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 			{
 				if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL)))
 				{
-					unsigned int value = b != 4 ? 0xFF000000 | PIXRGB(currR,currG,currB) : PIXRGB(0,0,0);
+					unsigned int value = b != 4 ? (currA<<24) | PIXRGB(currR,currG,currB) : PIXRGB(0,0,0);
 					flood_prop(mx, my, offsetof(particle,dcolour), &value, 0);
 				}
 				else if ((sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_CTRL)))
@@ -6178,11 +6212,13 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 						cr = PIXR(tempcolor);
 						cg = PIXG(tempcolor);
 						cb = PIXB(tempcolor);
+						ca = 255;
 						if (cr || cg || cb)
 						{
 							currR = cr;
 							currG = cg;
 							currB = cb;
+							currA = ca;
 						}
 					}
 					lx = mx;
@@ -6192,7 +6228,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 				}
 				else //normal click, draw deco
 				{
-					unsigned int value = b != 4 ? 0xFF000000 | PIXRGB(currR,currG,currB) : PIXRGB(0,0,0);
+					unsigned int value = b != 4 ? (currA<<24) | PIXRGB(currR,currG,currB) : PIXRGB(0,0,0);
 					prop_format = 0;
 					prop_offset = offsetof(particle,dcolour);
 					prop_value = malloc(sizeof(unsigned int));
@@ -6209,7 +6245,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 		{
 			if (lb && lm) //lm is box/line tool
 			{
-				unsigned int value = b != 4 ? 0xFF000000 | PIXRGB(currR,currG,currB) : PIXRGB(0,0,0);
+				unsigned int value = b != 4 ? (currA<<24) | PIXRGB(currR,currG,currB) : PIXRGB(0,0,0);
 				prop_format = 0;
 				prop_offset = offsetof(particle,dcolour);
 				prop_value = malloc(sizeof(unsigned int));
@@ -6421,7 +6457,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 					parts[i].tmp2 = 0;
 				}
 			tool = DECO_DRAW;
-			return PIXRGB(currR,currG,currB);
+			return (currA<<24)+PIXRGB(currR,currG,currB);
 		}
 	}
 	free(old_buf);
@@ -6431,7 +6467,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 			parts[i].tmp2 = 0;
 		}
 	tool = DECO_DRAW;
-	return PIXRGB(currR,currG,currB);
+	return (currA<<24)+PIXRGB(currR,currG,currB);
 }
 struct savelist_e {
 	char *filename;
