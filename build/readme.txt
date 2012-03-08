@@ -228,6 +228,7 @@ None that I know of
 
 Future Ideas/TODO: > means currently being worked on/added next
 draw with alpha layer in decoration editor
+figure out how to use static libraries
 more lua commands
 make moving solids solid inside
 sensor? - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12361

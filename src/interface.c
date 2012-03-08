@@ -5814,7 +5814,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 
 unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int savedColor)
 {
-	int i,ss,hh,vv,cr=127,cg=0,cb=0,b = 0,mx,my,bq = 0,j, lb=0,lx=0,ly=0,lm=0,hidden=0;
+	int i,ss,hh,vv,cr=255,cg=0,cb=0,b = 0,mx,my,bq = 0,j, lb=0,lx=0,ly=0,lm=0,hidden=0;
 	int window_offset_x_left = 2;
 	int window_offset_x_right = XRES - 279;
 	int window_offset_y = 2;
@@ -5827,7 +5827,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 	int grid_offset_x;
 	int window_offset_x;
 	int onleft_button_offset_x;
-	int currH = 0, currS = 255, currV = 127;
+	int currH = 0, currS = 255, currV = 255;
 	int currR = PIXR(savedColor), currG = PIXG(savedColor), currB = PIXB(savedColor);
 	int th = currH, ts = currS, tv = currV;
 	int active_color_menu= 0;
@@ -5846,7 +5846,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 	box_R.w = 30;
 	box_R.nx = 1;
 	box_R.def = "";
-	strcpy(box_R.str, "127");
+	strcpy(box_R.str, "255");
 	box_R.focus = 0;
 	box_R.hide = 0;
 	box_R.multiline = 0;

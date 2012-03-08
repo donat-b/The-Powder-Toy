@@ -851,7 +851,7 @@ int main(int argc, char *argv[])
 	void *load_data=NULL;
 	pixel *load_img=NULL;//, *fbi_img=NULL;
 	int save_mode=0, save_x=0, save_y=0, save_w=0, save_h=0, copy_mode=0;
-	unsigned int rgbSave = PIXRGB(127,0,0);
+	unsigned int rgbSave = PIXRGB(255,0,0);
 	SDL_AudioSpec fmt;
 	int username_flash = 0, username_flash_t = 1;
 #ifdef PTW32_STATIC_LIB
