@@ -216,7 +216,7 @@ Fix glitch when VOID-like elements eat particles. Changes and fixes to FIND
 tool, can also now find walls. Ctrl+F to quickly find and Ctrl+S to save the 
 current tab/create a backup in case of a crash. You can now edit alpha in the 
 decoration editor. Alpha is displayed in (OPS) stamps, all wall types drawn 
-in all stamps.
+in all stamps. save/load more things in powder.pref.
 
 
 
@@ -229,8 +229,6 @@ None that I know of
 
 
 Future Ideas/TODO: > means currently being worked on/added next
-draw signs in stamps
-save more stuff in powder.pref
 figure out how to use static libraries
 more lua commands
 make moving solids solid inside

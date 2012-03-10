@@ -196,6 +196,16 @@ void save_presets(int do_update)
 	cJSON_AddStringToObject(root, "proxy", http_proxy_string);
 	cJSON_AddNumberToObject(root, "scale", sdl_scale);
 	cJSON_AddNumberToObject(root, "Debug mode", DEBUG_MODE);
+	cJSON_AddNumberToObject(root, "heatmode", heatmode);
+	//cJSON_AddNumberToObject(root, "save_as", save_as);
+	cJSON_AddNumberToObject(root, "autosave", autosave);
+	//cJSON_AddNumberToObject(root, "sl", sl);
+	//cJSON_AddNumberToObject(root, "sr", sr);
+	//cJSON_AddNumberToObject(root, "active_menu", active_menu);
+	cJSON_AddNumberToObject(root, "aheat_enable", aheat_enable);
+	cJSON_AddNumberToObject(root, "decorations_enable", decorations_enable);
+	cJSON_AddNumberToObject(root, "ngrav_enable", ngrav_enable);
+	cJSON_AddNumberToObject(root, "kiosk_enable", kiosk_enable);
 	
 	outputdata = cJSON_Print(root);
 	cJSON_Delete(root);
@@ -390,7 +400,18 @@ void load_presets(void)
 		//TODO: Translate old cmode value into new *_mode values
 		if(tmpobj = cJSON_GetObjectItem(root, "scale")) sdl_scale = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "Debug mode")) DEBUG_MODE = tmpobj->valueint;
-		
+		if(tmpobj = cJSON_GetObjectItem(root, "heatmode")) heatmode = tmpobj->valueint;
+		if(tmpobj = cJSON_GetObjectItem(root, "save_as")) save_as = tmpobj->valueint;
+		if(tmpobj = cJSON_GetObjectItem(root, "autosave")) autosave = tmpobj->valueint;
+		if(tmpobj = cJSON_GetObjectItem(root, "sl")) sl = su = tmpobj->valueint;
+		if(tmpobj = cJSON_GetObjectItem(root, "sr")) sr = tmpobj->valueint;
+		if(tmpobj = cJSON_GetObjectItem(root, "active_menu")) active_menu = tmpobj->valueint;
+		if(tmpobj = cJSON_GetObjectItem(root, "autosave")) autosave = tmpobj->valueint;
+		if(tmpobj = cJSON_GetObjectItem(root, "aheat_enable")) aheat_enable = tmpobj->valueint;
+		if(tmpobj = cJSON_GetObjectItem(root, "decorations_enable")) decorations_enable = tmpobj->valueint;
+		if(tmpobj = cJSON_GetObjectItem(root, "ngrav_enable")) { if (tmpobj->valueint) start_grav_async(); };
+		if(tmpobj = cJSON_GetObjectItem(root, "kiosk_enable")) { kiosk_enable = tmpobj->valueint; if (kiosk_enable) set_scale(sdl_scale, kiosk_enable); }
+
 		cJSON_Delete(root);
 		free(prefdata);
 	} else { //Fallback and read from old def file
