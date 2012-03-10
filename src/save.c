@@ -602,6 +602,11 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 		free(wallData);
 		wallData = NULL;
 	}
+	if(!pressDataLen)
+	{
+		free(pressData);
+		pressData = NULL;
+	}
 	
 	//Index positions of all particles, using linked lists
 	//partsPosFirstMap is pmap for the first particle in each position
