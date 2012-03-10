@@ -5954,8 +5954,8 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 			ui_edit_draw(vid_buf, &box_G);
 			ui_edit_draw(vid_buf, &box_B);
 			ui_edit_draw(vid_buf, &box_A);
-			sprintf(hex,"0x%.8X",(ca<<24)+(cr<<16)+(cg<<8)+cb);
-			drawtext(vid_buf,on_left?145:504,264,hex,cr,cg,cb,ca);
+			sprintf(hex,"0x%.8X",(currA<<24)+(currR<<16)+(currG<<8)+currB);
+			drawtext(vid_buf,on_left?145:504,264,hex,currR,currG,currB,currA);
 
 			//draw color square
 			for(ss=0; ss<=255; ss++)
@@ -6227,6 +6227,8 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 							currG = cg;
 							currB = cb;
 							currA = ca;
+							RGB_to_HSV(cr,cg,cb,&th,&ts,&tv);
+							RGB_to_HSV(cr,cg,cb,&currH,&currS,&currV);
 						}
 					}
 					lx = mx;
