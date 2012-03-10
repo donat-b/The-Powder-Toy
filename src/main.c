@@ -366,6 +366,8 @@ void clear_sim(void)
 	memset(msvx, 0, sizeof(msvx));
 	memset(msvy, 0, sizeof(msvy));
 	memset(msrotation, 0, sizeof(msrotation));
+	finding = 0;
+	
 }
 
 // stamps library
@@ -1027,10 +1029,15 @@ int main(int argc, char *argv[])
 #ifdef LUACONSOLE
 	luacon_eval("dofile(\"autorun.lua\")"); //Autorun lua script
 #endif
-	tab_load(1,&load_size);
-	load_data = (void*)tab_load(i, &load_size);
+	load_data = (void*)tab_load(1, &load_size);
 	if (load_data)
+	{
 		parse_save(load_data, load_size, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+		for (i = 2; i <= 9 && tab_load(i, &load_size); i++)
+		{
+			num_tabs++;
+		}
+	}
 	while (!sdl_poll()) //the main loop
 	{
 		frameidx++;
@@ -1423,6 +1430,18 @@ int main(int argc, char *argv[])
 			if (sdl_key=='s' && (sdl_mod & (KMOD_CTRL)) && ((sdl_mod & (KMOD_RCTRL)) || !player2.spwn))
 			{
 				tab_save(tab_num);
+			}
+			if (sdl_key=='r' && (sdl_mod & (KMOD_CTRL)))
+			{
+				void *load_data=NULL;
+				int load_size;
+				load_data = (void*)tab_load(tab_num, &load_size);
+				if (load_data)
+					parse_save(load_data, load_size, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+			}
+			if (sdl_key=='o' && (sdl_mod & (KMOD_CTRL)))
+			{
+				catalogue_ui(vid_buf);
 			}
 			if (sdl_key=='1')
 			{

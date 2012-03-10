@@ -92,6 +92,7 @@ int numframes = 0;
 int framenum = 0;
 int hud_menunum = 0;
 int tool = DECO_DRAW;
+int has_quit = 0;
 
 int drawgrav_enable = 0;
 
@@ -3080,6 +3081,8 @@ int sdl_poll(void)
 {
 	SDL_Event event;
 	sdl_key=sdl_rkey=sdl_wheel=sdl_ascii=0;
+	if (has_quit)
+		return 1;
 	while (SDL_PollEvent(&event))
 	{
 		switch (event.type)
@@ -3103,6 +3106,14 @@ int sdl_poll(void)
 			if ( event.key.keysym.sym == SDLK_MINUS)
 			{
 				sdl_wheel--;
+			}
+			if (event.key.keysym.sym=='q' && (sdl_mod & KMOD_CTRL))
+			{
+				if (confirm_ui(vid_buf, "You are about to quit", "Are you sure you want to quit?", "Quit"))
+				{
+					has_quit = 1;
+					return 1;
+				}
 			}
 			//  4
 			//1 8 2

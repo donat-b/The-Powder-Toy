@@ -214,9 +214,11 @@ missing
 Next Version
 Fix glitch when VOID-like elements eat particles. Changes and fixes to FIND 
 tool, can also now find walls. Ctrl+F to quickly find and Ctrl+S to save the 
-current tab/create a backup in case of a crash. You can now edit alpha in the 
-decoration editor. Alpha is displayed in (OPS) stamps, all wall types drawn 
-in all stamps. save/load more things in powder.pref.
+current tab/create a backup in case of a crash. Ctrl+R reloads the current 
+tab without saving, Ctrl+Q then clicking yes completely exits from anywhere, 
+and Ctrl+O opens the saves catalogue. You can now edit alpha in the deco 
+editor. Alpha is displayed in (OPS) stamps, all wall types drawn in all 
+stamps. save/load more things in powder.pref.
 
 
 
