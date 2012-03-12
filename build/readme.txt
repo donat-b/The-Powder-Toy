@@ -218,7 +218,8 @@ current tab/create a backup in case of a crash. Ctrl+R reloads the current
 tab without saving, Ctrl+Q then clicking yes completely exits from anywhere, 
 and Ctrl+O opens the saves catalogue. You can now edit alpha in the deco 
 editor. Alpha is displayed in (OPS) stamps, all wall types drawn in all 
-stamps. save/load more things in powder.pref.
+stamps. save/load more things in powder.pref. Now uses static Libraries, no 
+dll's except for fftw.dll and (for now pthreadGC2.dll) are needed.
 
 
 
@@ -231,7 +232,7 @@ None that I know of
 
 
 Future Ideas/TODO: > means currently being worked on/added next
-figure out how to use static libraries
+>make mod saves save as higher version
 more lua commands
 make moving solids solid inside
 sensor? - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12361

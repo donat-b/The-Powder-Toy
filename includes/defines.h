@@ -109,7 +109,6 @@ extern unsigned char ZSIZE;
 
 #define GRAVFFT
 #define LUACONSOLE
-#define PTW32_STATIC_LIB
 
 #ifdef PIX16
 typedef unsigned short pixel;
