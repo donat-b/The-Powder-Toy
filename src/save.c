@@ -171,7 +171,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 	*height = fullH;
 	
 	//From newer version
-	if(inputData[4] > SAVE_VERSION && inputData[4] < 200)
+	if ((inputData[4] > SAVE_VERSION && inputData[4] < 222) || inputData[4] > 222)
 	{
 		fprintf(stderr, "Save from newer version\n");
 		//goto fail;
@@ -889,7 +889,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	outputData[1] = 'P';
 	outputData[2] = 'S';
 	outputData[3] = '1';
-	outputData[4] = SAVE_VERSION;
+	outputData[4] = 222;
 	outputData[5] = CELL;
 	outputData[6] = blockW;
 	outputData[7] = blockH;
@@ -946,7 +946,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	fullH = blockH*CELL;
 	
 	//From newer version
-	if(inputData[4] > SAVE_VERSION && inputData[4] > SAVE_VERSION < 200)
+	if ((inputData[4] > SAVE_VERSION && inputData[4] < 222) || inputData[4] > 222)
 	{
 		info_ui(vid_buf,"Save is from a newer version","Attempting to load it anyway, this may cause a crash");
 	}
@@ -2350,6 +2350,11 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 						j += (PT_NORMAL_NUM - 136);
 					else if (j >= 142 && j <= 146)
 						j += (PT_NORMAL_NUM - 137);
+					d[p-1] = j;
+				}
+				if (modver > 0 && modver <= 7 && (j == 161 || j == 162))
+				{
+					j += 2;
 					d[p-1] = j;
 				}
 				if (pmap[y][x])

@@ -10,7 +10,6 @@ gmon.out
 *.*.orig
 *~
 *.log
-*.tlog
 *.*sdf
 *.sln*
 *.suo
