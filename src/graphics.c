@@ -1976,15 +1976,6 @@ void render_parts(pixel *vid)
 					cola = 255;
 					if(pixel_mode & (FIREMODE | PMODE_GLOW)) pixel_mode = (pixel_mode & ~(FIREMODE|PMODE_GLOW)) | PMODE_BLUR;
 				}
-				else if (colour_mode & COLOUR_GRAD)
-				{
-					float frequency = 0.05;
-					int q = (int)parts[i].temp-40;
-					colr = (int)(sin(frequency*q) * 16 + colr);
-					colg = (int)(sin(frequency*q) * 16 + colg);
-					colb = (int)(sin(frequency*q) * 16 + colb);
-					if(pixel_mode & (FIREMODE | PMODE_GLOW)) pixel_mode = (pixel_mode & ~(FIREMODE|PMODE_GLOW)) | PMODE_BLUR;
-				}
 				else if (colour_mode & COLOUR_BASC)
 				{
 					colr = PIXR(ptypes[t].pcolors);
@@ -2002,7 +1993,7 @@ void render_parts(pixel *vid)
 					decb = (parts[i].animations[parts[i].tmp2])&0xFF;
 				}
 
-				if(!colour_mode)
+				if(!(colour_mode & ~COLOUR_GRAD))
 				{
 					if(!(pixel_mode & NO_DECO) && decorations_enable)
 					{
@@ -2050,6 +2041,16 @@ void render_parts(pixel *vid)
 						colr = colg = colb = 20;
 					if (firer + fireg + fireg < 35)
 						firer = fireg = fireb = 65;
+				}
+
+				if (colour_mode & COLOUR_GRAD)
+				{
+					float frequency = 0.05;
+					int q = parts[i].temp-40;
+					colr = sin(frequency*q) * 16 + colr;
+					colg = sin(frequency*q) * 16 + colg;
+					colb = sin(frequency*q) * 16 + colb;
+					if(pixel_mode & (FIREMODE | PMODE_GLOW)) pixel_mode = (pixel_mode & ~(FIREMODE|PMODE_GLOW)) | PMODE_BLUR;
 				}
 
 	#ifndef OGLR

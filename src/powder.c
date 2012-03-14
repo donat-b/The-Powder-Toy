@@ -2056,17 +2056,28 @@ void update_particles_i(pixel *vid, int start, int inc)
 					float c_Cm = 0.0f;
 					if (aheat_enable)
 					{
-						c_heat = (hv[y/CELL][x/CELL]-parts[i].temp)*0.04;
-						c_heat = restrict_flt(c_heat, -MAX_TEMP+MIN_TEMP, MAX_TEMP-MIN_TEMP);
-						parts[i].temp += c_heat;
-						hv[y/CELL][x/CELL] -= c_heat;
 						if (realistic)
 						{
-							//Volume increase from heat (temporary)
-							pv[y/CELL][x/CELL] -= c_heat*0.004;
+							c_heat = parts[i].temp*96.645/ptypes[t].hconduct*fabs(ptypes[t].weight)
+								+ hv[y/CELL][x/CELL]*100*(pv[y/CELL][x/CELL]+273.15f)/256;
+							c_Cm = 96.645/ptypes[t].hconduct*fabs(ptypes[t].weight) 
+								+ 100*(pv[y/CELL][x/CELL]+273.15f)/256;
+							pt = c_heat/c_Cm;
+							pt = restrict_flt(pt, -MAX_TEMP+MIN_TEMP, MAX_TEMP-MIN_TEMP);
+							parts[i].temp = pt;
+							//Pressure increase from heat (temporary)
+							pv[y/CELL][x/CELL] += (pt-hv[y/CELL][x/CELL])*0.004;
+							hv[y/CELL][x/CELL] = pt;
+						}
+						else
+						{
+							c_heat = (hv[y/CELL][x/CELL]-parts[i].temp)*0.04;
+							c_heat = restrict_flt(c_heat, -MAX_TEMP+MIN_TEMP, MAX_TEMP-MIN_TEMP);
+							parts[i].temp += c_heat;
+							hv[y/CELL][x/CELL] -= c_heat;
 						}
 					}
-					c_heat = 0.0f;
+					c_heat = 0.0f; c_Cm = 0.0f;
 					for (j=0; j<8; j++)
 					{
 						surround_hconduct[j] = i;
@@ -2416,7 +2427,7 @@ killed:
 						clear_y = (int)(clear_yf+0.5f);
 						break;
 					}
-					if (fin_x<CELL || fin_y<CELL || fin_x>=XRES-CELL || fin_y>=YRES-CELL || ((((pmap[fin_y][fin_x]&0xFF)==PT_SPNG||(pmap[fin_y][fin_x]&0xFF)==PT_PINV&&parts[pmap[fin_y][fin_x]>>8].life==10))?0:pmap[fin_y][fin_x]) || (bmap[fin_y/CELL][fin_x/CELL] && (bmap[fin_y/CELL][fin_x/CELL]==WL_DESTROYALL || bmap[fin_y/CELL][fin_x/CELL]==WL_DETECT || !eval_move(t,fin_x,fin_y,NULL))))
+					if (fin_x<CELL || fin_y<CELL || fin_x>=XRES-CELL || fin_y>=YRES-CELL || ((((pmap[fin_y][fin_x]&0xFF)==PT_SPNG||(pmap[fin_y][fin_x]&0xFF)==PT_PINV&&parts[pmap[fin_y][fin_x]>>8].life==10))?0:pmap[fin_y][fin_x]) || (bmap[fin_y/CELL][fin_x/CELL] && (bmap[fin_y/CELL][fin_x/CELL]==WL_DESTROYALL || !eval_move(t,fin_x,fin_y,NULL))))
 					{
 						// found an obstacle
 						clear_xf = fin_xf-dx;
@@ -2425,7 +2436,8 @@ killed:
 						clear_y = (int)(clear_yf+0.5f);
 						break;
 					}
-
+					if (bmap[fin_y/CELL][fin_x/CELL]==WL_DETECT && emap[fin_y/CELL][fin_x/CELL]<8)
+						set_emap(fin_x/CELL, fin_y/CELL);
 				}
 			}
 
