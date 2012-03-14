@@ -684,7 +684,7 @@ void kill_part(int i)//kills particle number i
 			}
 		}
 	}
-	else if (parts[i].type == PT_ANIM)
+	else if (parts[i].type == PT_ANIM && parts[i].animations)
 	{
 		free(parts[i].animations);
 		parts[i].animations = NULL;

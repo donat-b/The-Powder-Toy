@@ -21,11 +21,11 @@ int update_PRTO(UPDATE_FUNC_ARGS) {
 			if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
 			{
 				r = pmap[y+ry][x+rx];
-				if (!r)
+				if (!(r&0xFF))
 					fe = 1;
-				if (r)
+				if (r&0xFF)
 					continue;
-				if (!r)
+				if (!(r&0xFF))
 				{
 					for ( nnx =0 ; nnx<80; nnx++)
 					{

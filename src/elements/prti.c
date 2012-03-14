@@ -24,12 +24,12 @@ int update_PRTI(UPDATE_FUNC_ARGS) {
 			if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
 			{
 				r = pmap[y+ry][x+rx];
-				if (!r)
+				if (!(r&0xFF))
 					fe = 1;
-				if (!r || (r&0xFF)==PT_PRTI || (r&0xFF)==PT_PRTO || (r&0xFF)==PT_PPTI || (r&0xFF)==PT_PPTO || (ptypes[r&0xFF].falldown== 0 && ptypes[r&0xFF].state != ST_GAS && (r&0xFF)!=PT_SPRK))
+				if (!(r&0xFF) || (r&0xFF)==PT_PRTI || (r&0xFF)==PT_PRTO || (r&0xFF)==PT_PPTI || (r&0xFF)==PT_PPTO || (ptypes[r&0xFF].falldown== 0 && ptypes[r&0xFF].state != ST_GAS && (r&0xFF)!=PT_SPRK))
 				{
 					r = photons[y+ry][x+rx];
-					if (!r || (r&0xFF)==PT_PRTI || (r&0xFF)==PT_PRTO || (r&0xFF)==PT_PPTI || (r&0xFF)==PT_PPTO || (ptypes[r&0xFF].falldown== 0 && ptypes[r&0xFF].state != ST_GAS && (r&0xFF)!=PT_SPRK))
+					if (!(r&0xFF) || (r&0xFF)==PT_PRTI || (r&0xFF)==PT_PRTO || (r&0xFF)==PT_PPTI || (r&0xFF)==PT_PPTO || (ptypes[r&0xFF].falldown== 0 && ptypes[r&0xFF].state != ST_GAS && (r&0xFF)!=PT_SPRK))
 						continue;
 				}
 
