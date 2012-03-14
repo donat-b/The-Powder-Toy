@@ -715,15 +715,50 @@ inline void part_change_type(int i, int x, int y, int t)//changes the type of pa
 		return;
 
 	if (parts[i].type == PT_STKM)
+	{
 		player.spwn = 0;
-
-	if (parts[i].type == PT_STKM2)
+	}
+	else if (parts[i].type == PT_STKM2)
+	{
 		player2.spwn = 0;
-
+	}
 	if (parts[i].type == PT_FIGH)
 	{
 		fighters[(unsigned char)parts[i].tmp].spwn = 0;
 		fighcount--;
+	}
+	else if (parts[i].type == PT_SPAWN)
+	{
+		ISSPAWN1 = 0;
+	}
+	else if (parts[i].type == PT_SPAWN2)
+	{
+		ISSPAWN2 = 0;
+	}
+	else if (parts[i].type == PT_SOAP)
+	{
+		detach(i);
+	}
+	else if (parts[i].type == PT_MOVS)
+	{
+		int bn = parts[i].life;
+		msnum[bn]--;
+		if (msindex[bn]-1 == i)
+		{
+			msindex[bn] = 0;
+			for (i=0; i<=parts_lastActiveIndex; i++)
+			{
+				if (parts[i].type == PT_MOVS && parts[i].life == bn && (pmap[(int)(parts[i].y+.5)][(int)(parts[i].x+.5)]>>8) != i)
+				{
+					kill_part(i); //kill moving solid particles from a destroyed ball hidden under other particles
+				}
+			}
+		}
+	}
+	else if (parts[i].type == PT_ANIM && parts[i].animations)
+	{
+		free(parts[i].animations);
+		parts[i].animations = NULL;
 	}
 
 	parts[i].type = t;
@@ -2806,7 +2841,7 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 			{
 				if (parts[i].type == PT_PINV && (parts[i].tmp2>>8) >= i)
 					parts[i].tmp2 = 0;
-				if (t==PT_PHOT||t==PT_NEUT)
+				if (t==PT_PHOT||t==PT_NEUT||t==PT_ELEC)
 					photons[y][x] = t|(i<<8);
 				else if ((pmap[y][x]&0xFF) != PT_PINV)
 					pmap[y][x] = t|(i<<8);

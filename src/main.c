@@ -1431,7 +1431,7 @@ int main(int argc, char *argv[])
 			{
 				tab_save(tab_num);
 			}
-			if (sdl_key=='r' && (sdl_mod & (KMOD_CTRL)))
+			if (sdl_key=='r' && (sdl_mod & (KMOD_SHIFT)))
 			{
 				void *load_data=NULL;
 				int load_size;
