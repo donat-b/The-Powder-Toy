@@ -5667,7 +5667,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 	//fillrect(vid_buf, -1, -1, XRES, 220, 0, 0, 0, 190);
 	memcpy(old_buf,vid_buf,(XRES+BARSIZE)*YRES*PIXELSIZE);
 
-	fillrect(old_buf, -1, -1, XRES, 220, 0, 0, 0, 190);
+	fillrect(old_buf, -1, -1, XRES+BARSIZE, 220, 0, 0, 0, 190);
 
 	currentcommand2 = malloc(sizeof(command_history));
 	memset(currentcommand2, 0, sizeof(command_history));
@@ -5675,7 +5675,6 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 	currentcommand2->command = mystrdup(error);
 	last_command2 = currentcommand2;
 
-	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);//enable keyrepeat for console (is disabled on console close later)
 	cc = 0;
 	while (cc < 80) {
 		fillrect(old_buf, -1, -1+cc, XRES+BARSIZE, 2, 0, 0, 0, 160-(cc*2));
@@ -5772,14 +5771,12 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 			currentcommand->command = mystrdup(ed.str);
 			last_command = currentcommand;
 			free(old_buf);
-			SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 			return currentcommand->command;
 		}
 		if (sdl_key==SDLK_ESCAPE || sdl_key==SDLK_BACKQUOTE)
 		{
 			console_mode = 0;
 			free(old_buf);
-			SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 			return NULL;
 		}
 		if (sdl_key==SDLK_UP || sdl_key==SDLK_DOWN)
@@ -5819,7 +5816,6 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 	}
 	console_mode = 0;
 	free(old_buf);
-	SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 	return NULL;
 }
 

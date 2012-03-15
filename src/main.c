@@ -1295,6 +1295,7 @@ int main(int argc, char *argv[])
 #endif
 		if (sys_shortcuts==1)//all shortcuts can be disabled by python scripts
 		{
+			SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 			if (sdl_key=='q' || sdl_key==SDLK_ESCAPE)
 			{
 				if (confirm_ui(vid_buf, "You are about to quit", "Are you sure you want to quit?", "Quit"))
@@ -1379,7 +1380,9 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='o' && (sdl_mod & (KMOD_CTRL)))
 			{
+				SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 				catalogue_ui(vid_buf);
+				SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 			}
 			if (sdl_key=='1')
 			{
@@ -1590,9 +1593,10 @@ int main(int argc, char *argv[])
 				}
 				else
 				{
+					SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 					rgbSave = decorations_ui(vid_buf,&bsx,&bsy,rgbSave);//decoration_mode = !decoration_mode;
 					decorations_enable = 1;
-					sys_pause=1;
+					SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 				}
 			}
 			if (sdl_key=='g')
@@ -1809,6 +1813,7 @@ int main(int argc, char *argv[])
 						emap[cby][cbx] = cb_emap[cby][cbx];
 					}
 			}
+			SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 		}
 #ifdef INTERNAL
 		int counterthing;
