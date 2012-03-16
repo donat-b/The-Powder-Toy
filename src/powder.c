@@ -2270,7 +2270,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 			}
 
 			//the basic explosion, from the .explosive variable
-			if (!(ptypes[t].properties&PROP_INDESTRUCTIBLE) && (ptypes[t].explosive&2) && pv[y/CELL][x/CELL]>2.5f && (t!=PT_H2 || parts[i].tmp!=1))
+			if (!(ptypes[t].properties&PROP_INDESTRUCTIBLE) && (ptypes[t].explosive&2) && pv[y/CELL][x/CELL]>2.5f)
 			{
 				parts[i].life = rand()%80+180;
 				parts[i].temp = restrict_flt(ptypes[PT_FIRE].heat + (ptypes[t].flammable/2), MIN_TEMP, MAX_TEMP);
