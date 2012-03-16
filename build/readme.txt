@@ -219,7 +219,7 @@ tab without saving, Ctrl+Q then clicking yes completely exits from anywhere,
 and Ctrl+O opens the saves catalogue. You can now edit alpha in the deco 
 editor. Alpha is displayed in (OPS) stamps, all wall types drawn in all 
 stamps. save/load more things in powder.pref. Now uses static Libraries, no 
-dll's except for fftw.dll and (for now pthreadGC2.dll) are needed.
+dll's are needed.
 
 
 

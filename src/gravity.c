@@ -7,8 +7,10 @@
 
 #ifdef GRAVFFT
 #include <fftw3.h>
-#endif 
-
+#ifdef STATIC_LIBS
+FILE _iob[3];
+#endif
+#endif
 
 float *gravmap = NULL;//Maps to be used by the main thread
 float *gravp = NULL;
