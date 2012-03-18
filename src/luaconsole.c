@@ -2147,12 +2147,6 @@ void addluastuff()
 			parts[i].animations = (unsigned int*)calloc(257,sizeof(unsigned int));
 			memset(parts[i].animations, 0, sizeof(parts[i].animations));
 			parts[i].ctype = 256;
-			if (strstr(file->_base,"os.execute") || strstr(file->_base,"os.remove") || strstr(file->_base,"os.rename") || strstr(file->_base,"debug.") || strstr(file->_base,"file:") || strstr(file->_base,"io.") || strstr(file->_base,"package.") || strstr(file->_base,"require") || strstr(file->_base,"module"))
-			{
-				error_ui(vid_buf,0,"lua code could not be saved"); //This line causes crash?
-				fclose(file);
-				return;
-			}
 		}
 	}
 	parts[i2].animations[0] = total;
@@ -2187,18 +2181,51 @@ void readluastuff()
 				i = pmap[y][x];
 				if ((i&0xFF) != PT_INDI)
 					j = num;
-				if (strstr(file->_base,"os.execute") || strstr(file->_base,"os.remove") || strstr(file->_base,"os.rename") || strstr(file->_base,"debug.") || strstr(file->_base,"file:") || strstr(file->_base,"io.") || strstr(file->_base,"package.") || strstr(file->_base,"require") || strstr(file->_base,"module"))
-				{
-					parts[i2>>8].animations[1] = 1;
-					fclose(file);
-					error_ui(vid_buf,0,"lua code could not be run");
-					return;
-				}
 			}
 		}
 		parts[i2>>8].animations[1] = 1;
 		fclose(file);
-		luaL_dofile(l,"newluacode.txt");
+		luaL_dostring(l,"\n\
+			local env = {\n\
+				ipairs = ipairs,\n\
+				next = next,\n\
+				pairs = pairs,\n\
+				pcall = pcall,\n\
+				tonumber = tonumber,\n\
+				tostring = tostring,\n\
+				type = type,\n\
+				unpack = unpack,\n\
+				coroutine = { create = coroutine.create, resume = coroutine.resume, \n\
+					running = coroutine.running, status = coroutine.status, \n\
+					wrap = coroutine.wrap }, \n\
+				string = { byte = string.byte, char = string.char, find = string.find, \n\
+					format = string.format, gmatch = string.gmatch, gsub = string.gsub, \n\
+					len = string.len, lower = string.lower, match = string.match, \n\
+					rep = string.rep, reverse = string.reverse, sub = string.sub, \n\
+					upper = string.upper },\n\
+				table = { insert = table.insert, maxn = table.maxn, remove = table.remove, \n\
+					sort = table.sort },\n\
+				math = { abs = math.abs, acos = math.acos, asin = math.asin, \n\
+					atan = math.atan, atan2 = math.atan2, ceil = math.ceil, cos = math.cos, \n\
+					cosh = math.cosh, deg = math.deg, exp = math.exp, floor = math.floor, \n\
+					fmod = math.fmod, frexp = math.frexp, huge = math.huge, \n\
+					ldexp = math.ldexp, log = math.log, log10 = math.log10, max = math.max, \n\
+					min = math.min, modf = math.modf, pi = math.pi, pow = math.pow, \n\
+					rad = math.rad, random = math.random, randomseed = math.randomseed, sin = math.sin, sinh = math.sinh, \n\
+					sqrt = math.sqrt, tan = math.tan, tanh = math.tanh },\n\
+				os = { clock = os.clock, difftime = os.difftime, time = os.time, date = os.date, exit = os.exit},\n\
+				tpt = tpt\n\
+			}\n\
+			function run(untrusted_code)\n\
+				--if untrusted_code:byte(1) == 27 then return nil, \"binary bytecode prohibited\" end\n\
+				--local untrusted_function, message = loadstring(untrusted_code)\n\
+				if not untrusted_code then return nil end\n\
+				setfenv(untrusted_code, env)\n\
+				untrusted_code()\n\
+			end\n\
+		"); //TODO: prevent tpt = nil scripts
+
+		luaL_dostring(l,"run(loadfile(\"newluacode.txt\"))");
 		if (parts[i2>>8].animations[6] == 1)
 			remove("newluacode.txt");
 	}
