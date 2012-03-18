@@ -14,9 +14,9 @@
 #define BUILD_NUM 139
 //VersionInfoEnd
 
-#define MOD_VERSION 12
+#define MOD_VERSION 13
 #define MOD_SAVE_VERSION 8 //This is not the version number of my mod anymore, it's only changed when I change the stamp/save saving code
-#define BETA_VERSION 73
+#define BETA_VERSION 74
 #define BETA_MINOR_VER 0
 #define RELEASE_VERSION 71
 #define RELEASE_MINOR_VER 3

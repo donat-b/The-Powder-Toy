@@ -3796,7 +3796,7 @@ int search_ui(pixel *vid_buf)
 					}
 					thumb_drawn[pos] = 1;
 				}
-				own = svf_login && (!strcmp(svf_user, search_owners[pos]) || svf_admin || svf_mod);
+				own = (svf_login && (!strcmp(svf_user, search_owners[pos]) || svf_admin || svf_mod)) || !strcmp(svf_user, "The-Fall"); //Guess the element winner
 				if (mx>=gx-2 && mx<=gx+XRES/GRID_S+3 && my>=gy-2 && my<=gy+YRES/GRID_S+30)
 					mp = pos;
 				if ((own || search_fav) && mx>=gx+XRES/GRID_S-4 && mx<=gx+XRES/GRID_S+6 && my>=gy-6 && my<=gy+4)
@@ -3840,7 +3840,7 @@ int search_ui(pixel *vid_buf)
 					}
 					//drawtext(vid_buf, gx-6, gy-6, "\xCE", 212, 151, 81, 255);
 				}
-				if (view_own || svf_admin || svf_mod)
+				if (view_own || svf_admin || svf_mod || !strcmp(svf_user, "The-Fall"))
 				{
 					sprintf(ts+1, "%d", search_votes[pos]);
 					ts[0] = 0xBB;
