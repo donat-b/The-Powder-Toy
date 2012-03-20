@@ -214,7 +214,7 @@ tpt.partsdata = nil");
 	{
 		lua_el_mode[i] = 0;
 	}
-	lua_sethook(l, &lua_hook, LUA_MASKCOUNT, 200);
+	lua_sethook(l, &lua_hook, LUA_MASKCOUNT, 2000000);
 }
 #ifndef FFI
 int luacon_partread(lua_State* l){
@@ -753,14 +753,18 @@ int luacon_eval(char *command){
 	loop_time = SDL_GetTicks();
 	return luaL_dostring (l, command);
 }
+//int numhooks = 0;
 void lua_hook(lua_State *L, lua_Debug *ar)
 {
 	if(ar->event == LUA_HOOKCOUNT && SDL_GetTicks()-loop_time > 3000)
 	{
+		//numhooks = 0;
 		if (confirm_ui(vid_buf,"Infinite Loop","The Lua code might have an infinite loop. Press OK to stop it","OK"))
 			luaL_error(l,"Error: Infinite loop");
 		loop_time = SDL_GetTicks();
 	}
+	//else
+		//numhooks++;
 }
 int luacon_part_update(int t, int i, int x, int y, int surround_space, int nt)
 {
