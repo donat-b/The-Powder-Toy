@@ -16,6 +16,7 @@ gmon.out
 *.vcxproj*
 *.lua
 *.*.swp
+*.lib
 /stamps/
 /saves/
 /tabs/

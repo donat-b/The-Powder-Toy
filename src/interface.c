@@ -3083,6 +3083,7 @@ int sdl_poll(void)
 	sdl_key=sdl_rkey=sdl_wheel=sdl_ascii=0;
 	if (has_quit)
 		return 1;
+	loop_time = SDL_GetTicks();
 	while (SDL_PollEvent(&event))
 	{
 		switch (event.type)

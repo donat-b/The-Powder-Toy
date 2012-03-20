@@ -209,6 +209,7 @@ extern int su;
 extern int tool;
 extern int autosave;
 extern int realistic;
+extern int loop_time;
 
 extern int drawinfo;
 extern int currentTime;

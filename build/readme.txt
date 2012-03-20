@@ -222,6 +222,11 @@ stamps. save/load more things in powder.pref. Now uses static Libraries, no
 dll's are needed. Some fusion changes to make it more controllable, 
 different from the official (until Simon accepts the pull request).
 
+Next Version
+Lua code in saves run in a limited environment without access to dangerous 
+functions that could cause a virus. Prevent infinite loops in Lua, they will 
+exit after 3 seconds (you can click cancel to let it continue running though)
+
 
 
 
