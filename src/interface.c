@@ -2727,6 +2727,17 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 				else
 					active_menu = SC_FAV2;
 			}
+			else if (h == HUD_START + 4)
+			{
+				int hud_modnormal2[HUD_OPTIONS] = {1,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,0,0,0,0,0,2};
+				int hud_moddebug2[HUD_OPTIONS] =  {1,1,1,2,1,0,0,0,1,0,1,1,1,0,0,1,1,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,0,0,0,0,0,4};
+				int hud_normal2[HUD_OPTIONS] =    {0,0,1,0,0,0,0,0,1,1,1,0,0,1,1,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,0,0,0,0,0,2};
+				int hud_debug2[HUD_OPTIONS] =     {0,1,1,0,1,0,1,1,1,1,1,1,0,1,1,1,0,0,2,1,1,0,0,2,0,2,1,2,1,1,1,2,0,2,0,2,0,0,0,0,0,0,2};
+				memcpy(hud_modnormal,hud_modnormal2,sizeof(hud_modnormal));
+				memcpy(hud_moddebug,hud_moddebug2,sizeof(hud_moddebug));
+				memcpy(hud_normal,hud_normal2,sizeof(hud_normal));
+				memcpy(hud_debug,hud_debug2,sizeof(hud_debug));
+			}
 			else if (h < HUD_REALSTART)
 			{
 				hud_menunum = h - HUD_START;

@@ -789,6 +789,7 @@ static hud hud_menu[] =
 	{"LEFT", PIXPACK(0x20D8FF), 0, "Change the HUD on the left"},
 	{"TR",   PIXPACK(0xFFFFFF), 0, "Change the top right HUD with particle properties"},
 	{"BR",   PIXPACK(0xFFFFFF), 0, "Change the bottom right HUD"},
+	{"RSET",   PIXPACK(0xFF8A08), 0, "Resets the HUD's back to their default values (press d for changes to take effect)"},
 
 	{"VERS", PIXPACK(0x000000), 1, "The version number"},
 	{"BLD",  PIXPACK(0x000000), 1, "The current build number"},
@@ -841,7 +842,7 @@ static hud hud_menu[] =
 	{"AFS#", PIXPACK(0x000000), 1, "Show the average FPS to"},
 };
 #define HUD_START 400
-#define HUD_REALSTART 404
+#define HUD_REALSTART 405
 #define HUD_NUM 47
 
 #define CHANNELS ((int)(MAX_TEMP-73)/100+2)
