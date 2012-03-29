@@ -3387,7 +3387,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 	{
 		int tempy = y, i, j, jmax, oldy;
 		if (CURRENT_BRUSH == TRI_BRUSH)
-			tempy = y + ry - 1;
+			tempy = y + ry;
 		for (i = x - rx; i <= x; i++) {
 			oldy = tempy;
 			while (InCurrentBrush(i-x,tempy-y,rx,ry))
@@ -3401,7 +3401,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 				for (j = tempy; j <= jmax; j++) {
 					if (create_parts2(fn,i,j,c,rx,ry,flags))
 						f = 1;
-					if (2*x-i != i && create_parts2(fn,2*x-i,j,c,rx,ry,flags))
+					if (i != x && create_parts2(fn,2*x-i,j,c,rx,ry,flags))
 						f = 1;
 				}
 			}
@@ -3417,11 +3417,11 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 						j2 = y+ry;
 					if (create_parts2(fn,i,j,c,rx,ry,flags))
 						f = 1;
-					if (create_parts2(fn,i2,j,c,rx,ry,flags))
+					if (i2 != i && create_parts2(fn,i2,j,c,rx,ry,flags))
 						f = 1;
-					if (create_parts2(fn,i,j2,c,rx,ry,flags))
+					if (j2 != j && create_parts2(fn,i,j2,c,rx,ry,flags))
 						f = 1;
-					if (create_parts2(fn,i2,j2,c,rx,ry,flags))
+					if (i2 != i && j2 != j && create_parts2(fn,i2,j2,c,rx,ry,flags))
 						f = 1;
 				}
 			}
@@ -3482,7 +3482,7 @@ int InCurrentBrush(int i, int j, int rx, int ry)
 			return (abs(i) <= rx && abs(j) <= ry);
 			break;
 		case TRI_BRUSH:
-			return (j <= ry ) && ( j >= (((-2.0*ry)/rx)*i) -ry) && ( j >= (((-2.0*ry)/(-rx))*i)-ry ) ;
+			return (j <= ry ) && ( j >= (((-2.0*ry)/rx)*i)-ry-1e-9) && ( j >= (((-2.0*ry)/(-rx))*i)-ry-1e-9) ;
 			break;
 		default:
 			return 0;

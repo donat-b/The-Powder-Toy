@@ -3853,7 +3853,7 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 		{
 			int tempy = y, i, j, oldy;
 			if (CURRENT_BRUSH == TRI_BRUSH)
-				tempy = y + ry - 1;
+				tempy = y + ry;
 			for (i = x - rx; i <= x; i++) {
 				oldy = tempy;
 				while (InCurrentBrush(i-x,tempy-y,rx,ry))
@@ -3867,13 +3867,13 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 					int i2 = 2*x-i, j2 = 2*y-j;
 					if (CURRENT_BRUSH == TRI_BRUSH)
 						j2 = y+ry;
-					xor_pixel(i, j, vid);//cursor_rotation(vid, x, y, i, j);
+					xor_pixel(i, j, vid);
 					if (i2 != i)
-						xor_pixel(i2, j, vid);//cursor_rotation(vid, x, y, i2, j);
+						xor_pixel(i2, j, vid);
 					if (j2 != j)
-						xor_pixel(i, j2, vid);//cursor_rotation(vid, x, y, i, j2);
+						xor_pixel(i, j2, vid);
 					if (i2 != i && j2 != j)
-						xor_pixel(i2, j2, vid);//cursor_rotation(vid, x, y, i2, j2);
+						xor_pixel(i2, j2, vid);
 				}
 			}
 		}

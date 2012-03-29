@@ -103,6 +103,26 @@ History:
 
 ---------------------------------------------------------------------------
 
+*  Version 74.1
+      o Fix 'r' in font, needed more space after the letter
+      o Fix glow for DEUT, LIGH, and DUST
+      o Fix replacemode delete for tools
+      o enable realistic heat
+      o Put build info on welcome screen
+*  Version 74.0
+      o Debug lines for WiFi and Portal, Soap lines
+      o Fusion for H2 at high temperature+high pressure
+      o Ambient heat and Newtonian Gravity in Quick Options menu.
+      o Smudge tool
+      o Speed improvements for particle drawing
+      o More consistent spark speed (possibly affects existing circuits)
+      o BRAY fire speed (Only shoots once per spark)
+      o DLAY blocked by INSL
+      o WIFI will always take one frame to transmit SPRK
+      o Ambient heat blocked by walls.
+      o New elements: FRAY - Similar to ARAY but applies force, RPEL - Attract and repel particles
+      o DEUT can be compressed by gravitational fields
+      o Fix for "bumpy" streams of photons coming from PCLN
 *  Version 73.0
       o New elements: FRAY - Similar to ARAY but applies force, RPEL - Attract and repel particles
       o DEUT can be compressed by gravitational fields
