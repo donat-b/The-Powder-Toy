@@ -4133,6 +4133,7 @@ int sdl_open(void)
 	SDL_WM_SetCaption("Jacob1's Mod", "Powder Toy");
 	sdl_seticon();
 	SDL_EnableUNICODE(1);
+	SDL_SetModState(sdl_mod);
 	//SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 #if (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
