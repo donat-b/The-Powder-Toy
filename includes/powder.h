@@ -535,8 +535,10 @@ typedef struct part_transition part_transition;
 
 // TODO: falldown, properties, state - should at least one of these be removed?
 extern part_type ptypes[PT_NUM];
+extern part_type ptypes2[PT_NUM];
 
 extern part_transition ptransitions[PT_NUM];
+extern part_transition ptransitions2[PT_NUM];
 
 //Old IDs for GOL types
 #define GT_GOL 78

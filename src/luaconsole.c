@@ -93,6 +93,7 @@ void luacon_open(){
 		{"create_wall",&luatpt_createwall},
 		{"clear_sim",&luatpt_clear_sim},
 		{"restore_defaults",&luatpt_restore_defaults},
+		{"reset_elements",&luatpt_reset_elements},
 		{NULL,NULL}
 	};
 
@@ -2125,6 +2126,16 @@ int luatpt_clear_sim(lua_State* l)
 	return 0;
 }
 
+int luatpt_reset_elements(lua_State* l)
+{
+	memcpy(ptypes,ptypes2,sizeof(ptypes));
+	memcpy(ptransitions,ptransitions2,sizeof(ptransitions));
+	menu_count();
+	init_can_move();
+	memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
+	return 0;
+}
+
 int luatpt_restore_defaults(lua_State* l)
 {
 	framerender = 0;
@@ -2139,7 +2150,6 @@ int luatpt_restore_defaults(lua_State* l)
 	alt_hud = 1;
 	finding = 0;
 	heatmode = 0;
-	maxframes = 25;
 	save_as = 3;
 	show_tabs = 0;
 	sl = 1;
@@ -2154,7 +2164,6 @@ int luatpt_restore_defaults(lua_State* l)
 	kiosk_enable = 0;
 	set_scale(sdl_scale, kiosk_enable);
 	water_equal_test = 0;
-	pretty_powder = 0;
 	drawgrav_enable = 0;
 	limitFPS = 60;
 	CURRENT_BRUSH = CIRCLE_BRUSH;

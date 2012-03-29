@@ -116,4 +116,5 @@ int luatpt_set_elecmap(lua_State* l);
 int luatpt_get_elecmap(lua_State* l);
 int luatpt_clear_sim(lua_State* l);
 int luatpt_restore_defaults(lua_State* l);
+int luatpt_reset_elements(lua_State* l);
 #endif

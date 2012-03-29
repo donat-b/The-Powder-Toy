@@ -433,3 +433,6 @@ part_transition ptransitions[PT_NUM] =
 	/* COND */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* PWHT */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 };
+
+part_type ptypes2[PT_NUM];
+part_transition ptransitions2[PT_NUM];

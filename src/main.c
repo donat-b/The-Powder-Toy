@@ -865,6 +865,8 @@ int main(int argc, char *argv[])
 	part_vbuf = calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE); //Extra video buffer
 	part_vbuf_store = part_vbuf;
 	pers_bg = calloc((XRES+BARSIZE)*YRES, PIXELSIZE);
+	memcpy(ptypes2,ptypes,sizeof(ptypes));
+	memcpy(ptransitions2,ptransitions,sizeof(ptransitions));
 	memcpy(hud_current,hud_modnormal,sizeof(hud_current));
 
 	gravity_init();
