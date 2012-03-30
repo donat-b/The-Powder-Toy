@@ -3128,7 +3128,6 @@ int main(int argc, char *argv[])
 		{
 #ifdef LUACONSOLE
 			char *console;
-			sys_pause = 1;
 			console = console_ui(vid_buf, console_error, console_more);
 			console = mystrdup(console);
 			strcpy(console_error,"");
@@ -3138,11 +3137,8 @@ int main(int argc, char *argv[])
 				break;
 			}
 			free(console);
-			if (!console_mode)
-				hud_enable = 1;
 #else
-			char *console;
-			sys_pause = 1;
+			char *console;.
 			console = console_ui(vid_buf, console_error, console_more);
 			console = mystrdup(console);
 			strcpy(console_error,"");
@@ -3152,8 +3148,6 @@ int main(int argc, char *argv[])
 				break;
 			}
 			free(console);
-			if (!console_mode)
-				hud_enable = 1;
 #endif
 		}
 
