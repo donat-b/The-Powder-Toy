@@ -222,10 +222,13 @@ stamps. save/load more things in powder.pref. Now uses static Libraries, no
 dll's are needed. Some fusion changes to make it more controllable, 
 different from the official (until Simon accepts the pull request).
 
-Next Version
+Version 14 - 4/1/12
 Lua code in saves run in a limited environment without access to dangerous 
 functions that could cause a virus. Prevent infinite loops in Lua, they will 
-exit after 3 seconds (you can click cancel to let it continue running though)
+exit after 3 seconds (you can click cancel to let it continue running though).
+Oxygen fusion added. 4 New commands: tpt.clear_sim(), tpt.restore_defaults(),
+tpt.reset_elements(). Moving solid ability added to all elements, use 
+tpt.enable_moving_solids() to make all solids move like BALL does.
 
 
 
@@ -241,6 +244,7 @@ more lua commands
 option to make sing use gravity instead of presssure
 option to disable copying/resaving in your saves
 make moving solids solid inside
+aray reflects on mirrors - boxmein
 sensor? - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12361
 new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
 More deco tools
