@@ -88,11 +88,9 @@ corner. It will then run the code once, so if you want it to run every frame,
 use tpt.register_step. When you save it in a stamp, and will allow it to be 
 run one more time when you open it. After you save a stamp/save or open one, 
 you can delete the INDI. The code will already be in newluacode.txt, and you 
-can look at it to see what it does. I also added in virus checks. You can't 
-add any code that reads or writes files, renames or deletes things, uses the 
-os.execute command, and a few other things. It checks for these things when 
-you try to save and try to run it. There is a bug that may cause it to crash 
-when it finds one of these things.
+can look at it to see what it does. I also added in virus prevention. You can 
+only use certain approved funcions, and all of the tpt functions. You also 
+can't do while 1 do end, because the loop will exit after 3 seconds.
 
 
 
@@ -244,9 +242,7 @@ more lua commands
 option to make sing use gravity instead of presssure
 option to disable copying/resaving in your saves
 make moving solids solid inside
-aray reflects on mirrors - boxmein
+firework colors - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=10926&PageNum=37
 sensor? - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12361
 new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
-More deco tools
-brush rotation
 Maybe convert this mod to c++ when Simon finishes converting The Powder Toy to c++
