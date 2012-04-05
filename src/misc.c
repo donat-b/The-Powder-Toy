@@ -206,6 +206,7 @@ void save_presets(int do_update)
 	cJSON_AddNumberToObject(root, "decorations_enable", decorations_enable);
 	cJSON_AddNumberToObject(root, "ngrav_enable", ngrav_enable);
 	cJSON_AddNumberToObject(root, "kiosk_enable", kiosk_enable);
+	cJSON_AddNumberToObject(root, "realistic", realistic);
 	
 	outputdata = cJSON_Print(root);
 	cJSON_Delete(root);
@@ -411,6 +412,7 @@ void load_presets(void)
 		if(tmpobj = cJSON_GetObjectItem(root, "decorations_enable")) decorations_enable = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "ngrav_enable")) { if (tmpobj->valueint) start_grav_async(); };
 		if(tmpobj = cJSON_GetObjectItem(root, "kiosk_enable")) { kiosk_enable = tmpobj->valueint; if (kiosk_enable) set_scale(sdl_scale, kiosk_enable); }
+		if(tmpobj = cJSON_GetObjectItem(root, "realistic")) { realistic = tmpobj->valueint; if (realistic) ptypes[PT_FIRE].hconduct = 1; }
 
 		cJSON_Delete(root);
 		free(prefdata);

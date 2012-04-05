@@ -133,6 +133,7 @@ void play_sound(char *file)
 static const char *it_msg =
     "\blThe Powder Toy - Version " MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) " - http://powdertoy.co.uk, irc.freenode.net #powder\n"
     "\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\n"
+    "\brJ\bla\boc\bgo\btb\bb1\bp'\bws \bbMod version " MTOS(MOD_VERSION) "\n"
     "\n"
     "\bgControl+C/V/X are Copy, Paste and cut respectively.\n"
     "\bgTo choose a material, hover over one of the icons on the right, it will show a selection of elements in that group.\n"
@@ -188,8 +189,6 @@ static const char *it_msg =
 #ifdef GRAVFFT
 	"GRAVFFT "
 #endif
-    "\n"
-    "\brJ\bla\boc\bgo\btb\bb1\bp'\bws \bbMod version " MTOS(MOD_VERSION)
     ;
 
 typedef struct
