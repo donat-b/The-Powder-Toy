@@ -2711,7 +2711,13 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 			else if (h == FAV_AUTOSAVE)
 				autosave = atoi(input_ui(vid_buf,"autosave","Input number of seconds between saves, 0 = off","",""));
 			else if (h == FAV_REAL)
+			{
 				realistic = !realistic;
+				if (realistic)
+					ptypes[PT_FIRE].hconduct = 1;
+				else
+					ptypes[PT_FIRE].hconduct = 88;
+			}
 			else if (h == FAV_SECR)
 			{
 				secret_els = !secret_els;

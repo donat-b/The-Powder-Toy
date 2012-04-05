@@ -188,9 +188,6 @@ static const char *it_msg =
 #ifdef GRAVFFT
 	"GRAVFFT "
 #endif
-#ifdef REALISTIC
-	"REALISTIC"
-#endif
     "\n"
     "\brJ\bla\boc\bgo\btb\bb1\bp'\bws \bbMod version " MTOS(MOD_VERSION)
     ;

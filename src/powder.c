@@ -2143,10 +2143,10 @@ void update_particles_i(pixel *vid, int start, int inc)
 					{
 						if (ctemph>ptransitions[t].thv&&ptransitions[t].tht>-1) {
 							// particle type change due to high temperature
-							if (realistic)
+							float dbt = ctempl - pt;
+							if (ptransitions[t].tht!=PT_NUM)
 							{
-								float dbt = ctempl - pt;
-								if (ptransitions[t].tht!=PT_NUM)
+								if (realistic)
 								{
 									if (platent[t] <= (c_heat - (ptransitions[t].thv - dbt)*c_Cm))
 									{
@@ -2159,7 +2159,12 @@ void update_particles_i(pixel *vid, int start, int inc)
 										s = 0;
 									}
 								}
-								else if (t==PT_ICEI) 
+								else
+									t = ptransitions[t].tht;
+							}
+							else if (t==PT_ICEI)
+							{
+								if (realistic)
 								{
 									if (parts[i].ctype<PT_NUM&&parts[i].ctype!=PT_ICEI) 
 									{
@@ -2181,8 +2186,25 @@ void update_particles_i(pixel *vid, int start, int inc)
 											}
 										}
 									}
+									else s = 0;
 								}
-								else if (t==PT_SLTW)
+								else
+								{
+									if (parts[i].ctype>0&&parts[i].ctype<PT_NUM&&parts[i].ctype!=PT_ICEI) 
+									{
+										if (ptransitions[parts[i].ctype].tlt==PT_ICEI&&pt<=ptransitions[parts[i].ctype].tlv) s = 0;
+										else {
+											t = parts[i].ctype;
+											parts[i].ctype = PT_NONE;
+											parts[i].life = 0;
+										}
+									}
+									else s = 0;
+								}
+							}
+							else if (t==PT_SLTW)
+							{
+								if (realistic)
 								{
 									if (platent[t] <= (c_heat - (ptransitions[t].thv - dbt)*c_Cm))
 									{
@@ -2197,25 +2219,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 										s = 0;
 									}
 								}
-							}
-							else
-							{
-								if (ptransitions[t].tht!=PT_NUM)
-									t = ptransitions[t].tht;
-								else if (t==PT_ICEI) 
-								{
-									if (parts[i].ctype>0&&parts[i].ctype<PT_NUM&&parts[i].ctype!=PT_ICEI) 
-									{
-										if (ptransitions[parts[i].ctype].tlt==PT_ICEI&&pt<=ptransitions[parts[i].ctype].tlv) s = 0;
-										else {
-											t = parts[i].ctype;
-											parts[i].ctype = PT_NONE;
-											parts[i].life = 0;
-										}
-									}
-									else s = 0;
-								}
-								else if (t==PT_SLTW)
+								else
 								{
 									if (1>rand()%6) t = PT_SALT;
 									else t = PT_WTRV;
