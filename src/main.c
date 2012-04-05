@@ -153,9 +153,44 @@ static const char *it_msg =
     "\n"
     "Contributors: \bgStanislaw K Skowronek (\brhttp://powder.unaligned.org\bg, \bbirc.unaligned.org #wtf\bg),\n"
     "\bgSimon Robertshaw, Skresanov Savely, cracker64, Catelite, Bryan Hoyle, Nathan Cousins, jacksonmj,\n"
-	"\bgLieuwe Mosch, Anthony Boot, Matthew \"me4502\", MaksProg\n"
+    "\bgLieuwe Mosch, Anthony Boot, Matthew \"me4502\", MaksProg\n"
     "\n"
     "\bgTo use online features such as saving, you need to register at: \brhttp://powdertoy.co.uk/Register.html\n"
+    "\n"
+    "\bt" MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) "." MTOS(BUILD_NUM) " "
+#ifdef X86
+	"X86 "
+#endif
+#ifdef X86_SSE
+	"X86_SSE "
+#endif
+#ifdef X86_SSE2
+	"X86_SSE2 "
+#endif
+#ifdef X86_SSE3
+	"X86_SSE3 "
+#endif
+#ifdef LIN32
+	"LIN32 "
+#endif
+#ifdef LIN64
+	"LIN64 "
+#endif
+#ifdef WIN32
+	"WIN32 "
+#endif
+#ifdef MACOSX
+	"MACOSX "
+#endif
+#ifdef LUACONSOLE
+	"LUACONSOLE "
+#endif
+#ifdef GRAVFFT
+	"GRAVFFT "
+#endif
+#ifdef REALISTIC
+	"REALISTIC"
+#endif
     "\n"
     "\brJ\bla\boc\bgo\btb\bb1\bp'\bws \bbMod version " MTOS(MOD_VERSION)
     ;

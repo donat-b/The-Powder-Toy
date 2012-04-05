@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include <math.h>
 #include <defines.h>
-#include <squares.h>
 #include <powder.h>
 #include <air.h>
 #include <misc.h>
@@ -112,6 +111,10 @@ void init_can_move()
 	}
 	can_move[PT_DEST][PT_DMND] = 0;
 	can_move[PT_DEST][PT_INDI] = 0;
+	can_move[PT_DEST][PT_CLNE] = 0;
+	can_move[PT_DEST][PT_PCLN] = 0;
+	can_move[PT_DEST][PT_BCLN] = 0;
+	can_move[PT_DEST][PT_PBCN] = 0;
 	can_move[PT_BIZR][PT_FILT] = 2;
 	can_move[PT_BIZRG][PT_FILT] = 2;
 	for (t=0;t<PT_NUM;t++)
@@ -1246,7 +1249,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 	//and finally set the pmap/photon maps to the newly created particle
 	if (t==PT_PHOT||t==PT_NEUT||t==PT_ELEC)
 		photons[y][x] = t|(i<<8);
-	else if (t!=PT_STKM&&t!=PT_STKM2 && t!=PT_FIGH)
+	else if (t!=PT_STKM && t!=PT_STKM2 && t!=PT_FIGH)
 		pmap[y][x] = t|(i<<8);
 		
 	//Fancy dust effects for powder types
@@ -2017,8 +2020,8 @@ void update_particles_i(pixel *vid, int start, int inc)
 				if (realistic)
 				{
 					//The magic number controlls diffusion speed
-					parts[i].vx += 0.05*squares[(unsigned int)(parts[i].temp+0.5f)]*ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
-					parts[i].vy += 0.05*squares[(unsigned int)(parts[i].temp+0.5f)]*ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
+					parts[i].vx += 0.05f*sqrtf(parts[i].temp)*ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
+					parts[i].vy += 0.05f*sqrtf(parts[i].temp)*ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
 				}
 				else
 				{
@@ -2112,15 +2115,18 @@ void update_particles_i(pixel *vid, int start, int inc)
 							pt = (c_heat+parts[i].temp*96.645)/(c_Cm+96.645);
 						else
 							pt = (c_heat+parts[i].temp*96.645/ptypes[t].hconduct*fabs(ptypes[t].weight))/(c_Cm+96.645/ptypes[t].hconduct*fabs(ptypes[t].weight));
+						c_heat += parts[i].temp*96.645/ptypes[t].hconduct*fabs(ptypes[t].weight);
+						c_Cm += 96.645/ptypes[t].hconduct*fabs(ptypes[t].weight);
+						parts[i].temp = restrict_flt(pt, MIN_TEMP, MAX_TEMP);
 					}
 					else
 					{
 						pt = (c_heat+parts[i].temp)/(h_count+1);
-					}
-					pt = parts[i].temp = restrict_flt(pt, MIN_TEMP, MAX_TEMP);
-					for (j=0; j<8; j++)
-					{
-						parts[surround_hconduct[j]].temp = pt;
+						pt = parts[i].temp = restrict_flt(pt, MIN_TEMP, MAX_TEMP);
+						for (j=0; j<8; j++)
+						{
+							parts[surround_hconduct[j]].temp = pt;
+						}
 					}
 
 					ctemph = ctempl = pt;
@@ -2132,33 +2138,112 @@ void update_particles_i(pixel *vid, int start, int inc)
 					         || t==PT_WTRV)
 						ctempl -= 2.0f*pv[y/CELL][x/CELL];
 					s = 1;
+
 					if (!(ptypes[t].properties&PROP_INDESTRUCTIBLE))
 					{
 						if (ctemph>ptransitions[t].thv&&ptransitions[t].tht>-1) {
 							// particle type change due to high temperature
-							if (ptransitions[t].tht!=PT_NUM)
-								t = ptransitions[t].tht;
-							else if (t==PT_ICEI) {
-								if (parts[i].ctype>0&&parts[i].ctype<PT_NUM&&parts[i].ctype!=PT_ICEI) {
-									if (ptransitions[parts[i].ctype].tlt==PT_ICEI&&pt<=ptransitions[parts[i].ctype].tlv) s = 0;
-									else {
-										t = parts[i].ctype;
-										parts[i].ctype = PT_NONE;
-										parts[i].life = 0;
+							if (realistic)
+							{
+								float dbt = ctempl - pt;
+								if (ptransitions[t].tht!=PT_NUM)
+								{
+									if (platent[t] <= (c_heat - (ptransitions[t].thv - dbt)*c_Cm))
+									{
+										pt = (c_heat - platent[t])/c_Cm;
+										t = ptransitions[t].tht;
+									}
+									else
+									{
+										parts[i].temp = restrict_flt(ptransitions[t].thv - dbt, MIN_TEMP, MAX_TEMP);
+										s = 0;
 									}
 								}
-								else if (pt>274.0f) t = PT_WATR;
-								else s = 0;
+								else if (t==PT_ICEI) 
+								{
+									if (parts[i].ctype<PT_NUM&&parts[i].ctype!=PT_ICEI) 
+									{
+										if (ptransitions[parts[i].ctype].tlt==PT_ICEI&&pt<=ptransitions[parts[i].ctype].tlv) s = 0;
+										else 
+										{
+											//One ice table value for all it's kinds
+											if (platent[t] <= (c_heat - (ptransitions[parts[i].ctype].tlv - dbt)*c_Cm))
+											{
+												pt = (c_heat - platent[t])/c_Cm;
+												t = parts[i].ctype;
+												parts[i].ctype = PT_NONE;
+												parts[i].life = 0;
+											}
+											else
+											{
+												parts[i].temp = restrict_flt(ptransitions[parts[i].ctype].tlv - dbt, MIN_TEMP, MAX_TEMP);
+												s = 0;
+											}
+										}
+									}
+								}
+								else if (t==PT_SLTW)
+								{
+									if (platent[t] <= (c_heat - (ptransitions[t].thv - dbt)*c_Cm))
+									{
+										pt = (c_heat - platent[t])/c_Cm;
+
+										if (1>rand()%6) t = PT_SALT;
+										else t = PT_WTRV;
+									}
+									else
+									{
+										parts[i].temp = restrict_flt(ptransitions[t].thv - dbt, MIN_TEMP, MAX_TEMP);
+										s = 0;
+									}
+								}
 							}
-							else if (t==PT_SLTW) {
-								if (1>rand()%6) t = PT_SALT;
-								else t = PT_WTRV;
+							else
+							{
+								if (ptransitions[t].tht!=PT_NUM)
+									t = ptransitions[t].tht;
+								else if (t==PT_ICEI) 
+								{
+									if (parts[i].ctype>0&&parts[i].ctype<PT_NUM&&parts[i].ctype!=PT_ICEI) 
+									{
+										if (ptransitions[parts[i].ctype].tlt==PT_ICEI&&pt<=ptransitions[parts[i].ctype].tlv) s = 0;
+										else {
+											t = parts[i].ctype;
+											parts[i].ctype = PT_NONE;
+											parts[i].life = 0;
+										}
+									}
+									else s = 0;
+								}
+								else if (t==PT_SLTW)
+								{
+									if (1>rand()%6) t = PT_SALT;
+									else t = PT_WTRV;
+								}
 							}
-							else s = 0;
 						} else if (ctempl<ptransitions[t].tlv&&ptransitions[t].tlt>-1) {
 							// particle type change due to low temperature
+							float dbt = ctempl - pt;
 							if (ptransitions[t].tlt!=PT_NUM)
-								t = ptransitions[t].tlt;
+							{
+								if (realistic)
+								{
+									if (platent[ptransitions[t].tlt] >= (c_heat - (ptransitions[t].tlv - dbt)*c_Cm))
+									{
+										pt = (c_heat + platent[ptransitions[t].tlt])/c_Cm;
+										t = ptransitions[t].tlt;
+									}
+									else
+									{
+										parts[i].temp = restrict_flt(ptransitions[t].tlv - dbt, MIN_TEMP, MAX_TEMP);
+										s = 0;
+									}
+								}
+								else
+								{
+									t = ptransitions[t].tlt;
+								}
+							}
 							else if (t==PT_WTRV) {
 								if (pt<273.0f) t = PT_RIME;
 								else t = PT_DSTW;
@@ -2190,6 +2275,16 @@ void update_particles_i(pixel *vid, int start, int inc)
 							else s = 0;
 						}
 						else s = 0;
+
+						if (realistic)
+						{
+							pt = restrict_flt(pt, MIN_TEMP, MAX_TEMP);
+							for (j=0; j<8; j++)
+							{
+								parts[surround_hconduct[j]].temp = pt;
+							}
+						}
+
 						if (s) { // particle type change occurred
 							if (t==PT_ICEI||t==PT_LAVA)
 								parts[i].ctype = parts[i].type;
@@ -3372,7 +3467,9 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 		return 1;
 	}
 
-	if (c == 0 && !(flags&BRUSH_REPLACEMODE))								// delete
+	if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM || c == SPC_PGRV || c == SPC_NGRV)
+		fn = 3;
+	else if (c == 0 && !(flags&BRUSH_REPLACEMODE))								// delete
 		fn = 0;
 	else if ((flags&BRUSH_SPECIFIC_DELETE) && !(flags&BRUSH_REPLACEMODE))	// specific delete
 		fn = 1;
@@ -3390,10 +3487,15 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 	else
 	{
 		int tempy = y, i, j, jmax, oldy;
+		// tempy is the smallest y value that is still inside the brush
+		// jmax is the largest y value that is still inside the brush
 		if (CURRENT_BRUSH == TRI_BRUSH)
 			tempy = y + ry;
 		for (i = x - rx; i <= x; i++) {
 			oldy = tempy;
+			// Fix a problem with the triangle brush which occurs if the bottom corner (the first point tested) isn't recognised as being inside the brush
+			if (!InCurrentBrush(i-x,tempy-y,rx,ry))
+				continue;
 			while (InCurrentBrush(i-x,tempy-y,rx,ry))
 				tempy = tempy - 1;
 			tempy = tempy + 1;
@@ -3405,7 +3507,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 				for (j = tempy; j <= jmax; j++) {
 					if (create_parts2(fn,i,j,c,rx,ry,flags))
 						f = 1;
-					if (i != x && create_parts2(fn,2*x-i,j,c,rx,ry,flags))
+					if (i!=x && create_parts2(fn,2*x-i,j,c,rx,ry,flags))
 						f = 1;
 				}
 			}
@@ -3486,6 +3588,7 @@ int InCurrentBrush(int i, int j, int rx, int ry)
 			return (abs(i) <= rx && abs(j) <= ry);
 			break;
 		case TRI_BRUSH:
+			// -1e-9 because due to rounding errors, the corner at i=rx is not considered to be inside the brush at some brush sizes
 			return (j <= ry ) && ( j >= (((-2.0*ry)/rx)*i)-ry-1e-9) && ( j >= (((-2.0*ry)/(-rx))*i)-ry-1e-9) ;
 			break;
 		default:

@@ -9,9 +9,9 @@
  
 //VersionInfoStart
 #define SAVE_VERSION 74
-#define MINOR_VERSION 0
+#define MINOR_VERSION 1
 //#define BETA
-#define BUILD_NUM 149
+#define BUILD_NUM 150
 //VersionInfoEnd
 
 #define MOD_VERSION 14
@@ -97,6 +97,7 @@ extern unsigned char ZSIZE;
 #define STAMP_MAX 240
 
 //#define SAVE_OPS
+//#define REALISTIC
 
 #define NGOL 25
 #define NGOLALT 24 //NGOL should be 24, but use this var until I find out why
