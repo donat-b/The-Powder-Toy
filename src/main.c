@@ -3200,7 +3200,6 @@ int main(int argc, char *argv[])
 				player2.elem = PT_DUST;
 		}
 	}
-	save_presets(0);
 	
 	SDL_CloseAudio();
 	http_done();
