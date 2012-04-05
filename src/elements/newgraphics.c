@@ -160,7 +160,7 @@ int graphics_GRAV(GRAPHICS_FUNC_ARGS)
 }
 int graphics_WIFI(GRAPHICS_FUNC_ARGS)
 {
-	float frequency = 0.0628;
+	float frequency = 0.0628f;
 	int q = cpart->tmp;
 	*colr = (int)(sin(frequency*q + 0) * 127 + 128);
 	*colg = (int)(sin(frequency*q + 2) * 127 + 128);
@@ -585,7 +585,7 @@ int graphics_COAL(GRAPHICS_FUNC_ARGS) //Both COAL and Broken Coal
 
 	if((cpart->temp-295.15f) > 300.0f-200.0f)
 	{
-		float frequency = 3.1415/(2*300.0f-(300.0f-200.0f));
+		float frequency = 3.1415f/(2*300.0f-(300.0f-200.0f));
 		int q = (int)(((cpart->temp-295.15f)>300.0f)?300.0f-(300.0f-200.0f):(cpart->temp-295.15f)-(300.0f-200.0f));
 
 		*colr += (int)(sin(frequency*q) * 226);

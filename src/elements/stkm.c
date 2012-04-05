@@ -32,7 +32,7 @@ int graphics_STKM(GRAPHICS_FUNC_ARGS)
 int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS) {
 	int r, rx, ry;
 	float pp, d;
-	float dt = 0.9;///(FPSB*FPSB);  //Delta time in square
+	float dt = 0.9f;///(FPSB*FPSB);  //Delta time in square
 	float gvx, gvy;
 	float gx, gy, dl, dr;
 

@@ -1997,7 +1997,7 @@ int save_name_ui(pixel *vid_buf)
 	cb.checked = svf_publish;
 
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
-	draw_rgba_image(vid_buf, save_to_server_image, 0, 0, 0.7);
+	draw_rgba_image(vid_buf, save_to_server_image, 0, 0, 0.7f);
 	
 	memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 
@@ -6625,7 +6625,7 @@ int save_filename_ui(pixel *vid_buf)
 	}
 
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
-	draw_rgba_image(vid_buf, save_to_disk_image, 0, 0, 0.7);
+	draw_rgba_image(vid_buf, save_to_disk_image, 0, 0, 0.7f);
 	
 	memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 

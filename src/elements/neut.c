@@ -54,8 +54,8 @@ int update_NEUT(UPDATE_FUNC_ARGS) {
 					continue;
 				if ((r&0xFF)==PT_WATR || (r&0xFF)==PT_ICEI || (r&0xFF)==PT_SNOW)
 				{
-					parts[i].vx *= 0.995;
-					parts[i].vy *= 0.995;
+					parts[i].vx *= 0.995f;
+					parts[i].vy *= 0.995f;
 				}
 				if ((r&0xFF)==PT_PLUT && pressureFactor>(rand()%1000))
 				{

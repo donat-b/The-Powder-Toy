@@ -9,13 +9,13 @@ int update_MOVS(UPDATE_FUNC_ARGS) {
 		float angle = atan((float)parts[i].tmp2/parts[i].tmp);
 		float distance = sqrt(pow((float)parts[i].tmp,2)+pow((float)parts[i].tmp2,2));
 		if (parts[i].tmp < 0)
-			angle += 3.1415926535;
+			angle += 3.1415926535f;
 		tmp = distance*cos(angle+msrotation[bn]);
 		tmp2 = distance*sin(angle+msrotation[bn]);
 	}
 	else if (parts[i].tmp2 != 0)
 	{
-		float angle = 3.1415926535/2;
+		float angle = 3.1415926535f/2;
 		tmp = parts[msindex[bn]].x + parts[i].tmp2*cos(angle+msrotation[bn]);
 		if (parts[i].tmp2 < 0)
 			tmp2 = parts[i].tmp2*sin(angle+msrotation[bn]);

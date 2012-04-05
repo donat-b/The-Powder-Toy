@@ -5,9 +5,9 @@ int update_PUMP(UPDATE_FUNC_ARGS) {
 	if (parts[i].life==10)
 	{
 		if (parts[i].temp>=256.0+273.15)
-			parts[i].temp=256.0+273.15;
+			parts[i].temp=256.0f+273.15f;
 		if (parts[i].temp<= -256.0+273.15)
-			parts[i].temp = -256.0+273.15;
+			parts[i].temp = -256.0f+273.15f;
 
 		if (pv[y/CELL][x/CELL]<(parts[i].temp-273.15))
 			pv[y/CELL][x/CELL] += 0.1f*((parts[i].temp-273.15)-pv[y/CELL][x/CELL]);

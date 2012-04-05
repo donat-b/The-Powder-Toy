@@ -24,7 +24,7 @@ int update_H2(UPDATE_FUNC_ARGS)
 				{
 					if (rt==PT_FIRE)
 					{
-						parts[r>>8].temp=2473.15;
+						parts[r>>8].temp=2473.15f;
 						if(parts[r>>8].tmp&0x02)
 						parts[r>>8].temp=3473;
 						parts[r>>8].tmp |= 1;

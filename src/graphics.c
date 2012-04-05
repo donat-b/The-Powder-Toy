@@ -1416,7 +1416,7 @@ void draw_air(pixel *vid)
 				clamp_flt(pv[y][x], 0.0f, 8.0f),//pressure adds green
 				clamp_flt(fabsf(vy[y][x]), 0.0f, 8.0f));//vy adds blue
 			}
-			else if ((display_mode & DISPLAY_AIRH))
+			else if (display_mode & DISPLAY_AIRH)
 			{
 				if (!aheat_enable)
 					c = 0;
@@ -2063,11 +2063,11 @@ void render_parts(pixel *vid)
 
 				if (colour_mode & COLOUR_GRAD)
 				{
-					float frequency = 0.05;
-					int q = parts[i].temp-40;
-					colr = sin(frequency*q) * 16 + colr;
-					colg = sin(frequency*q) * 16 + colg;
-					colb = sin(frequency*q) * 16 + colb;
+					float frequency = 0.05f;
+					int q = (int)parts[i].temp-40;
+					colr = (int)(sin(frequency*q) * 16 + colr);
+					colg = (int)(sin(frequency*q) * 16 + colg);
+					colb = (int)(sin(frequency*q) * 16 + colb);
 					if(pixel_mode & (FIREMODE | PMODE_GLOW)) pixel_mode = (pixel_mode & ~(FIREMODE|PMODE_GLOW)) | PMODE_BLUR;
 				}
 
@@ -3966,15 +3966,15 @@ int sdl_open(void)
 	    exit(-1);
 	}
 	WindowHandle = SysInfo.window;
-	hIconSmall = (HICON)LoadImage(&__ImageBase, MAKEINTRESOURCE(101), IMAGE_ICON, 16, 16, LR_SHARED);
-	hIconBig = (HICON)LoadImage(&__ImageBase, MAKEINTRESOURCE(101), IMAGE_ICON, 32, 32, LR_SHARED);
+	hIconSmall = (HICON)LoadImage((HINSTANCE)&__ImageBase, MAKEINTRESOURCE(101), IMAGE_ICON, 16, 16, LR_SHARED);
+	hIconBig = (HICON)LoadImage((HINSTANCE)&__ImageBase, MAKEINTRESOURCE(101), IMAGE_ICON, 32, 32, LR_SHARED);
 	SendMessage(WindowHandle, WM_SETICON, ICON_SMALL, (LPARAM)hIconSmall);
 	SendMessage(WindowHandle, WM_SETICON, ICON_BIG, (LPARAM)hIconBig);
 #elif defined(LIN32) || defined(LIN64)
 	icon = SDL_CreateRGBSurfaceFrom(app_icon, 16, 16, 32, 64, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
 	SDL_WM_SetIcon(icon, NULL);
 #endif
-	SDL_WM_SetCaption("The Powder Toy", "Powder Toy");
+	SDL_WM_SetCaption("Jacob1's Mod", "Powder Toy");
 	
 	atexit(SDL_Quit);
 #if defined(OGLR)
@@ -4174,7 +4174,6 @@ int sdl_open(void)
 		fprintf(stderr, "Creating window: %s\n", SDL_GetError());
 		return 0;
 	}
-	SDL_WM_SetCaption("Jacob1's Mod", "Powder Toy");
 	sdl_seticon();
 	SDL_EnableUNICODE(1);
 	SDL_SetModState(sdl_mod);

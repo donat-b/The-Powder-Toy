@@ -3029,11 +3029,11 @@ void update_moving_solids()
 		}
 		else if (msrotation[bn] > 6.283185307179586476925286766559)
 		{
-			msrotation[bn] -= 6.283185307179586476925286766559;
+			msrotation[bn] -= 6.283185307179586476925286766559f;
 		}
 		else if (msrotation[bn] < -6.283185307179586476925286766559)
 		{
-			msrotation[bn] += 6.283185307179586476925286766559;
+			msrotation[bn] += 6.283185307179586476925286766559f;
 		}
 	}
 	for (i=0; i<=parts_lastActiveIndex; i++)
@@ -3048,13 +3048,13 @@ void update_moving_solids()
 					float angle = atan((float)parts[i].tmp2/parts[i].tmp);
 					float distance = sqrt(pow((float)parts[i].tmp,2)+pow((float)parts[i].tmp2,2));
 					if (parts[i].tmp < 0)
-						angle += 3.1415926535;
+						angle += 3.1415926535f;
 					parts[i].x = parts[msindex[bn]-1].x + distance*cos(angle+msrotation[bn]);
 					parts[i].y = parts[msindex[bn]-1].y + distance*sin(angle+msrotation[bn]);
 				}
 				else if (parts[i].tmp2 != 0)
 				{
-					float angle = 3.1415926535897932384626433832795/2;
+					float angle = 3.1415926535897932384626433832795f/2;
 					parts[i].x = parts[msindex[bn]-1].x + parts[i].tmp2*cos(angle+msrotation[bn]);
 					if (parts[i].tmp2 < 0)
 						parts[i].y = parts[msindex[bn]-1].y + parts[i].tmp2*sin(angle+msrotation[bn]);
