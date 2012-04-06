@@ -139,6 +139,10 @@ void drawrect(pixel *vid, int x, int y, int w, int h, int r, int g, int b, int a
 
 void fillrect(pixel *vid, int x, int y, int w, int h, int r, int g, int b, int a);
 
+void drawcircle(pixel *vid, int x, int y, int rx, int ry, int r, int g, int b, int a);
+
+void fillcircle(pixel *vid, int x, int y, int rx, int ry, int r, int g, int b, int a);
+
 void clearrect(pixel *vid, int x, int y, int w, int h);
 
 void drawdots(pixel *vid, int x, int y, int h, int r, int g, int b, int a);
