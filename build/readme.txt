@@ -92,6 +92,26 @@ can look at it to see what it does. I also added in virus prevention. You can
 only use certain approved funcions, and all of the tpt functions. You also 
 can't do while 1 do end, because the loop will exit after 3 seconds.
 
+Easter egg hunt: Press 'e' to start it or see which eggs you've found. There 
+are 20 eggs total. After specific numbers of eggs, you get a prize. There are 
+5 prizes, plus an extra if you find egg number 20. If you quit, it will 
+remember which ones you've found and which prizes you've unlocked. The prizes 
+are actually good unlike real Easter egg hunts, and get better as you find 
+more. Please ignore any graphical glitches on certain eggs, also, one egg 
+doesn't disappear after you click it until you exit and go back.
+
+The eggs are hidden:
+In different menus and interfaces
+In the online search
+3 are in certain saves (that I like or made)
+
+The eggs are not:
+In places that require you to be logged in
+In the stamp browser
+In any front page saves, those won't be there long
+Any place that would take a lot of work to find, like page 50 of the online search
+Hidden until a certain reaction happens, you don't need to draw elements
+
 
 
 
@@ -217,8 +237,8 @@ tab without saving, Ctrl+Q then clicking yes completely exits from anywhere,
 and Ctrl+O opens the saves catalogue. You can now edit alpha in the deco 
 editor. Alpha is displayed in (OPS) stamps, all wall types drawn in all 
 stamps. save/load more things in powder.pref. Now uses static Libraries, no 
-dll's are needed. Some fusion changes to make it more controllable, 
-different from the official (until Simon accepts the pull request).
+dll's are needed. Some fusion changes to make it more controllable, different 
+from the official (until Simon accepts the pull request).
 
 Version 14 - 4/1/12
 Lua code in saves run in a limited environment without access to dangerous 
@@ -226,7 +246,16 @@ functions that could cause a virus. Prevent infinite loops in Lua, they will
 exit after 3 seconds (you can click cancel to let it continue running though).
 Oxygen fusion added. 4 New commands: tpt.clear_sim(), tpt.restore_defaults(),
 tpt.reset_elements(). Moving solid ability added to all elements, use 
-tpt.enable_moving_solids() to make all solids move like BALL does.
+tpt.enable_moving_solids() to make all solids move like BALL does. That last 
+one was an April fools joke, if you couldn't tell already.
+
+Version 14.1 - 4/7/12
+Really update to latest source. Fix infinite fusion and burning oxygen. CLNE 
+and PCLN are indestructible, BCLN and PBCN break with DEST and SING again. 
+BHOL, VENT, and VOID are not destroyed by DEST or SING now. New lua commands: 
+tpt.draw(or fill)circle(x,y,rx,ry,r,g,b,a) and tpt.indestructible(string name 
+or particle number). An optional argument to that is a 0, which makes it 
+destructible again. Added Easter egg hunt, press 'e' to start.
 
 
 
