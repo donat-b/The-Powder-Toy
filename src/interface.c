@@ -93,6 +93,7 @@ int framenum = 0;
 int hud_menunum = 0;
 int tool = DECO_DRAW;
 int has_quit = 0;
+int SC_TOTAL = 14;
 
 int drawgrav_enable = 0;
 
@@ -107,10 +108,7 @@ void menu_count(void)//puts the number of elements in each section into .itemcou
 	msections[SC_WALL].itemcount = UI_WALLCOUNT-4;
 	for (i=0; i<PT_NUM; i++)
 	{
-		if (ptypes[i].menusection<SC_TOTAL)
-		{
-			msections[ptypes[i].menusection].itemcount+=(ptypes[i].menu || (secret_els && ptypes[i].enabled));
-		}
+		msections[ptypes[i].menusection].itemcount+=(ptypes[i].menu || (secret_els && ptypes[i].enabled));
 	}
 }
 
@@ -212,6 +210,7 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 		mx /= sdl_scale;
 		my /= sdl_scale;
 
+		draw_egg(vid_buf, 210, 305, 10);
 		drawrect(vid_buf, x0, y0, 192, 80, 192, 192, 192, 255);
 		clearrect(vid_buf, x0, y0, 192, 80);
 		drawtext(vid_buf, x0+8, y0+8, nm ? "New sign:" : "Edit sign:", 255, 255, 255, 255);
@@ -1100,6 +1099,7 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 		mx /= sdl_scale;
 		my /= sdl_scale;
 
+		draw_egg(vid_buf, 330, 100, 18);
 		clearrect(vid_buf, x0-2, y0-2, xsize+4, ysize+4);
 		drawrect(vid_buf, x0, y0, xsize, ysize, 192, 192, 192, 255);
 		drawtext(vid_buf, x0+8, y0+8, "Change particle property", 160, 160, 255, 255);
@@ -2087,8 +2087,8 @@ int save_name_ui(pixel *vid_buf)
 }
 
 //unused old function, with all the elements drawn at the bottom
-/*
-void menu_ui(pixel *vid_buf, int i, int *sl, int *sr)
+
+void menu_ui(pixel *vid_buf, int i)
 {
 	int b=1,bq,mx,my,h,x,y,n=0,height,width,sy,rows=0;
 	pixel *old_vid=(pixel *)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
@@ -2123,82 +2123,124 @@ void menu_ui(pixel *vid_buf, int i, int *sl, int *sr)
 		drawrect(vid_buf, (XRES-BARSIZE)+9, (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))-1, 1, FONT_H+1, 0, 0, 0, 255);
 		if (i==SC_WALL)
 		{
-			for (n = 122; n<122+UI_WALLCOUNT; n++)
+			for (n = UI_WALLSTART; n<UI_WALLSTART+UI_WALLCOUNT; n++)
 			{
-				if (n!=SPC_AIR&&n!=SPC_HEAT&&n!=SPC_COOL&&n!=SPC_VACUUM)
+				if (n!=SPC_AIR&&n!=SPC_HEAT&&n!=SPC_COOL&&n!=SPC_VACUUM&&n!=SPC_WIND&&n!=SPC_PGRV&&n!=SPC_NGRV&&n!=SPC_PROP&&n!=SPC_PROP2)
 				{
 					if (x-26<=60)
 					{
 						x = XRES-BARSIZE-26;
 						y += 19;
 					}
-					x -= draw_tool_xy(vid_buf, x, y, n, mwalls[n-122].colour)+5;
-					if (mx>=x+32 && mx<x+58 && my>=y && my< y+15)
+					x -= draw_tool_xy(vid_buf, x, y, n, wtypes[n-UI_WALLSTART].colour)+5;
+					if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15)
 					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 255, 0, 0, 255);
+						drawrect(vid_buf, x+30, y-1, 29, 17, 255, 55, 55, 255);
 						h = n;
 					}
-					else if (n==*sl)
+					if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
 					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 255, 0, 0, 255);
+						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
+						h = n;
 					}
-					else if (n==*sr)
+					else if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
 					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 0, 255, 255);
+						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 0, 255);
+					}
+					else if (n==sl)
+					{
+						drawrect(vid_buf, x+30, y-1, 29, 17, 255, 55, 55, 255);
+					}
+					else if (n==sr)
+					{
+						drawrect(vid_buf, x+30, y-1, 29, 17, 55, 55, 255, 255);
+					}
+					else if (n==SLALT)
+					{
+						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
 					}
 				}
 			}
 		}
-		else if (i==SC_SPECIAL)
+		else if (i==SC_TOOL)
 		{
-			for (n = 122; n<122+UI_WALLCOUNT; n++)
+			msections[i].itemcount = 9;
+			for (n = UI_WALLSTART; n<UI_WALLSTART+UI_WALLCOUNT; n++)
 			{
-				if (n==SPC_AIR||n==SPC_HEAT||n==SPC_COOL||n==SPC_VACUUM)
+				if (n==SPC_AIR||n==SPC_HEAT||n==SPC_COOL||n==SPC_VACUUM||n==SPC_WIND||n==SPC_PGRV||n==SPC_NGRV||n==SPC_PROP||n==SPC_PROP2)
 				{
 					if (x-26<=60)
 					{
 						x = XRES-BARSIZE-26;
 						y += 19;
 					}
-					x -= draw_tool_xy(vid_buf, x, y, n, mwalls[n-122].colour)+5;
-					if (mx>=x+32 && mx<x+58 && my>=y && my< y+15)
+					x -= draw_tool_xy(vid_buf, x, y, n, wtypes[n-UI_WALLSTART].colour)+5;
+					if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15)
 					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 255, 0, 0, 255);
+						drawrect(vid_buf, x+30, y-1, 29, 17, 255, 55, 55, 255);
 						h = n;
 					}
-					else if (n==*sl)
+					if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
 					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 255, 0, 0, 255);
+						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
+						h = n;
 					}
-					else if (n==*sr)
+					else if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
 					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 0, 255, 255);
+						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 0, 255);
+					}
+					else if (n==sl)
+					{
+						drawrect(vid_buf, x+30, y-1, 29, 17, 255, 55, 55, 255);
+					}
+					else if (n==sr)
+					{
+						drawrect(vid_buf, x+30, y-1, 29, 17, 55, 55, 255, 255);
+					}
+					else if (n==SLALT)
+					{
+						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
 					}
 				}
 			}
-			for (n = 0; n<PT_NUM; n++)
+		}
+		else if(i==SC_LIFE)
+		{
+			int n2;
+			for (n2 = 0; n2<NGOLALT; n2++)
 			{
-				if (ptypes[n].menusection==i&&ptypes[n].menu==1)
+				n = PT_LIFE | (n2<<8);
+				if (x-26<=60)
 				{
-					if (x-26<=60)
-					{
-						x = XRES-BARSIZE-26;
-						y += 19;
-					}
-					x -= draw_tool_xy(vid_buf, x, y, n, ptypes[n].pcolors)+5;
-					if (mx>=x+32 && mx<x+58 && my>=y && my< y+15)
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 255, 0, 0, 255);
-						h = n;
-					}
-					else if (n==*sl)
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 255, 0, 0, 255);
-					}
-					else if (n==*sr)
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 0, 255, 255);
-					}
+					x = XRES-BARSIZE-26;
+					y += 19;
+				}
+				x -= draw_tool_xy(vid_buf, x, y, n, gmenu[n2].colour)+5;
+				if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15)
+				{
+					drawrect(vid_buf, x+30, y-1, 29, 17, 255, 55, 55, 255);
+					h = n;
+				}
+				if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
+				{
+					drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
+					h = n;
+				}
+				else if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
+				{
+					drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 0, 255);
+				}
+				else if (n==sl)
+				{
+					drawrect(vid_buf, x+30, y-1, 29, 17, 255, 55, 55, 255);
+				}
+				else if (n==sr)
+				{
+					drawrect(vid_buf, x+30, y-1, 29, 17, 55, 55, 255, 255);
+				}
+				else if (n==SLALT)
+				{
+					drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
 				}
 			}
 		}
@@ -2206,7 +2248,7 @@ void menu_ui(pixel *vid_buf, int i, int *sl, int *sr)
 		{
 			for (n = 0; n<PT_NUM; n++)
 			{
-				if (ptypes[n].menusection==i&&ptypes[n].menu==1)
+				if (ptypes[n].menusection==i && (ptypes[n].menu==1 || (secret_els && ptypes[n].enabled == 1)))
 				{
 					if (x-26<=60)
 					{
@@ -2214,18 +2256,31 @@ void menu_ui(pixel *vid_buf, int i, int *sl, int *sr)
 						y += 19;
 					}
 					x -= draw_tool_xy(vid_buf, x, y, n, ptypes[n].pcolors)+5;
-					if (mx>=x+32 && mx<x+58 && my>=y && my< y+15)
+					if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15)
 					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 255, 0, 0, 255);
+						drawrect(vid_buf, x+30, y-1, 29, 17, 255, 55, 55, 255);
 						h = n;
 					}
-					else if (n==*sl)
+					if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
 					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 255, 0, 0, 255);
+						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
+						h = n;
 					}
-					else if (n==*sr)
+					else if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
 					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 0, 255, 255);
+						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 0, 255);
+					}
+					else if (n==sl)
+					{
+						drawrect(vid_buf, x+30, y-1, 29, 17, 255, 55, 55, 255);
+					}
+					else if (n==sr)
+					{
+						drawrect(vid_buf, x+30, y-1, 29, 17, 55, 55, 255, 255);
+					}
+					else if (n==SLALT)
+					{
+						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
 					}
 				}
 			}
@@ -2235,9 +2290,13 @@ void menu_ui(pixel *vid_buf, int i, int *sl, int *sr)
 		{
 			drawtext(vid_buf, XRES-textwidth((char *)msections[i].name)-BARSIZE, sy+height+10, (char *)msections[i].name, 255, 255, 255, 255);
 		}
-		else if (i==SC_WALL||(i==SC_SPECIAL&&h>=122))
+		else if (i==SC_WALL||i==SC_TOOL)
 		{
-			drawtext(vid_buf, XRES-textwidth((char *)mwalls[h-122].descs)-BARSIZE, sy+height+10, (char *)mwalls[h-122].descs, 255, 255, 255, 255);
+			drawtext(vid_buf, XRES-textwidth((char *)wtypes[h-UI_WALLSTART].descs)-BARSIZE, sy+height+10, (char *)wtypes[h-UI_WALLSTART].descs, 255, 255, 255, 255);
+		}
+		else if (i==SC_LIFE)
+		{
+			drawtext(vid_buf, XRES-textwidth((char *)gmenu[(h>>8)&0xFF].description)-BARSIZE, sy+height+10, (char *)gmenu[(h>>8)&0xFF].description, 255, 255, 255, 255);
 		}
 		else
 		{
@@ -2254,12 +2313,12 @@ void menu_ui(pixel *vid_buf, int i, int *sl, int *sr)
 
 		if (b==1&&h!=-1)
 		{
-			*sl = h;
+			sl = h;
 			break;
 		}
 		if (b==4&&h!=-1)
 		{
-			*sr = h;
+			sr = h;
 			break;
 		}
 		//if(b==4&&h!=-1) {
@@ -2281,7 +2340,7 @@ void menu_ui(pixel *vid_buf, int i, int *sl, int *sr)
 	}
 	//drawtext(vid_buf, XRES+2, (12*i)+2, msections[i].icon, 255, 255, 255, 255);
 }
-*/
+
 //current menu function
 void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 {
@@ -2380,6 +2439,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 				}
 			}
 		}
+		draw_egg(vid_buf, 400, 250, 2);
 	}
 	else if(i==SC_LIFE)
 	{
@@ -2498,9 +2558,12 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 				h = n+FAV_START;
 			}
 		}
+		draw_egg(vid_buf, 500, 200, 3);
 	}
 	else if (i == SC_HUD) //HUD changer
 	{
+		if (hud_menunum == 2)
+			draw_egg(vid_buf, 470, 320, 11);
 		for (n = 0; n < HUD_NUM; n++)
 		{
 			if (hud_menu[n].menunum == hud_menunum || n == 0)
@@ -2562,6 +2625,8 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 			}
 		}
 	}
+	if (i == SC_CRACKER)
+		draw_egg(vid_buf, 300, 300, 20);
 	if (!bq && mx>=((XRES+BARSIZE)-16) ) //highlight menu section
 		if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
 			if (i>=0&&i<SC_TOTAL)
@@ -3027,6 +3092,8 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 	}
 	else
 	{
+		if  (!(sdl_mod & KMOD_CTRL))
+			draw_egg(vid_buf, 620, 157, 9);
 		while(i < num_tabs + 2 && i < 10)
 		{
 			char num[8];
@@ -3261,6 +3328,10 @@ int sdl_poll(void)
 		}
 	}
 	sdl_mod = SDL_GetModState();
+	mouse_bq = mouse_b; // bq is previous mouse state
+	mouse_b = SDL_GetMouseState(&mouse_x, &mouse_y); // b is current mouse state
+	mouse_x /= sdl_scale;
+	mouse_y /= sdl_scale;
 	return 0;
 }
 
@@ -3599,6 +3670,7 @@ int search_ui(pixel *vid_buf)
 		clearrect(vid_buf, -1, -1, (XRES+BARSIZE)+1, YRES+MENUSIZE+1);
 
 		memcpy(vid_buf, v_buf, ((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
+		draw_egg(vid_buf, 50, 30, 4);
 
 		drawtext(vid_buf, 11, 13, "Search:", 192, 192, 192, 255);
 		if (!last || (!active && strcmp(last, ed.str)))
@@ -3662,6 +3734,7 @@ int search_ui(pixel *vid_buf)
 			fillrect(vid_buf, XRES-130+16, 7, 62, 18, 255, 255, 255, 255);
 			drawtext(vid_buf, XRES-126+16, 11, "\xA6", 32, 32, 32, 255);
 			drawtext(vid_buf, XRES-111+16, 13, "By date", 0, 0, 0, 255);
+			draw_egg(vid_buf, 370, 230, 5);
 		}
 		else
 		{
@@ -3680,7 +3753,10 @@ int search_ui(pixel *vid_buf)
 		else if (page_count > 9)
 		{
 			if (p1_extra)
+			{
 				drawtext(vid_buf, 4, YRES+MENUSIZE-17, "\x85", 255, 255, 255, 255);
+				draw_egg(vid_buf, 600, 300, 6);
+			}
 			else
 				drawtext(vid_buf, 4, YRES+MENUSIZE-17, "\x89", 255, 255, 255, 255);
 			drawrect(vid_buf, 1, YRES+MENUSIZE-20, 15, 15, 255, 255, 255, 255);
@@ -3801,7 +3877,7 @@ int search_ui(pixel *vid_buf)
 					}
 					thumb_drawn[pos] = 1;
 				}
-				own = (svf_login && (!strcmp(svf_user, search_owners[pos]) || svf_admin || svf_mod)) || !strcmp(svf_user, "The-Fall"); //Guess the element winner
+				own = (svf_login && (!strcmp(svf_user, search_owners[pos]) || svf_admin || svf_mod)) || ((unlockedstuff & 0x08)?1:0);
 				if (mx>=gx-2 && mx<=gx+XRES/GRID_S+3 && my>=gy-2 && my<=gy+YRES/GRID_S+30)
 					mp = pos;
 				if ((own || search_fav) && mx>=gx+XRES/GRID_S-4 && mx<=gx+XRES/GRID_S+6 && my>=gy-6 && my<=gy+4)
@@ -3845,7 +3921,7 @@ int search_ui(pixel *vid_buf)
 					}
 					//drawtext(vid_buf, gx-6, gy-6, "\xCE", 212, 151, 81, 255);
 				}
-				if (view_own || svf_admin || svf_mod || !strcmp(svf_user, "The-Fall"))
+				if (view_own || svf_admin || svf_mod || (unlockedstuff & 0x08))
 				{
 					sprintf(ts+1, "%d", search_votes[pos]);
 					ts[0] = 0xBB;
@@ -4021,7 +4097,7 @@ int search_ui(pixel *vid_buf)
 
 		if ((b && !bq && mp!=-1 && !st && !uih) || do_open==1)
 		{
-			if (open_ui(vid_buf, search_ids[mp], search_dates[mp]?search_dates[mp]:NULL)==1 || do_open==1) {
+			if (open_ui(vid_buf, search_ids[mp], search_dates[mp]?search_dates[mp]:NULL, (b==4 && (unlockedstuff&0x04)))==1 || do_open==1) {
 				goto finish;
 			}
 		}
@@ -4055,7 +4131,7 @@ int search_ui(pixel *vid_buf)
 			last_p1_extra = p1_extra;
 			active = 1;
 			uri = malloc(strlen(last)*3+180+strlen(SERVER)+strlen(svf_user)+20); //Increase "padding" from 80 to 180 to fix the search memory corruption bug
-			if (search_own || svf_admin || svf_mod)
+			if (search_own || svf_admin || svf_mod || (unlockedstuff&0x08))
 				tmp = "&ShowVotes=true";
 			else
 				tmp = "";
@@ -4107,7 +4183,7 @@ int search_ui(pixel *vid_buf)
 			view_own = last_own;
 			if (status == 200)
 			{
-				page_count = search_results(results, last_own||svf_admin||svf_mod);
+				page_count = search_results(results, last_own||svf_admin||svf_mod||(unlockedstuff&0x08));
 				memset(thumb_drawn, 0, sizeof(thumb_drawn));
 				memset(v_buf, 0, ((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 				nmp = -1;
@@ -4325,7 +4401,7 @@ int report_ui(pixel* vid_buf, char *save_id)
 	return 0;
 }
 
-int open_ui(pixel *vid_buf, char *save_id, char *save_date)
+int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 {
 	int b=1,bq,mx,my,ca=0,thumb_w,thumb_h,active=0,active_2=0,active_3=0,cc=0,ccy=0,cix=0,hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1;
 	int nyd,nyu,ry,lv;
@@ -4456,7 +4532,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date)
 	}
 	http = http_async_req_start(http, uri, NULL, 0, 1);
 	http_2 = http_async_req_start(http_2, uri_2, NULL, 0, 1);
-	http_3 = http_async_req_start(http_3, uri_3, NULL, 0, 1);
+	if (!instant_open)
+		http_3 = http_async_req_start(http_3, uri_3, NULL, 0, 1);
 	if (svf_login)
 	{
 		http_auth_headers(http, svf_user_id, NULL, svf_session_id);
@@ -4464,13 +4541,16 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date)
 	}
 	http_last_use = time(NULL);
 	http_last_use_2 = time(NULL);
-	http_last_use_3 = time(NULL);
 	free(uri);
 	free(uri_2);
-	free(uri_3);
 	active = 1;
 	active_2 = 1;
-	active_3 = 1;
+	if (!instant_open)
+	{
+		http_last_use_3 = time(NULL);
+		free(uri_3);
+		active_3 = 1;
+	}
 	while (!sdl_poll())
 	{
 		bq = b;
@@ -4523,7 +4603,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date)
 			free(http_2);
 			http_2 = NULL;
 		}
-		if (active_3 && http_async_req_status(http_3))
+		if (!instant_open && active_3 && http_async_req_status(http_3))
 		{
 			int imgh, imgw, nimgh, nimgw;
 			http_last_use_3 = time(NULL);
@@ -4549,233 +4629,236 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date)
 			free(http_3);
 			http_3 = NULL;
 		}
-		if (save_pic_thumb!=NULL && !hasdrawncthumb) {
-			draw_image(vid_buf, save_pic_thumb, 51, 51, XRES/2, YRES/2, 255);
-			free(save_pic_thumb);
-			save_pic_thumb = NULL;		
-			hasdrawncthumb = 1;
-			memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
-		}
-		if (thumb_data_ready && !hasdrawnthumb) {
-			draw_image(vid_buf, save_pic, 51, 51, XRES/2, YRES/2, 255);
-			free(save_pic);
-			save_pic = NULL;
-			hasdrawnthumb = 1;
-			memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
-		}
-		if (info_ready && !hasdrawninfo) {
-			//Render all the save information
-			cix = drawtext(vid_buf, 60, (YRES/2)+60, info->name, 255, 255, 255, 255);
-			cix = drawtext(vid_buf, 60, (YRES/2)+72, "Author:", 255, 255, 255, 155);
-			cix = drawtext(vid_buf, cix+4, (YRES/2)+72, info->author, 255, 255, 255, 255);
-			cix = drawtext(vid_buf, cix+4, (YRES/2)+72, "Date:", 255, 255, 255, 155);
-			cix = drawtext(vid_buf, cix+4, (YRES/2)+72, info->date, 255, 255, 255, 255);
-			if(info->downloadcount){
-				drawtext(vid_buf, 48+(XRES/2)-textwidth(viewcountbuffer)-textwidth("Views:")-4, (YRES/2)+72, "Views:", 255, 255, 255, 155);
-				drawtext(vid_buf, 48+(XRES/2)-textwidth(viewcountbuffer), (YRES/2)+72, viewcountbuffer, 255, 255, 255, 255);
+		if (!instant_open)
+		{
+			if (save_pic_thumb!=NULL && !hasdrawncthumb) {
+				draw_image(vid_buf, save_pic_thumb, 51, 51, XRES/2, YRES/2, 255);
+				free(save_pic_thumb);
+				save_pic_thumb = NULL;		
+				hasdrawncthumb = 1;
+				memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 			}
-			drawtextwrap(vid_buf, 62, (YRES/2)+86, (XRES/2)-24, info->description, 255, 255, 255, 200);
-
-			//Draw the score bars
-			if (info->voteup>0||info->votedown>0)
-			{
-				lv = (info->voteup>info->votedown)?info->voteup:info->votedown;
-				lv = (lv>10)?lv:10;
-
-				if (50>lv)
-				{
-					ryf = 50.0f/((float)lv);
-					//if(lv<8)
-					//{
-					//	ry =  ry/(8-lv);
-					//}
-					nyu = (int)(info->voteup*ryf);
-					nyd = (int)(info->votedown*ryf);
-				}
-				else
-				{
-					ryf = ((float)lv)/50.0f;
-					nyu = (int)(info->voteup/ryf);
-					nyd = (int)(info->votedown/ryf);
-				}
-				nyu = nyu>50?50:nyu;
-				nyd = nyd>50?50:nyd;
-
-				fillrect(vid_buf, 48+(XRES/2)-51, (YRES/2)+53, 52, 6, 0, 107, 10, 255);
-				fillrect(vid_buf, 48+(XRES/2)-51, (YRES/2)+59, 52, 6, 107, 10, 0, 255);
-				drawrect(vid_buf, 48+(XRES/2)-51, (YRES/2)+53, 52, 6, 128, 128, 128, 255);
-				drawrect(vid_buf, 48+(XRES/2)-51, (YRES/2)+59, 52, 6, 128, 128, 128, 255);
-
-				fillrect(vid_buf, 48+(XRES/2)-nyu, (YRES/2)+54, nyu, 4, 57, 187, 57, 255);
-				fillrect(vid_buf, 48+(XRES/2)-nyd, (YRES/2)+60, nyd, 4, 187, 57, 57, 255);
+			if (thumb_data_ready && !hasdrawnthumb) {
+				draw_image(vid_buf, save_pic, 51, 51, XRES/2, YRES/2, 255);
+				free(save_pic);
+				save_pic = NULL;
+				hasdrawnthumb = 1;
+				memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 			}
+			if (info_ready && !hasdrawninfo) {
+				//Render all the save information
+				cix = drawtext(vid_buf, 60, (YRES/2)+60, info->name, 255, 255, 255, 255);
+				cix = drawtext(vid_buf, 60, (YRES/2)+72, "Author:", 255, 255, 255, 155);
+				cix = drawtext(vid_buf, cix+4, (YRES/2)+72, info->author, 255, 255, 255, 255);
+				cix = drawtext(vid_buf, cix+4, (YRES/2)+72, "Date:", 255, 255, 255, 155);
+				cix = drawtext(vid_buf, cix+4, (YRES/2)+72, info->date, 255, 255, 255, 255);
+				if(info->downloadcount){
+					drawtext(vid_buf, 48+(XRES/2)-textwidth(viewcountbuffer)-textwidth("Views:")-4, (YRES/2)+72, "Views:", 255, 255, 255, 155);
+					drawtext(vid_buf, 48+(XRES/2)-textwidth(viewcountbuffer), (YRES/2)+72, viewcountbuffer, 255, 255, 255, 255);
+				}
+				drawtextwrap(vid_buf, 62, (YRES/2)+86, (XRES/2)-24, info->description, 255, 255, 255, 200);
 
-			ccy = 0;
-			for (cc=0; cc<info->comment_count; cc++) {
-				if ((ccy + 72 + ((textwidth(info->comments[cc])/(XRES+BARSIZE-100-((XRES/2)+1)-20)))*12)<(YRES+MENUSIZE-50)) {
-					drawtext(vid_buf, 60+(XRES/2)+1, ccy+60, info->commentauthors[cc], 255, 255, 255, 255);
-					ccy += 12;
-					ccy += drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60, XRES+BARSIZE-100-((XRES/2)+1)-20, info->comments[cc], 255, 255, 255, 185);
-					ccy += 10;
-					if (ccy+52<YRES+MENUSIZE-50) { //Try not to draw off the screen.
-						draw_line(vid_buf, 50+(XRES/2)+2, ccy+52, XRES+BARSIZE-50, ccy+52, 100, 100, 100, XRES+BARSIZE);
+				//Draw the score bars
+				if (info->voteup>0||info->votedown>0)
+				{
+					lv = (info->voteup>info->votedown)?info->voteup:info->votedown;
+					lv = (lv>10)?lv:10;
+
+					if (50>lv)
+					{
+						ryf = 50.0f/((float)lv);
+						//if(lv<8)
+						//{
+						//	ry =  ry/(8-lv);
+						//}
+						nyu = (int)(info->voteup*ryf);
+						nyd = (int)(info->votedown*ryf);
+					}
+					else
+					{
+						ryf = ((float)lv)/50.0f;
+						nyu = (int)(info->voteup/ryf);
+						nyd = (int)(info->votedown/ryf);
+					}
+					nyu = nyu>50?50:nyu;
+					nyd = nyd>50?50:nyd;
+
+					fillrect(vid_buf, 48+(XRES/2)-51, (YRES/2)+53, 52, 6, 0, 107, 10, 255);
+					fillrect(vid_buf, 48+(XRES/2)-51, (YRES/2)+59, 52, 6, 107, 10, 0, 255);
+					drawrect(vid_buf, 48+(XRES/2)-51, (YRES/2)+53, 52, 6, 128, 128, 128, 255);
+					drawrect(vid_buf, 48+(XRES/2)-51, (YRES/2)+59, 52, 6, 128, 128, 128, 255);
+
+					fillrect(vid_buf, 48+(XRES/2)-nyu, (YRES/2)+54, nyu, 4, 57, 187, 57, 255);
+					fillrect(vid_buf, 48+(XRES/2)-nyd, (YRES/2)+60, nyd, 4, 187, 57, 57, 255);
+				}
+
+				ccy = 0;
+				for (cc=0; cc<info->comment_count; cc++) {
+					if ((ccy + 72 + ((textwidth(info->comments[cc])/(XRES+BARSIZE-100-((XRES/2)+1)-20)))*12)<(YRES+MENUSIZE-50)) {
+						drawtext(vid_buf, 60+(XRES/2)+1, ccy+60, info->commentauthors[cc], 255, 255, 255, 255);
+						ccy += 12;
+						ccy += drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60, XRES+BARSIZE-100-((XRES/2)+1)-20, info->comments[cc], 255, 255, 255, 185);
+						ccy += 10;
+						if (ccy+52<YRES+MENUSIZE-50) { //Try not to draw off the screen.
+							draw_line(vid_buf, 50+(XRES/2)+2, ccy+52, XRES+BARSIZE-50, ccy+52, 100, 100, 100, XRES+BARSIZE);
+						}
 					}
 				}
+				hasdrawninfo = 1;
+				myown = svf_login && !strcmp(info->author, svf_user);
+				authoritah = svf_login && (!strcmp(info->author, svf_user) || svf_admin || svf_mod);
+				memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 			}
-			hasdrawninfo = 1;
-			myown = svf_login && !strcmp(info->author, svf_user);
-			authoritah = svf_login && (!strcmp(info->author, svf_user) || svf_admin || svf_mod);
-			memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
-		}
-		if (info_ready && svf_login) {
-			//Render the comment box.
-			fillrect(vid_buf, 50+(XRES/2)+1, YRES+MENUSIZE-125, XRES+BARSIZE-100-((XRES/2)+1), 75, 0, 0, 0, 255);
-			drawrect(vid_buf, 50+(XRES/2)+1, YRES+MENUSIZE-125, XRES+BARSIZE-100-((XRES/2)+1), 75, 200, 200, 200, 255);
+			if (info_ready && svf_login) {
+				//Render the comment box.
+				fillrect(vid_buf, 50+(XRES/2)+1, YRES+MENUSIZE-125, XRES+BARSIZE-100-((XRES/2)+1), 75, 0, 0, 0, 255);
+				drawrect(vid_buf, 50+(XRES/2)+1, YRES+MENUSIZE-125, XRES+BARSIZE-100-((XRES/2)+1), 75, 200, 200, 200, 255);
 
-			drawrect(vid_buf, 54+(XRES/2)+1, YRES+MENUSIZE-121, XRES+BARSIZE-108-((XRES/2)+1), 48, 255, 255, 255, 200);
+				drawrect(vid_buf, 54+(XRES/2)+1, YRES+MENUSIZE-121, XRES+BARSIZE-108-((XRES/2)+1), 48, 255, 255, 255, 200);
 
-			ui_edit_draw(vid_buf, &ed);
+				ui_edit_draw(vid_buf, &ed);
 
-			drawrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 255);
-			drawtext(vid_buf, XRES+BARSIZE-90, YRES+MENUSIZE-63, "Submit", 255, 255, 255, 255);
-		}
+				drawrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 255);
+				drawtext(vid_buf, XRES+BARSIZE-90, YRES+MENUSIZE-63, "Submit", 255, 255, 255, 255);
+			}
 
-		//Save ID text and copybox
-		cix = textwidth("Save ID: ");
-		cix += ctb.width;
-		ctb.x = textwidth("Save ID: ")+(XRES+BARSIZE-cix)/2;
-		//ctb.x =
-		drawtext(vid_buf, (XRES+BARSIZE-cix)/2, YRES+MENUSIZE-15, "Save ID: ", 255, 255, 255, 255);
-		ui_copytext_draw(vid_buf, &ctb);
-		ui_copytext_process(mx, my, b, bq, &ctb);
+			//Save ID text and copybox
+			cix = textwidth("Save ID: ");
+			cix += ctb.width;
+			ctb.x = textwidth("Save ID: ")+(XRES+BARSIZE-cix)/2;
+			//ctb.x =
+			drawtext(vid_buf, (XRES+BARSIZE-cix)/2, YRES+MENUSIZE-15, "Save ID: ", 255, 255, 255, 255);
+			ui_copytext_draw(vid_buf, &ctb);
+			ui_copytext_process(mx, my, b, bq, &ctb);
 
-		//Open Button
-		bc = openable?255:150;
-		drawrect(vid_buf, 50, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, bc);
-		drawtext(vid_buf, 73, YRES+MENUSIZE-63, "Open", 255, 255, 255, bc);
-		drawtext(vid_buf, 58, YRES+MENUSIZE-64, "\x81", 255, 255, 255, bc);
-		//Fav Button
-		bc = svf_login?255:150;
-		drawrect(vid_buf, 100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, bc);
-		if(info->myfav && svf_login){
-			drawtext(vid_buf, 122, YRES+MENUSIZE-63, "Unfav.", 255, 230, 230, bc);
-		} else {
-			drawtext(vid_buf, 122, YRES+MENUSIZE-63, "Fav.", 255, 255, 255, bc);
-		}
-		drawtext(vid_buf, 107, YRES+MENUSIZE-64, "\xCC", 255, 255, 255, bc);
-		//Report Button
-		bc = (svf_login && info_ready)?255:150;
-		drawrect(vid_buf, 150, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, bc);
-		drawtext(vid_buf, 168, YRES+MENUSIZE-63, "Report", 255, 255, 255, bc);
-		drawtext(vid_buf, 158, YRES+MENUSIZE-63, "!", 255, 255, 255, bc);
-		//Delete Button
-		bc = authoritah?255:150;
-		drawrect(vid_buf, 200, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, bc);
-		drawtext(vid_buf, 218, YRES+MENUSIZE-63, "Delete", 255, 255, 255, bc);
-		drawtext(vid_buf, 206, YRES+MENUSIZE-64, "\xAA", 255, 255, 255, bc);
-		//Open in browser button
-		bc = 255;
-		drawrect(vid_buf, 250, YRES+MENUSIZE-68, 107, 18, 255, 255, 255, bc);
-		drawtext(vid_buf, 273, YRES+MENUSIZE-63, "Open in Browser", 255, 255, 255, bc);
-		drawtext(vid_buf, 258, YRES+MENUSIZE-64, "\x81", 255, 255, 255, bc);
+			//Open Button
+			bc = openable?255:150;
+			drawrect(vid_buf, 50, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, bc);
+			drawtext(vid_buf, 73, YRES+MENUSIZE-63, "Open", 255, 255, 255, bc);
+			drawtext(vid_buf, 58, YRES+MENUSIZE-64, "\x81", 255, 255, 255, bc);
+			//Fav Button
+			bc = svf_login?255:150;
+			drawrect(vid_buf, 100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, bc);
+			if(info->myfav && svf_login){
+				drawtext(vid_buf, 122, YRES+MENUSIZE-63, "Unfav.", 255, 230, 230, bc);
+			} else {
+				drawtext(vid_buf, 122, YRES+MENUSIZE-63, "Fav.", 255, 255, 255, bc);
+			}
+			drawtext(vid_buf, 107, YRES+MENUSIZE-64, "\xCC", 255, 255, 255, bc);
+			//Report Button
+			bc = (svf_login && info_ready)?255:150;
+			drawrect(vid_buf, 150, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, bc);
+			drawtext(vid_buf, 168, YRES+MENUSIZE-63, "Report", 255, 255, 255, bc);
+			drawtext(vid_buf, 158, YRES+MENUSIZE-63, "!", 255, 255, 255, bc);
+			//Delete Button
+			bc = authoritah?255:150;
+			drawrect(vid_buf, 200, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, bc);
+			drawtext(vid_buf, 218, YRES+MENUSIZE-63, "Delete", 255, 255, 255, bc);
+			drawtext(vid_buf, 206, YRES+MENUSIZE-64, "\xAA", 255, 255, 255, bc);
+			//Open in browser button
+			bc = 255;
+			drawrect(vid_buf, 250, YRES+MENUSIZE-68, 107, 18, 255, 255, 255, bc);
+			drawtext(vid_buf, 273, YRES+MENUSIZE-63, "Open in Browser", 255, 255, 255, bc);
+			drawtext(vid_buf, 258, YRES+MENUSIZE-64, "\x81", 255, 255, 255, bc);
 
-		//Open Button
-		if (sdl_key==SDLK_RETURN && openable) {
-			queue_open = 1;
-		}
-		if (mx > 50 && mx < 50+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && openable && !queue_open) {
-			fillrect(vid_buf, 50, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
-			if (b && !bq) {
-				//Button Clicked
+			//Open Button
+			if (sdl_key==SDLK_RETURN && openable) {
 				queue_open = 1;
 			}
-		}
-		//Fav Button
-		if (mx > 100 && mx < 100+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && !queue_open) {
-			fillrect(vid_buf, 100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
-			if (b && !bq) {
-				//Button Clicked
-				if(info->myfav){
-					fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
-					info_box(vid_buf, "Removing from favourites...");
-					execute_unfav(vid_buf, save_id);
-					info->myfav = 0;
-				} else {
-					fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
-					info_box(vid_buf, "Adding to favourites...");
-					execute_fav(vid_buf, save_id);
-					info->myfav = 1;
+			if (mx > 50 && mx < 50+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && openable && !queue_open) {
+				fillrect(vid_buf, 50, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
+				if (b && !bq) {
+					//Button Clicked
+					queue_open = 1;
 				}
 			}
-		}
-		//Report Button
-		if (mx > 150 && mx < 150+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && info_ready && !queue_open) {
-			fillrect(vid_buf, 150, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
-			if (b && !bq) {
-				//Button Clicked
-				if (report_ui(vid_buf, save_id)) {
-					retval = 0;
-					break;
-				}
-			}
-		}
-		//Delete Button
-		if (mx > 200 && mx < 200+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && (authoritah || myown) && !queue_open) {
-			fillrect(vid_buf, 200, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
-			if (b && !bq) {
-				//Button Clicked
-				if (myown || !info->publish) {
-					if (confirm_ui(vid_buf, "Are you sure you wish to delete this?", "You will not be able recover it.", "Delete")) {
+			//Fav Button
+			if (mx > 100 && mx < 100+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && !queue_open) {
+				fillrect(vid_buf, 100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
+				if (b && !bq) {
+					//Button Clicked
+					if(info->myfav){
 						fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
-						info_box(vid_buf, "Deleting...");
-						if (execute_delete(vid_buf, save_id)) {
-							retval = 0;
-							break;
-						}
-					}
-				} else {
-					if (confirm_ui(vid_buf, "Are you sure?", "This save will be removed from the search index.", "Remove")) {
+						info_box(vid_buf, "Removing from favourites...");
+						execute_unfav(vid_buf, save_id);
+						info->myfav = 0;
+					} else {
 						fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
-						info_box(vid_buf, "Removing...");
-						if (execute_delete(vid_buf, save_id)) {
-							retval = 0;
-							break;
-						}
+						info_box(vid_buf, "Adding to favourites...");
+						execute_fav(vid_buf, save_id);
+						info->myfav = 1;
 					}
 				}
 			}
-		}
-		//Open in browser button
-		if (mx > 250 && mx < 250+107 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50  && !queue_open) {
-			fillrect(vid_buf, 250, YRES+MENUSIZE-68, 107, 18, 255, 255, 255, 40);
-			if (b && !bq) {
-				//Button Clicked
-				o_uri = malloc(7+strlen(SERVER)+41+strlen(save_id)*3);
-				strcpy(o_uri, "http://" SERVER "/Browse/View.html?ID=");
-				strcaturl(o_uri, save_id);
-				open_link(o_uri);
-				free(o_uri);
+			//Report Button
+			if (mx > 150 && mx < 150+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && info_ready && !queue_open) {
+				fillrect(vid_buf, 150, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
+				if (b && !bq) {
+					//Button Clicked
+					if (report_ui(vid_buf, save_id)) {
+						retval = 0;
+						break;
+					}
+				}
 			}
-		}
-		//Submit Button
-		if (mx > XRES+BARSIZE-100 && mx < XRES+BARSIZE-100+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && info_ready && !queue_open) {
-			fillrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
-			if (b && !bq) {
-				//Button Clicked
-				fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
-				info_box(vid_buf, "Submitting Comment...");
-				execute_submit(vid_buf, save_id, ed.str);
-				ed.str[0] = 0;
+			//Delete Button
+			if (mx > 200 && mx < 200+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && (authoritah || myown) && !queue_open) {
+				fillrect(vid_buf, 200, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
+				if (b && !bq) {
+					//Button Clicked
+					if (myown || !info->publish) {
+						if (confirm_ui(vid_buf, "Are you sure you wish to delete this?", "You will not be able recover it.", "Delete")) {
+							fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
+							info_box(vid_buf, "Deleting...");
+							if (execute_delete(vid_buf, save_id)) {
+								retval = 0;
+								break;
+							}
+						}
+					} else {
+						if (confirm_ui(vid_buf, "Are you sure?", "This save will be removed from the search index.", "Remove")) {
+							fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
+							info_box(vid_buf, "Removing...");
+							if (execute_delete(vid_buf, save_id)) {
+								retval = 0;
+								break;
+							}
+						}
+					}
+				}
 			}
-		}
-		//If mouse was clicked outsite of the window bounds.
-		if (!(mx>50 && my>50 && mx<XRES+BARSIZE-50 && my<YRES+MENUSIZE-50) && b && !queue_open && my<YRES+MENUSIZE-21) {
-			retval = 0;
-			break;
+			//Open in browser button
+			if (mx > 250 && mx < 250+107 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50  && !queue_open) {
+				fillrect(vid_buf, 250, YRES+MENUSIZE-68, 107, 18, 255, 255, 255, 40);
+				if (b && !bq) {
+					//Button Clicked
+					o_uri = malloc(7+strlen(SERVER)+41+strlen(save_id)*3);
+					strcpy(o_uri, "http://" SERVER "/Browse/View.html?ID=");
+					strcaturl(o_uri, save_id);
+					open_link(o_uri);
+					free(o_uri);
+				}
+			}
+			//Submit Button
+			if (mx > XRES+BARSIZE-100 && mx < XRES+BARSIZE-100+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && info_ready && !queue_open) {
+				fillrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
+				if (b && !bq) {
+					//Button Clicked
+					fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
+					info_box(vid_buf, "Submitting Comment...");
+					execute_submit(vid_buf, save_id, ed.str);
+					ed.str[0] = 0;
+				}
+			}
+			//If mouse was clicked outsite of the window bounds.
+			if (!(mx>50 && my>50 && mx<XRES+BARSIZE-50 && my<YRES+MENUSIZE-50) && b && !queue_open && my<YRES+MENUSIZE-21) {
+				retval = 0;
+				break;
+			}
 		}
 
 		//User opened the save, wait until we've got all the data first...
-		if (queue_open) {
+		if (queue_open || instant_open) {
 			if (info_ready && data_ready) {
 				// Do Open!
 				status = parse_save(data, data_size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
@@ -4804,6 +4887,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date)
 					svf_filename[0] = 0;
 					svf_fileopen = 0;
 					retval = 1;
+					last_save_id = (char*)malloc(sizeof(save_id));
+					sprintf(last_save_id, "%s", save_id);
 					break;
 				} else {
 					queue_open = 0;
@@ -5694,6 +5779,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 
 		memcpy(vid_buf,old_buf,(XRES+BARSIZE)*YRES*PIXELSIZE);
 		draw_line(vid_buf, 0, 219, XRES+BARSIZE-1, 219, 228, 228, 228, XRES+BARSIZE);
+		draw_egg(vid_buf, 90, 300, 7);
 #ifdef PYCONSOLE
 		if (pygood)
 			i=255;
@@ -5939,6 +6025,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 			box_G.x = XRES - 254 + 40;
 			box_B.x = XRES - 254 + 75;
 			box_A.x = XRES - 254 + 110;
+			draw_egg(vid_buf, 75, 75, 8);
 		}
 		if (zoom_en && mx>=zoom_wx && my>=zoom_wy //change mouse position while it is in a zoom window
 		        && mx<(zoom_wx+ZFACTOR*ZSIZE)
@@ -6784,6 +6871,8 @@ void catalogue_ui(pixel * vid_buf)
 		mx /= sdl_scale;
 		my /= sdl_scale;
 		sprintf(savetext, "Found %d save%s", rescount, rescount==1?"":"s");
+
+		draw_egg(vid_buf, 550, 105, 14);
 		clearrect(vid_buf, x0-2, y0-2, xsize+4, ysize+4);
 		clearrect(vid_buf2, x0-2, y0-2, xsize+4, ysize+4);
 		drawrect(vid_buf, x0, y0, xsize, ysize, 192, 192, 192, 255);
@@ -7138,6 +7227,8 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 		{
 			draw_menu(vid_buf, i, active_menu);
 		}
+		if (display_mode & DISPLAY_BLOB)
+			draw_egg(vid_buf, 456, 123, 13);
 		
 		clearrect(vid_buf, xcoord-2, ycoord-2, xsize+4, ysize+4);
 		drawrect(vid_buf, xcoord, ycoord, xsize, ysize, 192, 192, 192, 255);

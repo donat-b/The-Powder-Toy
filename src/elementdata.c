@@ -38,7 +38,7 @@ part_type ptypes[PT_NUM] =
 	{"DSTW",	PIXPACK(0x1020C0),	0.6f,	0.01f * CFDS,	0.98f,	0.95f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	2,	0,		0,	0,	20,	1,	1,	30,		SC_LIQUID,		R_TEMP-2.0f	+273.15f,	23,		"Distilled water, does not conduct electricity.", ST_LIQUID, TYPE_LIQUID|PROP_NEUTPENETRATE, &update_DSTW, NULL},
 	{"SALT",	PIXPACK(0xFFFFFF),	0.4f,	0.04f * CFDS,	0.94f,	0.95f,	-0.1f,	0.3f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	5,	1,	1,	1,	75,		SC_POWDERS,		R_TEMP+0.0f	+273.15f,	110,	"Salt, dissolves in water.", ST_SOLID, TYPE_PART, NULL, NULL},
 	{"SLTW",	PIXPACK(0x4050F0),	0.6f,	0.01f * CFDS,	0.98f,	0.95f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	2,	0,		0,	0,	20,	1,	1,	35,		SC_LIQUID,		R_TEMP+0.0f	+273.15f,	75,		"Saltwater, conducts electricity, difficult to freeze.", ST_LIQUID, TYPE_LIQUID|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_NEUTPENETRATE, &update_SLTW, NULL},
-	{"DMND",	PIXPACK(0xCCFFFF),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	501,	SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	186,	"Diamond. Indestructible.", ST_SOLID, TYPE_SOLID|PROP_INDESTRUCTIBLE, NULL, NULL},
+	{"DMND",	PIXPACK(0xCCFFFF),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	186,	"Diamond. Indestructible.", ST_SOLID, TYPE_SOLID|PROP_INDESTRUCTIBLE, NULL, NULL},
 	{"BMTL",	PIXPACK(0x505070),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	1,	1,	1,	100,	SC_SOLIDS,		R_TEMP+0.0f	+273.15f,	251,	"Breakable metal.", ST_SOLID, TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW, &update_BMTL, NULL},
 	{"BRMT",	PIXPACK(0x705060),	0.4f,	0.04f * CFDS,	0.94f,	0.95f,	-0.1f,	0.3f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	2,	2,	1,	1,	90,		SC_POWDERS,		R_TEMP+0.0f	+273.15f,	211,	"Broken metal.", ST_SOLID, TYPE_PART|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW, &update_BRMT, NULL},
 	{"PHOT",	PIXPACK(0xFFFFFF),	0.0f,	0.00f * CFDS,	1.00f,	1.00f,	-0.99f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	-1,		SC_NUCLEAR,		R_TEMP+900.0f+273.15f,	251,	"Photons. Travel in straight lines.", ST_GAS, TYPE_ENERGY|PROP_LIFE_DEC|PROP_LIFE_KILL_DEC, &update_PHOT, &graphics_PHOT},
@@ -174,7 +174,7 @@ part_type ptypes[PT_NUM] =
 	//Mod elements past this point
 	{"BALL",	PIXPACK(0x0010A0),	0.7f,	0.02f * CFDS,	0.96f,	0.80f,	0.00f,	0.1f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	30,	1,	1,	85,		SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	70,		"Moving solid. Acts like a bouncy ball", ST_NONE, TYPE_PART, &update_MOVS, NULL},
 	{"ANIM",	PIXPACK(0x505050),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	1,	1,	1,	100,	SC_POWERED,		R_TEMP+0.0f	+273.15f,	0,		"Animated Liquid Crystal", ST_SOLID, TYPE_SOLID, &update_ANIM, NULL},
-	{"INDI",	PIXPACK(0xCCCCCC),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	501,	SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	0,		"Indestructible Insulator", ST_SOLID, TYPE_SOLID|PROP_INDESTRUCTIBLE, NULL, NULL},
+	{"INDI",	PIXPACK(0xCCCCCC),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	0,		"Indestructible Insulator", ST_SOLID, TYPE_SOLID|PROP_INDESTRUCTIBLE, NULL, NULL},
 	{"OTWR",	PIXPACK(0x604040),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	1,	1,	1,	100,	SC_ELEC,		R_TEMP+0.0f	+273.15f,	251,	"One Time Wire", ST_SOLID, TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW, NULL, NULL},
 	{"PPTI",	PIXPACK(0xEB5917),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	-0.005f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_POWERED,		R_TEMP+0.0f	+273.15f,	0,		"Powered Portal IN.  Things go in here, now with channels (same as WIFI)", ST_SOLID, TYPE_SOLID|PROP_POWERED, &update_PRTI, &graphics_PPTI},
 	{"PPTO",	PIXPACK(0x0020EB),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.005f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_POWERED,		R_TEMP	+273.15f,   	0,		"Powered Portal OUT.  Things come out here, now with channels (same as WIFI)", ST_SOLID, TYPE_SOLID|PROP_POWERED, &update_PRTO, &graphics_PPTO},
@@ -187,6 +187,7 @@ part_type ptypes[PT_NUM] =
 	{"RAZR",	PIXPACK(0xC0C0C0),	0.7f,	0.07f * CFDS,	0.97f,	0.00f,	0.0f,	1.5f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	0,	0,	1,	1,	500,	SC_POWDERS,		R_TEMP+0.0f	+273.15f,	50,		"Heavy silver particles", ST_SOLID, TYPE_PART, NULL, NULL},
 	{"COND",	PIXPACK(0xFE7207),	0.0f,	0.00f * CFDS,	0.85f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	0,	1,	1,	100,	SC_ELEC,		R_TEMP+0.0f	+273.15f,	251,	"Conducts electricity. Customizable with tmp and tmp2", ST_SOLID, TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC, NULL, NULL},
 	{"PWHT",	PIXPACK(0x381D7C),	0.0f,	0.00f * CFDS,	0.97f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	0,	1,	1,	100,	SC_POWERED,		R_TEMP+0.0f	+273.15f,	0,		"Powered Heater. Flood fill heats particles to it's temp. Use only one", ST_NONE, TYPE_SOLID|PROP_POWERED, &update_PWHT, &graphics_PWHT},
+	{"EXPL",	PIXPACK(0xFEA713),	0.6f,	0.10f * CFDS,	0.96f,	0.95f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	0,	0,	0,	0,	99,		SC_EXPLOSIVE,	R_TEMP-2.0f	+273.15f,	29,		"Explosion, causes everything it touches to explode", ST_SOLID, TYPE_PART|PROP_SPARKSETTLE|PROP_INDESTRUCTIBLE, &update_EXPL, &graphics_EXPL},
 	//Name		Colour				Advec	Airdrag			Airloss	Loss	Collid	Grav	Diffus	Hotair			Fal	Burn	Exp	Mel	Hrd M	Use	Weight	Section			H						Ins		Description
 };
 
@@ -432,6 +433,7 @@ part_transition ptransitions[PT_NUM] =
 	/* RAZR */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* COND */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* PWHT */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* EXPL */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 };
 
 part_type ptypes2[PT_NUM];

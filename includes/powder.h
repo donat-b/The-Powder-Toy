@@ -233,7 +233,8 @@
 #define PT_RAZR PT_NORMAL_NUM+12
 #define PT_COND PT_NORMAL_NUM+13
 #define PT_PWHT PT_NORMAL_NUM+14
-#define PT_NUM 176
+#define PT_EXPL PT_NORMAL_NUM+15
+#define PT_NUM 177
 
 #define FAV_START 300
 #define FAV_MORE 300
@@ -285,8 +286,9 @@
 #define PROP_POWERED		0x100000//2^20 Makes an element turn on/off with PSCN/NSCN
 #define PROP_SPARKSETTLE	0x200000//2^21 Allow Sparks/Embers to settle
 
-#define FLAG_STAGNANT	1
+#define FLAG_STAGNANT	0x1
 #define FLAG_SKIPMOVE	0x2 // skip movement for one frame, only implemented for PHOT
+#define FLAG_EXPLODE	0x4 // EXPL explosion
 
 #define GRAPHICS_FUNC_ARGS particle *cpart, int nx, int ny, int *pixel_mode, int* cola, int *colr, int *colg, int *colb, int *firea, int *firer, int *fireg, int *fireb
 #define GRAPHICS_FUNC_SUBCALL_ARGS cpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb
@@ -363,6 +365,7 @@ int graphics_PINV(GRAPHICS_FUNC_ARGS);
 int graphics_PPTI(GRAPHICS_FUNC_ARGS);
 int graphics_PPTO(GRAPHICS_FUNC_ARGS);
 int graphics_PWHT(GRAPHICS_FUNC_ARGS);
+int graphics_EXPL(GRAPHICS_FUNC_ARGS);
 
 #define UPDATE_FUNC_ARGS int i, int x, int y, int surround_space, int nt
 // to call another update function with same arguments:
@@ -410,6 +413,7 @@ int update_DLAY(UPDATE_FUNC_ARGS);
 int update_DSTW(UPDATE_FUNC_ARGS);
 int update_ELEC(UPDATE_FUNC_ARGS);
 int update_EMP(UPDATE_FUNC_ARGS);
+int update_EXPL(UPDATE_FUNC_ARGS);
 int update_FIGH(UPDATE_FUNC_ARGS);
 int update_FOG(UPDATE_FUNC_ARGS);
 int update_FRAY(UPDATE_FUNC_ARGS);

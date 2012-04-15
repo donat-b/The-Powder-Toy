@@ -50,7 +50,7 @@ typedef struct menu_wall menu_wall;
 #define SC_CRACKER 14
 #define SC_FAV2 15
 #define SC_HUD 16
-#define SC_TOTAL 14
+extern int SC_TOTAL;
 
 static menu_section msections[] = //doshow does not do anything currently.
 {
@@ -297,7 +297,7 @@ int save_name_ui(pixel *vid_buf);
 
 int save_filename_ui(pixel *vid_buf);
 
-void menu_ui(pixel *vid_buf, int i, int *sl, int *sr);
+void menu_ui(pixel *vid_buf, int i);
 
 void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my);
 
@@ -311,7 +311,7 @@ char *download_ui(pixel *vid_buf, char *uri, int *len);
 
 int search_ui(pixel *vid_buf);
 
-int open_ui(pixel *vid_buf, char *save_id, char *save_date);
+int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open);
 
 void catalogue_ui(pixel * vid_buf);
 

@@ -207,6 +207,22 @@ void save_presets(int do_update)
 	cJSON_AddNumberToObject(root, "ngrav_enable", ngrav_enable);
 	cJSON_AddNumberToObject(root, "kiosk_enable", kiosk_enable);
 	cJSON_AddNumberToObject(root, "realistic", realistic);
+	cJSON_AddItemToObject(root, "found_eggs", cJSON_CreateIntArray(found_eggs, 20));
+	cJSON_AddNumberToObject(root, "eggs_found", eggs_found);
+	if (unlockedstuff & 0x01)
+		cJSON_AddNumberToObject(root, "cracker_unlocked", 1);
+	if (unlockedstuff & 0x02)
+		cJSON_AddNumberToObject(root, "indestructible", 1);
+	if (unlockedstuff & 0x04)
+		cJSON_AddNumberToObject(root, "fast_open", 1);
+	if (unlockedstuff & 0x08)
+		cJSON_AddNumberToObject(root, "show_votes", 1);
+	if (unlockedstuff & 0x10)
+		cJSON_AddNumberToObject(root, "EXPL_unlocked", 1);
+	if (unlockedstuff & 0x20)
+		cJSON_AddNumberToObject(root, "old_menu_unlocked", 1);
+	if (old_menu)
+		cJSON_AddNumberToObject(root, "old_menu", 1);
 	
 	outputdata = cJSON_Print(root);
 	cJSON_Delete(root);
@@ -413,6 +429,21 @@ void load_presets(void)
 		if(tmpobj = cJSON_GetObjectItem(root, "ngrav_enable")) { if (tmpobj->valueint) start_grav_async(); };
 		if(tmpobj = cJSON_GetObjectItem(root, "kiosk_enable")) { kiosk_enable = tmpobj->valueint; if (kiosk_enable) set_scale(sdl_scale, kiosk_enable); }
 		if(tmpobj = cJSON_GetObjectItem(root, "realistic")) { realistic = tmpobj->valueint; if (realistic) ptypes[PT_FIRE].hconduct = 1; }
+		if(tmpobj = cJSON_GetObjectItem(root, "found_eggs"))
+		{
+			for(i = 0; i < 20; i++)
+			{
+				found_eggs[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
+			}
+		}
+		if(tmpobj = cJSON_GetObjectItem(root, "eggs_found")) { eggs_found = tmpobj->valueint; if (eggs_found) finding_eggs = 1; }
+		if(tmpobj = cJSON_GetObjectItem(root, "cracker_unlocked")) { unlockedstuff |= 0x01; SC_TOTAL++; }
+		if(tmpobj = cJSON_GetObjectItem(root, "indestructible")) unlockedstuff |= 0x02;
+		if(tmpobj = cJSON_GetObjectItem(root, "fast_open")) unlockedstuff |= 0x04;
+		if(tmpobj = cJSON_GetObjectItem(root, "show_votes")) unlockedstuff |= 0x08;
+		if(tmpobj = cJSON_GetObjectItem(root, "EXPL_unlocked")) { unlockedstuff |= 0x10; ptypes[PT_EXPL].menu = 1; ptypes[PT_EXPL].enabled = 1; }
+		if(tmpobj = cJSON_GetObjectItem(root, "old_menu_unlocked")) unlockedstuff |= 0x20;
+		if(tmpobj = cJSON_GetObjectItem(root, "old_menu")) old_menu = 1;
 
 		cJSON_Delete(root);
 		free(prefdata);

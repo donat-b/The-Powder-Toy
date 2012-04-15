@@ -1210,6 +1210,87 @@ void fillcircle(pixel* vid, int x, int y, int rx, int ry, int r, int g, int b, i
 	}
 }
 
+void draw_egg(pixel* vid, int x, int y, int egg_num)
+{
+	int i, egg_clicked = 0, r = 0, g = 0, b = 0, a = 255;
+	char text[32], text2[32];
+	char* heavy = "This egg is heavy";
+	char* inside = "You find something inside";
+	if (!finding_eggs || found_eggs[egg_num-1])
+		return;
+	if (egg_num%6 == 0)
+		r = 255;
+	else if (egg_num%6 == 1)
+		g = 255;
+	else if (egg_num%6 == 2)
+		b = 255;
+	else if (egg_num%6 == 3) {
+		r = 255; g = 255;    }
+	else if (egg_num%6 == 4) {
+		g = 255; b = 255;    }
+	else if (egg_num%6 == 5) {
+		r = 255; b = 255;    }
+	for (i = 0; i < 5; i++)
+	{
+		fillcircle(vid, x, y-i*2, 8-i, 8-i, r, g, b, a);
+		if (mouse_b && !mouse_bq && (pow((double)mouse_x-x,2)*pow((double)8-i,2)+pow((double)mouse_y-(y-i*2),2)*pow((double)8-i,2)<=pow((double)8-i,2)*pow((double)8-i,2)))
+			egg_clicked = 1;
+	}
+	if (egg_clicked)
+	{
+		sprintf(text,"You found egg %i",egg_num);
+		if (19-eggs_found > 1)
+			sprintf(text2,"%i eggs left to find",20-eggs_found-1);
+		else if (19-eggs_found == 1)
+			sprintf(text2,"1 egg left to find");
+		info_ui(vid, text, text2);
+		found_eggs[egg_num-1] = 1;
+		eggs_found++;
+		if (egg_num == 20)
+		{
+			unlockedstuff |= 0x01;
+			SC_TOTAL = 15;
+			info_ui(vid_buf, heavy, inside);
+			info_ui(vid_buf, "It's cracker64", "He gives you permanent access to this menu");
+			heavy = "This egg is still heavy";
+			inside = "You find something else inside";
+		}
+		if (eggs_found == 5)
+		{
+			unlockedstuff |= 0x20;
+			info_ui(vid_buf, heavy, inside);
+			info_ui(vid_buf, "It's the old menu", "Press 'o' to activate");
+		}
+		if (eggs_found == 9)
+		{
+			unlockedstuff |= 0x02;
+			info_ui(vid_buf, heavy, inside);
+			info_ui(vid_buf, "It's tpt.indestructible(\"\")", "Use to make any element indestructible");
+		}
+		if (eggs_found == 14)
+		{
+			unlockedstuff |= 0x04;
+			info_ui(vid_buf, heavy, inside);
+			info_ui(vid_buf, "It's fast open", "Right click an online save to use");
+		}
+		if (eggs_found == 17)
+		{
+			unlockedstuff |= 0x08;
+			info_ui(vid_buf, heavy, inside);
+			info_ui(vid_buf, "It's vote show", "Votes are shown on all saves, not just your's");
+		}
+		if (eggs_found == 20)
+		{
+			unlockedstuff |= 0x10;
+			ptypes[PT_EXPL].menu = 1;
+			ptypes[PT_EXPL].enabled = 1;
+			info_ui(vid_buf, heavy, inside);
+			info_ui(vid_buf, "It's EXPL", "This explosive is the most destructive so far");
+			info_ui(vid_buf, "Congradulations!", "You finished the Easter Egg hunt");
+		}
+	}
+}
+
 void clearrect(pixel *vid, int x, int y, int w, int h)
 {
 #ifdef OGLR

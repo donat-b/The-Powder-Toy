@@ -2478,6 +2478,38 @@ killed:
 			if (parts[i].type == PT_NONE)//if its dead, skip to next particle
 				continue;
 
+			if ((parts[i].flags&FLAG_EXPLODE) && parts[i].type != PT_PIPE && parts[i].type != PT_FWRK && parts[i].type != PT_STOR)
+			{
+				if (!(rand()%10))
+				{
+					parts[i].flags = 0;
+					pv[y/CELL][x/CELL] += 5.0f;
+					if(!(rand()%3))
+					{
+						if(!(rand()%2))
+						{
+							create_part(i, x, y, PT_BOMB);
+							parts[i].temp = MAX_TEMP;
+						}
+						else
+						{
+							create_part(i, x, y, PT_PLSM);
+							parts[i].temp = MAX_TEMP;
+						}
+					}
+					else
+					{
+						create_part(i, x, y, PT_BOMB);
+						parts[i].tmp = 1;
+						parts[i].life = 50;
+						parts[i].temp = MAX_TEMP;
+						parts[i].vx = rand()%20-10.0f;
+						parts[i].vy = rand()%20-10.0f;
+					}
+					continue;
+				}
+			}
+
 			if (!parts[i].vx&&!parts[i].vy)//if its not moving, skip to next particle, movement code is next
 				continue;
 

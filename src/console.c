@@ -219,7 +219,7 @@ int process_command_old(pixel *vid_buf, char *console, char *console_error)
 				j = atoi(console3);
 				if (j)
 				{
-					open_ui(vid_buf, console3, NULL);
+					open_ui(vid_buf, console3, NULL, 0);
 					console_mode = 0;
 				}
 			}

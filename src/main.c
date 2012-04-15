@@ -246,6 +246,12 @@ int sr = 0;
 int su = 0;
 int autosave = 0;
 int realistic = 0;
+int finding_eggs = 0;
+int eggs_found = 0;
+int found_eggs[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+char* last_save_id = "";
+int unlockedstuff = 0;
+int old_menu = 0;
 
 int drawinfo = 0;
 int currentTime = 0;
@@ -294,7 +300,7 @@ int core_count()
 	return numCPU;
 }
 
-int mousex = 0, mousey = 0, lastx = 0, lasty = 0;  //They contain mouse position
+int mousex = 0, mousey = 0, mouse_x = 0, mouse_y = 0, mouse_b = 0, mouse_bq = 0, lastx = 0, lasty = 0;  //They contain mouse position
 int kiosk_enable = 0;
 
 void sdl_seticon(void)
@@ -398,7 +404,7 @@ void clear_sim(void)
 	memset(msvy, 0, sizeof(msvy));
 	memset(msrotation, 0, sizeof(msrotation));
 	finding = 0;
-	
+	last_save_id = "";
 }
 
 // stamps library
@@ -1336,6 +1342,35 @@ int main(int argc, char *argv[])
 					break;
 				}
 			}
+			if (sdl_key=='e')
+			{
+				if (!finding_eggs)
+				{
+					finding_eggs = 1;
+					it = 0;
+					info_ui(vid_buf, "Easter egg hunt started", "Try to find all 20 eggs");
+				}
+				else
+				{
+					int i;
+					char found[32];
+					for (i = 0; i < 20; i++)
+					{
+						if (found_eggs[i])
+						{
+							sprintf(found, "Found: egg %i", i+1);
+							drawtext(vid_buf, 100, 100+i*12, found, 255, 255, 255, 255);
+						}
+					}
+					if (20-eggs_found > 1)
+						sprintf(found, "There are %i eggs left", 20-eggs_found);
+					else if (20-eggs_found == 1)
+						sprintf(found, "There is 1 egg left");
+					else
+						sprintf(found, "You've already found all the eggs");
+					info_ui(vid_buf, "Eggs found", found);
+				}
+			}
 			if (sdl_key=='i' && (sdl_mod & KMOD_CTRL))
 			{
 				if(confirm_ui(vid_buf, "Install Powder Toy", "You are about to install The Powder Toy", "Install"))
@@ -1411,11 +1446,16 @@ int main(int argc, char *argv[])
 				if (load_data)
 					parse_save(load_data, load_size, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 			}
-			if (sdl_key=='o' && (sdl_mod & (KMOD_CTRL)))
+			if (sdl_key=='o')
 			{
-				SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-				catalogue_ui(vid_buf);
-				SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
+				if  (sdl_mod & (KMOD_CTRL))
+				{
+					SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+					catalogue_ui(vid_buf);
+					SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
+				}
+				else if (unlockedstuff & 0x20)
+					old_menu = !old_menu;
 			}
 			if (sdl_key=='1')
 			{
@@ -1946,21 +1986,36 @@ int main(int argc, char *argv[])
 		readluastuff();
 #endif
 
-		quickoptions_menu(vid_buf, b, bq, x, y);
-
-		for (i=0; i<SC_TOTAL; i++)//draw all the menu sections
+		if (!old_menu)
 		{
-			draw_menu(vid_buf, i, active_menu);
-		}
+			quickoptions_menu(vid_buf, b, bq, x, y);
 
-		for (i=0; i<SC_TOTAL; i++)//check mouse position to see if it is on a menu section
-		{
-			if (!b&&x>=sdl_scale*(XRES-2) && x<sdl_scale*(XRES+BARSIZE-1) &&y>= sdl_scale*((i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16)) && y<sdl_scale*((i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16)+15))
+			for (i=0; i<SC_TOTAL; i++)//draw all the menu sections
 			{
-				active_menu = i;
+				draw_menu(vid_buf, i, active_menu);
+			}
+
+			for (i=0; i<SC_TOTAL; i++)//check mouse position to see if it is on a menu section
+			{
+				if (!b&&x>=sdl_scale*(XRES-2) && x<sdl_scale*(XRES+BARSIZE-1) &&y>= sdl_scale*((i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16)) && y<sdl_scale*((i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16)+15))
+				{
+					active_menu = i;
+				}
+			}
+			menu_ui_v3(vid_buf, active_menu, &dae, b, bq, x, y); //draw the elements in the current menu
+		}
+		else
+		{
+			for (i=0; i<SC_TOTAL; i++)//check mouse position to see if it is on a menu section
+			{
+				drawtext(vid_buf, XRES+1, /*(12*i)+2*/((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2), msections[i].icon, 255, 255, 255, 255);
+			}
+			for (i=0; i<SC_TOTAL; i++)//check mouse position to see if it is on a menu section
+			{
+				if(!b && x>=sdl_scale*(XRES+1) && x<sdl_scale*(XRES+BARSIZE-1) && y>= sdl_scale*(((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)-2) && y<sdl_scale*(((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+12))
+					menu_ui(vid_buf, i); //draw the elements in the current menu
 			}
 		}
-		menu_ui_v3(vid_buf, active_menu, &dae, b, bq, x, y); //draw the elements in the current menu
 		if (zoom_en && x>=sdl_scale*zoom_wx && y>=sdl_scale*zoom_wy //change mouse position while it is in a zoom window
 		        && x<sdl_scale*(zoom_wx+ZFACTOR*ZSIZE)
 		        && y<sdl_scale*(zoom_wy+ZFACTOR*ZSIZE))
@@ -2550,7 +2605,7 @@ int main(int argc, char *argv[])
 										buff[sldr-3] = signs[signi].text[sldr];
 
 									buff[sldr-3] = '\0';
-									open_ui(vid_buf, buff, 0);
+									open_ui(vid_buf, buff, 0, 0);
 								}
 							}
 				}
@@ -2852,6 +2907,7 @@ int main(int argc, char *argv[])
 		{
 			it--;
 			drawtext(vid_buf, 16, 20, it_msg, 255, 255, 255, it>51?255:it*5);
+			draw_egg(vid_buf, 15, 15, 12);
 		}
 
 		if (old_version)
@@ -2920,8 +2976,8 @@ int main(int argc, char *argv[])
 		}
 		if (afk && currentTime - afkstart > 30000)
 			afktime = currentTime - afkstart - 30000;
-		lastx = mousex;
-		lasty = mousey;
+		lastx = mouse_x;
+		lasty = mouse_y;
 
 		if (autosave > 0 && frames%autosave == 0)
 		{
@@ -3182,6 +3238,15 @@ int main(int argc, char *argv[])
 #endif
 		}
 
+		if (!strcmp(last_save_id, "2198"))
+			draw_egg(vid_buf, 440, 47, 16);
+		if (!strcmp(last_save_id, "477820"))
+			draw_egg(vid_buf, 330, 140, 17);
+		if (!strcmp(last_save_id, "644543"))
+			draw_egg(vid_buf, 420, 270, 15);
+		if (colour_mode & COLOUR_LIFE)
+			draw_egg(vid_buf, 100, 255, 19);
+		draw_egg(vid_buf, 100, 100, 1);
 		sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf, XRES+BARSIZE);
 
 		//Setting an element for the stick man

@@ -143,6 +143,8 @@ void drawcircle(pixel *vid, int x, int y, int rx, int ry, int r, int g, int b, i
 
 void fillcircle(pixel *vid, int x, int y, int rx, int ry, int r, int g, int b, int a);
 
+void draw_egg(pixel *vid, int x, int y, int egg_num);
+
 void clearrect(pixel *vid, int x, int y, int w, int h);
 
 void drawdots(pixel *vid, int x, int y, int h, int r, int g, int b, int a);

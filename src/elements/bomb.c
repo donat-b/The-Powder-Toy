@@ -24,7 +24,7 @@ int update_BOMB(UPDATE_FUNC_ARGS) {
 					r = ((pmap[y+ry][x+rx]&0xFF)==PT_PINV&&parts[pmap[y+ry][x+rx]>>8].life==10)?0:pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if ((r&0xFF)!=PT_BOMB && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && !(ptypes[r&0xFF].properties&PROP_CLONE) && (r&0xFF)!=PT_BCLN) {
+					if ((r&0xFF)!=PT_BOMB && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && !(ptypes[r&0xFF].properties&PROP_CLONE)) {
 						int rad = 8;
 						int nxi;
 						int nxj;

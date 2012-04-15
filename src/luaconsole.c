@@ -96,6 +96,7 @@ void luacon_open(){
 		{"clear_sim",&luatpt_clear_sim},
 		{"restore_defaults",&luatpt_restore_defaults},
 		{"reset_elements",&luatpt_reset_elements},
+		{"indestructible",&luatpt_indestructible},
 		{NULL,NULL}
 	};
 
@@ -1991,7 +1992,7 @@ int luatpt_load(lua_State* l)
 {
 	char *savenum;
 	savenum = mystrdup((char*)luaL_optstring(l, 1, ""));
-	open_ui(vid_buf, savenum, NULL);
+	open_ui(vid_buf, savenum, NULL, 0);
 	console_mode = 0;
 	return 0;
 }
@@ -2234,6 +2235,29 @@ int luatpt_restore_defaults(lua_State* l)
 	DEBUG_MODE = 0;
 	GENERATION = 0;
 
+	return 0;
+}
+
+int luatpt_indestructible(lua_State* l)
+{
+	int el = 0, ind;
+	char* name;
+	if (!(unlockedstuff & 0x02))
+		return luaL_error(l, "function not unlocked");
+	if(lua_isnumber(l, 1)){
+		el = luaL_optint(l, 1, 0);
+		if (el<0 || el>=PT_NUM)
+			return luaL_error(l, "Unrecognised element number '%d'", el);
+	} else {
+		name = (char*)luaL_optstring(l, 1, "dust");
+		if (!console_parse_type(name, &el, NULL))
+			return luaL_error(l, "Unrecognised element '%s'", name);
+	}
+	ind = luaL_optint(l, 2, 1);
+	if (ind)
+		ptypes[el].properties |= 0x20000;
+	else if (ptypes[el].properties&0x20000)
+		ptypes[el].properties -= 0x20000;
 	return 0;
 }
 
