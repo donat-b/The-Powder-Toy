@@ -183,6 +183,19 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 					else
 						parts[r>>8].life = 12;
 				}
+				if (rt == PT_PIPE && parts[i].life >= 3)
+				{
+					if (ct == PT_PSCN)
+					{
+						int twotmp2 = 2;
+						flood_prop((int)parts[r>>8].x, (int)parts[r>>8].y, offsetof(particle,tmp2), &twotmp2, 0);
+					}
+					else if (ct == PT_NSCN)
+					{
+						int fourtmp2 = 4;
+						flood_prop((int)parts[r>>8].x, (int)parts[r>>8].y, offsetof(particle,tmp2), &fourtmp2, 0);
+					}
+				}
 
 				// ct = spark from material, rt = spark to material. Make conduct_sprk = 0 if conduction not allowed
 

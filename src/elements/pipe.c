@@ -70,8 +70,27 @@ void pushParticle(int i, int count, int original)
 }
 
 int update_PIPE(UPDATE_FUNC_ARGS) {
-	int r, rx, ry, np;
+	int r, rx, ry, np, change = 0;
 	int rnd, rndstore;
+	if ((parts[i].tmp2 & 0x2) && !(parts[i].tmp & 0x4000))
+	{
+		parts[i].tmp |= 0x4000;
+		change = 1;
+	}
+	else if ((parts[i].tmp2 & 0x4) && (parts[i].tmp & 0x4000))
+	{
+		parts[i].tmp &= ~0x4000;
+		change = 1;
+	}
+	if (change)
+	{
+		parts[i].tmp2 = 0;
+		if (parts[i].ctype == 2)
+			parts[i].ctype = 4;
+		else if (parts[i].ctype == 4)
+			parts[i].ctype = 2;
+		// Single pixel pipe doesn't reverse, it pauses for now
+	}
 	if (parts[i].ctype>=2 && parts[i].ctype<=4)
 	{
 		if (parts[i].life==3)
@@ -111,9 +130,9 @@ int update_PIPE(UPDATE_FUNC_ARGS) {
 		}
 		else
 		{
-			if (parts[i].tmp2 == 1)//skip particle push to prevent particle number being higher causeing speed up
+			if (parts[i].tmp2 == 1)//skip particle push to prevent particle number being higher causing speed up
 			{
-				parts[i].tmp2 = 0 ;
+				parts[i].tmp2 = 0;
 			}
 			else
 			{
