@@ -2256,8 +2256,8 @@ int luatpt_indestructible(lua_State* l)
 	ind = luaL_optint(l, 2, 1);
 	if (ind)
 		ptypes[el].properties |= 0x20000;
-	else if (ptypes[el].properties&0x20000)
-		ptypes[el].properties -= 0x20000;
+	else
+		ptypes[el].properties &= ~0x20000;
 	return 0;
 }
 

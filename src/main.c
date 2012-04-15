@@ -1348,7 +1348,7 @@ int main(int argc, char *argv[])
 				{
 					finding_eggs = 1;
 					it = 0;
-					info_ui(vid_buf, "Easter egg hunt started", "Try to find all 20 eggs");
+					info_ui(vid_buf, "Easter egg hunt started", "Easter's over, but you can still find 20 all eggs");
 				}
 				else
 				{

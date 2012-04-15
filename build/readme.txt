@@ -267,10 +267,12 @@ None that I know of
 
 
 Future Ideas/TODO: > means currently being worked on/added next
+>fix / finish old menu more
+>change / finish EXPL
 more lua commands
 option to make sing use gravity instead of presssure
 option to disable copying/resaving in your saves
-make moving solids solid inside
+make moving solids solid inside and fix saving of rotation
 firework colors - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=10926&PageNum=37
 sensor? - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12361
 new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
