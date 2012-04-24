@@ -261,15 +261,20 @@ destructible again. Added Easter egg hunt, press 'e' to start.
 
 
 Bugs:
-None that I know of
+//None that I know of
+Not from my mod:
+http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=13384
+http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=13373
 
 
 
 
 Future Ideas/TODO: > means currently being worked on/added next
->fix / finish old menu more
+>fix FAV2/HUD menu in old menu, fix alt select, fix dae variable
 >change / finish EXPL
+update Psv format
 more lua commands
+make comments scrollable
 option to make sing use gravity instead of presssure
 option to disable copying/resaving in your saves
 make moving solids solid inside and fix saving of rotation

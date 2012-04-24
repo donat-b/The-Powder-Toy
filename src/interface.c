@@ -106,6 +106,8 @@ void menu_count(void)//puts the number of elements in each section into .itemcou
 	}
 	msections[SC_LIFE].itemcount = NGOLALT;
 	msections[SC_WALL].itemcount = UI_WALLCOUNT-4;
+	msections[SC_TOOL].itemcount = 9;
+	msections[SC_FAV].itemcount = 18;
 	for (i=0; i<PT_NUM; i++)
 	{
 		msections[ptypes[i].menusection].itemcount+=(ptypes[i].menu || (secret_els && ptypes[i].enabled));
@@ -2086,14 +2088,15 @@ int save_name_ui(pixel *vid_buf)
 	return 0;
 }
 
-//unused old function, with all the elements drawn at the bottom
-
+//old menu function, with the elements drawn on the side. Seems like it probably should be menu_ui_v2
 void menu_ui(pixel *vid_buf, int i)
 {
-	int b=1,bq,mx,my,h,x,y,n=0,height,width,sy,rows=0;
+	int b=1,bq,mx,my,h,y,sy,height,width,rows=0,favdesc = 0;
+	int dae = 0;
 	pixel *old_vid=(pixel *)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	fillrect(vid_buf, -1, -1, XRES+1, YRES+MENUSIZE, 0, 0, 0, 192);
 	memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
+	active_menu = i;
 
 	while (!sdl_poll())
 	{
@@ -2107,202 +2110,22 @@ void menu_ui(pixel *vid_buf, int i)
 		b = SDL_GetMouseState(&mx, &my);
 		mx /= sdl_scale;
 		my /= sdl_scale;
-		rows = ceil((float)msections[i].itemcount/16.0f);
-		height = (ceil((float)msections[i].itemcount/16.0f)*18);
-		width = restrict_flt(msections[i].itemcount*31, 0, 16*31);
+		rows = (int)ceil((float)msections[i].itemcount/16.0f);
+		height = (int)(ceil((float)msections[i].itemcount/16.0f)*18);
+		width = (int)restrict_flt(msections[i].itemcount*31.0f, 0, 16*31);
 		//clearrect(vid_buf, -1, -1, XRES+1, YRES+MENUSIZE+1);
 		h = -1;
-		x = XRES-BARSIZE-26;
-		y = (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))-(height/2)+(FONT_H/2)+1;
-		sy = y;
+		favdesc = 0;
+		sy = y = (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))-(height/2)+(FONT_H/2)+1;
 		//clearrect(vid_buf, (XRES-BARSIZE-width)+1, y-4, width+4, height+4+rows);
 		fillrect(vid_buf, (XRES-BARSIZE-width)-7, y-10, width+16, height+16+rows, 0, 0, 0, 100);
 		drawrect(vid_buf, (XRES-BARSIZE-width)-7, y-10, width+16, height+16+rows, 255, 255, 255, 255);
 		fillrect(vid_buf, (XRES-BARSIZE)+11, (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))-2, 15, FONT_H+3, 0, 0, 0, 100);
 		drawrect(vid_buf, (XRES-BARSIZE)+10, (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))-2, 16, FONT_H+3, 255, 255, 255, 255);
 		drawrect(vid_buf, (XRES-BARSIZE)+9, (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))-1, 1, FONT_H+1, 0, 0, 0, 255);
-		if (i==SC_WALL)
-		{
-			for (n = UI_WALLSTART; n<UI_WALLSTART+UI_WALLCOUNT; n++)
-			{
-				if (n!=SPC_AIR&&n!=SPC_HEAT&&n!=SPC_COOL&&n!=SPC_VACUUM&&n!=SPC_WIND&&n!=SPC_PGRV&&n!=SPC_NGRV&&n!=SPC_PROP&&n!=SPC_PROP2)
-				{
-					if (x-26<=60)
-					{
-						x = XRES-BARSIZE-26;
-						y += 19;
-					}
-					x -= draw_tool_xy(vid_buf, x, y, n, wtypes[n-UI_WALLSTART].colour)+5;
-					if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15)
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 255, 55, 55, 255);
-						h = n;
-					}
-					if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
-						h = n;
-					}
-					else if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 0, 255);
-					}
-					else if (n==sl)
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 255, 55, 55, 255);
-					}
-					else if (n==sr)
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 55, 55, 255, 255);
-					}
-					else if (n==SLALT)
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
-					}
-				}
-			}
-		}
-		else if (i==SC_TOOL)
-		{
-			msections[i].itemcount = 9;
-			for (n = UI_WALLSTART; n<UI_WALLSTART+UI_WALLCOUNT; n++)
-			{
-				if (n==SPC_AIR||n==SPC_HEAT||n==SPC_COOL||n==SPC_VACUUM||n==SPC_WIND||n==SPC_PGRV||n==SPC_NGRV||n==SPC_PROP||n==SPC_PROP2)
-				{
-					if (x-26<=60)
-					{
-						x = XRES-BARSIZE-26;
-						y += 19;
-					}
-					x -= draw_tool_xy(vid_buf, x, y, n, wtypes[n-UI_WALLSTART].colour)+5;
-					if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15)
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 255, 55, 55, 255);
-						h = n;
-					}
-					if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
-						h = n;
-					}
-					else if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 0, 255);
-					}
-					else if (n==sl)
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 255, 55, 55, 255);
-					}
-					else if (n==sr)
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 55, 55, 255, 255);
-					}
-					else if (n==SLALT)
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
-					}
-				}
-			}
-		}
-		else if(i==SC_LIFE)
-		{
-			int n2;
-			for (n2 = 0; n2<NGOLALT; n2++)
-			{
-				n = PT_LIFE | (n2<<8);
-				if (x-26<=60)
-				{
-					x = XRES-BARSIZE-26;
-					y += 19;
-				}
-				x -= draw_tool_xy(vid_buf, x, y, n, gmenu[n2].colour)+5;
-				if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15)
-				{
-					drawrect(vid_buf, x+30, y-1, 29, 17, 255, 55, 55, 255);
-					h = n;
-				}
-				if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
-				{
-					drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
-					h = n;
-				}
-				else if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
-				{
-					drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 0, 255);
-				}
-				else if (n==sl)
-				{
-					drawrect(vid_buf, x+30, y-1, 29, 17, 255, 55, 55, 255);
-				}
-				else if (n==sr)
-				{
-					drawrect(vid_buf, x+30, y-1, 29, 17, 55, 55, 255, 255);
-				}
-				else if (n==SLALT)
-				{
-					drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
-				}
-			}
-		}
-		else
-		{
-			for (n = 0; n<PT_NUM; n++)
-			{
-				if (ptypes[n].menusection==i && (ptypes[n].menu==1 || (secret_els && ptypes[n].enabled == 1)))
-				{
-					if (x-26<=60)
-					{
-						x = XRES-BARSIZE-26;
-						y += 19;
-					}
-					x -= draw_tool_xy(vid_buf, x, y, n, ptypes[n].pcolors)+5;
-					if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15)
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 255, 55, 55, 255);
-						h = n;
-					}
-					if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
-						h = n;
-					}
-					else if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 0, 255);
-					}
-					else if (n==sl)
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 255, 55, 55, 255);
-					}
-					else if (n==sr)
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 55, 55, 255, 255);
-					}
-					else if (n==SLALT)
-					{
-						drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
-					}
-				}
-			}
-		}
-
-		if (h==-1)
-		{
-			drawtext(vid_buf, XRES-textwidth((char *)msections[i].name)-BARSIZE, sy+height+10, (char *)msections[i].name, 255, 255, 255, 255);
-		}
-		else if (i==SC_WALL||i==SC_TOOL)
-		{
-			drawtext(vid_buf, XRES-textwidth((char *)wtypes[h-UI_WALLSTART].descs)-BARSIZE, sy+height+10, (char *)wtypes[h-UI_WALLSTART].descs, 255, 255, 255, 255);
-		}
-		else if (i==SC_LIFE)
-		{
-			drawtext(vid_buf, XRES-textwidth((char *)gmenu[(h>>8)&0xFF].description)-BARSIZE, sy+height+10, (char *)gmenu[(h>>8)&0xFF].description, 255, 255, 255, 255);
-		}
-		else
-		{
-			drawtext(vid_buf, XRES-textwidth((char *)ptypes[h].descs)-BARSIZE, sy+height+10, (char *)ptypes[h].descs, 255, 255, 255, 255);
-		}
-
+		
+		h = menu_draw(mx, my, b, bq, active_menu, &favdesc);
+		menu_draw_text(h, favdesc, active_menu);
 
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 		memcpy(vid_buf, old_vid, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
@@ -2311,20 +2134,7 @@ void menu_ui(pixel *vid_buf, int i)
 			break;
 		}
 
-		if (b==1&&h!=-1)
-		{
-			sl = h;
-			break;
-		}
-		if (b==4&&h!=-1)
-		{
-			sr = h;
-			break;
-		}
-		//if(b==4&&h!=-1) {
-		//	h = -1;
-		//	break;
-		//}
+		menu_select_element(b, h, active_menu, &dae);
 
 		if (sdl_key==SDLK_RETURN)
 			break;
@@ -2344,29 +2154,54 @@ void menu_ui(pixel *vid_buf, int i)
 //current menu function
 void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 {
-	int h,x,y,n=0,height,width,sy,rows=0,xoff=0,fwidth,favdesc = 0;
+	int h, favdesc = 0;
 	SEC = SEC2;
 	mx /= sdl_scale;
 	my /= sdl_scale;
+
+	h = menu_draw(mx, my, b, bq, i, &favdesc);
+
+	if (i == SC_CRACKER)
+		draw_egg(vid_buf, 300, 300, 20);
+	if (!bq && mx>=((XRES+BARSIZE)-16) ) //highlight menu section
+		if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
+			if (i>=0&&i<SC_TOTAL)
+				SEC = i;
+
+	menu_draw_text(h, favdesc, i);
+	menu_select_element(b, h, i, dae);
+}
+
+int menu_draw(int mx, int my, int b, int bq, int i, int *favdesc)
+{
+	int h,x,y,n=0,height,width,rows=0,xoff=0,fwidth;
 	rows = (int)ceil((float)msections[i].itemcount/16.0f);
 	height = (int)(ceil((float)msections[i].itemcount/16.0f)*18);
 	width = (int)restrict_flt(msections[i].itemcount*31.0f, 0, 16*31);
 	fwidth = msections[i].itemcount*31;
+	if (!old_menu) {
+		x = XRES-BARSIZE-18;
+		y = YRES+1;
+	} else {
+		int i2 = i;
+		if (i == SC_FAV2 || i == SC_HUD)
+			i2 = SC_FAV;
+		x = XRES-BARSIZE-26;
+		y = (((YRES/SC_TOTAL)*i2)+((YRES/SC_TOTAL)/2))-(height/2)+(FONT_H/2)+1;
+	}
 	h = -1;
-	x = XRES-BARSIZE-18;
-	y = YRES+1;
-	sy = y;
+
 	if (i==SC_WALL)//wall menu
 	{
 		for (n = UI_WALLSTART; n<UI_WALLSTART+UI_WALLCOUNT; n++)
 		{
 			if (n!=SPC_AIR&&n!=SPC_HEAT&&n!=SPC_COOL&&n!=SPC_VACUUM&&n!=SPC_WIND&&n!=SPC_PGRV&&n!=SPC_NGRV&&n!=SPC_PROP&&n!=SPC_PROP2)
 			{
-				/*if (x-18<=2)
+				if (old_menu && x-26<=60)
 				{
-					x = XRES-BARSIZE-18;
+					x = XRES-BARSIZE-26;
 					y += 19;
-				}*/
+				}
 				x -= draw_tool_xy(vid_buf, x, y, n, wtypes[n-UI_WALLSTART].colour)+5;
 				if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15)
 				{
@@ -2403,11 +2238,11 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 		{
 			if (n==SPC_AIR||n==SPC_HEAT||n==SPC_COOL||n==SPC_VACUUM||n==SPC_WIND||n==SPC_PGRV||n==SPC_NGRV||n==SPC_PROP||n==SPC_PROP2)
 			{
-				/*if (x-18<=0)
+				if (old_menu && x-26<=60)
 				{
-					x = XRES-BARSIZE-18;
+					x = XRES-BARSIZE-26;
 					y += 19;
-				}*/
+				}
 				x -= draw_tool_xy(vid_buf, x-xoff, y, n, wtypes[n-UI_WALLSTART].colour)+5;
 				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
 				{
@@ -2444,13 +2279,18 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 	else if(i==SC_LIFE)
 	{
 		int n2;
-		if (fwidth > XRES-BARSIZE) { //fancy scrolling
+		if (!old_menu && fwidth > XRES-BARSIZE) { //fancy scrolling
 			float overflow = (float)fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
 			xoff = (int)(overflow / location);
 		}
 		for (n2 = 0; n2<NGOLALT; n2++)
 		{
 			n = PT_LIFE | (n2<<8);
+			if (old_menu && x-26<=60)
+			{
+				x = XRES-BARSIZE-26;
+				y += 19;
+			}
 			x -= draw_tool_xy(vid_buf, x-xoff, y, n, gmenu[n2].colour)+5;
 			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
 			{
@@ -2485,6 +2325,11 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 		int n2;
 		for (n2 = 0; n2<19; n2++)
 		{
+			if (old_menu && x-26<=60)
+			{
+				x = XRES-BARSIZE-26;
+				y += 19;
+			}
 			n = favMenu[n2];
 			if (n >= HUD_START && n < HUD_START+HUD_NUM)
 			{
@@ -2507,13 +2352,13 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 				h = n;
 				if (n >= HUD_START && n < HUD_START+HUD_NUM)
-					favdesc = 4;
+					*favdesc = 4;
 				else if (n >= FAV_START && n < FAV_END)
-					favdesc = 3;
+					*favdesc = 3;
 				else if (n % 256 == PT_LIFE)
-					favdesc = 2;
+					*favdesc = 2;
 				else if (n >= PT_NUM)
-					favdesc = 1;
+					*favdesc = 1;
 			}
 			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
 			{
@@ -2543,13 +2388,18 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 	}
 	else if (i == SC_FAV2) //Favorite
 	{
-		fwidth = (FAV_END - FAV_START - 1)*31;
+		/*fwidth = (FAV_END - FAV_START - 1)*31;
 		if (fwidth > XRES-BARSIZE) { //fancy scrolling
 			float overflow = (float)fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
 			xoff = (int)(overflow / location);
-		}
+		}*/
 		for (n = 1; n < FAV_END - FAV_START; n++)
 		{
+			if (old_menu && x-26<=60)
+			{
+				x = XRES-BARSIZE-26;
+				y += 19;
+			}
 			x -= draw_tool_xy(vid_buf, x-xoff, y, FAV_START+n, fav[n].colour)+5;
 
 			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
@@ -2566,6 +2416,11 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 			draw_egg(vid_buf, 470, 320, 11);
 		for (n = 0; n < HUD_NUM; n++)
 		{
+			if (old_menu && x-26<=60)
+			{
+				x = XRES-BARSIZE-26;
+				y += 19;
+			}
 			if (hud_menu[n].menunum == hud_menunum || n == 0)
 			{
 				pixel color = hud_menu[n].color;
@@ -2587,12 +2442,17 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 	}
 	else //all other menus
 	{
-		if (fwidth > XRES-BARSIZE) { //fancy scrolling
+		if (!old_menu && fwidth > XRES-BARSIZE) { //fancy scrolling
 			float overflow = (float)fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
 			xoff = (int)(overflow / location);
 		}
 		for (n = 0; n<PT_NUM; n++)
 		{
+			if (old_menu && x-26<=60)
+			{
+				x = XRES-BARSIZE-26;
+				y += 19;
+			}
 			if (ptypes[n].menusection==i && (ptypes[n].menu==1 || (secret_els && ptypes[n].enabled == 1)))
 			{
 				x -= draw_tool_xy(vid_buf, x-xoff, y, n, ptypes[n].pcolors)+5;
@@ -2625,13 +2485,19 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 			}
 		}
 	}
-	if (i == SC_CRACKER)
-		draw_egg(vid_buf, 300, 300, 20);
-	if (!bq && mx>=((XRES+BARSIZE)-16) ) //highlight menu section
-		if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
-			if (i>=0&&i<SC_TOTAL)
-				SEC = i;
+	return h;
+}
 
+void menu_draw_text(int h, int favdesc, int i)
+{
+	int sy;
+	if (!old_menu)
+		sy = YRES+1;
+	else
+	{
+		int height = (int)(ceil((float)msections[i].itemcount/16.0f)*18);
+		sy = (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))-(height/2)+(FONT_H/2)+21+height;
+	}
 	if (h==-1)
 	{
 		drawtext(vid_buf, XRES-textwidth((char *)msections[i].name)-BARSIZE, sy-10, (char *)msections[i].name, 255, 255, 255, 255);
@@ -2713,6 +2579,10 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 	{
 		drawtext(vid_buf, XRES-textwidth((char *)ptypes[h].descs)-BARSIZE, sy-10, (char *)ptypes[h].descs, 255, 255, 255, 255);
 	}
+}
+
+void menu_select_element(int b, int h, int i, int *dae)
+{
 	//these are click events, b=1 is left click, b=4 is right
 	//h has the value of the element it is over, and -1 if not over an element
 	if (b==1&&h==-1)
