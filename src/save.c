@@ -1428,7 +1428,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					}
 					if(partsData[i] >= PT_NUM)
 						partsData[i] = PT_DMND;	//Replace all invalid elements with diamond
-					if(pmap[y][x])
+					if(pmap[y][x] && posCount==0) // Check posCount to make sure an existing particle is not replaced twice if two particles are saved in that position
 					{
 						//Replace existing particle or allocated block
 						newIndex = pmap[y][x]>>8;
@@ -2005,7 +2005,7 @@ void *build_save_PSv(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	for (j=0; j<w*h; j++)
 	{
 		i = m[j];
-		if (i && (parts[i-1].type==PT_PBCN || parts[i-1].type==PT_MOVS || parts[i-1].type==PT_ANIM || ((parts[i-1].type==PT_PSCN || parts[i-1].type==PT_NSCN || parts[i-1].type==PT_PCLN) && save_as == 0) || parts[i-1].type==PT_PPTI || parts[i-1].type==PT_PPTO || parts[i-1].type==PT_VIRS || parts[i-1].type==PT_VRSS || parts[i-1].type==PT_VRSG)) {
+		if (i && (parts[i-1].type==PT_PBCN || parts[i-1].type==PT_TRON || parts[i-1].type==PT_MOVS || parts[i-1].type==PT_ANIM || ((parts[i-1].type==PT_PSCN || parts[i-1].type==PT_NSCN || parts[i-1].type==PT_PCLN) && save_as == 0) || parts[i-1].type==PT_PPTI || parts[i-1].type==PT_PPTO || parts[i-1].type==PT_VIRS || parts[i-1].type==PT_VRSS || parts[i-1].type==PT_VRSG)) {
 			//Save tmp2
 			d[p++] = parts[i-1].tmp2;
 		}
@@ -2481,7 +2481,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			i = m[j];
 			ty = d[pty+j];
-			if (i && (ty==PT_PBCN || ty==PT_MOVS || ty==PT_ANIM || ((ty==PT_PSCN || ty==PT_NSCN) && modver >= 3) || ty==PT_PPTI || ty==PT_PPTO || ty==PT_VIRS || ty==PT_VRSS || ty==PT_VRSG || (ty==PT_PCLN && modver >= 7)))
+			if (i && (ty==PT_PBCN || (ty==PT_TRON && ver>=77) || ty==PT_MOVS || ty==PT_ANIM || ((ty==PT_PSCN || ty==PT_NSCN) && modver >= 3) || ty==PT_PPTI || ty==PT_PPTO || ty==PT_VIRS || ty==PT_VRSS || ty==PT_VRSG || (ty==PT_PCLN && modver >= 7)))
 			{
 				if (p >= size)
 					goto corrupt;
@@ -2717,6 +2717,11 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					fighcount++;
 					STKM_init_legs(&(fighters[fcount]), i-1);
 				}
+			}
+			else if (parts[i-1].type == PT_SPNG)
+			{
+				if (fabs(parts[i-1].vx)>0.0f || fabs(parts[i-1].vy)>0.0f)
+					parts[i-1].flags |= FLAG_MOVABLE;
 			}
 
 			if (ver<48 && (ty==OLD_PT_WIND || (ty==PT_BRAY&&parts[i-1].life==0)))

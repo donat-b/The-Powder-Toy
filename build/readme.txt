@@ -270,6 +270,7 @@ http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=13373
 
 
 Future Ideas/TODO: > means currently being worked on/added next
+>>Fix font (report icon off centered), unfix SPNG
 >fix FAV2/HUD menu in old menu, fix alt select, fix dae variable
 >change / finish EXPL
 update Psv format

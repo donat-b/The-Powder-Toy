@@ -1,5 +1,7 @@
 #include <element.h>
 
+#define PFLAG_NORMALSPEED 0x00010000
+
 signed char pos_1_rx[] = {-1,-1,-1, 0, 0, 1, 1, 1};
 signed char pos_1_ry[] = {-1, 0, 1,-1, 1,-1, 0, 1};
 
@@ -31,11 +33,11 @@ void pushParticle(int i, int count, int original)
 				{
 					parts[r>>8].tmp = (parts[r>>8].tmp&~0xFF) | (parts[i].tmp&0xFF);
 					parts[r>>8].temp = parts[i].temp;
-					parts[r>>8].flags = parts[i].flags;
+					parts[r>>8].tmp2 = parts[i].tmp2;
 					parts[r>>8].pavg[0] = parts[i].pavg[0];
 					parts[r>>8].pavg[1] = parts[i].pavg[1];
 					if (r>>8 > original)
-						parts[r>>8].tmp2 = 1;//skip particle push, normalizes speed
+						parts[r>>8].flags |= PFLAG_NORMALSPEED;//skip particle push, normalizes speed
 					parts[i].tmp &= ~0xFF;
 					count++;
 					pushParticle(r>>8,count,original);
@@ -54,11 +56,11 @@ void pushParticle(int i, int count, int original)
 		{
 			parts[r>>8].tmp = (parts[r>>8].tmp&~0xFF) | (parts[i].tmp&0xFF);
 			parts[r>>8].temp = parts[i].temp;
-			parts[r>>8].flags = parts[i].flags;
+			parts[r>>8].tmp2 = parts[i].tmp2;
 			parts[r>>8].pavg[0] = parts[i].pavg[0];
 			parts[r>>8].pavg[1] = parts[i].pavg[1];
 			if (r>>8 > original)
-				parts[r>>8].tmp2 = 1;//skip particle push, normalizes speed
+				parts[r>>8].flags |= PFLAG_NORMALSPEED;//skip particle push, normalizes speed
 			parts[i].tmp &= ~0xFF;
 			count++;
 			pushParticle(r>>8,count,original);
@@ -130,9 +132,9 @@ int update_PIPE(UPDATE_FUNC_ARGS) {
 		}
 		else
 		{
-			if (parts[i].tmp2 == 1)//skip particle push to prevent particle number being higher causing speed up
+			if (parts[i].flags&PFLAG_NORMALSPEED)//skip particle push to prevent particle number being higher causing speed up
 			{
-				parts[i].tmp2 = 0;
+				parts[i].flags &= ~PFLAG_NORMALSPEED;
 			}
 			else
 			{
@@ -157,7 +159,7 @@ int update_PIPE(UPDATE_FUNC_ARGS) {
 						if (np!=-1)
 						{
 							parts[np].temp = parts[i].temp;//pipe saves temp and life now
-							parts[np].life = parts[i].flags;
+							parts[np].life = parts[i].tmp2;
 							parts[np].tmp = (int)parts[i].pavg[0];
 							parts[np].ctype = (int)parts[i].pavg[1];
 							parts[i].tmp &= ~0xFF;
@@ -170,7 +172,7 @@ int update_PIPE(UPDATE_FUNC_ARGS) {
 							detach(r>>8);
 						parts[i].tmp =  (parts[i].tmp&~0xFF) | parts[r>>8].type;
 						parts[i].temp = parts[r>>8].temp;
-						parts[i].flags = parts[r>>8].life;
+						parts[i].tmp2 = parts[r>>8].life;
 						parts[i].pavg[0] = (float)parts[r>>8].tmp;
 						parts[i].pavg[1] = (float)parts[r>>8].ctype;
 						kill_part(r>>8);
@@ -179,7 +181,7 @@ int update_PIPE(UPDATE_FUNC_ARGS) {
 					{
 						parts[i].tmp =  parts[r>>8].tmp;
 						parts[i].temp = parts[r>>8].temp;
-						parts[i].flags = parts[r>>8].flags;
+						parts[i].tmp2 = parts[r>>8].tmp2;
 						parts[i].pavg[0] = parts[r>>8].pavg[0];
 						parts[i].pavg[1] = parts[r>>8].pavg[1];
 						parts[r>>8].tmp = 0;
@@ -234,7 +236,7 @@ int update_PIPE(UPDATE_FUNC_ARGS) {
 				for (ry=-1; ry<2; ry++)
 					if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
 					{
-						if (!pmap[y+ry][x+rx])
+						if (!pmap[y+ry][x+rx] && bmap[(y+ry)/CELL][(x+rx)/CELL]!=WL_ALLOWAIR && bmap[(y+ry)/CELL][(x+rx)/CELL]!=WL_WALL && bmap[(y+ry)/CELL][(x+rx)/CELL]!=WL_WALLELEC && (bmap[(y+ry)/CELL][(x+rx)/CELL]!=WL_EWALL || emap[(y+ry)/CELL][(x+rx)/CELL]))
 							parts[i].life=50;
 					}
 		}
@@ -272,7 +274,7 @@ int graphics_PIPE(GRAPHICS_FUNC_ARGS)
 		memset(&tpart, 0, sizeof(particle));
 		tpart.type = cpart->tmp&0xFF;
 		tpart.temp = cpart->temp;
-		tpart.life = cpart->flags;
+		tpart.life = cpart->tmp2;
 		tpart.tmp = (int)cpart->pavg[0];
 		tpart.ctype = (int)cpart->pavg[1];
 		t = tpart.type;
