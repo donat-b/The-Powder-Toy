@@ -2014,11 +2014,8 @@ void update_particles_i(pixel *vid, int start, int inc)
 				pGravY += gravy[(y/CELL)*(XRES/CELL)+(x/CELL)];
 			}
 			//velocity updates for the particle
-			if (!(parts[i].flags&FLAG_MOVABLE))
-			{
-				parts[i].vx *= ptypes[t].loss;
-				parts[i].vy *= ptypes[t].loss;
-			}
+			parts[i].vx *= ptypes[t].loss;
+			parts[i].vy *= ptypes[t].loss;
 			//particle gets velocity from the vx and vy maps
 			parts[i].vx += ptypes[t].advection*vx[y/CELL][x/CELL] + pGravX;
 			parts[i].vy += ptypes[t].advection*vy[y/CELL][x/CELL] + pGravY;
@@ -2812,7 +2809,7 @@ killed:
 								rt = 10;
 
 							if (t==PT_GEL)
-								rt = parts[i].tmp*0.20f+5.0f;
+								rt = (int)(parts[i].tmp*0.20f+5.0f);
 
 							for (j=clear_x+r; j>=0 && j>=clear_x-rt && j<clear_x+rt && j<XRES; j+=r)
 							{
