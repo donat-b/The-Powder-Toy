@@ -1174,7 +1174,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (soapLinkDataLen = bson_iterator_bin_len(&iter)) > 0)
 			{
-				soapLinkData = bson_iterator_bin_data(&iter);
+				soapLinkData = (unsigned char*)bson_iterator_bin_data(&iter);
 			}
 			else
 			{

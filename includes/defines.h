@@ -16,8 +16,8 @@
 
 #define MOD_VERSION 14
 #define MOD_SAVE_VERSION 8 //This is not the version number of my mod anymore, it's only changed when I change the stamp/save saving code
-#define BETA_VERSION 74
-#define BETA_MINOR_VER 1
+#define BETA_VERSION 78
+#define BETA_MINOR_VER 0
 #define RELEASE_VERSION 77
 #define RELEASE_MINOR_VER 0
 
@@ -96,7 +96,7 @@ extern unsigned char ZSIZE;
 
 #define STAMP_MAX 240
 
-#define SAVE_OPS
+//#define SAVE_OPS
 //#define REALISTIC
 
 #define NGOL 25
