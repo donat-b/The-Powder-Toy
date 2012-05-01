@@ -187,13 +187,13 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 				{
 					if (ct == PT_PSCN)
 					{
-						int twotmp2 = 2;
-						flood_prop((int)parts[r>>8].x, (int)parts[r>>8].y, offsetof(particle,tmp2), &twotmp2, 0);
+						int reverseflag = 0x00020000; //PFLAG_REVERSE
+						flood_prop((int)parts[r>>8].x, (int)parts[r>>8].y, offsetof(particle,flags), &reverseflag, 0);
 					}
 					else if (ct == PT_NSCN)
 					{
-						int fourtmp2 = 4;
-						flood_prop((int)parts[r>>8].x, (int)parts[r>>8].y, offsetof(particle,tmp2), &fourtmp2, 0);
+						int noreverseflag = 0;
+						flood_prop((int)parts[r>>8].x, (int)parts[r>>8].y, offsetof(particle,flags), &noreverseflag, 0);
 					}
 				}
 

@@ -1,6 +1,7 @@
 #include <element.h>
 
 #define PFLAG_NORMALSPEED 0x00010000
+#define PFLAG_REVERSE 0x00020000
 
 signed char pos_1_rx[] = {-1,-1,-1, 0, 0, 1, 1, 1};
 signed char pos_1_ry[] = {-1, 0, 1,-1, 1,-1, 0, 1};
@@ -74,12 +75,12 @@ void pushParticle(int i, int count, int original)
 int update_PIPE(UPDATE_FUNC_ARGS) {
 	int r, rx, ry, np, change = 0;
 	int rnd, rndstore;
-	if ((parts[i].tmp2 & 0x2) && !(parts[i].tmp & 0x4000))
+	if ((parts[i].flags & PFLAG_REVERSE) && !(parts[i].tmp & 0x4000))
 	{
 		parts[i].tmp |= 0x4000;
 		change = 1;
 	}
-	else if ((parts[i].tmp2 & 0x4) && (parts[i].tmp & 0x4000))
+	else if (!(parts[i].flags & PFLAG_REVERSE) && (parts[i].tmp & 0x4000))
 	{
 		parts[i].tmp &= ~0x4000;
 		change = 1;
@@ -91,7 +92,7 @@ int update_PIPE(UPDATE_FUNC_ARGS) {
 			parts[i].ctype = 4;
 		else if (parts[i].ctype == 4)
 			parts[i].ctype = 2;
-		// Single pixel pipe doesn't reverse, it pauses for now
+		// TODO: Single pixel pipe doesn't reverse, it pauses for now (but maybe this way is useful somehow)
 	}
 	if (parts[i].ctype>=2 && parts[i].ctype<=4)
 	{

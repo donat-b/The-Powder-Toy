@@ -2507,7 +2507,7 @@ killed:
 			if (parts[i].type == PT_NONE)//if its dead, skip to next particle
 				continue;
 
-			if ((parts[i].flags&FLAG_EXPLODE) && parts[i].type != PT_PIPE && parts[i].type != PT_FWRK && parts[i].type != PT_STOR)
+			if (parts[i].flags&FLAG_EXPLODE)
 			{
 				if (!(rand()%10))
 				{
