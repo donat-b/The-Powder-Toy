@@ -8,9 +8,10 @@
 #endif
  
 //VersionInfoStart
-#define SAVE_VERSION 77
+#define SAVE_VERSION 78
 #define MINOR_VERSION 0
-#define BUILD_NUM 159
+#define BETA
+#define BUILD_NUM 162
 //VersionInfoEnd
 
 #define MOD_VERSION 14
@@ -95,7 +96,7 @@ extern unsigned char ZSIZE;
 
 #define STAMP_MAX 240
 
-//#define SAVE_OPS
+#define SAVE_OPS
 //#define REALISTIC
 
 #define NGOL 25

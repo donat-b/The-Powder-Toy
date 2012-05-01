@@ -1966,26 +1966,30 @@ int main(int argc, char *argv[])
 		}
 
 		bq = bc; // bq is previous mouse state
-		bc = b = SDL_GetMouseState(&x, &y); // b is current mouse state
+		bc = b = mouse_get_state(&x, &y); // b is current mouse state
 
 #ifdef LUACONSOLE
 		if(bc && bq){
-			if(!luacon_mouseevent(x/sdl_scale, y/sdl_scale, bc, LUACON_MPRESS)){
+			if(!luacon_mouseevent(x, y, bc, LUACON_MPRESS)){
 				b = 0;
 			}
 		}
 		else if(bc && !bq){
-			if(!luacon_mouseevent(x/sdl_scale, y/sdl_scale, bc, LUACON_MDOWN)){
+			if(!luacon_mouseevent(x, y, bc, LUACON_MDOWN)){
 				b = 0;
 			}
 		}
 		else if(!bc && bq){
-			if(!luacon_mouseevent(x/sdl_scale, y/sdl_scale, bq, LUACON_MUP)){
+			if(!luacon_mouseevent(x, y, bq, LUACON_MUP)){
 				b = 0;
 			}
 		}
+<<<<<<< HEAD
 		luacon_step(x/sdl_scale, y/sdl_scale,sl,sr);
 		readluastuff();
+=======
+		luacon_step(x, y,sl,sr);
+>>>>>>> The-Powder-Toy/master
 #endif
 
 		if (!old_menu)
@@ -2008,16 +2012,21 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
+<<<<<<< HEAD
 			for (i=0; i<SC_TOTAL; i++)//check mouse position to see if it is on a menu section
 			{
 				drawtext(vid_buf, XRES+1, /*(12*i)+2*/((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2), msections[i].icon, 255, 255, 255, 255);
 			}
 			for (i=0; i<SC_TOTAL; i++)//check mouse position to see if it is on a menu section
+=======
+			if (!b&&x>=(XRES-2) && x<(XRES+BARSIZE-1) &&y>= ((i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16)) && y<((i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16)+15))
+>>>>>>> The-Powder-Toy/master
 			{
 				if(!b && x>=sdl_scale*(XRES+1) && x<sdl_scale*(XRES+BARSIZE-1) && y>= sdl_scale*(((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)-2) && y<sdl_scale*(((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+12))
 					menu_ui(vid_buf, i); //draw the elements in the current menu
 			}
 		}
+<<<<<<< HEAD
 		if (zoom_en && x>=sdl_scale*zoom_wx && y>=sdl_scale*zoom_wy //change mouse position while it is in a zoom window
 		        && x<sdl_scale*(zoom_wx+ZFACTOR*ZSIZE)
 		        && y<sdl_scale*(zoom_wy+ZFACTOR*ZSIZE))
@@ -2036,6 +2045,18 @@ int main(int argc, char *argv[])
 				cr = pmap[y/sdl_scale][x/sdl_scale];
 				if ((cr&0xFF) == PT_PINV && parts[cr>>8].tmp2)
 					cr = parts[cr>>8].tmp2;
+=======
+		menu_ui_v3(vid_buf, active_menu, &sl, &sr, &su, &dae, b, bq, x, y); //draw the elements in the current menu
+		mouse_coords_window_to_sim(&x, &y, x, y);//change mouse position while it is in a zoom window
+		if (y>=0 && y<YRES && x>=0 && x<XRES)
+		{
+			int cr; //cr is particle under mouse, for drawing HUD information
+			char nametext[50];
+			if (photons[y][x]) {
+				cr = photons[y][x];
+			} else {
+				cr = pmap[y][x];
+>>>>>>> The-Powder-Toy/master
 			}
 			if (!cr && alt_hud == 1)
 			{
@@ -2110,11 +2131,17 @@ int main(int argc, char *argv[])
 				}
 				if (hud_current[19])
 				{
+<<<<<<< HEAD
 					sprintf(tempstring," Life: %d,",parts[cr>>8].life);
 					strappend(heattext2,tempstring);
+=======
+					sprintf(heattext, "%s, Pressure: %3.2f, Temp: %4.2f C, Life: %d, Tmp:%d", nametext, pv[y/CELL][x/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life, parts[cr>>8].tmp);
+					sprintf(coordtext, "#%d, X:%d Y:%d", cr>>8, x, y);
+>>>>>>> The-Powder-Toy/master
 				}
 				if (hud_current[20])
 				{
+<<<<<<< HEAD
 					sprintf(tempstring," Tmp: %d,",parts[cr>>8].tmp);
 					strappend(heattext2,tempstring);
 				}
@@ -2132,6 +2159,13 @@ int main(int argc, char *argv[])
 				{
 					sprintf(tempstring," Vx: %0.*f, Vy: %0.*f,",hud_current[25],parts[cr>>8].vx,hud_current[25],parts[cr>>8].vy);
 					strappend(heattext2,tempstring);
+=======
+#ifdef BETA
+					sprintf(heattext, "%s, Pressure: %3.2f, Temp: %4.2f C, Life: %d, Tmp:%d", nametext, pv[y/CELL][x/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life, parts[cr>>8].tmp);
+#else
+					sprintf(heattext, "%s, Pressure: %3.2f, Temp: %4.2f C", nametext, pv[y/CELL][x/CELL], parts[cr>>8].temp-273.15f);
+#endif
+>>>>>>> The-Powder-Toy/master
 				}
 				if ((cr&0xFF)==PT_PHOT) wavelength_gfx = parts[cr>>8].ctype;
 			}
@@ -2142,6 +2176,7 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
+<<<<<<< HEAD
 				if (hud_current[10])
 					sprintf(heattext2,"Empty,");
 			}
@@ -2180,6 +2215,16 @@ int main(int argc, char *argv[])
 			{
 				sprintf(tempstring," Pressure: %0.*f",hud_current[33],pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
 				strappend(coordtext,tempstring);
+=======
+				sprintf(heattext, "Empty, Pressure: %3.2f", pv[y/CELL][x/CELL]);
+				if (DEBUG_MODE)
+				{
+					if (ngrav_enable)
+						sprintf(coordtext, "X:%d Y:%d. GX: %.2f GY: %.2f", x, y, gravx[((y/CELL)*(XRES/CELL))+(x/CELL)], gravy[((y/CELL)*(XRES/CELL))+(x/CELL)]);
+					else
+						sprintf(coordtext, "X:%d Y:%d", x, y);
+				}
+>>>>>>> The-Powder-Toy/master
 			}
 		}
 		else
@@ -2193,8 +2238,8 @@ int main(int argc, char *argv[])
 
 		mx = x;
 		my = y;
-		if (b && !bq && x>=(XRES-19-new_message_len)*sdl_scale &&
-		        x<=(XRES-14)*sdl_scale && y>=(YRES-37)*sdl_scale && y<=(YRES-24)*sdl_scale && svf_messages)
+		if (b && !bq && x>=(XRES-19-new_message_len) &&
+		        x<=(XRES-14) && y>=(YRES-37) && y<=(YRES-24) && svf_messages)
 		{
 			open_link("http://" SERVER "/Conversations.html");
 		}
@@ -2216,9 +2261,14 @@ int main(int argc, char *argv[])
 			update_flag = 0;
 		}
 
+<<<<<<< HEAD
 		old_version = 0;
 		if (b && !bq && x>=(XRES-19-old_ver_len)*sdl_scale &&
 		        x<=(XRES-14)*sdl_scale && y>=(YRES-22)*sdl_scale && y<=(YRES-9)*sdl_scale && old_version)
+=======
+		if (b && !bq && x>=(XRES-19-old_ver_len) &&
+		        x<=(XRES-14) && y>=(YRES-22) && y<=(YRES-9) && old_version)
+>>>>>>> The-Powder-Toy/master
 		{
 			tmp = malloc(128);
 #ifdef BETA
@@ -2263,9 +2313,9 @@ int main(int argc, char *argv[])
 				old_version = 0;
 			}
 		}
-		if (y>=sdl_scale*(YRES+(MENUSIZE-20))) //mouse checks for buttons at the bottom, to draw mouseover texts
+		if (y>=(YRES+(MENUSIZE-20))) //mouse checks for buttons at the bottom, to draw mouseover texts
 		{
-			if (x>=189*sdl_scale && x<=202*sdl_scale && svf_login && svf_open && svf_myvote==0)
+			if (x>=189 && x<=202 && svf_login && svf_open && svf_myvote==0)
 			{
 				db = svf_own ? 275 : 272;
 				if (da < 51)
@@ -2283,25 +2333,25 @@ int main(int argc, char *argv[])
 				if (da < 51)
 					da ++;
 			}
-			else if (x>=219*sdl_scale && x<=((XRES+BARSIZE-(510-349))*sdl_scale) && svf_login && svf_open)
+			else if (x>=219 && x<=((XRES+BARSIZE-(510-349))) && svf_login && svf_open)
 			{
 				db = svf_own ? 257 : 256;
 				if (da < 51)
 					da ++;
 			}
-			else if (x>=((XRES+BARSIZE-(510-351))*sdl_scale) && x<((XRES+BARSIZE-(510-366))*sdl_scale))
+			else if (x>=((XRES+BARSIZE-(510-351))) && x<((XRES+BARSIZE-(510-366))))
 			{
 				db = 270;
 				if (da < 51)
 					da ++;
 			}
-			else if (x>=((XRES+BARSIZE-(510-367))*sdl_scale) && x<((XRES+BARSIZE-(510-383))*sdl_scale))
+			else if (x>=((XRES+BARSIZE-(510-367))) && x<((XRES+BARSIZE-(510-383))))
 			{
 				db = 266;
 				if (da < 51)
 					da ++;
 			}
-			else if (x>=37*sdl_scale && x<=187*sdl_scale)
+			else if (x>=37 && x<=187)
 			{
 				if(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
 				{
@@ -2312,13 +2362,13 @@ int main(int argc, char *argv[])
 				else if(svf_login)
 				{
 					db = 259;
-					if (svf_open && svf_own && x<=55*sdl_scale)
+					if (svf_open && svf_own && x<=55)
 						db = 258;
 					if (da < 51)
 						da ++;
 				}
 			}
-			else if (x>=((XRES+BARSIZE-(510-385))*sdl_scale) && x<=((XRES+BARSIZE-(510-476))*sdl_scale))
+			else if (x>=((XRES+BARSIZE-(510-385))) && x<=((XRES+BARSIZE-(510-476))))
 			{
 				db = svf_login ? 261 : 260;
 				if (svf_admin)
@@ -2332,7 +2382,7 @@ int main(int argc, char *argv[])
 				if (da < 51)
 					da ++;
 			}
-			else if (x>=sdl_scale && x<=17*sdl_scale)
+			else if (x>=1 && x<=17)
 			{
 				if(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
 					db = 276;
@@ -2341,19 +2391,19 @@ int main(int argc, char *argv[])
 				if (da < 51)
 					da ++;
 			}
-			else if (x>=((XRES+BARSIZE-(510-494))*sdl_scale) && x<=((XRES+BARSIZE-(510-509))*sdl_scale))
+			else if (x>=((XRES+BARSIZE-(510-494))) && x<=((XRES+BARSIZE-(510-509))))
 			{
 				db = sys_pause ? 264 : 263;
 				if (da < 51)
 					da ++;
 			}
-			else if (x>=((XRES+BARSIZE-(510-476))*sdl_scale) && x<=((XRES+BARSIZE-(510-491))*sdl_scale))
+			else if (x>=((XRES+BARSIZE-(510-476))) && x<=((XRES+BARSIZE-(510-491))))
 			{
 				db = 267;
 				if (da < 51)
 					da ++;
 			}
-			else if (x>=19*sdl_scale && x<=35*sdl_scale && svf_open)
+			else if (x>=19 && x<=35 && svf_open)
 			{
 				db = 265;
 				if (da < 51)
@@ -2376,8 +2426,8 @@ int main(int argc, char *argv[])
 
 		if (load_mode)
 		{
-			load_x = CELL*((mx/sdl_scale-load_w/2+CELL/2)/CELL);
-			load_y = CELL*((my/sdl_scale-load_h/2+CELL/2)/CELL);
+			load_x = CELL*((mx-load_w/2+CELL/2)/CELL);
+			load_y = CELL*((my-load_h/2+CELL/2)/CELL);
 			if (load_x+load_w>XRES) load_x=XRES-load_w;
 			if (load_y+load_h>YRES) load_y=YRES-load_h;
 			if (load_x<0) load_x=0;
@@ -2398,8 +2448,8 @@ int main(int argc, char *argv[])
 		}
 		else if (save_mode==1)//getting the area you are selecting
 		{
-			save_x = mx/sdl_scale;
-			save_y = my/sdl_scale;
+			save_x = mx;
+			save_y = my;
 			if (save_x >= XRES) save_x = XRES-1;
 			if (save_y >= YRES) save_y = YRES-1;
 			save_w = 1;
@@ -2416,8 +2466,8 @@ int main(int argc, char *argv[])
 		}
 		else if (save_mode==2)
 		{
-			save_w = mx/sdl_scale + 1 - save_x;
-			save_h = my/sdl_scale + 1 - save_y;
+			save_w = mx + 1 - save_x;
+			save_h = my + 1 - save_y;
 			if (save_w+save_x>XRES) save_w = XRES-save_x;
 			if (save_h+save_y>YRES) save_h = YRES-save_y;
 			if (save_w<1) save_w = 1;
@@ -2448,8 +2498,6 @@ int main(int argc, char *argv[])
 		}
 		else if (sdl_zoom_trig && zoom_en<2)
 		{
-			x /= sdl_scale;
-			y /= sdl_scale;
 			x -= ZSIZE/2;
 			y -= ZSIZE/2;
 			if (x<0) x=0;
@@ -2471,8 +2519,6 @@ int main(int argc, char *argv[])
 		{
 			if (it > 50)
 				it = 50;
-			x /= sdl_scale;
-			y /= sdl_scale;
 			if (y>=YRES+(MENUSIZE-20))//check if mouse is on menu buttons
 			{
 				if (!lb)//mouse is NOT held down, so it is a first click
@@ -2554,7 +2600,7 @@ int main(int argc, char *argv[])
 							else
 								execute_save(vid_buf);
 							while (!sdl_poll())
-								if (!SDL_GetMouseState(&x, &y))
+								if (!mouse_get_state(&x, &y))
 									break;
 							b = bq = 0;
 						}
@@ -2612,7 +2658,7 @@ int main(int argc, char *argv[])
 							}
 				}
 
-				if (c==WL_SIGN+100)
+				if (c==WL_SIGN+100 || MSIGN!=-1) // if sign tool is selected or a sign is being moved
 				{
 					if (!bq)
 						add_sign_ui(vid_buf, x, y);
@@ -2787,8 +2833,6 @@ int main(int argc, char *argv[])
 		{
 			if (lb && lm) //lm is box/line tool
 			{
-				x /= sdl_scale;
-				y /= sdl_scale;
 				c = (lb&1) ? sl : sr;
 				su = c;
 				if (lm == 1)//line
@@ -2818,9 +2862,9 @@ int main(int argc, char *argv[])
 
 		if (zoom_en!=1 && !load_mode && !save_mode)//draw normal cursor
 		{
-			render_cursor(vid_buf, mx/sdl_scale, my/sdl_scale, su, bsx, bsy);
-			mousex = mx/sdl_scale;
-			mousey = my/sdl_scale;
+			render_cursor(vid_buf, mx, my, su, bsx, bsy);
+			mousex = mx;
+			mousey = my;
 		}
 #ifdef OGLR
 		draw_parts_fbo();

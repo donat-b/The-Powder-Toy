@@ -743,6 +743,7 @@ void clipboard_push_text(char * text)
 char * clipboard_pull_text()
 {
 #ifdef MACOSX
+	printf("Not implemented: get text from clipboard\n");
 #elif defined WIN32
 	if (OpenClipboard(NULL))
 	{
@@ -760,9 +761,9 @@ char * clipboard_pull_text()
 		}
 	}
 #elif (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
+	printf("Not implemented: get text from clipboard\n");
 #else
 	printf("Not implemented: get text from clipboard\n");
-	return "";
 #endif
 	return "";
 }
