@@ -1984,12 +1984,8 @@ int main(int argc, char *argv[])
 				b = 0;
 			}
 		}
-<<<<<<< HEAD
-		luacon_step(x/sdl_scale, y/sdl_scale,sl,sr);
-		readluastuff();
-=======
 		luacon_step(x, y,sl,sr);
->>>>>>> The-Powder-Toy/master
+		readluastuff();
 #endif
 
 		if (!old_menu)
@@ -2003,7 +1999,7 @@ int main(int argc, char *argv[])
 
 			for (i=0; i<SC_TOTAL; i++)//check mouse position to see if it is on a menu section
 			{
-				if (!b&&x>=sdl_scale*(XRES-2) && x<sdl_scale*(XRES+BARSIZE-1) &&y>= sdl_scale*((i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16)) && y<sdl_scale*((i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16)+15))
+				if (!b && x>=XRES-2 && x<XRES+BARSIZE-1 &&y>= (i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16) && y<(i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16)+15)
 				{
 					active_menu = i;
 				}
@@ -2012,55 +2008,32 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-<<<<<<< HEAD
 			for (i=0; i<SC_TOTAL; i++)//check mouse position to see if it is on a menu section
 			{
 				drawtext(vid_buf, XRES+1, /*(12*i)+2*/((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2), msections[i].icon, 255, 255, 255, 255);
 			}
 			for (i=0; i<SC_TOTAL; i++)//check mouse position to see if it is on a menu section
-=======
-			if (!b&&x>=(XRES-2) && x<(XRES+BARSIZE-1) &&y>= ((i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16)) && y<((i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16)+15))
->>>>>>> The-Powder-Toy/master
 			{
-				if(!b && x>=sdl_scale*(XRES+1) && x<sdl_scale*(XRES+BARSIZE-1) && y>= sdl_scale*(((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)-2) && y<sdl_scale*(((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+12))
+				if(!b && x>= XRES+1 && x< XRES+BARSIZE-1 && y>= ((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)-2 && y<((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+12)
 					menu_ui(vid_buf, i); //draw the elements in the current menu
 			}
 		}
-<<<<<<< HEAD
-		if (zoom_en && x>=sdl_scale*zoom_wx && y>=sdl_scale*zoom_wy //change mouse position while it is in a zoom window
-		        && x<sdl_scale*(zoom_wx+ZFACTOR*ZSIZE)
-		        && y<sdl_scale*(zoom_wy+ZFACTOR*ZSIZE))
-		{
-			x = (((x/sdl_scale-zoom_wx)/ZFACTOR)+zoom_x)*sdl_scale;
-			y = (((y/sdl_scale-zoom_wy)/ZFACTOR)+zoom_y)*sdl_scale;
-		}
+		mouse_coords_window_to_sim(&x, &y, x, y);//change mouse position while it is in a zoom window
 		sprintf(heattext,""); sprintf(coordtext,"");
-		if (y>=0 && y<sdl_scale*YRES && x>=0 && x<sdl_scale*XRES)
+		if (y>=0 && y<YRES && x>=0 && x<XRES)
 		{
 			int cr,wl = 0; //cr is particle under mouse, for drawing HUD information
 			char nametext[50] = "";
-			if (photons[y/sdl_scale][x/sdl_scale]) {
-				cr = photons[y/sdl_scale][x/sdl_scale];
-			} else {
-				cr = pmap[y/sdl_scale][x/sdl_scale];
-				if ((cr&0xFF) == PT_PINV && parts[cr>>8].tmp2)
-					cr = parts[cr>>8].tmp2;
-=======
-		menu_ui_v3(vid_buf, active_menu, &sl, &sr, &su, &dae, b, bq, x, y); //draw the elements in the current menu
-		mouse_coords_window_to_sim(&x, &y, x, y);//change mouse position while it is in a zoom window
-		if (y>=0 && y<YRES && x>=0 && x<XRES)
-		{
-			int cr; //cr is particle under mouse, for drawing HUD information
-			char nametext[50];
 			if (photons[y][x]) {
 				cr = photons[y][x];
 			} else {
 				cr = pmap[y][x];
->>>>>>> The-Powder-Toy/master
+				if ((cr&0xFF) == PT_PINV && parts[cr>>8].tmp2)
+					cr = parts[cr>>8].tmp2;
 			}
 			if (!cr && alt_hud == 1)
 			{
-				wl = bmap[y/sdl_scale/CELL][x/sdl_scale/CELL];
+				wl = bmap[y/CELL][x/CELL];
 			}
 			sprintf(heattext2,""); sprintf(tempstring,"");
 			if (cr)
@@ -2131,17 +2104,11 @@ int main(int argc, char *argv[])
 				}
 				if (hud_current[19])
 				{
-<<<<<<< HEAD
-					sprintf(tempstring," Life: %d,",parts[cr>>8].life);
-					strappend(heattext2,tempstring);
-=======
 					sprintf(heattext, "%s, Pressure: %3.2f, Temp: %4.2f C, Life: %d, Tmp:%d", nametext, pv[y/CELL][x/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life, parts[cr>>8].tmp);
 					sprintf(coordtext, "#%d, X:%d Y:%d", cr>>8, x, y);
->>>>>>> The-Powder-Toy/master
 				}
 				if (hud_current[20])
 				{
-<<<<<<< HEAD
 					sprintf(tempstring," Tmp: %d,",parts[cr>>8].tmp);
 					strappend(heattext2,tempstring);
 				}
@@ -2159,13 +2126,6 @@ int main(int argc, char *argv[])
 				{
 					sprintf(tempstring," Vx: %0.*f, Vy: %0.*f,",hud_current[25],parts[cr>>8].vx,hud_current[25],parts[cr>>8].vy);
 					strappend(heattext2,tempstring);
-=======
-#ifdef BETA
-					sprintf(heattext, "%s, Pressure: %3.2f, Temp: %4.2f C, Life: %d, Tmp:%d", nametext, pv[y/CELL][x/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life, parts[cr>>8].tmp);
-#else
-					sprintf(heattext, "%s, Pressure: %3.2f, Temp: %4.2f C", nametext, pv[y/CELL][x/CELL], parts[cr>>8].temp-273.15f);
-#endif
->>>>>>> The-Powder-Toy/master
 				}
 				if ((cr&0xFF)==PT_PHOT) wavelength_gfx = parts[cr>>8].ctype;
 			}
@@ -2176,7 +2136,6 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
-<<<<<<< HEAD
 				if (hud_current[10])
 					sprintf(heattext2,"Empty,");
 			}
@@ -2215,16 +2174,6 @@ int main(int argc, char *argv[])
 			{
 				sprintf(tempstring," Pressure: %0.*f",hud_current[33],pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
 				strappend(coordtext,tempstring);
-=======
-				sprintf(heattext, "Empty, Pressure: %3.2f", pv[y/CELL][x/CELL]);
-				if (DEBUG_MODE)
-				{
-					if (ngrav_enable)
-						sprintf(coordtext, "X:%d Y:%d. GX: %.2f GY: %.2f", x, y, gravx[((y/CELL)*(XRES/CELL))+(x/CELL)], gravy[((y/CELL)*(XRES/CELL))+(x/CELL)]);
-					else
-						sprintf(coordtext, "X:%d Y:%d", x, y);
-				}
->>>>>>> The-Powder-Toy/master
 			}
 		}
 		else
@@ -2261,14 +2210,9 @@ int main(int argc, char *argv[])
 			update_flag = 0;
 		}
 
-<<<<<<< HEAD
 		old_version = 0;
-		if (b && !bq && x>=(XRES-19-old_ver_len)*sdl_scale &&
-		        x<=(XRES-14)*sdl_scale && y>=(YRES-22)*sdl_scale && y<=(YRES-9)*sdl_scale && old_version)
-=======
 		if (b && !bq && x>=(XRES-19-old_ver_len) &&
 		        x<=(XRES-14) && y>=(YRES-22) && y<=(YRES-9) && old_version)
->>>>>>> The-Powder-Toy/master
 		{
 			tmp = malloc(128);
 #ifdef BETA

@@ -539,17 +539,11 @@ fin:
 void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* o_partsptr, int tab)
 {
 	particle *partsptr = o_partsptr;
-<<<<<<< HEAD
-	unsigned char *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *pressData = NULL, *finalData = NULL, *outputData = NULL;
-	unsigned *partsPosLink = NULL, *partsPosFirstMap = NULL, *partsPosCount = NULL, *partsPosLastMap = NULL;
-	int partsDataLen, partsPosDataLen, fanDataLen, wallDataLen, pressDataLen, finalDataLen, outputDataLen;
-=======
-	unsigned char *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *finalData = NULL, *outputData = NULL, *soapLinkData = NULL;
+	unsigned char *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *pressData = NULL, *finalData = NULL, *outputData = NULL, *soapLinkData = NULL;
 	unsigned *partsPosLink = NULL, *partsPosFirstMap = NULL, *partsPosCount = NULL, *partsPosLastMap = NULL;
 	unsigned partsCount = 0, *partsSaveIndex = NULL;
 	unsigned *elementCount = calloc(PT_NUM, sizeof(unsigned));
-	int partsDataLen, partsPosDataLen, fanDataLen, wallDataLen, finalDataLen, outputDataLen, soapLinkDataLen;
->>>>>>> The-Powder-Toy/master
+	int partsDataLen, partsPosDataLen, fanDataLen, wallDataLen, pressDataLen, finalDataLen, outputDataLen, soapLinkDataLen;
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	int x, y, i, wallDataFound = 0;
 	int posCount, signsCount;
@@ -907,13 +901,10 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 		bson_append_binary(&b, "wallMap", BSON_BIN_USER, wallData, wallDataLen);
 	if(fanData)
 		bson_append_binary(&b, "fanMap", BSON_BIN_USER, fanData, fanDataLen);
-<<<<<<< HEAD
 	if(pressData)
 		bson_append_binary(&b, "pressMap", BSON_BIN_USER, (const char*)pressData, pressDataLen);
-=======
 	if(soapLinkData)
 		bson_append_binary(&b, "soapLinks", BSON_BIN_USER, soapLinkData, soapLinkDataLen);
->>>>>>> The-Powder-Toy/master
 	signsCount = 0;
 	for(i = 0; i < MAXSIGNS; i++)
 	{
@@ -993,16 +984,10 @@ fin:
 int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* o_partsptr, unsigned pmap[YRES][XRES])
 {
 	particle *partsptr = o_partsptr;
-<<<<<<< HEAD
-	unsigned char * inputData = save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *pressData = NULL;
-	int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, fanDataLen, wallDataLen, pressDataLen;
-	int i, freeIndicesCount, x, y, returnCode = 0, j, oldnumballs = numballs;
-=======
-	unsigned char * inputData = save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *soapLinkData = NULL;
-	int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, fanDataLen, wallDataLen, soapLinkDataLen;
+	unsigned char * inputData = save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *pressData = NULL, *soapLinkData = NULL;
+	int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, fanDataLen, wallDataLen, pressDataLen, soapLinkDataLen;
 	unsigned partsCount = 0, *partsSimIndex = NULL;
-	int i, freeIndicesCount, x, y, returnCode = 0, j;
->>>>>>> The-Powder-Toy/master
+	int i, freeIndicesCount, x, y, returnCode = 0, j, oldnumballs = numballs;
 	int *freeIndices = NULL;
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	bson b;
@@ -1687,12 +1672,11 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						}
 					}
 					if (partsptr[newIndex].type == PT_SOAP)
-						partsptr[newIndex].ctype = 0; // delete all soap connections, but it looks like if tmp & tmp2 were saved to 3 bytes, connections would load properly
+						partsptr[newIndex].ctype &= ~6; // delete all soap connections, but it looks like if tmp & tmp2 were saved to 3 bytes, connections would load properly
 					if (!ptypes[partsptr[newIndex].type].enabled)
 						partsptr[newIndex].type = PT_NONE;
 					if (partsptr[newIndex].type == PT_MOVS)
 					{
-<<<<<<< HEAD
 						if (partsptr[newIndex].life+oldnumballs < 256)
 						{
 							partsptr[newIndex].life += oldnumballs;
@@ -1712,10 +1696,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							partsptr[newIndex].tmp -= 65536;
 						if (partsptr[newIndex].tmp2 > 32768)
 							partsptr[newIndex].tmp2 -= 65536;
-=======
-						//Clear soap links, links will be added back in if soapLinkData is present
-						partsptr[newIndex].ctype &= ~6;
->>>>>>> The-Powder-Toy/master
 					}
 					if (!ptypes[partsptr[newIndex].type].enabled && !secret_els)
 						partsptr[newIndex].type = PT_NONE;

@@ -2071,16 +2071,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				if (t&&(t!=PT_HSWC||parts[i].life==10)&&(ptypes[t].hconduct*gel_scale)&&(realistic||(ptypes[t].hconduct*gel_scale)>(rand()%250)))
 				{
 					float c_Cm = 0.0f;
-<<<<<<< HEAD
-					if (aheat_enable)
-=======
-#else
-				if (t&&(t!=PT_HSWC||parts[i].life==10)&&(ptypes[t].hconduct*gel_scale)>(rand()%250))
-				{
-					float c_Cm = 0.0f;
-#endif
 					if (aheat_enable && !(ptypes[t].properties&PROP_NOAMBHEAT))
->>>>>>> The-Powder-Toy/master
 					{
 						if (realistic)
 						{

@@ -2085,19 +2085,10 @@ void menu_ui(pixel *vid_buf, int i)
 	while (!sdl_poll())
 	{
 		bq = b;
-<<<<<<< HEAD
-		b = SDL_GetMouseState(&mx, &my);
-		mx /= sdl_scale;
-		my /= sdl_scale;
+		b = mouse_get_state(&mx, &my);
 		rows = (int)ceil((float)msections[i].itemcount/16.0f);
 		height = (int)(ceil((float)msections[i].itemcount/16.0f)*18);
 		width = (int)restrict_flt(msections[i].itemcount*31.0f, 0, 16*31);
-=======
-		b = mouse_get_state(&mx, &my);
-		rows = ceil((float)msections[i].itemcount/16.0f);
-		height = (ceil((float)msections[i].itemcount/16.0f)*18);
-		width = restrict_flt(msections[i].itemcount*31, 0, 16*31);
->>>>>>> The-Powder-Toy/master
 		//clearrect(vid_buf, -1, -1, XRES+1, YRES+MENUSIZE+1);
 		h = -1;
 		favdesc = 0;
@@ -2141,9 +2132,6 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 {
 	int h, favdesc = 0;
 	SEC = SEC2;
-<<<<<<< HEAD
-	mx /= sdl_scale;
-	my /= sdl_scale;
 
 	h = menu_draw(mx, my, b, bq, i, &favdesc);
 
@@ -2164,11 +2152,6 @@ int menu_draw(int mx, int my, int b, int bq, int i, int *favdesc)
 	rows = (int)ceil((float)msections[i].itemcount/16.0f);
 	height = (int)(ceil((float)msections[i].itemcount/16.0f)*18);
 	width = (int)restrict_flt(msections[i].itemcount*31.0f, 0, 16*31);
-=======
-	rows = ceil((float)msections[i].itemcount/16.0f);
-	height = (ceil((float)msections[i].itemcount/16.0f)*18);
-	width = restrict_flt(msections[i].itemcount*31, 0, 16*31);
->>>>>>> The-Powder-Toy/master
 	fwidth = msections[i].itemcount*31;
 	if (!old_menu) {
 		x = XRES-BARSIZE-18;
@@ -5762,14 +5745,9 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 }
 
 unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int savedColor)
-<<<<<<< HEAD
 {
 	int i,ss,hh,vv,cr=255,cg=0,cb=0,ca=255,b = 0,mx,my,bq = 0,j, lb=0,lx=0,ly=0,lm=0,hidden=0,t;
-=======
-{//TODO: have the text boxes be editable and update the color.
-	int i,ss,hh,vv,cr=127,cg=0,cb=0,b = 0,mx,my,bq = 0,j, lb=0,lx=0,ly=0,lm=0,hidden=0;
 	int line_x=0, line_y=0;
->>>>>>> The-Powder-Toy/master
 	int window_offset_x_left = 2;
 	int window_offset_x_right = XRES - 279;
 	int window_offset_y = 2;
@@ -6222,11 +6200,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 				prop_value = malloc(sizeof(unsigned int));
 				memcpy(prop_value,&value,sizeof(unsigned int));
 				if (lm == 1)//line
-<<<<<<< HEAD
-					create_line(lx, ly, mx, my, *bsx, *bsy, SPC_PROP2, 0);
-=======
-					line_decorations(lx, ly, line_x, line_y, *bsx, *bsy, currR, currG, currB, lb, tool);
->>>>>>> The-Powder-Toy/master
+					create_line(lx, ly, line_x, line_y, *bsx, *bsy, SPC_PROP2, 0);
 				else//box
 					create_box(lx, ly, mx, my, SPC_PROP2, 0);
 				lm = 0;
