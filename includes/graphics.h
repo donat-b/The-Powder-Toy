@@ -36,7 +36,7 @@
 #else
 #define PIXPACK(x) (x)
 #define PIXRGB(r,g,b) (((r)<<16)|((g)<<8)|(b))
-#define PIXR(x) (((x)>>16)&0xFF)
+#define PIXR(x) ((x)>>16)
 #define PIXG(x) (((x)>>8)&0xFF)
 #define PIXB(x) ((x)&0xFF)
 #endif

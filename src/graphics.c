@@ -2704,9 +2704,9 @@ void render_parts(pixel *vid)
 							addpixel(vid, nx+nxo, ny+nyo, colr, colg, colb, 255-orbd[r]);
 					}
 				}
-				if (pixel_mode & EFFECT_LINES)
+				if ((pixel_mode & EFFECT_LINES) && DEBUG_MODE)
 				{
-					if (mousex==(nx) && mousey==(ny) && DEBUG_MODE)//draw lines connecting wifi/portal channels
+					if (mousex==(nx) && mousey==(ny))//draw lines connecting wifi/portal channels
 					{
 						int z;
 						int type = parts[i].type;
@@ -3018,10 +3018,10 @@ void render_before(pixel *part_vbuf)
 		{
 			clearScreen(0.01f);
 			memset(part_vbuf, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
-        }
+		}
 		else //clear screen every frame
 		{
-            clearScreen(1.0f);
+			clearScreen(1.0f);
 			memset(part_vbuf, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
 			if (display_mode & DISPLAY_AIR)//air only gets drawn in these modes
 			{
@@ -3037,7 +3037,7 @@ void render_before(pixel *part_vbuf)
 		{
 			memcpy(part_vbuf, pers_bg, (XRES+BARSIZE)*YRES*PIXELSIZE);
 			memset(part_vbuf+((XRES+BARSIZE)*YRES), 0, ((XRES+BARSIZE)*YRES*PIXELSIZE)-((XRES+BARSIZE)*YRES*PIXELSIZE));
-        }
+		}
 		else //clear screen every frame
 		{
 			memset(part_vbuf, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
@@ -4045,22 +4045,6 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 	}
 #endif
 }
-
-/*void cursor_rotation(pixel* vid, int xc, int yc, int x, int y)
-{
-	if (brush_angle != 0)
-	{
-		float angle = 3.1415926535897932384626433832795/2;
-		float distance = sqrt(pow((float)xc-x,2)+pow((float)yc-y,2));
-		if (xc-x != 0)
-			angle = atan((float)(yc-y)/(xc-x));
-		if (xc-x > 0)
-			angle += 3.1415926535;
-		x = xc+(int)(distance*cos(angle + brush_angle));
-		y = yc+(int)(distance*sin(angle + brush_angle));
-	}
-	xor_pixel(x, y, vid);
-}*/
 
 int sdl_opened = 0;
 int sdl_open(void)

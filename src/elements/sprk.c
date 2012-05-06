@@ -13,7 +13,7 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 		if (ct==PT_OTWR)
 		{
 			if (parts[i].tmp == 0)
-				ct = PT_BREC;
+				ct = PT_BREL;
 			else
 				parts[i].tmp--;
 		}

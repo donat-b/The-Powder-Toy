@@ -575,7 +575,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 		for(y = blockY; y < blockY+blockH; y++)
 		{
 			wallData[(y-blockY)*blockW+(x-blockX)] = bmap[y][x];
-			if (tab || (0 && save_as == 3))
+			if (tab)
 			{
 				float pres = (max(-255,min(255,pv[y][x])))+256;
 				pressData[pressDataLen++] = (unsigned char)((int)(pres*128)&0xFF);

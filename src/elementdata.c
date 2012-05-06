@@ -236,12 +236,6 @@ Description: A short one sentence description of the element, shown when you mou
 
 State: What state is this element? Options are ST_NONE, ST_SOLID, ST_LIQUID, ST_GAS.
 
-Properties: Does this element have special properties? The properties can be found at ~214. Separate each property with | inside the property variable.
-
-Function:
-
-Graphics function:
-
 */
 
 // define abbreviations for impossible p/t values
@@ -391,7 +385,7 @@ part_transition ptransitions[PT_NUM] =
 	/* QRTZ */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			2573.15f,PT_LAVA},
 	/* PQRT */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			2573.15f,PT_LAVA},
 	/* EMP  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
-	/* BREC */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* BREL */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* ELEC */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* ACEL */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* DCEL */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
@@ -400,8 +394,8 @@ part_transition ptransitions[PT_NUM] =
 	/* BOYL */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* GEL  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* TRON */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
-	/* VRSS */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
-	/* VRSG */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* FREE */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* FREE */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* FREE */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* WIND */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* H2   */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
@@ -420,7 +414,7 @@ part_transition ptransitions[PT_NUM] =
 	// Mod elements past this point
 	/* BALL */ {25.0f,	PT_NONE,	25.0f,	PT_NONE,	ITL,	NT,			ITH,	NT},
 	/* ANIM */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
-	/* OTWR */ {IPL,	NT,			10.0f,	PT_BREC,	ITL,	NT,			1273.0f,PT_LAVA},
+	/* OTWR */ {IPL,	NT,			10.0f,	PT_BREL,	ITL,	NT,			1273.0f,PT_LAVA},
 	/* INDI */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* PPTI */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* PPTO */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},

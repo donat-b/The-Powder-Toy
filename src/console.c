@@ -10,7 +10,7 @@ char console_more=0;
 char console_error[255] = "";
 int file_script = 0;
 
-//takes a a string and compares it to element names, and puts it's value into element.
+//takes a string and compares it to element names, and puts it's value into *element.
 int console_parse_type(char *txt, int *element, char *err)
 {
 	int i = -1;
@@ -35,7 +35,7 @@ int console_parse_type(char *txt, int *element, char *err)
 	if (err) strcpy(err, "Particle type not recognised");
 	return 0;
 }
-//takes a a string and compares it to wall names, and puts it's value into element.
+//takes a string and compares it to wall names, and puts it's value into *wall.
 int console_parse_wall_type(char *txt, int *wall)
 {
 	int i;
