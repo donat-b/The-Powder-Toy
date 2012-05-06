@@ -257,10 +257,19 @@ tpt.draw(or fill)circle(x,y,rx,ry,r,g,b,a) and tpt.indestructible(string name
 or particle number). An optional argument to that is a 0, which makes it 
 destructible again. Added Easter egg hunt, press 'e' to start.
 
+Version 14.2 - 4/30/12
+update to latest source again. reversable pipe - spark with PSCN to reverse, 
+NSCN to unreverse. This mod is temporarily discontinued, but will be started 
+again in May/June.
+
+Next Version
+Fixes to the old menu.
+
 
 
 
 Bugs:
+deco zoom
 //None that I know of
 Not from my mod:
 http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=13384
@@ -270,16 +279,15 @@ http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=13373
 
 
 Future Ideas/TODO: > means currently being worked on/added next
->> fix reversable pipe
->fix FAV2/HUD menu in old menu, fix alt select, fix dae variable
+>fix FAV2/HUD menu and alt select in old menu, fix dae variable
 >change / finish EXPL
-update Psv format
+update Psv format (or disable it)
 more lua commands
-make comments scrollable
+make comments on saves scrollable
 option to make sing use gravity instead of presssure
 option to disable copying/resaving in your saves
 make moving solids solid inside and fix saving of rotation
 firework colors - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=10926&PageNum=37
 sensor? - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12361
 new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
-Maybe convert this mod to c++ when Simon finishes converting The Powder Toy to c++
+Maybe convert this mod to c++ when The Powder Toy++ is done

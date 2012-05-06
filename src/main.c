@@ -885,7 +885,7 @@ int main(int argc, char *argv[])
 #endif
 	int wavelength_gfx = 0;
 	int x, y, line_x, line_y, b = 0, c, lb = 0, lx = 0, ly = 0, lm = 0;//, tx, ty;
-	int da = 0, dae = 0, db = 0, it = 2047, mx, my, bsx = 2, bsy = 2, quickoptions_tooltip_fade_invert, it_invert = 0;
+	int da = 0, db = 0, it = 2047, mx, my, bsx = 2, bsy = 2, quickoptions_tooltip_fade_invert, it_invert = 0;
 	float nfvx, nfvy;
 	int load_mode=0, load_w=0, load_h=0, load_x=0, load_y=0, load_size=0;
 	void *load_data=NULL;
@@ -1696,7 +1696,6 @@ int main(int argc, char *argv[])
 					sr ^= sl;
 					sl ^= sr;
 				}
-				dae = 51;
 			}
 			if (sdl_key=='=')
 			{
@@ -2004,7 +2003,7 @@ int main(int argc, char *argv[])
 					active_menu = i;
 				}
 			}
-			menu_ui_v3(vid_buf, active_menu, &dae, b, bq, x, y); //draw the elements in the current menu
+			menu_ui_v3(vid_buf, active_menu, b, bq, x, y); //draw the elements in the current menu
 		}
 		else
 		{
@@ -2358,9 +2357,6 @@ int main(int argc, char *argv[])
 		}
 		else if (da > 0)//fade away mouseover text
 			da --;
-
-		if (dae > 0) //Fade away selected elements
-			dae --;
 		
 		if (!sdl_zoom_trig && zoom_en==1)
 			zoom_en = 0;

@@ -93,6 +93,9 @@ int framenum = 0;
 int hud_menunum = 0;
 int tool = DECO_DRAW;
 int has_quit = 0;
+int dae = 0;
+int h = 0;
+int over_el = 0;
 int SC_TOTAL = 14;
 
 int drawgrav_enable = 0;
@@ -2069,8 +2072,7 @@ int save_name_ui(pixel *vid_buf)
 //old menu function, with the elements drawn on the side. Seems like it probably should be menu_ui_v2
 void menu_ui(pixel *vid_buf, int i)
 {
-	int b=1,bq,mx,my,h,y,sy,height,width,rows=0,favdesc = 0;
-	int dae = 0;
+	int b=1,bq,mx,my,y,sy,height,width,rows=0;
 	pixel *old_vid=(pixel *)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	fillrect(vid_buf, -1, -1, XRES+1, YRES+MENUSIZE, 0, 0, 0, 192);
 	memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
@@ -2090,8 +2092,6 @@ void menu_ui(pixel *vid_buf, int i)
 		height = (int)(ceil((float)msections[i].itemcount/16.0f)*18);
 		width = (int)restrict_flt(msections[i].itemcount*31.0f, 0, 16*31);
 		//clearrect(vid_buf, -1, -1, XRES+1, YRES+MENUSIZE+1);
-		h = -1;
-		favdesc = 0;
 		sy = y = (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))-(height/2)+(FONT_H/2)+1;
 		//clearrect(vid_buf, (XRES-BARSIZE-width)+1, y-4, width+4, height+4+rows);
 		fillrect(vid_buf, (XRES-BARSIZE-width)-7, y-10, width+16, height+16+rows, 0, 0, 0, 100);
@@ -2100,8 +2100,10 @@ void menu_ui(pixel *vid_buf, int i)
 		drawrect(vid_buf, (XRES-BARSIZE)+10, (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))-2, 16, FONT_H+3, 255, 255, 255, 255);
 		drawrect(vid_buf, (XRES-BARSIZE)+9, (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))-1, 1, FONT_H+1, 0, 0, 0, 255);
 		
-		h = menu_draw(mx, my, b, bq, active_menu, &favdesc);
-		menu_draw_text(h, favdesc, active_menu);
+		over_el = menu_draw(mx, my, b, bq, i);
+		if (over_el != -1)
+			h = over_el;
+		menu_draw_text(h, active_menu);
 
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 		memcpy(vid_buf, old_vid, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
@@ -2110,7 +2112,7 @@ void menu_ui(pixel *vid_buf, int i)
 			break;
 		}
 
-		menu_select_element(b, h, active_menu, &dae);
+		menu_select_element(b, over_el, active_menu);
 
 		if (sdl_key==SDLK_RETURN)
 			break;
@@ -2128,12 +2130,13 @@ void menu_ui(pixel *vid_buf, int i)
 }
 
 //current menu function
-void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
+void menu_ui_v3(pixel *vid_buf, int i, int b, int bq, int mx, int my)
 {
-	int h, favdesc = 0;
 	SEC = SEC2;
 
-	h = menu_draw(mx, my, b, bq, i, &favdesc);
+	over_el = menu_draw(mx, my, b, bq, i);
+	if (over_el != -1)
+		h = over_el;
 
 	if (i == SC_CRACKER)
 		draw_egg(vid_buf, 300, 300, 20);
@@ -2142,13 +2145,13 @@ void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my)
 			if (i>=0&&i<SC_TOTAL)
 				SEC = i;
 
-	menu_draw_text(h, favdesc, i);
-	menu_select_element(b, h, i, dae);
+	menu_draw_text(h, i);
+	menu_select_element(b, over_el, i);
 }
 
-int menu_draw(int mx, int my, int b, int bq, int i, int *favdesc)
+int menu_draw(int mx, int my, int b, int bq, int i)
 {
-	int h,x,y,n=0,height,width,rows=0,xoff=0,fwidth;
+	int el,x,y,n=0,height,width,rows=0,xoff=0,fwidth;
 	rows = (int)ceil((float)msections[i].itemcount/16.0f);
 	height = (int)(ceil((float)msections[i].itemcount/16.0f)*18);
 	width = (int)restrict_flt(msections[i].itemcount*31.0f, 0, 16*31);
@@ -2163,7 +2166,7 @@ int menu_draw(int mx, int my, int b, int bq, int i, int *favdesc)
 		x = XRES-BARSIZE-26;
 		y = (((YRES/SC_TOTAL)*i2)+((YRES/SC_TOTAL)/2))-(height/2)+(FONT_H/2)+1;
 	}
-	h = -1;
+	el = -1;
 
 	if (i==SC_WALL)//wall menu
 	{
@@ -2180,12 +2183,11 @@ int menu_draw(int mx, int my, int b, int bq, int i, int *favdesc)
 				if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15)
 				{
 					drawrect(vid_buf, x+30, y-1, 29, 17, 255, 55, 55, 255);
-					h = n;
+					el = n;
 				}
 				if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
 				{
 					drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
-					h = n;
 				}
 				else if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
 				{
@@ -2221,14 +2223,13 @@ int menu_draw(int mx, int my, int b, int bq, int i, int *favdesc)
 				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
 				{
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-					h = n;
-					if (b && h==SPC_PROP2)
+					el = n;
+					if (b && el==SPC_PROP2)
 						prop_edit_ui(vid_buf, x, y, 0);
 				}
 				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
 				{
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-					h = n;
 				}
 				else if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
 				{
@@ -2269,12 +2270,11 @@ int menu_draw(int mx, int my, int b, int bq, int i, int *favdesc)
 			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
 			{
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-				h = n;
+				el = n;
 			}
 			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_SHIFT)))
 			{
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-				h = n;
 			}
 			else if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
 			{
@@ -2324,15 +2324,7 @@ int menu_draw(int mx, int my, int b, int bq, int i, int *favdesc)
 			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
 			{
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-				h = n;
-				if (n >= HUD_START && n < HUD_START+HUD_NUM)
-					*favdesc = 4;
-				else if (n >= FAV_START && n < FAV_END)
-					*favdesc = 3;
-				else if (n % 256 == PT_LIFE)
-					*favdesc = 2;
-				else if (n >= PT_NUM)
-					*favdesc = 1;
+				el = n;
 			}
 			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
 			{
@@ -2379,7 +2371,7 @@ int menu_draw(int mx, int my, int b, int bq, int i, int *favdesc)
 			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
 			{
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-				h = n+FAV_START;
+				el = n+FAV_START;
 			}
 		}
 		draw_egg(vid_buf, 500, 200, 3);
@@ -2405,7 +2397,7 @@ int menu_draw(int mx, int my, int b, int bq, int i, int *favdesc)
 				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
 				{
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-					h = n+HUD_START;
+					el = n+HUD_START;
 				}
 				else if (n >= HUD_REALSTART-HUD_START && hud_current[n-HUD_REALSTART+HUD_START] && !strstr(hud_menu[n].name,"#"))
 				{
@@ -2433,12 +2425,11 @@ int menu_draw(int mx, int my, int b, int bq, int i, int *favdesc)
 				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
 				{
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-					h = n;
+					el = n;
 				}
 				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
 				{
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-					h = n;
 				}
 				else if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
 				{
@@ -2459,10 +2450,14 @@ int menu_draw(int mx, int my, int b, int bq, int i, int *favdesc)
 			}
 		}
 	}
-	return h;
+	if (el != -1 && dae < 51)
+		dae = dae + 1;
+	else if (dae)
+		dae = dae - 1; //Fade away selected elements
+	return el;
 }
 
-void menu_draw_text(int h, int favdesc, int i)
+void menu_draw_text(int h, int i)
 {
 	int sy;
 	if (!old_menu)
@@ -2472,19 +2467,27 @@ void menu_draw_text(int h, int favdesc, int i)
 		int height = (int)(ceil((float)msections[i].itemcount/16.0f)*18);
 		sy = (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))-(height/2)+(FONT_H/2)+21+height;
 	}
+	drawtext(vid_buf, XRES-textwidth((char *)msections[i].name)-BARSIZE, sy-10, (char *)msections[i].name, 255, 255, 255, (51-dae)*5);
 	if (h==-1)
 	{
-		drawtext(vid_buf, XRES-textwidth((char *)msections[i].name)-BARSIZE, sy-10, (char *)msections[i].name, 255, 255, 255, 255);
+		//drawtext(vid_buf, XRES-textwidth((char *)msections[i].name)-BARSIZE, sy-10, (char *)msections[i].name, 255, 255, 255, (51-dae)*5);
 	}
-	else if (i==SC_WALL||i==SC_TOOL||favdesc == 1)
+	else if (h < PT_NUM)
 	{
-		drawtext(vid_buf, XRES-textwidth((char *)wtypes[h-UI_WALLSTART].descs)-BARSIZE, sy-10, (char *)wtypes[h-UI_WALLSTART].descs, 255, 255, 255, 255);
+		drawtext(vid_buf, XRES-textwidth((char *)ptypes[h].descs)-BARSIZE, sy-10, (char *)ptypes[h].descs, 255, 255, 255, dae*5);
 	}
-	else if (i==SC_LIFE||favdesc == 2)
+	else if (h >= HUD_START && h < HUD_START+HUD_NUM)
 	{
-		drawtext(vid_buf, XRES-textwidth((char *)gmenu[(h>>8)&0xFF].description)-BARSIZE, sy-10, (char *)gmenu[(h>>8)&0xFF].description, 255, 255, 255, 255);
+		if (!strstr(hud_menu[h-HUD_START].name,"#"))
+			drawtext(vid_buf, XRES-textwidth((char *)hud_menu[h-HUD_START].description)-BARSIZE, sy-10, (char *)hud_menu[h-HUD_START].description, 255, 255, 255, dae*5);
+		else
+		{
+			char description[512] = "";
+			sprintf(description,"%s %i decimal places",hud_menu[h-HUD_START].description,hud_current[h-HUD_REALSTART]);
+			drawtext(vid_buf, XRES-textwidth(description)-BARSIZE, sy-10, description, 255, 255, 255, dae*5);
+		}
 	}
-	else if (i == SC_FAV2||favdesc == 3)
+	else if (h >= FAV_START && h < FAV_END)
 	{
 		char favtext[512] = "";
 		sprintf(favtext, fav[h-FAV_START].description);
@@ -2536,26 +2539,19 @@ void menu_draw_text(int h, int favdesc, int i)
 			else
 				strappend(favtext, "on");
 		}
-		drawtext(vid_buf, XRES-textwidth(favtext)-BARSIZE, sy-10, favtext, 255, 255, 255, 255);
+		drawtext(vid_buf, XRES-textwidth(favtext)-BARSIZE, sy-10, favtext, 255, 255, 255, dae*5);
 	}
-	else if (i==SC_HUD||favdesc == 4)
+	else if (h%256 == PT_LIFE)
 	{
-		if (!strstr(hud_menu[h-HUD_START].name,"#"))
-			drawtext(vid_buf, XRES-textwidth((char *)hud_menu[h-HUD_START].description)-BARSIZE, sy-10, (char *)hud_menu[h-HUD_START].description, 255, 255, 255, 255);
-		else
-		{
-			char description[512] = "";
-			sprintf(description,"%s %i decimal places",hud_menu[h-HUD_START].description,hud_current[h-HUD_REALSTART]);
-			drawtext(vid_buf, XRES-textwidth(description)-BARSIZE, sy-10, description, 255, 255, 255, 255);
-		}
+		drawtext(vid_buf, XRES-textwidth((char *)gmenu[(h>>8)&0xFF].description)-BARSIZE, sy-10, (char *)gmenu[(h>>8)&0xFF].description, 255, 255, 255, dae*5);
 	}
-	else
+	else //if (h >= UI_WALLSTART)
 	{
-		drawtext(vid_buf, XRES-textwidth((char *)ptypes[h].descs)-BARSIZE, sy-10, (char *)ptypes[h].descs, 255, 255, 255, 255);
+		drawtext(vid_buf, XRES-textwidth((char *)wtypes[h-UI_WALLSTART].descs)-BARSIZE, sy-10, (char *)wtypes[h-UI_WALLSTART].descs, 255, 255, 255, dae*5);
 	}
 }
 
-void menu_select_element(int b, int h, int i, int *dae)
+void menu_select_element(int b, int h, int i)
 {
 	//these are click events, b=1 is left click, b=4 is right
 	//h has the value of the element it is over, and -1 if not over an element
@@ -2713,7 +2709,7 @@ void menu_select_element(int b, int h, int i, int *dae)
 			else
 			{
 				sl = su = h;
-				*dae = 51;
+				dae = 51;
 				if (finding)
 					finding = h;
 			}
@@ -2766,7 +2762,7 @@ void menu_select_element(int b, int h, int i, int *dae)
 			else
 			{
 				sr = su = h;
-				*dae = 51;
+				dae = 51;
 				while (pos < last)
 				{
 					favMenu[pos] = favMenu[pos+1];

@@ -299,13 +299,13 @@ int save_filename_ui(pixel *vid_buf);
 
 void menu_ui(pixel *vid_buf, int i);
 
-void menu_ui_v3(pixel *vid_buf, int i, int *dae, int b, int bq, int mx, int my);
+void menu_ui_v3(pixel *vid_buf, int i, int b, int bq, int mx, int my);
 
-int menu_draw(int mx, int my, int b, int bq, int i, int *favdesc);
+int menu_draw(int mx, int my, int b, int bq, int i);
 
-void menu_draw_text(int h, int favdesc, int i);
+void menu_draw_text(int h, int i);
 
-void menu_select_element(int b, int h, int i, int *dae);
+void menu_select_element(int b, int h, int i);
 
 int color_menu_ui(pixel *vid_buf, int i, int *cr, int *cg, int *cb, int b, int bq, int mx, int my);
 

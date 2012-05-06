@@ -17,6 +17,9 @@ gmon.out
 *.lua
 *.*.swp
 *.lib
+*.exe
+*.dmg
+*.zip
 /stamps/
 /saves/
 /tabs/
