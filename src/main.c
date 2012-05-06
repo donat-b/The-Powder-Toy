@@ -1668,10 +1668,8 @@ int main(int argc, char *argv[])
 				}
 				else
 				{
-					SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 					rgbSave = decorations_ui(vid_buf,&bsx,&bsy,rgbSave);//decoration_mode = !decoration_mode;
 					decorations_enable = 1;
-					SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 				}
 			}
 			if (sdl_key=='g')
