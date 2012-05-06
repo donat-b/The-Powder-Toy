@@ -6158,6 +6158,9 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 						ca = 255;
 						if (cr || cg || cb)
 						{
+							if (cr) cr++;
+							if (cg) cg++;
+							if (cb) cb++;
 							currR = cr;
 							currG = cg;
 							currB = cb;
