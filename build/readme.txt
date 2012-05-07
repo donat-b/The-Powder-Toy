@@ -1,11 +1,9 @@
 ------------------------------------------------------------------------------
-If you're missing any DLL's, download them here: http://min.us/lYzg3yW4VN2ce
-
 This is a mod that basically does the same thing as the Lua script I made. 
 It has a favorites menu under the Tools menu, that has all of the elements 
 you selected recently, including walls and tools. Ctrl+Shift+left clicking 
 an element in any menu will pin it permanently to the menu, even after you 
-exit the Powder Toy. Ctrl+Shift+ right clicking an element will unpin an 
+exit the Powder Toy. Ctrl+Shift+right clicking an element will unpin an 
 element from the menu.
 
 If you click the more button, a new menu will appear with 4 options. The HUD 
@@ -99,12 +97,12 @@ remember which ones you've found and which prizes you've unlocked. The prizes
 are actually good unlike real Easter egg hunts, and get better as you find 
 more. Please ignore any graphical glitches on certain eggs, also, one egg 
 doesn't disappear after you click it until you exit and go back.
-
+-----
 The eggs are hidden:
 In different menus and interfaces
 In the online search
 3 are in certain saves (that I like or made)
-
+-----
 The eggs are not:
 In places that require you to be logged in
 In the stamp browser
@@ -183,7 +181,7 @@ reactions. You can make things like indestructible WATR or METL. Lua code can
 now be saved. Put it in luacode.txt, and it will be saved and run in 
 stamps/saves. Press up in the console and then enter to load an example.
 
-Version 9 http://min.us/muN92vQxC
+Version 9: http://min.us/muN92vQxC
 Fix loading some saves and fixed crash with HUD. Removed update button 
 permanetely and updated to newer source. Also, decoration color is now drawn 
 on stamps in the stamp browser. 2 new quickoptions: Newtonian gravity and 
@@ -269,25 +267,18 @@ Fixes to the old menu.
 
 
 Bugs:
-deco zoom
-//None that I know of
-Not from my mod:
-http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=13384
-http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=13373
+None that I know of
 
 
 
 
 Future Ideas/TODO: > means currently being worked on/added next
->fix FAV2/HUD menu and alt select in old menu, fix dae variable
+>fix alt select in old menu
 >change / finish EXPL
-update Psv format (or disable it)
 more lua commands
 make comments on saves scrollable
 option to make sing use gravity instead of presssure
 option to disable copying/resaving in your saves
 make moving solids solid inside and fix saving of rotation
-firework colors - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=10926&PageNum=37
-sensor? - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12361
 new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
 Maybe convert this mod to c++ when The Powder Toy++ is done

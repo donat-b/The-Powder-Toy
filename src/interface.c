@@ -2604,8 +2604,8 @@ void menu_select_element(int b, int h, int i)
 			else if (h == FAV_SAVE)
 			{
 				save_as = (save_as + 1)%6;
-				if (save_as == 4)
-					save_as = 0;
+				if (save_as == 5)
+					save_as = 2;
 #ifndef BETA
 				if (save_as%3 == 1)
 					save_as++;
