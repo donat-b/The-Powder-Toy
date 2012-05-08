@@ -273,7 +273,6 @@ None that I know of
 
 
 Future Ideas/TODO: > means currently being worked on/added next
->fix alt select in old menu
 >change / finish EXPL
 more lua commands
 make comments on saves scrollable

@@ -2072,11 +2072,15 @@ int save_name_ui(pixel *vid_buf)
 //old menu function, with the elements drawn on the side. Seems like it probably should be menu_ui_v2
 void menu_ui(pixel *vid_buf, int i)
 {
-	int b=1,bq,mx,my,y,sy,height,width,rows=0;
+	int b=1,bq,mx,my,y,sy;
+	int rows = (int)ceil((float)msections[i].itemcount/16.0f);
+	int height = (int)(ceil((float)msections[i].itemcount/16.0f)*18);
+	int width = (int)restrict_flt(msections[i].itemcount*31.0f, 0, 16*31);
 	pixel *old_vid=(pixel *)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	fillrect(vid_buf, -1, -1, XRES+1, YRES+MENUSIZE, 0, 0, 0, 192);
 	memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 	active_menu = i;
+	sy = y = (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))-(height/2)+(FONT_H/2)+1;
 
 	while (!sdl_poll())
 	{
@@ -2086,33 +2090,32 @@ void menu_ui(pixel *vid_buf, int i)
 	}
 	while (!sdl_poll())
 	{
+		SEC = SEC2;
 		bq = b;
 		b = mouse_get_state(&mx, &my);
-		rows = (int)ceil((float)msections[i].itemcount/16.0f);
-		height = (int)(ceil((float)msections[i].itemcount/16.0f)*18);
-		width = (int)restrict_flt(msections[i].itemcount*31.0f, 0, 16*31);
-		//clearrect(vid_buf, -1, -1, XRES+1, YRES+MENUSIZE+1);
-		sy = y = (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))-(height/2)+(FONT_H/2)+1;
-		//clearrect(vid_buf, (XRES-BARSIZE-width)+1, y-4, width+4, height+4+rows);
-		fillrect(vid_buf, (XRES-BARSIZE-width)-7, y-10, width+16, height+16+rows, 0, 0, 0, 100);
-		drawrect(vid_buf, (XRES-BARSIZE-width)-7, y-10, width+16, height+16+rows, 255, 255, 255, 255);
-		fillrect(vid_buf, (XRES-BARSIZE)+11, (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))-2, 15, FONT_H+3, 0, 0, 0, 100);
-		drawrect(vid_buf, (XRES-BARSIZE)+10, (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))-2, 16, FONT_H+3, 255, 255, 255, 255);
-		drawrect(vid_buf, (XRES-BARSIZE)+9, (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))-1, 1, FONT_H+1, 0, 0, 0, 255);
+		fillrect(vid_buf, (XRES-BARSIZE-width)-4, y-5, width+16, height+16+rows, 0, 0, 0, 100);
+		drawrect(vid_buf, (XRES-BARSIZE-width)-4, y-5, width+16, height+16+rows, 255, 255, 255, 255);
+		fillrect(vid_buf, (XRES-BARSIZE)+14, (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))+3, 15, FONT_H+4, 0, 0, 0, 100);
+		drawrect(vid_buf, (XRES-BARSIZE)+13, (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))+3, 16, FONT_H+4, (SEC==i&&SEC!=0)?0:255, 255, 255, 255);
+		drawrect(vid_buf, (XRES-BARSIZE)+12, (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))+4, 1, FONT_H+2, 0, 0, 0, 255);
 		
-		over_el = menu_draw(mx, my, b, bq, i);
+		over_el = menu_draw(mx, my, b, bq, active_menu);
 		if (over_el != -1)
 			h = over_el;
-		menu_draw_text(h, active_menu);
+		if (!bq && mx>=((XRES+BARSIZE)-16) ) //highlight menu section
+			if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
+				if (i>0&&i<SC_TOTAL)
+					SEC = i;
+		menu_draw_text(h);
 
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 		memcpy(vid_buf, old_vid, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
-		if (!(mx>=(XRES-BARSIZE-width)-7 && my>=sy-10 && my<sy+height+9))
+		if (!(mx>=(XRES-BARSIZE-width)-4 && my>=sy-5 && my<sy+height+14))
 		{
 			break;
 		}
 
-		menu_select_element(b, over_el, active_menu);
+		menu_select_element(b, over_el);
 
 		if (sdl_key==SDLK_RETURN)
 			break;
@@ -2142,29 +2145,26 @@ void menu_ui_v3(pixel *vid_buf, int i, int b, int bq, int mx, int my)
 		draw_egg(vid_buf, 300, 300, 20);
 	if (!bq && mx>=((XRES+BARSIZE)-16) ) //highlight menu section
 		if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
-			if (i>=0&&i<SC_TOTAL)
+			if (i>0&&i<SC_TOTAL)
 				SEC = i;
 
-	menu_draw_text(h, i);
-	menu_select_element(b, over_el, i);
+	menu_draw_text(h);
+	menu_select_element(b, over_el);
 }
 
 int menu_draw(int mx, int my, int b, int bq, int i)
 {
-	int el,x,y,n=0,height,width,rows=0,xoff=0,fwidth;
-	rows = (int)ceil((float)msections[i].itemcount/16.0f);
-	height = (int)(ceil((float)msections[i].itemcount/16.0f)*18);
-	width = (int)restrict_flt(msections[i].itemcount*31.0f, 0, 16*31);
-	fwidth = msections[i].itemcount*31;
+	int el,x,y,n=0,xoff=0,fwidth = msections[i].itemcount*31;
 	if (!old_menu) {
 		x = XRES-BARSIZE-18;
 		y = YRES+1;
 	} else {
 		int i2 = i;
+		int height = (int)(ceil((float)msections[i].itemcount/16.0f)*18);
 		if (i == SC_FAV2 || i == SC_HUD)
 			i2 = SC_FAV;
-		x = XRES-BARSIZE-26;
-		y = (((YRES/SC_TOTAL)*i2)+((YRES/SC_TOTAL)/2))-(height/2)+(FONT_H/2)+1;
+		x = XRES-BARSIZE-23;
+		y = (((YRES/SC_TOTAL)*i2)+((YRES/SC_TOTAL)/2))-(height/2)+(FONT_H/2)+6;
 	}
 	el = -1;
 
@@ -2176,7 +2176,7 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 			{
 				if (old_menu && x-26<=60)
 				{
-					x = XRES-BARSIZE-26;
+					x = XRES-BARSIZE-23;
 					y += 19;
 				}
 				x -= draw_tool_xy(vid_buf, x, y, n, wtypes[n-UI_WALLSTART].colour)+5;
@@ -2216,7 +2216,7 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 			{
 				if (old_menu && x-26<=60)
 				{
-					x = XRES-BARSIZE-26;
+					x = XRES-BARSIZE-23;
 					y += 19;
 				}
 				x -= draw_tool_xy(vid_buf, x-xoff, y, n, wtypes[n-UI_WALLSTART].colour)+5;
@@ -2263,7 +2263,7 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 			n = PT_LIFE | (n2<<8);
 			if (old_menu && x-26<=60)
 			{
-				x = XRES-BARSIZE-26;
+				x = XRES-BARSIZE-23;
 				y += 19;
 			}
 			x -= draw_tool_xy(vid_buf, x-xoff, y, n, gmenu[n2].colour)+5;
@@ -2301,7 +2301,7 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 		{
 			if (old_menu && x-26<=60)
 			{
-				x = XRES-BARSIZE-26;
+				x = XRES-BARSIZE-23;
 				y += 19;
 			}
 			n = favMenu[n2];
@@ -2363,7 +2363,7 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 		{
 			if (old_menu && x-26<=60)
 			{
-				x = XRES-BARSIZE-26;
+				x = XRES-BARSIZE-23;
 				y += 19;
 			}
 			x -= draw_tool_xy(vid_buf, x-xoff, y, FAV_START+n, fav[n].colour)+5;
@@ -2384,7 +2384,7 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 		{
 			if (old_menu && x-26<=60)
 			{
-				x = XRES-BARSIZE-26;
+				x = XRES-BARSIZE-23;
 				y += 19;
 			}
 			if (hud_menu[n].menunum == hud_menunum || n == 0)
@@ -2416,7 +2416,7 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 		{
 			if (old_menu && x-26<=60)
 			{
-				x = XRES-BARSIZE-26;
+				x = XRES-BARSIZE-23;
 				y += 19;
 			}
 			if (ptypes[n].menusection==i && (ptypes[n].menu==1 || (secret_els && ptypes[n].enabled == 1)))
@@ -2457,20 +2457,20 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 	return el;
 }
 
-void menu_draw_text(int h, int i)
+void menu_draw_text(int h)
 {
 	int sy;
 	if (!old_menu)
 		sy = YRES+1;
 	else
 	{
-		int height = (int)(ceil((float)msections[i].itemcount/16.0f)*18);
-		sy = (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))-(height/2)+(FONT_H/2)+21+height;
+		int height = (int)(ceil((float)msections[active_menu].itemcount/16.0f)*18);
+		sy = (((YRES/SC_TOTAL)*active_menu)+((YRES/SC_TOTAL)/2))-(height/2)+(FONT_H/2)+26+height;
 	}
-	drawtext(vid_buf, XRES-textwidth((char *)msections[i].name)-BARSIZE, sy-10, (char *)msections[i].name, 255, 255, 255, (51-dae)*5);
+	drawtext(vid_buf, XRES-textwidth((char *)msections[active_menu].name)-BARSIZE, sy-10, (char *)msections[active_menu].name, 255, 255, 255, (51-dae)*5);
 	if (h==-1)
 	{
-		//drawtext(vid_buf, XRES-textwidth((char *)msections[i].name)-BARSIZE, sy-10, (char *)msections[i].name, 255, 255, 255, (51-dae)*5);
+		//drawtext(vid_buf, XRES-textwidth((char *)msections[i].name)-BARSIZE, sy-10, (char *)msections[active_menu].name, 255, 255, 255, (51-dae)*5);
 	}
 	else if (h < PT_NUM)
 	{
@@ -2551,7 +2551,7 @@ void menu_draw_text(int h, int i)
 	}
 }
 
-void menu_select_element(int b, int h, int i)
+void menu_select_element(int b, int h)
 {
 	//these are click events, b=1 is left click, b=4 is right
 	//h has the value of the element it is over, and -1 if not over an element
@@ -2750,7 +2750,7 @@ void menu_select_element(int b, int h, int i)
 					pos = j; // If el is alredy on list, don't put it there twice
 			if (pos > 18-locked && locked != 18) lock = 1;
 			if (lock) last = 18;
-			if (pos > 18-locked && sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL) && locked > 0 & i == SC_FAV)
+			if (pos > 18-locked && sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL) && locked > 0 && active_menu == SC_FAV)
 			{
 				int temp = favMenu[pos];
 				for (j = pos; j > 19-locked; j--)

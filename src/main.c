@@ -2005,13 +2005,13 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			for (i=0; i<SC_TOTAL; i++)//check mouse position to see if it is on a menu section
+			for (i=0; i<SC_TOTAL; i++)
 			{
-				drawtext(vid_buf, XRES+1, /*(12*i)+2*/((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2), msections[i].icon, 255, 255, 255, 255);
+				drawtext(vid_buf, XRES+1, /*(12*i)+2*/((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+5, msections[i].icon, 255, 255, 255, 255);
 			}
 			for (i=0; i<SC_TOTAL; i++)//check mouse position to see if it is on a menu section
 			{
-				if(!b && x>= XRES+1 && x< XRES+BARSIZE-1 && y>= ((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)-2 && y<((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+12)
+				if(!b && x>= XRES+1 && x< XRES+BARSIZE-1 && y>= ((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+3 && y<((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+17)
 					menu_ui(vid_buf, i); //draw the elements in the current menu
 			}
 		}
