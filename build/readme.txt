@@ -273,9 +273,7 @@ None that I know of
 
 
 Future Ideas/TODO: > means currently being worked on/added next
->change / finish EXPL
 more lua commands
-make comments on saves scrollable
 option to make sing use gravity instead of presssure
 option to disable copying/resaving in your saves
 make moving solids solid inside and fix saving of rotation
