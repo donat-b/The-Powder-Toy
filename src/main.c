@@ -2099,8 +2099,8 @@ int main(int argc, char *argv[])
 				}
 				if (hud_current[19])
 				{
-					sprintf(heattext, "%s, Pressure: %3.2f, Temp: %4.2f C, Life: %d, Tmp:%d", nametext, pv[y/CELL][x/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life, parts[cr>>8].tmp);
-					sprintf(coordtext, "#%d, X:%d Y:%d", cr>>8, x, y);
+					sprintf(tempstring," Life: %d,",parts[cr>>8].life);
+					strappend(heattext2,tempstring);
 				}
 				if (hud_current[20])
 				{
