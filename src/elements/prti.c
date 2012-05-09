@@ -1,3 +1,18 @@
+/*
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <element.h>
 /*these are the count values of where the particle gets stored, depending on where it came from
    0 1 2
@@ -26,10 +41,10 @@ int update_PRTI(UPDATE_FUNC_ARGS) {
 				r = pmap[y+ry][x+rx];
 				if (!(r&0xFF))
 					fe = 1;
-				if (!(r&0xFF) || (r&0xFF)==PT_PRTI || (r&0xFF)==PT_PRTO || (r&0xFF)==PT_PPTI || (r&0xFF)==PT_PPTO || (ptypes[r&0xFF].falldown== 0 && ptypes[r&0xFF].state != ST_GAS && (r&0xFF)!=PT_SPRK))
+				if (!(r&0xFF) || (r&0xFF)==PT_PRTI || (r&0xFF)==PT_PRTO || (r&0xFF)==PT_PPTI || (r&0xFF)==PT_PPTO || (!(ptypes[r&0xFF].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY)) && (r&0xFF)!=PT_SPRK))
 				{
 					r = photons[y+ry][x+rx];
-					if (!(r&0xFF) || (r&0xFF)==PT_PRTI || (r&0xFF)==PT_PRTO || (r&0xFF)==PT_PPTI || (r&0xFF)==PT_PPTO || (ptypes[r&0xFF].falldown== 0 && ptypes[r&0xFF].state != ST_GAS && (r&0xFF)!=PT_SPRK))
+					if (!(r&0xFF))
 						continue;
 				}
 

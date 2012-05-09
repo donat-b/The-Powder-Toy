@@ -1,3 +1,20 @@
+/**
+ * Powder Toy - user interface
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifdef MACOSX
 #include <CoreFoundation/CFString.h>
 #endif
@@ -2603,9 +2620,7 @@ void menu_select_element(int b, int h)
 				heatmode = (heatmode + 1)%3;
 			else if (h == FAV_SAVE)
 			{
-				save_as = (save_as + 1)%6;
-				if (save_as == 5)
-					save_as = 2;
+				save_as = 3+(save_as + 1)%3;
 #ifndef BETA
 				if (save_as%3 == 1)
 					save_as++;
@@ -4052,7 +4067,6 @@ int search_ui(pixel *vid_buf)
 					thumb = calloc(1,4);
 					thlen = 4;
 				}
-				printf("Added %s to cache\n", img_id[i]);
 				thumb_cache_add(img_id[i], thumb, thlen);
 				for (pos=0; pos<GRID_X*GRID_Y; pos++) {
 					if (search_dates[pos]) {
@@ -4065,7 +4079,7 @@ int search_ui(pixel *vid_buf)
 						strappend(id_d_temp, "_");
 						strappend(id_d_temp, search_dates[pos]);
 						//img_id[i] = mystrdup(id_d_temp);
-						if (!strcmp(id_d_temp, img_id[i])) {
+						if (!strcmp(id_d_temp, img_id[i]) && !search_thumbs[pos]) {
 							break;
 						}
 						free(id_d_temp);
@@ -4136,7 +4150,6 @@ int search_ui(pixel *vid_buf)
 						strappend(uri, "_small.pti");
 						img_id[i] = mystrdup(search_ids[pos]);
 					}
-					printf("Not found: %s, downloading\n", img_id[i]);
 					img_http[i] = http_async_req_start(img_http[i], uri, NULL, 0, 1);
 					free(uri);
 				}

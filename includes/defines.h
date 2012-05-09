@@ -1,3 +1,19 @@
+/**
+ * Powder Toy - Main source
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #ifndef DEFINE_H
 #define DEFINE_H
 
@@ -9,17 +25,16 @@
  
 //VersionInfoStart
 #define SAVE_VERSION 78
-#define MINOR_VERSION 0
-#define BETA
-#define BUILD_NUM 162
+#define MINOR_VERSION 1
+#define BUILD_NUM 163
 //VersionInfoEnd
 
 #define MOD_VERSION 14
 #define MOD_SAVE_VERSION 8 //This is not the version number of my mod anymore, it's only changed when I change the stamp/save saving code
 #define BETA_VERSION 78
 #define BETA_MINOR_VER 0
-#define RELEASE_VERSION 77
-#define RELEASE_MINOR_VER 0
+#define RELEASE_VERSION 78
+#define RELEASE_MINOR_VER 1
 
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter
 
