@@ -110,6 +110,20 @@ In any front page saves, those won't be there long
 Any place that would take a lot of work to find, like page 50 of the online search
 Hidden until a certain reaction happens, you don't need to draw elements
 
+Lua Graphics Functions: Allows you to change an element's graphics function. 
+The values i, colr, colg, and colb are passed into the function. You must 
+return cache, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, and 
+fireb in that order. If you leave any out or as nil, it will get it's default 
+value. The cache value is a boolean that tells if it will add these values 
+into the graphics cache, meaning it will remember the return values and not 
+run your function again. This eliminates lag when a lot of particles are 
+drawn. The pixel_mode properties can be found in powdergraphics.h.
+Example: 
+function graphics(i, colr, colg, colb)
+   return 1,0x00FF0008,0,0,255,255,255,0,0,255; --cola is ignored, so it didn't matter that I accidentally made it 0
+end -- blue green with a bluish glow
+tpt.graphics_func(graphics,tpt.el.eqve.id)
+
 
 
 
@@ -260,9 +274,6 @@ update to latest source again. reversable pipe - spark with PSCN to reverse,
 NSCN to unreverse. This mod is temporarily discontinued, but will be started 
 again in May/June.
 
-Next Version
-Fixes to the old menu.
-
 
 
 
@@ -272,10 +283,16 @@ None that I know of
 
 
 
+Next Version
+Fixes to the old menu. Ability to make custom lua graphics functions.
+
+
+
+
 Future Ideas/TODO: > means currently being worked on/added next
+>prepare for + add new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
 more lua commands
 option to make sing use gravity instead of presssure
 option to disable copying/resaving in your saves
 make moving solids solid inside and fix saving of rotation
-new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
 Maybe convert this mod to c++ when The Powder Toy++ is done

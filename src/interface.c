@@ -2146,7 +2146,7 @@ void menu_ui(pixel *vid_buf, int i)
 		if (!b)
 			break;
 	}
-	//drawtext(vid_buf, XRES+2, (12*i)+2, msections[i].icon, 255, 255, 255, 255);
+	free(old_vid);
 }
 
 //current menu function
