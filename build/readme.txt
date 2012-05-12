@@ -278,7 +278,7 @@ again in May/June.
 
 
 Bugs:
-None that I know of
+None that I know of ... that are important enough to fix
 
 
 

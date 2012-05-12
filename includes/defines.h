@@ -232,6 +232,8 @@ extern int found_eggs[20];
 extern char* last_save_id;
 extern int unlockedstuff;
 extern int old_menu;
+extern int h;
+extern int over_el;
 
 extern int drawinfo;
 extern int currentTime;

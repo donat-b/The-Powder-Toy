@@ -2003,13 +2003,27 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
+			if (active_menu > SC_FAV) {
+				over_el = menu_draw(x, y, b, bq, active_menu);
+				if (over_el != -1)
+					h = over_el;
+				menu_draw_text(h, active_menu);
+				menu_select_element(b, over_el);
+			} else {
+				over_el = menu_draw(x, y, b, bq, SC_FAV);
+				if (over_el != -1)
+					h = over_el;
+				menu_draw_text(h, SC_FAV);
+				menu_select_element(b, over_el);
+			}
 			for (i=0; i<SC_TOTAL; i++)
 			{
-				drawtext(vid_buf, XRES+1, /*(12*i)+2*/((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+5, msections[i].icon, 255, 255, 255, 255);
+				if (i < SC_FAV)
+					drawtext(vid_buf, XRES+1, /*(12*i)+2*/((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+5, msections[i].icon, 255, 255, 255, 255);
 			}
 			for (i=0; i<SC_TOTAL; i++)//check mouse position to see if it is on a menu section
 			{
-				if(!b && x>= XRES+1 && x< XRES+BARSIZE-1 && y>= ((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+3 && y<((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+17)
+				if(!b && i < SC_FAV && x>= XRES+1 && x< XRES+BARSIZE-1 && y>= ((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+3 && y<((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+17)
 					menu_ui(vid_buf, i); //draw the elements in the current menu
 			}
 		}

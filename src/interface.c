@@ -2123,7 +2123,7 @@ void menu_ui(pixel *vid_buf, int i)
 			if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
 				if (i>0&&i<SC_TOTAL)
 					SEC = i;
-		menu_draw_text(h);
+		menu_draw_text(h, active_menu);
 
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 		memcpy(vid_buf, old_vid, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
@@ -2165,14 +2165,14 @@ void menu_ui_v3(pixel *vid_buf, int i, int b, int bq, int mx, int my)
 			if (i>0&&i<SC_TOTAL)
 				SEC = i;
 
-	menu_draw_text(h);
+	menu_draw_text(h, i);
 	menu_select_element(b, over_el);
 }
 
 int menu_draw(int mx, int my, int b, int bq, int i)
 {
 	int el,x,y,n=0,xoff=0,fwidth = msections[i].itemcount*31;
-	if (!old_menu) {
+	if (!old_menu || i >= SC_FAV) {
 		x = XRES-BARSIZE-18;
 		y = YRES+1;
 	} else {
@@ -2316,11 +2316,6 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 		int n2;
 		for (n2 = 0; n2<19; n2++)
 		{
-			if (old_menu && x-26<=60)
-			{
-				x = XRES-BARSIZE-23;
-				y += 19;
-			}
 			n = favMenu[n2];
 			if (n >= HUD_START && n < HUD_START+HUD_NUM)
 			{
@@ -2378,11 +2373,6 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 		}*/
 		for (n = 1; n < FAV_END - FAV_START; n++)
 		{
-			if (old_menu && x-26<=60)
-			{
-				x = XRES-BARSIZE-23;
-				y += 19;
-			}
 			x -= draw_tool_xy(vid_buf, x-xoff, y, FAV_START+n, fav[n].colour)+5;
 
 			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
@@ -2399,11 +2389,6 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 			draw_egg(vid_buf, 470, 320, 11);
 		for (n = 0; n < HUD_NUM; n++)
 		{
-			if (old_menu && x-26<=60)
-			{
-				x = XRES-BARSIZE-23;
-				y += 19;
-			}
 			if (hud_menu[n].menunum == hud_menunum || n == 0)
 			{
 				pixel color = hud_menu[n].color;
@@ -2474,20 +2459,20 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 	return el;
 }
 
-void menu_draw_text(int h)
+void menu_draw_text(int h, int i)
 {
 	int sy;
-	if (!old_menu)
+	if (!old_menu || i >= SC_FAV)
 		sy = YRES+1;
 	else
 	{
-		int height = (int)(ceil((float)msections[active_menu].itemcount/16.0f)*18);
-		sy = (((YRES/SC_TOTAL)*active_menu)+((YRES/SC_TOTAL)/2))-(height/2)+(FONT_H/2)+26+height;
+		int height = (int)(ceil((float)msections[i].itemcount/16.0f)*18);
+		sy = (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))-(height/2)+(FONT_H/2)+26+height;
 	}
-	drawtext(vid_buf, XRES-textwidth((char *)msections[active_menu].name)-BARSIZE, sy-10, (char *)msections[active_menu].name, 255, 255, 255, (51-dae)*5);
+	drawtext(vid_buf, XRES-textwidth((char *)msections[i].name)-BARSIZE, sy-10, (char *)msections[i].name, 255, 255, 255, (51-dae)*5);
 	if (h==-1)
 	{
-		//drawtext(vid_buf, XRES-textwidth((char *)msections[i].name)-BARSIZE, sy-10, (char *)msections[active_menu].name, 255, 255, 255, (51-dae)*5);
+		//drawtext(vid_buf, XRES-textwidth((char *)msections[i].name)-BARSIZE, sy-10, (char *)msections[i].name, 255, 255, 255, (51-dae)*5);
 	}
 	else if (h < PT_NUM)
 	{
