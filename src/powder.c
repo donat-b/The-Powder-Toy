@@ -180,6 +180,7 @@ void init_can_move()
 	can_move[PT_ANAR][PT_NWHL] = 1;
 	can_move[PT_SPNG][PT_SPNG] = 2;
 	can_move[PT_RAZR][PT_CNCT] = 1;
+	can_move[PT_THDR][PT_THDR] = 2;
 }
 
 /*
@@ -276,7 +277,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 
 	if (!e) //if no movement
 	{
-		if (parts[i].type!=PT_NEUT && parts[i].type!=PT_PHOT && parts[i].type!=PT_ELEC)
+		if (!(ptypes[parts[i].type].properties & TYPE_ENERGY))
 			return 0;
 		if (!legacy_enable && parts[i].type==PT_PHOT && r)//PHOT heat conduction
 		{
@@ -290,7 +291,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 			if (!parts[r>>8].ctype)
 				parts[r>>8].ctype = parts[i].type;
 		}
-		if (((r&0xFF)==PT_PRTI || (r&0xFF)==PT_PPTI) && (parts[i].type==PT_PHOT || parts[i].type==PT_NEUT || parts[i].type==PT_ELEC))
+		if (((r&0xFF)==PT_PRTI || (r&0xFF)==PT_PPTI) && (ptypes[parts[i].type].properties & TYPE_ENERGY))
 		{
 			int nnx, count;
 			for (count=0; count<8; count++)
@@ -468,7 +469,7 @@ int do_move(int i, int x, int y, float nxf, float nyf)
 				kill_part(i);
 				return -1;
 			}
-			if (t==PT_PHOT||t==PT_NEUT||t==PT_ELEC)
+			if (ptypes[t].properties & TYPE_ENERGY)
 				photons[ny][nx] = t|(i<<8);
 			else if (t && (pmap[ny][nx]&0xFF) != PT_PINV)
 				pmap[ny][nx] = t|(i<<8);
@@ -779,7 +780,7 @@ inline void part_change_type(int i, int x, int y, int t)//changes the type of pa
 	}
 
 	parts[i].type = t;
-	if (t==PT_PHOT || t==PT_NEUT || t==PT_ELEC)
+	if (ptypes[t].properties & TYPE_ENERGY)
 	{
 		photons[y][x] = t|(i<<8);
 		if ((pmap[y][x]>>8)==i)
@@ -953,7 +954,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 			}
 			return -1;
 		}
-		if (photons[y][x] && (t==PT_PHOT||t==PT_NEUT||t==PT_ELEC))
+		if (photons[y][x] && (ptypes[t].properties & TYPE_ENERGY))
 			return -1;
 		if (pfree == -1)
 			return -1;
@@ -1269,7 +1270,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 	if (t==PT_BIZR||t==PT_BIZRG||t==PT_BIZRS)
 		parts[i].ctype = 0x47FFFF;
 	//and finally set the pmap/photon maps to the newly created particle
-	if (t==PT_PHOT||t==PT_NEUT||t==PT_ELEC)
+	if (ptypes[t].properties & TYPE_ENERGY)
 		photons[y][x] = t|(i<<8);
 	else if (t!=PT_STKM && t!=PT_STKM2 && t!=PT_FIGH)
 		pmap[y][x] = t|(i<<8);
@@ -2619,7 +2620,7 @@ killed:
 			stagnant = parts[i].flags & FLAG_STAGNANT;
 			parts[i].flags &= ~FLAG_STAGNANT;
 
-			if ((t==PT_PHOT||t==PT_NEUT||t==PT_ELEC)) {
+			if (ptypes[t].properties & TYPE_ENERGY) {
 				if (t == PT_PHOT) {
 					if (parts[i].flags&FLAG_SKIPMOVE)
 					{
@@ -3031,7 +3032,7 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 			{
 				if (parts[i].type == PT_PINV && (parts[i].tmp2>>8) >= i)
 					parts[i].tmp2 = 0;
-				if (t==PT_PHOT||t==PT_NEUT||t==PT_ELEC)
+				if (ptypes[t].properties & TYPE_ENERGY)
 					photons[y][x] = t|(i<<8);
 				else if ((pmap[y][x]&0xFF) != PT_PINV)
 					pmap[y][x] = t|(i<<8);
