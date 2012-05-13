@@ -16,6 +16,8 @@
  */
 
 #include <defines.h>
+
+int loop_time = 0;
 #ifdef LUACONSOLE
 #include <powder.h>
 #include "gravity.h"
@@ -33,7 +35,6 @@ int tptProperties; //Table for some TPT properties
 int tptPropertiesVersion;
 int tptElements; //Table for TPT element names
 int tptParts, tptPartsMeta, tptElementTransitions, tptPartsCData, tptPartMeta, tptPart, cIndex;
-int loop_time = 0;
 void luacon_open(){
 	int i = 0, j;
 	char tmpname[12];

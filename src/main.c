@@ -3221,7 +3221,7 @@ int main(int argc, char *argv[])
 			}
 			free(console);
 #else
-			char *console;.
+			char *console;
 			console = console_ui(vid_buf, console_error, console_more);
 			console = mystrdup(console);
 			strcpy(console_error,"");

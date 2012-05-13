@@ -284,7 +284,8 @@ None that I know of ... that are important enough to fix
 
 
 Next Version
-Fixes to the old menu. Ability to make custom lua graphics functions.
+Fixes to the old menu, the favorites menu is always drawn on bottom when 
+using that. Ability to make custom lua graphics functions.
 
 
 
@@ -293,6 +294,7 @@ Future Ideas/TODO: > means currently being worked on/added next
 >prepare for + add new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
 more lua commands
 option to make sing use gravity instead of presssure
+Add things from tpt++ that look cool (differences like saving stamps & deco editor)
 option to disable copying/resaving in your saves
 make moving solids solid inside and fix saving of rotation
 Maybe convert this mod to c++ when The Powder Toy++ is done

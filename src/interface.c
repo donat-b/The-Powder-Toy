@@ -2612,7 +2612,11 @@ void menu_select_element(int b, int h)
 #endif
 			}
 			else if (h == FAV_LUA)
+#ifdef LUACONSOLE
 				addluastuff();
+#else
+				error_ui(vid_buf, 0, "Lua console not enabled");
+#endif
 			else if (h == FAV_CUSTOMHUD)
 				active_menu = SC_HUD;
 			else if (h == FAV_AUTOSAVE)
