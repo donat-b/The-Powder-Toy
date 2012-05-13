@@ -198,7 +198,7 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 					else
 						parts[r>>8].life = 12;
 				}
-				if (rt == PT_PIPE && parts[i].life >= 3)
+				if (rt == PT_PIPE && parts[i].life >= 3 && pavg!=PT_INSL)
 				{
 					if (ct == PT_PSCN)
 					{
