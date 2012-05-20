@@ -284,17 +284,19 @@ None that I know of ... that are important enough to fix
 
 
 Next Version
-Fixes to the old menu, the favorites menu is always drawn on bottom when 
-using that. Ability to make custom lua graphics functions.
+Fix some deco editor bugs. Element descriptions fade in and out nicely.Fixes 
+to the old menu, the favorites menu is always drawn on bottom when using that. 
+Ability to make custom lua graphics functions. Fix glitch in HUD (life 
+wouldn't show up)
 
 
 
 
 Future Ideas/TODO: > means currently being worked on/added next
->prepare for + add new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
-more lua commands
-option to make sing use gravity instead of presssure
+finish lua script ive been working on
 Add things from tpt++ that look cool (differences like saving stamps & deco editor)
+option to make sing use gravity instead of presssure
+more lua commands
+new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
 option to disable copying/resaving in your saves
 make moving solids solid inside and fix saving of rotation
-Maybe convert this mod to c++ when The Powder Toy++ is done

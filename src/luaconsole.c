@@ -1927,6 +1927,8 @@ int luatpt_setdebug(lua_State* l)
 int luatpt_setfpscap(lua_State* l)
 {
 	int fpscap = luaL_optint(l, 1, 0);
+	if (fpscap < 2)
+		return luaL_error(l, "fps cap too small");
 	limitFPS = fpscap;
 	return 0;
 }

@@ -1,16 +1,12 @@
 powder.def
 powder.pref
-elements.txt
-luacode.txt
-newluacode.txt
-stdout.txt
-stderr.txt
 *.lua
 *.lib
 *.exe
 *.dmg
 *.zip
 *.dll
+*.txt
 *The-Powder-Toy*
 /stamps/
 /saves/
