@@ -267,7 +267,8 @@ and PCLN are indestructible, BCLN and PBCN break with DEST and SING again.
 BHOL, VENT, and VOID are not destroyed by DEST or SING now. New lua commands: 
 tpt.draw(or fill)circle(x,y,rx,ry,r,g,b,a) and tpt.indestructible(string name 
 or particle number). An optional argument to that is a 0, which makes it 
-destructible again. Added Easter egg hunt, press 'e' to start.
+destructible again. Added Easter egg hunt, press 'e' to start. Removed in 
+version 15.
 
 Version 14.2 - 4/30/12
 update to latest source again. reversable pipe - spark with PSCN to reverse, 
@@ -288,7 +289,7 @@ Fix some deco editor bugs. Element descriptions fade in and out nicely.Fixes
 to the old menu, the favorites menu is always drawn on bottom when using that. 
 Ability to make custom lua graphics functions. Fix glitch in HUD (life 
 wouldn't show up). You can scroll through comments on saves, but only 10 at 
-most are able to show up.
+most are able to show up. User ID's are now drawn on comments.
 
 
 

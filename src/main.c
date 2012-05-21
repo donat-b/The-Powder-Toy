@@ -244,10 +244,6 @@ int sr = 0;
 int su = 0;
 int autosave = 0;
 int realistic = 0;
-int finding_eggs = 0;
-int eggs_found = 0;
-int found_eggs[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-char* last_save_id = "";
 int unlockedstuff = 0;
 int old_menu = 0;
 
@@ -298,7 +294,7 @@ int core_count()
 	return numCPU;
 }
 
-int mousex = 0, mousey = 0, mouse_x = 0, mouse_y = 0, mouse_b = 0, mouse_bq = 0, lastx = 0, lasty = 0;  //They contain mouse position
+int mousex = 0, mousey = 0, lastx = 0, lasty = 0;  //They contain mouse position
 int kiosk_enable = 0;
 
 void sdl_seticon(void)
@@ -402,7 +398,6 @@ void clear_sim(void)
 	memset(msvy, 0, sizeof(msvy));
 	memset(msrotation, 0, sizeof(msrotation));
 	finding = 0;
-	last_save_id = "";
 }
 
 // stamps library
@@ -1342,35 +1337,6 @@ int main(int argc, char *argv[])
 					break;
 				}
 			}
-			if (sdl_key=='e')
-			{
-				if (!finding_eggs)
-				{
-					finding_eggs = 1;
-					it = 0;
-					info_ui(vid_buf, "Easter egg hunt started", "Easter's over, but you can still find 20 all eggs");
-				}
-				else
-				{
-					int i;
-					char found[32];
-					for (i = 0; i < 20; i++)
-					{
-						if (found_eggs[i])
-						{
-							sprintf(found, "Found: egg %i", i+1);
-							drawtext(vid_buf, 100, 100+i*12, found, 255, 255, 255, 255);
-						}
-					}
-					if (20-eggs_found > 1)
-						sprintf(found, "There are %i eggs left", 20-eggs_found);
-					else if (20-eggs_found == 1)
-						sprintf(found, "There is 1 egg left");
-					else
-						sprintf(found, "You've already found all the eggs");
-					info_ui(vid_buf, "Eggs found", found);
-				}
-			}
 			if (sdl_key=='i' && (sdl_mod & KMOD_CTRL))
 			{
 				if(confirm_ui(vid_buf, "Install Powder Toy", "You are about to install The Powder Toy", "Install"))
@@ -1454,7 +1420,7 @@ int main(int argc, char *argv[])
 					catalogue_ui(vid_buf);
 					SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 				}
-				else if (unlockedstuff & 0x20)
+				else
 					old_menu = !old_menu;
 			}
 			if (sdl_key=='1')
@@ -2903,7 +2869,6 @@ int main(int argc, char *argv[])
 		{
 			it--;
 			drawtext(vid_buf, 16, 20, it_msg, 255, 255, 255, it>51?255:it*5);
-			draw_egg(vid_buf, 15, 15, 12);
 		}
 
 		if (old_version)
@@ -2972,8 +2937,8 @@ int main(int argc, char *argv[])
 		}
 		if (afk && currentTime - afkstart > 30000)
 			afktime = currentTime - afkstart - 30000;
-		lastx = mouse_x;
-		lasty = mouse_y;
+		lastx = mousex;
+		lasty = mousey;
 
 		if (autosave > 0 && frames%autosave == 0)
 		{
@@ -3234,15 +3199,6 @@ int main(int argc, char *argv[])
 #endif
 		}
 
-		if (!strcmp(last_save_id, "2198"))
-			draw_egg(vid_buf, 440, 47, 16);
-		if (!strcmp(last_save_id, "477820"))
-			draw_egg(vid_buf, 330, 140, 17);
-		if (!strcmp(last_save_id, "644543"))
-			draw_egg(vid_buf, 420, 270, 15);
-		if (colour_mode & COLOUR_LIFE)
-			draw_egg(vid_buf, 100, 255, 19);
-		draw_egg(vid_buf, 100, 100, 1);
 		sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf, XRES+BARSIZE);
 
 		//Setting an element for the stick man

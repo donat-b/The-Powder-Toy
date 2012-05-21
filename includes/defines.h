@@ -226,10 +226,6 @@ extern int tool;
 extern int autosave;
 extern int realistic;
 extern int loop_time;
-extern int finding_eggs;
-extern int eggs_found;
-extern int found_eggs[20];
-extern char* last_save_id;
 extern int unlockedstuff;
 extern int old_menu;
 extern int h;
@@ -260,7 +256,6 @@ extern int sys_pause;
 extern int framerender;
 
 extern int mousex, mousey;
-extern int mouse_x, mouse_y, mouse_b, mouse_bq;
 
 struct sign
 {

@@ -1230,7 +1230,7 @@ void fillcircle(pixel* vid, int x, int y, int rx, int ry, int r, int g, int b, i
 	}
 }
 
-void draw_egg(pixel* vid, int x, int y, int egg_num)
+/*void draw_egg(pixel* vid, int x, int y, int egg_num) //Old Easter Egg hunt from version 14.1/2
 {
 	int i, egg_clicked = 0, r = 0, g = 0, b = 0, a = 255;
 	char text[32], text2[32];
@@ -1309,7 +1309,7 @@ void draw_egg(pixel* vid, int x, int y, int egg_num)
 			info_ui(vid_buf, "Congradulations!", "You finished the Easter Egg hunt");
 		}
 	}
-}
+}*/
 
 void clearrect(pixel *vid, int x, int y, int w, int h)
 {

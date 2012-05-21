@@ -233,7 +233,6 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 
-		draw_egg(vid_buf, 210, 305, 10);
 		drawrect(vid_buf, x0, y0, 192, 80, 192, 192, 192, 255);
 		clearrect(vid_buf, x0, y0, 192, 80);
 		drawtext(vid_buf, x0+8, y0+8, nm ? "New sign:" : "Edit sign:", 255, 255, 255, 255);
@@ -1114,7 +1113,6 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 
-		draw_egg(vid_buf, 330, 100, 18);
 		clearrect(vid_buf, x0-2, y0-2, xsize+4, ysize+4);
 		drawrect(vid_buf, x0, y0, xsize, ysize, 192, 192, 192, 255);
 		drawtext(vid_buf, x0+8, y0+8, "Change particle property", 160, 160, 255, 255);
@@ -2159,8 +2157,6 @@ void menu_ui_v3(pixel *vid_buf, int i, int b, int bq, int mx, int my)
 	if (over_el != -1)
 		h = over_el;
 
-	if (i == SC_CRACKER)
-		draw_egg(vid_buf, 300, 300, 20);
 	if (!bq && mx>=((XRES+BARSIZE)-16) ) //highlight menu section
 		if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
 			if (i>0&&i<SC_TOTAL)
@@ -2267,7 +2263,6 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 				}
 			}
 		}
-		draw_egg(vid_buf, 400, 250, 2);
 	}
 	else if(i==SC_LIFE)
 	{
@@ -2382,12 +2377,9 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 				el = n+FAV_START;
 			}
 		}
-		draw_egg(vid_buf, 500, 200, 3);
 	}
 	else if (i == SC_HUD) //HUD changer
 	{
-		if (hud_menunum == 2)
-			draw_egg(vid_buf, 470, 320, 11);
 		for (n = 0; n < HUD_NUM; n++)
 		{
 			if (hud_menu[n].menunum == hud_menunum || n == 0)
@@ -2935,8 +2927,6 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 	}
 	else
 	{
-		if  (!(sdl_mod & KMOD_CTRL))
-			draw_egg(vid_buf, 620, 157, 9);
 		while(i < num_tabs + 2 && i < 10)
 		{
 			char num[8];
@@ -3171,10 +3161,6 @@ int sdl_poll(void)
 		}
 	}
 	sdl_mod = SDL_GetModState();
-	mouse_bq = mouse_b; // bq is previous mouse state
-	mouse_b = SDL_GetMouseState(&mouse_x, &mouse_y); // b is current mouse state
-	mouse_x /= sdl_scale;
-	mouse_y /= sdl_scale;
 	return 0;
 }
 
@@ -3511,7 +3497,6 @@ int search_ui(pixel *vid_buf)
 		clearrect(vid_buf, -1, -1, (XRES+BARSIZE)+1, YRES+MENUSIZE+1);
 
 		memcpy(vid_buf, v_buf, ((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
-		draw_egg(vid_buf, 50, 30, 4);
 
 		drawtext(vid_buf, 11, 13, "Search:", 192, 192, 192, 255);
 		if (!last || (!active && strcmp(last, ed.str)))
@@ -3575,7 +3560,6 @@ int search_ui(pixel *vid_buf)
 			fillrect(vid_buf, XRES-130+16, 7, 62, 18, 255, 255, 255, 255);
 			drawtext(vid_buf, XRES-126+16, 11, "\xA6", 32, 32, 32, 255);
 			drawtext(vid_buf, XRES-111+16, 13, "By date", 0, 0, 0, 255);
-			draw_egg(vid_buf, 370, 230, 5);
 		}
 		else
 		{
@@ -3594,10 +3578,7 @@ int search_ui(pixel *vid_buf)
 		else if (page_count > 9)
 		{
 			if (p1_extra)
-			{
 				drawtext(vid_buf, 4, YRES+MENUSIZE-17, "\x85", 255, 255, 255, 255);
-				draw_egg(vid_buf, 600, 300, 6);
-			}
 			else
 				drawtext(vid_buf, 4, YRES+MENUSIZE-17, "\x89", 255, 255, 255, 255);
 			drawrect(vid_buf, 1, YRES+MENUSIZE-20, 15, 15, 255, 255, 255, 255);
@@ -3938,7 +3919,7 @@ int search_ui(pixel *vid_buf)
 
 		if ((b && !bq && mp!=-1 && !st && !uih) || do_open==1)
 		{
-			if (open_ui(vid_buf, search_ids[mp], search_dates[mp]?search_dates[mp]:NULL, (b==4 && (unlockedstuff&0x04)))==1 || do_open==1) {
+			if (open_ui(vid_buf, search_ids[mp], search_dates[mp]?search_dates[mp]:NULL, b==4) || do_open==1) {
 				goto finish;
 			}
 		}
@@ -4794,8 +4775,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					svf_filename[0] = 0;
 					svf_fileopen = 0;
 					retval = 1;
-					last_save_id = (char*)malloc(sizeof(save_id));
-					sprintf(last_save_id, "%s", save_id);
 					break;
 				} else {
 					queue_open = 0;
@@ -5690,7 +5669,6 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 
 		memcpy(vid_buf,old_buf,(XRES+BARSIZE)*YRES*PIXELSIZE);
 		draw_line(vid_buf, 0, 219, XRES+BARSIZE-1, 219, 228, 228, 228, XRES+BARSIZE);
-		draw_egg(vid_buf, 90, 300, 7);
 #ifdef PYCONSOLE
 		if (pygood)
 			i=255;
@@ -5935,7 +5913,6 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 			box_G.x = XRES - 254 + 40;
 			box_B.x = XRES - 254 + 75;
 			box_A.x = XRES - 254 + 110;
-			draw_egg(vid_buf, 75, 75, 8);
 		}
 		mouse_coords_window_to_sim(&mx, &my, mx, my);//change mouse position while it is in a zoom window
 		
@@ -6786,8 +6763,6 @@ void catalogue_ui(pixel * vid_buf)
 	{
 		b = mouse_get_state(&mx, &my);
 		sprintf(savetext, "Found %d save%s", rescount, rescount==1?"":"s");
-
-		draw_egg(vid_buf, 550, 105, 14);
 		clearrect(vid_buf, x0-2, y0-2, xsize+4, ysize+4);
 		clearrect(vid_buf2, x0-2, y0-2, xsize+4, ysize+4);
 		drawrect(vid_buf, x0, y0, xsize, ysize, 192, 192, 192, 255);
@@ -7140,8 +7115,6 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 		{
 			draw_menu(vid_buf, i, active_menu);
 		}
-		if (display_mode & DISPLAY_BLOB)
-			draw_egg(vid_buf, 456, 123, 13);
 		
 		clearrect(vid_buf, xcoord-2, ycoord-2, xsize+4, ysize+4);
 		drawrect(vid_buf, xcoord, ycoord, xsize, ysize, 192, 192, 192, 255);

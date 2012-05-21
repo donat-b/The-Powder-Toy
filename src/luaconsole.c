@@ -2311,8 +2311,6 @@ int luatpt_indestructible(lua_State* l)
 {
 	int el = 0, ind;
 	char* name;
-	if (!(unlockedstuff & 0x02))
-		return luaL_error(l, "function not unlocked");
 	if(lua_isnumber(l, 1)){
 		el = luaL_optint(l, 1, 0);
 		if (el<0 || el>=PT_NUM)
