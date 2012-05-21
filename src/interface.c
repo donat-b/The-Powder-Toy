@@ -44,6 +44,7 @@
 #endif
 #include <powdergraphics.h>
 #include "save.h"
+#include "cJSON.h"
 
 SDLMod sdl_mod;
 int sdl_key, sdl_rkey, sdl_wheel, sdl_caps=0, sdl_ascii, sdl_zoom_trig=0;
@@ -4239,17 +4240,17 @@ int report_ui(pixel* vid_buf, char *save_id)
 
 int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 {
-	int b=1,bq,mx,my,ca=0,thumb_w,thumb_h,active=0,active_2=0,active_3=0,cc=0,ccy=0,cix=0,hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1;
+	int b=1,bq,mx,my,ca=0,thumb_w,thumb_h,active=0,active_2=0,active_3=0,active_4=0,cc=0,ccy=0,cix=0,hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1,comment_scroll=0;
 	int nyd,nyu,ry,lv;
 	float ryf;
 
-	char *uri, *uri_2, *o_uri, *uri_3;
-	void *data = NULL, *info_data, *thumb_data_full;
+	char *uri, *uri_2, *o_uri, *uri_3, *uri_4;
+	void *data = NULL, *info_data, *thumb_data_full, *comment_data;
 	save_info *info = calloc(sizeof(save_info), 1);
-	void *http = NULL, *http_2 = NULL, *http_3 = NULL;
+	void *http = NULL, *http_2 = NULL, *http_3 = NULL, *http_4 = NULL;
 	int lasttime = TIMEOUT;
-	int status, status_2, info_ready = 0, data_ready = 0, thumb_data_ready = 0;
-	time_t http_last_use = HTTP_TIMEOUT,  http_last_use_2 = HTTP_TIMEOUT,  http_last_use_3 = HTTP_TIMEOUT;
+	int status, status_2, status_4, info_ready = 0, data_ready = 0, thumb_data_ready = 0;
+	time_t http_last_use = HTTP_TIMEOUT,  http_last_use_2 = HTTP_TIMEOUT,  http_last_use_3 = HTTP_TIMEOUT,  http_last_use_4 = HTTP_TIMEOUT;
 	pixel *save_pic;// = malloc((XRES/2)*(YRES/2));
 	pixel *save_pic_thumb = NULL;
 	char *thumb_data = NULL;
@@ -4365,11 +4366,19 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		strcpy(uri_3, "http://" STATICSERVER "/");
 		strcaturl(uri_3, save_id);
 		strappend(uri_3, "_large.pti");
+		
+		uri_4 = malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
+		strcpy(uri_4, "http://" SERVER "/Browse/View.json?ID=");
+		strcaturl(uri_4, save_id);
+		strappend(uri_4, "&Mode=Comments&Start=1&Count=25");
 	}
 	http = http_async_req_start(http, uri, NULL, 0, 1);
 	http_2 = http_async_req_start(http_2, uri_2, NULL, 0, 1);
 	if (!instant_open)
+	{
 		http_3 = http_async_req_start(http_3, uri_3, NULL, 0, 1);
+		http_4 = http_async_req_start(http_4, uri_4, NULL, 0, 1);
+	}
 	if (svf_login)
 	{
 		http_auth_headers(http, svf_user_id, NULL, svf_session_id);
@@ -4386,6 +4395,9 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		http_last_use_3 = time(NULL);
 		free(uri_3);
 		active_3 = 1;
+		http_last_use_4 = time(NULL);
+		free(uri_4);
+		active_4 = 1;
 	}
 	while (!sdl_poll())
 	{
@@ -4463,6 +4475,43 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			free(http_3);
 			http_3 = NULL;
 		}
+		if (!instant_open && active_4 && http_async_req_status(http_4) && info_ready)
+		{
+			http_last_use_4 = time(NULL);
+			comment_data = http_async_req_stop(http_4, &status_4, NULL);
+			if (status_4 == 200)
+			{
+				int i;
+				cJSON *root, *commentobj, *tmpobj;
+				for (i=0;i<NUM_COMMENTS;i++)
+				{
+					if (info->comments[i]) { free(info->comments[i]); info->comments[i] = NULL; }
+					if (info->commentauthors[i]) { free(info->commentauthors[i]); info->commentauthors[i] = NULL; }
+				}
+				if(comment_data && (root = cJSON_Parse((const char*)comment_data)))
+				{
+					info->comment_count = cJSON_GetArraySize(root);
+					if (info->comment_count > NUM_COMMENTS)
+						info->comment_count = NUM_COMMENTS;
+					for (i = 0; i < info->comment_count; i++)
+					{
+						commentobj = cJSON_GetArrayItem(root, i);
+						if(commentobj){ //TODO: Display UserID and/or Gravatar
+							if((tmpobj = cJSON_GetObjectItem(commentobj, "Username")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
+							//if((tmpobj = cJSON_GetObjectItem(commentobj, "UserID")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
+							//if((tmpobj = cJSON_GetObjectItem(commentobj, "Gravatar")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
+							if((tmpobj = cJSON_GetObjectItem(commentobj, "Text")) && tmpobj->type == cJSON_String)  { info->comments[i] = (char*)calloc(512,sizeof(char*)); strncpy(info->comments[i], tmpobj->valuestring, 512); }
+							//if((tmpobj = cJSON_GetObjectItem(commentobj, "Timestamp")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
+						}
+					}
+				}
+			}
+			if (comment_data)
+				free(comment_data);
+			active_4 = 0;
+			free(http_4);
+			http_4 = NULL;
+		}
 		if (!instant_open)
 		{
 			if (save_pic_thumb!=NULL && !hasdrawncthumb) {
@@ -4479,7 +4528,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				hasdrawnthumb = 1;
 				memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 			}
-			if (info_ready && !hasdrawninfo) {
+			if (info_ready) {
 				//Render all the save information
 				cix = drawtext(vid_buf, 60, (YRES/2)+60, info->name, 255, 255, 255, 255);
 				cix = drawtext(vid_buf, 60, (YRES/2)+72, "Author:", 255, 255, 255, 155);
@@ -4528,20 +4577,37 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 
 				ccy = 0;
 				for (cc=0; cc<info->comment_count; cc++) {
-					if ((ccy + 72 + ((textwidth(info->comments[cc])/(XRES+BARSIZE-100-((XRES/2)+1)-20)))*12)<(YRES+MENUSIZE-50)) {
-						drawtext(vid_buf, 60+(XRES/2)+1, ccy+60, info->commentauthors[cc], 255, 255, 255, 255);
-						ccy += 12;
-						ccy += drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60, XRES+BARSIZE-100-((XRES/2)+1)-20, info->comments[cc], 255, 255, 255, 185);
-						ccy += 10;
-						if (ccy+52<YRES+MENUSIZE-50) { //Try not to draw off the screen.
-							draw_line(vid_buf, 50+(XRES/2)+2, ccy+52, XRES+BARSIZE-50, ccy+52, 100, 100, 100, XRES+BARSIZE);
+					if ((ccy + 72 + comment_scroll + ((textwidth(info->comments[cc])/(XRES+BARSIZE-100-((XRES/2)+1)-20)))*12)<(YRES+MENUSIZE-56)) {
+						if (ccy+comment_scroll<0)
+						{
+							ccy += 22 + drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, XRES+BARSIZE-100-((XRES/2)+1)-20, info->comments[cc], 255, 255, 255, 0);
+							if (cc == info->comment_count-1)
+								comment_scroll = 0;
+						}
+						else
+						{
+							drawtext(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, info->commentauthors[cc], 255, 255, 255, 255);
+							ccy += 12;
+							ccy += drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, XRES+BARSIZE-100-((XRES/2)+1)-20, info->comments[cc], 255, 255, 255, 185);
+							ccy += 10;
+							if (ccy+52+comment_scroll<YRES+MENUSIZE-50) { //Try not to draw off the screen.
+								draw_line(vid_buf, 50+(XRES/2)+2, ccy+52+comment_scroll, XRES+BARSIZE-50, ccy+52+comment_scroll, 100, 100, 100, XRES+BARSIZE);
+							}
 						}
 					}
+					else
+						break;
 				}
 				hasdrawninfo = 1;
 				myown = svf_login && !strcmp(info->author, svf_user);
 				authoritah = svf_login && (!strcmp(info->author, svf_user) || svf_admin || svf_mod);
-				memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
+				//memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
+				if (sdl_wheel)
+				{
+					comment_scroll += 2*sdl_wheel;
+					if (comment_scroll > 0)
+						comment_scroll = 0;
+				}
 			}
 			if (info_ready && svf_login) {
 				//Render the comment box.
@@ -4776,8 +4842,13 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		http_async_req_close(http);
 	if (http_2)
 		http_async_req_close(http_2);
-	if (http_3)
-		http_async_req_close(http_3);
+	if (!instant_open)
+	{
+		if (http_3)
+			http_async_req_close(http_3);
+		if (http_4)
+			http_async_req_close(http_4);
+	}
 	info_parse("", info);
 	free(info);
 	free(old_vid);
@@ -4796,7 +4867,7 @@ int info_parse(char *info_data, save_info *info)
 	if (info->date) free(info->date);
 	if (info->description) free(info->description);
 	if (info->tags) free(info->tags);
-	for (i=0;i<7;i++)
+	for (i=0;i<NUM_COMMENTS;i++)
 	{
 		if (info->comments[i]) free(info->comments[i]);
 		if (info->commentauthors[i]) free(info->commentauthors[i]);
@@ -4887,7 +4958,7 @@ int info_parse(char *info_data, save_info *info)
 		}
 		else if (!strncmp(info_data, "COMMENT ", 8))
 		{
-			if (info->comment_count>=7) {
+			if (info->comment_count>=NUM_COMMENTS) {
 				info_data = p;
 				continue;
 			} else {

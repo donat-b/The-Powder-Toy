@@ -287,7 +287,8 @@ Next Version
 Fix some deco editor bugs. Element descriptions fade in and out nicely.Fixes 
 to the old menu, the favorites menu is always drawn on bottom when using that. 
 Ability to make custom lua graphics functions. Fix glitch in HUD (life 
-wouldn't show up)
+wouldn't show up). You can scroll through comments on saves, but only 10 at 
+most are able to show up.
 
 
 

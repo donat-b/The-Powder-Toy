@@ -155,6 +155,7 @@ struct ui_copytext
 };
 typedef struct ui_copytext ui_copytext;
 
+#define NUM_COMMENTS 25
 struct save_info
 {
 	char *title;
@@ -171,8 +172,8 @@ struct save_info
 	int myfav;
 	char *tags;
 	int comment_count;
-	char *comments[7];
-	char *commentauthors[7];
+	char *comments[NUM_COMMENTS];
+	char *commentauthors[NUM_COMMENTS];
 };
 typedef struct save_info save_info;
 
