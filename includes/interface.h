@@ -174,6 +174,7 @@ struct save_info
 	int comment_count;
 	char *comments[NUM_COMMENTS];
 	char *commentauthors[NUM_COMMENTS];
+	char *commentauthorIDs[NUM_COMMENTS];
 };
 typedef struct save_info save_info;
 

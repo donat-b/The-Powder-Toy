@@ -4487,6 +4487,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				{
 					if (info->comments[i]) { free(info->comments[i]); info->comments[i] = NULL; }
 					if (info->commentauthors[i]) { free(info->commentauthors[i]); info->commentauthors[i] = NULL; }
+					if (info->commentauthorIDs[i]) { free(info->commentauthorIDs[i]); info->commentauthorIDs[i] = NULL; }
 				}
 				if(comment_data && (root = cJSON_Parse((const char*)comment_data)))
 				{
@@ -4498,12 +4499,13 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						commentobj = cJSON_GetArrayItem(root, i);
 						if(commentobj){ //TODO: Display UserID and/or Gravatar
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "Username")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
-							//if((tmpobj = cJSON_GetObjectItem(commentobj, "UserID")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
+							if((tmpobj = cJSON_GetObjectItem(commentobj, "UserID")) && tmpobj->type == cJSON_String) { info->commentauthorIDs[i] = (char*)calloc(16,sizeof(char*)); strncpy(info->commentauthorIDs[i], tmpobj->valuestring, 16); }
 							//if((tmpobj = cJSON_GetObjectItem(commentobj, "Gravatar")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "Text")) && tmpobj->type == cJSON_String)  { info->comments[i] = (char*)calloc(512,sizeof(char*)); strncpy(info->comments[i], tmpobj->valuestring, 512); }
 							//if((tmpobj = cJSON_GetObjectItem(commentobj, "Timestamp")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
 						}
 					}
+					cJSON_Delete(root);
 				}
 			}
 			if (comment_data)
@@ -4528,7 +4530,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				hasdrawnthumb = 1;
 				memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 			}
-			if (info_ready) {
+			if (info_ready && !hasdrawninfo) {
 				//Render all the save information
 				cix = drawtext(vid_buf, 60, (YRES/2)+60, info->name, 255, 255, 255, 255);
 				cix = drawtext(vid_buf, 60, (YRES/2)+72, "Author:", 255, 255, 255, 155);
@@ -4575,10 +4577,17 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					fillrect(vid_buf, 48+(XRES/2)-nyd, (YRES/2)+60, nyd, 4, 187, 57, 57, 255);
 				}
 
+				hasdrawninfo = 1;
+				myown = svf_login && !strcmp(info->author, svf_user);
+				authoritah = svf_login && (!strcmp(info->author, svf_user) || svf_admin || svf_mod);
+				memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
+			}
+			if (info_ready) // draw the comments
+			{
 				ccy = 0;
 				for (cc=0; cc<info->comment_count; cc++) {
-					if ((ccy + 72 + comment_scroll + ((textwidth(info->comments[cc])/(XRES+BARSIZE-100-((XRES/2)+1)-20)))*12)<(YRES+MENUSIZE-56)) {
-						if (ccy+comment_scroll<0)
+					if ((ccy + 72 + comment_scroll + ((textwidth(info->comments[cc])/(XRES+BARSIZE-100-((XRES/2)+1)-20)))*12)<(YRES+MENUSIZE-56)) { //Try not to draw off the screen
+						if (ccy+comment_scroll<0) //Try not to draw above the screen either
 						{
 							ccy += 22 + drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, XRES+BARSIZE-100-((XRES/2)+1)-20, info->comments[cc], 255, 255, 255, 0);
 							if (cc == info->comment_count-1)
@@ -4587,10 +4596,12 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						else
 						{
 							drawtext(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, info->commentauthors[cc], 255, 255, 255, 255);
+							if (info->commentauthorIDs[cc])
+								drawtext(vid_buf, 230+(XRES/2)+1, ccy+60+comment_scroll, info->commentauthorIDs[cc], 255, 255, 255, 255);
 							ccy += 12;
 							ccy += drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, XRES+BARSIZE-100-((XRES/2)+1)-20, info->comments[cc], 255, 255, 255, 185);
 							ccy += 10;
-							if (ccy+52+comment_scroll<YRES+MENUSIZE-50) { //Try not to draw off the screen.
+							if (ccy+52+comment_scroll<YRES+MENUSIZE-50) {
 								draw_line(vid_buf, 50+(XRES/2)+2, ccy+52+comment_scroll, XRES+BARSIZE-50, ccy+52+comment_scroll, 100, 100, 100, XRES+BARSIZE);
 							}
 						}
@@ -4598,10 +4609,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					else
 						break;
 				}
-				hasdrawninfo = 1;
-				myown = svf_login && !strcmp(info->author, svf_user);
-				authoritah = svf_login && (!strcmp(info->author, svf_user) || svf_admin || svf_mod);
-				//memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 				if (sdl_wheel)
 				{
 					comment_scroll += 2*sdl_wheel;
@@ -4871,6 +4878,7 @@ int info_parse(char *info_data, save_info *info)
 	{
 		if (info->comments[i]) free(info->comments[i]);
 		if (info->commentauthors[i]) free(info->commentauthors[i]);
+		if (info->commentauthorIDs[i]) free(info->commentauthorIDs[i]);
 	}
 	memset(info, 0, sizeof(save_info));
 
