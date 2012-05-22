@@ -275,6 +275,17 @@ update to latest source again. reversable pipe - spark with PSCN to reverse,
 NSCN to unreverse. This mod is temporarily discontinued, but will be started 
 again in May/June.
 
+Version 15 - ...
+Fix some deco editor bugs. Element descriptions fade in and out nicely.Fixes 
+to the old menu, the favorites menu is always drawn on bottom when using that. 
+Ability to make custom lua graphics functions. Fix glitch in HUD (life 
+wouldn't show up). You can scroll through comments on saves, but only 10 at 
+most are able to show up. User ID's are now drawn on comments. You can write 
+in color now. Use Ctrl  + one of these letters: w (white), g (grey), o 
+(orange), r (red), l (red-orange), b (blue), and t (light blue). Colors can 
+go in comments, tags, and save names and be seen by all tpt users. They can't 
+go in signs or local saves names (colors are removed).
+
 
 
 
@@ -285,11 +296,7 @@ None that I know of ... that are important enough to fix
 
 
 Next Version
-Fix some deco editor bugs. Element descriptions fade in and out nicely.Fixes 
-to the old menu, the favorites menu is always drawn on bottom when using that. 
-Ability to make custom lua graphics functions. Fix glitch in HUD (life 
-wouldn't show up). You can scroll through comments on saves, but only 10 at 
-most are able to show up. User ID's are now drawn on comments.
+...
 
 
 
