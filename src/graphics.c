@@ -1368,7 +1368,14 @@ int textnwidth(char *s, int n)
 	{
 		if (!n)
 			break;
-		x += font_data[font_ptrs[(int)(*(unsigned char *)s)]];
+		if (*s == '\b')
+		{
+			s++;
+			if (n > 1)
+				n--;
+		}
+		else
+			x += font_data[font_ptrs[(int)(*(unsigned char *)s)]];
 		n--;
 	}
 	return x-1;
@@ -1392,7 +1399,14 @@ void textnpos(char *s, int n, int w, int *cx, int *cy)
 			if (!n) {
 				break;
 			}
-			x += font_data[font_ptrs[(int)(*(unsigned char *)s)]];
+			if (*s == '\b')
+			{
+				s++;
+				if (n > 1)
+					n--;
+			}
+			else
+				x += font_data[font_ptrs[(int)(*(unsigned char *)s)]];
 			if (x>=w)
 			{
 				x = 0;
@@ -1410,6 +1424,13 @@ int textwidthx(char *s, int w)
 	int x=0,n=0,cw;
 	for (; *s; s++)
 	{
+		if (*s == '\b')
+		{
+			s+=2;
+			n+=2;
+			if (!*s)
+				break;
+		}
 		cw = font_data[font_ptrs[(int)(*(unsigned char *)s)]];
 		if (x+(cw/2) >= w)
 			break;
@@ -1432,6 +1453,13 @@ int textposxy(char *s, int width, int w, int h)
 		}
 		for (; *s && --wordlen>=-1; s++)
 		{
+			if (*s == '\b')
+			{
+				s+=2;
+				n+=2;
+				if (!*s)
+					break;
+			}
 			cw = font_data[font_ptrs[(int)(*(unsigned char *)s)]];
 			if ((x+(cw/2) >= w && y+6 >= h)||(y+6 >= h+FONT_H+2))
 				return n++;

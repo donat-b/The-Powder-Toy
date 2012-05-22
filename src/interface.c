@@ -300,6 +300,7 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 	}
 
 	strcpy(signs[i].text, ed.str);
+	clean_text(signs[i].text, 158-14);
 	signs[i].ju = ju;
 }
 //TODO: Finish text wrapping in text edits
@@ -418,8 +419,16 @@ void ui_edit_process(int mx, int my, int mb, ui_edit *ed)
 		case SDLK_LEFT:
 			if (ed->cursor > 0)
 				ed->cursor --;
+			if (ed->cursor > 0 && ed->str[ed->cursor-1] == '\b')
+			{
+				ed->cursor--;
+			}
 			break;
 		case SDLK_RIGHT:
+			if (ed->cursor < l && ed->str[ed->cursor] == '\b')
+			{
+				ed->cursor++;
+			}
 			if (ed->cursor < l)
 				ed->cursor ++;
 			break;
@@ -427,7 +436,14 @@ void ui_edit_process(int mx, int my, int mb, ui_edit *ed)
 			if (sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
 				ed->str[ed->cursor] = 0;
 			else if (ed->cursor < l)
-				memmove(ed->str+ed->cursor, ed->str+ed->cursor+1, l-ed->cursor);
+			{
+				if (ed->str[ed->cursor] == '\b')
+				{
+					memmove(ed->str+ed->cursor, ed->str+ed->cursor+2, l-ed->cursor);
+				}
+				else
+					memmove(ed->str+ed->cursor, ed->str+ed->cursor+1, l-ed->cursor);
+			}
 			break;
 		case SDLK_BACKSPACE:
 			if (sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
@@ -440,6 +456,11 @@ void ui_edit_process(int mx, int my, int mb, ui_edit *ed)
 			{
 				ed->cursor--;
 				memmove(ed->str+ed->cursor, ed->str+ed->cursor+1, l-ed->cursor);
+				if (ed->cursor > 0 && ed->str[ed->cursor-1] == '\b')
+				{
+					ed->cursor--;
+					memmove(ed->str+ed->cursor, ed->str+ed->cursor+1, l-ed->cursor);
+				}
 			}
 			break;
 		default:
@@ -480,6 +501,21 @@ void ui_edit_process(int mx, int my, int mb, ui_edit *ed)
 				ed->cursor++;
 			}
 #else
+			if (sdl_mod & (KMOD_CTRL))
+			{
+				if (ed->cursor > 1 && ed->str[ed->cursor-2] == '\b')
+					break;
+				if (sdl_key=='w' || sdl_key=='g' || sdl_key=='o' || sdl_key=='r' || sdl_key=='l' || sdl_key=='b' || sdl_key=='t')// || sdl_key=='p')
+					ch = sdl_key;
+				else
+					break;
+				if ((textwidth(str) > ed->w-14 && !ed->multiline) || (float)(((textwidth(str))/(ed->w-14)*12) > ed->h && ed->multiline))
+					break;
+				memmove(ed->str+ed->cursor+2, ed->str+ed->cursor, l+2-ed->cursor);
+				ed->str[ed->cursor] = '\b';
+				ed->str[ed->cursor+1] = ch;
+				ed->cursor+=2;
+			}
 			if (sdl_ascii>=' ' && sdl_ascii<127 && l<255)
 			{
 				ch = sdl_ascii;
@@ -6650,6 +6686,7 @@ int save_filename_ui(pixel *vid_buf)
 		
 		if(mx > x0 && mx < x0+xsize && my > y0+ysize-16 && my < y0+ysize)
 		{
+			clean_text(ed.str,256);
 			if(b && !bq)
 			{
 				FILE *f = NULL;
@@ -6688,12 +6725,12 @@ int save_filename_ui(pixel *vid_buf)
 							memcpy(svf_last, save_data, save_size);
 							svf_lsize = save_size;
 						}
+						fclose(f);
 						break;
 					} else {
 						error_ui(vid_buf, 0, "Unable to write to save file.");
 					}
 				}
-				fclose(f);
 			}
 		}
 
