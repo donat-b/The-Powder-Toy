@@ -2039,8 +2039,10 @@ void render_parts(pixel *vid)
 			fny = parts[i].y;
 			if ((pmap[ny][nx]&0xFF) == PT_PINV)
 				parts[pmap[ny][nx]>>8].tmp2 = t|(i<<8);
+#ifdef OGLR
 			flx = parts[i].lastX;
 			fly = parts[i].lastY;
+#endif
 
 			if(photons[ny][nx]&0xFF && !(ptypes[t].properties & TYPE_ENERGY) && t!=PT_STKM && t!=PT_STKM2 && t!=PT_FIGH)
 				continue;
