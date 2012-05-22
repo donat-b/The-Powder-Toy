@@ -7216,13 +7216,36 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 		b = mouse_get_state(&mx, &my);
 		
 		memcpy(vid_buf, o_vid_buf, ((YRES+MENUSIZE) * (XRES+BARSIZE)) * PIXELSIZE);
-		render_before(vid_buf);
-		render_after(vid_buf, NULL);
-		quickoptions_menu(vid_buf, b, bq, mx, my);
-		for (i=0; i<SC_TOTAL; i++)//draw all the menu sections
+#ifdef OGLR
+		part_vbuf = vid_buf;
+#else
+		if(ngrav_enable && (display_mode & DISPLAY_WARP))
 		{
-			draw_menu(vid_buf, i, active_menu);
+			part_vbuf = part_vbuf_store;
+			memset(vid_buf, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
+		} else {
+			part_vbuf = vid_buf;
 		}
+#endif
+		render_before(part_vbuf);
+		render_after(part_vbuf, vid_buf);
+		if (old_menu)
+		{
+			for (i=0; i<SC_TOTAL; i++)
+			{
+				if (i < SC_FAV)
+					drawtext(vid_buf, XRES+1, /*(12*i)+2*/((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+5, msections[i].icon, 255, 255, 255, 255);
+			}
+		}
+		else
+		{
+			quickoptions_menu(vid_buf, b, bq, mx, my);
+			for (i=0; i<SC_TOTAL; i++)//draw all the menu sections
+			{
+				draw_menu(vid_buf, i, active_menu);
+			}
+		}
+		draw_svf_ui(vid_buf, sdl_mod & (KMOD_LCTRL|KMOD_RCTRL));
 		
 		clearrect(vid_buf, xcoord-2, ycoord-2, xsize+4, ysize+4);
 		drawrect(vid_buf, xcoord, ycoord, xsize, ysize, 192, 192, 192, 255);
