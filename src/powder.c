@@ -999,6 +999,8 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 	{
 		parts[i].x = (float)x;
 		parts[i].y = (float)y;
+		parts[i].lastX = (float)x;
+		parts[i].lastY = (float)y;
 		parts[i].type = t;
 		parts[i].vx = 0;
 		parts[i].vy = 0;
@@ -1205,6 +1207,8 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		{
 			parts[i].x = (float)x;
 			parts[i].y = (float)y;
+			parts[i].lastX = (float)x;
+			parts[i].lastY = (float)y;
 			parts[i].type = PT_STKM;
 			parts[i].vx = 0;
 			parts[i].vy = 0;
@@ -1227,6 +1231,8 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		{
 			parts[i].x = (float)x;
 			parts[i].y = (float)y;
+			parts[i].lastX = (float)x;
+			parts[i].lastY = (float)y;
 			parts[i].type = PT_STKM2;
 			parts[i].vx = 0;
 			parts[i].vy = 0;
@@ -1251,6 +1257,8 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		{
 			parts[i].x = (float)x;
 			parts[i].y = (float)y;
+			parts[i].lastX = (float)x;
+			parts[i].lastY = (float)y;
 			parts[i].type = PT_FIGH;
 			parts[i].vx = 0;
 			parts[i].vy = 0;
@@ -1919,6 +1927,8 @@ void update_particles_i(pixel *vid, int start, int inc)
 		if (parts[i].type)
 		{
 			t = parts[i].type;
+			parts[i].lastX = parts[i].x;
+			parts[i].lastY = parts[i].y;
 			if (t<0 || t>=PT_NUM)
 			{
 				kill_part(i);
@@ -2039,7 +2049,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 			parts[i].vy += ptypes[t].advection*vy[y/CELL][x/CELL] + pGravY;
 
 
-			if (ptypes[t].diffusion)//the random diffusion that gasses have
+			if (ptypes[t].diffusion)//the random diffusion that gases have
 			{
 				if (realistic)
 				{
@@ -2736,7 +2746,7 @@ killed:
 			}
 			else if (ptypes[t].falldown==0)
 			{
-				// gasses and solids (but not powders)
+				// gases and solids (but not powders)
 				if (!do_move(i, x, y, fin_xf, fin_yf))
 				{
 					if (parts[i].type == PT_NONE)
@@ -3068,6 +3078,8 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 			{
 				if (emap[y][x])
 					emap[y][x] --;
+				bmap_blockair[y][x] = (bmap[y][x]==WL_WALL || bmap[y][x]==WL_WALLELEC || (bmap[y][x]==WL_EWALL && !emap[y][x]));
+				bmap_blockairh[y][x] = (bmap[y][x]==WL_WALL || bmap[y][x]==WL_WALLELEC || bmap[y][x]==WL_GRAV || (bmap[y][x]==WL_EWALL && !emap[y][x]));
 			}
 		}
 	}
@@ -3246,11 +3258,18 @@ int flood_prop(int x, int y, size_t propoffset, void * propvalue, int proptype)
 	return 0;
 }
 
+#define PMAP_CMP_CONDUCTIVE(pmap, t) (((pmap)&0xFF)==(t) || (((pmap)&0xFF)==PT_SPRK && parts[(pmap)>>8].ctype==(t)))
+
 int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 {
 	int c = fullc&0xFF;
 	int x1, x2, dy = (c<PT_NUM)?1:CELL;
 	int co = c;
+	int coord_stack_limit = XRES*YRES;
+	unsigned short (*coord_stack)[2] = malloc(sizeof(unsigned short)*2*coord_stack_limit);
+	int coord_stack_size = 0;
+	int created_something = 0;
+
 	if (c==SPC_PROP)
 		return 0;
 	if (cm==PT_INST&&co==PT_SPRK)
@@ -3286,85 +3305,146 @@ int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 	if (((pmap[y][x]&0xFF)!=cm || bmap[y/CELL][x/CELL]!=bm )||( (flags&BRUSH_SPECIFIC_DELETE) && cm!=SLALT))
 		return 1;
 
-	// go left as far as possible
-	x1 = x2 = x;
-	while (x1>=CELL)
-	{
-		if ((pmap[y][x1-1]&0xFF)!=cm || bmap[y/CELL][(x1-1)/CELL]!=bm)
-		{
-			break;
-		}
-		x1--;
-	}
-	while (x2<XRES-CELL)
-	{
-		if ((pmap[y][x2+1]&0xFF)!=cm || bmap[y/CELL][(x2+1)/CELL]!=bm)
-		{
-			break;
-		}
-		x2++;
-	}
+	coord_stack[coord_stack_size][0] = x;
+	coord_stack[coord_stack_size][1] = y;
+	coord_stack_size++;
 
-	// fill span
-	for (x=x1; x<=x2; x++)
+	do
 	{
+		coord_stack_size--;
+		x = coord_stack[coord_stack_size][0];
+		y = coord_stack[coord_stack_size][1];
+		x1 = x2 = x;
+		// go left as far as possible
+		while (x1>=CELL)
+		{
+			if ((pmap[y][x1-1]&0xFF)!=cm || bmap[y/CELL][(x1-1)/CELL]!=bm)
+			{
+				break;
+			}
+			x1--;
+		}
+		// go right as far as possible
+		while (x2<XRES-CELL)
+		{
+			if ((pmap[y][x2+1]&0xFF)!=cm || bmap[y/CELL][(x2+1)/CELL]!=bm)
+			{
+				break;
+			}
+			x2++;
+		}
+		// fill span
+		for (x=x1; x<=x2; x++)
+		{
+			if (cm==PT_INST&&co==PT_SPRK)
+			{
+				if (create_part(-1, x, y, fullc)>=0)
+					created_something = 1;
+			}
+			else
+			{
+				if (create_parts(x, y, 0, 0, fullc, flags, 1))
+					created_something = 1;
+			}
+		}
+
+		// add vertically adjacent pixels to stack
 		if (cm==PT_INST&&co==PT_SPRK)
 		{
-			if (create_part(-1,x, y, fullc)==-1)
-				return 0;
+			//wire crossing for INST
+			if (y>=CELL+1 && x1==x2 &&
+					PMAP_CMP_CONDUCTIVE(pmap[y-1][x1-1], PT_INST) && PMAP_CMP_CONDUCTIVE(pmap[y-1][x1], PT_INST) && PMAP_CMP_CONDUCTIVE(pmap[y-1][x1+1], PT_INST) &&
+					!PMAP_CMP_CONDUCTIVE(pmap[y-2][x1-1], PT_INST) && PMAP_CMP_CONDUCTIVE(pmap[y-2][x1], PT_INST) && !PMAP_CMP_CONDUCTIVE(pmap[y-2][x1+1], PT_INST))
+			{
+				// travelling vertically up, skipping a horizontal line
+				if ((pmap[y-2][x1]&0xFF)==PT_INST)
+				{
+					coord_stack[coord_stack_size][0] = x1;
+					coord_stack[coord_stack_size][1] = y-2;
+					coord_stack_size++;
+					if (coord_stack_size>=coord_stack_limit)
+						return -1;
+				}
+			}
+			else if (y>=CELL+1)
+			{
+				for (x=x1; x<=x2; x++)
+				{
+					if ((pmap[y-1][x]&0xFF)==PT_INST)
+					{
+						if (x==x1 || x==x2 || y>=YRES-CELL-1 || !PMAP_CMP_CONDUCTIVE(pmap[y+1][x], PT_INST))
+						{
+							// if at the end of a horizontal section, or if it's a T junction
+							coord_stack[coord_stack_size][0] = x;
+							coord_stack[coord_stack_size][1] = y-1;
+							coord_stack_size++;
+							if (coord_stack_size>=coord_stack_limit)
+								return -1;
+						}
+					}
+				}
+			}
+
+			if (y<YRES-CELL-1 && x1==x2 &&
+					PMAP_CMP_CONDUCTIVE(pmap[y+1][x1-1], PT_INST) && PMAP_CMP_CONDUCTIVE(pmap[y+1][x1], PT_INST) && PMAP_CMP_CONDUCTIVE(pmap[y+1][x1+1], PT_INST) &&
+					!PMAP_CMP_CONDUCTIVE(pmap[y+2][x1-1], PT_INST) && PMAP_CMP_CONDUCTIVE(pmap[y+2][x1], PT_INST) && !PMAP_CMP_CONDUCTIVE(pmap[y+2][x1+1], PT_INST))
+			{
+				// travelling vertically down, skipping a horizontal line
+				if ((pmap[y+2][x1]&0xFF)==PT_INST)
+				{
+					coord_stack[coord_stack_size][0] = x1;
+					coord_stack[coord_stack_size][1] = y+2;
+					coord_stack_size++;
+					if (coord_stack_size>=coord_stack_limit)
+						return -1;
+				}
+			}
+			else if (y<YRES-CELL-1)
+			{
+				for (x=x1; x<=x2; x++)
+				{
+					if ((pmap[y+1][x]&0xFF)==PT_INST)
+					{
+						if (x==x1 || x==x2 || y<0 || !PMAP_CMP_CONDUCTIVE(pmap[y-1][x], PT_INST))
+						{
+							// if at the end of a horizontal section, or if it's a T junction
+							coord_stack[coord_stack_size][0] = x;
+							coord_stack[coord_stack_size][1] = y+1;
+							coord_stack_size++;
+							if (coord_stack_size>=coord_stack_limit)
+								return -1;
+						}
+
+					}
+				}
+			}
 		}
-		else if (!create_parts(x, y, 0, 0, fullc, flags, 1))
-			return 0;
-	}
-	// fill children
-	if (cm==PT_INST&&co==PT_SPRK)//wire crossing for INST
-	{
-		if (y>=CELL+dy && x1==x2 &&
-		        ((pmap[y-1][x1-1]&0xFF)==PT_INST||(pmap[y-1][x1-1]&0xFF)==PT_SPRK) && ((pmap[y-1][x1]&0xFF)==PT_INST||(pmap[y-1][x1]&0xFF)==PT_SPRK) && ((pmap[y-1][x1+1]&0xFF)==PT_INST || (pmap[y-1][x1+1]&0xFF)==PT_SPRK) &&
-		        (pmap[y-2][x1-1]&0xFF)!=PT_INST && ((pmap[y-2][x1]&0xFF)==PT_INST ||(pmap[y-2][x1]&0xFF)==PT_SPRK) && (pmap[y-2][x1+1]&0xFF)!=PT_INST)
-			flood_parts(x1, y-2, fullc, cm, bm, flags);
-		else if (y>=CELL+dy)
-			for (x=x1; x<=x2; x++)
-				if ((pmap[y-1][x]&0xFF)!=PT_SPRK)
-				{
-					if (x==x1 || x==x2 || y>=YRES-CELL-1 ||
-					        (pmap[y-1][x-1]&0xFF)==PT_INST || (pmap[y-1][x+1]&0xFF)==PT_INST ||
-					        (pmap[y+1][x-1]&0xFF)==PT_INST || ((pmap[y+1][x]&0xFF)!=PT_INST&&(pmap[y+1][x]&0xFF)!=PT_SPRK) || (pmap[y+1][x+1]&0xFF)==PT_INST)
-						flood_parts(x, y-dy, fullc, cm, bm, flags);
-
-				}
-
-		if (y<YRES-CELL-dy && x1==x2 &&
-		        ((pmap[y+1][x1-1]&0xFF)==PT_INST||(pmap[y+1][x1-1]&0xFF)==PT_SPRK) && ((pmap[y+1][x1]&0xFF)==PT_INST||(pmap[y+1][x1]&0xFF)==PT_SPRK) && ((pmap[y+1][x1+1]&0xFF)==PT_INST || (pmap[y+1][x1+1]&0xFF)==PT_SPRK) &&
-		        (pmap[y+2][x1-1]&0xFF)!=PT_INST && ((pmap[y+2][x1]&0xFF)==PT_INST ||(pmap[y+2][x1]&0xFF)==PT_SPRK) && (pmap[y+2][x1+1]&0xFF)!=PT_INST)
-			flood_parts(x1, y+2, fullc, cm, bm, flags);
-		else if (y<YRES-CELL-dy)
-			for (x=x1; x<=x2; x++)
-				if ((pmap[y+1][x]&0xFF)!=PT_SPRK)
-				{
-					if (x==x1 || x==x2 || y<0 ||
-					        (pmap[y+1][x-1]&0xFF)==PT_INST || (pmap[y+1][x+1]&0xFF)==PT_INST ||
-					        (pmap[y-1][x-1]&0xFF)==PT_INST || ((pmap[y-1][x]&0xFF)!=PT_INST&&(pmap[y-1][x]&0xFF)!=PT_SPRK) || (pmap[y-1][x+1]&0xFF)==PT_INST)
-						flood_parts(x, y+dy, fullc, cm, bm, flags);
-
-				}
-	}
-	else
-	{
-		if (y>=CELL+dy)
-			for (x=x1; x<=x2; x++)
-				if ((pmap[y-dy][x]&0xFF)==cm && bmap[(y-dy)/CELL][x/CELL]==bm)
-					if (!flood_parts(x, y-dy, fullc, cm, bm, flags))
-						return 0;
-		if (y<YRES-CELL-dy)
-			for (x=x1; x<=x2; x++)
-				if ((pmap[y+dy][x]&0xFF)==cm && bmap[(y+dy)/CELL][x/CELL]==bm)
-					if (!flood_parts(x, y+dy, fullc, cm, bm, flags))
-						return 0;
-	}
-	if (!(cm==PT_INST&&co==PT_SPRK))
-		return 1;
-	return 0;
+		else
+		{
+			if (y>=CELL+dy)
+				for (x=x1; x<=x2; x++)
+					if ((pmap[y-dy][x]&0xFF)==cm && bmap[(y-dy)/CELL][x/CELL]==bm)
+					{
+						coord_stack[coord_stack_size][0] = x;
+						coord_stack[coord_stack_size][1] = y-dy;
+						coord_stack_size++;
+						if (coord_stack_size>=coord_stack_limit)
+							return -1;
+					}
+			if (y<YRES-CELL-dy)
+				for (x=x1; x<=x2; x++)
+					if ((pmap[y+dy][x]&0xFF)==cm && bmap[(y+dy)/CELL][x/CELL]==bm)
+					{
+						coord_stack[coord_stack_size][0] = x;
+						coord_stack[coord_stack_size][1] = y+dy;
+						coord_stack_size++;
+						if (coord_stack_size>=coord_stack_limit)
+							return -1;
+					}
+		}
+	} while (coord_stack_size>0);
+	free(coord_stack);
+	return created_something;
 }
 
 int flood_water(int x, int y, int i, int originaly, int check)

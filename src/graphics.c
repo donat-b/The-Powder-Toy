@@ -24,8 +24,7 @@
 
 #if defined(OGLR)
 #ifdef MACOSX
-#include <GL/glew.h>
-#include <OpenGL/gl.h>
+#include <OpenGL/gl3.h>
 #include <OpenGL/glu.h>
 #elif defined(WIN32)
 #include <GL/glew.h>
@@ -461,6 +460,7 @@ void clearScreenNP(float alpha)
 void ogl_blit(int x, int y, int w, int h, pixel *src, int pitch, int scale)
 {
 
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     //glDrawPixels(w,h,GL_BGRA,GL_UNSIGNED_BYTE,src); //Why does this still think it's ABGR?
     glEnable( GL_TEXTURE_2D );
     glBindTexture(GL_TEXTURE_2D, vidBuf);
@@ -478,6 +478,7 @@ void ogl_blit(int x, int y, int w, int h, pixel *src, int pitch, int scale)
     glEnd();
 
     glDisable( GL_TEXTURE_2D );
+	glBlendFunc(GL_ONE, GL_ONE);
     glFlush();
     SDL_GL_SwapBuffers ();
 }
@@ -1986,12 +1987,16 @@ GLuint addV[(YRES*XRES)*2];
 GLfloat addC[(YRES*XRES)*4];
 GLfloat lineV[(((YRES*XRES)*2)*6)];
 GLfloat lineC[(((YRES*XRES)*2)*6)];
+GLfloat blurLineV[(((YRES*XRES)*2))];
+GLfloat blurLineC[(((YRES*XRES)*2)*4)];
+GLfloat ablurLineV[(((YRES*XRES)*2))];
+GLfloat ablurLineC[(((YRES*XRES)*2)*4)];
 #endif
 void render_parts(pixel *vid)
 {
 	int deca, decr, decg, decb, cola, colr, colg, colb, firea, firer, fireg, fireb, pixel_mode, q, i, t, nx, ny, x, y, caddress;
 	int orbd[4] = {0, 0, 0, 0}, orbl[4] = {0, 0, 0, 0};
-	float gradv, flicker, fnx, fny;
+	float gradv, flicker, fnx, fny, flx, fly;
 #ifdef OGLR
 	int cfireV = 0, cfireC = 0, cfire = 0;
 	int csmokeV = 0, csmokeC = 0, csmoke = 0;
@@ -2001,6 +2006,8 @@ void render_parts(pixel *vid)
 	int cflatV = 0, cflatC = 0, cflat = 0;
 	int caddV = 0, caddC = 0, cadd = 0;
 	int clineV = 0, clineC = 0, cline = 0;
+	int cblurLineV = 0, cblurLineC = 0, cblurLine = 0;
+	int cablurLineV = 0, cablurLineC = 0, cablurLine = 0;
 	GLuint origBlendSrc, origBlendDst;
 	
 	glGetIntegerv(GL_BLEND_SRC, &origBlendSrc);
@@ -2032,8 +2039,10 @@ void render_parts(pixel *vid)
 			fny = parts[i].y;
 			if ((pmap[ny][nx]&0xFF) == PT_PINV)
 				parts[pmap[ny][nx]>>8].tmp2 = t|(i<<8);
+			flx = parts[i].lastX;
+			fly = parts[i].lastY;
 
-			if(photons[ny][nx]&0xFF && !(ptypes[t].properties & TYPE_ENERGY))
+			if(photons[ny][nx]&0xFF && !(ptypes[t].properties & TYPE_ENERGY) && t!=PT_STKM && t!=PT_STKM2 && t!=PT_FIGH)
 				continue;
 				
 			//Defaults
@@ -2402,6 +2411,65 @@ void render_parts(pixel *vid)
 					draw_line(vid , (int)cplayer->legs[8], (int)cplayer->legs[9], (int)cplayer->legs[12], (int)cplayer->legs[13], legr, legg, legb, s);
 #endif
 				}
+#ifdef OGLR
+				if((display_mode & DISPLAY_EFFE) && (fabs(fnx-flx)>1.5f || fabs(fny-fly)>1.5f))
+				{
+					if(pixel_mode & PMODE_FLAT)
+					{
+						blurLineV[cblurLineV++] = nx;
+						blurLineV[cblurLineV++] = ny;
+						blurLineC[cblurLineC++] = ((float)colr)/255.0f;
+						blurLineC[cblurLineC++] = ((float)colg)/255.0f;
+						blurLineC[cblurLineC++] = ((float)colb)/255.0f;
+						blurLineC[cblurLineC++] = 1.0f;
+						cblurLine++;
+						
+						blurLineV[cblurLineV++] = flx;
+						blurLineV[cblurLineV++] = fly;
+						blurLineC[cblurLineC++] = ((float)colr)/255.0f;
+						blurLineC[cblurLineC++] = ((float)colg)/255.0f;
+						blurLineC[cblurLineC++] = ((float)colb)/255.0f;
+						blurLineC[cblurLineC++] = 0.0f;
+						cblurLine++;
+					}
+					else if(pixel_mode & PMODE_BLEND)
+					{
+						blurLineV[cblurLineV++] = nx;
+						blurLineV[cblurLineV++] = ny;
+						blurLineC[cblurLineC++] = ((float)colr)/255.0f;
+						blurLineC[cblurLineC++] = ((float)colg)/255.0f;
+						blurLineC[cblurLineC++] = ((float)colb)/255.0f;
+						blurLineC[cblurLineC++] = ((float)cola)/255.0f;
+						cblurLine++;
+						
+						blurLineV[cblurLineV++] = flx;
+						blurLineV[cblurLineV++] = fly;
+						blurLineC[cblurLineC++] = ((float)colr)/255.0f;
+						blurLineC[cblurLineC++] = ((float)colg)/255.0f;
+						blurLineC[cblurLineC++] = ((float)colb)/255.0f;
+						blurLineC[cblurLineC++] = 0.0f;
+						cblurLine++;
+					}
+					else if(pixel_mode & PMODE_ADD)
+					{
+						ablurLineV[cablurLineV++] = nx;
+						ablurLineV[cablurLineV++] = ny;
+						ablurLineC[cablurLineC++] = ((float)colr)/255.0f;
+						ablurLineC[cablurLineC++] = ((float)colg)/255.0f;
+						ablurLineC[cablurLineC++] = ((float)colb)/255.0f;
+						ablurLineC[cablurLineC++] = ((float)cola)/255.0f;
+						cablurLine++;
+						
+						ablurLineV[cablurLineV++] = flx;
+						ablurLineV[cablurLineV++] = fly;
+						ablurLineC[cablurLineC++] = ((float)colr)/255.0f;
+						ablurLineC[cablurLineC++] = ((float)colg)/255.0f;
+						ablurLineC[cablurLineC++] = ((float)colb)/255.0f;
+						ablurLineC[cablurLineC++] = 0.0f;
+						cablurLine++;
+					}
+				}
+#endif
 				if(pixel_mode & PMODE_FLAT)
 				{
 #ifdef OGLR
@@ -2854,6 +2922,36 @@ void render_parts(pixel *vid)
         
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       
+
+		if(cablurLine)
+		{
+			// -- BEGIN LINES -- //
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			glEnable( GL_LINE_SMOOTH );
+			glColorPointer(4, GL_FLOAT, 0, &ablurLineC[0]);
+			glVertexPointer(2, GL_FLOAT, 0, &ablurLineV[0]);
+			
+			glDrawArrays(GL_LINES, 0, cablurLine);
+			
+			//Clear some stuff we set
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glDisable(GL_LINE_SMOOTH);
+			// -- END LINES -- //
+		}
+		if(cblurLine)
+		{
+			// -- BEGIN LINES -- //
+			glEnable( GL_LINE_SMOOTH );
+			glColorPointer(4, GL_FLOAT, 0, &blurLineC[0]);
+			glVertexPointer(2, GL_FLOAT, 0, &blurLineV[0]);
+			
+			glDrawArrays(GL_LINES, 0, cblurLine);
+			
+			//Clear some stuff we set
+			glDisable(GL_LINE_SMOOTH);
+			// -- END LINES -- //
+		}
+	
  		if(cflat)
 		{
 			// -- BEGIN FLAT -- //
@@ -3648,7 +3746,7 @@ void prepare_alpha(int size, float intensity)
 	for (x=0; x<CELL*3; x++)
 		for (y=0; y<CELL*3; y++)
 		{
-			fire_alphaf[y][x] = intensity*temp[y][x]/((float)(CELL*CELL));
+			fire_alphaf[y][x] = (intensity*temp[y][x]/((float)(CELL*CELL)))/2.0f;
 		}
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, fireAlpha);
@@ -3660,6 +3758,7 @@ void prepare_alpha(int size, float intensity)
 	
 	c = 5;
 	
+	glow_alphaf[c][c] = 0.8f;
 	glow_alphaf[c][c-1] = 0.4f;
 	glow_alphaf[c][c+1] = 0.4f;
 	glow_alphaf[c-1][c] = 0.4f;
@@ -4115,9 +4214,11 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 #endif
 }
 
+SDL_VideoInfo info;
 int sdl_opened = 0;
 int sdl_open(void)
 {
+	char screen_err = 0;
 #ifdef WIN32
 	SDL_SysWMinfo SysInfo;
 	HWND WindowHandle;
@@ -4151,6 +4252,16 @@ int sdl_open(void)
 	SDL_WM_SetCaption("Jacob1's Mod", "Powder Toy");
 	
 	atexit(SDL_Quit);
+
+	if(!sdl_opened)
+		info = *SDL_GetVideoInfo(); 
+
+	if (info.current_w<((XRES+BARSIZE)*sdl_scale) || info.current_h<((YRES+MENUSIZE)*sdl_scale))
+	{
+		sdl_scale = 1;
+		screen_err = 1;
+		fprintf(stderr, "Can't change scale factor, because screen resolution is too small");
+	}
 #if defined(OGLR)
 	sdl_scrn=SDL_SetVideoMode(XRES*sdl_scale + BARSIZE*sdl_scale,YRES*sdl_scale + MENUSIZE*sdl_scale,32,SDL_OPENGL);
 	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
@@ -4246,18 +4357,18 @@ int sdl_open(void)
 		glEnable(GL_TEXTURE_2D);
 		glGenTextures(1, &partsTFX);
 		glBindTexture(GL_TEXTURE_2D, partsTFX);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, XRES, YRES, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, XRES/CELL, YRES/CELL, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
 
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glGenTextures(1, &partsTFY);
 		glBindTexture(GL_TEXTURE_2D, partsTFY);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, XRES, YRES, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, XRES/CELL, YRES/CELL, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
 
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glDisable(GL_TEXTURE_2D);
@@ -4361,6 +4472,9 @@ int sdl_open(void)
 	XA_TARGETS = XInternAtom(sdl_wminfo.info.x11.display, "TARGETS", 1);
 	sdl_wminfo.info.x11.unlock_func();
 #endif
+
+	if (screen_err)
+		error_ui(vid_buf, 0, "Can't change scale factor, because screen resolution is too small");
 	sdl_opened = 1;
 	return 1;
 }

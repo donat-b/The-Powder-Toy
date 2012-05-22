@@ -75,7 +75,7 @@ static menu_section msections[] = //doshow does not do anything currently.
 	{"\xD6", "Powered Materials", 0, 1},
 	{"\xE3", "Force Creating", 0, 1},
 	{"\xC3", "Explosives", 0, 1},
-	{"\xC5", "Gasses", 0, 1},
+	{"\xC5", "Gases", 0, 1},
 	{"\xC4", "Liquids", 0, 1},
 	{"\xD0", "Powders", 0, 1},
 	{"\xD1", "Solids", 0, 1},
@@ -300,6 +300,8 @@ void info_ui(pixel *vid_buf, char *top, char *txt);
 void copytext_ui(pixel *vid_buf, char *top, char *txt, char *copytxt);
 
 void info_box(pixel *vid_buf, char *msg);
+
+void info_box_overlay(pixel *vid_buf, char *msg);
 
 char *input_ui(pixel *vid_buf, char *title, char *prompt, char *text, char *shadow);
 

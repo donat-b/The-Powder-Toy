@@ -219,6 +219,7 @@
 #define PT_BOYL 141
 #define PT_GEL 142
 #define PT_TRON 143
+#define PT_TTAN	144
 
 #define OLD_PT_WIND 147
 #define PT_H2   148
@@ -284,7 +285,7 @@
 #define TYPE_PART			0x00001 //1 Powders
 #define TYPE_LIQUID			0x00002 //2 Liquids
 #define TYPE_SOLID			0x00004 //4 Solids
-#define TYPE_GAS			0x00008 //8 Gasses (Includes plasma)
+#define TYPE_GAS			0x00008 //8 Gases (Includes plasma)
 #define TYPE_ENERGY			0x00010 //16 Energy (Thunder, Light, Neutrons etc.)
 #define PROP_CONDUCTS		0x00020 //32 Conducts electricity
 #define PROP_BLACK			0x00040 //64 Absorbs Photons (not currently implemented or used, a photwl attribute might be better)
@@ -318,6 +319,7 @@ struct particle
 	int type;
 	int life, ctype;
 	float x, y, vx, vy;
+	float lastX, lastY;
 	float temp;
 	float pavg[2];
 	int flags;
@@ -501,6 +503,7 @@ int update_SWCH(UPDATE_FUNC_ARGS);
 int update_THDR(UPDATE_FUNC_ARGS);
 int update_THRM(UPDATE_FUNC_ARGS);
 int update_TRON(UPDATE_FUNC_ARGS);
+int update_TTAN(UPDATE_FUNC_ARGS);
 int update_URAN(UPDATE_FUNC_ARGS);
 int update_VINE(UPDATE_FUNC_ARGS);
 int update_VIRS(UPDATE_FUNC_ARGS);
@@ -764,17 +767,17 @@ static wall_type wtypes[] =
 	{"ERASE",		PIXPACK(0x808080), PIXPACK(0x000000), -1, "Erases walls."},
 	{"WALL",		PIXPACK(0x808080), PIXPACK(0x000000), 3,  "Wall. Indestructible. Blocks everything."},
 	{"AIRWALL",		PIXPACK(0x3C3C3C), PIXPACK(0x000000), 1,  "Wall. Indestructible. Blocks particles, allows air"},
-	{"POWDERWALL",	PIXPACK(0x575757), PIXPACK(0x000000), 1,  "Wall. Indestructible. Blocks liquids and gasses, allows powders"},
+	{"POWDERWALL",	PIXPACK(0x575757), PIXPACK(0x000000), 1,  "Wall. Indestructible. Blocks liquids and gases, allows powders"},
 	{"ELECWALL2",	PIXPACK(0xFFFF22), PIXPACK(0x101010), 2,  "Conductor, allows particles, conducts electricity"},
 	{"EHOLE",		PIXPACK(0x242424), PIXPACK(0x101010), 0,  "E-Hole, absorbs particles, release them when powered"},
 	{"AIR",			PIXPACK(0xFFFFFF), PIXPACK(0x000000), -1, "Air, creates airflow and pressure"},
-	{"HEAT",		PIXPACK(0xFFBB00), PIXPACK(0x000000), -1, "Heats the targetted element."},
-	{"COOL",		PIXPACK(0x00BBFF), PIXPACK(0x000000), -1, "Cools the targetted element."},
+	{"HEAT",		PIXPACK(0xFFBB00), PIXPACK(0x000000), -1, "Heats the targeted element."},
+	{"COOL",		PIXPACK(0x00BBFF), PIXPACK(0x000000), -1, "Cools the targeted element."},
 	{"VAC",			PIXPACK(0x303030), PIXPACK(0x000000), -1, "Vacuum, reduces air pressure."},
-	{"GASWALL",		PIXPACK(0x579777), PIXPACK(0x000000), 1,  "Wall. Indestructible. Blocks liquids and solids, allows gasses"},
+	{"GASWALL",		PIXPACK(0x579777), PIXPACK(0x000000), 1,  "Wall. Indestructible. Blocks liquids and solids, allows gases"},
 	{"WIND",		PIXPACK(0x000000), PIXPACK(0x000000), -1, "Drag tool"},
 	{"GRAVWALL",	PIXPACK(0xFFEE00), PIXPACK(0xAA9900), 4,  "Gravity wall"},
-	{"PGRV",		PIXPACK(0x0000BB), PIXPACK(0x000000), -1, "Postive gravity tool."},
+	{"PGRV",		PIXPACK(0x0000BB), PIXPACK(0x000000), -1, "Positive gravity tool."},
 	{"NGRV",		PIXPACK(0x000099), PIXPACK(0x000000), -1, "Negative gravity tool."},
 	{"ENERGYWALL",	PIXPACK(0xFFAA00), PIXPACK(0xAA5500), 4,  "Energy wall, allows only energy type particles to pass"},
 	{"PROP",		PIXPACK(0xFFAA00), PIXPACK(0x000000), -1, "Property edit tool"},

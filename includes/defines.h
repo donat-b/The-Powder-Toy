@@ -24,9 +24,10 @@
 #endif
  
 //VersionInfoStart
-#define SAVE_VERSION 78
-#define MINOR_VERSION 1
-#define BUILD_NUM 163
+#define SAVE_VERSION 79
+#define MINOR_VERSION 2
+#define BETA
+#define BUILD_NUM 167
 //VersionInfoEnd
 
 #define MOD_VERSION 14
@@ -170,6 +171,8 @@ typedef unsigned int pixel;
 #define DEBUG_PERFORMANCE_FRAME 0x0010
 
 typedef unsigned char uint8;
+
+extern int saveURIOpen;
 
 extern int amd;
 

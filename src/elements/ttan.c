@@ -15,21 +15,8 @@
 
 #include <element.h>
 
-int update_PUMP(UPDATE_FUNC_ARGS) {
-	int r, rx, ry;
-	if (parts[i].life==10)
-	{
-		if (parts[i].temp>=256.0+273.15)
-			parts[i].temp=256.0f+273.15f;
-		if (parts[i].temp<= -256.0+273.15)
-			parts[i].temp = -256.0f+273.15f;
-
-		for (rx=-1; rx<2; rx++)
-			for (ry=-1; ry<2; ry++)
-				if ((x+rx)-CELL>=0 && (y+ry)-CELL>0 && (x+rx)+CELL<XRES && (y+ry)+CELL<YRES && !(rx && ry))
-				{
-					pv[(y/CELL)+ry][(x/CELL)+rx] += 0.1f*((parts[i].temp-273.15)-pv[(y/CELL)+ry][(x/CELL)+rx]);
-				}
-	}
+int update_TTAN(UPDATE_FUNC_ARGS) {
+	bmap_blockair[y/CELL][x/CELL] = 1;
+	bmap_blockairh[y/CELL][x/CELL] = 1;
 	return 0;
 }
