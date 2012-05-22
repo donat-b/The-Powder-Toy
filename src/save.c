@@ -59,8 +59,8 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 
 	if (save_as >= 3 || tab)
 		return build_save_OPS(size, orig_x0, orig_y0, orig_w, orig_h, bmap, vx, vy, pv, fvx, fvy, signs, partsptr, tab);
-	else
-		return build_save_PSv(size, orig_x0, orig_y0, orig_w, orig_h, bmap, fvx, fvy, signs, partsptr);
+	//else
+	//	return build_save_PSv(size, orig_x0, orig_y0, orig_w, orig_h, bmap, fvx, fvy, signs, partsptr);
 }
 
 int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, unsigned pmap[YRES][XRES])
@@ -2031,7 +2031,7 @@ corrupt:
 	return NULL;
 }
 
-void *build_save_PSv(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr)
+/*void *build_save_PSv(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr)
 {
 	unsigned char *d=calloc(1,3*(XRES/CELL)*(YRES/CELL)+(XRES*YRES)*(16+numframes*4)+MAXSIGNS*262+numballs*6), *c;
 	int i,j,x,y,p=0,*m=calloc(XRES*YRES, sizeof(int)),nummovs = 0;
@@ -2288,7 +2288,7 @@ void *build_save_PSv(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 
 	*size = i+12;
 	return c;
-}
+}*/
 
 int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, unsigned pmap[YRES][XRES])
 {
