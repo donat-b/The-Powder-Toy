@@ -1029,6 +1029,206 @@ void error_ui(pixel *vid_buf, int err, char *txt)
 	}
 }
 
+typedef struct int_pair
+{
+	int first, second;
+} int_pair;
+
+int int_pair_cmp (const void * a, const void * b)
+{
+	int_pair *ap = (int_pair*)a;
+	int_pair *bp = (int_pair*)a;
+	return ( ap->first - bp->first );
+}
+
+void element_search_ui(pixel *vid_buf, int * slp, int * srp)
+{
+	int windowHeight = 300, windowWidth = 240;
+	int x0 = (XRES-windowWidth)/2, y0 = (YRES-windowHeight)/2, b = 1, bq, mx, my;
+	int toolx = 0, tooly = 0, i, xoff, yoff, c, found;
+	char tempCompare[512];
+	char tempString[512];
+	int_pair tempInts[PT_NUM];
+	ui_edit ed;
+	int selectedl = -1;
+	int selectedr = -1;
+	int firstResult = -1, hover = -1;
+
+	ed.x = x0+12;
+	ed.y = y0+30;
+	ed.w = windowWidth - 20;
+	ed.nx = 1;
+	ed.def = "[element name]";
+	ed.focus = 1;
+	ed.hide = 0;
+	ed.cursor = 0;
+	ed.multiline = 0;
+	ed.str[0] = 0;
+
+
+	while (!sdl_poll())
+	{
+		bq = b;
+		b = mouse_get_state(&mx, &my);
+
+		clearrect(vid_buf, x0-2, y0-2, windowWidth+4, windowHeight+4);
+		drawrect(vid_buf, x0, y0, windowWidth, windowHeight, 192, 192, 192, 255);
+		
+		drawtext(vid_buf, x0+8, y0+8, "Element Search", 255, 255, 255, 255);
+
+		drawrect(vid_buf, ed.x-4, ed.y-5, ed.w+4, 16, 192, 192, 192, 255);
+		ui_edit_draw(vid_buf, &ed);
+		ui_edit_process(mx, my, b, &ed);
+		
+		drawrect(vid_buf, ed.x-4, (ed.y-5)+20, ed.w+4, windowHeight-((ed.y-5)), 192, 192, 192, 255);
+		xoff = (ed.x-4)+6;
+		yoff = ((ed.y-5)+20)+4;
+		toolx = 0;
+		tooly = 0;
+		
+		drawtext(vid_buf, xoff+toolx+4, yoff+tooly+3, "Matches:", 255, 255, 255, 180);
+		draw_line(vid_buf, xoff+toolx+2, yoff+tooly+14, xoff+toolx+5+(ed.w-16), yoff+tooly+14, 180, 180, 180, XRES+BARSIZE);
+		tooly += 17;
+		
+		//Covert input to lower case
+		c = 0;
+		while (ed.str[c]) { tempString[c] = tolower(ed.str[c]); c++; } tempString[c] = 0;
+		
+		firstResult = -1;
+		hover = -1;
+		for(i = 0; i < PT_NUM; i++)
+		{
+			c = 0;
+			while (ptypes[i].name[c]) { tempCompare[c] = tolower(ptypes[i].name[c]); c++; } tempCompare[c] = 0;
+			if(strstr(tempCompare, tempString)!=0)
+			{
+				if(firstResult==-1)
+					firstResult = i;
+				toolx += draw_tool_xy(vid_buf, toolx+xoff, tooly+yoff, i, ptypes[i].pcolors)+5;
+				if (!bq && mx>=xoff+toolx-32 && mx<xoff+toolx && my>=yoff+tooly && my<yoff+tooly+15)
+				{
+					drawrect(vid_buf, xoff+toolx-32, yoff+tooly-1, 29, 17, 255, 55, 55, 255);
+					hover = i;
+				}
+				else if (i==selectedl || i==*slp)
+				{
+					drawrect(vid_buf, xoff+toolx-32, yoff+tooly-1, 29, 17, 255, 55, 55, 255);
+				}
+				else if (i==selectedr || i==*srp)
+				{
+					drawrect(vid_buf, xoff+toolx-32, yoff+tooly-1, 29, 17, 55, 55, 255, 255);
+				}
+				if(toolx > ed.w-4)
+				{
+					tooly += 18;
+					toolx = 0;
+				}
+				if(tooly>windowHeight-((ed.y-5)+20))
+					break;;
+			}
+		}
+		
+		if(toolx>0)
+		{
+			toolx = 0;
+			tooly += 18;
+		}
+		
+		if(tooly<windowHeight-((ed.y-5)+20))
+		{
+			drawtext(vid_buf, xoff+toolx+4, yoff+tooly+3, "Related:", 255, 255, 255, 180);
+			draw_line(vid_buf, xoff+toolx+2, yoff+tooly+14, xoff+toolx+5+(ed.w-16), yoff+tooly+14, 180, 180, 180, XRES+BARSIZE);
+			tooly += 17;
+			
+			found = 0;
+			for(i = 0; i < PT_NUM; i++)
+			{
+				c = 0;
+				while (ptypes[i].descs[c]) { tempCompare[c] = tolower(ptypes[i].descs[c]); c++; } tempCompare[c] = 0;
+				if(strstr(tempCompare, tempString)!=0)
+				{
+					tempInts[found].first = (int)strstr(tempCompare, tempString);
+					tempInts[found++].second = i;
+				}
+			}
+			
+			qsort(tempInts, found, sizeof(int_pair), int_pair_cmp);
+			
+			for(i = 0; i < found; i++)
+			{
+				if(firstResult==-1)
+					firstResult = tempInts[i].second;
+				toolx += draw_tool_xy(vid_buf, toolx+xoff, tooly+yoff, tempInts[i].second, ptypes[tempInts[i].second].pcolors)+5;
+				if (!bq && mx>=xoff+toolx-32 && mx<xoff+toolx && my>=yoff+tooly && my<yoff+tooly+15)
+				{
+					drawrect(vid_buf, xoff+toolx-32, yoff+tooly-1, 29, 17, 255, 55, 55, 255);
+					hover = tempInts[i].second;
+				}
+				else if (tempInts[i].second==selectedl || tempInts[i].second==*slp)
+				{
+					drawrect(vid_buf, xoff+toolx-32, yoff+tooly-1, 29, 17, 255, 55, 55, 255);
+				}
+				else if (tempInts[i].second==selectedr || tempInts[i].second==*srp)
+				{
+					drawrect(vid_buf, xoff+toolx-32, yoff+tooly-1, 29, 17, 55, 55, 255, 255);
+				}
+				if(toolx > ed.w-4)
+				{
+					tooly += 18;
+					toolx = 0;
+				}
+				if(tooly>windowHeight-((ed.y-5)+18))
+					break;
+			}
+		}
+		
+		if(b==1 && hover!=-1)
+		{
+			selectedl = hover;
+			break;
+		}
+		if(b==4 && hover!=-1)
+		{
+			selectedr = hover;
+			break;
+		}
+		
+		drawtext(vid_buf, x0+5, y0+windowHeight-12, "Dismiss", 255, 255, 255, 255);
+		drawrect(vid_buf, x0, y0+windowHeight-16, windowWidth, 16, 192, 192, 192, 255);
+#ifdef OGLR
+		clearScreen(1.0f);
+#endif
+		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
+
+		if (b && !bq && mx>=x0 && mx<x0+windowWidth && my>=y0+windowHeight-16 && my<=y0+windowHeight)
+			break;
+
+		if (sdl_key==SDLK_RETURN)
+		{
+			if(selectedl==-1)
+				selectedl = firstResult;
+			break;
+		}
+		if (sdl_key==SDLK_ESCAPE)
+		{
+			selectedl = -1;
+			selectedr = -1;
+			break;
+		}
+	}
+
+	if(selectedl!=-1)
+		*slp = selectedl;
+	if(selectedr!=-1)
+		*srp = selectedr;
+	
+	while (!sdl_poll())
+	{
+		b = mouse_get_state(&mx, &my);
+		if (!b)
+			break;
+	}
+}
 
 char *input_ui(pixel *vid_buf, char *title, char *prompt, char *text, char *shadow)
 {
@@ -4320,7 +4520,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	void *data = NULL, *info_data, *thumb_data_full, *comment_data;
 	save_info *info = calloc(sizeof(save_info), 1);
 	void *http = NULL, *http_2 = NULL, *http_3 = NULL, *http_4 = NULL;
-	int lasttime = TIMEOUT;
+	int lasttime = TIMEOUT, saveTotal, saveDone, infoTotal, infoDone, downloadDone, downloadTotal;
 	int status, status_2, status_4, info_ready = 0, data_ready = 0, thumb_data_ready = 0;
 	time_t http_last_use = HTTP_TIMEOUT,  http_last_use_2 = HTTP_TIMEOUT,  http_last_use_3 = HTTP_TIMEOUT,  http_last_use_4 = HTTP_TIMEOUT;
 	pixel *save_pic;// = malloc((XRES/2)*(YRES/2));
@@ -4476,11 +4676,17 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 
+		if (active)
+		{
+			http_async_get_length(http, &saveTotal, &saveDone);
+		}
 		if (active && http_async_req_status(http))
 		{
 			int imgh, imgw, nimgh, nimgw;
 			http_last_use = time(NULL);
 			data = http_async_req_stop(http, &status, &data_size);
+			saveDone = data_size;
+			saveTotal = data_size;
 			if (status == 200)
 			{
 				pixel *full_save;
@@ -4502,10 +4708,15 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			free(http);
 			http = NULL;
 		}
+		if (active_2)
+		{
+			http_async_get_length(http_2, &infoTotal, &infoDone);
+		}
 		if (active_2 && http_async_req_status(http_2))
 		{
 			http_last_use_2 = time(NULL);
-			info_data = http_async_req_stop(http_2, &status_2, NULL);
+			info_data = http_async_req_stop(http_2, &status_2, &infoTotal);
+			infoDone = infoTotal;
 			if (status_2 == 200 || !info_data)
 			{
 				info_ready = info_parse(info_data, info);
@@ -4834,6 +5045,19 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				retval = 0;
 				break;
 			}
+		}
+
+		//Download completion
+		downloadTotal = saveTotal+infoTotal;
+		downloadDone = saveDone+infoDone;
+		if(downloadTotal>downloadDone)
+		{
+			clearrect(vid_buf, 51, (YRES/2)+37, (XRES)/2, 14);
+			fillrect(vid_buf, 51, (YRES/2)+38, (int)((((float)XRES-2)/2.0f)*((float)downloadDone/(float)downloadTotal)), 12, 255, 200, 0, 255);
+			if(((float)downloadDone/(float)downloadTotal)>0.5f)
+				drawtext(vid_buf, 51+(((XRES/2)-textwidth("Downloading"))/2), (YRES/2)+40, "Downloading", 0, 0, 0, 255);
+			else
+				drawtext(vid_buf, 51+(((XRES/2)-textwidth("Downloading"))/2), (YRES/2)+40, "Downloading", 255, 255, 255, 255);
 		}
 
 		//User opened the save, wait until we've got all the data first...
@@ -7123,11 +7347,11 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 	int render_options[] = {RENDER_EFFE, RENDER_GLOW, RENDER_FIRE, RENDER_BLUR, RENDER_BASC, RENDER_NONE};
 	int render_optionicons[] = {0xE1, 0xDF, 0x9B, 0xC4, 0xDB, 0xDB};
 	char * render_desc[] = {"Effects", "Glow", "Fire", "Blur", "Basic", "None"};
-	
-	int display_optioncount = 7;
-	int display_options[] = {DISPLAY_AIRC, DISPLAY_AIRP, DISPLAY_AIRV, DISPLAY_AIRH, DISPLAY_WARP, DISPLAY_PERS, DISPLAY_BLOB};
-	int display_optionicons[] = {0xD4, 0x99, 0x98, 0xBE, 0xDE, 0x9A, 0xBF};
-	char * display_desc[] = {"Air: Cracker", "Air: Pressure", "Air: Velocity", "Air: Heat", "Warp effect", "Persistent", "Blob"};
+
+	int display_optioncount = 8;
+	int display_options[] = {DISPLAY_AIRC, DISPLAY_AIRP, DISPLAY_AIRV, DISPLAY_AIRH, DISPLAY_WARP, DISPLAY_PERS, DISPLAY_BLOB, DISPLAY_EFFE};
+	int display_optionicons[] = {0xD4, 0x99, 0x98, 0xBE, 0xDE, 0x9A, 0xBF, 0xE1};
+	char * display_desc[] = {"Air: Cracker", "Air: Pressure", "Air: Velocity", "Air: Heat", "Warp effect", "Persistent", "Blob", "Effects"};
 
 	int colour_optioncount = 4;
 	int colour_options[] = {COLOUR_BASC, COLOUR_LIFE, COLOUR_HEAT, COLOUR_GRAD};

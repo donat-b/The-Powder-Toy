@@ -17,7 +17,6 @@
 
 #include <defines.h>
 
-int loop_time = 0;
 #ifdef LUACONSOLE
 #include <powder.h>
 #include "gravity.h"
@@ -241,7 +240,7 @@ tpt.partsdata = nil");
 		lua_el_mode[i] = 0;
 		lua_gr_func[i] = 0;
 	}
-	lua_sethook(l, &lua_hook, LUA_MASKCOUNT, 2000000);
+	lua_sethook(l, &lua_hook, LUA_MASKCOUNT, 4000000);
 }
 #ifndef FFI
 int luacon_partread(lua_State* l){
@@ -780,18 +779,14 @@ int luacon_eval(char *command){
 	loop_time = SDL_GetTicks();
 	return luaL_dostring (l, command);
 }
-//int numhooks = 0;
 void lua_hook(lua_State *L, lua_Debug *ar)
 {
 	if(ar->event == LUA_HOOKCOUNT && SDL_GetTicks()-loop_time > 3000)
 	{
-		//numhooks = 0;
 		if (confirm_ui(vid_buf,"Infinite Loop","The Lua code might have an infinite loop. Press OK to stop it","OK"))
 			luaL_error(l,"Error: Infinite loop");
 		loop_time = SDL_GetTicks();
 	}
-	//else
-		//numhooks++;
 }
 int luacon_part_update(int t, int i, int x, int y, int surround_space, int nt)
 {
@@ -1161,8 +1156,13 @@ int luatpt_reset_spark(lua_State* l)
 	{
 		if (parts[i].type==PT_SPRK)
 		{
-			parts[i].type = parts[i].ctype;
-			parts[i].life = 4;
+			if (parts[i].ctype >= 0 && parts[i].ctype < PT_NUM)
+			{
+				parts[i].type = parts[i].ctype;
+				parts[i].life = 0;
+			}
+			else
+				kill_part(i);
 		}
 	}
 	return 0;
@@ -1242,7 +1242,7 @@ int luatpt_set_property(lua_State* l)
 		} else {
 			t = luaL_optint(l, 2, 0);
 		}
-		if (format == 3 && (t<0 || t>=PT_NUM))
+		if (format == 3 && (t<0 || t>=PT_NUM || !ptypes[t].enabled))
 			return luaL_error(l, "Unrecognised element number '%d'", t);
 	} else {
 		name = (char*)luaL_optstring(l, 2, "dust");

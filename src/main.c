@@ -152,7 +152,7 @@ static const char *it_msg =
     "\n"
     "Contributors: \bgStanislaw K Skowronek (\brhttp://powder.unaligned.org\bg, \bbirc.unaligned.org #wtf\bg),\n"
     "\bgSimon Robertshaw, Skresanov Savely, cracker64, Catelite, Bryan Hoyle, Nathan Cousins, jacksonmj,\n"
-    "\bgLieuwe Mosch, Anthony Boot, Matthew \"me4502\", MaksProg\n"
+	"\bgLieuwe Mosch, Anthony Boot, Matthew \"me4502\", MaksProg, jacob1\n"
     "\n"
     "\bgTo use online features such as saving, you need to register at: \brhttp://powdertoy.co.uk/Register.html\n"
     "\n"
@@ -248,6 +248,7 @@ int autosave = 0;
 int realistic = 0;
 int unlockedstuff = 0;
 int old_menu = 0;
+int loop_time = 0;
 
 int drawinfo = 0;
 int currentTime = 0;
@@ -1074,7 +1075,6 @@ int main(int argc, char *argv[])
 				}
 				if(!tempString[ci])
 				{
-					break;
 					okay = 1;
 				}
 				if(okay)
@@ -1508,6 +1508,10 @@ int main(int argc, char *argv[])
 				else
 					old_menu = !old_menu;
 			}
+			if(sdl_key=='e')
+			{
+				element_search_ui(vid_buf, &sl, &sr);
+			}
 			if (sdl_key=='1')
 			{
 				if (sdl_mod & (KMOD_CTRL))
@@ -1752,8 +1756,13 @@ int main(int argc, char *argv[])
 					for (i=0; i<NPART; i++)
 						if (parts[i].type==PT_SPRK)
 						{
-							parts[i].type = parts[i].ctype;
-							parts[i].life = 0;
+							if (parts[i].ctype >= 0 && parts[i].ctype < PT_NUM)
+							{
+								parts[i].type = parts[i].ctype;
+								parts[i].life = 0;
+							}
+							else
+								kill_part(i);
 						}
 				}
 				else

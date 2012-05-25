@@ -25,9 +25,9 @@
  
 //VersionInfoStart
 #define SAVE_VERSION 79
-#define MINOR_VERSION 2
+#define MINOR_VERSION 3
 #define BETA
-#define BUILD_NUM 167
+#define BUILD_NUM 168
 //VersionInfoEnd
 
 #define MOD_VERSION 15
@@ -233,6 +233,7 @@ extern int unlockedstuff;
 extern int old_menu;
 extern int h;
 extern int over_el;
+extern int loop_time;
 
 extern int drawinfo;
 extern int currentTime;
