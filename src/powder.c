@@ -1968,7 +1968,6 @@ void update_particles_i(pixel *vid, int start, int inc)
 	for (i=0; i<=parts_lastActiveIndex; i++)
 		if (parts[i].type)
 		{
-			float gel_scale;
 			t = parts[i].type;
 			x = (int)(parts[i].x+0.5f);
 			y = (int)(parts[i].y+0.5f);
