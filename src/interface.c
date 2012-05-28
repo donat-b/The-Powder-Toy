@@ -3863,7 +3863,7 @@ int search_ui(pixel *vid_buf)
 			drawtext(vid_buf, 4, YRES+MENUSIZE-16, "\x96", 255, 255, 255, 255);
 			drawrect(vid_buf, 1, YRES+MENUSIZE-20, 16, 16, 255, 255, 255, 255);
 		}
-		else if (page_count > 9)
+		else if (page_count > 9 && !(search_own || search_fav || search_date))
 		{
 			if (p1_extra)
 				drawtext(vid_buf, 4, YRES+MENUSIZE-17, "\x85", 255, 255, 255, 255);
@@ -3883,7 +3883,7 @@ int search_ui(pixel *vid_buf)
 		{
 			if (search_page)
 				search_page --;
-			else
+			else if (!(search_own || search_fav || search_date) && !sdl_wheel)
 				p1_extra = !p1_extra;
 			lasttime = TIMEOUT;
 			sdl_wheel = 0;
@@ -3988,7 +3988,7 @@ int search_ui(pixel *vid_buf)
 					thumb_drawn[pos] = 1;
 				}
 				own = (svf_login && (!strcmp(svf_user, search_owners[pos]) || svf_admin || svf_mod)) || ((unlockedstuff & 0x08)?1:0);
-				if (mx>=gx-2 && mx<=gx+XRES/GRID_S+3 && my>=gy-2 && my<=gy+YRES/GRID_S+30)
+				if (mx>=gx-2 && mx<=gx+XRES/GRID_S+3 && my>=gy-2 && my<=gy+YRES/GRID_S+30 && my<YRES+MENUSIZE-25)
 					mp = pos;
 				if ((own || search_fav) && mx>=gx+XRES/GRID_S-4 && mx<=gx+XRES/GRID_S+6 && my>=gy-6 && my<=gy+4)
 				{
@@ -4772,7 +4772,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					if (info->commentauthors[i]) { free(info->commentauthors[i]); info->commentauthors[i] = NULL; }
 					if (info->commentauthorIDs[i]) { free(info->commentauthorIDs[i]); info->commentauthorIDs[i] = NULL; }
 				}
-				if(comment_data && (root = cJSON_Parse((const char*)comment_data)))
+				if(comment_data && (root = cJSON_Parse((const char*)comment_data))) // TODO: Download more/all comments
 				{
 					info->comment_count = cJSON_GetArraySize(root);
 					if (info->comment_count > NUM_COMMENTS)
@@ -4780,7 +4780,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					for (i = 0; i < info->comment_count; i++)
 					{
 						commentobj = cJSON_GetArrayItem(root, i);
-						if(commentobj){ //TODO: Display UserID and/or Gravatar
+						if(commentobj){
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "Username")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "UserID")) && tmpobj->type == cJSON_String) { info->commentauthorIDs[i] = (char*)calloc(16,sizeof(char*)); strncpy(info->commentauthorIDs[i], tmpobj->valuestring, 16); }
 							//if((tmpobj = cJSON_GetObjectItem(commentobj, "Gravatar")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
