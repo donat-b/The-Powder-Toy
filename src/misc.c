@@ -232,6 +232,7 @@ void save_presets(int do_update)
 		cJSON_AddNumberToObject(root, "EXPL_unlocked", 1);
 	if (old_menu)
 		cJSON_AddNumberToObject(root, "old_menu", 1);
+	cJSON_AddNumberToObject(root, "save_as", save_as);
 	
 	outputdata = cJSON_Print(root);
 	cJSON_Delete(root);
@@ -442,6 +443,7 @@ void load_presets(void)
 		if(tmpobj = cJSON_GetObjectItem(root, "show_votes")) unlockedstuff |= 0x08;
 		if(tmpobj = cJSON_GetObjectItem(root, "EXPL_unlocked")) { unlockedstuff |= 0x10; ptypes[PT_EXPL].menu = 1; ptypes[PT_EXPL].enabled = 1; }
 		if(tmpobj = cJSON_GetObjectItem(root, "old_menu")) old_menu = 1;
+		if(tmpobj = cJSON_GetObjectItem(root, "save_as")) save_as = tmpobj->valueint;
 
 		cJSON_Delete(root);
 		free(prefdata);

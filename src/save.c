@@ -959,7 +959,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	outputData[1] = 'P';
 	outputData[2] = 'S';
 	outputData[3] = '1';
-	outputData[4] = 222;
+	outputData[4] = saveversion;
 	outputData[5] = CELL;
 	outputData[6] = blockW;
 	outputData[7] = blockH;
@@ -2480,11 +2480,11 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 						j += (PT_NORMAL_NUM - 137);
 					d[p-1] = j;
 				}
-				if (modver > 0 && modver <= 7 && (j == 161 || j == 162))
+				/*if (modver > 0 && modver <= 7 && (j == 161 || j == 162))
 				{
 					j += 2;
 					d[p-1] = j;
-				}
+				}*/
 				if (pmap[y][x])
 				{
 					k = pmap[y][x]>>8;
