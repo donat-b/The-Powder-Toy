@@ -88,7 +88,7 @@ int update_SING(UPDATE_FUNC_ARGS) {
 				r = ((pmap[y+ry][x+rx]&0xFF)==PT_PINV&&parts[pmap[y+ry][x+rx]>>8].life==10)?0:pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if (!(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && (r&0xFF)!=PT_VOID && (r&0xFF)==PT_BHOL && (r&0xFF)==PT_NBHL && 33>=rand()/(RAND_MAX/100)+1)
+				if (!(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && (r&0xFF)!=PT_VOID && (r&0xFF)!=PT_BHOL && (r&0xFF)!=PT_NBHL && 33>=rand()/(RAND_MAX/100)+1)
 				{
 					if ((r&0xFF)==PT_SING && parts[r>>8].life >10)
 					{
