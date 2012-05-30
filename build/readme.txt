@@ -291,13 +291,15 @@ go in signs or local saves names (colors are removed). Update to 79.2 source.
 
 
 Bugs:
-None that I know of ... that are important enough to fix
+INDI saving
+//None that I know of ... that are important enough to fix
 
 
 
 
 Next Version
 ...
+Reminder: remove debug thing in save.c
 
 
 

@@ -32,7 +32,7 @@ pixel *prerender_save(void *save, int size, int *width, int *height)
 	{
 		return NULL;
 	}
-	if(saveData[0] == 'O' && saveData[1] == 'P' && saveData[2] == 'S')
+	if(saveData[0] == 'O' && saveData[1] == 'P' && (saveData[2] == 'S' || saveData[2] == 'J'))
 	{
 		return prerender_save_OPS(save, size, width, height);
 	}
@@ -55,7 +55,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	else if (save_as%3 == 2) //Release
 		saveversion = RELEASE_VERSION;
 	else //Mod
-		saveversion = MOD_SAVE_VERSION+192;
+		saveversion = SAVE_VERSION;
 
 	if (save_as >= 3 || tab)
 		return build_save_OPS(size, orig_x0, orig_y0, orig_w, orig_h, bmap, vx, vy, pv, fvx, fvy, signs, partsptr, tab);
@@ -70,7 +70,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 	{
 		return 1;
 	}
-	if(saveData[0] == 'O' && saveData[1] == 'P' && saveData[2] == 'S')
+	if(saveData[0] == 'O' && saveData[1] == 'P' && (saveData[2] == 'S' || saveData[2] == 'J'))
 	{
 		return parse_save_OPS(save, size, replace, x0, y0, bmap, vx, vy, pv, fvx, fvy, signs, partsptr, pmap);
 	}
@@ -79,6 +79,18 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 		return parse_save_PSv(save, size, replace, x0, y0, bmap, fvx, fvy, signs, partsptr, pmap);
 	}
 	return 1;
+}
+
+int fix_type(int type, int version)
+{
+	int max = 161;
+	if (version <= 73)
+		max = 161;
+	if (type >= max)
+	{
+		type += (PT_NORMAL_NUM-max);
+	}
+	return type;
 }
 
 int invalid_element(int save_as, int el)
@@ -112,7 +124,7 @@ int check_save(int save_as, int orig_x0, int orig_y0, int orig_w, int orig_h)
 				error_ui(vid_buf,0,errortext);
 				return 1;
 			}
-			if ((parts[i].type == PT_CLNE || parts[i].type == PT_PCLN || parts[i].type == PT_BCLN || parts[i].type == PT_PBCN || parts[i].type == PT_STOR || parts[i].type == PT_CONV || parts[i].type == PT_STKM || parts[i].type == PT_STKM2 || parts[i].type == PT_FIGH || parts[i].type == PT_LAVA) && invalid_element(save_as,parts[i].ctype))
+			if ((parts[i].type == PT_CLNE || parts[i].type == PT_PCLN || parts[i].type == PT_BCLN || parts[i].type == PT_PBCN || parts[i].type == PT_STOR || parts[i].type == PT_CONV || parts[i].type == PT_STKM || parts[i].type == PT_STKM2 || parts[i].type == PT_FIGH || parts[i].type == PT_LAVA || parts[i].type == PT_SPRK) && invalid_element(save_as,parts[i].ctype))
 			{
 				char errortext[256] = "";
 				sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].ctype].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
@@ -190,7 +202,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 	*height = fullH;
 	
 	//From newer version
-	if ((inputData[4] > SAVE_VERSION && inputData[4] < 222) || inputData[4] > 222)
+	if (inputData[4] > SAVE_VERSION && inputData[4] != 222)
 	{
 		fprintf(stderr, "Save from newer version\n");
 		//goto fail;
@@ -401,7 +413,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 						fprintf(stderr, "Out of range [%d]: %d %d, [%d, %d], [%d, %d]\n", i, x, y, (unsigned)partsData[i+1], (unsigned)partsData[i+2], (unsigned)partsData[i+3], (unsigned)partsData[i+4]);
 						goto fail;
 					}
-					type = partsData[i];
+					type = fix_type(partsData[i],inputData[4]);
 					if(type >= PT_NUM)
 						type = PT_DMND;	//Replace all invalid elements with diamond
 					
@@ -957,7 +969,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 
 	outputData[0] = 'O';
 	outputData[1] = 'P';
-	outputData[2] = 'S';
+	outputData[2] = 'J';
 	outputData[3] = '1';
 	outputData[4] = saveversion;
 	outputData[5] = CELL;
@@ -1004,7 +1016,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	unsigned char * inputData = save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *pressData = NULL, *soapLinkData = NULL;
 	int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, fanDataLen, wallDataLen, pressDataLen, soapLinkDataLen;
 	unsigned partsCount = 0, *partsSimIndex = NULL;
-	int i, freeIndicesCount, x, y, returnCode = 0, j, oldnumballs = numballs;
+	int i, freeIndicesCount, x, y, returnCode = 0, j, oldnumballs = numballs, modsave = 0;
 	int *freeIndices = NULL;
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	bson b;
@@ -1023,7 +1035,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	fullH = blockH*CELL;
 	
 	//From newer version
-	if ((inputData[4] > SAVE_VERSION && inputData[4] < 222) || inputData[4] > 222)
+	if (inputData[4] > SAVE_VERSION && inputData[4] != 222)
 	{
 		info_ui(vid_buf,"Save is from a newer version","Attempting to load it anyway, this may cause a crash");
 	}
@@ -1409,6 +1421,18 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
+		else if(strcmp(bson_iterator_key(&iter), "Jacob1's_Mod")==0)
+		{
+			info_ui(vid_buf,"Mod","Test");
+			if(bson_iterator_type(&iter)==BSON_INT)
+			{
+				modsave = bson_iterator_int(&iter);
+			}
+			else
+			{
+				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
+			}
+		}
 	}
 	
 	//Read wall and fan data
@@ -1547,6 +1571,9 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					partsptr[newIndex].y = (float)y;
 					i+=3;
 					
+					if (modsave)
+						partsptr[newIndex].type = fix_type(partsptr[newIndex].type, inputData[4]);
+
 					//Read temp
 					if(fieldDescriptor & 0x01)
 					{
@@ -1586,6 +1613,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							if(i >= partsDataLen) goto fail;
 							partsptr[newIndex].tmp |= (((unsigned)partsData[i++]) << 8);
 						}
+						if (modsave && partsptr[newIndex].type == PT_PIPE)
+							partsptr[newIndex].type = fix_type(partsptr[newIndex].type, inputData[4]);
 					}
 					
 					//Read ctype
@@ -1601,6 +1630,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							partsptr[newIndex].ctype |= (((unsigned)partsData[i++]) << 16);
 							partsptr[newIndex].ctype |= (((unsigned)partsData[i++]) << 8);
 						}
+						if (modsave && partsptr[newIndex].type == PT_CLNE || partsptr[newIndex].type == PT_PCLN || partsptr[newIndex].type == PT_BCLN || partsptr[newIndex].type == PT_PBCN || partsptr[newIndex].type == PT_STOR || partsptr[newIndex].type == PT_CONV || partsptr[newIndex].type == PT_STKM || partsptr[newIndex].type == PT_STKM2 || partsptr[newIndex].type == PT_FIGH || partsptr[newIndex].type == PT_LAVA || partsptr[newIndex].type == PT_SPRK || partsptr[newIndex].type == PT_VIRS || partsptr[newIndex].type == PT_VRSS || partsptr[newIndex].type == PT_VRSG)
+							partsptr[newIndex].ctype = fix_type(partsptr[newIndex].ctype, inputData[4]);
 					}
 					
 					//Read dcolour
