@@ -536,13 +536,10 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 					}
 
 					//Skip animations
-					if ((type == PT_ANIM || type == PT_INDI) && ctype)
+					if ((type == PT_ANIM || type == PT_INDI) && (fieldDescriptor & 0x20))
 					{
 						int k;
-						if (type == PT_ANIM)
-							i += 4*ctype+4;
-						else
-							i += 1028;
+						i += 4*ctype+4;
 						if(i > partsDataLen) goto fail;
 					}
 					if (type == PT_MOVS && !(fieldDescriptor & 0x08) && !(fieldDescriptor & 0x400))
@@ -826,12 +823,10 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 
 				if (save_as == 3)
 				{
-					if ((partsptr[i].type == PT_ANIM || partsptr[i].type == PT_INDI) &&  partsptr[i].ctype)
+					if ((partsptr[i].type == PT_ANIM || partsptr[i].type == PT_INDI) && partsptr[i].ctype)
 					{
 						int j, max = partsptr[i].ctype;
-						if (partsptr[i].type == PT_INDI)
-							max = 256;
-						for (j = 0; j <=max;j++)
+						for (j = 0; j <= max; j++)
 						{
 							partsData[partsDataLen++] = (partsptr[i].animations[j]&0xFF000000)>>24;
 							partsData[partsDataLen++] = (partsptr[i].animations[j]&0x00FF0000)>>16;
@@ -1614,7 +1609,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							partsptr[newIndex].tmp |= (((unsigned)partsData[i++]) << 8);
 						}
 						if (modsave && partsptr[newIndex].type == PT_PIPE)
-							partsptr[newIndex].type = fix_type(partsptr[newIndex].type, inputData[4]);
+							partsptr[newIndex].tmp = fix_type(partsptr[newIndex].tmp, inputData[4]);
 					}
 					
 					//Read ctype
@@ -1672,7 +1667,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					partsptr[newIndex].lastY = partsptr[newIndex].y - partsptr[newIndex].vy;
 #endif
 
-					if ((partsptr[newIndex].type == PT_ANIM || partsptr[newIndex].type == PT_INDI) && partsptr[newIndex].ctype)
+					if ((partsptr[newIndex].type == PT_ANIM || partsptr[newIndex].type == PT_INDI) && (fieldDescriptor & 0x20))
 					{
 						int k;
 						if (partsptr[newIndex].type == PT_ANIM)

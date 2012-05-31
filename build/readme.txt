@@ -291,14 +291,17 @@ go in signs or local saves names (colors are removed). Update to 79.2 source.
 
 
 Bugs:
-INDI saving
-//None that I know of ... that are important enough to fix
+None that I know of ... that are important enough to fix
 
 
 
 
 Next Version
-...
+VOID and PVOD can be set to only eat their ctype (or only not eat it if their 
+tmp is 1). Local save deletion inside tpt. Fix saving as release/beta version, 
+improve how mod saves are made. Also fix saves with INDI in them. Fix SING 
+explosion which was broken in last version.
+
 Reminder: remove debug thing in save.c
 
 

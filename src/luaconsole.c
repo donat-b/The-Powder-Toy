@@ -2453,7 +2453,7 @@ void readluastuff()
 				setfenv(untrusted_code, env)\n\
 				untrusted_code()\n\
 			end\n\
-		"); //TODO: prevent tpt = nil scripts
+		");
 
 		loop_time = SDL_GetTicks();
 		luaL_dostring(l,"run(loadfile(\"newluacode.txt\"))");
