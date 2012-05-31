@@ -1479,7 +1479,7 @@ int main(int argc, char *argv[])
 						free(load_data);
 				}
 			}
-			if (sdl_key=='s' && (!(sdl_mod & (KMOD_CTRL)) || ((sdl_mod & (KMOD_LCTRL)) && player2.spwn)))
+			if (sdl_key=='s' && (((sdl_mod & (KMOD_CTRL)) || !player2.spwn) || ((sdl_mod & (KMOD_LCTRL)) && player2.spwn)))
 			{
 				if (it > 50)
 					it = 50;
