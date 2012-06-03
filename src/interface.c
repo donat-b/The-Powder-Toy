@@ -3876,6 +3876,12 @@ int search_ui(pixel *vid_buf)
 			drawtext(vid_buf, XRES-15, YRES+MENUSIZE-16, "\x95", 255, 255, 255, 255);
 			drawrect(vid_buf, XRES-18, YRES+MENUSIZE-20, 16, 16, 255, 255, 255, 255);
 		}
+		if (page_count)
+		{
+			char pagecount[16];
+			sprintf(pagecount,"Page %i",search_page);
+			drawtext(vid_buf, (XRES-textwidth(pagecount))/2, YRES+MENUSIZE-10, pagecount, 255, 255, 255, 255);
+		}
 
 		ui_edit_draw(vid_buf, &ed);
 
@@ -4622,6 +4628,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		strappend(uri_3, "_");
 		strcaturl(uri_3, save_date);
 		strappend(uri_3, "_large.pti");
+
 	} else {
 		//We're loading a normal save
 		uri = malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
@@ -4638,12 +4645,12 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		strcpy(uri_3, "http://" STATICSERVER "/");
 		strcaturl(uri_3, save_id);
 		strappend(uri_3, "_large.pti");
-		
-		uri_4 = malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
-		strcpy(uri_4, "http://" SERVER "/Browse/View.json?ID=");
-		strcaturl(uri_4, save_id);
-		strappend(uri_4, "&Mode=Comments&Start=1&Count=25");
 	}
+	uri_4 = malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
+	strcpy(uri_4, "http://" SERVER "/Browse/View.json?ID=");
+	strcaturl(uri_4, save_id);
+	strappend(uri_4, "&Mode=Comments&Start=1&Count=25");
+
 	http = http_async_req_start(http, uri, NULL, 0, 1);
 	http_2 = http_async_req_start(http_2, uri_2, NULL, 0, 1);
 	if (!instant_open)
