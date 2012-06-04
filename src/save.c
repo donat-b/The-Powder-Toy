@@ -539,7 +539,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 					if ((type == PT_ANIM || type == PT_INDI) && (fieldDescriptor & 0x20))
 					{
 						int k;
-						i += 4*ctype+4;
+						i += 4*ctype;
 						if(i > partsDataLen) goto fail;
 					}
 					if (type == PT_MOVS && !(fieldDescriptor & 0x08) && !(fieldDescriptor & 0x400))
@@ -1678,7 +1678,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						}
 						else
 							partsptr[newIndex].animations = (unsigned int*)calloc(257,sizeof(unsigned int));
-						if (i+4+4*partsptr[newIndex].ctype >= partsDataLen || partsptr[newIndex].animations == NULL)
+						if (i+4*partsptr[newIndex].ctype >= partsDataLen || partsptr[newIndex].animations == NULL)
 							goto fail;
 						memset(partsptr[newIndex].animations, 0, sizeof(partsptr[newIndex].animations));
 						for (k = 0; k <= partsptr[newIndex].ctype; k++)
