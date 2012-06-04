@@ -4628,7 +4628,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		strappend(uri_3, "_");
 		strcaturl(uri_3, save_date);
 		strappend(uri_3, "_large.pti");
-
 	} else {
 		//We're loading a normal save
 		uri = malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
@@ -5955,8 +5954,92 @@ struct command_history {
 typedef struct command_history command_history;
 command_history *last_command = NULL;
 command_history *last_command2 = NULL;
+
+struct command_match {
+	const char *command;
+	const char *min_match;
+};
+
+const static struct command_match matches [] = {
+	{"dofile(\"","dof"},
+	{"autorun.lua\")","au"},
+	{"tpt.drawtext(", "tpt.dr"},
+	{"tpt.set_pause(", "tpt.set_pa"},
+	{"tpt.toggle_pause()", "tpt.to"},
+	{"tpt.set_console(", "tpt.set_c"},
+	{"tpt.set_pressure(", "tpt.set_pre"},
+	{"tpt.set_gravity(", "tpt.set_g"},
+	{"tpt.reset_gravity_field()", "tpt.reset_g"},
+	{"tpt.reset_velocity()", "tpt.reset_v"},
+	{"tpt.reset_spark()", "tpt.reset_s"},
+	{"tpt.set_wallmap(", "tpt.set_w"},
+	{"tpt.get_wallmap(", "tpt.get_w"},
+	{"tpt.set_elecmap(", "tpt.set_e"},
+	{"tpt.get_elecmap(", "tpt.get_e"},
+	{"tpt.drawpixel(", "tpt.drawp"},
+	{"tpt.drawrect(", "tpt.drawr"},
+	{"tpt.drawcircle(", "tpt.drawc"},
+	{"tpt.fillcircle(", "tpt.fillc"},
+	{"tpt.drawline(", "tpt.drawl"},
+	{"tpt.get_name()", "tpt.get_na"},
+	{"tpt.set_shortcuts(", "tpt.set_s"},
+	{"tpt.delete(", "tpt.de"},
+	{"tpt.register_mouseevent(", "tpt.register_m"},
+	{"tpt.unregister_mouseevent(", "tpt.unregister_m"},
+	{"tpt.register_keyevent(", "tpt.register_k"},
+	{"tpt.unregister_keyevent(", "tpt.unregister_k"},
+	{"tpt.register_", "tpt.reg"},
+	{"tpt.unregister_", "tpt.un"},
+	{"tpt.get_numOfParts()", "tpt.get_nu"},
+	{"tpt.start_getPartIndex()", "tpt.st"},
+	{"tpt.next_getPartIndex()", "tpt.ne"},
+	{"tpt.getPartIndex()", "tpt.getP"},
+	{"tpt.active_menu(", "tpt.ac"},
+	{"tpt.display_mode(", "tpt.di"},
+	{"tpt.throw_error(", "tpt.th"},
+	{"tpt.heat(", "tpt.he"},
+	{"tpt.setfire(", "tpt.setfi"},
+	{"tpt.setdebug(", "tpt.setd"},
+	{"tpt.setfpscap(", "tpt.setf"},
+	{"tpt.getscript(", "tpt.gets"},
+	{"tpt.setwindowsize(", "tpt.setw"},
+	{"tpt.watertest(", "tpt.wa"},
+	{"tpt.screenshot(", "tpt.sc"},
+	{"tpt.element_func(", "tpt.element_"},
+	{"tpt.graphics_func(", "tpt.gr"},
+	{"tpt.sound(", "tpt.so"},
+	{"tpt.load(", "tpt.loa"},
+	{"tpt.bubble(", "tpt.bu"},
+	{"tpt.reset_pressure()", "tpt.reset_p"},
+	{"tpt.reset_temp()", "tpt.reset_t"},
+	{"tpt.get_pressure(", "tpt.get_pre"},
+	{"tpt.get_gravity(", "tpt.get_g"},
+	{"tpt.maxframes(", "tpt.ma"},
+	{"tpt.clear_sim()", "tpt.cl"},
+	{"tpt.restore_defaults()", "tpt.rest"},
+	{"tpt.reset_elements()", "tpt.reset_e"},
+	{"tpt.indestructible(", "tpt.ind"},
+	{"tpt.reset_", "tpt.res"},
+	{"tpt.create(", "tpt.c"},
+	{"tpt.log(", "tpt.l"},
+	{"tpt.set_property(", "tpt.s"},
+	{"tpt.get_property(", "tpt.g"},
+	{"tpt.fillrect(", "tpt.f"},
+	{"tpt.textwidth(", "tpt.t"},
+	{"tpt.register_step(", "tpt.r"},
+	{"tpt.unregister_step(", "tpt.u"},
+	{"tpt.input(", "tpt.i"},
+	{"tpt.message_box(", "tpt.m"},
+	{"tpt.hud(", "tpt.h"},
+	{"tpt.newtonian_gravity(", "tpt.n"},
+	{"tpt.ambient_heat(", "tpt.a"},
+	{"tpt.decorations_enable(", "tpt.d"},
+	{"tpt.element(", "tpt.e"}
+};
+
 char *console_ui(pixel *vid_buf,char error[255],char console_more) {
-	int mx,my,b,cc,ci = -1,i;
+	int mx,my,b,cc,ci = -1,i,j;
+	char *match, *str;
 	pixel *old_buf=calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	command_history *currentcommand;
 	command_history *currentcommand2;
@@ -5994,16 +6077,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 
 		memcpy(vid_buf,old_buf,(XRES+BARSIZE)*YRES*PIXELSIZE);
 		draw_line(vid_buf, 0, 219, XRES+BARSIZE-1, 219, 228, 228, 228, XRES+BARSIZE);
-#ifdef PYCONSOLE
-		if (pygood)
-			i=255;
-		else
-			i=0;
-		if (pyready)
-			drawtext(vid_buf, 15, 15, "Welcome to The Powder Toy console v.3 (by cracker64, Python enabled)", 255, i, i, 255);
-		else
-			drawtext(vid_buf, 15, 15, "Welcome to The Powder Toy console v.3 (by cracker64, Python disabled)", 255, i, i, 255);
-#elif defined(LUACONSOLE)
+#if defined(LUACONSOLE)
 		drawtext(vid_buf, 15, 15, "Welcome to The Powder Toy console v.4 (by cracker64, Lua enabled)", 255, 255, 255, 255);
 #else
 		drawtext(vid_buf, 15, 15, "Welcome to The Powder Toy console v.3 (by cracker64)", 255, 255, 255, 255);
@@ -6053,6 +6127,23 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 				break;
 			}
 		}
+		str = ed.str;
+		for (j = 0; j < sizeof(matches)/sizeof(*matches); j++)
+		{
+			match = 0;
+			while (strstr(str,matches[j].min_match)) //find last match
+			{
+				match = strstr(str,matches[j].min_match);
+				str = match + 1;
+			}
+			if (match && !strstr(str-1,matches[j].command) && strstr(matches[j].command,match) && strlen(ed.str)-strlen(match)+strlen(matches[j].command) < 256) //if match found
+			{
+				drawtext(vid_buf,ed.x+textwidth(ed.str)-textwidth(match),ed.y,matches[j].command,255,255,255,127);
+				break;
+			}
+			else
+				match = 0;
+		}
 
 		//if(error && ed.str[0]=='\0')
 		//drawtext(vid_buf, 20, 207, error, 255, 127, 127, 200);
@@ -6068,6 +6159,12 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 		clearScreenNP(1.0f);
 		draw_parts_fbo();
 #endif
+		if (sdl_key==SDLK_SPACE && match)
+		{
+			strncpy(match,matches[j].command,strlen(matches[j].command));
+			match[strlen(matches[j].command)] = '\0';
+			ed.cursor = strlen(ed.str);
+		}
 		if (sdl_key==SDLK_RETURN)
 		{
 			currentcommand = malloc(sizeof(command_history));

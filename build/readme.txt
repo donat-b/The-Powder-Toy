@@ -300,7 +300,9 @@ Next Version
 VOID and PVOD can be set to only eat their ctype (or only not eat it if their 
 tmp is 1). Local save deletion inside tpt. Fix saving as release/beta version, 
 improve how mod saves are made. Also fix saves with INDI in them. Fix SING 
-explosion which was broken in last version.
+explosion which was broken in last version. lua functions can be autocompleted 
+when writing commands in the console (ex. type "tpt.s" and press space, it 
+changes to "tpt.set_property(") Works with tpt functions, and also dofile.
 
 Reminder: remove debug thing in save.c
 
@@ -308,10 +310,11 @@ Reminder: remove debug thing in save.c
 
 
 Future Ideas/TODO: > means currently being worked on/added next
+make moving solids solid inside and fix saving of rotation
+redo or fix mod saving code
 finish lua script ive been working on
 Add things from tpt++ that look cool (differences like saving stamps & deco editor)
 option to make sing use gravity instead of presssure
 more lua commands
 new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
 option to disable copying/resaving in your saves
-make moving solids solid inside and fix saving of rotation
