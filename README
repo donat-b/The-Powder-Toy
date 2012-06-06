@@ -113,7 +113,7 @@ History:
       o Fix crash when opening display options
 * Version 79.0 Beta Build 165
       o Fix Titanium only conducting once
-	  o Better colour options preview.
+      o Better colour options preview.
 * Version 79.0 Beta Build 164
       o Fix a problem with GPMP that caused gravity to depend on air pressure
       o Fix TNT sometimes not exploding if multiple TNT particles are in the same place
@@ -338,7 +338,7 @@ History:
       o Photons turn into neutrons when passing through INVS
       o Other small bug fixes.
 * Version 44.7
-      o Fix login and dialoq text box issues.
+      o Fix login and dialog text box issues.
       o Small bugfixes to some elements.
       o Additional 'debug' information.
       o Increase WIFI channels
