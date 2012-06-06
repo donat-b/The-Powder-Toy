@@ -135,6 +135,36 @@ void clean_text(char *text, int vwidth)
 	}
 }
 
+void draw_bframe()
+{
+	int i;
+	for(i=0; i<(XRES/CELL); i++)
+	{
+		bmap[0][i]=WL_WALL;
+		bmap[YRES/CELL-1][i]=WL_WALL;
+	}
+	for(i=1; i<((YRES/CELL)-1); i++)
+	{
+		bmap[i][0]=WL_WALL;
+		bmap[i][XRES/CELL-1]=WL_WALL;
+	}
+}
+
+void erase_bframe()
+{
+	int i;
+	for(i=0; i<(XRES/CELL); i++)
+	{
+		bmap[0][i]=0;
+		bmap[YRES/CELL-1][i]=0;
+	}
+	for(i=1; i<((YRES/CELL)-1); i++)
+	{
+		bmap[i][0]=0;
+		bmap[i][XRES/CELL-1]=0;
+	}
+}
+
 void save_presets(int do_update)
 {
 	//*/
@@ -234,6 +264,7 @@ void save_presets(int do_update)
 		cJSON_AddNumberToObject(root, "old_menu", 1);
 	cJSON_AddNumberToObject(root, "save_as", save_as);
 	cJSON_AddNumberToObject(root, "drawgrav_enable", drawgrav_enable);
+	cJSON_AddNumberToObject(root, "bframe", bframe);
 	
 	outputdata = cJSON_Print(root);
 	cJSON_Delete(root);
@@ -446,6 +477,7 @@ void load_presets(void)
 		if(tmpobj = cJSON_GetObjectItem(root, "old_menu")) old_menu = 1;
 		if(tmpobj = cJSON_GetObjectItem(root, "save_as")) save_as = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "drawgrav_enable")) drawgrav_enable = tmpobj->valueint;
+		if(tmpobj = cJSON_GetObjectItem(root, "bframe")) bframe = tmpobj->valueint;
 
 		cJSON_Delete(root);
 		free(prefdata);
