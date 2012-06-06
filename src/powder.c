@@ -1080,24 +1080,6 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		case PT_VIRS: case PT_VRSG: case PT_VRSS:
 			parts[i].tmp = 6400;
 			break;
-		case PT_LIGH:
-			if (p==-2)
-			{
-				switch (gravityMode)
-				{
-					default:
-					case 0:
-						parts[i].tmp= 270+rand()%40-20;
-						break;
-					case 1:
-						parts[i].tmp = rand()%360;
-						break;
-					case 2:
-						parts[i].tmp = atan2(x-XCNTR, y-YCNTR)*(180.0f/M_PI)+90;
-				}
-				parts[i].tmp2 = 4;
-			}
-			break;
 		case PT_SOAP:
 			parts[i].tmp = -1;
 			parts[i].tmp2 = -1;
@@ -1300,6 +1282,39 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 				parts[i].tmp = 1|(randomdir<<5)|(randhue<<7);//set as a head and a direction
 				parts[i].tmp2 = 4;//tail
 				parts[i].life = 5;
+			}
+			if (t==PT_LIGH) //Lightning direction is affected by both the gravity mode setting and newtonian gravity
+			{
+				float gx = gravx[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)];
+				float gy = gravy[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)];
+				if (p!=-2 && !lighting_recreate)
+				{
+					parts[i].life=30;
+					//if (parts[i].life>55)
+					//	parts[i].life=55;
+					parts[i].temp=parts[i].life*150.0f; // temperature of the lighting shows the power of the lighting
+					lighting_recreate = 1;
+				}
+				switch (gravityMode)
+				{
+					default:
+					case 0:
+						gy += 1;
+						break;
+					case 1:
+						parts[i].tmp = rand()%360;
+						gx -= cos((float)parts[i].tmp);
+						gy -= sin((float)parts[i].tmp);
+						break;
+					case 2:
+						if (x-XCNTR != 0 || y-YCNTR != 0)
+						{
+							gx -= (x-XCNTR)/sqrt(pow((float)(x-XCNTR),2)+pow((float)(y-YCNTR),2));
+							gy -= (y-YCNTR)/sqrt(pow((float)(x-XCNTR),2)+pow((float)(y-YCNTR),2));
+						}
+				}
+				parts[i].tmp = ((int)(atan2(gx, gy)*(180.0f/M_PI)+270))+rand()%40-20;
+				parts[i].tmp2 = 4;
 			}
 	}
 	//and finally set the pmap/photon maps to the newly created particle
