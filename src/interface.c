@@ -2796,10 +2796,6 @@ void menu_draw_text(int h, int i)
 				sprintf(versiontext,"Powder Toy release ver. %i",RELEASE_VERSION);
 				strappend(favtext, versiontext);
 			}
-			if (save_as < 3)
-				strappend(favtext, " PSv format");
-			else
-				strappend(favtext, " OPS format");
 		}
 		else if (h == FAV_AUTOSAVE)
 		{

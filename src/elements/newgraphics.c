@@ -663,15 +663,15 @@ int graphics_stickmen(GRAPHICS_FUNC_ARGS)
 	{
 		if (cplayer->elem<PT_NUM)
 		{
-			colr = PIXR(ptypes[cplayer->elem].pcolors);
-			colg = PIXG(ptypes[cplayer->elem].pcolors);
-			colb = PIXB(ptypes[cplayer->elem].pcolors);
+			colr = (int*)PIXR(ptypes[cplayer->elem].pcolors);
+			colg = (int*)PIXG(ptypes[cplayer->elem].pcolors);
+			colb = (int*)PIXB(ptypes[cplayer->elem].pcolors);
 		}
 		else
 		{
-			colr = 0x80;
-			colg = 0x80;
-			colb = 0xFF;
+			colr = (int*)0x80;
+			colg = (int*)0x80;
+			colb = (int*)0xFF;
 		}
 	}
 #ifdef OGLR
@@ -734,31 +734,31 @@ int graphics_stickmen(GRAPHICS_FUNC_ARGS)
 
 	if (colour_mode==COLOUR_HEAT)
 	{
-		legr = colr;
-		legg = colg;
-		legb = colb;
+		legr = (int)colr;
+		legg = (int)colg;
+		legb = (int)colb;
 	}
 
 	//head
 	if(cpart->type==PT_FIGH)
 	{
-		draw_line(vid , nx, ny+2, nx+2, ny, colr, colg, colb, s);
-		draw_line(vid , nx+2, ny, nx, ny-2, colr, colg, colb, s);
-		draw_line(vid , nx, ny-2, nx-2, ny, colr, colg, colb, s);
-		draw_line(vid , nx-2, ny, nx, ny+2, colr, colg, colb, s);
+		draw_line(vid , nx, ny+2, nx+2, ny, (int)colr, (int)colg, (int)colb, s);
+		draw_line(vid , nx+2, ny, nx, ny-2, (int)colr, (int)colg, (int)colb, s);
+		draw_line(vid , nx, ny-2, nx-2, ny, (int)colr, (int)colg, (int)colb, s);
+		draw_line(vid , nx-2, ny, nx, ny+2, (int)colr, (int)colg, (int)colb, s);
 	}
 	else
 	{
-		draw_line(vid , nx-2, ny+2, nx+2, ny+2, colr, colg, colb, s);
-		draw_line(vid , nx-2, ny-2, nx+2, ny-2, colr, colg, colb, s);
-		draw_line(vid , nx-2, ny-2, nx-2, ny+2, colr, colg, colb, s);
-		draw_line(vid , nx+2, ny-2, nx+2, ny+2, colr, colg, colb, s);
+		draw_line(vid , nx-2, ny+2, nx+2, ny+2, (int)colr, (int)colg, (int)colb, s);
+		draw_line(vid , nx-2, ny-2, nx+2, ny-2, (int)colr, (int)colg, (int)colb, s);
+		draw_line(vid , nx-2, ny-2, nx-2, ny+2, (int)colr, (int)colg, (int)colb, s);
+		draw_line(vid , nx+2, ny-2, nx+2, ny+2, (int)colr, (int)colg, (int)colb, s);
 	}
 	//legs
-	draw_line(vid , nx, ny+3, cplayer->legs[0], cplayer->legs[1], legr, legg, legb, s);
-	draw_line(vid , cplayer->legs[0], cplayer->legs[1], cplayer->legs[4], cplayer->legs[5], legr, legg, legb, s);
-	draw_line(vid , nx, ny+3, cplayer->legs[8], cplayer->legs[9], legr, legg, legb, s);
-	draw_line(vid , cplayer->legs[8], cplayer->legs[9], cplayer->legs[12], cplayer->legs[13], legr, legg, legb, s);
+	draw_line(vid , nx, ny+3, (int)cplayer->legs[0], (int)cplayer->legs[1], legr, legg, legb, s);
+	draw_line(vid , (int)cplayer->legs[0], (int)cplayer->legs[1], (int)cplayer->legs[4], (int)cplayer->legs[5], legr, legg, legb, s);
+	draw_line(vid , nx, ny+3, (int)cplayer->legs[8], (int)cplayer->legs[9], legr, legg, legb, s);
+	draw_line(vid , (int)cplayer->legs[8], (int)cplayer->legs[9], (int)cplayer->legs[12], (int)cplayer->legs[13], legr, legg, legb, s);
 #endif
 
 	return 0;

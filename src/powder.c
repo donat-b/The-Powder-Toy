@@ -3688,9 +3688,6 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 			tempy = y + ry;
 		for (i = x - rx; i <= x; i++) {
 			oldy = tempy;
-			// Fix a problem with the triangle brush which occurs if the bottom corner (the first point tested) isn't recognised as being inside the brush
-			if (!InCurrentBrush(i-x,tempy-y,rx,ry))
-				continue;
 			while (InCurrentBrush(i-x,tempy-y,rx,ry))
 				tempy = tempy - 1;
 			tempy = tempy + 1;
