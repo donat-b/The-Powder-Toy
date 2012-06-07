@@ -164,6 +164,7 @@ void init_can_move()
 			can_move[PT_PHOT][t] = 2;
 	}
 	can_move[PT_ELEC][PT_LCRY] = 2;
+	can_move[PT_ELEC][PT_EXOT] = 2;
 	can_move[PT_PHOT][PT_LCRY] = 3;//varies according to LCRY life
 	
 	can_move[PT_PHOT][PT_BIZR] = 2;
@@ -1169,6 +1170,10 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 			break;
 		case PT_MORT:
 			parts[i].vx = 2;
+			break;
+		case PT_EXOT:
+			parts[i].life = 1000;
+			parts[i].tmp = 244;
 			break;
 		case PT_STKM:
 			if (player.spwn==0)

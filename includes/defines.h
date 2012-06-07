@@ -24,10 +24,10 @@
 #endif
  
 //VersionInfoStart
-#define SAVE_VERSION 79
-#define MINOR_VERSION 6
+#define SAVE_VERSION 80
+#define MINOR_VERSION 0
 #define BETA
-#define BUILD_NUM 171
+#define BUILD_NUM 173
 //VersionInfoEnd
 
 #define MOD_VERSION 15

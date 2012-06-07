@@ -220,6 +220,7 @@
 #define PT_GEL 142
 #define PT_TRON 143
 #define PT_TTAN	144
+#define PT_EXOT	145
 
 #define OLD_PT_WIND 147
 #define PT_H2   148
@@ -393,6 +394,8 @@ int graphics_EXPL(GRAPHICS_FUNC_ARGS);
 int graphics_GEL(GRAPHICS_FUNC_ARGS);
 int graphics_TRON(GRAPHICS_FUNC_ARGS);
 int graphics_SOAP(GRAPHICS_FUNC_ARGS);
+int graphics_EXOT(GRAPHICS_FUNC_ARGS);
+int graphics_WARP(GRAPHICS_FUNC_ARGS);
 int graphics_stickmen(GRAPHICS_FUNC_ARGS);
 
 void TRON_init_graphics();
@@ -424,6 +427,7 @@ int update_BCLN(UPDATE_FUNC_ARGS);
 int update_BCOL(UPDATE_FUNC_ARGS);
 int update_BIZR(UPDATE_FUNC_ARGS);
 int update_BMTL(UPDATE_FUNC_ARGS);
+int update_BREL(UPDATE_FUNC_ARGS);
 int update_BRMT(UPDATE_FUNC_ARGS);
 int update_BOMB(UPDATE_FUNC_ARGS);
 int update_BOYL(UPDATE_FUNC_ARGS);
@@ -443,6 +447,7 @@ int update_DLAY(UPDATE_FUNC_ARGS);
 int update_DSTW(UPDATE_FUNC_ARGS);
 int update_ELEC(UPDATE_FUNC_ARGS);
 int update_EMP(UPDATE_FUNC_ARGS);
+int update_EXOT(UPDATE_FUNC_ARGS);
 int update_EXPL(UPDATE_FUNC_ARGS);
 int update_FIGH(UPDATE_FUNC_ARGS);
 int update_FOG(UPDATE_FUNC_ARGS);
