@@ -182,6 +182,7 @@ void init_can_move()
 	can_move[PT_SPNG][PT_SPNG] = 2;
 	can_move[PT_RAZR][PT_CNCT] = 1;
 	can_move[PT_THDR][PT_THDR] = 2;
+	//can_move[PT_MOVS][PT_MOVS] = 2;
 }
 
 /*
@@ -449,39 +450,43 @@ int try_move(int i, int x, int y, int nx, int ny)
 	return 1;
 }
 
-// try to move particle, and if successful update pmap and parts[i].x,y
+// try to move particle, and if successful call move() to update variables
 int do_move(int i, int x, int y, float nxf, float nyf)
 {
 	int nx = (int)(nxf+0.5f), ny = (int)(nyf+0.5f), result;
 	if (parts[i].type == PT_NONE)
 		return 0;
 	result = try_move(i, x, y, nx, ny);
-	if (result)
-	{
-		int t = parts[i].type;
-		parts[i].x = nxf;
-		parts[i].y = nyf;
-		if (ny!=y || nx!=x)
-		{
-			if ((pmap[y][x]>>8)==i) pmap[y][x] = 0;
-			else if ((pmap[y][x]&0xFF)==PT_PINV && (parts[pmap[y][x]>>8].tmp2>>8)==i) parts[pmap[y][x]>>8].tmp2 = 0;
-			else if ((photons[y][x]>>8)==i) photons[y][x] = 0;
-			if (nx<CELL || nx>=XRES-CELL || ny<CELL || ny>=YRES-CELL)//kill_part if particle is out of bounds
-			{
-				kill_part(i);
-				return -1;
-			}
-			if (ptypes[t].properties & TYPE_ENERGY)
-				photons[ny][nx] = t|(i<<8);
-			else if (t && (pmap[ny][nx]&0xFF) != PT_PINV)
-				pmap[ny][nx] = t|(i<<8);
-			else if (t && (pmap[ny][nx]&0xFF) == PT_PINV)
-				parts[pmap[ny][nx]>>8].tmp2 = t|(i<<8);
-		}
-	}
+	if (result && move(i,x,y,nxf,nyf))
+		return -1;
 	return result;
 }
 
+//update pmap and parts[i].x,y
+int move(int i, int x, int y, float nxf, float nyf)
+{
+	int t = parts[i].type, nx = (int)(nxf+0.5f), ny = (int)(nyf+0.5f);
+	parts[i].x = nxf;
+	parts[i].y = nyf;
+	if (ny!=y || nx!=x)
+	{
+		if ((pmap[y][x]>>8)==i) pmap[y][x] = 0;
+		else if ((pmap[y][x]&0xFF)==PT_PINV && (parts[pmap[y][x]>>8].tmp2>>8)==i) parts[pmap[y][x]>>8].tmp2 = 0;
+		else if ((photons[y][x]>>8)==i) photons[y][x] = 0;
+		if (nx<CELL || nx>=XRES-CELL || ny<CELL || ny>=YRES-CELL)//kill_part if particle is out of bounds
+		{
+			kill_part(i);
+			return -1;
+		}
+		if (ptypes[t].properties & TYPE_ENERGY)
+			photons[ny][nx] = t|(i<<8);
+		else if (t && (pmap[ny][nx]&0xFF) != PT_PINV)
+			pmap[ny][nx] = t|(i<<8);
+		else if (t && (pmap[ny][nx]&0xFF) == PT_PINV)
+			parts[pmap[ny][nx]>>8].tmp2 = t|(i<<8);
+	}
+	return 0;
+}
 
 static unsigned direction_to_map(float dx, float dy, int t)
 {
@@ -699,16 +704,7 @@ void kill_part(int i)//kills particle number i
 		int bn = parts[i].life;
 		msnum[bn]--;
 		if (msindex[bn]-1 == i)
-		{
 			msindex[bn] = 0;
-			for (i=0; i<=parts_lastActiveIndex; i++)
-			{
-				if (parts[i].type == PT_MOVS && parts[i].life == bn && (pmap[(int)(parts[i].y+.5)][(int)(parts[i].x+.5)]>>8) != i)
-				{
-					kill_part(i); //kill moving solid particles from a destroyed ball hidden under other particles
-				}
-			}
-		}
 	}
 	else if (parts[i].type == PT_ANIM && parts[i].animations)
 	{
@@ -2571,12 +2567,6 @@ void update_particles_i(pixel *vid, int start, int inc)
 			if (legacy_enable)//if heat sim is off
 				update_legacy_all(i,x,y,surround_space,nt);
 
-			if (pmap[(int)(parts[i].y+.5)][(int)(parts[i].x+.5)]>>8 != i)
-			{
-				int p = pmap[(int)(parts[i].y+.5)][(int)(parts[i].x+.5)]>>8;
-				if (parts[p].type == PT_MOVS && msindex[parts[p].life] == 0)
-					kill_part(p); // kill moving solid particles on top of other particles not attached to a ball
-			}
 killed:
 			if (parts[i].type == PT_NONE)//if its dead, skip to next particle
 				continue;
@@ -2659,7 +2649,7 @@ killed:
 						clear_y = (int)(clear_yf+0.5f);
 						break;
 					}
-					if (fin_x<CELL || fin_y<CELL || fin_x>=XRES-CELL || fin_y>=YRES-CELL || ((((pmap[fin_y][fin_x]&0xFF)==PT_SPNG||(pmap[fin_y][fin_x]&0xFF)==PT_PINV&&parts[pmap[fin_y][fin_x]>>8].life==10))?0:pmap[fin_y][fin_x]) || (bmap[fin_y/CELL][fin_x/CELL] && (bmap[fin_y/CELL][fin_x/CELL]==WL_DESTROYALL || !eval_move(t,fin_x,fin_y,NULL))))
+					if (fin_x<CELL || fin_y<CELL || fin_x>=XRES-CELL || fin_y>=YRES-CELL || ((((pmap[fin_y][fin_x]&0xFF)==PT_SPNG||(pmap[fin_y][fin_x]&0xFF)==PT_MOVS||(pmap[fin_y][fin_x]&0xFF)==PT_PINV&&parts[pmap[fin_y][fin_x]>>8].life==10))?0:pmap[fin_y][fin_x]) || (bmap[fin_y/CELL][fin_x/CELL] && (bmap[fin_y/CELL][fin_x/CELL]==WL_DESTROYALL || !eval_move(t,fin_x,fin_y,NULL))))
 					{
 						// found an obstacle
 						clear_xf = fin_xf-dx;
@@ -3152,6 +3142,7 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 void update_moving_solids()
 {
 	int i, bn;
+	float nx, ny;
 	if (sys_pause && !framerender)
 		return;
 	if (numballs == 0)
@@ -3188,20 +3179,20 @@ void update_moving_solids()
 					float distance = sqrt(pow((float)parts[i].tmp,2)+pow((float)parts[i].tmp2,2));
 					if (parts[i].tmp < 0)
 						angle += 3.1415926535f;
-					parts[i].x = parts[msindex[bn]-1].x + distance*cos(angle+msrotation[bn]);
-					parts[i].y = parts[msindex[bn]-1].y + distance*sin(angle+msrotation[bn]);
+					nx = parts[msindex[bn]-1].x + distance*cosf(angle+msrotation[bn]);
+					ny = parts[msindex[bn]-1].y + distance*sinf(angle+msrotation[bn]);
+					move(i,(int)(parts[i].x+.5f),(int)(parts[i].y+.5f),nx,ny);
 				}
 				else if (parts[i].tmp2 != 0)
 				{
 					float angle = 3.1415926535897932384626433832795f/2;
-					parts[i].x = parts[msindex[bn]-1].x + parts[i].tmp2*cos(angle+msrotation[bn]);
+					nx = parts[msindex[bn]-1].x + parts[i].tmp2*cosf(angle+msrotation[bn]);
 					if (parts[i].tmp2 < 0)
-						parts[i].y = parts[msindex[bn]-1].y + parts[i].tmp2*sin(angle+msrotation[bn]);
+						ny = parts[msindex[bn]-1].y + parts[i].tmp2*sinf(angle+msrotation[bn]);
 					else
-						parts[i].y = parts[msindex[bn]-1].y - parts[i].tmp2*sin(-angle+msrotation[bn]);
+						ny = parts[msindex[bn]-1].y - parts[i].tmp2*sinf(-angle+msrotation[bn]);
+					move(i,(int)(parts[i].x+.5f),(int)(parts[i].y+.5f),nx,ny);
 				}
-				if (parts[i].x < 0 || parts[i].x >= XRES || parts[i].y < 0 || parts[i].y >= YRES)
-					kill_part(i);
 				parts[i].vx = msvx[bn];
 				parts[i].vy = msvy[bn];
 			}

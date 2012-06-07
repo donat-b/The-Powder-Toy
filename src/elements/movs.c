@@ -4,7 +4,17 @@ int update_MOVS(UPDATE_FUNC_ARGS) {
 	int bn = parts[i].life;
 	float tmp = 0, tmp2 = 0;
 	int type;
-	if (parts[i].tmp != 0)
+	if (!msindex[bn])
+	{
+		if (rand()%100<1)
+		{
+			kill_part(i);
+			return 1;
+		}
+		tmp = parts[i].tmp;
+		tmp2 = parts[i].tmp2;
+	}
+	else if (parts[i].tmp != 0)
 	{
 		float angle = atan((float)parts[i].tmp2/parts[i].tmp);
 		float distance = sqrt(pow((float)parts[i].tmp,2)+pow((float)parts[i].tmp2,2));
