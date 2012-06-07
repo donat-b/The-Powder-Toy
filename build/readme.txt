@@ -302,7 +302,9 @@ tmp is 1). Local save deletion inside tpt. Fix saving as release/beta version,
 improve how mod saves are made. Also fix saves with INDI in them. Fix SING 
 explosion which was broken in last version. lua functions can be autocompleted 
 when writing commands in the console (ex. type "tpt.s" and press space, it 
-changes to "tpt.set_property(") Works with tpt functions, and also dofile.
+changes to "tpt.set_property(") Works with tpt functions, and also dofile. 
+Lightning can be cloned and it's initial direction is affected by Newtonian 
+gravity too. Update to latest source (80.0)
 
 Reminder: remove debug thing in save.c
 

@@ -32,10 +32,10 @@
 
 #define MOD_VERSION 15
 #define MOD_SAVE_VERSION 8 //This is not the version number of my mod anymore, it's only changed when I change the stamp/save saving code
-#define BETA_VERSION 79
-#define BETA_MINOR_VER 6
-#define RELEASE_VERSION 78
-#define RELEASE_MINOR_VER 1
+#define BETA_VERSION 80
+#define BETA_MINOR_VER 0
+#define RELEASE_VERSION 79
+#define RELEASE_MINOR_VER 7
 
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter
 

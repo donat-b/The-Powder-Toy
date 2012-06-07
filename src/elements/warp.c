@@ -40,8 +40,8 @@ int update_WARP(UPDATE_FUNC_ARGS) {
 				parts[i].y = parts[r>>8].y;
 				parts[r>>8].x = (float)x;
 				parts[r>>8].y = (float)y;
-				parts[r>>8].vx = (rand()%4)-1.5;
-				parts[r>>8].vy = (rand()%4)-2;
+				parts[r>>8].vx = (rand()%4)-1.5f;
+				parts[r>>8].vy = (rand()%4)-2.0f;
 				parts[i].life += 4;
 				pmap[y][x] = r;
 				pmap[y+ry][x+rx] = (i<<8)|parts[i].type;
@@ -54,6 +54,7 @@ int update_WARP(UPDATE_FUNC_ARGS) {
 int graphics_WARP(GRAPHICS_FUNC_ARGS)
 {
 	*cola = 0;
-	*pixel_mode &= ~PMODE;
+	if (!finding)
+		*pixel_mode &= ~PMODE;
 	return 0;
 }

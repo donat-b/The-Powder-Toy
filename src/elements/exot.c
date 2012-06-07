@@ -90,35 +90,35 @@ int update_EXOT(UPDATE_FUNC_ARGS) {
 }
 int graphics_EXOT(GRAPHICS_FUNC_ARGS)
 {
-	int q = cpart->temp;
+	int q = (int)cpart->temp;
 	int b = cpart->tmp;
 	if ((cpart->tmp2 - 1)>rand()%1000)
 	{	
-	float frequency = 0.90045;	
-	*colr = (sin(frequency*q + 0) * 127 + 255);
-	*colg = (sin(frequency*q + 2) * 127 + 255);
-	*colb = (sin(frequency*q + 4) * 127 + 255);
-	*firea = 100;
-	*firer = 0;
-	*fireg = 0;
-	*fireb = 0;
-	*pixel_mode |= PMODE_FLAT;
-//	*pixel_mode |= FIRE_ADD;
-	*pixel_mode |= PMODE_FLARE;
+		float frequency = 0.90045f;	
+		*colr = (int)(sin(frequency*q + 0) * 127 + 255);
+		*colg = (int)(sin(frequency*q + 2) * 127 + 255);
+		*colb = (int)(sin(frequency*q + 4) * 127 + 255);
+		*firea = 100;
+		*firer = 0;
+		*fireg = 0;
+		*fireb = 0;
+		*pixel_mode |= PMODE_FLAT;
+		//*pixel_mode |= FIRE_ADD;
+		*pixel_mode |= PMODE_FLARE;
 	}
 	else
 	{
-	float frequency = 0.00045;	
-	*colr = (sin(frequency*q + 0) * 127 + (b/1.7));
-	*colg = (sin(frequency*q + 2) * 127 + (b/1.7));
-	*colb = (sin(frequency*q + 4) * 127 + (b/1.7));
-	*cola = cpart->tmp / 6;	
-	*firea = *cola;
-	*firer = *colr;
-	*fireg = *colg;
-	*fireb = *colb;
-	*pixel_mode |= FIRE_ADD;
-	*pixel_mode |= PMODE_BLUR;
+		float frequency = 0.00045f;	
+		*colr = (int)(sin(frequency*q + 0) * 127 + (b/1.7));
+		*colg = (int)(sin(frequency*q + 2) * 127 + (b/1.7));
+		*colb = (int)(sin(frequency*q + 4) * 127 + (b/1.7));
+		*cola = cpart->tmp / 6;	
+		*firea = *cola;
+		*firer = *colr;
+		*fireg = *colg;
+		*fireb = *colb;
+		*pixel_mode |= FIRE_ADD;
+		*pixel_mode |= PMODE_BLUR;
 	}
 	return 0;
 }
