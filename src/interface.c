@@ -2921,7 +2921,7 @@ void menu_select_element(int b, int h)
 			else if (h == HUD_START + 4)
 			{
 				int hud_modnormal2[HUD_OPTIONS] = {1,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,0,0,0,0,0,2};
-				int hud_moddebug2[HUD_OPTIONS] =  {1,1,1,2,1,0,0,0,1,0,1,1,1,0,0,1,1,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,0,0,0,0,0,4};
+				int hud_moddebug2[HUD_OPTIONS] =  {1,1,1,2,1,0,0,0,1,0,1,1,1,0,0,1,0,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,0,0,0,0,0,4};
 				int hud_normal2[HUD_OPTIONS] =    {0,0,1,0,0,0,0,0,1,1,1,0,0,1,1,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,0,0,0,0,0,2};
 				int hud_debug2[HUD_OPTIONS] =     {0,1,1,0,1,0,1,1,1,1,1,1,0,1,1,1,0,0,2,1,1,0,0,2,0,2,1,2,1,1,1,2,0,2,0,2,0,0,0,0,0,0,2};
 				memcpy(hud_modnormal,hud_modnormal2,sizeof(hud_modnormal));
@@ -2935,8 +2935,10 @@ void menu_select_element(int b, int h)
 			}
 			else
 			{
+				char hud_curr[16];
+				sprintf(hud_curr,"%i",hud_current[h-HUD_REALSTART]);
 				if (strstr(hud_menu[h-HUD_START].name,"#"))
-					hud_current[h-HUD_REALSTART] = atoi(input_ui(vid_buf,(char*)hud_menu[h-HUD_START].name,"Enter number of decimal places","",""));
+					hud_current[h-HUD_REALSTART] = atoi(input_ui(vid_buf,(char*)hud_menu[h-HUD_START].name,"Enter number of decimal places",hud_curr,""));
 				else
 					hud_current[h-HUD_REALSTART] = !hud_current[h-HUD_REALSTART];
 				if (alt_hud == 1)
