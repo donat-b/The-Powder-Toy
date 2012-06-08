@@ -6036,12 +6036,12 @@ const static struct command_match matches [] = {
 
 	{"presHighType", "presHighT"},
 	{"presLowValue", "presLowV"},
-	{"presLowType", "presLowT"},
 	{"tempHighType", "tempHighT"},
 	{"tempLowValue", "tempLowV"},
-	{"tempLowType", "tempLowT"},
 	{"presHighValue", "presHigh"},
 	{"tempHighValue", "tempHigh"},
+	{"presLowType", "presLow"},
+	{"tempLowType", "tempLow"},
 	{"presLow", "presL"},
 	{"tempHigh", "tempH"},
 	{"tempLow", "tempL"},
@@ -6078,7 +6078,6 @@ const static struct command_match matches [] = {
 	{"dcolour", "dcolou"},
 	{"ctype", "cty"},
 	{"type", "ty"},
-	{"tmp2", "mp2"},
 };
 
 char *console_ui(pixel *vid_buf,char error[255],char console_more) {
