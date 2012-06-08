@@ -304,7 +304,7 @@ explosion which was broken in last version. lua functions can be autocompleted
 when writing commands in the console (ex. type "tpt.s" and press space, it 
 changes to "tpt.set_property(") Works with tpt functions, and also dofile. 
 Lightning can be cloned and it's initial direction is affected by Newtonian 
-gravity too. Update to latest source (80.0)
+gravity too. Right HUD always drawn on top.
 
 Reminder: remove debug thing in save.c
 
@@ -312,7 +312,7 @@ Reminder: remove debug thing in save.c
 
 
 Future Ideas/TODO: > means currently being worked on/added next
-make moving solids solid inside and fix saving of rotation
+make moving solids work right when they are solid inside
 redo or fix mod saving code
 finish lua script ive been working on
 Add things from tpt++ that look cool (differences like saving stamps & deco editor)
