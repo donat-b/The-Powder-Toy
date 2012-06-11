@@ -593,6 +593,12 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	fanDataLen = 0;
 	pressData = (unsigned char*)malloc((blockW*blockH)*2);
 	pressDataLen = 0;
+	if (!wallData || !fanData || !pressData)
+	{
+		puts("Save Error\n");
+		outputData = NULL;
+		goto fin;
+	}
 	for(x = blockX; x < blockX+blockW; x++)
 	{
 		for(y = blockY; y < blockY+blockH; y++)
@@ -644,6 +650,12 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	partsPosLastMap = calloc(fullW*fullH, sizeof(unsigned));
 	partsPosCount = calloc(fullW*fullH, sizeof(unsigned));
 	partsPosLink = calloc(NPART, sizeof(unsigned));
+	if (!partsPosFirstMap || !partsPosLastMap || !partsPosCount || !partsPosLink)
+	{
+		puts("Save Error\n");
+		outputData = NULL;
+		goto fin;
+	}
 	for(i = 0; i < NPART; i++)
 	{
 		if(partsptr[i].type)
@@ -675,6 +687,12 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	//Store number of particles in each position
 	partsPosData = malloc(fullW*fullH*3);
 	partsPosDataLen = 0;
+	if (!partsPosData)
+	{
+		puts("Save Error\n");
+		outputData = NULL;
+		goto fin;
+	}
 	for (y=0;y<fullH;y++)
 	{
 		for (x=0;x<fullW;x++)
@@ -699,6 +717,12 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	partsDataLen = 0;
 	partsSaveIndex = calloc(NPART, sizeof(unsigned));
 	partsCount = 0;
+	if (!partsData || !partsSaveIndex)
+	{
+		puts("Save Error\n");
+		outputData = NULL;
+		goto fin;
+	}
 	for (y=0;y<fullH;y++)
 	{
 		for (x=0;x<fullW;x++)
@@ -849,6 +873,12 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 
 	soapLinkData = malloc(3*elementCount[PT_SOAP]);
 	soapLinkDataLen = 0;
+	if (!soapLinkData)
+	{
+		puts("Save Error\n");
+		outputData = NULL;
+		goto fin;
+	}
 	//Iterate through particles in the same order that they were saved
 	for (y=0;y<fullH;y++)
 	{
@@ -958,6 +988,12 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	finalDataLen = bson_size(&b);
 	outputDataLen = finalDataLen*2+12;
 	outputData = (unsigned char*)malloc(outputDataLen);
+	if (!outputData)
+	{
+		puts("Save Error\n");
+		outputData = NULL;
+		goto fin;
+	}
 
 	outputData[0] = 'O';
 	outputData[1] = 'P';
