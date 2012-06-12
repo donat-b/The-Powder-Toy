@@ -4,15 +4,16 @@ int update_MOVS(UPDATE_FUNC_ARGS) {
 	int bn = parts[i].life;
 	float tmp = 0, tmp2 = 0;
 	int type;
+	int bounce = 1;
 	if (!msindex[bn])
 	{
-		if (rand()%100<1)
+		if (rand()%500<1)
 		{
 			kill_part(i);
 			return 1;
 		}
-		tmp = parts[i].tmp;
-		tmp2 = parts[i].tmp2;
+		tmp = (float)parts[i].tmp;
+		tmp2 = (float)parts[i].tmp2;
 	}
 	else if (parts[i].tmp != 0)
 	{
@@ -40,25 +41,25 @@ int update_MOVS(UPDATE_FUNC_ARGS) {
 	type = pmap[y+1][x]&0xFF;
 	if (y+1 < YRES && tmp2 > 0 && type && (type != PT_MOVS || (type == PT_MOVS && parts[pmap[y+1][x]>>8].life != bn)))
 	{
-		parts[i].vy -= tmp2;
+		parts[i].vy -= tmp2*bounce;
 		newmsrotation[bn] -= tmp/5000;
 	}
 	type = pmap[y-1][x]&0xFF;
 	if (y-1 >= 0 && tmp2 < 0 && type && (type != PT_MOVS || (type == PT_MOVS && parts[pmap[y-1][x]>>8].life != bn)))
 	{
-		parts[i].vy -= tmp2;
+		parts[i].vy -= tmp2*bounce;
 		newmsrotation[bn] -= tmp/5000;
 	}
 	type = pmap[y][x+1]&0xFF;
 	if (x+1 < XRES && tmp > 0 && type && (type != PT_MOVS || (type == PT_MOVS && parts[pmap[y][x+1]>>8].life != bn)))
 	{
-		parts[i].vx -= tmp;
+		parts[i].vx -= tmp*bounce;
 		newmsrotation[bn] -= tmp2/5000;
 	}
 	type = pmap[y][x-1]&0xFF;
 	if (x-1 >= 0 && tmp < 0 && type && (type != PT_MOVS || (type == PT_MOVS && parts[pmap[y][x-1]>>8].life != bn)))
 	{
-		parts[i].vx -= tmp;
+		parts[i].vx -= tmp*bounce;
 		newmsrotation[bn] -= tmp2/5000;
 	}
 	return 0;

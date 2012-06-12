@@ -182,7 +182,7 @@ void init_can_move()
 	can_move[PT_SPNG][PT_SPNG] = 2;
 	can_move[PT_RAZR][PT_CNCT] = 1;
 	can_move[PT_THDR][PT_THDR] = 2;
-	//can_move[PT_MOVS][PT_MOVS] = 2;
+	can_move[PT_MOVS][PT_MOVS] = 2;
 }
 
 /*
@@ -702,7 +702,8 @@ void kill_part(int i)//kills particle number i
 	else if (parts[i].type == PT_MOVS)
 	{
 		int bn = parts[i].life;
-		msnum[bn]--;
+		if (parts[i].flags & FLAG_MOVS_EDGE)
+			msnum[bn]--;
 		if (msindex[bn]-1 == i)
 			msindex[bn] = 0;
 	}
@@ -758,18 +759,10 @@ inline void part_change_type(int i, int x, int y, int t)//changes the type of pa
 	else if (parts[i].type == PT_MOVS)
 	{
 		int bn = parts[i].life;
-		msnum[bn]--;
+		if (parts[i].flags & FLAG_MOVS_EDGE)
+			msnum[bn]--;
 		if (msindex[bn]-1 == i)
-		{
 			msindex[bn] = 0;
-			for (i=0; i<=parts_lastActiveIndex; i++)
-			{
-				if (parts[i].type == PT_MOVS && parts[i].life == bn && (pmap[(int)(parts[i].y+.5)][(int)(parts[i].x+.5)]>>8) != i)
-				{
-					kill_part(i); //kill moving solid particles from a destroyed ball hidden under other particles
-				}
-			}
-		}
 	}
 	else if (parts[i].type == PT_ANIM && parts[i].animations)
 	{
@@ -1059,6 +1052,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 					parts[i].life = numballs;
 					parts[i].tmp = 0;
 					parts[i].tmp2 = 0;
+					parts[i].flags |= FLAG_MOVS_EDGE;
 					msindex[numballs] = i+1;
 					msnum[numballs] = 1;
 					msvx[numballs] = 0;
@@ -3041,7 +3035,7 @@ killed:
 				}
 			}
 movedone:
-			if (parts[i].type == PT_MOVS)
+			if (parts[i].type == PT_MOVS && (parts[i].flags & FLAG_MOVS_EDGE))
 			{
 				int bn = parts[i].life;
 				if (msindex[bn])
@@ -3287,9 +3281,9 @@ int flood_prop(int x, int y, size_t propoffset, void * propvalue, int proptype)
 {
 	int r = 0;
 	char * bitmap = malloc(XRES*YRES); //Bitmap for checking
-	memset(bitmap, 0, XRES*YRES);
 	if (bitmap == 0)
 		return 0;
+	memset(bitmap, 0, XRES*YRES);
 	r = pmap[y][x];
 	flood_prop_2(x, y, propoffset, propvalue, proptype, r&0xFF, bitmap);
 	free(bitmap);
@@ -3767,17 +3761,23 @@ int create_parts2(int f, int x, int y, int c, int rx, int ry, int flags)
 
 void create_moving_solid(int x, int y, int rx, int ry)
 {
-	int j, i;
+	int i, j, index;
 	creatingsolid = 0;
-	if (rx < 3 || ry < 3 || numballs >= 255)
+	if (numballs >= 255)
 		return;
 	create_part(-2, x, y, PT_MOVS);
 	if (!creatingsolid)
 		return;
 	for (j=-ry; j<=ry; j++)
 			for (i=-rx; i<=rx; i++)
-				if (InCurrentBrush(i ,j ,rx ,ry) && !InCurrentBrush(i ,j ,rx-1 ,ry-1))
-					create_part(-2, x+i, y+j, PT_MOVS);
+				if (InCurrentBrush(i ,j ,rx ,ry))
+				{
+					index = create_part(-2, x+i, y+j, PT_MOVS);
+					if (index != -1 && !InCurrentBrush(i ,j ,rx-1 ,ry-1))
+						parts[index].flags |= FLAG_MOVS_EDGE;
+					else if (index != -1)
+						msnum[parts[index].life]--;
+				}
 	creatingsolid = 0;
 }
 
