@@ -4,7 +4,7 @@ int update_MOVS(UPDATE_FUNC_ARGS) {
 	int bn = parts[i].life;
 	float tmp = 0, tmp2 = 0;
 	int type;
-	int bounce = 1;
+	int bounce = 2;
 	if (!msindex[bn])
 	{
 		if (rand()%500<1)
