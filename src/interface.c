@@ -6213,7 +6213,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 		clearScreenNP(1.0f);
 		draw_parts_fbo();
 #endif
-		if (sdl_key==SDLK_SPACE && match)
+		if (sdl_key==SDLK_TAB && match)
 		{
 			strncpy(match,matches[j].command,strlen(matches[j].command));
 			match[strlen(matches[j].command)] = '\0';
