@@ -291,7 +291,12 @@ go in signs or local saves names (colors are removed). Update to 79.2 source.
 
 
 Bugs:
-None that I know of ... that are important enough to fix
+Most walls don't work
+Moving solid crashes (ex. prti corrupts pfree/life of dead particle changed)
+Sponge freeze - not sure if only caused by moving solids or can be done with console
+Moving solid rotation doesn't work like before
+Moving solid rotation doesn't save correctly (now important enough to fix)
+//None that I know of
 
 
 
@@ -299,12 +304,13 @@ None that I know of ... that are important enough to fix
 Next Version
 VOID and PVOD can be set to only eat their ctype (or only not eat it if their 
 tmp is 1). Local save deletion inside tpt. Fix saving as release/beta version, 
-improve how mod saves are made. Also fix saves with INDI in them. Fix SING 
-explosion which was broken in last version. lua functions can be autocompleted 
-when writing commands in the console (ex. type "tpt.s" and press space, it 
-changes to "tpt.set_property(") Works with tpt functions, and also dofile. 
-Lightning can be cloned and it's initial direction is affected by Newtonian 
-gravity too. Right HUD always drawn on top.
+fix many saving propblems. Fix SING explosion. lua functions can be auto-
+completed when writing commands in the console (ex. type "tpt.s" and press 
+tab, it changes to "tpt.set_property(") Works with many common lua console 
+commands/things. Lightning can be cloned and it's initial direction is 
+affected by Newtonian gravity too. Right HUD always drawn on top. Moving 
+solids are solid inside and much less glitchy. Also, use tpt.moving_solid() 
+to allow any element to move like moving solid.
 
 Reminder: remove debug thing in save.c
 
@@ -312,8 +318,7 @@ Reminder: remove debug thing in save.c
 
 
 Future Ideas/TODO: > means currently being worked on/added next
-make moving solids work right when they are solid inside
-redo or fix mod saving code
+fix bugs, then version 16
 finish lua script ive been working on
 Add things from tpt++ that look cool (differences like saving stamps & deco editor)
 option to make sing use gravity instead of presssure

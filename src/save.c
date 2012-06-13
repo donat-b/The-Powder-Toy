@@ -175,7 +175,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 {
 	unsigned char * inputData = save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *wallData = NULL;
 	int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, wallDataLen;
-	int i, x, y, j, type, ctype, wt, pc, gc;
+	int i, x, y, j, type, ctype, wt, pc, gc, modsave = 0, movscenter = 0;
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	int bsonInitialised = 0;
 	pixel * vidBuf = NULL;
@@ -287,6 +287,17 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 					fprintf(stderr, "Save is not compatible\n");
 					goto fail;
 				}
+			}
+			else
+			{
+				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
+			}
+		}
+		else if(strcmp(bson_iterator_key(&iter), "Jacob1's_Mod")==0)
+		{
+			if(bson_iterator_type(&iter)==BSON_INT)
+			{
+				modsave = bson_iterator_int(&iter);
 			}
 			else
 			{
@@ -528,18 +539,34 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 					if(fieldDescriptor & 0x400)
 					{
 						if(i++ >= partsDataLen) goto fail;
-						if (type == PT_MOVS)
+						if (modsave && modsave <= 8 && type == PT_MOVS)
 							if(i++ >= partsDataLen) goto fail;
+					}
+
+					//Skip pavg (moving solids)
+					if (fieldDescriptor & 0x8000)
+					{
+						int pavg, pavg2;
+						if(i+3 >= partsDataLen) goto fail;
+						pavg = partsData[i++];
+						pavg |= (((unsigned)partsData[i++]) << 8);
+						pavg2 = partsData[i++];
+						pavg2 |= (((unsigned)partsData[i++]) << 8);
+						if (pavg || pavg2)
+							movscenter = 0;
+						else
+							movscenter = 1;
 					}
 
 					//Skip animations
 					if ((type == PT_ANIM || type == PT_INDI) && (fieldDescriptor & 0x20))
 					{
-						int k;
-						i += 4*ctype;
+						i += 4+4*ctype;
 						if(i > partsDataLen) goto fail;
 					}
-					if (type == PT_MOVS && !(fieldDescriptor & 0x08) && !(fieldDescriptor & 0x400))
+
+					//Skip moving solid rotation
+					if ((((fieldDescriptor & 0x8000) && movscenter) || (modsave && modsave <= 8 && type == PT_MOVS && !(fieldDescriptor & 0x08) && !(fieldDescriptor & 0x400))))
 						if(i++ >= partsDataLen) goto fail;
 				}
 			}
@@ -710,7 +737,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	//Copy parts data
 	/* Field descriptor format:
 	|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|
-																					|		tmp2	|	ctype[2]	|		vy		|		vx		|	dcololour	|	ctype[1]	|		tmp[2]	|		tmp[1]	|		life[2]	|		life[1]	|	temp dbl len|
+	|	PROP_MOVS	|																|		tmp2	|	ctype[2]	|		vy		|		vx		|	dcololour	|	ctype[1]	|		tmp[2]	|		tmp[1]	|		life[2]	|		life[1]	|	temp dbl len|
 	life[2] means a second byte (for a 16 bit field) if life[1] is present
 	*/
 	partsData = malloc(NPART * (sizeof(particle)+1));
@@ -782,7 +809,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 				{
 					fieldDesc |= 1 << 3;
 					partsData[partsDataLen++] = partsptr[i].tmp;
-					if(partsptr[i].tmp > 255 || partsptr[i].type == PT_MOVS)
+					if(partsptr[i].tmp > 255)
 					{
 						fieldDesc |= 1 << 4;
 						partsData[partsDataLen++] = partsptr[i].tmp >> 8;
@@ -838,8 +865,16 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 				{
 					fieldDesc |= 1 << 10;
 					partsData[partsDataLen++] = partsptr[i].tmp2;
-					if (partsptr[i].type == PT_MOVS)
-						partsData[partsDataLen++] = partsptr[i].tmp2 >> 8;
+				}
+
+				//Moving solids, save pavg (and rotation for center particle)
+				if (ptypes[partsptr[i].type].properties&PROP_MOVS)
+				{
+					fieldDesc |= 1 << 15;
+					partsData[partsDataLen++] = (int)partsptr[i].pavg[0];
+					partsData[partsDataLen++] = ((int)partsptr[i].pavg[0])>>8;
+					partsData[partsDataLen++] = (int)partsptr[i].pavg[1];
+					partsData[partsDataLen++] = ((int)partsptr[i].pavg[1])>>8;
 				}
 
 				if (save_as == 3)
@@ -855,9 +890,9 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 							partsData[partsDataLen++] = (partsptr[i].animations[j]&0x000000FF);
 						}
 					}
-					if (partsptr[i].type == PT_MOVS && !partsptr[i].tmp && !partsptr[i].tmp2 && i == msindex[partsptr[i].life]-1)
+					if ((ptypes[partsptr[i].type].properties&PROP_MOVS) && !partsptr[i].pavg[0] && !partsptr[i].pavg[1] && i == msindex[partsptr[i].tmp2]-1)
 					{
-						partsData[partsDataLen++] = (int)((msrotation[partsptr[i].life] + 6.283185307179586476925286766559)*20);
+						partsData[partsDataLen++] = (int)((msrotation[partsptr[i].tmp2] + 6.283185307179586476925286766559)*20);
 					}
 				}
 				
@@ -1692,8 +1727,35 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					{
 						if(i >= partsDataLen) goto fail;
 						partsptr[newIndex].tmp2 = partsData[i++];
-						if (partsptr[newIndex].type == PT_MOVS)
+						if (modsave && modsave <= 8 && partsptr[newIndex].type == PT_MOVS)
+						{
+							if(i >= partsDataLen) goto fail;
 							partsptr[newIndex].tmp2 |= (((unsigned)partsData[i++]) << 8);
+						}
+					}
+
+					//Read pavg (for moving solids)
+					if(fieldDescriptor & 0x8000)
+					{
+						int pavg, el = partsptr[newIndex].type;
+						if(i+3 >= partsDataLen) goto fail;
+						pavg = partsData[i++];
+						pavg |= (((unsigned)partsData[i++]) << 8);
+						partsptr[newIndex].pavg[0] = (float)pavg;
+						pavg = partsData[i++];
+						pavg |= (((unsigned)partsData[i++]) << 8);
+						partsptr[newIndex].pavg[1] = (float)pavg;
+						if (!(ptypes[el].properties&PROP_MOVS))
+						{
+							ptypes[el].properties |= PROP_MOVS;
+							ptypes[el].advection = ptypes[PT_MOVS].advection;
+							ptypes[el].airdrag = ptypes[PT_MOVS].airdrag;
+							ptypes[el].airloss = ptypes[PT_MOVS].airloss;
+							ptypes[el].gravity = ptypes[PT_MOVS].gravity;
+							ptypes[el].loss = ptypes[PT_MOVS].loss;
+							ptypes[el].falldown = ptypes[PT_MOVS].falldown;
+							init_can_move();
+						}
 					}
 					
 #ifdef OGLR
@@ -1712,7 +1774,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						}
 						else
 							partsptr[newIndex].animations = (unsigned int*)calloc(257,sizeof(unsigned int));
-						if (i+4*partsptr[newIndex].ctype >= partsDataLen || partsptr[newIndex].animations == NULL)
+						if (i+4+4*partsptr[newIndex].ctype >= partsDataLen || partsptr[newIndex].animations == NULL)
 							goto fail;
 						memset(partsptr[newIndex].animations, 0, sizeof(partsptr[newIndex].animations));
 						for (k = 0; k <= partsptr[newIndex].ctype; k++)
@@ -1722,6 +1784,36 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							partsptr[newIndex].animations[k] |= partsData[i++]<<8;
 							partsptr[newIndex].animations[k] |= partsData[i++];
 						}
+					}
+
+					if ((fieldDescriptor & 0x8000) || (modsave && modsave <= 8 && partsptr[newIndex].type == PT_MOVS))
+					{
+						if (modsave && modsave <= 8)
+						{
+							partsptr[newIndex].pavg[0] = (float)partsptr[newIndex].tmp;
+							partsptr[newIndex].pavg[1] = (float)partsptr[newIndex].tmp2;
+							partsptr[newIndex].tmp2 = partsptr[newIndex].life;
+							partsptr[newIndex].tmp = 0;
+						}
+						if (partsptr[newIndex].tmp2+oldnumballs < 256)
+						{
+							partsptr[newIndex].tmp2 += oldnumballs;
+							msnum[partsptr[newIndex].tmp2]++;
+						}
+						else
+						{
+							partsptr[newIndex].type = PT_NONE;
+						}
+						if (!partsptr[newIndex].pavg[0] && !partsptr[newIndex].pavg[1])
+						{
+							msindex[partsptr[newIndex].tmp2] = newIndex+1;
+							if(i >= partsDataLen) goto fail;
+							msrotation[partsptr[newIndex].tmp2] = partsData[i++]/20.0f - 6.283185307179586476925286766559;
+						}
+						if (partsptr[newIndex].pavg[0] > 32768)
+							partsptr[newIndex].pavg[0] -= 65536;
+						if (partsptr[newIndex].pavg[1] > 32768)
+							partsptr[newIndex].pavg[1] -= 65536;
 					}
 
 					// no more particle properties to load, so we can change type here without messing up loading
@@ -1758,28 +1850,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						partsptr[newIndex].ctype &= ~6; // delete all soap connections, but it looks like if tmp & tmp2 were saved to 3 bytes, connections would load properly
 					if (!ptypes[partsptr[newIndex].type].enabled)
 						partsptr[newIndex].type = PT_NONE;
-					if (partsptr[newIndex].type == PT_MOVS)
-					{
-						if (partsptr[newIndex].life+oldnumballs < 256)
-						{
-							partsptr[newIndex].life += oldnumballs;
-							msnum[partsptr[newIndex].life]++;
-						}
-						else
-						{
-							partsptr[newIndex].type = PT_NONE;
-						}
-						if (!partsptr[newIndex].tmp && !partsptr[newIndex].tmp2)
-						{
-							msindex[partsptr[newIndex].life] = newIndex+1;
-							if(i >= partsDataLen) goto fail;
-							msrotation[partsptr[newIndex].life] = partsData[i++]/20.0f - 6.283185307179586476925286766559;
-						}
-						if (partsptr[newIndex].tmp > 32768)
-							partsptr[newIndex].tmp -= 65536;
-						if (partsptr[newIndex].tmp2 > 32768)
-							partsptr[newIndex].tmp2 -= 65536;
-					}
 					if (!ptypes[partsptr[newIndex].type].enabled && !secret_els)
 						partsptr[newIndex].type = PT_NONE;
 				}
@@ -2649,6 +2719,13 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					fighcount++;
 					STKM_init_legs(&(fighters[fcount]), i-1);
 				}
+			}
+			if (parts[i-1].type == PT_MOVS)
+			{
+				parts[i-1].pavg[0] = (float)parts[i-1].tmp;
+				parts[i-1].pavg[1] = (float)parts[i-1].tmp2;
+				parts[i-1].tmp2 = parts[i-1].life;
+				parts[i-1].tmp = 0;
 			}
 
 			if (ver<48 && (ty==OLD_PT_WIND || (ty==PT_BRAY&&parts[i-1].life==0)))
