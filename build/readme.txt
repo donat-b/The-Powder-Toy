@@ -291,9 +291,7 @@ go in signs or local saves names (colors are removed). Update to 79.2 source.
 
 
 Bugs:
-Most walls don't work
 Moving solid crashes (ex. prti corrupts pfree/life of dead particle changed)
-Sponge freeze - not sure if only caused by moving solids or can be done with console
 Moving solid rotation doesn't work like before
 Moving solid rotation doesn't save correctly (now important enough to fix)
 //None that I know of

@@ -327,7 +327,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 		x2 = x + vx2;
 		y2 = y + vy2;
 		r2 = pmap[y2][x2];
-		while ((r2&0xFF) && ((r2&0xFF) != PT_SPNG) && !(ptypes[r2&0xFF].properties&PROP_INDESTRUCTIBLE))
+		while ((r2&0xFF) && ((r2&0xFF) != PT_SPNG) && !(ptypes[r2&0xFF].properties&PROP_INDESTRUCTIBLE) && (vx2 || vy2))
 		{
 			parts[r2>>8].x += vx;
 			parts[r2>>8].y += vy;
