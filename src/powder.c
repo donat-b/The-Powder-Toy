@@ -476,7 +476,7 @@ int move(int i, int x, int y, float nxf, float nyf)
 		else if ((photons[y][x]>>8)==i) photons[y][x] = 0;
 		if (nx<CELL || nx>=XRES-CELL || ny<CELL || ny>=YRES-CELL)//kill_part if particle is out of bounds
 		{
-			if (!(ptypes[t].properties&PROP_MOVS) || !msindex[parts[i].life])
+			if (!(ptypes[t].properties&PROP_MOVS) || (parts[i].tmp2 < 0 || parts[i].tmp2 > 255 || !msindex[parts[i].tmp2]))
 				kill_part(i);
 			return -1;
 		}
@@ -703,10 +703,13 @@ void kill_part(int i)//kills particle number i
 	}
 	else if (ptypes[parts[i].type].properties&PROP_MOVS)
 	{
-		int bn = parts[i].life;
-		msnum[bn]--;
-		if (msindex[bn]-1 == i)
-			msindex[bn] = 0;
+		int bn = parts[i].tmp2;
+		if (bn >= 0 && bn < 256)
+		{
+			msnum[bn]--;
+			if (msindex[bn]-1 == i)
+				msindex[bn] = 0;
+		}
 	}
 	else if (parts[i].type == PT_ANIM && parts[i].animations)
 	{
@@ -759,10 +762,13 @@ inline void part_change_type(int i, int x, int y, int t)//changes the type of pa
 	}
 	else if (ptypes[parts[i].type].properties&PROP_MOVS)
 	{
-		int bn = parts[i].life;
-		msnum[bn]--;
-		if (msindex[bn]-1 == i)
-			msindex[bn] = 0;
+		int bn = parts[i].tmp2;
+		if (bn >= 0 && bn < 256)
+		{
+			msnum[bn]--;
+			if (msindex[bn]-1 == i)
+				msindex[bn] = 0;
+		}
 	}
 	else if (parts[i].type == PT_ANIM && parts[i].animations)
 	{
@@ -1024,17 +1030,17 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		{
 			if (creatingsolid)
 			{
-				parts[i].life = numballs-1;
-				parts[i].tmp = x - (int)parts[msindex[parts[i].life]-1].x;
-				parts[i].tmp2 = y - (int)parts[msindex[parts[i].life]-1].y;
+				parts[i].tmp2 = numballs-1;
+				parts[i].pavg[0] = x - parts[msindex[parts[i].tmp2]-1].x;
+				parts[i].pavg[1] = y - parts[msindex[parts[i].tmp2]-1].y;
 				msnum[numballs-1]++;
 			}
 			else
 			{
 				int j;
-				parts[i].life = numballs;
-				parts[i].tmp = 0;
-				parts[i].tmp2 = 0;
+				parts[i].tmp2 = numballs;
+				parts[i].pavg[0] = 0;
+				parts[i].pavg[1] = 0;
 				msindex[numballs] = i+1;
 				msnum[numballs] = 1;
 				msvx[numballs] = 0;
@@ -1046,9 +1052,9 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		}
 		else
 		{
-			parts[i].life = 255;
-			parts[i].tmp = rand()%20;
-			parts[i].tmp2 = rand()%20;
+			parts[i].tmp2 = 255;
+			parts[i].pavg[0] = (float)(rand()%20);
+			parts[i].pavg[1] = (float)(rand()%20);
 		}
 	}
 
@@ -3039,8 +3045,8 @@ killed:
 movedone:
 			if (ptypes[parts[i].type].properties&PROP_MOVS)
 			{
-				int bn = parts[i].life;
-				if (msindex[bn])
+				int bn = parts[i].tmp2;
+				if (bn >= 0 && bn < 256 && msindex[bn])
 				{
 					msvx[bn] = msvx[bn] + parts[i].vx;
 					msvy[bn] = msvy[bn] + parts[i].vy;
@@ -3167,29 +3173,29 @@ void update_moving_solids()
 	{
 		if (ptypes[parts[i].type].properties&PROP_MOVS)
 		{
-			int bn = parts[i].life;
+			int bn = parts[i].tmp2;
 			if (bn < 0 || bn > 255)
 				continue;
 			if (msindex[bn])
 			{
-				if (parts[i].tmp != 0)
+				if (parts[i].pavg[0] != 0)
 				{
-					float angle = atan((float)parts[i].tmp2/parts[i].tmp);
-					float distance = sqrt(pow((float)parts[i].tmp,2)+pow((float)parts[i].tmp2,2));
-					if (parts[i].tmp < 0)
+					float angle = atan((float)parts[i].pavg[1]/parts[i].pavg[0]);
+					float distance = sqrt(pow((float)parts[i].pavg[0],2)+pow((float)parts[i].pavg[1],2));
+					if (parts[i].pavg[0] < 0)
 						angle += 3.1415926535f;
 					nx = parts[msindex[bn]-1].x + distance*cosf(angle+msrotation[bn]);
 					ny = parts[msindex[bn]-1].y + distance*sinf(angle+msrotation[bn]);
 					move(i,(int)(parts[i].x+.5f),(int)(parts[i].y+.5f),nx,ny);
 				}
-				else if (parts[i].tmp2 != 0)
+				else if (parts[i].pavg[1] != 0)
 				{
 					float angle = 3.1415926535897932384626433832795f/2;
-					nx = parts[msindex[bn]-1].x + parts[i].tmp2*cosf(angle+msrotation[bn]);
-					if (parts[i].tmp2 < 0)
-						ny = parts[msindex[bn]-1].y + parts[i].tmp2*sinf(angle+msrotation[bn]);
+					nx = parts[msindex[bn]-1].x + parts[i].pavg[1]*cosf(angle+msrotation[bn]);
+					if (parts[i].pavg[1] < 0)
+						ny = parts[msindex[bn]-1].y + parts[i].pavg[1]*sinf(angle+msrotation[bn]);
 					else
-						ny = parts[msindex[bn]-1].y - parts[i].tmp2*sinf(-angle+msrotation[bn]);
+						ny = parts[msindex[bn]-1].y - parts[i].pavg[1]*sinf(-angle+msrotation[bn]);
 					move(i,(int)(parts[i].x+.5f),(int)(parts[i].y+.5f),nx,ny);
 				}
 				parts[i].vx = msvx[bn];

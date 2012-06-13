@@ -2344,9 +2344,25 @@ int luatpt_moving_solid(lua_State* l)
 	}
 	movs = luaL_optint(l, 2, 1);
 	if (movs)
+	{
 		ptypes[el].properties |= PROP_MOVS;
+		ptypes[el].advection = ptypes[PT_MOVS].advection;
+		ptypes[el].airdrag = ptypes[PT_MOVS].airdrag;
+		ptypes[el].airloss = ptypes[PT_MOVS].airloss;
+		ptypes[el].gravity = ptypes[PT_MOVS].gravity;
+		ptypes[el].loss = ptypes[PT_MOVS].loss;
+		ptypes[el].falldown = ptypes[PT_MOVS].falldown;
+	}
 	else
+	{
 		ptypes[el].properties &= ~PROP_MOVS;
+		ptypes[el].advection = ptypes2[el].advection;
+		ptypes[el].airdrag = ptypes2[el].airdrag;
+		ptypes[el].airloss = ptypes2[el].airloss;
+		ptypes[el].gravity = ptypes2[el].gravity;
+		ptypes[el].loss = ptypes2[el].loss;
+		ptypes[el].falldown = ptypes2[el].falldown;
+	}
 	init_can_move();
 	return 0;
 }
