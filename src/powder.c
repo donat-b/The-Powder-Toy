@@ -1351,7 +1351,7 @@ int create_property(int x, int y, size_t propoffset, void * propvalue, int propt
 		return i>>8;
 	}
 	if (!propvalue)
-		prop_edit_ui(vid_buf, x, y, 0);
+		return -1;
 	if (i&0xFF)
 	{
 		if(proptype==2){

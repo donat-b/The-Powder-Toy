@@ -306,7 +306,7 @@ VOID and PVOD can be set to only eat their ctype (or only not eat it if their
 tmp is 1). Local save deletion inside tpt. Fix saving as release/beta version, 
 fix many saving propblems. Fix SING explosion. lua functions can be auto-
 completed when writing commands in the console (ex. type "tpt.s" and press 
-tab, it changes to "tpt.set_property(") Works with many common lua console 
+tab, it changes to "tpt.set_property("). Works with many common lua console 
 commands/things. Lightning can be cloned and it's initial direction is 
 affected by Newtonian gravity too. Right HUD always drawn on top. Moving 
 solids are solid inside and much less glitchy. Also, use tpt.moving_solid() 
