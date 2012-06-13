@@ -305,7 +305,8 @@
 #define PROP_BREAKABLECLONE	0x80000//2^19 Makes breakable elements clone things that touch it
 #define PROP_POWERED		0x100000//2^20 Makes an element turn on/off with PSCN/NSCN
 #define PROP_SPARKSETTLE	0x200000//2^21 Allow Sparks/Embers to settle
-#define PROP_NOAMBHEAT      0x400000 //2^18 Don't transfer or receive heat from ambient heat.
+#define PROP_NOAMBHEAT      0x400000 //2^23 Don't transfer or receive heat from ambient heat.
+#define PROP_MOVS			0x400000 //2^24 Moving solids!
 
 #define FLAG_STAGNANT	0x1
 #define FLAG_SKIPMOVE	0x2 // skip movement for one frame, only implemented for PHOT
@@ -988,7 +989,7 @@ int flood_parts(int x, int y, int c, int cm, int bm, int flags);
 
 int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill);
 
-void create_moving_solid(int x, int y, int rx, int ry);
+void create_moving_solid(int x, int y, int rx, int ry, int type);
 
 void create_line(int x1, int y1, int x2, int y2, int rx, int ry, int c, int flags);
 

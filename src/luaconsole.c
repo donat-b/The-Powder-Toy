@@ -115,6 +115,7 @@ void luacon_open(){
 		{"restore_defaults",&luatpt_restore_defaults},
 		{"reset_elements",&luatpt_reset_elements},
 		{"indestructible",&luatpt_indestructible},
+		{"moving_solid",&luatpt_moving_solid},
 		{NULL,NULL}
 	};
 
@@ -2322,9 +2323,31 @@ int luatpt_indestructible(lua_State* l)
 	}
 	ind = luaL_optint(l, 2, 1);
 	if (ind)
-		ptypes[el].properties |= 0x20000;
+		ptypes[el].properties |= PROP_INDESTRUCTIBLE;
 	else
-		ptypes[el].properties &= ~0x20000;
+		ptypes[el].properties &= ~PROP_INDESTRUCTIBLE;
+	return 0;
+}
+
+int luatpt_moving_solid(lua_State* l)
+{
+	int el = 0, movs;
+	char* name;
+	if(lua_isnumber(l, 1)){
+		el = luaL_optint(l, 1, 0);
+		if (el<0 || el>=PT_NUM)
+			return luaL_error(l, "Unrecognised element number '%d'", el);
+	} else {
+		name = (char*)luaL_optstring(l, 1, "dust");
+		if (!console_parse_type(name, &el, NULL))
+			return luaL_error(l, "Unrecognised element '%s'", name);
+	}
+	movs = luaL_optint(l, 2, 1);
+	if (movs)
+		ptypes[el].properties |= PROP_MOVS;
+	else
+		ptypes[el].properties &= ~PROP_MOVS;
+	init_can_move();
 	return 0;
 }
 

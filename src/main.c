@@ -2556,7 +2556,7 @@ int main(int argc, char *argv[])
 										vy[(y+j)/CELL][(x+i)/CELL] += (y-ly)*0.01f;
 									}
 						}
-						else if (c != PT_MOVS)
+						else if (!(ptypes[c].properties&PROP_MOVS))
 						{
 							create_line(lx, ly, x, y, bsx, bsy, c, get_brush_flags());
 						}
@@ -2643,8 +2643,8 @@ int main(int argc, char *argv[])
 								cb_bmap[cby][cbx] = bmap[cby][cbx];
 								cb_emap[cby][cbx] = emap[cby][cbx];
 							}
-						if (c == PT_MOVS)
-							create_moving_solid(x,y,bsx,bsy);
+						if (ptypes[c].properties&PROP_MOVS)
+							create_moving_solid(x,y,bsx,bsy,c);
 						else
 							create_parts(x, y, bsx, bsy, c, get_brush_flags(), 1);
 						lx = x;

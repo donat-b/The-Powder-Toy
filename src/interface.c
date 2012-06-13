@@ -6025,6 +6025,7 @@ const static struct command_match matches [] = {
 	{"tpt.restore_defaults()", "tpt.rest"},
 	{"tpt.reset_elements()", "tpt.reset_e"},
 	{"tpt.indestructible(", "tpt.ind"},
+	{"tpt.moving_solid(","tpt.mo"},
 	{"tpt.reset_", "tpt.res"},
 	{"tpt.create(", "tpt.c"},
 	{"tpt.log(", "tpt.l"},

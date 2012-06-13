@@ -154,6 +154,8 @@ void init_can_move()
 		can_move[t][PT_CNCT] = 0;
 		//Powered void behaviour varies on powered state
 		can_move[t][PT_PVOD] = 3;
+		if (ptypes[t].properties&PROP_MOVS)
+			can_move[t][t] = 2;
 	}
 	for (t=0;t<PT_NUM;t++)
 	{
@@ -182,7 +184,6 @@ void init_can_move()
 	can_move[PT_SPNG][PT_SPNG] = 2;
 	can_move[PT_RAZR][PT_CNCT] = 1;
 	can_move[PT_THDR][PT_THDR] = 2;
-	can_move[PT_MOVS][PT_MOVS] = 2;
 }
 
 /*
@@ -475,7 +476,7 @@ int move(int i, int x, int y, float nxf, float nyf)
 		else if ((photons[y][x]>>8)==i) photons[y][x] = 0;
 		if (nx<CELL || nx>=XRES-CELL || ny<CELL || ny>=YRES-CELL)//kill_part if particle is out of bounds
 		{
-			if (t != PT_MOVS)
+			if (!(ptypes[t].properties&PROP_MOVS) || !msindex[parts[i].life])
 				kill_part(i);
 			return -1;
 		}
@@ -700,7 +701,7 @@ void kill_part(int i)//kills particle number i
 	{
 		detach(i);
 	}
-	else if (parts[i].type == PT_MOVS)
+	else if (ptypes[parts[i].type].properties&PROP_MOVS)
 	{
 		int bn = parts[i].life;
 		msnum[bn]--;
@@ -756,7 +757,7 @@ inline void part_change_type(int i, int x, int y, int t)//changes the type of pa
 	{
 		detach(i);
 	}
-	else if (parts[i].type == PT_MOVS)
+	else if (ptypes[parts[i].type].properties&PROP_MOVS)
 	{
 		int bn = parts[i].life;
 		msnum[bn]--;
@@ -1017,6 +1018,39 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		else if (t != PT_PBCN)
 			parts[i].tmp = 1;
 	}
+	if (ptypes[t].properties&PROP_MOVS)
+	{
+		if (p == -2)
+		{
+			if (creatingsolid)
+			{
+				parts[i].life = numballs-1;
+				parts[i].tmp = x - (int)parts[msindex[parts[i].life]-1].x;
+				parts[i].tmp2 = y - (int)parts[msindex[parts[i].life]-1].y;
+				msnum[numballs-1]++;
+			}
+			else
+			{
+				int j;
+				parts[i].life = numballs;
+				parts[i].tmp = 0;
+				parts[i].tmp2 = 0;
+				msindex[numballs] = i+1;
+				msnum[numballs] = 1;
+				msvx[numballs] = 0;
+				msvy[numballs] = 0;
+				msrotation[numballs] = 0;
+				numballs = numballs + 1;
+				creatingsolid = 1;
+			}
+		}
+		else
+		{
+			parts[i].life = 255;
+			parts[i].tmp = rand()%20;
+			parts[i].tmp2 = rand()%20;
+		}
+	}
 
 	//now set various properties that we want at spawn.
 	switch (t)
@@ -1034,38 +1068,6 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 			parts[i].ctype = 0;
 			parts[i].life = 10;
 			parts[i].tmp = 1;
-			break;
-		case PT_MOVS:
-			if (p == -2)
-			{
-				if (creatingsolid)
-				{
-					parts[i].life = numballs-1;
-					parts[i].tmp = x - (int)parts[msindex[parts[i].life]-1].x;
-					parts[i].tmp2 = y - (int)parts[msindex[parts[i].life]-1].y;
-					msnum[numballs-1]++;
-				}
-				else
-				{
-					int j;
-					parts[i].life = numballs;
-					parts[i].tmp = 0;
-					parts[i].tmp2 = 0;
-					msindex[numballs] = i+1;
-					msnum[numballs] = 1;
-					msvx[numballs] = 0;
-					msvy[numballs] = 0;
-					msrotation[numballs] = 0;
-					numballs = numballs + 1;
-					creatingsolid = 1;
-				}
-			}
-			else
-			{
-				parts[i].life = 255;
-				parts[i].tmp = rand()%20;
-				parts[i].tmp2 = rand()%20;
-			}
 			break;
 		case PT_VIRS: case PT_VRSG: case PT_VRSS:
 			parts[i].tmp = 6400;
@@ -2535,6 +2537,8 @@ void update_particles_i(pixel *vid, int start, int inc)
 				}
 				if (ptypes[t].properties&PROP_POWERED)
 					update_POWERED(i,x,y,surround_space,nt);
+				if (ptypes[t].properties&PROP_MOVS)
+					update_MOVS(i,x,y,surround_space,nt);
 				if (ptypes[t].update_func)
 				{
 					if ((*(ptypes[t].update_func))(i,x,y,surround_space,nt))
@@ -2642,7 +2646,7 @@ killed:
 						clear_y = (int)(clear_yf+0.5f);
 						break;
 					}
-					if (fin_x<CELL || fin_y<CELL || fin_x>=XRES-CELL || fin_y>=YRES-CELL || ((((pmap[fin_y][fin_x]&0xFF)==PT_SPNG||(pmap[fin_y][fin_x]&0xFF)==PT_MOVS||(pmap[fin_y][fin_x]&0xFF)==PT_PINV&&parts[pmap[fin_y][fin_x]>>8].life==10))?0:pmap[fin_y][fin_x]) || (bmap[fin_y/CELL][fin_x/CELL] && (bmap[fin_y/CELL][fin_x/CELL]==WL_DESTROYALL || !eval_move(t,fin_x,fin_y,NULL))))
+					if (fin_x<CELL || fin_y<CELL || fin_x>=XRES-CELL || fin_y>=YRES-CELL || ((((pmap[fin_y][fin_x]&0xFF)==PT_SPNG||(ptypes[pmap[fin_y][fin_x]&0xFF].properties&PROP_MOVS)||(pmap[fin_y][fin_x]&0xFF)==PT_PINV&&parts[pmap[fin_y][fin_x]>>8].life==10))?0:pmap[fin_y][fin_x]) || (bmap[fin_y/CELL][fin_x/CELL] && (bmap[fin_y/CELL][fin_x/CELL]==WL_DESTROYALL || !eval_move(t,fin_x,fin_y,NULL))))
 					{
 						// found an obstacle
 						clear_xf = fin_xf-dx;
@@ -3033,7 +3037,7 @@ killed:
 				}
 			}
 movedone:
-			if (parts[i].type == PT_MOVS)
+			if (ptypes[parts[i].type].properties&PROP_MOVS)
 			{
 				int bn = parts[i].life;
 				if (msindex[bn])
@@ -3073,7 +3077,7 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 					parts[i].tmp2 = 0;
 				if (ptypes[t].properties & TYPE_ENERGY)
 					photons[y][x] = t|(i<<8);
-				else if ((pmap[y][x]&0xFF) != PT_PINV && (t != PT_MOVS || !pmap[y][x]))
+				else if ((pmap[y][x]&0xFF) != PT_PINV && (!(ptypes[t].properties&PROP_MOVS) || !pmap[y][x]))
 					pmap[y][x] = t|(i<<8);
 				else if ((pmap[y][x]&0xFF) == PT_PINV)
 					parts[pmap[y][x]>>8].tmp2 = t|(i<<8);
@@ -3161,9 +3165,11 @@ void update_moving_solids()
 	}
 	for (i=0; i<=parts_lastActiveIndex; i++)
 	{
-		if (parts[i].type == PT_MOVS)
+		if (ptypes[parts[i].type].properties&PROP_MOVS)
 		{
 			int bn = parts[i].life;
+			if (bn < 0 || bn > 255)
+				continue;
 			if (msindex[bn])
 			{
 				if (parts[i].tmp != 0)
@@ -3189,6 +3195,8 @@ void update_moving_solids()
 				parts[i].vx = msvx[bn];
 				parts[i].vy = msvy[bn];
 			}
+			if (parts[i].x<CELL || parts[i].x>=XRES-CELL || parts[i].y<CELL || parts[i].y>=YRES-CELL)//kill_part if particle is out of bounds
+				kill_part(i);
 		}
 	}
 	for (bn = 0; bn < numballs; bn++)
@@ -3762,19 +3770,19 @@ int create_parts2(int f, int x, int y, int c, int rx, int ry, int flags)
 	return 0;
 }
 
-void create_moving_solid(int x, int y, int rx, int ry)
+void create_moving_solid(int x, int y, int rx, int ry, int type)
 {
 	int i, j, index;
 	creatingsolid = 0;
 	if (numballs >= 255)
 		return;
-	create_part(-2, x, y, PT_MOVS);
+	create_part(-2, x, y, type);
 	if (!creatingsolid)
 		return;
 	for (j=-ry; j<=ry; j++)
 		for (i=-rx; i<=rx; i++)
 			if (InCurrentBrush(i ,j ,rx ,ry))
-				create_part(-2, x+i, y+j, PT_MOVS);
+				create_part(-2, x+i, y+j, type);
 	creatingsolid = 0;
 }
 

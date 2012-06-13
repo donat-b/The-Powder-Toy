@@ -138,6 +138,7 @@ int luatpt_clear_sim(lua_State* l);
 int luatpt_restore_defaults(lua_State* l);
 int luatpt_reset_elements(lua_State* l);
 int luatpt_indestructible(lua_State* l);
+int luatpt_moving_solid(lua_State* l);
 void addluastuff();
 void readluastuff();
 #endif
