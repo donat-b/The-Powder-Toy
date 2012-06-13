@@ -4540,7 +4540,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	ui_copytext ctb;
 
 	pixel *old_vid=(pixel *)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
-	if (!old_vid || info)
+	if (!old_vid || !info)
 		return 0;
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
 	viewcountbuffer[0] = 0;
