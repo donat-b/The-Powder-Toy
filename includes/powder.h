@@ -306,7 +306,7 @@
 #define PROP_POWERED		0x100000//2^20 Makes an element turn on/off with PSCN/NSCN
 #define PROP_SPARKSETTLE	0x200000//2^21 Allow Sparks/Embers to settle
 #define PROP_NOAMBHEAT      0x400000 //2^23 Don't transfer or receive heat from ambient heat.
-#define PROP_MOVS			0x400000 //2^24 Moving solids!
+#define PROP_MOVS			0x800000 //2^24 Moving solids!
 
 #define FLAG_STAGNANT	0x1
 #define FLAG_SKIPMOVE	0x2 // skip movement for one frame, only implemented for PHOT

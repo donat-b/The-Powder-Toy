@@ -287,17 +287,7 @@ in color now. Use Ctrl  + one of these letters: w (white), g (grey), o
 go in comments, tags, and save names and be seen by all tpt users. They can't 
 go in signs or local saves names (colors are removed). Update to 79.2 source.
 
-
-
-
-Bugs:
-Moving solid crashes (ex. prti corrupts pfree/life of dead particle changed)
-//None that I know of
-
-
-
-
-Next Version
+Version 16 - 6/14/12
 VOID and PVOD can be set to only eat their ctype (or only not eat it if their 
 tmp is 1). Local save deletion inside tpt. Fix saving as release/beta version, 
 fix many saving propblems. Fix SING explosion. lua functions can be auto-
@@ -308,13 +298,17 @@ affected by Newtonian gravity too. Right HUD always drawn on top. Moving
 solids are solid inside and much less glitchy. Also, use tpt.moving_solid() 
 to allow any element to move like moving solid.
 
-Reminder: remove debug thing in save.c
+
+
+
+Bugs:
+Moving solid crashes with tpt.moving_solid (ex. moving prti corrupts pfree/life of dead particle changed)
+//None that I know of
 
 
 
 
 Future Ideas/TODO: > means currently being worked on/added next
-fix bugs, then version 16
 finish lua script ive been working on
 Add things from tpt++ that look cool (differences like saving stamps & deco editor)
 option to make sing use gravity instead of presssure

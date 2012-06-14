@@ -2646,7 +2646,7 @@ int main(int argc, char *argv[])
 								cb_bmap[cby][cbx] = bmap[cby][cbx];
 								cb_emap[cby][cbx] = emap[cby][cbx];
 							}
-						if (c < PT_NUM && ptypes[c].properties&PROP_MOVS)
+						if (c < PT_NUM && (ptypes[c].properties&PROP_MOVS))
 							create_moving_solid(x,y,bsx,bsy,c);
 						else
 							create_parts(x, y, bsx, bsy, c, get_brush_flags(), 1);

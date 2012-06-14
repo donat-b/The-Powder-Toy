@@ -96,8 +96,8 @@ int invalid_element(int save_as, int el)
 	if (save_as > 0 && (el >= PT_NORMAL_NUM || ptypes[el].enabled == 0)) //Check for mod/disabled elements
 		return 1;
 #ifdef BETA
-	if (save_as > 1 && (el == PT_EXOT))
-		return 1;
+	//if (save_as > 1 && (el == PT_EXOT))
+	//	return 1;
 #endif
 	return 0;
 }
@@ -868,18 +868,18 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 					partsData[partsDataLen++] = partsptr[i].tmp2;
 				}
 
-				//Moving solids, save pavg (and rotation for center particle)
-				if (ptypes[partsptr[i].type].properties&PROP_MOVS)
-				{
-					fieldDesc |= 1 << 15;
-					partsData[partsDataLen++] = (int)partsptr[i].pavg[0];
-					partsData[partsDataLen++] = ((int)partsptr[i].pavg[0])>>8;
-					partsData[partsDataLen++] = (int)partsptr[i].pavg[1];
-					partsData[partsDataLen++] = ((int)partsptr[i].pavg[1])>>8;
-				}
-
 				if (save_as == 3)
 				{
+					//Moving solids, save pavg (and rotation for center particle)
+					if (ptypes[partsptr[i].type].properties&PROP_MOVS)
+					{
+						fieldDesc |= 1 << 15;
+						partsData[partsDataLen++] = (int)partsptr[i].pavg[0];
+						partsData[partsDataLen++] = ((int)partsptr[i].pavg[0])>>8;
+						partsData[partsDataLen++] = (int)partsptr[i].pavg[1];
+						partsData[partsDataLen++] = ((int)partsptr[i].pavg[1])>>8;
+					}
+
 					if ((partsptr[i].type == PT_ANIM || partsptr[i].type == PT_INDI) && partsptr[i].ctype)
 					{
 						int j, max = partsptr[i].ctype;
@@ -1488,7 +1488,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		}
 		else if(strcmp(bson_iterator_key(&iter), "Jacob1's_Mod")==0)
 		{
-			info_ui(vid_buf,"Mod","Test");
+			if (!strcmp(svf_user,"jacob1"))
+				info_ui(vid_buf,"Mod","Test");
 			if(bson_iterator_type(&iter)==BSON_INT)
 			{
 				modsave = bson_iterator_int(&iter);
