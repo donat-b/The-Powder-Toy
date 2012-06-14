@@ -5,6 +5,7 @@ int update_MOVS(UPDATE_FUNC_ARGS) {
 	float tmp = 0, tmp2 = 0;
 	if (bn < 0 || bn > 255)
 		return 0;
+	//center control particle was killed, ball slowly falls apart
 	if (!msindex[bn])
 	{
 		if (rand()%500<1)
@@ -15,11 +16,13 @@ int update_MOVS(UPDATE_FUNC_ARGS) {
 		tmp = parts[i].pavg[0];
 		tmp2 = parts[i].pavg[1];
 	}
+	//speed improvement if rotation disabled, no need to do trigonometry
 	else if (!ms_rotation)
 	{
 		tmp = parts[i].pavg[0];
 		tmp2 = parts[i].pavg[1];
 	}
+	//determine rotated x and y coordinates relative to center
 	else if (parts[i].pavg[0] != 0)
 	{
 		float angle = atan((float)parts[i].pavg[1]/parts[i].pavg[0]);
@@ -38,6 +41,7 @@ int update_MOVS(UPDATE_FUNC_ARGS) {
 		else
 			tmp2 = -1*parts[i].pavg[1]*sin(angle+msrotation[bn]);
 	}
+	//kill moving solid control particle with a lot of pressure (other ones dissapear at 30 pressure)
 	if (!tmp && !tmp2 && pv[y/CELL][x/CELL] > 10 || pv[y/CELL][x/CELL] < -10)
 	{
 		kill_part(i);
