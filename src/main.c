@@ -400,6 +400,7 @@ void clear_sim(void)
 	memset(msvx, 0, sizeof(msvx));
 	memset(msvy, 0, sizeof(msvy));
 	memset(msrotation, 0, sizeof(msrotation));
+	memset(newmsrotation, 0, sizeof(newmsrotation));
 	finding = 0;
 	if(bframe)
 		draw_bframe();

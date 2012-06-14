@@ -1808,7 +1808,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						{
 							msindex[partsptr[newIndex].tmp2] = newIndex+1;
 							if(i >= partsDataLen) goto fail;
-							msrotation[partsptr[newIndex].tmp2] = partsData[i++]/20.0f - 6.283185307179586476925286766559;
+							msrotation[partsptr[newIndex].tmp2+1] = partsData[i++]/20.0f - 6.283185307179586476925286766559;
 						}
 						if (partsptr[newIndex].pavg[0] > 32768)
 							partsptr[newIndex].pavg[0] -= 65536;
