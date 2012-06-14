@@ -44,7 +44,7 @@ int update_O2(UPDATE_FUNC_ARGS)
 
 				}
 	}
-	else if (parts[i].temp > 9973.15 && pv[y/CELL][x/CELL] > 250.0f && abs((int)gravx[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)]) + abs((int)gravy[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)]) > 20)
+	else if (parts[i].temp > 9973.15 && pv[y/CELL][x/CELL] > 250.0f && fabsf(gravx[((y/CELL)*(XRES/CELL))+(x/CELL)]) + fabsf(gravy[((y/CELL)*(XRES/CELL))+(x/CELL)]) > 20)
 	{
 		if (rand()%5 < 1)
 		{

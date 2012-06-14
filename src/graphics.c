@@ -1157,6 +1157,8 @@ int drawtextwrap(pixel *vid, int x, int y, int w, const char *s, int r, int g, i
 					rw = 0;
 					y+=FONT_H+2;
 					rh+=FONT_H+2;
+					if (*s==' ')
+						continue;
 				}
 				x = drawchar(vid, x, y, *(unsigned char *)s, r, g, b, a);
 			}
@@ -1412,6 +1414,8 @@ void textnpos(char *s, int n, int w, int *cx, int *cy)
 			{
 				x = 0;
 				y += FONT_H+2;
+				if (*s==' ')
+					continue;
 			}
 			n--;
 		}
@@ -1468,6 +1472,8 @@ int textposxy(char *s, int width, int w, int h)
 			if (x>=width) {
 				x = 0;
 				y += FONT_H+2;
+				if (*s==' ')
+					continue;
 			}
 			n++;
 		}
@@ -1506,6 +1512,8 @@ int textwrapheight(char *s, int width)
 				{
 					x = 0;
 					height += FONT_H+2;
+					if (*s==' ')
+						continue;
 				}
 				x += cw;
 			}
