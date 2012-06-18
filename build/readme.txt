@@ -35,14 +35,10 @@ Explanation of other new features that need a long explanation:
 Moving Solids: No lag, and it actually works. They are found in the special
 menu, and you can have a maximum of 256 at once. They are drawn the same 
 shape as your brush, no matter what shape or size it is. They are very 
-bouncy, and fall with gravity. Pressure over 4.0 will destroy them, and if 
+bouncy, and fall with gravity. Pressure over 10.0 will destroy them, and if 
 the center particle is destroyed, it will fall apart, making really tiny 
 bouncing pixels. Go into the fav2 menu and click SPIN to make them be able 
-to rotate. Moving solid rotation doesn't save in PSv format. To draw shapes 
-other than the cursor shape, draw a center particle with shift + click, and 
-then the outer edges in the same way, all while paused. Before drawing 
-another ball this way, click somewhere on the screen using a small brush to 
-finish the first one.
+to rotate.
 
 Animated LCRY: Found in the powered elements menu. In the decoration editor, 
 press left or right to change frames, and paint each frame normally. Press 
@@ -90,26 +86,6 @@ you can delete the INDI. The code will already be in newluacode.txt, and you
 can look at it to see what it does. I also added in virus prevention. You can 
 only use certain approved funcions, and all of the tpt functions. You also 
 can't do while 1 do end, because the loop will exit after 3 seconds.
-
-Easter egg hunt: Press 'e' to start it or see which eggs you've found. There 
-are 20 eggs total. After specific numbers of eggs, you get a prize. There are 
-5 prizes, plus an extra if you find egg number 20. If you quit, it will 
-remember which ones you've found and which prizes you've unlocked. The prizes 
-are actually good unlike real Easter egg hunts, and get better as you find 
-more. Please ignore any graphical glitches on certain eggs, also, one egg 
-doesn't disappear after you click it until you exit and go back.
------
-The eggs are hidden:
-In different menus and interfaces
-In the online search
-3 are in certain saves (that I like or made)
------
-The eggs are not:
-In places that require you to be logged in
-In the stamp browser
-In any front page saves, those won't be there long
-Any place that would take a lot of work to find, like page 50 of the online search
-Hidden until a certain reaction happens, you don't need to draw elements
 
 Lua Graphics Functions: Allows you to change an element's graphics function. 
 The values i, colr, colg, and colb are passed into the function. You must 
@@ -250,8 +226,7 @@ tab without saving, Ctrl+Q then clicking yes completely exits from anywhere,
 and Ctrl+O opens the saves catalogue. You can now edit alpha in the deco 
 editor. Alpha is displayed in (OPS) stamps, all wall types drawn in all 
 stamps. save/load more things in powder.pref. Now uses static Libraries, no 
-dll's are needed. Some fusion changes to make it more controllable, different 
-from the official (until Simon accepts the pull request).
+dll's are needed. Some fusion changes to make it more controllable.
 
 Version 14 - 4/1/12
 Lua code in saves run in a limited environment without access to dangerous 
@@ -298,12 +273,20 @@ affected by Newtonian gravity too. Right HUD always drawn on top. Moving
 solids are solid inside and much less glitchy. Also, use tpt.moving_solid() 
 to allow any element to move like moving solid.
 
+Version 16.1 - 6/18/12
+Fix saving as release version, fix saves with LIGH in them. Fix PIPE exploding 
+when energy particles went in it. Front page labeled as page 1, not page 0. 
+Up to 100 comments on saves can be loaded now, they are loaded as you scroll 
+down. Moving solids don't collide with particles they can go through. Fix 
+moving solids causing stacking and BHOL being created. Update to latest source 
+again (still 80.4) which fixes some other bugs.
+
 
 
 
 Bugs:
 Moving solid crashes with tpt.moving_solid (ex. moving prti corrupts pfree/life of dead particle changed)
-//None that I know of
+moving solids don't bounce off walls
 
 
 
