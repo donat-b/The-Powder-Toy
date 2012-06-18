@@ -503,7 +503,7 @@ void ui_edit_process(int mx, int my, int mb, ui_edit *ed)
 				ed->cursor++;
 			}
 #else
-			if (sdl_mod & (KMOD_CTRL))
+			if ((sdl_mod & (KMOD_CTRL)) && (svf_admin || svf_mod))
 			{
 				if (ed->cursor > 1 && ed->str[ed->cursor-2] == '\b')
 					break;
@@ -5662,7 +5662,7 @@ void execute_save(pixel *vid_buf)
 	uploadparts[3] = build_thumb(plens+3, 1);
 	uploadparts[4] = (svf_publish==1)?"Public":"Private";
 	plens[4] = strlen((svf_publish==1)?"Public":"Private");
-	if (svf_publish == 1 && save_as != 2)
+	if (svf_publish == 1 && save_as != 5)
 	{
 		error_ui(vid_buf, 0, "You must save this as the non beta version");
 		return;

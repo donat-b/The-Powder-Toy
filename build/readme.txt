@@ -281,6 +281,9 @@ down. Moving solids don't collide with particles they can go through. Fix
 moving solids causing stacking and BHOL being created. Update to latest source 
 again (still 80.4) which fixes some other bugs.
 
+Version 16.2 - 6/18/12
+Fixed saving saves publicly, remove ability to create colored text.
+
 
 
 
