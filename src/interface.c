@@ -3881,7 +3881,7 @@ int search_ui(pixel *vid_buf)
 		if (page_count)
 		{
 			char pagecount[16];
-			sprintf(pagecount,"Page %i",search_page);
+			sprintf(pagecount,"Page %i",search_page+1);
 			drawtext(vid_buf, (XRES-textwidth(pagecount))/2, YRES+MENUSIZE-10, pagecount, 255, 255, 255, 255);
 		}
 
@@ -4520,7 +4520,7 @@ int report_ui(pixel* vid_buf, char *save_id)
 
 int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 {
-	int b=1,bq,mx,my,ca=0,thumb_w,thumb_h,active=0,active_2=0,active_3=0,active_4=0,cc=0,ccy=0,cix=0,hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1,comment_scroll=0;
+	int b=1,bq,mx,my,ca=0,thumb_w,thumb_h,active=0,active_2=0,active_3=0,active_4=0,cc=0,ccy=0,cix=0,hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1,comment_scroll=0,comment_page=0;
 	int nyd,nyu,ry,lv;
 	float ryf;
 
@@ -4652,7 +4652,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	uri_4 = malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
 	strcpy(uri_4, "http://" SERVER "/Browse/View.json?ID=");
 	strcaturl(uri_4, save_id);
-	strappend(uri_4, "&Mode=Comments&Start=1&Count=25");
+	strappend(uri_4, "&Mode=Comments&Start=1&Count=10&PageNum=0");
 
 	http = http_async_req_start(http, uri, NULL, 0, 1);
 	http_2 = http_async_req_start(http_2, uri_2, NULL, 0, 1);
@@ -4776,20 +4776,23 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			{
 				int i;
 				cJSON *root, *commentobj, *tmpobj;
-				for (i=0;i<NUM_COMMENTS;i++)
+				for (i=comment_page*10;i<comment_page*10+10&&i<NUM_COMMENTS;i++)
 				{
 					if (info->comments[i]) { free(info->comments[i]); info->comments[i] = NULL; }
 					if (info->commentauthors[i]) { free(info->commentauthors[i]); info->commentauthors[i] = NULL; }
 					if (info->commentauthorIDs[i]) { free(info->commentauthorIDs[i]); info->commentauthorIDs[i] = NULL; }
 				}
-				if(comment_data && (root = cJSON_Parse((const char*)comment_data))) // TODO: Download more/all comments
+				if(comment_data && (root = cJSON_Parse((const char*)comment_data)))
 				{
-					info->comment_count = cJSON_GetArraySize(root);
+					if (comment_page == 0)
+						info->comment_count = cJSON_GetArraySize(root);
+					else
+						info->comment_count = info->comment_count + cJSON_GetArraySize(root);
 					if (info->comment_count > NUM_COMMENTS)
 						info->comment_count = NUM_COMMENTS;
-					for (i = 0; i < info->comment_count; i++)
+					for (i = comment_page*10; i < info->comment_count; i++)
 					{
-						commentobj = cJSON_GetArrayItem(root, i);
+						commentobj = cJSON_GetArrayItem(root, i%10);
 						if(commentobj){
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "Username")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "UserID")) && tmpobj->type == cJSON_String) { info->commentauthorIDs[i] = (char*)calloc(16,sizeof(char*)); strncpy(info->commentauthorIDs[i], tmpobj->valuestring, 16); }
@@ -4901,6 +4904,19 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					}
 					else
 						break;
+					if (cc == info->comment_count-1 && !http_4 && comment_page < NUM_COMMENTS/10)
+					{
+						comment_page++;
+						uri_4 = malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
+						strcpy(uri_4, "http://" SERVER "/Browse/View.json?ID=");
+						strcaturl(uri_4, save_id);
+						strappend(uri_4, "&Mode=Comments&Start=1&Count=10&PageNum=");
+						sprintf(uri_4,"%s%i",uri_4,comment_page);
+						http_4 = http_async_req_start(http_4, uri_4, NULL, 0, 1);
+						http_last_use_4 = time(NULL);
+						free(uri_4);
+						active_4 = 1;
+					}
 				}
 				if (sdl_wheel)
 				{

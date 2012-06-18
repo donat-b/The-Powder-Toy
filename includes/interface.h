@@ -155,7 +155,7 @@ struct ui_copytext
 };
 typedef struct ui_copytext ui_copytext;
 
-#define NUM_COMMENTS 25
+#define NUM_COMMENTS 100
 struct save_info
 {
 	char *title;
