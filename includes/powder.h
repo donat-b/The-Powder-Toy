@@ -312,8 +312,8 @@
 #define FLAG_SKIPMOVE	0x2 // skip movement for one frame, only implemented for PHOT
 #define FLAG_EXPLODE	0x4 // EXPL explosion
 
-#define GRAPHICS_FUNC_ARGS particle *cpart, int nx, int ny, int *pixel_mode, int* cola, int *colr, int *colg, int *colb, int *firea, int *firer, int *fireg, int *fireb, pixel *vid
-#define GRAPHICS_FUNC_SUBCALL_ARGS cpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb, vid
+#define GRAPHICS_FUNC_ARGS particle *cpart, int nx, int ny, int *pixel_mode, int* cola, int *colr, int *colg, int *colb, int *firea, int *firer, int *fireg, int *fireb
+#define GRAPHICS_FUNC_SUBCALL_ARGS cpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb
 
 
 struct particle
@@ -987,6 +987,8 @@ void clear_area(int area_x, int area_y, int area_w, int area_h);
 void create_box(int x1, int y1, int x2, int y2, int c, int flags);
 
 int flood_parts(int x, int y, int c, int cm, int bm, int flags);
+
+int flood_INST(int x, int y, int fullc, int cm);
 
 int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill);
 
