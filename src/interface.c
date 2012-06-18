@@ -4652,7 +4652,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	uri_4 = malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
 	strcpy(uri_4, "http://" SERVER "/Browse/View.json?ID=");
 	strcaturl(uri_4, save_id);
-	strappend(uri_4, "&Mode=Comments&Start=1&Count=10&PageNum=0");
+	strappend(uri_4, "&Mode=Comments&Start=1&Count=10");
 
 	http = http_async_req_start(http, uri, NULL, 0, 1);
 	http_2 = http_async_req_start(http_2, uri_2, NULL, 0, 1);
@@ -4908,10 +4908,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					{
 						comment_page++;
 						uri_4 = malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
-						strcpy(uri_4, "http://" SERVER "/Browse/View.json?ID=");
-						strcaturl(uri_4, save_id);
-						strappend(uri_4, "&Mode=Comments&Start=1&Count=10&PageNum=");
-						sprintf(uri_4,"%s%i",uri_4,comment_page);
+						sprintf(uri_4,"http://%s/Browse/View.json?ID=%s&Mode=Comments&Start=1&Count=10&PageNum=%i",SERVER,save_id,comment_page);
 						http_4 = http_async_req_start(http_4, uri_4, NULL, 0, 1);
 						http_last_use_4 = time(NULL);
 						free(uri_4);
