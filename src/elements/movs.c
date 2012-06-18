@@ -49,28 +49,28 @@ int update_MOVS(UPDATE_FUNC_ARGS) {
 	}
 	type = pmap[y+1][x]&0xFF;
 	//bottom side collision
-	if (y+1 < YRES && tmp2 > 0 && type && (type != parts[i].type || (type == parts[i].type && parts[pmap[y+1][x]>>8].tmp2 != bn)))
+	if (tmp2 > 0 && type && y+1 < YRES && ((type != parts[i].type && !eval_move(parts[i].type,x,y+1,NULL)) || (type == parts[i].type && parts[pmap[y+1][x]>>8].tmp2 != bn)))
 	{
 		parts[i].vy -= tmp2*bounce;
 		newmsrotation[bn] -= tmp/50000;
 	}
 	type = pmap[y-1][x]&0xFF;
 	//top side collision
-	if (y-1 >= 0 && tmp2 < 0 && type && (type != parts[i].type || (type == parts[i].type && parts[pmap[y-1][x]>>8].tmp2 != bn)))
+	if (tmp2 < 0 && type && y-1 >= 0 && ((type != parts[i].type && !eval_move(parts[i].type,x,y-1,NULL)) || (type == parts[i].type && parts[pmap[y-1][x]>>8].tmp2 != bn)))
 	{
 		parts[i].vy -= tmp2*bounce;
 		newmsrotation[bn] -= tmp/50000;
 	}
 	type = pmap[y][x+1]&0xFF;
 	//right side collision
-	if (x+1 < XRES && tmp > 0 && type && (type != parts[i].type || (type == parts[i].type && parts[pmap[y][x+1]>>8].tmp2 != bn)))
+	if (tmp > 0 && type && x+1 < XRES && ((type != parts[i].type && !eval_move(parts[i].type,x+1,y,NULL)) || (type == parts[i].type && parts[pmap[y][x+1]>>8].tmp2 != bn)))
 	{
 		parts[i].vx -= tmp*bounce;
 		newmsrotation[bn] -= tmp/50000;
 	}
 	type = pmap[y][x-1]&0xFF;
 	//left side collision
-	if (x-1 >= 0 && tmp < 0 && type && (type != parts[i].type || (type == parts[i].type && parts[pmap[y][x-1]>>8].tmp2 != bn)))
+	if (tmp < 0 && type && x-1 >= 0 && ((type != parts[i].type && !eval_move(parts[i].type,x-1,y,NULL)) || (type == parts[i].type && parts[pmap[y][x-1]>>8].tmp2 != bn)))
 	{
 		parts[i].vx -= tmp*bounce;
 		newmsrotation[bn] -= tmp/50000;

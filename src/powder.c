@@ -190,7 +190,7 @@ void init_can_move()
 }
 
 /*
-   RETURN-value explenation
+   RETURN-value explanation
 1 = Swap
 0 = No move/Bounce
 2 = Both particles occupy the same space.
@@ -425,7 +425,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 		return 0;
 
 	e = r >> 8; //e is now the particle number at r (pmap[ny][nx])
-	if (r)//the swap part, if we make it this far, swap
+	if (r && ((pmap[y][x]&0xFF) == parts[i].type))//the swap part, if we make it this far, swap
 	{
 		if (parts[i].type==PT_NEUT) {
 			// target material is NEUTPENETRATE, meaning it gets moved around when neutron passes
@@ -485,7 +485,7 @@ int move(int i, int x, int y, float nxf, float nyf)
 		}
 		if (ptypes[t].properties & TYPE_ENERGY)
 			photons[ny][nx] = t|(i<<8);
-		else if (t && (pmap[ny][nx]&0xFF) != PT_PINV)
+		else if (t && (pmap[ny][nx]&0xFF) != PT_PINV && !(ptypes[t].properties&PROP_MOVS))
 			pmap[ny][nx] = t|(i<<8);
 		else if (t && (pmap[ny][nx]&0xFF) == PT_PINV)
 			parts[pmap[ny][nx]>>8].tmp2 = t|(i<<8);
@@ -3144,13 +3144,13 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 			y = (int)(parts[i].y+0.5f);
 			if (x>=0 && y>=0 && x<XRES && y<YRES)
 			{
-				if (parts[i].type == PT_PINV && (parts[i].tmp2>>8) >= i)
+				if (t == PT_PINV && (parts[i].tmp2>>8) >= i)
 					parts[i].tmp2 = 0;
 				if (ptypes[t].properties & TYPE_ENERGY)
 					photons[y][x] = t|(i<<8);
 				// Particles are sometimes allowed to go inside INVS and FILT
 				// To make particles collide correctly when inside these elements, these elements must not overwrite an existing pmap entry from particles inside them
-				else if ((!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT)) && (pmap[y][x]&0xFF) != PT_PINV && (!(ptypes[t].properties&PROP_MOVS) || !pmap[y][x]))
+				else if (!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT && !(ptypes[t].properties&PROP_MOVS) && (pmap[y][x]&0xFF) != PT_PINV))
 					pmap[y][x] = t|(i<<8);
 				else if ((pmap[y][x]&0xFF) == PT_PINV)
 					parts[pmap[y][x]>>8].tmp2 = t|(i<<8);
