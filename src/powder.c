@@ -1286,7 +1286,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 				parts[i].tmp2 = 4;//tail
 				parts[i].life = 5;
 			}
-			if (t==PT_LIGH) //Lightning direction is affected by both the gravity mode setting and newtonian gravity
+			if (t==PT_LIGH && (p == 2 || mod_save >= 9)) //Lightning direction is affected by both the gravity mode setting and newtonian gravity
 			{
 				float gx = gravx[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)];
 				float gy = gravy[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)];

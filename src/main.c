@@ -402,6 +402,7 @@ void clear_sim(void)
 	memset(msrotation, 0, sizeof(msrotation));
 	memset(newmsrotation, 0, sizeof(newmsrotation));
 	finding = 0;
+	mod_save = MOD_SAVE_VERSION;
 	if(bframe)
 		draw_bframe();
 }

@@ -24,6 +24,7 @@
 #include "BSON.h"
 
 int saveversion;
+int mod_save;
 //Pop
 pixel *prerender_save(void *save, int size, int *width, int *height)
 {
@@ -1033,7 +1034,10 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 
 	outputData[0] = 'O';
 	outputData[1] = 'P';
-	outputData[2] = 'J';
+	if (save_as == 3)
+		outputData[2] = 'J';
+	else
+		outputData[2] = 'S';
 	outputData[3] = '1';
 	outputData[4] = saveversion;
 	outputData[5] = CELL;
@@ -1145,6 +1149,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		clear_sim();
 		oldnumballs = 0;
 		erase_bframe();
+		mod_save = 0;
 	}
 	
 	bson_init_data(&b, bsonData);
@@ -1492,7 +1497,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				info_ui(vid_buf,"Mod","Test");
 			if(bson_iterator_type(&iter)==BSON_INT)
 			{
-				modsave = bson_iterator_int(&iter);
+				mod_save = modsave = bson_iterator_int(&iter);
 			}
 			else
 			{
@@ -2275,6 +2280,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 		}
 		clear_sim();
 		erase_bframe();
+		mod_save = 0;
 	}
 	if (modver >= 3 && replace)
 		oldnumballs = 0;

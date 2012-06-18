@@ -236,6 +236,7 @@ extern int old_menu;
 extern int h;
 extern int over_el;
 extern int loop_time;
+extern int mod_save;
 
 extern int drawinfo;
 extern int currentTime;
