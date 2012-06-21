@@ -6024,6 +6024,7 @@ const static struct command_match matches [] = {
 	{"tpt.setwindowsize(", "tpt.setw"},
 	{"tpt.watertest(", "tpt.wa"},
 	{"tpt.screenshot(", "tpt.sc"},
+	{"tpt.element(\"", "tpt.ele"},
 	{"tpt.element_func(", "tpt.element_"},
 	{"tpt.graphics_func(", "tpt.gr"},
 	{"tpt.sound(", "tpt.so"},
@@ -6054,7 +6055,6 @@ const static struct command_match matches [] = {
 	{"tpt.newtonian_gravity(", "tpt.n"},
 	{"tpt.ambient_heat(", "tpt.a"},
 	{"tpt.decorations_enable(", "tpt.d"},
-	{"tpt.element(\"", "tpt.e"},
 
 	{"presHighType", "presHighT"},
 	{"presLowValue", "presLowV"},
@@ -6079,7 +6079,7 @@ const static struct command_match matches [] = {
 	{"airloss", "airl"},
 	{"loss", "los"},
 	{"collision", "coll"},
-	{"gravity", "gravi"},
+	{"gravity", "grav"},
 	{"diffusion", "diff"},
 	{"hotair", "hota"},
 	{"falldown", "fall"},
@@ -6089,7 +6089,7 @@ const static struct command_match matches [] = {
 	{"hardness", "hard"},
 	{"enabled", "ena"},
 	{"weight", "wei"},
-	{"menusection", "menu"},
+	{"menusection", "menus"},
 	{"heat", "hea"},
 	{"hconduct", "hc"},
 	{"state", "sta"},
@@ -6099,7 +6099,7 @@ const static struct command_match matches [] = {
 	{"dcolor", "dco"},
 	{"dcolour", "dcolou"},
 	{"ctype", "cty"},
-	{"type", "ty"},
+	{"type", "typ"},
 };
 
 char *console_ui(pixel *vid_buf,char error[255],char console_more) {
