@@ -3159,7 +3159,7 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 					parts[pmap[y][x]>>8].tmp2 = t|(i<<8);
 				// Count number of particles at each location, for excess stacking check
 				// (does not include energy particles or THDR - currently no limit on stacking those)
-				if (t!=PT_THDR)
+				if (t!=PT_THDR && t!=PT_PLSM)
 					pmap_count[y][x]++;
 			}
 			lastPartUsed = i;
