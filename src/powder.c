@@ -187,7 +187,7 @@ void init_can_move()
 	//whol eats anar
 	can_move[PT_ANAR][PT_WHOL] = 1;
 	can_move[PT_ANAR][PT_NWHL] = 1;
-	can_move[PT_SPNG][PT_SPNG] = 2;
+	can_move[PT_SPNG][PT_SPNG] = 3;
 	can_move[PT_RAZR][PT_CNCT] = 1;
 	can_move[PT_THDR][PT_THDR] = 2;
 }
@@ -235,7 +235,12 @@ int eval_move(int pt, int nx, int ny, unsigned *rr)
 			if (parts[r>>8].life == 10) result = 1;
 			else result = 0;
 		}
-		if (pt == PT_SPNG)
+		if ((r&0xFF)==PT_SPNG)
+		{
+			if (parts[r>>8].vx == 0 && parts[r>>8].vy == 0) result = 0;
+			else result = 2;
+		}
+		else if (pt == PT_SPNG)
 		{
 			int vx = (int)parts[pt].vx;
 			int vy = (int)parts[pt].vy;
