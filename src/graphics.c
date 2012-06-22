@@ -2043,6 +2043,8 @@ void render_parts(pixel *vid)
 
 			nx = (int)(parts[i].x+0.5f);
 			ny = (int)(parts[i].y+0.5f);
+			if (nx < 0 || nx > XRES || ny < 0 || ny > YRES)
+				continue;
 			fnx = parts[i].x;
 			fny = parts[i].y;
 			if ((pmap[ny][nx]&0xFF) == PT_PINV)

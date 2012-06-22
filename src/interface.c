@@ -4650,9 +4650,9 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		strappend(uri_3, "_large.pti");
 	}
 	uri_4 = malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
-	strcpy(uri_4, "http://" SERVER "/Browse/View.json?ID=");
+	strcpy(uri_4, "http://" SERVER "/Browse/Comments.json?ID=");
 	strcaturl(uri_4, save_id);
-	strappend(uri_4, "&Mode=Comments&Start=1&Count=10");
+	strappend(uri_4, "&Start=1&Count=10");
 
 	http = http_async_req_start(http, uri, NULL, 0, 1);
 	http_2 = http_async_req_start(http_2, uri_2, NULL, 0, 1);
@@ -4891,7 +4891,23 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						}
 						else
 						{
-							drawtext(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, info->commentauthors[cc], 255, 255, 255, 255);
+							int r = 255, g = 255, b = 255;
+							char* author = info->commentauthors[cc];
+							if (!strcmp(author,"jacob1") || !strcmp(author,"Simon") || !strcmp(author,"Lockheedmartin") || !strcmp(author,"lolzy") || !strcmp(author,"ief015") || !strcmp(author,"Catelite") || !strcmp(author,"doxin") || !strcmp(author,"FrankBro")  || !strcmp(author,"cracker64")|| !strcmp(author,"Xenocide") || !strcmp(author,"devast8a") || !strcmp(author,"triclops200") || !strcmp(author,"jacksonmj"))
+							{
+								g = 170;
+								r = 32;
+							}
+							else if (!strcmp(author,svf_user))
+							{
+								b = 100;
+							}
+							else if (!strcmp(author,info->author))
+							{
+								g = 100;
+								b = 100;
+							}
+							drawtext(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, info->commentauthors[cc], r, g, b, 255);
 							if (info->commentauthorIDs[cc])
 								drawtext(vid_buf, 230+(XRES/2)+1, ccy+60+comment_scroll, info->commentauthorIDs[cc], 255, 255, 255, 255);
 							ccy += 12;
@@ -4908,7 +4924,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					{
 						comment_page++;
 						uri_4 = malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
-						sprintf(uri_4,"http://%s/Browse/View.json?ID=%s&Mode=Comments&Start=1&Count=10&PageNum=%i",SERVER,save_id,comment_page);
+						sprintf(uri_4,"http://%s/Browse/Comments.json?ID=%s&Start=%i&Count=10",SERVER,save_id,comment_page*10+1,comment_page);
 						http_4 = http_async_req_start(http_4, uri_4, NULL, 0, 1);
 						http_last_use_4 = time(NULL);
 						free(uri_4);
