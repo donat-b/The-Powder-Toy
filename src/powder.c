@@ -59,6 +59,28 @@ unsigned photons[YRES][XRES];
 float msvx[256], msvy[256], msrotation[256], newmsrotation[256];
 int msindex[256], msnum[256], numballs = 0, creatingsolid = 0, ms_rotation = 0;
 
+void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float *pGravX, float *pGravY)
+{
+	*pGravX = newtonGrav*gravx[(y/CELL)*(XRES/CELL)+(x/CELL)];
+	*pGravY = newtonGrav*gravy[(y/CELL)*(XRES/CELL)+(x/CELL)];
+	switch (gravityMode)
+	{
+		default:
+		case 0: //normal, vertical gravity
+			*pGravY += particleGrav;
+			break;
+		case 1: //no gravity
+			break;
+		case 2: //radial gravity
+			if (x-XCNTR != 0 || y-YCNTR != 0)
+			{
+				float pGravMult = particleGrav/sqrtf((x-XCNTR)*(x-XCNTR) + (y-YCNTR)*(y-YCNTR));
+				*pGravX -= pGravMult * (float)(x - XCNTR);
+				*pGravY -= pGravMult * (float)(y - YCNTR);
+			}
+	}
+}
+
 static int pn_junction_sprk(int x, int y, int pt)
 {
 	unsigned r = pmap[y][x];
@@ -135,7 +157,7 @@ void init_can_move()
 		//spark shouldn't move
 		can_move[PT_SPRK][t] = 0;
 		stkm_move = 0;
-		if (ptypes[t].properties&TYPE_LIQUID)
+		if (ptypes[t].properties & (TYPE_LIQUID | TYPE_GAS))
 			stkm_move = 2;
 		if (!t || t==PT_PRTO || t==PT_SPAWN || t==PT_SPAWN2)
 			stkm_move = 2;
@@ -190,6 +212,7 @@ void init_can_move()
 	can_move[PT_SPNG][PT_SPNG] = 3;
 	can_move[PT_RAZR][PT_CNCT] = 1;
 	can_move[PT_THDR][PT_THDR] = 2;
+	can_move[PT_EMBR][PT_EMBR] = 2;
 }
 
 /*
@@ -279,9 +302,6 @@ int try_move(int i, int x, int y, int nx, int ny)
 		return 1;
 
 	e = eval_move(parts[i].type, nx, ny, &r);
-
-	if ((r&0xFF)==PT_BOMB && parts[i].type==PT_BOMB && parts[i].tmp == 1)
-		e = 2;
 
 	/* half-silvered mirror */
 	if (!e && parts[i].type==PT_PHOT &&
@@ -1180,6 +1200,9 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		case PT_EXOT:
 			parts[i].life = 1000;
 			parts[i].tmp = 244;
+			break;
+		case PT_EMBR:
+			parts[i].life = 50;
 			break;
 		case PT_STKM:
 			if (player.spwn==0)
@@ -2741,7 +2764,31 @@ killed:
 			stagnant = parts[i].flags & FLAG_STAGNANT;
 			parts[i].flags &= ~FLAG_STAGNANT;
 
-			if (ptypes[t].properties & TYPE_ENERGY) {
+			if (t==PT_STKM || t==PT_STKM2 || t==PT_FIGH)
+			{
+				int nx, ny;
+				//head movement, let head pass through anything
+				parts[i].x += parts[i].vx;
+				parts[i].y += parts[i].vy;
+				nx = (int)((float)parts[i].x+0.5f);
+				ny = (int)((float)parts[i].y+0.5f);
+				if (ny!=y || nx!=x)
+				{
+					if ((pmap[y][x]>>8)==i) pmap[y][x] = 0;
+					else if ((photons[y][x]>>8)==i) photons[y][x] = 0;
+					if (nx<CELL || nx>=XRES-CELL || ny<CELL || ny>=YRES-CELL)
+					{
+						kill_part(i);
+						continue;
+					}
+					if (ptypes[t].properties & TYPE_ENERGY)
+						photons[ny][nx] = t|(i<<8);
+					else if (t)
+						pmap[ny][nx] = t|(i<<8);
+				}
+			}
+			else if (ptypes[t].properties & TYPE_ENERGY)
+			{
 				if (t == PT_PHOT) {
 					if (parts[i].flags&FLAG_SKIPMOVE)
 					{
@@ -3156,16 +3203,19 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 					parts[i].tmp2 = 0;
 				if (ptypes[t].properties & TYPE_ENERGY)
 					photons[y][x] = t|(i<<8);
-				// Particles are sometimes allowed to go inside INVS and FILT
-				// To make particles collide correctly when inside these elements, these elements must not overwrite an existing pmap entry from particles inside them
-				else if (!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT && !(ptypes[t].properties&PROP_MOVS) && (pmap[y][x]&0xFF) != PT_PINV))
-					pmap[y][x] = t|(i<<8);
-				else if ((pmap[y][x]&0xFF) == PT_PINV)
-					parts[pmap[y][x]>>8].tmp2 = t|(i<<8);
-				// Count number of particles at each location, for excess stacking check
-				// (does not include energy particles or THDR - currently no limit on stacking those)
-				if (t!=PT_THDR && t!=PT_PLSM)
-					pmap_count[y][x]++;
+				else
+				{
+					// Particles are sometimes allowed to go inside INVS and FILT
+					// To make particles collide correctly when inside these elements, these elements must not overwrite an existing pmap entry from particles inside them
+					if (!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT && !(ptypes[t].properties&PROP_MOVS) && (pmap[y][x]&0xFF) != PT_PINV))
+						pmap[y][x] = t|(i<<8);
+					else if ((pmap[y][x]&0xFF) == PT_PINV)
+						parts[pmap[y][x]>>8].tmp2 = t|(i<<8);
+					// Count number of particles at each location, for excess stacking check
+					// (does not include energy particles or THDR - currently no limit on stacking those)
+					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM)
+						pmap_count[y][x]++;
+				}
 			}
 			lastPartUsed = i;
 			NUM_PARTS ++;
