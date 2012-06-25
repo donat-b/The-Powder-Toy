@@ -3,15 +3,16 @@ This is a mod that basically does the same thing as the Lua script I made.
 It has a favorites menu under the Tools menu, that has all of the elements 
 you selected recently, including walls and tools. Ctrl+Shift+left clicking 
 an element in any menu will pin it permanently to the menu, even after you 
-exit the Powder Toy. Ctrl+Shift+right clicking an element will unpin an 
-element from the menu.
+exit the Powder Toy. Ctrl+Shift+right clicking an element will unpin it from 
+the menu.
 
-If you click the more button, a new menu will appear with 4 options. The HUD 
-button activates a better HUD that fixes some problems, has less useless 
-info, and has more decimal places in debug mode. The FIND button colors 
-whatever element you have selected red, and dims everything else. The INFO 
-button displays statistics about how long and how many times you have played 
-powder toy, and your average and highest FPS.
+If you click the more button, a new menu will appear with more options. The 
+HUD button activates a better HUD that fixes some problems, has less useless 
+info, and has more decimal places in debug mode. HUD's are customizable using 
+the HUD2 button. The FIND button colors whatever element you have selected 
+red, and dims everything else. Ctrl + F also activates it. The INFO button 
+displays statistics about how long and how many times you have played powder 
+toy, your average and highest FPS, and info about the current save.
 
 I will take any suggestions for new elements or other features, no matter 
 how hard they are to code, and if I like it, I will try to add it in.
