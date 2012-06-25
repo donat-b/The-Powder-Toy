@@ -138,6 +138,8 @@ int update_NEUT(UPDATE_FUNC_ARGS) {
 					create_part(r>>8, x+rx, y+ry, PT_WOOD);
 				else if ((r&0xFF)==PT_DUST && 5>(rand()%100))
 					part_change_type(r>>8, x+rx, y+ry, PT_FWRK);
+				else if ((r&0xFF)==PT_EMBR && 5>(rand()%100))
+					part_change_type(r>>8, x+rx, y+ry, PT_FWRK);
 				else if ((r&0xFF)==PT_FWRK && 5>(rand()%100))
 					parts[r>>8].ctype = PT_DUST;
 				else if ((r&0xFF)==PT_ACID && 5>(rand()%100))

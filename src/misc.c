@@ -475,7 +475,7 @@ void load_presets(void)
 		if(tmpobj = cJSON_GetObjectItem(root, "show_votes")) unlockedstuff |= 0x08;
 		if(tmpobj = cJSON_GetObjectItem(root, "EXPL_unlocked")) { unlockedstuff |= 0x10; ptypes[PT_EXPL].menu = 1; ptypes[PT_EXPL].enabled = 1; }
 		if(tmpobj = cJSON_GetObjectItem(root, "old_menu")) old_menu = 1;
-		if(tmpobj = cJSON_GetObjectItem(root, "save_as")) save_as = tmpobj->valueint;
+		//if(tmpobj = cJSON_GetObjectItem(root, "save_as")) save_as = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "drawgrav_enable")) drawgrav_enable = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "bframe")) bframe = tmpobj->valueint;
 

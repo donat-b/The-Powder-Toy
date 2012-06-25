@@ -285,6 +285,11 @@ again (still 80.4) which fixes some other bugs.
 Version 16.2 - 6/18/12
 Fixed saving saves publicly, remove ability to create colored text.
 
+Version 16.3 - 6/25/12
+Make Some lua console shortcuts less annoying. Fix compression during fusion 
+and with moving sponge. Fix moderator name colors, also, your name is yellow 
+and save creators is red. Update to latest source.
+
 
 
 
