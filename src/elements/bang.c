@@ -74,8 +74,6 @@ int update_BANG(UPDATE_FUNC_ARGS) {
 			if(!(rand()%15))
 			{
 				create_part(i, x, y, PT_EMBR);
-				parts[i].tmp = 0;
-				parts[i].life = 50;
 				parts[i].temp = restrict_flt((MAX_TEMP/3)+otemp, MIN_TEMP, MAX_TEMP);
 				parts[i].vx = rand()%20-10.0f;
 				parts[i].vy = rand()%20-10.0f;

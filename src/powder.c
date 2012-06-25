@@ -61,6 +61,7 @@ int msindex[256], msnum[256], numballs = 0, creatingsolid = 0, ms_rotation = 0;
 
 void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float *pGravX, float *pGravY)
 {
+	int angle;
 	*pGravX = newtonGrav*gravx[(y/CELL)*(XRES/CELL)+(x/CELL)];
 	*pGravY = newtonGrav*gravy[(y/CELL)*(XRES/CELL)+(x/CELL)];
 	switch (gravityMode)
@@ -70,6 +71,9 @@ void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float
 			*pGravY += particleGrav;
 			break;
 		case 1: //no gravity
+			angle = rand()%360;
+			*pGravX -= cosf(angle);
+			*pGravY -= sinf(angle);
 			break;
 		case 2: //radial gravity
 			if (x-XCNTR != 0 || y-YCNTR != 0)
@@ -1319,8 +1323,8 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 			}
 			if (t==PT_LIGH && (p == -2 || mod_save >= 9)) //Lightning direction is affected by both the gravity mode setting and newtonian gravity
 			{
-				float gx = gravx[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)];
-				float gy = gravy[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)];
+				float gx;
+				float gy;
 				if (p!=-2 && !lighting_recreate)
 				{
 					parts[i].life=30;
@@ -1329,24 +1333,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 					parts[i].temp=parts[i].life*150.0f; // temperature of the lighting shows the power of the lighting
 					lighting_recreate = 1;
 				}
-				switch (gravityMode)
-				{
-					default:
-					case 0:
-						gy += 1;
-						break;
-					case 1:
-						parts[i].tmp = rand()%360;
-						gx -= cos((float)parts[i].tmp);
-						gy -= sin((float)parts[i].tmp);
-						break;
-					case 2:
-						if (x-XCNTR != 0 || y-YCNTR != 0)
-						{
-							gx -= (x-XCNTR)/sqrt(pow((float)(x-XCNTR),2)+pow((float)(y-YCNTR),2));
-							gy -= (y-YCNTR)/sqrt(pow((float)(x-XCNTR),2)+pow((float)(y-YCNTR),2));
-						}
-				}
+				get_gravity_field(x, y, 1.0f, 1.0f, &gx, &gy);
 				parts[i].tmp = ((int)(atan2(gx, gy)*(180.0f/M_PI)+270))+rand()%40-20;
 				parts[i].tmp2 = 4;
 			}
@@ -2690,9 +2677,7 @@ killed:
 					}
 					else
 					{
-						create_part(i, x, y, PT_BOMB);
-						parts[i].tmp = 1;
-						parts[i].life = 50;
+						create_part(i, x, y, PT_EMBR);
 						parts[i].temp = MAX_TEMP;
 						parts[i].vx = rand()%20-10.0f;
 						parts[i].vy = rand()%20-10.0f;
