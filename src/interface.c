@@ -4652,7 +4652,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	uri_4 = malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
 	strcpy(uri_4, "http://" SERVER "/Browse/Comments.json?ID=");
 	strcaturl(uri_4, save_id);
-	strappend(uri_4, "&Start=1&Count=10");
+	strappend(uri_4, "&Start=1&Count=20");
 
 	http = http_async_req_start(http, uri, NULL, 0, 1);
 	http_2 = http_async_req_start(http_2, uri_2, NULL, 0, 1);
@@ -4776,7 +4776,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			{
 				int i;
 				cJSON *root, *commentobj, *tmpobj;
-				for (i=comment_page*10;i<comment_page*10+10&&i<NUM_COMMENTS;i++)
+				for (i=comment_page*20;i<comment_page*20+20&&i<NUM_COMMENTS;i++)
 				{
 					if (info->comments[i]) { free(info->comments[i]); info->comments[i] = NULL; }
 					if (info->commentauthors[i]) { free(info->commentauthors[i]); info->commentauthors[i] = NULL; }
@@ -4790,9 +4790,9 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						info->comment_count = info->comment_count + cJSON_GetArraySize(root);
 					if (info->comment_count > NUM_COMMENTS)
 						info->comment_count = NUM_COMMENTS;
-					for (i = comment_page*10; i < info->comment_count; i++)
+					for (i = comment_page*20; i < info->comment_count; i++)
 					{
-						commentobj = cJSON_GetArrayItem(root, i%10);
+						commentobj = cJSON_GetArrayItem(root, i%20);
 						if(commentobj){
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "Username")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "UserID")) && tmpobj->type == cJSON_String) { info->commentauthorIDs[i] = (char*)calloc(16,sizeof(char*)); strncpy(info->commentauthorIDs[i], tmpobj->valuestring, 16); }
@@ -4924,7 +4924,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					{
 						comment_page++;
 						uri_4 = malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
-						sprintf(uri_4,"http://%s/Browse/Comments.json?ID=%s&Start=%i&Count=10",SERVER,save_id,comment_page*10+1,comment_page);
+						sprintf(uri_4,"http://%s/Browse/Comments.json?ID=%s&Start=%i&Count=20",SERVER,save_id,comment_page*20+1,comment_page);
 						http_4 = http_async_req_start(http_4, uri_4, NULL, 0, 1);
 						http_last_use_4 = time(NULL);
 						free(uri_4);
