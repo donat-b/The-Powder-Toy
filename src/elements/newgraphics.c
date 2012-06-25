@@ -21,7 +21,7 @@ int graphics_QRTZ(GRAPHICS_FUNC_ARGS) //QRTZ and PQRT
 	int t = cpart->type, z = cpart->tmp - 5;//speckles!
 	if (cpart->temp>(ptransitions[t].thv-800.0f))//hotglow for quartz
 	{
-		float frequency = 3.1415/(2*ptransitions[t].thv-(ptransitions[t].thv-800.0f));
+		float frequency = M_PI/(2*ptransitions[t].thv-(ptransitions[t].thv-800.0f));
 		int q = (int)((cpart->temp>ptransitions[t].thv)?ptransitions[t].thv-(ptransitions[t].thv-800.0f):cpart->temp-(ptransitions[t].thv-800.0f));
 		*colr += (int)(sin(frequency*q) * 226 + (z * 16));
 		*colg += (int)(sin(frequency*q*4.55 +3.14) * 34 + (z * 16));
@@ -558,7 +558,7 @@ int graphics_COAL(GRAPHICS_FUNC_ARGS) //Both COAL and Broken Coal
 
 	if((cpart->temp-295.15f) > 300.0f-200.0f)
 	{
-		float frequency = 3.1415f/(2*300.0f-(300.0f-200.0f));
+		float frequency = M_PI/(2*300.0f-(300.0f-200.0f));
 		int q = (int)(((cpart->temp-295.15f)>300.0f)?300.0f-(300.0f-200.0f):(cpart->temp-295.15f)-(300.0f-200.0f));
 
 		*colr += (int)(sin(frequency*q) * 226);

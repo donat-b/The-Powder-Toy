@@ -1296,7 +1296,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 			}
 			if (t==PT_ELEC)
 			{
-				float a = (rand()%360)*3.14159f/180.0f;
+				float a = (rand()%360)*M_PI/180.0f;
 				parts[i].life = 680;
 				parts[i].vx = 2.0f*cosf(a);
 				parts[i].vy = 2.0f*sinf(a);
@@ -1304,7 +1304,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 			if (t==PT_NEUT)
 			{
 				float r = (rand()%128+128)/127.0f;
-				float a = (rand()%360)*3.14159f/180.0f;
+				float a = (rand()%360)*M_PI/180.0f;
 				parts[i].life = rand()%480+480;
 				parts[i].vx = r*cosf(a);
 				parts[i].vy = r*sinf(a);
@@ -2766,26 +2766,8 @@ killed:
 
 			if (t==PT_STKM || t==PT_STKM2 || t==PT_FIGH)
 			{
-				int nx, ny;
 				//head movement, let head pass through anything
-				parts[i].x += parts[i].vx;
-				parts[i].y += parts[i].vy;
-				nx = (int)((float)parts[i].x+0.5f);
-				ny = (int)((float)parts[i].y+0.5f);
-				if (ny!=y || nx!=x)
-				{
-					if ((pmap[y][x]>>8)==i) pmap[y][x] = 0;
-					else if ((photons[y][x]>>8)==i) photons[y][x] = 0;
-					if (nx<CELL || nx>=XRES-CELL || ny<CELL || ny>=YRES-CELL)
-					{
-						kill_part(i);
-						continue;
-					}
-					if (ptypes[t].properties & TYPE_ENERGY)
-						photons[ny][nx] = t|(i<<8);
-					else if (t)
-						pmap[ny][nx] = t|(i<<8);
-				}
+				move(i, x, y, parts[i].x+parts[i].vx, parts[i].y+parts[i].vy);
 			}
 			else if (ptypes[t].properties & TYPE_ENERGY)
 			{
@@ -3289,13 +3271,13 @@ void update_moving_solids()
 		{
 			msrotation[bn] = 0;
 		}
-		else if (msrotation[bn] > 6.283185307179586476925286766559)
+		else if (msrotation[bn] > 2*M_PI)
 		{
-			msrotation[bn] -= 6.283185307179586476925286766559f;
+			msrotation[bn] -= 2*M_PI;
 		}
-		else if (msrotation[bn] < -6.283185307179586476925286766559)
+		else if (msrotation[bn] < -2*M_PI)
 		{
-			msrotation[bn] += 6.283185307179586476925286766559f;
+			msrotation[bn] += 2*M_PI;
 		}
 	}
 	for (i=0; i<=parts_lastActiveIndex; i++)
@@ -3312,14 +3294,14 @@ void update_moving_solids()
 					float angle = atan((float)parts[i].pavg[1]/parts[i].pavg[0]);
 					float distance = sqrt(pow((float)parts[i].pavg[0],2)+pow((float)parts[i].pavg[1],2));
 					if (parts[i].pavg[0] < 0)
-						angle += 3.1415926535f;
+						angle += M_PI;
 					nx = parts[msindex[bn]-1].x + distance*cosf(angle+msrotation[bn]);
 					ny = parts[msindex[bn]-1].y + distance*sinf(angle+msrotation[bn]);
 					move(i,(int)(parts[i].x+.5f),(int)(parts[i].y+.5f),nx,ny);
 				}
 				else if (parts[i].pavg[1] != 0)
 				{
-					float angle = 3.1415926535897932384626433832795f/2;
+					float angle = M_PI/2;
 					nx = parts[msindex[bn]-1].x + parts[i].pavg[1]*cosf(angle+msrotation[bn]);
 					if (parts[i].pavg[1] < 0)
 						ny = parts[msindex[bn]-1].y + parts[i].pavg[1]*sinf(angle+msrotation[bn]);

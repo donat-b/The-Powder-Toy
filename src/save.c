@@ -900,7 +900,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 					}
 					if ((ptypes[partsptr[i].type].properties&PROP_MOVS) && !partsptr[i].pavg[0] && !partsptr[i].pavg[1] && i == msindex[partsptr[i].tmp2]-1)
 					{
-						partsData[partsDataLen++] = (int)((msrotation[partsptr[i].tmp2] + 6.283185307179586476925286766559)*20);
+						partsData[partsDataLen++] = (int)((msrotation[partsptr[i].tmp2] + 2*M_PI)*20);
 					}
 				}
 				
@@ -1823,7 +1823,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						{
 							msindex[partsptr[newIndex].tmp2] = newIndex+1;
 							if(i >= partsDataLen) goto fail;
-							msrotation[partsptr[newIndex].tmp2+1] = partsData[i++]/20.0f - 6.283185307179586476925286766559;
+							msrotation[partsptr[newIndex].tmp2+1] = partsData[i++]/20.0f - 2*M_PI;
 						}
 						if (partsptr[newIndex].pavg[0] > 32768)
 							partsptr[newIndex].pavg[0] -= 65536;
