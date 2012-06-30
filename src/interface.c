@@ -32,6 +32,9 @@
 #include <interface.h>
 #include <misc.h>
 #include <console.h>
+#ifdef LUACONSOLE
+#include <luaconsole.h>
+#endif
 #include "gravity.h"
 #include <images.h>
 #if defined(WIN32) && !defined(__GNUC__)
@@ -2773,9 +2776,23 @@ void menu_draw_text(int h, int i)
 	{
 		char favtext[512] = "";
 		sprintf(favtext, fav[h-FAV_START].description);
+		if (h == FAV_HUD)
+		{
+			if (realistic)
+				strappend(favtext, "alternate HUD");
+			else
+				strappend(favtext, "original HUD");
+		}
+		else if (h == FAV_ROTATE)
+		{
+			if (ms_rotation)
+				strappend(favtext, "on");
+			else
+				strappend(favtext, "off");
+		}
 		if (h == FAV_HEAT)
 		{
-			if (heatmode == 0)
+			if (!heatmode)
 				strappend(favtext, "normal: -273.15C - 9725.85C");
 			else if (heatmode == 1)
 				sprintf(favtext, "%s automatic: %iC - %iC",fav[h-FAV_START].description,lowesttemp-273,highesttemp-273);
@@ -2801,7 +2818,7 @@ void menu_draw_text(int h, int i)
 		}
 		else if (h == FAV_AUTOSAVE)
 		{
-			if (autosave == 0)
+			if (!autosave)
 				strappend(favtext, "off");
 			else
 			{
@@ -2812,10 +2829,17 @@ void menu_draw_text(int h, int i)
 		}
 		else if (h == FAV_REAL)
 		{
-			if (realistic == 0)
-				strappend(favtext, "off");
-			else
+			if (realistic)
 				strappend(favtext, "on");
+			else
+				strappend(favtext, "off");
+		}
+		else if (h == FAV_FIND2)
+		{
+			if (finding &0x8)
+				strappend(favtext, "on");
+			else
+				strappend(favtext, "off");
 		}
 		drawtext(vid_buf, XRES-textwidth(favtext)-BARSIZE, sy-10, favtext, 255, 255, 255, dae*5);
 	}
@@ -2869,10 +2893,16 @@ void menu_select_element(int b, int h)
 				}
 			}
 			else if (h == FAV_FIND)
-				if (finding)
-					finding = 0;
+			{
+				if (finding & 0x4)
+					finding &= 0x8;
+				else if (finding &	0x2)
+					finding |= 0x4;
+				else if (finding &	0x1)
+					finding |= 0x2;
 				else
-					finding = sl;
+					finding |= 0x1;
+			}
 			else if (h == FAV_INFO)
 				drawinfo = !drawinfo;
 			else if (h == FAV_ROTATE)
@@ -2896,7 +2926,11 @@ void menu_select_element(int b, int h)
 			else if (h == FAV_CUSTOMHUD)
 				active_menu = SC_HUD;
 			else if (h == FAV_AUTOSAVE)
-				autosave = atoi(input_ui(vid_buf,"autosave","Input number of seconds between saves, 0 = off","",""));
+			{
+				autosave = atoi(input_ui(vid_buf,"Autosave","Input number of seconds between saves, 0 = off","",""));
+				if (autosave < 10)
+					autosave = 0;
+			}
 			else if (h == FAV_REAL)
 			{
 				realistic = !realistic;
@@ -2904,6 +2938,13 @@ void menu_select_element(int b, int h)
 					ptypes[PT_FIRE].hconduct = 1;
 				else
 					ptypes[PT_FIRE].hconduct = 88;
+			}
+			else if (h == FAV_FIND2)
+			{
+				if (finding & 0x8)
+					finding &= ~0x8;
+				else
+					finding |= 0x8;
 			}
 			else if (h == FAV_SECR)
 			{
@@ -2992,8 +3033,6 @@ void menu_select_element(int b, int h)
 			{
 				sl = su = h;
 				dae = 51;
-				if (finding)
-					finding = h;
 			}
 		}
 	}

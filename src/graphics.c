@@ -1637,7 +1637,7 @@ void draw_air(pixel *vid)
 					c  = PIXRGB(r, g, b);
 				}
 			}
-			if (finding)
+			if (finding && !(finding & 0x8))
 			{
 				c = PIXRGB(PIXR(c)/10,PIXG(c)/10,PIXB(c)/10);
 			}
@@ -2247,29 +2247,39 @@ void render_parts(pixel *vid)
 					}
 				}
 
-				if (finding && (parts[i].type == finding || (finding%256 == PT_LIFE && finding == PT_LIFE+parts[i].ctype*256)))
+				if (finding && !(finding & 0x8)) //When finding original GOL, all LIFE is highlighted. This is now a feature, not a bug.
 				{
-					colr = 255;
-					colg = 0;
-					colb = 0;
-					cola = 255;
-					firer = 255;
-					fireg = 0;
-					fireb = 0;
-					cola = 255;
-				}
-				else if (finding)
-				{
-					colr /= 10;
-					colg /= 10;
-					colb /= 10;
-					firer /= 5;
-					fireg /= 5;
-					fireb /= 5;
-					if (colr + colg + colg < 10)
-						colr = colg = colb = 20;
-					if (firer + fireg + fireg < 35)
-						firer = fireg = fireb = 65;
+					if ((finding & 0x1) && (parts[i].type == sl || (parts[i].type == PT_LIFE && sl == PT_LIFE+parts[i].ctype*256)))
+					{
+						colr = firer = 255;
+						colg = colb = fireg = fireb = 0;
+						cola = firea = 255;
+					}
+					else if ((finding & 0x2) && (parts[i].type == sr || (parts[i].type == PT_LIFE && sr == PT_LIFE+parts[i].ctype*256)))
+					{
+						colb = fireb = 255;
+						colr = colg = firer = fireg = 0;
+						cola = firea = 255;
+					}
+					else if ((finding & 0x4) && (parts[i].type == SLALT || (parts[i].type == PT_LIFE && SLALT == PT_LIFE+parts[i].ctype*256)))
+					{
+						colg = fireg = 255;
+						colr = colb = firer = fireb = 0;
+						cola = firea = 255;
+					}
+					else
+					{
+						colr /= 10;
+						colg /= 10;
+						colb /= 10;
+						firer /= 5;
+						fireg /= 5;
+						fireb /= 5;
+						if (colr + colg + colg < 10)
+							colr = colg = colb = 20;
+						if (firer + fireg + fireg < 35)
+							firer = fireg = fireb = 65;
+						}
 				}
 
 				if (colour_mode & COLOUR_GRAD)
@@ -3267,6 +3277,37 @@ void render_after(pixel *part_vbuf, pixel *vid_buf)
 	if(vid_buf && ngrav_enable && (display_mode & DISPLAY_WARP))
 		render_gravlensing(part_vbuf, vid_buf);
 #endif
+	if (finding & 0x8)
+		draw_find();
+}
+
+void draw_find() //Find just like how my lua script did it, it will find everything and show it's exact spot, and not miss things under stacked particles
+{
+	int i, x, y;
+	if (finding == 8)
+		return;
+	fillrect(vid_buf, -1, -1, XRES+1, YRES+1, 0, 0, 0, 230); //Dim everything
+	for (i = 0; i <= parts_lastActiveIndex; i++) //Color particles
+	{
+		if ((finding & 0x1) && parts[i].type == sl)
+			drawpixel(vid_buf, (int)(parts[i].x+.5f), (int)(parts[i].y+.5f), 255, 0, 0, 255);
+		else if ((finding & 0x2) && parts[i].type == sr)
+			drawpixel(vid_buf, (int)(parts[i].x+.5f), (int)(parts[i].y+.5f), 0, 0, 255, 255);
+		else if ((finding & 0x4) && parts[i].type == SLALT)
+			drawpixel(vid_buf, (int)(parts[i].x+.5f), (int)(parts[i].y+.5f), 0, 255, 0, 255);
+	}
+	for (y=0; y<YRES/CELL; y++) //Color walls
+	{
+		for (x=0; x<XRES/CELL; x++)
+		{
+			if ((finding & 0x1) && bmap[y][x] == sl-100)
+				fillrect(vid_buf, x*CELL-1, y*CELL-1, CELL+1, CELL+1, 255, 0, 0, 255);
+			else if ((finding & 0x2) && bmap[y][x] == sr-100)
+				fillrect(vid_buf, x*CELL-1, y*CELL-1, CELL+1, CELL+1, 0, 0, 255, 255);
+			else if ((finding & 0x4) && bmap[y][x] == SLALT-100)
+				fillrect(vid_buf, x*CELL-1, y*CELL-1, CELL+1, CELL+1, 0, 255, 0, 255);
+		}
+	}
 }
 
 void draw_walls(pixel *vid)
@@ -3286,15 +3327,28 @@ void draw_walls(pixel *vid)
 				pc = wtypes[wt].colour;
 				gc = wtypes[wt].eglow;
 
-				if (wt+UI_ACTUALSTART+100 == finding)
+				if (finding)
 				{
-					pc = PIXRGB(255,0,0);
-					gc = PIXRGB(255,0,0);
-				}
-				else if (finding)
-				{
-					pc = PIXRGB(PIXR(pc)/10,PIXG(pc)/10,PIXB(pc)/10);
-					gc = PIXRGB(PIXR(gc)/10,PIXG(gc)/10,PIXB(gc)/10);
+					if ((finding & 0x1) && wt+UI_ACTUALSTART+100 == sl)
+					{
+						pc = PIXRGB(255,0,0);
+						gc = PIXRGB(255,0,0);
+					}
+					else if ((finding & 0x2) && wt+UI_ACTUALSTART+100 == sr)
+					{
+						pc = PIXRGB(0,0,255);
+						gc = PIXRGB(0,0,255);
+					}
+					else if ((finding & 0x4) && wt+UI_ACTUALSTART+100 == SLALT)
+					{
+						pc = PIXRGB(0,255,0);
+						gc = PIXRGB(0,255,0);
+					}
+					else if (!(finding &0x8))
+					{
+						pc = PIXRGB(PIXR(pc)/10,PIXG(pc)/10,PIXB(pc)/10);
+						gc = PIXRGB(PIXR(gc)/10,PIXG(gc)/10,PIXB(gc)/10);
+					}
 				}
 
 				// standard wall patterns
@@ -3720,7 +3774,7 @@ void render_fire(pixel *vid)
 					for (x=-CELL; x<2*CELL; x++)
 					{
 						a = fire_alpha[y+CELL][x+CELL];
-						if (finding)
+						if (finding && !(finding & 0x8))
 							a /= 2;
 						addpixel(vid, i*CELL+x, j*CELL+y, r, g, b, a);
 					}

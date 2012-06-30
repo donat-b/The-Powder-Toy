@@ -401,7 +401,7 @@ void clear_sim(void)
 	memset(msvy, 0, sizeof(msvy));
 	memset(msrotation, 0, sizeof(msrotation));
 	memset(newmsrotation, 0, sizeof(newmsrotation));
-	finding = 0;
+	finding &= 0x8;
 	mod_save = MOD_SAVE_VERSION;
 	if(bframe)
 		draw_bframe();
@@ -1417,12 +1417,26 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='f')
 			{
-				if ((sdl_mod & (KMOD_CTRL)))
+				if ((sdl_mod & (KMOD_LCTRL)))
 				{
-					if (!finding)
-						finding = sl;
+					if (!(finding & 0x1))
+						finding |= 0x1;
 					else
-						finding = 0;
+						finding &= ~0x1;
+				}
+				else if ((sdl_mod & (KMOD_RCTRL)))
+				{
+					if (!(finding & 0x2))
+						finding |= 0x2;
+					else
+						finding &= ~0x2;
+				}
+				else if ((sdl_mod & (KMOD_SHIFT)))
+				{
+					if (!(finding & 0x4))
+						finding |= 0x4;
+					else
+						finding &= ~0x4;
 				}
 				else
 					framerender = 1;

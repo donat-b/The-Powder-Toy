@@ -269,8 +269,9 @@
 #define FAV_CUSTOMHUD 309
 #define FAV_AUTOSAVE 310
 #define FAV_REAL 311
-#define FAV_SECR 312
-#define FAV_END 313
+#define FAV_FIND2 312
+#define FAV_SECR 313
+#define FAV_END 314
 
 #define R_TEMP 22
 #define MAX_TEMP 9999
@@ -807,16 +808,17 @@ static fav_menu fav[] =
 {
 	{"MORE", PIXPACK(0xFF7F00), "Display different options"},
 	{"BACK", PIXPACK(0xFF7F00), "Go back to the favorites menu"},
-	{"HUD",  PIXPACK(0x20D8FF), "Left click to toggle a different HUD"},
+	{"HUD",  PIXPACK(0x20D8FF), "Left click to toggle a different HUD. Now using the "},
 	{"FIND", PIXPACK(0xFF0000), "Finds the currently selected element on the screen and temporarily colors it red"},
 	{"INFO", PIXPACK(0x00FF00), "Displays statistics and records about The Powder Toy. Left click to toggle display"},
-	{"SPIN", PIXPACK(0x0010A0), "Makes moving solids rotate"},
-	{"HEAT", PIXPACK(0xFF00D4), "Changes heat display mode. current mode: "},
+	{"SPIN", PIXPACK(0x0010A0), "Makes moving solids rotate. Currently "},
+	{"HEAT", PIXPACK(0xFF00D4), "Changes heat display mode. Current mode: "},
 	{"SAVE", PIXPACK(0x2B1AC9), "Makes saves/stamps compatible with: "},
 	{"LUA",  PIXPACK(0xFFFF00), "Add Lua code to a save"},
 	{"HUD2", PIXPACK(0x20D8FF), "Make a custom HUD"},
-	{"AUTO", PIXPACK(0xDF1BFF), "Sets how often your work is autosaved, currently: "},
-	{"REAL", PIXPACK(0xFF6800), "Turns on realistic mode, changes heat simulation/movement a little. Now "},
+	{"AUTO", PIXPACK(0xDF1BFF), "Sets how often your work is autosaved. Currently: "},
+	{"REAL", PIXPACK(0xFF6800), "Turns on realistic heat mode, by savask. Now "},
+	{"FND2", PIXPACK(0xDF0000), "Alternate find mode, looks different but may find things better. Now "},
 	{"", PIXPACK(0x000000), ""}
 };
 

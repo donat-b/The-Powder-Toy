@@ -284,7 +284,7 @@ void hud_text_left(float FPSB2, int it)
 		strappend(uitext, "[REPLACE MODE] ");
 	if (sdl_mod&(KMOD_CAPS) && hud_current[8])
 		strappend(uitext, "[CAPS LOCK] ");
-	if (finding && hud_current[8])
+	if ((finding && finding != 8) && hud_current[8])
 		strappend(uitext, "[FIND] ");
 	if (GRID_MODE && hud_current[9])
 	{

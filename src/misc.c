@@ -26,6 +26,7 @@
 #include "interface.h"
 #include "graphics.h"
 #include "powder.h"
+#include "gravity.h"
 #include <icondoc.h>
 #include <update.h>
 #if defined WIN32
@@ -265,6 +266,8 @@ void save_presets(int do_update)
 	cJSON_AddNumberToObject(root, "save_as", save_as);
 	cJSON_AddNumberToObject(root, "drawgrav_enable", drawgrav_enable);
 	cJSON_AddNumberToObject(root, "bframe", bframe);
+	if (finding & 0x8)
+		cJSON_AddNumberToObject(root, "alt_find", 1);
 	
 	outputdata = cJSON_Print(root);
 	cJSON_Delete(root);
@@ -478,6 +481,7 @@ void load_presets(void)
 		if(tmpobj = cJSON_GetObjectItem(root, "save_as")) save_as = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "drawgrav_enable")) drawgrav_enable = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "bframe")) bframe = tmpobj->valueint;
+		if(tmpobj = cJSON_GetObjectItem(root, "alt_find")) finding |= 0x8;
 
 		cJSON_Delete(root);
 		free(prefdata);

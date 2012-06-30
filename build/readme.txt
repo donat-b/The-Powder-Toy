@@ -284,7 +284,12 @@ again (still 80.4) which fixes some other bugs.
 Version 16.2 - 6/18/12
 Fixed saving saves publicly, remove ability to create colored text.
 
-
+Next version
+Many minor graphical fixes to the HUD. FIND can find 3 things at once. Left 
+selected element is red, right selected is blue, and alternate selected is 
+green. LCtrl/RCtrl/Shift + F to toggle these. Also, a new FIND2 button which 
+toggles an alternate find mode more similar to my lua script, where first 
+everything is dimmed, and then a dot is put over what your're finding.
 
 
 Bugs:
