@@ -4520,7 +4520,7 @@ int report_ui(pixel* vid_buf, char *save_id)
 
 int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 {
-	int b=1,bq,mx,my,ca=0,thumb_w,thumb_h,active=0,active_2=0,active_3=0,active_4=0,cc=0,ccy=0,cix=0,hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1,comment_scroll=0,comment_page=0;
+	int b=1,bq,mx,my,ca=0,thumb_w,thumb_h,active=0,active_2=0,active_3=0,active_4=0,cc=0,ccy=0,cix=0,hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1,comment_scroll=0,comment_page=0,redraw_comments=1;
 	int nyd,nyu,ry,lv;
 	float ryf;
 
@@ -4802,6 +4802,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						}
 					}
 					cJSON_Delete(root);
+					redraw_comments = 1;
 				}
 			}
 			if (comment_data)
@@ -4878,9 +4879,10 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				authoritah = svf_login && (!strcmp(info->author, svf_user) || svf_admin || svf_mod);
 				memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 			}
-			if (info_ready) // draw the comments
+			if (info_ready && redraw_comments) // draw the comments
 			{
 				ccy = 0;
+				clearrect(vid_buf, 50+(XRES/2)+1, 50, XRES+BARSIZE-100-((XRES/2)+1), YRES+MENUSIZE-100);
 				for (cc=0; cc<info->comment_count; cc++) {
 					if ((ccy + 72 + comment_scroll + ((textwidth(info->comments[cc])/(XRES+BARSIZE-100-((XRES/2)+1)-20)))*12)<(YRES+MENUSIZE-56)) { //Try not to draw off the screen
 						if (ccy+comment_scroll<0) //Try not to draw above the screen either
@@ -4931,12 +4933,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						active_4 = 1;
 					}
 				}
-				if (sdl_wheel)
-				{
-					comment_scroll += 2*sdl_wheel;
-					if (comment_scroll > 0)
-						comment_scroll = 0;
-				}
+				memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
+				redraw_comments = 0;
 			}
 			if (info_ready && svf_login) {
 				//Render the comment box.
@@ -5078,6 +5076,25 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					execute_submit(vid_buf, save_id, ed.str);
 					ed.str[0] = 0;
 				}
+			}
+			if (sdl_wheel)
+			{
+				comment_scroll += 3*sdl_wheel;
+				if (comment_scroll > 0)
+					comment_scroll = 0;
+				redraw_comments = 1;
+			}
+			if (sdl_key=='[')
+			{
+				comment_scroll += 10;
+				if (comment_scroll > 0)
+					comment_scroll = 0;
+				redraw_comments = 1;
+			}
+			if (sdl_key==']')
+			{
+				comment_scroll -= 10;
+				redraw_comments = 1;
 			}
 			//If mouse was clicked outsite of the window bounds.
 			if (!(mx>50 && my>50 && mx<XRES+BARSIZE-50 && my<YRES+MENUSIZE-50) && b && !queue_open && my<YRES+MENUSIZE-21) {
@@ -6120,8 +6137,8 @@ const static struct command_match matches [] = {
 
 char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 	int mx,my,b,cc,ci = -1,i,j;
-	char *match, *str;
-	pixel *old_buf=calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
+	char *match = 0, *str, laststr[256] = "";
+	pixel *old_buf=(pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	command_history *currentcommand;
 	command_history *currentcommand2;
 	ui_edit ed;
@@ -6210,23 +6227,27 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 				break;
 			}
 		}
-		str = ed.str;
-		for (j = 0; j < sizeof(matches)/sizeof(*matches); j++)
+		if (strcmp(laststr,ed.str))
 		{
-			match = 0;
-			while (strstr(str,matches[j].min_match)) //find last match
+			str = ed.str;
+			for (j = 0; j < sizeof(matches)/sizeof(*matches); j++)
 			{
-				match = strstr(str,matches[j].min_match);
-				str = match + 1;
-			}
-			if (match && !strstr(str-1,matches[j].command) && strstr(matches[j].command,match) && strlen(ed.str)-strlen(match)+strlen(matches[j].command) < 256) //if match found
-			{
-				drawtext(vid_buf,ed.x+textwidth(ed.str)-textwidth(match),ed.y,matches[j].command,255,255,255,127);
-				break;
-			}
-			else
 				match = 0;
+				while (strstr(str,matches[j].min_match)) //find last match
+				{
+					match = strstr(str,matches[j].min_match);
+					str = match + 1;
+				}
+				if (match && !strstr(str-1,matches[j].command) && strstr(matches[j].command,match) && strlen(ed.str)-strlen(match)+strlen(matches[j].command) < 256) //if match found
+				{
+					break;
+				}
+				else
+					match = 0;
+			}
 		}
+		if (match)
+			drawtext(vid_buf,ed.x+textwidth(ed.str)-textwidth(match),ed.y,matches[j].command,255,255,255,127);
 
 		//if(error && ed.str[0]=='\0')
 		//drawtext(vid_buf, 20, 207, error, 255, 127, 127, 200);
@@ -6235,6 +6256,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 		else
 			drawtext(vid_buf, 5, 207, "...", 255, 255, 255, 240);
 
+		strncpy(laststr, ed.str, 256);
 		ui_edit_draw(vid_buf, &ed);
 		ui_edit_process(mx, my, b, &ed);
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
