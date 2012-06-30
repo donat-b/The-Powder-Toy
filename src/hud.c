@@ -44,11 +44,11 @@ void hud_text_right(int x, int y)
 			{
 				if ((cr&0xFF)==PT_LIFE && parts[cr>>8].ctype>=0 && parts[cr>>8].ctype<NGOLALT)
 				{
-					sprintf(nametext, "%s (%s),", ptypes[cr&0xFF].name, gmenu[parts[cr>>8].ctype].name);
+					sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, gmenu[parts[cr>>8].ctype].name);
 				}
 				else if (hud_current[13] && (cr&0xFF)==PT_LAVA && parts[cr>>8].ctype > 0 && parts[cr>>8].ctype < PT_NUM )
 				{
-					sprintf(nametext, "Molten %s,", ptypes[parts[cr>>8].ctype].name);
+					sprintf(nametext, "Molten %s, ", ptypes[parts[cr>>8].ctype].name);
 				}
 				else if (hud_current[14] && (cr&0xFF)==PT_PIPE && (parts[cr>>8].tmp&0xFF) > 0 && (parts[cr>>8].tmp&0xFF) < PT_NUM )
 				{
@@ -58,7 +58,7 @@ void hud_text_right(int x, int y)
 					for (ix = 0; lowername[ix]; ix++)
 						lowername[ix] = tolower(lowername[ix]);
 
-					sprintf(nametext, "Pipe with %s,", lowername);
+					sprintf(nametext, "Pipe with %s, ", lowername);
 				}
 				else if (hud_current[11])
 				{
@@ -70,63 +70,63 @@ void hud_text_right(int x, int y)
 					if (!hud_current[12] && (tctype>=PT_NUM || tctype<0 || (cr&0xFF)==PT_PHOT))
 						tctype = 0;
 					if (tctype >= 0 && tctype < PT_NUM)
-						sprintf(nametext, "%s (%s),", ptypes[cr&0xFF].name, ptypes[tctype].name);
+						sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, ptypes[tctype].name);
 					else
-						sprintf(nametext, "%s (%d),", ptypes[cr&0xFF].name, tctype);
+						sprintf(nametext, "%s (%d), ", ptypes[cr&0xFF].name, tctype);
 				}
 				else
 				{
-					sprintf(nametext, "%s,", ptypes[cr&0xFF].name);
+					sprintf(nametext, "%s, ", ptypes[cr&0xFF].name);
 				}
 			}
 			else if (hud_current[11])
 			{
 				if (parts[cr>>8].ctype > 0 && parts[cr>>8].ctype < PT_NUM)
-					sprintf(nametext," Ctype: %s", ptypes[parts[cr>>8].ctype].name);
+					sprintf(nametext,"Ctype: %s ", ptypes[parts[cr>>8].ctype].name);
 				else if (hud_current[12])
-					sprintf(nametext," Ctype: %d", parts[cr>>8].ctype);
+					sprintf(nametext,"Ctype: %d ", parts[cr>>8].ctype);
 			}
 			else
 				sprintf(nametext,"");
 			strncpy(heattext,nametext,50);
 			if (hud_current[15])
 			{
-				sprintf(tempstring," Temp: %0.*f C,",hud_current[18],parts[cr>>8].temp-273.15f);
+				sprintf(tempstring,"Temp: %0.*f C, ",hud_current[18],parts[cr>>8].temp-273.15f);
 				strappend(heattext,tempstring);
 			}
 			if (hud_current[16])
 			{
-				sprintf(tempstring," Temp: %0.*f F,",hud_current[18],((parts[cr>>8].temp-273.15f)*9/5)+32);
+				sprintf(tempstring,"Temp: %0.*f F, ",hud_current[18],((parts[cr>>8].temp-273.15f)*9/5)+32);
 				strappend(heattext,tempstring);
 			}
 			if (hud_current[17])
 			{
-				sprintf(tempstring," Temp: %0.*f K,",hud_current[18],parts[cr>>8].temp);
+				sprintf(tempstring,"Temp: %0.*f K, ",hud_current[18],parts[cr>>8].temp);
 				strappend(heattext,tempstring);
 			}
 			if (hud_current[19])
 			{
-				sprintf(tempstring," Life: %d,",parts[cr>>8].life);
+				sprintf(tempstring,"Life: %d, ",parts[cr>>8].life);
 				strappend(heattext,tempstring);
 			}
 			if (hud_current[20])
 			{
-				sprintf(tempstring," Tmp: %d,",parts[cr>>8].tmp);
+				sprintf(tempstring,"Tmp: %d, ",parts[cr>>8].tmp);
 				strappend(heattext,tempstring);
 			}
 			if (hud_current[21])
 			{
-				sprintf(tempstring," Tmp2: %d,",parts[cr>>8].tmp2);
+				sprintf(tempstring,"Tmp2: %d, ",parts[cr>>8].tmp2);
 				strappend(heattext,tempstring);
 			}
 			if (hud_current[22])
 			{
-				sprintf(tempstring," X: %0.*f, Y: %0.*f,",hud_current[23],parts[cr>>8].x,hud_current[23],parts[cr>>8].y);
+				sprintf(tempstring,"X: %0.*f, Y: %0.*f, ",hud_current[23],parts[cr>>8].x,hud_current[23],parts[cr>>8].y);
 				strappend(heattext,tempstring);
 			}
 			if (hud_current[24])
 			{
-				sprintf(tempstring," Vx: %0.*f, Vy: %0.*f,",hud_current[25],parts[cr>>8].vx,hud_current[25],parts[cr>>8].vy);
+				sprintf(tempstring,"Vx: %0.*f, Vy: %0.*f, ",hud_current[25],parts[cr>>8].vx,hud_current[25],parts[cr>>8].vy);
 				strappend(heattext,tempstring);
 			}
 			if ((cr&0xFF)==PT_PHOT) wavelength_gfx = parts[cr>>8].ctype;
@@ -134,20 +134,20 @@ void hud_text_right(int x, int y)
 		else if (wl)
 		{
 			if (hud_current[10])
-				sprintf(heattext, "%s,", wtypes[wl-UI_ACTUALSTART].name);
+				sprintf(heattext, "%s, ", wtypes[wl-UI_ACTUALSTART].name);
 		}
 		else
 		{
 			if (hud_current[10])
-				sprintf(heattext,"Empty,");
+				sprintf(heattext,"Empty, ");
 		}
 		if (hud_current[26])
 		{
-			sprintf(tempstring," Pressure: %0.*f,",hud_current[27],pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+			sprintf(tempstring,"Pressure: %0.*f, ",hud_current[27],pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
 			strappend(heattext,tempstring);
 		}
-		if (strlen(heattext) > 0)
-			heattext[strlen(heattext)-1] = '\0'; // delete comma at end
+		if (strlen(heattext) > 1)
+			heattext[strlen(heattext)-2] = '\0'; // delete comma and space at end
 
 		if (hud_current[28] && cr)
 		{
@@ -301,6 +301,9 @@ void hud_text_left(float FPSB2, int it)
 
 void draw_hud(int it)
 {
+	int heatlength = textwidth(heattext);
+	int coordlength = textwidth(coordtext);
+	int heatx, heaty, alpha;
 	quickoptions_tooltip_fade_invert = 255 - (quickoptions_tooltip_fade*20);
 	it_invert = 50 - it;
 	if(it_invert < 0)
@@ -315,50 +318,49 @@ void draw_hud(int it)
 	if (sdl_zoom_trig||zoom_en)
 	{
 		if (zoom_x<XRES/2)
-		{
-			if (strlen(heattext) > 0)
-			{
-				fillrect(vid_buf, XRES-20-textwidth(heattext), 266, textwidth(heattext)+8, 15, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
-				drawtext(vid_buf, XRES-16-textwidth(heattext), 270, heattext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
-			}
-			if (DEBUG_MODE && strlen(coordtext) > 0)
-			{
-				fillrect(vid_buf, XRES-20-textwidth(coordtext), 280, textwidth(coordtext)+8, 13, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
-				drawtext(vid_buf, XRES-16-textwidth(coordtext), 282, coordtext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
-			}
-			if (wavelength_gfx)
-				draw_wavelengths(vid_buf,XRES-20-textwidth(heattext),265,2,wavelength_gfx);
-		}
+			heatx = XRES-16-heatlength;
 		else
-		{
-			if (strlen(heattext) > 0)
-			{
-				fillrect(vid_buf, 12, 266, textwidth(heattext)+8, 15, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
-				drawtext(vid_buf, 16, 270, heattext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
-			}
-			if (DEBUG_MODE && strlen(coordtext) > 0)
-			{
-				fillrect(vid_buf, 12, 280, textwidth(coordtext)+8, 13, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
-				drawtext(vid_buf, 16, 282, coordtext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
-			}
-			if (wavelength_gfx)
-				draw_wavelengths(vid_buf,12,265,2,wavelength_gfx);
-		}
+			heatx = 16;
+		heaty = 270;
+		alpha = 127;
 	}
 	else
 	{
-		if (strlen(heattext) > 0)
-		{
-			fillrect(vid_buf, XRES-20-textwidth(heattext), 12, textwidth(heattext)+8, 15, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
-			drawtext(vid_buf, XRES-16-textwidth(heattext), 16, heattext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
-		}
-		if (DEBUG_MODE && strlen(coordtext) > 0)
-		{
-			fillrect(vid_buf, XRES-20-textwidth(coordtext), 26, textwidth(coordtext)+8, 11, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
-			drawtext(vid_buf, XRES-16-textwidth(coordtext), 27, coordtext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
-		}
+		heatx = XRES-16-heatlength;
+		heaty = 16;
+		alpha = (int)(quickoptions_tooltip_fade_invert*0.5);
+	}
+	if (strlen(heattext) > 0)
+	{
+		fillrect(vid_buf, heatx-4, heaty-4, heatlength+8, 15, 0, 0, 0, alpha);
+		drawtext(vid_buf, heatx, heaty, heattext, 255, 255, 255, (int)(alpha*1.5f));
 		if (wavelength_gfx)
-			draw_wavelengths(vid_buf,XRES-20-textwidth(heattext),11,2,wavelength_gfx);
+			draw_wavelengths(vid_buf,heatx-4,heaty-5,2,wavelength_gfx);
+	}
+	if (DEBUG_MODE && strlen(coordtext) > 0)
+	{
+		if ((sdl_zoom_trig||zoom_en) && zoom_x>=XRES/2)
+		{
+			if (coordlength > heatlength)
+			{
+				fillrect(vid_buf, 19+heatlength, 277, coordlength-heatlength, 15, 0, 0, 0, alpha);
+				fillrect(vid_buf, 12, 280, heatlength+8, 12, 0, 0, 0, alpha);
+			}
+			else
+				fillrect(vid_buf, 12, 280, coordlength+8, 12, 0, 0, 0, alpha);
+			drawtext(vid_buf, 16, 281, coordtext, 255, 255, 255, (int)(alpha*1.5f));
+		}
+		else
+		{
+			if (coordlength > heatlength)
+			{
+				fillrect(vid_buf, XRES-20-coordlength, heaty+7, coordlength-heatlength+1, 15, 0, 0, 0, alpha);
+				fillrect(vid_buf, XRES-20-heatlength, heaty+10, heatlength+8, 12, 0, 0, 0, alpha);
+			}
+			else
+				fillrect(vid_buf, XRES-20-coordlength, heaty+10, coordlength+8, 12, 0, 0, 0, alpha);
+			drawtext(vid_buf, XRES-16-coordlength, heaty+11, coordtext, 255, 255, 255, (int)(alpha*1.5f));
+		}
 	}
 	wavelength_gfx = 0;
 }
