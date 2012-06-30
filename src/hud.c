@@ -146,36 +146,39 @@ void hud_text_right(int x, int y)
 			sprintf(tempstring," Pressure: %0.*f,",hud_current[27],pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
 			strappend(heattext,tempstring);
 		}
-		heattext[strlen(heattext)-1] = '\0'; // delete comma at end
+		if (strlen(heattext) > 0)
+			heattext[strlen(heattext)-1] = '\0'; // delete comma at end
 
 		if (hud_current[28] && cr)
 		{
 			if (hud_current[29] || (ngrav_enable && hud_current[30]))
-				sprintf(tempstring," #%d,",cr>>8);
+				sprintf(tempstring,"#%d, ",cr>>8);
 			else
-				sprintf(tempstring," #%d",cr>>8);
+				sprintf(tempstring,"#%d ",cr>>8);
 			strappend(coordtext,tempstring);
 		}
 		if (hud_current[29])
 		{
-			sprintf(tempstring," X:%d Y:%d",x/sdl_scale,y/sdl_scale);
+			sprintf(tempstring,"X:%d Y:%d ",x/sdl_scale,y/sdl_scale);
 			strappend(coordtext,tempstring);
 		}
 		if (hud_current[30] && ngrav_enable)
 		{
-			sprintf(tempstring," GX: %0.*f GY: %0.*f",hud_current[31],gravx[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)],hud_current[31],gravy[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)]);
+			sprintf(tempstring,"GX: %0.*f GY: %0.*f ",hud_current[31],gravx[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)],hud_current[31],gravy[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)]);
 			strappend(coordtext,tempstring);
 		}
 		if (hud_current[34] && aheat_enable)
 		{
-			sprintf(tempstring," A.Heat: %0.*f K",hud_current[35],hv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+			sprintf(tempstring,"A.Heat: %0.*f K ",hud_current[35],hv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
 			strappend(coordtext,tempstring);
 		}
 		if (hud_current[32])
 		{
-			sprintf(tempstring," Pressure: %0.*f",hud_current[33],pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+			sprintf(tempstring,"Pressure: %0.*f",hud_current[33],pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
 			strappend(coordtext,tempstring);
 		}
+		if (strlen(coordtext) > 0 && coordtext[strlen(coordtext)-1] == ' ')
+			coordtext[strlen(coordtext)-1] = 0;
 	}
 	else
 	{
@@ -292,6 +295,8 @@ void hud_text_left(float FPSB2, int it)
 	if (vs)
 		strappend(uitext, "[FRAME CAPTURE]");
 #endif
+	if (strlen(uitext) > 0 && uitext[strlen(uitext)-1] == ' ')
+		uitext[strlen(uitext)-1] = 0;
 }
 
 void draw_hud(int it)
@@ -302,15 +307,21 @@ void draw_hud(int it)
 		it_invert = 0;
 	if(it_invert > 50)
 		it_invert = 50;
-	fillrect(vid_buf, 12, 12, textwidth(uitext)+8, 15, 0, 0, 0, (int)(it_invert*2.5));
-	drawtext(vid_buf, 16, 16, uitext, 32, 216, 255, it_invert * 4);
+	if (strlen(uitext) > 0)
+	{
+		fillrect(vid_buf, 12, 12, textwidth(uitext)+8, 15, 0, 0, 0, (int)(it_invert*2.5));
+		drawtext(vid_buf, 16, 16, uitext, 32, 216, 255, it_invert * 4);
+	}
 	if (sdl_zoom_trig||zoom_en)
 	{
 		if (zoom_x<XRES/2)
 		{
-			fillrect(vid_buf, XRES-20-textwidth(heattext), 266, textwidth(heattext)+8, 15, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
-			drawtext(vid_buf, XRES-16-textwidth(heattext), 270, heattext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
-			if (DEBUG_MODE)
+			if (strlen(heattext) > 0)
+			{
+				fillrect(vid_buf, XRES-20-textwidth(heattext), 266, textwidth(heattext)+8, 15, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
+				drawtext(vid_buf, XRES-16-textwidth(heattext), 270, heattext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
+			}
+			if (DEBUG_MODE && strlen(coordtext) > 0)
 			{
 				fillrect(vid_buf, XRES-20-textwidth(coordtext), 280, textwidth(coordtext)+8, 13, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
 				drawtext(vid_buf, XRES-16-textwidth(coordtext), 282, coordtext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
@@ -320,9 +331,12 @@ void draw_hud(int it)
 		}
 		else
 		{
-			fillrect(vid_buf, 12, 266, textwidth(heattext)+8, 15, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
-			drawtext(vid_buf, 16, 270, heattext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
-			if (DEBUG_MODE)
+			if (strlen(heattext) > 0)
+			{
+				fillrect(vid_buf, 12, 266, textwidth(heattext)+8, 15, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
+				drawtext(vid_buf, 16, 270, heattext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
+			}
+			if (DEBUG_MODE && strlen(coordtext) > 0)
 			{
 				fillrect(vid_buf, 12, 280, textwidth(coordtext)+8, 13, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
 				drawtext(vid_buf, 16, 282, coordtext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
@@ -333,9 +347,12 @@ void draw_hud(int it)
 	}
 	else
 	{
-		fillrect(vid_buf, XRES-20-textwidth(heattext), 12, textwidth(heattext)+8, 15, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
-		drawtext(vid_buf, XRES-16-textwidth(heattext), 16, heattext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
-		if (DEBUG_MODE)
+		if (strlen(heattext) > 0)
+		{
+			fillrect(vid_buf, XRES-20-textwidth(heattext), 12, textwidth(heattext)+8, 15, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
+			drawtext(vid_buf, XRES-16-textwidth(heattext), 16, heattext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
+		}
+		if (DEBUG_MODE && strlen(coordtext) > 0)
 		{
 			fillrect(vid_buf, XRES-20-textwidth(coordtext), 26, textwidth(coordtext)+8, 11, 0, 0, 0, (int)(quickoptions_tooltip_fade_invert*0.5));
 			drawtext(vid_buf, XRES-16-textwidth(coordtext), 27, coordtext, 255, 255, 255, (int)(quickoptions_tooltip_fade_invert*0.75));
