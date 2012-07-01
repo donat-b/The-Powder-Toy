@@ -2736,9 +2736,13 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 		}
 	}
 	if (el != -1 && dae < 51)
-		dae = dae + 1;
+		dae = dae + 2;
 	else if (dae)
-		dae = dae - 1; //Fade away selected elements
+		dae = dae - 2; //Fade away element descriptions
+	if (dae > 51)
+		dae = 51;
+	if (dae < 0)
+		dae = 0;
 	return el;
 }
 
