@@ -378,11 +378,9 @@ int graphics_BOMB(GRAPHICS_FUNC_ARGS);
 int graphics_GBMB(GRAPHICS_FUNC_ARGS);
 int graphics_COAL(GRAPHICS_FUNC_ARGS);
 int graphics_STKM(GRAPHICS_FUNC_ARGS);
-int graphics_STKM2(GRAPHICS_FUNC_ARGS);
 int graphics_DEST(GRAPHICS_FUNC_ARGS);
 int graphics_EMP(GRAPHICS_FUNC_ARGS);
 int graphics_LIGH(GRAPHICS_FUNC_ARGS);
-int graphics_FIGH(GRAPHICS_FUNC_ARGS);
 int graphics_ELEC(GRAPHICS_FUNC_ARGS);
 int graphics_WIRE(GRAPHICS_FUNC_ARGS);
 int graphics_ACEL(GRAPHICS_FUNC_ARGS);
@@ -398,7 +396,6 @@ int graphics_TRON(GRAPHICS_FUNC_ARGS);
 int graphics_SOAP(GRAPHICS_FUNC_ARGS);
 int graphics_EXOT(GRAPHICS_FUNC_ARGS);
 int graphics_WARP(GRAPHICS_FUNC_ARGS);
-int graphics_stickmen(GRAPHICS_FUNC_ARGS);
 
 void TRON_init_graphics();
 
