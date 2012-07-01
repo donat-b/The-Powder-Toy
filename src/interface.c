@@ -6112,7 +6112,6 @@ const static struct command_match matches [] = {
 	{"tpt.get_gravity(", "tpt.get_g"},
 	{"tpt.maxframes(", "tpt.ma"},
 	{"tpt.clear_sim()", "tpt.cl"},
-	{"tpt.restore_defaults()", "tpt.rest"},
 	{"tpt.reset_elements()", "tpt.reset_e"},
 	{"tpt.indestructible(", "tpt.ind"},
 	{"tpt.moving_solid(","tpt.mo"},

@@ -112,7 +112,6 @@ void luacon_open(){
 		{"get_wall",&luatpt_getwall},
 		{"create_wall",&luatpt_createwall},
 		{"clear_sim",&luatpt_clear_sim},
-		{"restore_defaults",&luatpt_restore_defaults},
 		{"reset_elements",&luatpt_reset_elements},
 		{"indestructible",&luatpt_indestructible},
 		{"moving_solid",&luatpt_moving_solid},
@@ -2270,45 +2269,6 @@ int luatpt_reset_elements(lua_State* l)
 	menu_count();
 	init_can_move();
 	memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
-	return 0;
-}
-
-int luatpt_restore_defaults(lua_State* l)
-{
-	framerender = 0;
-	sys_shortcuts = 1;
-	legacy_enable = 0;
-	aheat_enable = 0;
-	decorations_enable = 1;
-	hud_enable = 1;
-	active_menu = 0;
-	framerender = 0;
-	pretty_powder = 0;
-	alt_hud = 1;
-	finding = 0;
-	heatmode = 0;
-	save_as = 3;
-	show_tabs = 0;
-	sl = 1;
-	sr = 0;
-	su = 0;
-	realistic = 0;
-	drawinfo = 0;
-	debug_flags = 0;
-	if(ngrav_enable)
-		stop_grav_async();
-	sdl_scale = 1;
-	kiosk_enable = 0;
-	set_scale(sdl_scale, kiosk_enable);
-	water_equal_test = 0;
-	drawgrav_enable = 0;
-	limitFPS = 60;
-	CURRENT_BRUSH = CIRCLE_BRUSH;
-	GRID_MODE = 0;
-	VINE_MODE = 0;
-	DEBUG_MODE = 0;
-	GENERATION = 0;
-
 	return 0;
 }
 
