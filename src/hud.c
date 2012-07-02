@@ -208,32 +208,17 @@ void hud_text_left(float FPSB2, int it)
 	if (hud_current[36] || hud_current[37] || hud_current[38])
 	{
 		time_t time2 = time(0);
-		struct tm* time = localtime(&time2);
-		uitext[strlen(uitext)-1] = ',';
-		strappend(uitext," ");
-		if (hud_current[36])
+		char time[256], *timestr = "";
+		sprintf(time,"%i",time2);
+
+		if (strlen(uitext))
 		{
-			sprintf(tempstring,asctime(time));
-			tempstring[7] = 0;
-			strappend(uitext,tempstring);
-			sprintf(tempstring," %i ",time->tm_mday);
-			strappend(uitext,tempstring);
+			uitext[strlen(uitext)-1] = ',';
+			strappend(uitext," ");
 		}
-		if (hud_current[37])
-		{
-			int hour = time->tm_hour%12;
-			if (hour == 0)
-				hour = 12;
-			sprintf(tempstring,"%i:%.2i:%.2i ",hour,time->tm_min,time->tm_sec);
-			strappend(uitext,tempstring);
-		}
-		if (hud_current[38])
-		{
-			sprintf(tempstring,"%i ",time->tm_year+1900);
-			strappend(uitext,tempstring);
-		}
-		uitext[strlen(uitext)-1] = ',';
-		strappend(uitext," ");
+		converttotime(time,&timestr,hud_current[36],hud_current[38],hud_current[37]);
+		strappend(uitext,timestr);
+		strappend(uitext,", ");
 	}
 	if (hud_current[2])
 	{

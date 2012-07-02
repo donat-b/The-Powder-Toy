@@ -257,22 +257,6 @@
 #define PT_EXPL PT_NORMAL_NUM+15
 #define PT_NUM 177
 
-#define FAV_START 300
-#define FAV_MORE 300
-#define FAV_BACK 301
-#define FAV_HUD 302
-#define FAV_FIND 303
-#define FAV_INFO 304
-#define FAV_ROTATE 305
-#define FAV_HEAT 306
-#define FAV_SAVE 307
-#define FAV_LUA 308
-#define FAV_CUSTOMHUD 309
-#define FAV_AUTOSAVE 310
-#define FAV_REAL 311
-#define FAV_SECR 312
-#define FAV_END 313
-
 #define R_TEMP 22
 #define MAX_TEMP 9999
 #define MIN_TEMP 0
@@ -797,6 +781,23 @@ static wall_type wtypes[] =
 	{"PROP2",		PIXPACK(0xFFAA00), PIXPACK(0x000000), -1, "Property drawing tool"},
 };
 
+#define FAV_START 300
+#define FAV_MORE 300
+#define FAV_BACK 301
+#define FAV_HUD 302
+#define FAV_FIND 303
+#define FAV_INFO 304
+#define FAV_ROTATE 305
+#define FAV_HEAT 306
+#define FAV_SAVE 307
+#define FAV_LUA 308
+#define FAV_CUSTOMHUD 309
+#define FAV_AUTOSAVE 310
+#define FAV_REAL 311
+#define FAV_DATE 312
+#define FAV_SECR 313
+#define FAV_END 314
+
 struct fav_menu
 {
 	const char *name;
@@ -819,6 +820,7 @@ static fav_menu fav[] =
 	{"HUD2", PIXPACK(0x20D8FF), "Make a custom HUD"},
 	{"AUTO", PIXPACK(0xDF1BFF), "Sets how often your work is autosaved, currently: "},
 	{"REAL", PIXPACK(0xFF6800), "Turns on realistic mode, changes heat simulation/movement a little. Now "},
+	{"DATE", PIXPACK(0x3FBB3F), "Change date and time format. Example: "},
 	{"", PIXPACK(0x000000), ""}
 };
 

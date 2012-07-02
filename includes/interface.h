@@ -175,6 +175,7 @@ struct save_info
 	char *comments[NUM_COMMENTS];
 	char *commentauthors[NUM_COMMENTS];
 	char *commentauthorIDs[NUM_COMMENTS];
+	char *commenttimestamps[NUM_COMMENTS];
 };
 typedef struct save_info save_info;
 
@@ -258,6 +259,8 @@ extern int zoom_wx, zoom_wy;
 extern int numframes;
 extern int framenum;
 extern int hud_menunum;
+extern int dateformat;
+extern int show_ids;
 
 void menu_count(void);
 
@@ -378,6 +381,8 @@ unsigned int decorations_ui(pixel *vid_buf, int *bsx, int *bsy, unsigned int sav
 Uint8 mouse_get_state(int *x, int *y);
 
 void mouse_coords_window_to_sim(int *sim_x, int *sim_y, int window_x, int window_y);
+
+void converttotime(char *timestamp, char **timestring, int show_day, int show_year, int show_time);
 
 #endif
 
