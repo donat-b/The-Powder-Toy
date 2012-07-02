@@ -1921,16 +1921,30 @@ void xor_rect(pixel *vid, int x, int y, int w, int h)
 	int i;
 	for (i=0; i<w; i+=2)
 	{
-		if (i != 0 && i+1 < w)
-			xor_pixel(x+i, y, vid);
-		if (h != 1 && ((i != 0 && i+1 < w) || h%2 == 0))
-			xor_pixel(x+i, y+h-1, vid);
+		xor_pixel(x+i, y, vid);
 	}
-	for (i=0; i<h; i+=2)
+	if (h != 1)
+	{
+		if (h%2 == 1) i = 2;
+		else i = 1;
+		for (; i<w; i+=2)
+		{
+			xor_pixel(x+i, y+h-1, vid);
+		}
+	}
+
+	for (i=2; i<h; i+=2)
 	{
 		xor_pixel(x, y+i, vid);
-		if (w != 1)
+	}
+	if (w != 1)
+	{
+		if (w%2 == 1) i = 2;
+		else i = 1;
+		for (; i<h-1; i+=2)
+		{
 			xor_pixel(x+w-1, y+i, vid);
+		}
 	}
 }
 
@@ -4229,7 +4243,16 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 	}
 #else
 	int i,j,c;
-	if (t<PT_NUM||(t&0xFF)==PT_LIFE||t==SPC_AIR||t==SPC_HEAT||t==SPC_COOL||t==SPC_VACUUM||t==SPC_WIND||t==SPC_PGRV||t==SPC_NGRV||t==SPC_PROP||t==SPC_PROP2||t-100==WL_SIGN)
+	if ((sdl_mod & KMOD_CTRL) && (sdl_mod & KMOD_SHIFT))// && t!=SPC_AIR && t!=SPC_HEAT && t!=SPC_COOL && t!=SPC_VACUUM && t!=SPC_WIND && t!=SPC_PGRV && t!=SPC_NGRV && t!=SPC_PROP && t!=SPC_PROP2 && t-100!=WL_SIGN)
+	{
+		for (i = -5; i < 6; i++)
+			if (i != 0)
+				xor_pixel(x+i, y, vid);
+		for (j = -5; j < 6; j++)
+			if (j != 0)
+				xor_pixel(x, y+j, vid);
+	}
+	else if (t<PT_NUM||(t&0xFF)==PT_LIFE||t==SPC_AIR||t==SPC_HEAT||t==SPC_COOL||t==SPC_VACUUM||t==SPC_WIND||t==SPC_PGRV||t==SPC_NGRV||t==SPC_PROP||t==SPC_PROP2||t-100==WL_SIGN)
 	{
 		if (rx<=0)
 			for (j = y - ry; j <= y + ry; j++)
