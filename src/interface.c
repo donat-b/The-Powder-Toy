@@ -4816,6 +4816,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	{
 		bq = b;
 		b = mouse_get_state(&mx, &my);
+		if (b == 1)
+			redraw_comments = 1;
 
 		if (active)
 		{
@@ -5018,7 +5020,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					if ((ccy + 72 + comment_scroll + ((textwidth(info->comments[cc])/(XRES+BARSIZE-100-((XRES/2)+1)-20)))*12)<(YRES+MENUSIZE-56)) { //Try not to draw off the screen
 						if (ccy+comment_scroll<0) //Try not to draw above the screen either
 						{
-							ccy += 22 + drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, XRES+BARSIZE-100-((XRES/2)+1)-20, info->comments[cc], 255, 255, 255, 0);
+							ccy += 22 + textwrapheight(info->comments[cc],XRES+BARSIZE-100-((XRES/2)+1)-20);
 							if (cc == info->comment_count-1)
 								comment_scroll = 0;
 						}
@@ -5043,13 +5045,13 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							if (show_ids && info->commentauthorIDs[cc])
 							{
 								drawtext(vid_buf, 265+(XRES/2)-textwidth(info->commentauthorIDs[cc]), ccy+60+comment_scroll, info->commentauthorIDs[cc], 255, 255, 0, 255);
-								if (b && !bq && mx > 265+(XRES/2)-textwidth(info->commentauthorIDs[cc]) && mx < 265+(XRES/2) && my > ccy+60+comment_scroll && my < ccy+70+comment_scroll)
+								if (b && !bq && mx > 265+(XRES/2)-textwidth(info->commentauthorIDs[cc]) && mx < 265+(XRES/2) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll)
 									show_ids = 0;
 							}
 							else if (info->commenttimestamps[cc])
 							{
 								drawtext(vid_buf, 265+(XRES/2)-textwidth(info->commenttimestamps[cc]), ccy+60+comment_scroll, info->commenttimestamps[cc], 255, 255, 0, 255);
-								if (b && !bq && mx > 265+(XRES/2)-textwidth(info->commenttimestamps[cc]) && mx < 265+(XRES/2) && my > ccy+60+comment_scroll && my < ccy+70+comment_scroll)
+								if (b && !bq && mx > 265+(XRES/2)-textwidth(info->commenttimestamps[cc]) && mx < 265+(XRES/2) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll)
 									show_ids = 1;
 							}
 							drawtext(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, info->commentauthors[cc], r, g, bl, 255);
