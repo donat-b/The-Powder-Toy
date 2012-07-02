@@ -21,7 +21,7 @@ int update_ISZ(UPDATE_FUNC_ARGS) { // for both ISZS and ISOZ
 	{
 		create_part(i, x, y, PT_PHOT);
 		rr = (rand()%228+128)/127.0f;
-		rrr = (rand()%360)*3.14159f/180.0f;
+		rrr = (rand()%360)*M_PI/180.0f;
 		parts[i].vx = rr*cosf(rrr);
 		parts[i].vy = rr*sinf(rrr);
 	}

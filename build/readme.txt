@@ -3,15 +3,16 @@ This is a mod that basically does the same thing as the Lua script I made.
 It has a favorites menu under the Tools menu, that has all of the elements 
 you selected recently, including walls and tools. Ctrl+Shift+left clicking 
 an element in any menu will pin it permanently to the menu, even after you 
-exit the Powder Toy. Ctrl+Shift+right clicking an element will unpin an 
-element from the menu.
+exit the Powder Toy. Ctrl+Shift+right clicking an element will unpin it from 
+the menu.
 
-If you click the more button, a new menu will appear with 4 options. The HUD 
-button activates a better HUD that fixes some problems, has less useless 
-info, and has more decimal places in debug mode. The FIND button colors 
-whatever element you have selected red, and dims everything else. The INFO 
-button displays statistics about how long and how many times you have played 
-powder toy, and your average and highest FPS.
+If you click the more button, a new menu will appear with more options. The 
+HUD button activates a better HUD that fixes some problems, has less useless 
+info, and has more decimal places in debug mode. HUD's are customizable using 
+the HUD2 button. The FIND button colors whatever element you have selected 
+red, and dims everything else. Ctrl + F also activates it. The INFO button 
+displays statistics about how long and how many times you have played powder 
+toy, your average and highest FPS, and info about the current save.
 
 I will take any suggestions for new elements or other features, no matter 
 how hard they are to code, and if I like it, I will try to add it in.
@@ -284,12 +285,19 @@ again (still 80.4) which fixes some other bugs.
 Version 16.2 - 6/18/12
 Fixed saving saves publicly, remove ability to create colored text.
 
+Version 16.3 - 6/25/12
+Make Some lua console shortcuts less annoying. Fix compression during fusion 
+and with moving sponge. Fix moderator name colors, also, your name is yellow 
+and save creators is red. Update to latest source.
+
 Next version
 Many minor graphical fixes to the HUD. FIND can find 3 things at once. Left 
 selected element is red, right selected is blue, and alternate selected is 
 green. LCtrl/RCtrl/Shift + F to toggle these. Also, a new FIND2 button which 
 toggles an alternate find mode more similar to my lua script, where first 
 everything is dimmed, and then a dot is put over what your're finding.
+
+
 
 
 Bugs:

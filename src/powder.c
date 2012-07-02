@@ -59,6 +59,32 @@ unsigned photons[YRES][XRES];
 float msvx[256], msvy[256], msrotation[256], newmsrotation[256];
 int msindex[256], msnum[256], numballs = 0, creatingsolid = 0, ms_rotation = 0;
 
+void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float *pGravX, float *pGravY)
+{
+	int angle;
+	*pGravX = newtonGrav*gravx[(y/CELL)*(XRES/CELL)+(x/CELL)];
+	*pGravY = newtonGrav*gravy[(y/CELL)*(XRES/CELL)+(x/CELL)];
+	switch (gravityMode)
+	{
+		default:
+		case 0: //normal, vertical gravity
+			*pGravY += particleGrav;
+			break;
+		case 1: //no gravity
+			angle = rand()%360;
+			*pGravX -= cosf(angle);
+			*pGravY -= sinf(angle);
+			break;
+		case 2: //radial gravity
+			if (x-XCNTR != 0 || y-YCNTR != 0)
+			{
+				float pGravMult = particleGrav/sqrtf((x-XCNTR)*(x-XCNTR) + (y-YCNTR)*(y-YCNTR));
+				*pGravX -= pGravMult * (float)(x - XCNTR);
+				*pGravY -= pGravMult * (float)(y - YCNTR);
+			}
+	}
+}
+
 static int pn_junction_sprk(int x, int y, int pt)
 {
 	unsigned r = pmap[y][x];
@@ -135,7 +161,7 @@ void init_can_move()
 		//spark shouldn't move
 		can_move[PT_SPRK][t] = 0;
 		stkm_move = 0;
-		if (ptypes[t].properties&TYPE_LIQUID)
+		if (ptypes[t].properties & (TYPE_LIQUID | TYPE_GAS))
 			stkm_move = 2;
 		if (!t || t==PT_PRTO || t==PT_SPAWN || t==PT_SPAWN2)
 			stkm_move = 2;
@@ -190,6 +216,7 @@ void init_can_move()
 	can_move[PT_SPNG][PT_SPNG] = 3;
 	can_move[PT_RAZR][PT_CNCT] = 1;
 	can_move[PT_THDR][PT_THDR] = 2;
+	can_move[PT_EMBR][PT_EMBR] = 2;
 }
 
 /*
@@ -279,9 +306,6 @@ int try_move(int i, int x, int y, int nx, int ny)
 		return 1;
 
 	e = eval_move(parts[i].type, nx, ny, &r);
-
-	if ((r&0xFF)==PT_BOMB && parts[i].type==PT_BOMB && parts[i].tmp == 1)
-		e = 2;
 
 	/* half-silvered mirror */
 	if (!e && parts[i].type==PT_PHOT &&
@@ -1181,6 +1205,9 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 			parts[i].life = 1000;
 			parts[i].tmp = 244;
 			break;
+		case PT_EMBR:
+			parts[i].life = 50;
+			break;
 		case PT_STKM:
 			if (player.spwn==0)
 			{
@@ -1273,7 +1300,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 			}
 			if (t==PT_ELEC)
 			{
-				float a = (rand()%360)*3.14159f/180.0f;
+				float a = (rand()%360)*M_PI/180.0f;
 				parts[i].life = 680;
 				parts[i].vx = 2.0f*cosf(a);
 				parts[i].vy = 2.0f*sinf(a);
@@ -1281,7 +1308,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 			if (t==PT_NEUT)
 			{
 				float r = (rand()%128+128)/127.0f;
-				float a = (rand()%360)*3.14159f/180.0f;
+				float a = (rand()%360)*M_PI/180.0f;
 				parts[i].life = rand()%480+480;
 				parts[i].vx = r*cosf(a);
 				parts[i].vy = r*sinf(a);
@@ -1296,8 +1323,8 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 			}
 			if (t==PT_LIGH && (p == -2 || mod_save >= 9)) //Lightning direction is affected by both the gravity mode setting and newtonian gravity
 			{
-				float gx = gravx[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)];
-				float gy = gravy[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)];
+				float gx;
+				float gy;
 				if (p!=-2 && !lighting_recreate)
 				{
 					parts[i].life=30;
@@ -1306,24 +1333,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 					parts[i].temp=parts[i].life*150.0f; // temperature of the lighting shows the power of the lighting
 					lighting_recreate = 1;
 				}
-				switch (gravityMode)
-				{
-					default:
-					case 0:
-						gy += 1;
-						break;
-					case 1:
-						parts[i].tmp = rand()%360;
-						gx -= cos((float)parts[i].tmp);
-						gy -= sin((float)parts[i].tmp);
-						break;
-					case 2:
-						if (x-XCNTR != 0 || y-YCNTR != 0)
-						{
-							gx -= (x-XCNTR)/sqrt(pow((float)(x-XCNTR),2)+pow((float)(y-YCNTR),2));
-							gy -= (y-YCNTR)/sqrt(pow((float)(x-XCNTR),2)+pow((float)(y-YCNTR),2));
-						}
-				}
+				get_gravity_field(x, y, 1.0f, 1.0f, &gx, &gy);
 				parts[i].tmp = ((int)(atan2(gx, gy)*(180.0f/M_PI)+270))+rand()%40-20;
 				parts[i].tmp2 = 4;
 			}
@@ -2667,9 +2677,7 @@ killed:
 					}
 					else
 					{
-						create_part(i, x, y, PT_BOMB);
-						parts[i].tmp = 1;
-						parts[i].life = 50;
+						create_part(i, x, y, PT_EMBR);
 						parts[i].temp = MAX_TEMP;
 						parts[i].vx = rand()%20-10.0f;
 						parts[i].vy = rand()%20-10.0f;
@@ -2741,7 +2749,13 @@ killed:
 			stagnant = parts[i].flags & FLAG_STAGNANT;
 			parts[i].flags &= ~FLAG_STAGNANT;
 
-			if (ptypes[t].properties & TYPE_ENERGY) {
+			if (t==PT_STKM || t==PT_STKM2 || t==PT_FIGH)
+			{
+				//head movement, let head pass through anything
+				move(i, x, y, parts[i].x+parts[i].vx, parts[i].y+parts[i].vy);
+			}
+			else if (ptypes[t].properties & TYPE_ENERGY)
+			{
 				if (t == PT_PHOT) {
 					if (parts[i].flags&FLAG_SKIPMOVE)
 					{
@@ -3156,16 +3170,19 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 					parts[i].tmp2 = 0;
 				if (ptypes[t].properties & TYPE_ENERGY)
 					photons[y][x] = t|(i<<8);
-				// Particles are sometimes allowed to go inside INVS and FILT
-				// To make particles collide correctly when inside these elements, these elements must not overwrite an existing pmap entry from particles inside them
-				else if (!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT && !(ptypes[t].properties&PROP_MOVS) && (pmap[y][x]&0xFF) != PT_PINV))
-					pmap[y][x] = t|(i<<8);
-				else if ((pmap[y][x]&0xFF) == PT_PINV)
-					parts[pmap[y][x]>>8].tmp2 = t|(i<<8);
-				// Count number of particles at each location, for excess stacking check
-				// (does not include energy particles or THDR - currently no limit on stacking those)
-				if (t!=PT_THDR && t!=PT_PLSM)
-					pmap_count[y][x]++;
+				else
+				{
+					// Particles are sometimes allowed to go inside INVS and FILT
+					// To make particles collide correctly when inside these elements, these elements must not overwrite an existing pmap entry from particles inside them
+					if (!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT && !(ptypes[t].properties&PROP_MOVS) && (pmap[y][x]&0xFF) != PT_PINV))
+						pmap[y][x] = t|(i<<8);
+					else if ((pmap[y][x]&0xFF) == PT_PINV)
+						parts[pmap[y][x]>>8].tmp2 = t|(i<<8);
+					// Count number of particles at each location, for excess stacking check
+					// (does not include energy particles or THDR - currently no limit on stacking those)
+					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM)
+						pmap_count[y][x]++;
+				}
 			}
 			lastPartUsed = i;
 			NUM_PARTS ++;
@@ -3239,13 +3256,13 @@ void update_moving_solids()
 		{
 			msrotation[bn] = 0;
 		}
-		else if (msrotation[bn] > 6.283185307179586476925286766559)
+		else if (msrotation[bn] > 2*M_PI)
 		{
-			msrotation[bn] -= 6.283185307179586476925286766559f;
+			msrotation[bn] -= 2*M_PI;
 		}
-		else if (msrotation[bn] < -6.283185307179586476925286766559)
+		else if (msrotation[bn] < -2*M_PI)
 		{
-			msrotation[bn] += 6.283185307179586476925286766559f;
+			msrotation[bn] += 2*M_PI;
 		}
 	}
 	for (i=0; i<=parts_lastActiveIndex; i++)
@@ -3262,14 +3279,14 @@ void update_moving_solids()
 					float angle = atan((float)parts[i].pavg[1]/parts[i].pavg[0]);
 					float distance = sqrt(pow((float)parts[i].pavg[0],2)+pow((float)parts[i].pavg[1],2));
 					if (parts[i].pavg[0] < 0)
-						angle += 3.1415926535f;
+						angle += M_PI;
 					nx = parts[msindex[bn]-1].x + distance*cosf(angle+msrotation[bn]);
 					ny = parts[msindex[bn]-1].y + distance*sinf(angle+msrotation[bn]);
 					move(i,(int)(parts[i].x+.5f),(int)(parts[i].y+.5f),nx,ny);
 				}
 				else if (parts[i].pavg[1] != 0)
 				{
-					float angle = 3.1415926535897932384626433832795f/2;
+					float angle = M_PI/2;
 					nx = parts[msindex[bn]-1].x + parts[i].pavg[1]*cosf(angle+msrotation[bn]);
 					if (parts[i].pavg[1] < 0)
 						ny = parts[msindex[bn]-1].y + parts[i].pavg[1]*sinf(angle+msrotation[bn]);

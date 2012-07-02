@@ -21,7 +21,7 @@ int graphics_QRTZ(GRAPHICS_FUNC_ARGS) //QRTZ and PQRT
 	int t = cpart->type, z = cpart->tmp - 5;//speckles!
 	if (cpart->temp>(ptransitions[t].thv-800.0f))//hotglow for quartz
 	{
-		float frequency = 3.1415/(2*ptransitions[t].thv-(ptransitions[t].thv-800.0f));
+		float frequency = M_PI/(2*ptransitions[t].thv-(ptransitions[t].thv-800.0f));
 		int q = (int)((cpart->temp>ptransitions[t].thv)?ptransitions[t].thv-(ptransitions[t].thv-800.0f):cpart->temp-(ptransitions[t].thv-800.0f));
 		*colr += (int)(sin(frequency*q) * 226 + (z * 16));
 		*colg += (int)(sin(frequency*q*4.55 +3.14) * 34 + (z * 16));
@@ -115,29 +115,6 @@ int graphics_LIFE(GRAPHICS_FUNC_ARGS)
 	*colr = PIXR(pc);
 	*colg = PIXG(pc);
 	*colb = PIXB(pc);
-	return 0;
-}
-int graphics_DUST(GRAPHICS_FUNC_ARGS)
-{
-	if(cpart->life >= 1)
-	{
-		*firea = 120;
-		*firer = *colr = cpart->tmp2;
-		*fireg = *colg = cpart->tmp;
-		*fireb = *colb = cpart->ctype;
-		if (decorations_enable && cpart->dcolour)
-		{
-			int a = (cpart->dcolour>>24)&0xFF;
-			*firer = *colr = (a*((cpart->dcolour>>16)&0xFF) + (255-a)**colr) >> 8;
-			*fireg = *colg = (a*((cpart->dcolour>>8)&0xFF) + (255-a)**colg) >> 8;
-			*fireb = *colb = (a*((cpart->dcolour)&0xFF) + (255-a)**colb) >> 8;
-		}
-		*pixel_mode |= PMODE_GLOW | FIRE_ADD;
-		/**firea = 255;
-		*firer = *colr;
-		*fireg = *colg;
-		*fireb = *colb;*/
-	}
 	return 0;
 }
 int graphics_GRAV(GRAPHICS_FUNC_ARGS)
@@ -551,33 +528,7 @@ int graphics_HFLM(GRAPHICS_FUNC_ARGS)
 }
 int graphics_FIRW(GRAPHICS_FUNC_ARGS)
 {
-	if(cpart->tmp>=3)
-	{
-		int caddress = (int)restrict_flt(restrict_flt((float)(cpart->tmp-4), 0.0f, 200.0f)*3, 0.0f, (200.0f*3)-3);
-		*colr = (unsigned char)firw_data[caddress];
-		*colg = (unsigned char)firw_data[caddress+1];
-		*colb = (unsigned char)firw_data[caddress+2];
-		
-		if (decorations_enable && cpart->dcolour)
-		{
-			int a = (cpart->dcolour>>24)&0xFF;
-			*colr = (a*((cpart->dcolour>>16)&0xFF) + (255-a)**colr) >> 8;
-			*colg = (a*((cpart->dcolour>>8)&0xFF) + (255-a)**colg) >> 8;
-			*colb = (a*((cpart->dcolour)&0xFF) + (255-a)**colb) >> 8;
-		}
-		
-		*firea = cpart->life*4;
-		if(*firea > 240)
-			*firea = 240;
-		*firer = *colr;
-		*fireg = *colg;
-		*fireb = *colb;
-		
-		*pixel_mode = PMODE_NONE; //Clear default, don't draw pixel
-		*pixel_mode |= FIRE_ADD;
-		//Returning 0 means dynamic, do not cache
-	}
-	else if(cpart->tmp > 0)
+	if(cpart->tmp > 0)
 	{
 		*pixel_mode |= PMODE_GLOW;
 	}
@@ -607,7 +558,7 @@ int graphics_COAL(GRAPHICS_FUNC_ARGS) //Both COAL and Broken Coal
 
 	if((cpart->temp-295.15f) > 300.0f-200.0f)
 	{
-		float frequency = 3.1415f/(2*300.0f-(300.0f-200.0f));
+		float frequency = M_PI/(2*300.0f-(300.0f-200.0f));
 		int q = (int)(((cpart->temp-295.15f)>300.0f)?300.0f-(300.0f-200.0f):(cpart->temp-295.15f)-(300.0f-200.0f));
 
 		*colr += (int)(sin(frequency*q) * 226);

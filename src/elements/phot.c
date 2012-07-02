@@ -36,7 +36,7 @@ int update_PHOT(UPDATE_FUNC_ARGS) {
 					parts[i].vx *= 0.90f;
 					parts[i].vy *= 0.90f;
 					create_part(r>>8, x+rx, y+ry, PT_PHOT);
-					rrr = (rand()%360)*3.14159f/180.0f;
+					rrr = (rand()%360)*M_PI/180.0f;
 					rr = (rand()%128+128)/127.0f;
 					parts[r>>8].vx = rr*cosf(rrr);
 					parts[r>>8].vy = rr*sinf(rrr);
@@ -48,7 +48,7 @@ int update_PHOT(UPDATE_FUNC_ARGS) {
 					parts[i].vy *= 0.90f;
 					create_part(r>>8, x+rx, y+ry, PT_PHOT);
 					rr = (rand()%228+128)/127.0f;
-					rrr = (rand()%360)*3.14159f/180.0f;
+					rrr = (rand()%360)*M_PI/180.0f;
 					parts[r>>8].vx = rr*cosf(rrr);
 					parts[r>>8].vy = rr*sinf(rrr);
 					pv[y/CELL][x/CELL] -= 15.0f * CFDS;
@@ -57,7 +57,7 @@ int update_PHOT(UPDATE_FUNC_ARGS) {
 	r = pmap[y][x];
 	if((r&0xFF) == PT_QRTZ && r)// && parts[i].ctype==0x3FFFFFFF)
 	{
-		float a = (rand()%360)*3.14159f/180.0f;
+		float a = (rand()%360)*M_PI/180.0f;
 		parts[i].vx = 3.0f*cosf(a);
 		parts[i].vy = 3.0f*sinf(a);
 		if(parts[i].ctype == 0x3FFFFFFF)

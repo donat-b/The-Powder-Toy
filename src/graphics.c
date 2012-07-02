@@ -2165,7 +2165,7 @@ void render_parts(pixel *vid)
 				}
 				if(ptypes[t].properties & PROP_HOT_GLOW && parts[i].temp>(ptransitions[t].thv-800.0f))
 				{
-					gradv = 3.1415/(2*ptransitions[t].thv-(ptransitions[t].thv-800.0f));
+					gradv = M_PI/(2*ptransitions[t].thv-(ptransitions[t].thv-800.0f));
 					caddress = (int)((parts[i].temp>ptransitions[t].thv)?ptransitions[t].thv-(ptransitions[t].thv-800.0f):parts[i].temp-(ptransitions[t].thv-800.0f));
 					colr += (int)(sin(gradv*caddress) * 226);
 					colg += (int)(sin(gradv*caddress*4.55 +3.14) * 34);

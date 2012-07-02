@@ -223,6 +223,7 @@
 #define PT_EXOT	145
 
 #define OLD_PT_WIND 147
+#define PT_EMBR 147
 #define PT_H2   148
 #define PT_SOAP 149
 #define PT_NBHL 150
@@ -255,23 +256,6 @@
 #define PT_PWHT PT_NORMAL_NUM+14
 #define PT_EXPL PT_NORMAL_NUM+15
 #define PT_NUM 177
-
-#define FAV_START 300
-#define FAV_MORE 300
-#define FAV_BACK 301
-#define FAV_HUD 302
-#define FAV_FIND 303
-#define FAV_INFO 304
-#define FAV_ROTATE 305
-#define FAV_HEAT 306
-#define FAV_SAVE 307
-#define FAV_LUA 308
-#define FAV_CUSTOMHUD 309
-#define FAV_AUTOSAVE 310
-#define FAV_REAL 311
-#define FAV_FIND2 312
-#define FAV_SECR 313
-#define FAV_END 314
 
 #define R_TEMP 22
 #define MAX_TEMP 9999
@@ -349,7 +333,6 @@ int graphics_CLST(GRAPHICS_FUNC_ARGS);
 int graphics_CBNW(GRAPHICS_FUNC_ARGS);
 int graphics_SPNG(GRAPHICS_FUNC_ARGS);
 int graphics_LIFE(GRAPHICS_FUNC_ARGS);
-int graphics_DUST(GRAPHICS_FUNC_ARGS);
 int graphics_GRAV(GRAPHICS_FUNC_ARGS);
 int graphics_WIFI(GRAPHICS_FUNC_ARGS);
 int graphics_PRTI(GRAPHICS_FUNC_ARGS);
@@ -396,6 +379,7 @@ int graphics_TRON(GRAPHICS_FUNC_ARGS);
 int graphics_SOAP(GRAPHICS_FUNC_ARGS);
 int graphics_EXOT(GRAPHICS_FUNC_ARGS);
 int graphics_WARP(GRAPHICS_FUNC_ARGS);
+int graphics_EMBR(GRAPHICS_FUNC_ARGS);
 
 void TRON_init_graphics();
 
@@ -445,6 +429,7 @@ int update_DEUT(UPDATE_FUNC_ARGS);
 int update_DLAY(UPDATE_FUNC_ARGS);
 int update_DSTW(UPDATE_FUNC_ARGS);
 int update_ELEC(UPDATE_FUNC_ARGS);
+int update_EMBR(UPDATE_FUNC_ARGS);
 int update_EMP(UPDATE_FUNC_ARGS);
 int update_EXOT(UPDATE_FUNC_ARGS);
 int update_EXPL(UPDATE_FUNC_ARGS);
@@ -793,6 +778,24 @@ static wall_type wtypes[] =
 	{"PROP2",		PIXPACK(0xFFAA00), PIXPACK(0x000000), -1, "Property drawing tool"},
 };
 
+#define FAV_START 300
+#define FAV_MORE 300
+#define FAV_BACK 301
+#define FAV_HUD 302
+#define FAV_FIND 303
+#define FAV_INFO 304
+#define FAV_ROTATE 305
+#define FAV_HEAT 306
+#define FAV_SAVE 307
+#define FAV_LUA 308
+#define FAV_CUSTOMHUD 309
+#define FAV_AUTOSAVE 310
+#define FAV_REAL 311
+#define FAV_FIND2 312
+#define FAV_DATE 313
+#define FAV_SECR 314
+#define FAV_END 315
+
 struct fav_menu
 {
 	const char *name;
@@ -816,6 +819,7 @@ static fav_menu fav[] =
 	{"AUTO", PIXPACK(0xDF1BFF), "Sets how often your work is autosaved. Currently: "},
 	{"REAL", PIXPACK(0xFF6800), "Turns on realistic heat mode, by savask. Now "},
 	{"FND2", PIXPACK(0xDF0000), "Alternate find mode, looks different but may find things better. Now "},
+	{"DATE", PIXPACK(0x3FBB3F), "Change date and time format. Example: "},
 	{"", PIXPACK(0x000000), ""}
 };
 
@@ -950,6 +954,8 @@ int flood_prop(int x, int y, size_t propoffset, void * propvalue, int proptype);
 void detach(int i);
 
 void part_change_type(int i, int x, int y, int t);
+
+void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float *pGravX, float *pGravY);
 
 int InCurrentBrush(int i, int j, int rx, int ry);
 

@@ -22,6 +22,7 @@
 #include "save.h"
 #include "gravity.h"
 #include "BSON.h"
+#include "hmap.h"
 
 int saveversion;
 int mod_save;
@@ -541,7 +542,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 					if(fieldDescriptor & 0x400)
 					{
 						if(i++ >= partsDataLen) goto fail;
-						if (modsave && modsave <= 8 && type == PT_MOVS)
+						if ((modsave && modsave <= 8 && type == PT_MOVS) || (fieldDescriptor & 0x800))
 							if(i++ >= partsDataLen) goto fail;
 					}
 
@@ -739,7 +740,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	//Copy parts data
 	/* Field descriptor format:
 	|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|
-	|	PROP_MOVS	|																|		tmp2	|	ctype[2]	|		vy		|		vx		|	dcololour	|	ctype[1]	|		tmp[2]	|		tmp[1]	|		life[2]	|		life[1]	|	temp dbl len|
+	|	PROP_MOVS	|												|		tmp2[2]	|		tmp2	|	ctype[2]	|		vy		|		vx		|	dcololour	|	ctype[1]	|		tmp[2]	|		tmp[1]	|		life[2]	|		life[1]	|	temp dbl len|
 	life[2] means a second byte (for a 16 bit field) if life[1] is present
 	*/
 	partsData = malloc(NPART * (sizeof(particle)+1));
@@ -862,11 +863,16 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 					partsData[partsDataLen++] = vTemp;
 				}
 
-				//Tmp2 (optional), 1 byte
+				//Tmp2 (optional), 1 or 2 bytes
 				if(partsptr[i].tmp2)
 				{
 					fieldDesc |= 1 << 10;
 					partsData[partsDataLen++] = partsptr[i].tmp2;
+					if(partsptr[i].tmp2 > 255)
+					{
+						fieldDesc |= 1 << 11;
+						partsData[partsDataLen++] = partsptr[i].tmp2 >> 8;
+					}
 				}
 
 				if (save_as == 3)
@@ -894,7 +900,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 					}
 					if ((ptypes[partsptr[i].type].properties&PROP_MOVS) && !partsptr[i].pavg[0] && !partsptr[i].pavg[1] && i == msindex[partsptr[i].tmp2]-1)
 					{
-						partsData[partsDataLen++] = (int)((msrotation[partsptr[i].tmp2] + 6.283185307179586476925286766559)*20);
+						partsData[partsDataLen++] = (int)((msrotation[partsptr[i].tmp2] + 2*M_PI)*20);
 					}
 				}
 				
@@ -1087,6 +1093,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	int i, freeIndicesCount, x, y, returnCode = 0, j, oldnumballs = numballs, modsave = 0;
 	int *freeIndices = NULL;
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
+	int saved_version = inputData[4];
 	bson b;
 	bson_iterator iter;
 
@@ -1103,7 +1110,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	fullH = blockH*CELL;
 	
 	//From newer version
-	if (inputData[4] > SAVE_VERSION && inputData[4] != 222)
+	if (saved_version > SAVE_VERSION && saved_version != 222)
 	{
 		info_ui(vid_buf,"Save is from a newer version","Attempting to load it anyway, this may cause a crash");
 	}
@@ -1734,7 +1741,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					{
 						if(i >= partsDataLen) goto fail;
 						partsptr[newIndex].tmp2 = partsData[i++];
-						if (modsave && modsave <= 8 && partsptr[newIndex].type == PT_MOVS)
+						//Read 2nd byte
+						if ((modsave && modsave <= 8 && partsptr[newIndex].type == PT_MOVS) || (fieldDescriptor & 0x800))
 						{
 							if(i >= partsDataLen) goto fail;
 							partsptr[newIndex].tmp2 |= (((unsigned)partsData[i++]) << 8);
@@ -1815,7 +1823,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						{
 							msindex[partsptr[newIndex].tmp2] = newIndex+1;
 							if(i >= partsDataLen) goto fail;
-							msrotation[partsptr[newIndex].tmp2+1] = partsData[i++]/20.0f - 6.283185307179586476925286766559;
+							msrotation[partsptr[newIndex].tmp2+1] = partsData[i++]/20.0f - 2*M_PI;
 						}
 						if (partsptr[newIndex].pavg[0] > 32768)
 							partsptr[newIndex].pavg[0] -= 65536;
@@ -1859,6 +1867,30 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						partsptr[newIndex].type = PT_NONE;
 					if (!ptypes[partsptr[newIndex].type].enabled && !secret_els)
 						partsptr[newIndex].type = PT_NONE;
+					
+					if (saved_version<81)
+					{
+						if (partsptr[newIndex].type==PT_BOMB && partsptr[newIndex].tmp!=0)
+						{
+							partsptr[newIndex].type = PT_EMBR;
+							partsptr[newIndex].ctype = 0;
+							if (partsptr[newIndex].tmp==1)
+								partsptr[newIndex].tmp = 0;
+						}
+						if (partsptr[newIndex].type==PT_DUST && partsptr[newIndex].life>0)
+						{
+							partsptr[newIndex].type = PT_EMBR;
+							partsptr[newIndex].ctype = (partsptr[newIndex].tmp2<<16) | (partsptr[newIndex].tmp<<8) | partsptr[newIndex].ctype;
+							partsptr[newIndex].tmp = 1;
+						}
+						if (partsptr[newIndex].type==PT_FIRW && partsptr[newIndex].tmp>=2)
+						{
+							int caddress = (int)restrict_flt(restrict_flt((float)(partsptr[newIndex].tmp-4), 0.0f, 200.0f)*3, 0.0f, (200.0f*3)-3);
+							partsptr[newIndex].type = PT_EMBR;
+							partsptr[newIndex].tmp = 1;
+							partsptr[newIndex].ctype = (((unsigned char)(firw_data[caddress]))<<16) | (((unsigned char)(firw_data[caddress+1]))<<8) | ((unsigned char)(firw_data[caddress+2]));
+						}
+					}
 				}
 			}
 		}
@@ -2791,6 +2823,30 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 			}
 			if (!ptypes[parts[i-1].type].enabled)
 				parts[i-1].type = PT_NONE;
+			
+			if (ver<81)
+			{
+				if (parts[i-1].type==PT_BOMB && parts[i-1].tmp!=0)
+				{
+					parts[i-1].type = PT_EMBR;
+					parts[i-1].ctype = 0;
+					if (parts[i-1].tmp==1)
+						parts[i-1].tmp = 0;
+				}
+				if (parts[i-1].type==PT_DUST && parts[i-1].life>0)
+				{
+					parts[i-1].type = PT_EMBR;
+					parts[i-1].ctype = (parts[i-1].tmp2<<16) | (parts[i-1].tmp<<8) | parts[i-1].ctype;
+					parts[i-1].tmp = 1;
+				}
+				if (parts[i-1].type==PT_FIRW && parts[i-1].tmp>=2)
+				{
+					int caddress = (int)restrict_flt(restrict_flt((float)(parts[i-1].tmp-4), 0.0f, 200.0f)*3, 0.0f, (200.0f*3)-3);
+					parts[i-1].type = PT_EMBR;
+					parts[i-1].tmp = 1;
+					parts[i-1].ctype = (((unsigned char)(firw_data[caddress]))<<16) | (((unsigned char)(firw_data[caddress+1]))<<8) | ((unsigned char)(firw_data[caddress+2]));
+				}
+			}
 		}
 	}
 

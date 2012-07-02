@@ -268,6 +268,8 @@ void save_presets(int do_update)
 	cJSON_AddNumberToObject(root, "bframe", bframe);
 	if (finding & 0x8)
 		cJSON_AddNumberToObject(root, "alt_find", 1);
+	cJSON_AddNumberToObject(root, "dateformat", dateformat);
+	cJSON_AddNumberToObject(root, "show_ids", show_ids);
 	
 	outputdata = cJSON_Print(root);
 	cJSON_Delete(root);
@@ -459,7 +461,6 @@ void load_presets(void)
 		
 		//Read general settings
 		if((tmpobj = cJSON_GetObjectItem(root, "proxy")) && tmpobj->type == cJSON_String) strncpy(http_proxy_string, tmpobj->valuestring, 255); else http_proxy_string[0] = 0;
-		//TODO: Translate old cmode value into new *_mode values
 		if(tmpobj = cJSON_GetObjectItem(root, "scale")) sdl_scale = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "Debug mode")) DEBUG_MODE = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "heatmode")) heatmode = tmpobj->valueint;
@@ -478,10 +479,11 @@ void load_presets(void)
 		if(tmpobj = cJSON_GetObjectItem(root, "show_votes")) unlockedstuff |= 0x08;
 		if(tmpobj = cJSON_GetObjectItem(root, "EXPL_unlocked")) { unlockedstuff |= 0x10; ptypes[PT_EXPL].menu = 1; ptypes[PT_EXPL].enabled = 1; }
 		if(tmpobj = cJSON_GetObjectItem(root, "old_menu")) old_menu = 1;
-		if(tmpobj = cJSON_GetObjectItem(root, "save_as")) save_as = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "drawgrav_enable")) drawgrav_enable = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "bframe")) bframe = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "alt_find")) finding |= 0x8;
+		if(tmpobj = cJSON_GetObjectItem(root, "dateformat")) dateformat = tmpobj->valueint;
+		if(tmpobj = cJSON_GetObjectItem(root, "show_ids")) show_ids = tmpobj->valueint;
 
 		cJSON_Delete(root);
 		free(prefdata);

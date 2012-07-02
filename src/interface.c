@@ -118,6 +118,8 @@ int dae = 0;
 int h = 0;
 int over_el = 0;
 int SC_TOTAL = 14;
+int dateformat = 7;
+int show_ids = 1;
 
 int drawgrav_enable = 0;
 
@@ -2845,6 +2847,12 @@ void menu_draw_text(int h, int i)
 			else
 				strappend(favtext, "off");
 		}
+		else if (h == FAV_DATE)
+		{
+			char *time;
+			converttotime("1300000000",&time, -1, -1, -1);
+			strappend(favtext, time);
+		}
 		drawtext(vid_buf, XRES-textwidth(favtext)-BARSIZE, sy-10, favtext, 255, 255, 255, dae*5);
 	}
 	else if (h%256 == PT_LIFE)
@@ -2949,6 +2957,13 @@ void menu_select_element(int b, int h)
 					finding &= ~0x8;
 				else
 					finding |= 0x8;
+			}
+			else if (h == FAV_DATE)
+			{
+				if (dateformat%6 == 5)
+					dateformat -= 5;
+				else
+					dateformat = dateformat + 1;
 			}
 			else if (h == FAV_SECR)
 			{
@@ -3058,6 +3073,13 @@ void menu_select_element(int b, int h)
 				heatmode = 2;
 				lowesttemp = atoi(input_ui(vid_buf,"Manual Heat Display","Enter a Minimum Temperature in Celcius","",""))+273;
 				highesttemp = atoi(input_ui(vid_buf,"Manual Heat Display","Enter a Maximum Temperature in Celcius","",""))+273;
+			}
+			else if (h == FAV_DATE)
+			{
+				if (dateformat < 6)
+					dateformat += 6;
+				else
+					dateformat -= 6;
 			}
 		}
 		else if (h >= HUD_START && h < HUD_START+HUD_NUM)
@@ -4561,6 +4583,72 @@ int report_ui(pixel* vid_buf, char *save_id)
 	return 0;
 }
 
+void converttotime(char *timestamp, char **timestring, int show_day, int show_year, int show_time)
+{
+	int curr_tm_year, curr_tm_yday;
+	char *tempstring = (char*)calloc(63,sizeof(char*));
+	struct tm * stamptime, * currtime;
+	time_t stamptime2 = atoi(timestamp), currtime2 = time(NULL);
+	currtime = localtime(&currtime2);
+	curr_tm_year = currtime->tm_year; curr_tm_yday = currtime->tm_yday;
+	stamptime = localtime(&stamptime2);
+	*timestring = (char*)calloc(63,sizeof(char*));
+
+	if (show_day == 1 || show_day != 0 && (stamptime->tm_yday != curr_tm_yday || stamptime->tm_year != curr_tm_year)) //Different day or year, show date
+	{
+		if (dateformat%6 < 3) //Show weekday
+		{
+			sprintf(tempstring,asctime(stamptime));
+			tempstring[4] = 0;
+			strappend(*timestring,tempstring);
+		}
+		if (dateformat%3 == 1) // MM/DD/YY
+		{
+			sprintf(tempstring,"%i/%i",stamptime->tm_mon+1,stamptime->tm_mday);
+
+		}
+		else if (dateformat%3 == 2) // DD/MM/YY
+		{
+			sprintf(tempstring,"%i/%i",stamptime->tm_mday,stamptime->tm_mon+1);
+		}
+		else //Ex. Sun Jul 4
+		{
+			//sprintf(tempstring,asctime(stamptime));
+			//tempstring[7] = 0;
+			strncpy(tempstring,asctime(stamptime)+4,4);
+			strappend(*timestring,tempstring);
+			sprintf(tempstring,"%i",stamptime->tm_mday);
+		}
+		strappend(*timestring,tempstring);
+	}
+	if (show_year == 1 || show_year != 0 && stamptime->tm_year != curr_tm_year) //Show year
+	{
+		if (dateformat%3 != 0)
+		{
+			sprintf(tempstring,"/%i",(stamptime->tm_year+1900)%100);
+			strappend(*timestring,tempstring);
+		}
+		else
+		{
+			sprintf(tempstring," %i",stamptime->tm_year+1900);
+			strappend(*timestring,tempstring);
+		}
+	}
+	if (show_time == 1 || show_time != 0 && (dateformat < 6 || (stamptime->tm_yday == curr_tm_yday && stamptime->tm_year == curr_tm_year))) //Show time
+	{
+		int hour = stamptime->tm_hour%12;
+		char *ampm = "AM";
+		if (stamptime->tm_hour > 11)
+			ampm = "PM";
+		if (hour == 0)
+			hour = 12;
+		sprintf(tempstring,"%s%i:%.2i:%.2i %s",strlen(*timestring)==0?"":" ",hour,stamptime->tm_min,stamptime->tm_sec,ampm);
+		strappend(*timestring,tempstring);
+	}
+	free(tempstring);
+	//strncpy(*timestring, asctime(stamptime), 63);
+}
+
 int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 {
 	int b=1,bq,mx,my,ca=0,thumb_w,thumb_h,active=0,active_2=0,active_3=0,active_4=0,cc=0,ccy=0,cix=0,hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1,comment_scroll=0,comment_page=0,redraw_comments=1;
@@ -4695,7 +4783,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	uri_4 = malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
 	strcpy(uri_4, "http://" SERVER "/Browse/Comments.json?ID=");
 	strcaturl(uri_4, save_id);
-	strappend(uri_4, "&Start=1&Count=10");
+	strappend(uri_4, "&Start=0&Count=20");
 
 	http = http_async_req_start(http, uri, NULL, 0, 1);
 	http_2 = http_async_req_start(http_2, uri_2, NULL, 0, 1);
@@ -4819,7 +4907,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			{
 				int i;
 				cJSON *root, *commentobj, *tmpobj;
-				for (i=comment_page*10;i<comment_page*10+10&&i<NUM_COMMENTS;i++)
+				for (i=comment_page*20;i<comment_page*20+20&&i<NUM_COMMENTS;i++)
 				{
 					if (info->comments[i]) { free(info->comments[i]); info->comments[i] = NULL; }
 					if (info->commentauthors[i]) { free(info->commentauthors[i]); info->commentauthors[i] = NULL; }
@@ -4830,18 +4918,18 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					if (comment_page == 0)
 						info->comment_count = cJSON_GetArraySize(root);
 					else
-						info->comment_count = info->comment_count + cJSON_GetArraySize(root);
+						info->comment_count += cJSON_GetArraySize(root);
 					if (info->comment_count > NUM_COMMENTS)
 						info->comment_count = NUM_COMMENTS;
-					for (i = comment_page*10; i < info->comment_count; i++)
+					for (i = comment_page*20; i < info->comment_count; i++)
 					{
-						commentobj = cJSON_GetArrayItem(root, i%10);
+						commentobj = cJSON_GetArrayItem(root, i%20);
 						if(commentobj){
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "Username")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "UserID")) && tmpobj->type == cJSON_String) { info->commentauthorIDs[i] = (char*)calloc(16,sizeof(char*)); strncpy(info->commentauthorIDs[i], tmpobj->valuestring, 16); }
 							//if((tmpobj = cJSON_GetObjectItem(commentobj, "Gravatar")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "Text")) && tmpobj->type == cJSON_String)  { info->comments[i] = (char*)calloc(512,sizeof(char*)); strncpy(info->comments[i], tmpobj->valuestring, 512); }
-							//if((tmpobj = cJSON_GetObjectItem(commentobj, "Timestamp")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
+							if((tmpobj = cJSON_GetObjectItem(commentobj, "Timestamp")) && tmpobj->type == cJSON_String) { converttotime(tmpobj->valuestring, &info->commenttimestamps[i], -1, -1, -1); }
 						}
 					}
 					cJSON_Delete(root);
@@ -4936,7 +5024,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						}
 						else
 						{
-							int r = 255, g = 255, b = 255;
+							int r = 255, g = 255, bl = 255;
 							char* author = info->commentauthors[cc];
 							if (!strcmp(author,"jacob1") || !strcmp(author,"Simon") || !strcmp(author,"Lockheedmartin") || !strcmp(author,"lolzy") || !strcmp(author,"ief015") || !strcmp(author,"Catelite") || !strcmp(author,"doxin") || !strcmp(author,"FrankBro")  || !strcmp(author,"cracker64")|| !strcmp(author,"Xenocide") || !strcmp(author,"devast8a") || !strcmp(author,"triclops200") || !strcmp(author,"jacksonmj"))
 							{
@@ -4945,16 +5033,26 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							}
 							else if (!strcmp(author,svf_user))
 							{
-								b = 100;
+								bl = 100;
 							}
 							else if (!strcmp(author,info->author))
 							{
 								g = 100;
-								b = 100;
+								bl = 100;
 							}
-							drawtext(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, info->commentauthors[cc], r, g, b, 255);
-							if (info->commentauthorIDs[cc])
-								drawtext(vid_buf, 230+(XRES/2)+1, ccy+60+comment_scroll, info->commentauthorIDs[cc], 255, 255, 255, 255);
+							if (show_ids && info->commentauthorIDs[cc])
+							{
+								drawtext(vid_buf, 265+(XRES/2)-textwidth(info->commentauthorIDs[cc]), ccy+60+comment_scroll, info->commentauthorIDs[cc], 255, 255, 0, 255);
+								if (b && !bq && mx > 265+(XRES/2)-textwidth(info->commentauthorIDs[cc]) && mx < 265+(XRES/2) && my > ccy+60+comment_scroll && my < ccy+70+comment_scroll)
+									show_ids = 0;
+							}
+							else if (info->commenttimestamps[cc])
+							{
+								drawtext(vid_buf, 265+(XRES/2)-textwidth(info->commenttimestamps[cc]), ccy+60+comment_scroll, info->commenttimestamps[cc], 255, 255, 0, 255);
+								if (b && !bq && mx > 265+(XRES/2)-textwidth(info->commenttimestamps[cc]) && mx < 265+(XRES/2) && my > ccy+60+comment_scroll && my < ccy+70+comment_scroll)
+									show_ids = 1;
+							}
+							drawtext(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, info->commentauthors[cc], r, g, bl, 255);
 							ccy += 12;
 							ccy += drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, XRES+BARSIZE-100-((XRES/2)+1)-20, info->comments[cc], 255, 255, 255, 185);
 							ccy += 10;
@@ -4969,7 +5067,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					{
 						comment_page++;
 						uri_4 = malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
-						sprintf(uri_4,"http://%s/Browse/Comments.json?ID=%s&Start=%i&Count=10",SERVER,save_id,comment_page*10+1,comment_page);
+						sprintf(uri_4,"http://%s/Browse/Comments.json?ID=%s&Start=%i&Count=20",SERVER,save_id,comment_page*20);
 						http_4 = http_async_req_start(http_4, uri_4, NULL, 0, 1);
 						http_last_use_4 = time(NULL);
 						free(uri_4);
@@ -6787,9 +6885,9 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 						ca = 255;
 						if (cr || cg || cb)
 						{
-							if (cr) cr++;
-							if (cg) cg++;
-							if (cb) cb++;
+							if (cr && cr<255) cr++;
+							if (cg && cg<255) cg++;
+							if (cb && cb<255) cb++;
 							currR = cr;
 							currG = cg;
 							currB = cb;
