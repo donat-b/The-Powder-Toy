@@ -2619,14 +2619,23 @@ void update_particles_i(pixel *vid, int start, int inc)
 				else if (ptypes[t].properties&PROP_BREAKABLECLONE)
 				{
 					if (ptypes[t].properties&PROP_POWERED)
-						update_PBCN(i,x,y,surround_space,nt);
+					{
+						if (update_PBCN(i,x,y,surround_space,nt))
+							continue;
+					}
 					else
-						update_BCLN(i,x,y,surround_space,nt);
+					{
+						if (update_BCLN(i,x,y,surround_space,nt))
+							continue;
+					}
 				}
 				if (ptypes[t].properties&PROP_POWERED)
 					update_POWERED(i,x,y,surround_space,nt);
 				if (ptypes[t].properties&PROP_MOVS)
-					update_MOVS(i,x,y,surround_space,nt);
+				{
+					if (update_MOVS(i,x,y,surround_space,nt))
+						continue;
+				}
 				if (ptypes[t].update_func)
 				{
 					if ((*(ptypes[t].update_func))(i,x,y,surround_space,nt))

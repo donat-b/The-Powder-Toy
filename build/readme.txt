@@ -301,7 +301,6 @@ everything is dimmed, and then a dot is put over what your're finding.
 
 
 Bugs:
-Moving solid crashes with tpt.moving_solid (ex. moving prti corrupts pfree/life of dead particle changed)
 moving solids don't bounce off walls
 
 
