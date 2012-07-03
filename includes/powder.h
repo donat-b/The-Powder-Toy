@@ -980,6 +980,25 @@ void create_arc(int sx, int sy, int dx, int dy, int midpoints, int variance, int
 
 int nearest_part(int ci, int t, int max_d);
 
+void stacking_check();
+
+void GRAV_update();
+
+void LOVELOLZ_update();
+
+void WIRE_update();
+
+void LIFE_update();
+
+void WIFI_update();
+
+void decrease_life();
+
+int transfer_heat(int i, int surround[8]);
+
+int particle_transitions(int i);
+
+
 void update_particles_i(pixel *vid, int start, int inc);
 
 void update_particles(pixel *vid);
