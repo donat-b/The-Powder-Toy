@@ -992,7 +992,7 @@ void LIFE_update();
 
 void WIFI_update();
 
-void decrease_life();
+void decrease_life(int i);
 
 int transfer_heat(int i, int surround[8]);
 

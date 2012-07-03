@@ -1988,42 +1988,41 @@ void WIFI_update()
 	ISWIRE--;
 }
 
-void decrease_life()
+void decrease_life(int i)
 {
-	int i, t;
+	int t;
 	unsigned int elem_properties;
-	for (i=0; i<=parts_lastActiveIndex; i++)
-		if (parts[i].type)
-		{
-			t = parts[i].type;
+	if (parts[i].type)
+	{
+		t = parts[i].type;
 #ifdef OGLR
-			parts[i].lastX = parts[i].x;
-			parts[i].lastY = parts[i].y;
+		parts[i].lastX = parts[i].x;
+		parts[i].lastY = parts[i].y;
 #endif
-			if (t<0 || t>=PT_NUM)
+		if (t<0 || t>=PT_NUM)
+		{
+			kill_part(i);
+			return;
+		}
+		elem_properties = ptypes[t].properties;
+		if (parts[i].life>0 && (elem_properties&PROP_LIFE_DEC))
+		{
+			// automatically decrease life
+			parts[i].life--;
+			if (parts[i].life<=0 && (elem_properties&(PROP_LIFE_KILL_DEC|PROP_LIFE_KILL)))
 			{
+				// kill on change to no life
 				kill_part(i);
-				continue;
-			}
-			elem_properties = ptypes[t].properties;
-			if (parts[i].life>0 && (elem_properties&PROP_LIFE_DEC))
-			{
-				// automatically decrease life
-				parts[i].life--;
-				if (parts[i].life<=0 && (elem_properties&(PROP_LIFE_KILL_DEC|PROP_LIFE_KILL)))
-				{
-					// kill on change to no life
-					kill_part(i);
-					continue;
-				}
-			}
-			else if (parts[i].life<=0 && (elem_properties&PROP_LIFE_KILL))
-			{
-				// kill if no life
-				kill_part(i);
-				continue;
+				return;
 			}
 		}
+		else if (parts[i].life<=0 && (elem_properties&PROP_LIFE_KILL))
+		{
+			// kill if no life
+			kill_part(i);
+			return;
+		}
+	}
 }
 
 int transfer_heat(int i, int surround[8])
@@ -2433,8 +2432,6 @@ void update_particles_i(pixel *vid, int start, int inc)
 	if (ISWIRE>0) //wifi channel reseting
 		WIFI_update();
 
-	decrease_life(); //decrease the life of certain elements by 1 every frame
-
 	//the main particle loop function, goes over all particles.
 	for (i=0; i<=parts_lastActiveIndex; i++)
 		if (parts[i].type)
@@ -2466,85 +2463,88 @@ void update_particles_i(pixel *vid, int start, int inc)
 			if (parts[i].flags&FLAG_SKIPMOVE)
 				continue;
 
-			//adding to velocity from the particle's velocity
-			vx[y/CELL][x/CELL] = vx[y/CELL][x/CELL]*ptypes[t].airloss + ptypes[t].airdrag*parts[i].vx;
-			vy[y/CELL][x/CELL] = vy[y/CELL][x/CELL]*ptypes[t].airloss + ptypes[t].airdrag*parts[i].vy;
+			if (!(ptypes[t].properties & TYPE_SOLID))
+			{
+				//adding to velocity from the particle's velocity
+				vx[y/CELL][x/CELL] = vx[y/CELL][x/CELL]*ptypes[t].airloss + ptypes[t].airdrag*parts[i].vx;
+				vy[y/CELL][x/CELL] = vy[y/CELL][x/CELL]*ptypes[t].airloss + ptypes[t].airdrag*parts[i].vy;
 
-			if (t==PT_GAS||t==PT_NBLE)
-			{
-				if (pv[y/CELL][x/CELL]<3.5f)
-					pv[y/CELL][x/CELL] += ptypes[t].hotair*(3.5f-pv[y/CELL][x/CELL]);
-				if (y+CELL<YRES && pv[y/CELL+1][x/CELL]<3.5f)
-					pv[y/CELL+1][x/CELL] += ptypes[t].hotair*(3.5f-pv[y/CELL+1][x/CELL]);
-				if (x+CELL<XRES)
+				if (t==PT_GAS||t==PT_NBLE)
 				{
-					if (pv[y/CELL][x/CELL+1]<3.5f)
-						pv[y/CELL][x/CELL+1] += ptypes[t].hotair*(3.5f-pv[y/CELL][x/CELL+1]);
-					if (y+CELL<YRES && pv[y/CELL+1][x/CELL+1]<3.5f)
-						pv[y/CELL+1][x/CELL+1] += ptypes[t].hotair*(3.5f-pv[y/CELL+1][x/CELL+1]);
+					if (pv[y/CELL][x/CELL]<3.5f)
+						pv[y/CELL][x/CELL] += ptypes[t].hotair*(3.5f-pv[y/CELL][x/CELL]);
+					if (y+CELL<YRES && pv[y/CELL+1][x/CELL]<3.5f)
+						pv[y/CELL+1][x/CELL] += ptypes[t].hotair*(3.5f-pv[y/CELL+1][x/CELL]);
+					if (x+CELL<XRES)
+					{
+						if (pv[y/CELL][x/CELL+1]<3.5f)
+							pv[y/CELL][x/CELL+1] += ptypes[t].hotair*(3.5f-pv[y/CELL][x/CELL+1]);
+						if (y+CELL<YRES && pv[y/CELL+1][x/CELL+1]<3.5f)
+							pv[y/CELL+1][x/CELL+1] += ptypes[t].hotair*(3.5f-pv[y/CELL+1][x/CELL+1]);
+					}
 				}
-			}
-			else//add the hotair variable to the pressure map, like black hole, or white hole.
-			{
-				pv[y/CELL][x/CELL] += ptypes[t].hotair;
-				if (y+CELL<YRES)
-					pv[y/CELL+1][x/CELL] += ptypes[t].hotair;
-				if (x+CELL<XRES)
+				else//add the hotair variable to the pressure map, like black hole, or white hole.
 				{
-					pv[y/CELL][x/CELL+1] += ptypes[t].hotair;
+					pv[y/CELL][x/CELL] += ptypes[t].hotair;
 					if (y+CELL<YRES)
-						pv[y/CELL+1][x/CELL+1] += ptypes[t].hotair;
+						pv[y/CELL+1][x/CELL] += ptypes[t].hotair;
+					if (x+CELL<XRES)
+					{
+						pv[y/CELL][x/CELL+1] += ptypes[t].hotair;
+						if (y+CELL<YRES)
+							pv[y/CELL+1][x/CELL+1] += ptypes[t].hotair;
+					}
 				}
-			}
 
-			//Gravity mode by Moach
-			switch (gravityMode)
-			{
-			default:
-			case 0:
-				pGravX = 0.0f;
-				pGravY = ptypes[t].gravity;
-				break;
-			case 1:
-				pGravX = pGravY = 0.0f;
-				break;
-			case 2:
-				pGravD = 0.01f - hypotf(((float)x - XCNTR), ((float)y - YCNTR));
-				pGravX = ptypes[t].gravity * ((float)(x - XCNTR) / pGravD);
-				pGravY = ptypes[t].gravity * ((float)(y - YCNTR) / pGravD);
-			}
-			//Get some gravity from the gravity map
-			if (t==PT_ANAR)
-			{
-				// perhaps we should have a ptypes variable for this
-				pGravX -= gravx[(y/CELL)*(XRES/CELL)+(x/CELL)];
-				pGravY -= gravy[(y/CELL)*(XRES/CELL)+(x/CELL)];
-			}
-			else if(t!=PT_STKM && t!=PT_STKM2 && t!=PT_FIGH && !(ptypes[t].properties & TYPE_SOLID))
-			{
-				pGravX += gravx[(y/CELL)*(XRES/CELL)+(x/CELL)];
-				pGravY += gravy[(y/CELL)*(XRES/CELL)+(x/CELL)];
-			}
-			//velocity updates for the particle
-			parts[i].vx *= ptypes[t].loss;
-			parts[i].vy *= ptypes[t].loss;
-			//particle gets velocity from the vx and vy maps
-			parts[i].vx += ptypes[t].advection*vx[y/CELL][x/CELL] + pGravX;
-			parts[i].vy += ptypes[t].advection*vy[y/CELL][x/CELL] + pGravY;
-
-
-			if (ptypes[t].diffusion)//the random diffusion that gases have
-			{
-				if (realistic)
+				//Gravity mode by Moach
+				switch (gravityMode)
 				{
-					//The magic number controlls diffusion speed
-					parts[i].vx += 0.05f*sqrtf(parts[i].temp)*ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
-					parts[i].vy += 0.05f*sqrtf(parts[i].temp)*ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
+				default:
+				case 0:
+					pGravX = 0.0f;
+					pGravY = ptypes[t].gravity;
+					break;
+				case 1:
+					pGravX = pGravY = 0.0f;
+					break;
+				case 2:
+					pGravD = 0.01f - hypotf(((float)x - XCNTR), ((float)y - YCNTR));
+					pGravX = ptypes[t].gravity * ((float)(x - XCNTR) / pGravD);
+					pGravY = ptypes[t].gravity * ((float)(y - YCNTR) / pGravD);
 				}
-				else
+				//Get some gravity from the gravity map
+				if (t==PT_ANAR)
 				{
-					parts[i].vx += ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
-					parts[i].vy += ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
+					// perhaps we should have a ptypes variable for this
+					pGravX -= gravx[(y/CELL)*(XRES/CELL)+(x/CELL)];
+					pGravY -= gravy[(y/CELL)*(XRES/CELL)+(x/CELL)];
+				}
+				else if(t!=PT_STKM && t!=PT_STKM2 && t!=PT_FIGH && !(ptypes[t].properties & TYPE_SOLID))
+				{
+					pGravX += gravx[(y/CELL)*(XRES/CELL)+(x/CELL)];
+					pGravY += gravy[(y/CELL)*(XRES/CELL)+(x/CELL)];
+				}
+				//velocity updates for the particle
+				parts[i].vx *= ptypes[t].loss;
+				parts[i].vy *= ptypes[t].loss;
+				//particle gets velocity from the vx and vy maps
+				parts[i].vx += ptypes[t].advection*vx[y/CELL][x/CELL] + pGravX;
+				parts[i].vy += ptypes[t].advection*vy[y/CELL][x/CELL] + pGravY;
+
+
+				if (ptypes[t].diffusion)//the random diffusion that gases have
+				{
+					if (realistic)
+					{
+						//The magic number controlls diffusion speed
+						parts[i].vx += 0.05f*sqrtf(parts[i].temp)*ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
+						parts[i].vy += 0.05f*sqrtf(parts[i].temp)*ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
+					}
+					else
+					{
+						parts[i].vx += ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
+						parts[i].vy += ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
+					}
 				}
 			}
 
@@ -2561,7 +2561,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 					}
 				}
 
-			if (!legacy_enable)
+			if (!legacy_enable && ptypes[t].hconduct)
 			{
 				if (transfer_heat(i, surround))
 					goto killed;
@@ -2620,7 +2620,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				pv[y/CELL][x/CELL] += 0.25f * CFDS;
 			}
 
-			if (!(ptypes[t].properties&PROP_INDESTRUCTIBLE))
+			if (!(ptypes[t].properties&PROP_INDESTRUCTIBLE) && (ptransitions[t].plt != -1 || ptransitions[t].pht != -1 || ptransitions[t].tlt != -1 || ptransitions[t].tht != -1))
 			{
 				if (particle_transitions(i))
 					goto killed;
@@ -3187,6 +3187,7 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 	NUM_PARTS = 0;
 	for (i=0; i<=parts_lastActiveIndex; i++)//the particle loop that resets the pmap/photon maps every frame, to update them.
 	{
+		decrease_life(i); //decrease the life of certain elements by 1 every frame
 		if (parts[i].type)
 		{
 			t = parts[i].type;
