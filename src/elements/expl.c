@@ -6,10 +6,10 @@ int update_EXPL(UPDATE_FUNC_ARGS) {
 		for (ry=-1; ry<2; ry++)
 			if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
 			{
-				r = pmap[y+ry][x+rx];
+				r = ((pmap[y+ry][x+rx]&0xFF)==PT_PINV&&parts[pmap[y+ry][x+rx]>>8].life==10)?0:pmap[y+ry][x+rx];
 				if (!(r&0xFF))
 					continue;
-				if ((r&0xFF) != PT_EXPL && (r&0xFF) != PT_BOMB && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE)) {
+				if (!(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && (r&0xFF) != PT_EMBR) {
 					parts[r>>8].flags |= FLAG_EXPLODE;
 				}
 			}
