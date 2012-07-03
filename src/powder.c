@@ -923,7 +923,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		return -1;
 	}
 
-	if ((pmap[y][x]&0xFF) == PT_ACTV && parts[pmap[y][x]>>8].life >= 10)
+	if ((pmap[y][x]&0xFF) == PT_ACTV && parts[pmap[y][x]>>8].life == 10)
 	{
 		parts[pmap[y][x]>>8].type = PT_SPRK;
 		parts[pmap[y][x]>>8].life = 4;
@@ -1052,10 +1052,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 	}
 	if (ptypes[t].properties&PROP_POWERED)
 	{
-		if (t == PT_PCLN)
-			parts[i].tmp2 = 1;
-		else if (t != PT_PBCN)
-			parts[i].tmp = 1;
+		parts[i].flags |= FLAG_INSTACTV;
 	}
 	if (ptypes[t].properties&PROP_MOVS)
 	{
@@ -2107,6 +2104,9 @@ void update_particles_i(pixel *vid, int start, int inc)
 			if (bmap[y/CELL][x/CELL]==WL_DETECT && emap[y/CELL][x/CELL]<8)
 				set_emap(x/CELL, y/CELL);
 
+			if (parts[i].flags&FLAG_SKIPMOVE)
+				continue;
+
 			//adding to velocity from the particle's velocity
 			vx[y/CELL][x/CELL] = vx[y/CELL][x/CELL]*ptypes[t].airloss + ptypes[t].airdrag*parts[i].vx;
 			vy[y/CELL][x/CELL] = vy[y/CELL][x/CELL]*ptypes[t].airloss + ptypes[t].airdrag*parts[i].vy;
@@ -2630,7 +2630,10 @@ void update_particles_i(pixel *vid, int start, int inc)
 					}
 				}
 				if (ptypes[t].properties&PROP_POWERED)
-					update_POWERED(i,x,y,surround_space,nt);
+				{
+					if (update_POWERED(i,x,y,surround_space,nt))
+						continue;
+				}
 				if (ptypes[t].properties&PROP_MOVS)
 				{
 					if (update_MOVS(i,x,y,surround_space,nt))
@@ -2766,12 +2769,6 @@ killed:
 			else if (ptypes[t].properties & TYPE_ENERGY)
 			{
 				if (t == PT_PHOT) {
-					if (parts[i].flags&FLAG_SKIPMOVE)
-					{
-						parts[i].flags &= ~FLAG_SKIPMOVE;
-						continue;
-					}
-
 					rt = pmap[fin_y][fin_x] & 0xFF;
 					lt = pmap[y][x] & 0xFF;
 
@@ -3173,6 +3170,10 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 			t = parts[i].type;
 			x = (int)(parts[i].x+0.5f);
 			y = (int)(parts[i].y+0.5f);
+			if (parts[i].flags&FLAG_SKIPMOVE)
+			{
+				parts[i].flags &= ~FLAG_SKIPMOVE;
+			}
 			if (x>=0 && y>=0 && x<XRES && y<YRES)
 			{
 				if (t == PT_PINV && (parts[i].tmp2>>8) >= i)

@@ -7,8 +7,6 @@ int update_ANIM(UPDATE_FUNC_ARGS) {
 		kill_part(i);
 		return 1;
 	}
-	if (parts[i].life>0 && parts[i].life!=10)
-		parts[i].life--;
 	if (parts[i].tmp >= 0 && parts[i].life == 10)
 		parts[i].tmp--;
 	if (parts[i].tmp == 0)

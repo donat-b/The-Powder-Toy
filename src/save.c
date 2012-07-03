@@ -1867,7 +1867,16 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						partsptr[newIndex].type = PT_NONE;
 					if (!ptypes[partsptr[newIndex].type].enabled && !secret_els)
 						partsptr[newIndex].type = PT_NONE;
-					
+
+					if (modsave && modsave < 10 && (ptypes[partsptr[newIndex].type].properties&PROP_POWERED))
+					{
+						if (partsptr[newIndex].type == PT_PCLN && partsptr[newIndex].tmp2 == 1)
+							partsptr[newIndex].flags |= FLAG_INSTACTV;
+						else if (partsptr[newIndex].type != PT_PBCN && partsptr[newIndex].tmp == 1)
+							partsptr[newIndex].flags |= FLAG_INSTACTV;
+						else if (partsptr[newIndex].type == PT_ANIM)
+							partsptr[newIndex].flags |= FLAG_INSTACTV;
+					}
 					if (saved_version<81)
 					{
 						if (partsptr[newIndex].type==PT_BOMB && partsptr[newIndex].tmp!=0)
@@ -2824,6 +2833,18 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 			if (!ptypes[parts[i-1].type].enabled)
 				parts[i-1].type = PT_NONE;
 			
+			if (modver)
+			{
+				if (modver && (ptypes[parts[i].type].properties&PROP_POWERED))
+				{
+					if (parts[i].type == PT_PCLN && parts[i].tmp2 == 1)
+						parts[i].flags |= FLAG_INSTACTV;
+					else if (parts[i].type != PT_PBCN && parts[i].tmp == 1)
+						parts[i].flags |= FLAG_INSTACTV;
+					else if (parts[i].type == PT_ANIM)
+						parts[i].flags |= FLAG_INSTACTV;
+				}
+			}
 			if (ver<81)
 			{
 				if (parts[i-1].type==PT_BOMB && parts[i-1].tmp!=0)

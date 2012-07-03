@@ -294,8 +294,9 @@
 #define PROP_MOVS			0x800000 //2^24 Moving solids!
 
 #define FLAG_STAGNANT	0x1
-#define FLAG_SKIPMOVE	0x2 // skip movement for one frame, only implemented for PHOT
+#define FLAG_SKIPMOVE	0x2 // Skip movement for one frame
 #define FLAG_EXPLODE	0x4 // EXPL explosion
+#define FLAG_INSTACTV	0x8 // Instant activation for powered electronics
 
 #define GRAPHICS_FUNC_ARGS particle *cpart, int nx, int ny, int *pixel_mode, int* cola, int *colr, int *colg, int *colb, int *firea, int *firer, int *fireg, int *fireb
 #define GRAPHICS_FUNC_SUBCALL_ARGS cpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb

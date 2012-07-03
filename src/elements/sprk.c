@@ -177,27 +177,6 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 					if (ct==PT_PSCN && parts[r>>8].tmp == 0) parts[r>>8].tmp = 2;
 					else if (ct==PT_NSCN && parts[r>>8].tmp == 3) parts[r>>8].tmp = 1;
 				}
-				else if ((ct==PT_PSCN||ct==PT_NSCN) && (rt==PT_ANIM && abs(rx)<2 && abs(ry)<2))
-				{
-					if (ct==PT_PSCN)
-					{
-						parts[r>>8].life = 10;
-						parts[r>>8].tmp = (int)(parts[r>>8].temp - 273.15);
-						parts[r>>8].tmp2 = parts[i].tmp2;
-					}
-					else if (ct==PT_NSCN && parts[r>>8].life > 0)
-					{
-						parts[r>>8].life = 9;
-						parts[r>>8].tmp2 = parts[i].tmp2;
-					}
-				}
-				else if ((ct==PT_METL) && (rt==PT_ANIM && abs(rx)<2 && abs(ry)<2))
-				{
-					if (parts[r>>8].life == 10)
-						parts[r>>8].life = 9;
-					else
-						parts[r>>8].life = 12;
-				}
 				if (rt == PT_PIPE && parts[i].life >= 3 && pavg!=PT_INSL)
 				{
 					if (ct == PT_PSCN)
