@@ -3590,7 +3590,10 @@ int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 		{
 			cm = pmap[y][x]&0xFF;
 			if (!cm)
-				return 0;
+			{
+				c = fullc = WL_ERASE+100; //Try to erase walls if there is no particle in this spot
+				dy = 4;
+			}
 			if ((flags&BRUSH_REPLACEMODE) && cm!=SLALT)
 				return 0;
 		}
@@ -3604,8 +3607,6 @@ int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 			bm = bmap[y/CELL][x/CELL];
 			if (!bm)
 				return 0;
-			if (bm==WL_WALL)
-				cm = 0xFF;
 		}
 		else
 			bm = 0;
