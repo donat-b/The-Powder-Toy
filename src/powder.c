@@ -2463,7 +2463,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 			if (parts[i].flags&FLAG_SKIPMOVE)
 				continue;
 
-			if (!(ptypes[t].properties & TYPE_SOLID))
+			if (!(ptypes[t].properties & TYPE_SOLID) || (ptypes[t].properties & PROP_MOVS))
 			{
 				//adding to velocity from the particle's velocity
 				vx[y/CELL][x/CELL] = vx[y/CELL][x/CELL]*ptypes[t].airloss + ptypes[t].airdrag*parts[i].vx;
@@ -3187,7 +3187,8 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 	NUM_PARTS = 0;
 	for (i=0; i<=parts_lastActiveIndex; i++)//the particle loop that resets the pmap/photon maps every frame, to update them.
 	{
-		decrease_life(i); //decrease the life of certain elements by 1 every frame
+		if (!sys_pause||framerender)
+			decrease_life(i); //decrease the life of certain elements by 1 every frame
 		if (parts[i].type)
 		{
 			t = parts[i].type;
