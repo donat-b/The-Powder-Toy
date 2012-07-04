@@ -567,3 +567,23 @@ int graphics_COAL(GRAPHICS_FUNC_ARGS) //Both COAL and Broken Coal
 	}
 	return 0;
 }
+int graphics_WOOD(GRAPHICS_FUNC_ARGS)
+{
+	if (cpart->temp > 400)
+	{
+		*colr -= (int)restrict_flt((cpart->temp-400)/3,0,172);
+		*colg -= (int)restrict_flt((cpart->temp-400)/4,0,140);
+		*colb -= (int)restrict_flt((cpart->temp-400)/20,0,44);
+	}
+	return 0;
+}
+int graphics_PLNT(GRAPHICS_FUNC_ARGS)
+{
+	if (cpart->temp > 300)
+	{
+		*colr += (int)restrict_flt((cpart->temp-300)/5,0,58);
+		*colg -= (int)restrict_flt((cpart->temp-300)/2,0,102);
+		*colb += (int)restrict_flt((cpart->temp-300)/5,0,70);
+	}
+	return 0;
+}
