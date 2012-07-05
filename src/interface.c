@@ -1939,7 +1939,7 @@ fail:
 
 int stamp_ui(pixel *vid_buf)
 {
-	int b=1,bq,mx,my,d=-1,i,j,k,x,gx,gy,y,w,h,r=-1,stamp_page=0,per_page=GRID_X*GRID_Y,page_count;
+	int b=1,bq,mx,my,d=-1,i,j,k,x,gx,gy,y,w,h,r=-1,stamp_page=0,per_page=GRID_X*GRID_Y,page_count,numdelete=0,lastdelete;
 	char page_info[64];
 	// stamp_count-1 to avoid an extra page when there are per_page stamps on each page
 	page_count = (stamp_count-1)/per_page+1;
@@ -1983,9 +1983,10 @@ int stamp_ui(pixel *vid_buf)
 					{
 						drawtext(vid_buf, gx+8, gy+((YRES/GRID_S)/2)-4, "Error loading stamp", 255, 255, 255, 255);
 					}
-					if (mx>=gx+XRES/GRID_S-4 && mx<(gx+XRES/GRID_S)+6 && my>=gy-6 && my<gy+4)
+					if ((mx>=gx+XRES/GRID_S-4 && mx<(gx+XRES/GRID_S)+6 && my>=gy-6 && my<gy+4) || stamps[k].dodelete)
 					{
-						d = k;
+						if (mx>=gx+XRES/GRID_S-4 && mx<(gx+XRES/GRID_S)+6 && my>=gy-6 && my<gy+4)
+							d = k;
 						drawrect(vid_buf, gx-2, gy-2, XRES/GRID_S+3, YRES/GRID_S+3, 128, 128, 128, 255);
 						drawtext(vid_buf, gx+XRES/GRID_S-4, gy-6, "\x86", 255, 48, 32, 255);
 					}
@@ -2008,9 +2009,27 @@ int stamp_ui(pixel *vid_buf)
 				k++;
 			}
 
-		sprintf(page_info, "Page %d of %d", stamp_page+1, page_count);
+		if (numdelete)
+		{
+			drawrect(vid_buf,(XRES/2)-19,YRES+MENUSIZE-18,37,16,255,255,255,255);
+			drawtext(vid_buf, (XRES/2)-14, YRES+MENUSIZE-14, "Delete", 255, 255, 255, 255);
+			if (b == 1 && bq == 0 && mx > (XRES/2)-20 && mx < (XRES/2)+19 && my > YRES+MENUSIZE-19 && my < YRES+MENUSIZE-1)
+			{
+				sprintf(page_info, "%d stamp%s", numdelete, (numdelete == 1)?"":"s");
+				if (confirm_ui(vid_buf, "Do you want to delete?", page_info, "Delete"))
+					del_stamp(lastdelete);
+				for (i=0; i<STAMP_MAX; i++)
+					stamps[i].dodelete = 0;
+				numdelete = 0;
+				d = lastdelete = -1;
+			}
+		}
+		else
+		{
+			sprintf(page_info, "Page %d of %d", stamp_page+1, page_count);
 
-		drawtext(vid_buf, (XRES/2)-(textwidth(page_info)/2), YRES+MENUSIZE-14, page_info, 255, 255, 255, 255);
+			drawtext(vid_buf, (XRES/2)-(textwidth(page_info)/2), YRES+MENUSIZE-14, page_info, 255, 255, 255, 255);
+		}
 
 		if (stamp_page)
 		{
@@ -2023,9 +2042,23 @@ int stamp_ui(pixel *vid_buf)
 			drawrect(vid_buf, XRES-18, YRES+MENUSIZE-18, 16, 16, 255, 255, 255, 255);
 		}
 
-		if (b==1&&d!=-1)
+		if (b==1&&bq==0&&d!=-1)
 		{
-			if (confirm_ui(vid_buf, "Do you want to delete?", stamps[d].name, "Delete"))
+			if (sdl_mod & KMOD_CTRL)
+			{
+				if (!stamps[d].dodelete)
+				{
+					stamps[d].dodelete = 1;
+					numdelete++;
+					lastdelete=d;
+				}
+				else
+				{
+					stamps[d].dodelete = 0;
+					numdelete--;
+				}
+			}
+			else if (!numdelete && confirm_ui(vid_buf, "Do you want to delete?", stamps[d].name, "Delete"))
 			{
 				del_stamp(d);
 			}
@@ -2077,6 +2110,8 @@ int stamp_ui(pixel *vid_buf)
 			break;
 	}
 
+	for (i=0; i<STAMP_MAX; i++)
+		stamps[i].dodelete = 0;
 	return r;
 }
 
