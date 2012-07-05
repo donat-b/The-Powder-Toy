@@ -2801,37 +2801,25 @@ void menu_draw_text(int h, int i)
 			if (!heatmode)
 				strappend(favtext, "normal: -273.15C - 9725.85C");
 			else if (heatmode == 1)
-				sprintf(favtext, "%s automatic: %iC - %iC",fav[h-FAV_START].description,lowesttemp-273,highesttemp-273);
+				sprintf(favtext, "%sautomatic: %iC - %iC",fav[h-FAV_START].description,lowesttemp-273,highesttemp-273);
 			else
-				sprintf(favtext, "%s manual: %iC - %iC",fav[h-FAV_START].description,lowesttemp-273,highesttemp-273);
+				sprintf(favtext, "%smanual: %iC - %iC",fav[h-FAV_START].description,lowesttemp-273,highesttemp-273);
 		}
 		else if (h == FAV_SAVE)
 		{
 			if (save_as%3 == 0)
 				strappend(favtext, "Jacob's Mod ver. " MTOS(MOD_VERSION));
 			else if (save_as%3 == 1)
-			{
-				char versiontext[32];
-				sprintf(versiontext,"Powder Toy beta ver. %i",BETA_VERSION);
-				strappend(favtext, versiontext);
-			}
+				strappend(favtext, "Powder Toy beta ver. " MTOS(BETA_VERSION));
 			else
-			{
-				char versiontext[32];
-				sprintf(versiontext,"Powder Toy release ver. %i",RELEASE_VERSION);
-				strappend(favtext, versiontext);
-			}
+				strappend(favtext, "Powder Toy release ver. " MTOS(RELEASE_VERSION));
 		}
 		else if (h == FAV_AUTOSAVE)
 		{
 			if (!autosave)
 				strappend(favtext, "off");
 			else
-			{
-				char versiontext[32];
-				sprintf(versiontext,"every %d seconds",autosave);
-				strappend(favtext, versiontext);
-			}
+				sprintf(favtext, "%severy %d seconds",fav[h-FAV_START].description,autosave);
 		}
 		else if (h == FAV_REAL)
 		{
@@ -2940,7 +2928,7 @@ void menu_select_element(int b, int h)
 			else if (h == FAV_AUTOSAVE)
 			{
 				autosave = atoi(input_ui(vid_buf,"Autosave","Input number of seconds between saves, 0 = off","",""));
-				if (autosave < 10)
+				if (autosave < 0)
 					autosave = 0;
 			}
 			else if (h == FAV_REAL)

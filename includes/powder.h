@@ -778,7 +778,7 @@ static wall_type wtypes[] =
 	{"ENERGYWALL",	PIXPACK(0xFFAA00), PIXPACK(0xAA5500), 4,  "Energy wall, allows only energy type particles to pass"},
 	{"PROP",		PIXPACK(0xFFAA00), PIXPACK(0x000000), -1, "Property edit tool"},
 	{"ERASEALL",	PIXPACK(0x808080), PIXPACK(0x000000), -1, "Erases walls, particles, and signs"},
-	{"PROP2",		PIXPACK(0xFFAA00), PIXPACK(0x000000), -1, "Property drawing tool"},
+	{"PRP2",		PIXPACK(0xFFAA00), PIXPACK(0x000000), -1, "Property drawing tool"},
 };
 
 #define FAV_START 300
