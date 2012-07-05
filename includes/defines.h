@@ -25,8 +25,8 @@
  
 //VersionInfoStart
 #define SAVE_VERSION 81
-#define MINOR_VERSION 0
-#define BUILD_NUM 182
+#define MINOR_VERSION 1
+#define BUILD_NUM 183
 //VersionInfoEnd
 
 #define MOD_VERSION 16

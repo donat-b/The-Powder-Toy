@@ -2510,6 +2510,7 @@ int main(int argc, char *argv[])
 
 									buff[sldr-3] = '\0';
 									open_ui(vid_buf, buff, 0, 0);
+									break;
 								}
 							}
 				}
