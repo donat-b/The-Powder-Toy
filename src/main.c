@@ -2722,6 +2722,10 @@ int main(int argc, char *argv[])
 				savey = savey + saveh - 1;
 				saveh = abs(saveh) + 2;
 			}
+			fillrect(vid_buf,-1,-1,savex+1,YRES,0,0,0,100);
+			fillrect(vid_buf,savex-1,-1,savew+1,savey+1,0,0,0,100);
+			fillrect(vid_buf,savex-1,savey+saveh-1,savew+1,YRES-savey-saveh+1,0,0,0,100);
+			fillrect(vid_buf,savex+savew-1,-1,XRES-savex-savew+1,YRES+1,0,0,0,100);
 			xor_rect(vid_buf, savex, savey, savew, saveh);
 			da = 51;//draws mouseover text for the message
 			if (copy_mode != 2)
