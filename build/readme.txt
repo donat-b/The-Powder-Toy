@@ -290,7 +290,7 @@ Make Some lua console shortcuts less annoying. Fix compression during fusion
 and with moving sponge. Fix moderator name colors, also, your name is yellow 
 and save creators is red. Update to latest source.
 
-Next Version
+Version 17.0 - 7/5/12
 Many minor graphical fixes to the HUD. FIND can find 3 things at once. Left 
 selected element is red, right selected is blue, and alternate selected is 
 green. LCtrl/RCtrl/Shift + F to toggle these. Also, a new FIND2 button which 
