@@ -290,12 +290,18 @@ Make Some lua console shortcuts less annoying. Fix compression during fusion
 and with moving sponge. Fix moderator name colors, also, your name is yellow 
 and save creators is red. Update to latest source.
 
-Next version
+Next Version
 Many minor graphical fixes to the HUD. FIND can find 3 things at once. Left 
 selected element is red, right selected is blue, and alternate selected is 
 green. LCtrl/RCtrl/Shift + F to toggle these. Also, a new FIND2 button which 
 toggles an alternate find mode more similar to my lua script, where first 
-everything is dimmed, and then a dot is put over what your're finding.
+everything is dimmed, and then a dot is put over what your're finding. Fix 
+crash bug with powered electronics and moving solids, ANIM activated instantly 
+now too. New flood-fill brush shape. Many speed improvements by skiping 
+unneeded things. WOOD and PLNT look burnt when hot and frozen when cold. VIRS 
+has a small chance of destroying CURE. saving stamps looks better & you can 
+delete multiple stamps at once with Ctrl+red delete button. Many other minor 
+fixes and changes.
 
 
 
