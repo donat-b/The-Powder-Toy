@@ -2413,7 +2413,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 	int starti = (start*-1);
 	int surround[8];
 	int lightning_ok=1;
-	float pGravX, pGravY, pGravD;
+	float pGravX = 0, pGravY = 0, pGravD = 0;
 
 	if (sys_pause&&lighting_recreate>0)
     {
@@ -2486,12 +2486,12 @@ void update_particles_i(pixel *vid, int start, int inc)
 			if (parts[i].flags&FLAG_SKIPMOVE)
 				continue;
 
+			//adding to velocity from the particle's velocity
+			vx[y/CELL][x/CELL] = vx[y/CELL][x/CELL]*ptypes[t].airloss + ptypes[t].airdrag*parts[i].vx;
+			vy[y/CELL][x/CELL] = vy[y/CELL][x/CELL]*ptypes[t].airloss + ptypes[t].airdrag*parts[i].vy;
+
 			if (!(ptypes[t].properties & TYPE_SOLID) || (ptypes[t].properties & PROP_MOVS))
 			{
-				//adding to velocity from the particle's velocity
-				vx[y/CELL][x/CELL] = vx[y/CELL][x/CELL]*ptypes[t].airloss + ptypes[t].airdrag*parts[i].vx;
-				vy[y/CELL][x/CELL] = vy[y/CELL][x/CELL]*ptypes[t].airloss + ptypes[t].airdrag*parts[i].vy;
-
 				if (t==PT_GAS||t==PT_NBLE)
 				{
 					if (pv[y/CELL][x/CELL]<3.5f)
@@ -2547,27 +2547,28 @@ void update_particles_i(pixel *vid, int start, int inc)
 					pGravX += gravx[(y/CELL)*(XRES/CELL)+(x/CELL)];
 					pGravY += gravy[(y/CELL)*(XRES/CELL)+(x/CELL)];
 				}
-				//velocity updates for the particle
-				parts[i].vx *= ptypes[t].loss;
-				parts[i].vy *= ptypes[t].loss;
-				//particle gets velocity from the vx and vy maps
-				parts[i].vx += ptypes[t].advection*vx[y/CELL][x/CELL] + pGravX;
-				parts[i].vy += ptypes[t].advection*vy[y/CELL][x/CELL] + pGravY;
+			}
+
+			//velocity updates for the particle
+			parts[i].vx *= ptypes[t].loss;
+			parts[i].vy *= ptypes[t].loss;
+			//particle gets velocity from the vx and vy maps
+			parts[i].vx += ptypes[t].advection*vx[y/CELL][x/CELL] + pGravX;
+			parts[i].vy += ptypes[t].advection*vy[y/CELL][x/CELL] + pGravY;
 
 
-				if (ptypes[t].diffusion)//the random diffusion that gases have
+			if (ptypes[t].diffusion)//the random diffusion that gases have
+			{
+				if (realistic)
 				{
-					if (realistic)
-					{
-						//The magic number controlls diffusion speed
-						parts[i].vx += 0.05f*sqrtf(parts[i].temp)*ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
-						parts[i].vy += 0.05f*sqrtf(parts[i].temp)*ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
-					}
-					else
-					{
-						parts[i].vx += ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
-						parts[i].vy += ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
-					}
+					//The magic number controlls diffusion speed
+					parts[i].vx += 0.05f*sqrtf(parts[i].temp)*ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
+					parts[i].vy += 0.05f*sqrtf(parts[i].temp)*ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
+				}
+				else
+				{
+					parts[i].vx += ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
+					parts[i].vy += ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
 				}
 			}
 
