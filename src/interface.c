@@ -227,7 +227,7 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 	ed.def = "[message]";
 	ed.focus = 1;
 	ed.hide = 0;
-	ed.cursor = strlen(signs[i].text);
+	ed.cursor = ed.cursorstart = strlen(signs[i].text);
 	ed.multiline = 0;
 	strcpy(ed.str, signs[i].text);
 	ju = signs[i].ju;
@@ -271,7 +271,7 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 #endif
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 
-		ui_edit_process(mx, my, b, &ed);
+		ui_edit_process(mx, my, b, bq, &ed);
 
 		if (b && !bq && mx>=x0+50 && mx<=x0+67 && my>=y0+42 && my<=y0+59)
 			ju = 0;
@@ -314,8 +314,18 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 void ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 {
 	int cx, i, cy;
-	char echo[256], *str;
+	char echo[256], *str, highlightstr[256];
 
+	if (ed->cursor>ed->cursorstart)
+	{
+		ed->highlightstart = ed->cursorstart;
+		ed->highlightlength = ed->cursor-ed->cursorstart;
+	}
+	else
+	{
+		ed->highlightstart = ed->cursor;
+		ed->highlightlength = ed->cursorstart-ed->cursor;
+	}
 	if (ed->hide)
 	{
 		for (i=0; ed->str[i]; i++)
@@ -330,9 +340,22 @@ void ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 	{
 		if (ed->multiline) {
 			drawtextwrap(vid_buf, ed->x, ed->y, ed->w-14, str, 255, 255, 255, 255);
+			if (ed->highlightlength)
+			{
+				
+				strncpy(highlightstr, &str[ed->highlightstart], ed->highlightlength);
+				highlightstr[ed->highlightlength] = 0;
+				drawhighlightwrap(vid_buf, ed->x, ed->y, ed->w-14, ed->str, ed->highlightstart, ed->highlightlength);
+			}
 			drawtext(vid_buf, ed->x+ed->w-11, ed->y-1, "\xAA", 128, 128, 128, 255);
 		} else {
 			drawtext(vid_buf, ed->x, ed->y, str, 255, 255, 255, 255);
+			if (ed->highlightlength)
+			{
+				strncpy(highlightstr, &str[ed->highlightstart], ed->highlightlength);
+				highlightstr[ed->highlightlength] = 0;
+				drawhighlight(vid_buf, ed->x+textwidth(str)-textwidth(&str[ed->highlightstart]), ed->y, highlightstr);
+			}
 			drawtext(vid_buf, ed->x+ed->w-11, ed->y-1, "\xAA", 128, 128, 128, 255);
 		}
 	}
@@ -352,7 +375,7 @@ void ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 	}
 }
 
-void ui_edit_process(int mx, int my, int mb, ui_edit *ed)
+void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 {
 	char ch, ts[2], echo[256], *str;
 	int l, i;
@@ -360,6 +383,16 @@ void ui_edit_process(int mx, int my, int mb, ui_edit *ed)
 	char *p;
 #endif
 
+	if (ed->cursor>ed->cursorstart)
+	{
+		ed->highlightstart = ed->cursorstart;
+		ed->highlightlength = ed->cursor-ed->cursorstart;
+	}
+	else
+	{
+		ed->highlightstart = ed->cursor;
+		ed->highlightlength = ed->cursorstart-ed->cursor;
+	}
 	if (mb)
 	{
 		if (ed->hide)
@@ -373,7 +406,7 @@ void ui_edit_process(int mx, int my, int mb, ui_edit *ed)
 			str = ed->str;
 
 		if (ed->multiline) {
-			if (mx>=ed->x+ed->w-11 && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+11)
+			if (!mbq && mx>=ed->x+ed->w-11 && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+11)
 			{
 				ed->focus = 1;
 				ed->cursor = 0;
@@ -387,7 +420,7 @@ void ui_edit_process(int mx, int my, int mb, ui_edit *ed)
 			else
 				ed->focus = 0;
 		} else {
-			if (mx>=ed->x+ed->w-11 && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+11)
+			if (!mbq && mx>=ed->x+ed->w-11 && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+11)
 			{
 				ed->focus = 1;
 				ed->cursor = 0;
@@ -418,10 +451,10 @@ void ui_edit_process(int mx, int my, int mb, ui_edit *ed)
 		switch (sdl_key)
 		{
 		case SDLK_HOME:
-			ed->cursor = 0;
+			ed->cursor = ed->cursorstart = 0;
 			break;
 		case SDLK_END:
-			ed->cursor = l;
+			ed->cursor = ed->cursorstart = l;
 			break;
 		case SDLK_LEFT:
 			if (ed->cursor > 0)
@@ -430,6 +463,7 @@ void ui_edit_process(int mx, int my, int mb, ui_edit *ed)
 			{
 				ed->cursor--;
 			}
+			ed->cursorstart = ed->cursor;
 			break;
 		case SDLK_RIGHT:
 			if (ed->cursor < l && ed->str[ed->cursor] == '\b')
@@ -438,10 +472,16 @@ void ui_edit_process(int mx, int my, int mb, ui_edit *ed)
 			}
 			if (ed->cursor < l)
 				ed->cursor ++;
+			ed->cursorstart = ed->cursor;
 			break;
 		case SDLK_DELETE:
 			if (sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
 				ed->str[ed->cursor] = 0;
+			else if (ed->highlightlength)
+			{
+				memmove(ed->str+ed->highlightstart, ed->str+ed->highlightstart+ed->highlightlength, l-ed->highlightstart);
+				ed->cursor = ed->highlightstart;
+			}
 			else if (ed->cursor < l)
 			{
 				if (ed->str[ed->cursor] == '\b')
@@ -451,6 +491,7 @@ void ui_edit_process(int mx, int my, int mb, ui_edit *ed)
 				else
 					memmove(ed->str+ed->cursor, ed->str+ed->cursor+1, l-ed->cursor);
 			}
+			ed->cursorstart = ed->cursor;
 			break;
 		case SDLK_BACKSPACE:
 			if (sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
@@ -458,6 +499,11 @@ void ui_edit_process(int mx, int my, int mb, ui_edit *ed)
 				if (ed->cursor > 0)
 					memmove(ed->str, ed->str+ed->cursor, l-ed->cursor+1);
 				ed->cursor = 0;
+			}
+			else if (ed->highlightlength)
+			{
+				memmove(ed->str+ed->highlightstart, ed->str+ed->highlightstart+ed->highlightlength, l-ed->highlightstart);
+				ed->cursor = ed->highlightstart;
 			}
 			else if (ed->cursor > 0)
 			{
@@ -469,11 +515,20 @@ void ui_edit_process(int mx, int my, int mb, ui_edit *ed)
 					memmove(ed->str+ed->cursor, ed->str+ed->cursor+1, l-ed->cursor);
 				}
 			}
+			ed->cursorstart = ed->cursor;
 			break;
 		default:
 			if(sdl_mod & (KMOD_CTRL) && sdl_key=='c')//copy
 			{
-				clipboard_push_text(ed->str);
+				if (ed->highlightlength)
+				{
+					char highlightstr[256];
+					strncpy(highlightstr, &str[ed->highlightstart], ed->highlightlength);
+					highlightstr[ed->highlightlength] = 0;
+					clipboard_push_text(highlightstr);
+				}
+				else
+					clipboard_push_text(ed->str);
 				break;
 			}
 			else if(sdl_mod & (KMOD_CTRL) && sdl_key=='v')//paste
@@ -482,14 +537,30 @@ void ui_edit_process(int mx, int my, int mb, ui_edit *ed)
 				int pl = strlen(paste);
 				if ((textwidth(str)+textwidth(paste) > ed->w-14 && !ed->multiline) || (pl+strlen(ed->str)>255) || (float)(((textwidth(str)+textwidth(paste))/(ed->w-14)*12) > ed->h && ed->multiline))
 					break;
+				if (ed->highlightlength)
+				{
+					memmove(ed->str+ed->highlightstart, ed->str+ed->highlightstart+ed->highlightlength, l-ed->highlightstart);
+					ed->cursor = ed->highlightstart;
+				}
 				memmove(ed->str+ed->cursor+pl, ed->str+ed->cursor, l+pl-ed->cursor);
 				memcpy(ed->str+ed->cursor,paste,pl);
 				ed->cursor += pl;
+				ed->cursorstart = ed->cursor;
 				break;
+			}
+			else if(sdl_mod & (KMOD_CTRL) && sdl_key=='a')//highlight all
+			{
+				ed->cursorstart = 0;
+				ed->cursor = l;
 			}
 #ifdef RAWINPUT
 			if (sdl_key>=SDLK_SPACE && sdl_key<=SDLK_z && l<255)
 			{
+				if (ed->highlightlength)
+				{
+					memmove(ed->str+ed->highlightstart, ed->str+ed->highlightstart+ed->highlightlength, l-ed->highlightstart);
+					ed->cursor = ed->highlightstart;
+				}
 				ch = sdl_key;
 				if ((sdl_mod & (KMOD_LSHIFT|KMOD_RSHIFT|KMOD_CAPS)))
 				{
@@ -506,6 +577,7 @@ void ui_edit_process(int mx, int my, int mb, ui_edit *ed)
 				memmove(ed->str+ed->cursor+1, ed->str+ed->cursor, l+1-ed->cursor);
 				ed->str[ed->cursor] = ch;
 				ed->cursor++;
+				ed->cursorstart = ed->cursor;
 			}
 #else
 			if ((sdl_mod & (KMOD_CTRL)) && (svf_admin || svf_mod))
@@ -516,15 +588,26 @@ void ui_edit_process(int mx, int my, int mb, ui_edit *ed)
 					ch = sdl_key;
 				else
 					break;
+				if (ed->highlightlength)
+				{
+					memmove(ed->str+ed->highlightstart, ed->str+ed->highlightstart+ed->highlightlength, l-ed->highlightstart);
+					ed->cursor = ed->highlightstart;
+				}
 				if ((textwidth(str) > ed->w-14 && !ed->multiline) || (float)(((textwidth(str))/(ed->w-14)*12) > ed->h && ed->multiline))
 					break;
 				memmove(ed->str+ed->cursor+2, ed->str+ed->cursor, l+2-ed->cursor);
 				ed->str[ed->cursor] = '\b';
 				ed->str[ed->cursor+1] = ch;
 				ed->cursor+=2;
+				ed->cursorstart = ed->cursor;
 			}
 			if (sdl_ascii>=' ' && sdl_ascii<127 && l<255)
 			{
+				if (ed->highlightlength)
+				{
+					memmove(ed->str+ed->highlightstart, ed->str+ed->highlightstart+ed->highlightlength, l-ed->highlightstart);
+					ed->cursor = ed->highlightstart;
+				}
 				ch = sdl_ascii;
 				ts[0]=ed->hide?0x8D:ch;
 				ts[1]=0;
@@ -533,11 +616,15 @@ void ui_edit_process(int mx, int my, int mb, ui_edit *ed)
 				memmove(ed->str+ed->cursor+1, ed->str+ed->cursor, l+1-ed->cursor);
 				ed->str[ed->cursor] = ch;
 				ed->cursor++;
+				ed->cursorstart = ed->cursor;
 			}
 #endif
 			break;
 		}
 	}
+	if (!mb || !mbq)
+		if (ed->cursorstart == ed->cursor || (mb && !mbq))
+			ed->cursorstart = ed->cursor;
 }
 
 void ui_list_process(pixel * vid_buf, int mx, int my, int mb, ui_list *ed)
@@ -1066,7 +1153,7 @@ void element_search_ui(pixel *vid_buf, int * slp, int * srp)
 	ed.def = "[element name]";
 	ed.focus = 1;
 	ed.hide = 0;
-	ed.cursor = 0;
+	ed.cursor = ed.cursorstart = 0;
 	ed.multiline = 0;
 	ed.str[0] = 0;
 
@@ -1083,7 +1170,7 @@ void element_search_ui(pixel *vid_buf, int * slp, int * srp)
 
 		drawrect(vid_buf, ed.x-4, ed.y-5, ed.w+4, 16, 192, 192, 192, 255);
 		ui_edit_draw(vid_buf, &ed);
-		ui_edit_process(mx, my, b, &ed);
+		ui_edit_process(mx, my, b, bq, &ed);
 		
 		drawrect(vid_buf, ed.x-4, (ed.y-5)+20, ed.w+4, windowHeight-((ed.y-5)), 192, 192, 192, 255);
 		xoff = (ed.x-4)+6;
@@ -1253,7 +1340,7 @@ char *input_ui(pixel *vid_buf, char *title, char *prompt, char *text, char *shad
 	ed.def = shadow;
 	ed.focus = 0;
 	ed.hide = 0;
-	ed.cursor = 0;
+	ed.cursor = ed.cursorstart = 0;
 	ed.multiline = 0;
 	strncpy(ed.str, text, 254);
 
@@ -1277,7 +1364,7 @@ char *input_ui(pixel *vid_buf, char *title, char *prompt, char *text, char *shad
 		drawrect(vid_buf, ed.x-4, ed.y-5, ed.w+4, 16, 192, 192, 192, 255);
 
 		ui_edit_draw(vid_buf, &ed);
-		ui_edit_process(mx, my, b, &ed);
+		ui_edit_process(mx, my, b, bq, &ed);
 
 		drawtext(vid_buf, x0+5, y0+ysize-11, "OK", 255, 255, 255, 255);
 		drawrect(vid_buf, x0, y0+ysize-16, xsize, 16, 192, 192, 192, 255);
@@ -1344,7 +1431,7 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 	ed2.def = "[value]";
 	ed2.focus = 0;
 	ed2.hide = 0;
-	ed2.cursor = 0;
+	ed2.cursor = ed2.cursorstart = 0;
 	ed2.multiline = 0;
 	ed2.str[0] = 0;
 	strncpy(ed2.str, "0", 254);
@@ -1376,7 +1463,7 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 		ui_list_draw(vid_buf, &ed);
 		ui_list_process(vid_buf, mx, my, b, &ed);
 		ui_edit_draw(vid_buf, &ed2);
-		ui_edit_process(mx, my, b, &ed2);
+		ui_edit_process(mx, my, b, bq, &ed2);
 
 		drawtext(vid_buf, x0+5, y0+ysize-11, "OK", 255, 255, 255, 255);
 		drawrect(vid_buf, x0, y0+ysize-16, xsize, 16, 192, 192, 192, 255);
@@ -1787,7 +1874,7 @@ void login_ui(pixel *vid_buf)
 	ed1.focus = 1;
 	ed1.hide = 0;
 	ed1.multiline = 0;
-	ed1.cursor = strlen(svf_user);
+	ed1.cursor = ed1.cursorstart = strlen(svf_user);
 	strcpy(ed1.str, svf_user);
 	ed2.x = x0+25;
 	ed2.y = y0+45;
@@ -1796,7 +1883,7 @@ void login_ui(pixel *vid_buf)
 	ed2.def = "[password]";
 	ed2.focus = 0;
 	ed2.hide = 1;
-	ed2.cursor = 0;
+	ed2.cursor = ed2.cursorstart = 0;
 	ed2.multiline = 0;
 	strcpy(ed2.str, "");
 
@@ -1827,8 +1914,8 @@ void login_ui(pixel *vid_buf)
 #endif
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 
-		ui_edit_process(mx, my, b, &ed1);
-		ui_edit_process(mx, my, b, &ed2);
+		ui_edit_process(mx, my, b, bq, &ed1);
+		ui_edit_process(mx, my, b, bq, &ed2);
 
 		if (b && !bq && mx>=x0+9 && mx<x0+23 && my>=y0+22 && my<y0+36)
 			break;
@@ -2130,7 +2217,7 @@ void tag_list_ui(pixel *vid_buf)
 	ed.def = "[new tag]";
 	ed.focus = 0;
 	ed.hide = 0;
-	ed.cursor = 0;
+	ed.cursor = ed.cursorstart = 0;
 	ed.multiline = 0;
 	strcpy(ed.str, "");
 
@@ -2209,7 +2296,7 @@ void tag_list_ui(pixel *vid_buf)
 #endif
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 
-		ui_edit_process(mx, my, b, &ed);
+		ui_edit_process(mx, my, b, bq, &ed);
 
 		if (b && mx>=x0 && mx<=x0+192 && my>=y0+240 && my<y0+256)
 			break;
@@ -2227,7 +2314,7 @@ void tag_list_ui(pixel *vid_buf)
 		{
 			d = execute_tagop(vid_buf, "add", ed.str);
 			strcpy(ed.str, "");
-			ed.cursor = 0;
+			ed.cursor = ed.cursorstart = 0;
 			if (d)
 				goto finish;
 		}
@@ -2238,7 +2325,7 @@ void tag_list_ui(pixel *vid_buf)
 				break;
 			d = execute_tagop(vid_buf, "add", ed.str);
 			strcpy(ed.str, "");
-			ed.cursor = 0;
+			ed.cursor = ed.cursorstart = 0;
 			if (d)
 				goto finish;
 		}
@@ -2247,7 +2334,7 @@ void tag_list_ui(pixel *vid_buf)
 			if (!ed.focus)
 				break;
 			strcpy(ed.str, "");
-			ed.cursor = 0;
+			ed.cursor = ed.cursorstart = 0;
 			ed.focus = 0;
 		}
 	}
@@ -2289,7 +2376,7 @@ int save_name_ui(pixel *vid_buf)
 	ed.def = "[simulation name]";
 	ed.focus = 1;
 	ed.hide = 0;
-	ed.cursor = strlen(svf_name);
+	ed.cursor = ed.cursorstart = strlen(svf_name);
 	ed.multiline = 0;
 	strcpy(ed.str, svf_name);
 
@@ -2301,7 +2388,7 @@ int save_name_ui(pixel *vid_buf)
 	ed2.def = "[simulation description]";
 	ed2.focus = 0;
 	ed2.hide = 0;
-	ed2.cursor = strlen(svf_description);
+	ed2.cursor = ed2.cursorstart = strlen(svf_description);
 	ed2.multiline = 1;
 	strcpy(ed2.str, svf_description);
 
@@ -2369,8 +2456,8 @@ int save_name_ui(pixel *vid_buf)
 
 		memcpy(vid_buf, old_vid, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 
-		ui_edit_process(mx, my, b, &ed);
-		ui_edit_process(mx, my, b, &ed2);
+		ui_edit_process(mx, my, b, bq, &ed);
+		ui_edit_process(mx, my, b, bq, &ed2);
 		ui_checkbox_process(mx, my, b, bq, &cb);
 
 		if ((b && !bq && ((mx>=x0+9 && mx<x0+23 && my>=y0+22 && my<y0+36) ||
@@ -3849,7 +3936,7 @@ int search_ui(pixel *vid_buf)
 	ed.def = "[search terms]";
 	ed.focus = 1;
 	ed.hide = 0;
-	ed.cursor = strlen(search_expr);
+	ed.cursor = ed.cursorstart = strlen(search_expr);
 	ed.multiline = 0;
 	strcpy(ed.str, search_expr);
 
@@ -4219,7 +4306,7 @@ int search_ui(pixel *vid_buf)
 #endif
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 
-		ui_edit_process(mx, my, b, &ed);
+		ui_edit_process(mx, my, b, bq, &ed);
 
 		if (sdl_key==SDLK_RETURN)
 		{
@@ -4555,7 +4642,7 @@ int report_ui(pixel* vid_buf, char *save_id)
 	ed.focus = 0;
 	ed.hide = 0;
 	ed.multiline = 1;
-	ed.cursor = 0;
+	ed.cursor = ed.cursorstart = 0;
 	strcpy(ed.str, "");
 
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
@@ -4601,7 +4688,7 @@ int report_ui(pixel* vid_buf, char *save_id)
 		clearScreen(1.0f);
 #endif
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
-		ui_edit_process(mx, my, b, &ed);
+		ui_edit_process(mx, my, b, bq, &ed);
 	}
 	return 0;
 }
@@ -4714,7 +4801,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	ed.focus = 1;
 	ed.hide = 0;
 	ed.multiline = 1;
-	ed.cursor = 0;
+	ed.cursor = ed.cursorstart = 0;
 	strcpy(ed.str, "");
 
 	ctb.x = 100;
@@ -5345,7 +5432,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 		memcpy(vid_buf, old_vid, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 		if (info_ready && svf_login) {
-			ui_edit_process(mx, my, b, &ed);
+			ui_edit_process(mx, my, b, bq, &ed);
 		}
 
 		if (sdl_key==SDLK_ESCAPE) {
@@ -6301,7 +6388,7 @@ const static struct command_match matches [] = {
 };
 
 char *console_ui(pixel *vid_buf,char error[255],char console_more) {
-	int mx,my,b,cc,ci = -1,i,j;
+	int mx,my,b=0,bq,cc,ci = -1,i,j;
 	char *match = 0, *str, laststr[256] = "";
 	pixel *old_buf=(pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	command_history *currentcommand;
@@ -6316,7 +6403,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 	ed.focus = 1;
 	ed.hide = 0;
 	ed.multiline = 0;
-	ed.cursor = 0;
+	ed.cursor = ed.cursorstart = 0;
 	//fillrect(vid_buf, -1, -1, XRES, 220, 0, 0, 0, 190);
 	if (!old_buf)
 		return NULL;
@@ -6337,6 +6424,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 	}
 	while (!sdl_poll())
 	{
+		bq = b;
 		b = mouse_get_state(&mx, &my);
 		ed.focus = 1;
 
@@ -6423,7 +6511,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 
 		strncpy(laststr, ed.str, 256);
 		ui_edit_draw(vid_buf, &ed);
-		ui_edit_process(mx, my, b, &ed);
+		ui_edit_process(mx, my, b, bq, &ed);
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 #ifdef OGLR
 		clearScreenNP(1.0f);
@@ -6433,7 +6521,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 		{
 			strncpy(match,matches[j].command,strlen(matches[j].command));
 			match[strlen(matches[j].command)] = '\0';
-			ed.cursor = strlen(ed.str);
+			ed.cursor = ed.cursorstart = strlen(ed.str);
 		}
 		if (sdl_key==SDLK_RETURN)
 		{
@@ -6459,7 +6547,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 			if (ci==-1)
 			{
 				strcpy(ed.str, "");
-				ed.cursor = strlen(ed.str);
+				ed.cursor = ed.cursorstart = strlen(ed.str);
 			}
 			else
 			{
@@ -6472,7 +6560,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 							currentcommand = currentcommand->prev_command;
 					}
 					strcpy(ed.str, currentcommand->command);
-					ed.cursor = strlen(ed.str);
+					ed.cursor = ed.cursorstart = strlen(ed.str);
 				}
 				else
 				{
@@ -6481,7 +6569,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 					currentcommand->prev_command = last_command;
 					currentcommand->command = "tpt.load(644543)";
 					strcpy(ed.str, currentcommand->command);
-					ed.cursor = strlen(ed.str);
+					ed.cursor = ed.cursorstart = strlen(ed.str);
 				}
 			}
 		}
@@ -6531,7 +6619,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 	box_R.focus = 0;
 	box_R.hide = 0;
 	box_R.multiline = 0;
-	box_R.cursor = 0;
+	box_R.cursor = box_R.cursorstart = 0;
 
 	box_G.x = 40;
 	box_G.y = 5+255+4;
@@ -6542,7 +6630,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 	box_G.focus = 0;
 	box_G.hide = 0;
 	box_G.multiline = 0;
-	box_G.cursor = 0;
+	box_G.cursor = box_G.cursorstart = 0;
 
 	box_B.x = 75;
 	box_B.y = 5+255+4;
@@ -6553,7 +6641,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 	box_B.focus = 0;
 	box_B.hide = 0;
 	box_B.multiline = 0;
-	box_B.cursor = 0;
+	box_B.cursor = box_B.cursorstart = 0;
 
 	box_A.x = 110;
 	box_A.y = 5+255+4;
@@ -6564,7 +6652,7 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 	box_A.focus = 0;
 	box_A.hide = 0;
 	box_A.multiline = 0;
-	box_A.cursor = 0;
+	box_A.cursor = box_A.cursorstart = 0;
 
 	for (i = 0; i <= parts_lastActiveIndex; i++)
 		if (parts[i].type == PT_ANIM)
@@ -6583,10 +6671,10 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 		memcpy(vid_buf,old_buf,(XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
 		render_before(vid_buf);
 		render_after(vid_buf, NULL);
-		ui_edit_process(mx, my, b, &box_R);
-		ui_edit_process(mx, my, b, &box_G);
-		ui_edit_process(mx, my, b, &box_B);
-		ui_edit_process(mx, my, b, &box_A);
+		ui_edit_process(mx, my, b, bq, &box_R);
+		ui_edit_process(mx, my, b, bq, &box_G);
+		ui_edit_process(mx, my, b, bq, &box_B);
+		ui_edit_process(mx, my, b, bq, &box_A);
 
 		if(on_left==1)
 		{
@@ -7291,7 +7379,7 @@ int save_filename_ui(pixel *vid_buf)
 	ed.def = "[filename]";
 	ed.focus = 1;
 	ed.hide = 0;
-	ed.cursor = 0;
+	ed.cursor = ed.cursorstart = 0;
 	ed.multiline = 0;
 	ed.str[0] = 0;
 	
@@ -7302,7 +7390,7 @@ int save_filename_ui(pixel *vid_buf)
 		{
 			dotloc[0] = 0;
 		}
-		ed.cursor = strlen(ed.str);
+		ed.cursor = ed.cursorstart = strlen(ed.str);
 	}
 
 	while (!sdl_poll())
@@ -7345,7 +7433,7 @@ int save_filename_ui(pixel *vid_buf)
 
 		memcpy(vid_buf, old_vid, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 
-		ui_edit_process(mx, my, b, &ed);
+		ui_edit_process(mx, my, b, bq, &ed);
 		
 		if(mx > x0 && mx < x0+xsize && my > y0+ysize-16 && my < y0+ysize)
 		{
@@ -7447,7 +7535,7 @@ void catalogue_ui(pixel * vid_buf)
 	ed.def = "[search]";
 	ed.focus = 0;
 	ed.hide = 0;
-	ed.cursor = 0;
+	ed.cursor = ed.cursorstart = 0;
 	ed.nx = 0;
 	strcpy(ed.str, "");
 
@@ -7641,7 +7729,7 @@ void catalogue_ui(pixel * vid_buf)
 			drawtext(vid_buf2, x0+(xsize/2)-(textwidth("No saves found")/2), y0+(ysize/2)+20, "No saves found", 255, 255, 255, 180);
 		}
 		ui_edit_draw(vid_buf, &ed);
-		ui_edit_process(mx, my, b, &ed);
+		ui_edit_process(mx, my, b, bq, &ed);
 		//Draw the scrollable area onto the main buffer
 		{
 			pixel *srctemp = vid_buf2, *desttemp = vid_buf;

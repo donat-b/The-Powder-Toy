@@ -1075,6 +1075,30 @@ int drawtext(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a
 	return x;
 }
 
+int drawhighlight(pixel *vid, int x, int y, const char *s)
+{
+	int sx = x;
+	for (; *s; s++)
+	{
+		if (*s == '\n')
+		{
+			x = sx;
+			y += FONT_H+2;
+		}
+		else if (*s == '\b')
+		{
+			s++;
+		}
+		else
+		{
+			int width = font_data[font_ptrs[(int)(*(unsigned char *)s)]];
+			fillrect(vid, x-1, y-3, width+1, FONT_H+3, 0, 0, 255, 127);
+			x += width;
+		}
+	}
+	return x;
+}
+
 //Draw text with an outline
 int drawtext_outline(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a, int or, int og, int ob, int oa)
 {
@@ -1161,6 +1185,65 @@ int drawtextwrap(pixel *vid, int x, int y, int w, const char *s, int r, int g, i
 						continue;
 				}
 				x = drawchar(vid, x, y, *(unsigned char *)s, r, g, b, a);
+			}
+		}
+	}
+
+	return rh;
+}
+
+int drawhighlightwrap(pixel *vid, int x, int y, int w, const char *s, int highlightstart, int highlightlength)
+{
+	int sx = x;
+	int rh = 12;
+	int rw = 0;
+	int cw = x;
+	int wordlen;
+	int charspace;
+	int num = 0;
+	while (*s)
+	{
+		wordlen = strcspn(s," .,!?\n");
+		charspace = textwidthx((char *)s, w-(x-cw));
+		if (charspace<wordlen && wordlen && w-(x-cw)<w/3)
+		{
+			x = sx;
+			rw = 0;
+			y+=FONT_H+2;
+			rh+=FONT_H+2;
+		}
+		for (; *s && --wordlen>=-1; s++)
+		{
+			if (*s == '\n')
+			{
+				x = sx;
+				rw = 0;
+				y += FONT_H+2;
+			}
+			else if (*s == '\b')
+			{
+				s++;
+				num += 2;
+			}
+			else
+			{
+				int width = font_data[font_ptrs[(int)(*(unsigned char *)s)]];
+				if (x-cw>=w)
+				{
+					x = sx;
+					rw = 0;
+					y+=FONT_H+2;
+					rh+=FONT_H+2;
+					if (*s==' ')
+					{
+						num++;
+						continue;
+					}
+				}
+				if (num >= highlightstart && num < highlightstart + highlightlength)
+					fillrect(vid, x-1, y-3, width+1, FONT_H+3, 0, 0, 255, 127);
+				x += width;
+				num++;
 			}
 		}
 	}

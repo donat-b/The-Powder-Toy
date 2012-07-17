@@ -136,6 +136,7 @@ struct ui_edit
 	int x, y, w, nx, h;
 	char str[256],*def;
 	int focus, cursor, hide, multiline;
+	int cursorstart, highlightstart, highlightlength;
 };
 typedef struct ui_edit ui_edit;
 
@@ -274,7 +275,7 @@ void add_sign_ui(pixel *vid_buf, int mx, int my);
 
 void ui_edit_draw(pixel *vid_buf, ui_edit *ed);
 
-void ui_edit_process(int mx, int my, int mb, ui_edit *ed);
+void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed);
 
 void ui_list_draw(pixel *vid_buf, ui_list *ed);
 
