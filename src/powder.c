@@ -2413,7 +2413,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 	int starti = (start*-1);
 	int surround[8];
 	int lightning_ok=1;
-	float pGravX = 0, pGravY = 0, pGravD = 0;
+	float pGravX, pGravY, pGravD;
 
 	if (sys_pause&&lighting_recreate>0)
     {
@@ -2548,6 +2548,8 @@ void update_particles_i(pixel *vid, int start, int inc)
 					pGravY += gravy[(y/CELL)*(XRES/CELL)+(x/CELL)];
 				}
 			}
+			else
+				pGravX = pGravY = 0;
 
 			//velocity updates for the particle
 			parts[i].vx *= ptypes[t].loss;
