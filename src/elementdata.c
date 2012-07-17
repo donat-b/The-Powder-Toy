@@ -379,7 +379,7 @@ part_transition ptransitions[PT_NUM] =
 	/* PRTI */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* PRTO */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* PSTE */ {IPL,	NT,			0.5f,	PT_PSTS,	ITL,	NT,			747.0f,	PT_BRCK},
-	/* PSTS */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT}, //TODO: Used to have low pressure transition, but it didn't work. Maybe should be brought back
+	/* PSTS */ {0.5f,	PT_PSTE,		IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* ANAR */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* VINE */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			573.0f,	PT_FIRE},
 	/* INVS */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
