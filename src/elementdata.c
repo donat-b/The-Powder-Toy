@@ -362,7 +362,7 @@ part_transition ptransitions[PT_NUM] =
 	/* FOG  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			373.15f,PT_WTRV},
 	/* BCLN */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* LOVE */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
-	/* DEUT  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* DEUT */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* WARP */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* PUMP */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* FWRK */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
@@ -379,7 +379,7 @@ part_transition ptransitions[PT_NUM] =
 	/* PRTI */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* PRTO */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* PSTE */ {IPL,	NT,			0.5f,	PT_PSTS,	ITL,	NT,			747.0f,	PT_BRCK},
-	/* PSTS */ {0.5f,	PT_PSTE,	IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* PSTS */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT}, //TODO: Used to have low pressure transition, but it didn't work. Maybe should be brought back
 	/* ANAR */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* VINE */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			573.0f,	PT_FIRE},
 	/* INVS */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
@@ -429,7 +429,7 @@ part_transition ptransitions[PT_NUM] =
 	/* FRAY */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* REPL */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	// Mod elements past this point
-	/* BALL */ {25.0f,	PT_NONE,	25.0f,	PT_NONE,	ITL,	NT,			ITH,	NT},
+	/* BALL */ {-25.0f,	PT_NONE,	25.0f,	PT_NONE,	ITL,	NT,			ITH,	NT},
 	/* ANIM */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* OTWR */ {IPL,	NT,			10.0f,	PT_BREL,	ITL,	NT,			1273.0f,PT_LAVA},
 	/* INDI */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},

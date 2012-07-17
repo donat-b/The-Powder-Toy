@@ -2370,33 +2370,33 @@ int particle_transitions(int i)
 			else if (pv[y/CELL][x/CELL]>1.0f && parts[i].tmp==1)
 				t = PT_BRMT;
 			else s = 0;
-		} else if (pv[y/CELL][x/CELL]<ptransitions[t].plv&&ptransitions[t].plt>-1) {
-			// particle type change due to low pressure
-			if (ptransitions[t].plt!=PT_NUM)
-				t = ptransitions[t].plt;
+		}
+	} else if (pv[y/CELL][x/CELL]<ptransitions[t].plv&&ptransitions[t].plt>-1) {
+		// particle type change due to low pressure
+		if (ptransitions[t].plt!=PT_NUM)
+			t = ptransitions[t].plt;
+		else s = 0;
+	} else if (gravtot>(ptransitions[t].phv/4.0f)&&ptransitions[t].pht>-1) {
+		// particle type change due to high gravity
+		if (ptransitions[t].pht!=PT_NUM)
+			t = ptransitions[t].pht;
+		else if (t==PT_BMTL) {
+			if (gravtot>0.625f)
+				t = PT_BRMT;
+			else if (gravtot>0.25f && parts[i].tmp==1)
+				t = PT_BRMT;
 			else s = 0;
-		} else if (gravtot>(ptransitions[t].phv/4.0f)&&ptransitions[t].pht>-1) {
-			// particle type change due to high gravity
-			if (ptransitions[t].pht!=PT_NUM)
-				t = ptransitions[t].pht;
-			else if (t==PT_BMTL) {
-				if (gravtot>0.625f)
-					t = PT_BRMT;
-				else if (gravtot>0.25f && parts[i].tmp==1)
-					t = PT_BRMT;
-				else s = 0;
-			}
-			else s = 0;
-		} else s = 0;
-		if (s) { // particle type change occurred
-			parts[i].life = 0;
-			part_change_type(i,x,y,t);
-			if (t==PT_FIRE)
-				parts[i].life = rand()%50+120;
-			if (t==PT_NONE) {
-				kill_part(i);
-				return 1;
-			}
+		}
+		else s = 0;
+	} else s = 0;
+	if (s) { // particle type change occurred
+		parts[i].life = 0;
+		part_change_type(i,x,y,t);
+		if (t==PT_FIRE)
+			parts[i].life = rand()%50+120;
+		if (t==PT_NONE) {
+			kill_part(i);
+			return 1;
 		}
 	}
 	return 0;
@@ -2646,7 +2646,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				pv[y/CELL][x/CELL] += 0.25f * CFDS;
 			}
 
-			if (!(ptypes[t].properties&PROP_INDESTRUCTIBLE) && (ptransitions[t].plt != -1 || ptransitions[t].pht != -1 || ptransitions[t].tlt != -1 || ptransitions[t].tht != -1))
+			if (!(ptypes[t].properties&PROP_INDESTRUCTIBLE) && (ptransitions[t].plt != -1 || ptransitions[t].pht != -1))
 			{
 				if (particle_transitions(i))
 					goto killed;
