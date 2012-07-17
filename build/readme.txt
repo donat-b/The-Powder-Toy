@@ -295,26 +295,33 @@ Many minor graphical fixes to the HUD. FIND can find 3 things at once. Left
 selected element is red, right selected is blue, and alternate selected is 
 green. LCtrl/RCtrl/Shift + F to toggle these. Also, a new FIND2 button which 
 toggles an alternate find mode more similar to my lua script, where first 
-everything is dimmed, and then a dot is put over what your're finding. Fix 
-crash bug with powered electronics and moving solids, ANIM activated instantly 
-now too. New flood-fill brush shape. Many speed improvements by skiping 
-unneeded things. WOOD and PLNT look burnt when hot and frozen when cold. VIRS 
-has a small chance of destroying CURE. saving stamps looks better & you can 
-delete multiple stamps at once with Ctrl+red delete button. Many other minor 
-fixes and changes.
+everything is dimmed, and then a dot is put over what your're finding. Click 
+a user ID to switch to showing comment post times and dates instead. Use the 
+DATE button to change the format. Date format also applies to the HUD now, if 
+you chose to display it. The areas for stamp saving, copying, and cutting can 
+be drawn backwards now. Fix first comment on saves not showing. Fix crash bug 
+with powered electronics and moving solids, ANIM activated instantly now too. 
+New flood-fill brush shape. Many speed improvements by skiping unneeded 
+things. WOOD and PLNT look burnt when hot and frozen when cold. VIRS has a 
+small chance of destroying CURE. saving stamps looks better & you can delete 
+multiple stamps at once with Ctrl+red delete button. Many other minor fixes 
+and changes.
 
-
-
+Next Version
+Fix bug where all solids could move like SPNG, fix low pressure transition not 
+working. Fix lava's ctype getting changed. You can now highlight text in 
+textboxes and copy/delete just that.
 
 Bugs:
+Pasting large strings in comment box causes crash
 moving solids don't bounce off walls
 
 
 
 
 Future Ideas/TODO: > means currently being worked on/added next
-finish lua script ive been working on
-Add things from tpt++ that look cool (differences like saving stamps & deco editor)
+Add things from tpt++ that look cool (differences like deco editor and scrollbar in menu_ui_v3)
+edge loop (like powder sim)
 option to make sing use gravity instead of presssure
 more lua commands
 new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
