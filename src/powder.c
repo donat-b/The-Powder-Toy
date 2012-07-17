@@ -2331,7 +2331,7 @@ int transfer_heat(int i, int surround[8])
 				}
 				if (t==PT_NONE) {
 					kill_part(i);
-					return 1;
+					return t;
 				}
 			}
 		}
@@ -2352,7 +2352,7 @@ int transfer_heat(int i, int surround[8])
 		}
 	}
 	else parts[i].temp = restrict_flt(parts[i].temp, MIN_TEMP, MAX_TEMP);
-	return 0;
+	return t;
 }
 
 int particle_transitions(int i)
@@ -2394,12 +2394,10 @@ int particle_transitions(int i)
 		part_change_type(i,x,y,t);
 		if (t==PT_FIRE)
 			parts[i].life = rand()%50+120;
-		if (t==PT_NONE) {
+		if (t==PT_NONE)
 			kill_part(i);
-			return 1;
-		}
 	}
-	return 0;
+	return t;
 }
 
 //the main function for updating particles
@@ -2589,7 +2587,8 @@ void update_particles_i(pixel *vid, int start, int inc)
 
 			if (!legacy_enable && ptypes[t].hconduct)
 			{
-				if (transfer_heat(i, surround))
+				t = transfer_heat(i, surround);
+				if (!t)
 					goto killed;
 			}
 
@@ -2648,7 +2647,8 @@ void update_particles_i(pixel *vid, int start, int inc)
 
 			if (!(ptypes[t].properties&PROP_INDESTRUCTIBLE) && (ptransitions[t].plt != -1 || ptransitions[t].pht != -1))
 			{
-				if (particle_transitions(i))
+				t = particle_transitions(i);
+				if (!t)
 					goto killed;
 			}
 
@@ -3183,7 +3183,7 @@ killed:
 				}
 			}
 movedone:
-			if (ptypes[parts[i].type].properties&PROP_MOVS)
+			if (ptypes[t].properties&PROP_MOVS)
 			{
 				int bn = parts[i].tmp2;
 				if (bn >= 0 && bn < 256 && msindex[bn])
