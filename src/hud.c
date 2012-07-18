@@ -33,7 +33,7 @@ void hud_text_right(int x, int y)
 			if ((cr&0xFF) == PT_PINV && parts[cr>>8].tmp2)
 				cr = parts[cr>>8].tmp2;
 		}
-		if (!cr && alt_hud == 1)
+		if (!cr)
 		{
 			wl = bmap[y/CELL][x/CELL];
 		}

@@ -314,6 +314,8 @@ textboxes and copy/delete just that.
 
 Bugs:
 Pasting large strings in comment box causes crash
+moving solids sometimes labeled as empty (not in pmap)
+Redo PWHT so it will always load right
 moving solids don't bounce off walls
 
 
@@ -322,6 +324,7 @@ moving solids don't bounce off walls
 Future Ideas/TODO: > means currently being worked on/added next
 Add things from tpt++ that look cool (differences like deco editor and scrollbar in menu_ui_v3)
 edge loop (like powder sim)
+a few more HUD options (wall names, photon thing, ...)
 option to make sing use gravity instead of presssure
 more lua commands
 new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
