@@ -20,23 +20,31 @@ int update_SING(UPDATE_FUNC_ARGS) {
 	int singularity = -parts[i].life;
 	float angle, v;
 
-	if (pv[y/CELL][x/CELL]<singularity)
-		pv[y/CELL][x/CELL] += 0.1f*(singularity-pv[y/CELL][x/CELL]);
-	if (y+CELL<YRES && pv[y/CELL+1][x/CELL]<singularity)
-		pv[y/CELL+1][x/CELL] += 0.1f*(singularity-pv[y/CELL+1][x/CELL]);
-	if (x+CELL<XRES)
+	if (parts[i].tmp2)
 	{
-		pv[y/CELL][x/CELL+1] += 0.1f*(singularity-pv[y/CELL][x/CELL+1]);
-		if (y+CELL<YRES)
-			pv[y/CELL+1][x/CELL+1] += 0.1f*(singularity-pv[y/CELL+1][x/CELL+1]);
+		if (gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)]>singularity)
+			gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] -= 0.05f*(singularity-gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)]);
 	}
-	if (y-CELL>=0 && pv[y/CELL-1][x/CELL]<singularity)
-		pv[y/CELL-1][x/CELL] += 0.1f*(singularity-pv[y/CELL-1][x/CELL]);
-	if (x-CELL>=0)
+	if (parts[i].tmp2 != 1)
 	{
-		pv[y/CELL][x/CELL-1] += 0.1f*(singularity-pv[y/CELL][x/CELL-1]);
-		if (y-CELL>=0)
-			pv[y/CELL-1][x/CELL-1] += 0.1f*(singularity-pv[y/CELL-1][x/CELL-1]);
+		if (pv[y/CELL][x/CELL]<singularity)
+			pv[y/CELL][x/CELL] += 0.1f*(singularity-pv[y/CELL][x/CELL]);
+		if (y+CELL<YRES && pv[y/CELL+1][x/CELL]<singularity)
+			pv[y/CELL+1][x/CELL] += 0.1f*(singularity-pv[y/CELL+1][x/CELL]);
+		if (x+CELL<XRES)
+		{
+			pv[y/CELL][x/CELL+1] += 0.1f*(singularity-pv[y/CELL][x/CELL+1]);
+			if (y+CELL<YRES)
+				pv[y/CELL+1][x/CELL+1] += 0.1f*(singularity-pv[y/CELL+1][x/CELL+1]);
+		}
+		if (y-CELL>=0 && pv[y/CELL-1][x/CELL]<singularity)
+			pv[y/CELL-1][x/CELL] += 0.1f*(singularity-pv[y/CELL-1][x/CELL]);
+		if (x-CELL>=0)
+		{
+			pv[y/CELL][x/CELL-1] += 0.1f*(singularity-pv[y/CELL][x/CELL-1]);
+			if (y-CELL>=0)
+				pv[y/CELL-1][x/CELL-1] += 0.1f*(singularity-pv[y/CELL-1][x/CELL-1]);
+		}
 	}
 	if (parts[i].life<1) {
 		//Pop!
@@ -105,6 +113,7 @@ int update_SING(UPDATE_FUNC_ARGS) {
 								int np;
 								np = create_part(r>>8,x+rx,y+ry,PT_SING);
 								parts[np].life = rand()%50+60;
+								parts[np].tmp2 = parts[i].tmp2;
 							}
 							continue;
 						}

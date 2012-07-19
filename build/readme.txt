@@ -27,7 +27,7 @@ therocketeer - smudge tool
 cip - INWR with tmp of 1 doesn't conduct to SWCH
 BoredInSchool - fusion
 tommig - VOID ctypes
-
+Galacticruler - SING can emit gravity instead of pressure (set tmp2 to 1, or 2 for both)
 
 
 
@@ -310,11 +310,13 @@ and changes.
 Next Version
 Fix bug where all solids could move like SPNG, fix low pressure transition not 
 working. Fix lava's ctype getting changed. You can now highlight text in 
-textboxes and copy/delete just that.
+textboxes and copy/delete just that. SING with a tmp2 of 1 emits gravity 
+instead of pressure (still creates tons of pressure anyway), and with a tmp2 
+of 2 does both.
 
 Bugs:
 Pasting large strings in comment box causes crash
-moving solids sometimes labeled as empty (not in pmap)
+moving solids sometimes labeled as empty in HUD (not in pmap)
 Redo PWHT so it will always load right
 moving solids don't bounce off walls
 
@@ -325,7 +327,6 @@ Future Ideas/TODO: > means currently being worked on/added next
 Add things from tpt++ that look cool (differences like deco editor and scrollbar in menu_ui_v3)
 edge loop (like powder sim)
 a few more HUD options (wall names, photon thing, ...)
-option to make sing use gravity instead of presssure
 more lua commands
 new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
 option to disable copying/resaving in your saves
