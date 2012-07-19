@@ -26,17 +26,20 @@ int update_AMTR(UPDATE_FUNC_ARGS) {
 					continue;
 				if ((r&0xFF)!=PT_AMTR && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && !(ptypes[r&0xFF].properties&PROP_CLONE) && (r&0xFF)!=PT_NONE && (r&0xFF)!=PT_PHOT && (r&0xFF)!=PT_VOID && (r&0xFF)!=PT_BHOL && (r&0xFF)!=PT_NBHL && (r&0xFF)!=PT_PRTI && (r&0xFF)!=PT_PRTO && (r&0xFF)!=PT_PPTI && (r&0xFF)!=PT_PPTO)
 				{
-					parts[i].life++;
-					if (parts[i].life==4)
+					if(!parts[i].ctype || (parts[i].ctype==(r&0xFF))!=(parts[i].tmp&1))
 					{
-						kill_part(i);
-						return 1;
+						parts[i].life++;
+						if (parts[i].life==4)
+						{
+							kill_part(i);
+							return 1;
+						}
+						if (10>(rand()/(RAND_MAX/100)))
+							create_part(r>>8, x+rx, y+ry, PT_PHOT);
+						else
+							kill_part(r>>8);
+						pv[y/CELL][x/CELL] -= 2.0f;
 					}
-					if (10>(rand()/(RAND_MAX/100)))
-						create_part(r>>8, x+rx, y+ry, PT_PHOT);
-					else
-						kill_part(r>>8);
-					pv[y/CELL][x/CELL] -= 2.0f;
 				}
 			}
 	return 0;

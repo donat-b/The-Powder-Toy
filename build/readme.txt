@@ -28,6 +28,7 @@ cip - INWR with tmp of 1 doesn't conduct to SWCH
 BoredInSchool - fusion
 tommig - VOID ctypes
 Galacticruler - SING can emit gravity instead of pressure (set tmp2 to 1, or 2 for both)
+Joeboy25 - AMTR ctypes
 
 
 
@@ -312,7 +313,7 @@ Fix bug where all solids could move like SPNG, fix low pressure transition not
 working. Fix lava's ctype getting changed. You can now highlight text in 
 textboxes and copy/delete just that. SING with a tmp2 of 1 emits gravity 
 instead of pressure (still creates tons of pressure anyway), and with a tmp2 
-of 2 does both.
+of 2 does both. Antimatter's ctype and tmp act tike VOID's (eats it's ctype).
 
 Bugs:
 Pasting large strings in comment box causes crash
