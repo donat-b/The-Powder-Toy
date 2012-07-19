@@ -21,7 +21,7 @@ Things in my mod suggested by other people:
 Atrayin - Powered Portals, RAZR
 OmegaSupreme - Animated LCRY
 Videogamer555 - New heat displays
-disturbed666 - A way to turn PHOT into ELEC (but I used PINV instead of TESC)
+disturbed666 (aka grandmaster) - A way to turn PHOT into ELEC (but I used PINV instead of TESC)
 Dynotec - new statistics
 therocketeer - smudge tool
 cip - INWR with tmp of 1 doesn't conduct to SWCH
@@ -313,11 +313,12 @@ Fix bug where all solids could move like SPNG, fix low pressure transition not
 working. Fix lava's ctype getting changed. You can now highlight text in 
 textboxes and copy/delete just that. SING with a tmp2 of 1 emits gravity 
 instead of pressure (still creates tons of pressure anyway), and with a tmp2 
-of 2 does both. Antimatter's ctype and tmp act tike VOID's (eats it's ctype).
+of 2 does both. Antimatter's ctype and tmp act tike VOID's (eats it's ctype). 
+Right click the reload button to go back to open_ui. Fix moving solids not 
+showing in HUD.
 
 Bugs:
 Pasting large strings in comment box causes crash
-moving solids sometimes labeled as empty in HUD (not in pmap)
 Redo PWHT so it will always load right
 moving solids don't bounce off walls
 
