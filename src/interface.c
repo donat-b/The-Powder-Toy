@@ -126,7 +126,7 @@ int drawgrav_enable = 0;
 void menu_count(void)//puts the number of elements in each section into .itemcount
 {
 	int i=0;
-	for (i=0;i<17;i++)
+	for (i=0;i<SC_TOTAL+1;i++)
 	{
 		msections[i].itemcount = 0;
 	}

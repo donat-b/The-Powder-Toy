@@ -315,10 +315,9 @@ textboxes and copy/delete just that. SING with a tmp2 of 1 emits gravity
 instead of pressure (still creates tons of pressure anyway), and with a tmp2 
 of 2 does both. Antimatter's ctype and tmp act tike VOID's (eats it's ctype). 
 Right click the reload button to go back to open_ui. Fix moving solids not 
-showing in HUD.
+showing in HUD. Add scrollbar to scrolling menus.
 
 Bugs:
-Pasting large strings in comment box causes crash
 Redo PWHT so it will always load right
 moving solids don't bounce off walls
 
@@ -326,7 +325,7 @@ moving solids don't bounce off walls
 
 
 Future Ideas/TODO: > means currently being worked on/added next
-Add things from tpt++ that look cool (differences like deco editor and scrollbar in menu_ui_v3)
+Add things from tpt++ that look cool (differences like deco editor)
 edge loop (like powder sim)
 a few more HUD options (wall names, photon thing, ...)
 more lua commands
