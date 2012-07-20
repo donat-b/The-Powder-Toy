@@ -126,7 +126,7 @@ int drawgrav_enable = 0;
 void menu_count(void)//puts the number of elements in each section into .itemcount
 {
 	int i=0;
-	for (i=0;i<SC_TOTAL;i++)
+	for (i=0;i<17;i++)
 	{
 		msections[i].itemcount = 0;
 	}
@@ -2580,6 +2580,25 @@ void menu_ui_v3(pixel *vid_buf, int i, int b, int bq, int mx, int my)
 	menu_select_element(b, over_el);
 }
 
+int scrollbar(int fwidth, int mx, int y)
+{
+	int scrollSize, scrollbarx;
+	float overflow, location;
+	if (mx > XRES)
+		mx = XRES;
+	if (mx < 15)
+		mx = 15;
+	scrollSize = (int)(((float)(XRES-15))/((float)fwidth) * ((float)XRES-15));
+	scrollbarx = (int)(((float)mx/((float)XRES-15))*(float)(XRES-scrollSize));
+	if (scrollSize+scrollbarx>XRES)
+		scrollbarx = XRES-scrollSize;
+	fillrect(vid_buf, scrollbarx, y+18, scrollSize, 4, 200, 200, 200, 255);
+
+	overflow = (float)fwidth-(XRES-BARSIZE);
+	location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
+	return (int)(overflow / location);
+}
+
 int menu_draw(int mx, int my, int b, int bq, int i)
 {
 	int el,x,y,n=0,xoff=0,fwidth = msections[i].itemcount*31;
@@ -2682,11 +2701,15 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 	{
 		int n2;
 		if (!old_menu && fwidth > XRES-BARSIZE) { //fancy scrolling
-			float overflow = (float)fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
-			xoff = (int)(overflow / location);
+			xoff = scrollbar(fwidth, mx, y);
 		}
 		for (n2 = 0; n2<NGOLALT; n2++)
 		{
+			if (x-xoff > XRES-26 || x-xoff < 0)
+			{
+				x -= 31;
+				continue;
+			}
 			n = PT_LIFE | (n2<<8);
 			if (old_menu && x-26<=60)
 			{
@@ -2694,7 +2717,7 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 				y += 19;
 			}
 			x -= draw_tool_xy(vid_buf, x-xoff, y, n, gmenu[n2].colour)+5;
-			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
+			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my<y+15)
 			{
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 				el = n;
@@ -2818,8 +2841,7 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 	else //all other menus
 	{
 		if (!old_menu && fwidth > XRES-BARSIZE) { //fancy scrolling
-			float overflow = (float)fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
-			xoff = (int)(overflow / location);
+			xoff = scrollbar(fwidth, mx, y);
 		}
 		for (n = 0; n<PT_NUM; n++)
 		{
@@ -2830,6 +2852,11 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 			}
 			if (ptypes[n].menusection==i && (ptypes[n].menu==1 || (secret_els && ptypes[n].enabled == 1)))
 			{
+				if (x-xoff > XRES-26 || x-xoff < 0)
+				{
+					x -= 31;
+					continue;
+				}
 				x -= draw_tool_xy(vid_buf, x-xoff, y, n, ptypes[n].pcolors)+5;
 				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
 				{
