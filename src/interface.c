@@ -2591,7 +2591,7 @@ int scrollbar(int fwidth, int mx, int y)
 	scrollbarx = (int)(((float)mx/((float)XRES-15))*(float)(XRES-scrollSize));
 	if (scrollSize+scrollbarx>XRES)
 		scrollbarx = XRES-scrollSize;
-	fillrect(vid_buf, scrollbarx, y+18, scrollSize, 4, 200, 200, 200, 255);
+	fillrect(vid_buf, scrollbarx, y+19, scrollSize, 3, 200, 200, 200, 255);
 
 	overflow = (float)fwidth-(XRES-BARSIZE);
 	location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
