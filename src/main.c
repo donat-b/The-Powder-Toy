@@ -247,6 +247,7 @@ int realistic = 0;
 int unlockedstuff = 0;
 int old_menu = 0;
 int loop_time = 0;
+unsigned int decocolor = (255<<24)+PIXRGB(255,0,0);
 
 int drawinfo = 0;
 int currentTime = 0;
@@ -855,7 +856,6 @@ int main(int argc, char *argv[])
 	void *load_data=NULL;
 	pixel *load_img=NULL;//, *fbi_img=NULL;
 	int save_mode=0, save_x=0, save_y=0, save_w=0, save_h=0, copy_mode=0;
-	unsigned int rgbSave = (255<<24)+PIXRGB(255,0,0);
 	SDL_AudioSpec fmt;
 	int username_flash = 0, username_flash_t = 1;
 	int saveOpenError = 0;
@@ -883,6 +883,50 @@ int main(int argc, char *argv[])
 	fmt.samples = 512;
 	fmt.callback = mixaudio;
 	fmt.userdata = NULL;
+
+	box_R.x = 5;
+	box_R.y = 5+255+4;
+	box_R.w = 30;
+	box_R.nx = 1;
+	box_R.def = "";
+	strcpy(box_R.str, "255");
+	box_R.focus = 0;
+	box_R.hide = 0;
+	box_R.multiline = 0;
+	box_R.cursor = box_R.cursorstart = 0;
+
+	box_G.x = 40;
+	box_G.y = 5+255+4;
+	box_G.w = 30;
+	box_G.nx = 1;
+	box_G.def = "";
+	strcpy(box_G.str, "");
+	box_G.focus = 0;
+	box_G.hide = 0;
+	box_G.multiline = 0;
+	box_G.cursor = box_G.cursorstart = 0;
+
+	box_B.x = 75;
+	box_B.y = 5+255+4;
+	box_B.w = 30;
+	box_B.nx = 1;
+	box_B.def = "";
+	strcpy(box_B.str, "");
+	box_B.focus = 0;
+	box_B.hide = 0;
+	box_B.multiline = 0;
+	box_B.cursor = box_B.cursorstart = 0;
+
+	box_A.x = 110;
+	box_A.y = 5+255+4;
+	box_A.w = 30;
+	box_A.nx = 1;
+	box_A.def = "";
+	strcpy(box_A.str, "255");
+	box_A.focus = 0;
+	box_A.hide = 0;
+	box_A.multiline = 0;
+	box_A.cursor = box_A.cursorstart = 0;
 
 #ifdef MT
 	numCores = core_count();
@@ -1382,16 +1426,16 @@ int main(int argc, char *argv[])
 			}
 		}
 #ifdef LUACONSOLE
-	if(sdl_key){
-		if(!luacon_keyevent(sdl_key, sdl_mod, LUACON_KDOWN))
-			sdl_key = 0;
-	}
-	if(sdl_rkey){
-		if(!luacon_keyevent(sdl_rkey, sdl_mod, LUACON_KUP))
-			sdl_rkey = 0;
-	}
+		if(sdl_key){
+			if(!luacon_keyevent(sdl_key, sdl_mod, LUACON_KDOWN))
+				sdl_key = 0;
+		}
+		if(sdl_rkey){
+			if(!luacon_keyevent(sdl_rkey, sdl_mod, LUACON_KUP))
+				sdl_rkey = 0;
+		}
 #endif
-		if (sys_shortcuts==1)//all shortcuts can be disabled by python scripts
+		if (!deco_disablestuff && sys_shortcuts==1)//all shortcuts can be disabled by python scripts
 		{
 			SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 			if (sdl_key=='q' || sdl_key==SDLK_ESCAPE)
@@ -1715,7 +1759,8 @@ int main(int argc, char *argv[])
 				else
 				{
 					decorations_enable = 1;
-					rgbSave = decorations_ui(vid_buf,&bsx,&bsy,rgbSave);//decoration_mode = !decoration_mode;
+					sys_pause = 1;
+					active_menu = SC_DECO;
 				}
 			}
 			if (sdl_key=='g')
@@ -2082,6 +2127,8 @@ int main(int argc, char *argv[])
 					menu_ui(vid_buf, i); //draw the elements in the current menu
 			}
 		}
+		if (deco_disablestuff)
+			b = 0;
 		mouse_coords_window_to_sim(&x, &y, x, y);//change mouse position while it is in a zoom window
 
 		mx = x;
@@ -2493,6 +2540,8 @@ int main(int argc, char *argv[])
 				int signi;
 
 				c = (b&1) ? sl : sr; //c is element to be spawned
+				if ((sl == DECO_DRAW || sl == DECO_ERASE ||sl == DECO_LIGH || sl == DECO_DARK || sl == DECO_SMDG) && b == 4)
+					c = DECO_ERASE;
 				su = c;
 
 				if (c!=WL_SIGN+100 && c!=PT_FIGH)
@@ -2623,10 +2672,15 @@ int main(int argc, char *argv[])
 					{
 						if (sdl_mod & (KMOD_CAPS))
 							c = 0;
-						if (c!=WL_STREAM+100&&c!=SPC_AIR&&c!=SPC_HEAT&&c!=SPC_COOL&&c!=SPC_VACUUM&&!REPLACE_MODE&&c!=SPC_WIND&&c!=SPC_PGRV&&c!=SPC_NGRV)
+						if (c!=WL_STREAM+100&&c!=SPC_AIR&&c!=SPC_HEAT&&c!=SPC_COOL&&c!=SPC_VACUUM&&!REPLACE_MODE&&c!=SPC_WIND&&c!=SPC_PGRV&&c!=SPC_NGRV&&c!=DECO_DRAW&&c!=DECO_ERASE)
 							flood_parts(x, y, c, -1, -1, get_brush_flags());
-						if (c==SPC_HEAT || c==SPC_COOL)
+						else if (c==SPC_HEAT || c==SPC_COOL)
 							create_parts(x, y, bsx, bsy, c, get_brush_flags(), 1);
+						else if (c == DECO_DRAW || c == DECO_ERASE)
+						{
+							unsigned int col = (b != 4 && c != DECO_ERASE) ? decocolor : PIXRGB(0,0,0);
+							flood_prop(x, y, offsetof(particle,dcolour), &col, 0);
+						}
 						lx = x;
 						ly = y;
 						lb = 0;
@@ -2637,19 +2691,36 @@ int main(int argc, char *argv[])
 					{
 						if (y>=0 && y<YRES && x>=0 && x<XRES)
 						{
-							int cr;
-							cr = pmap[y][x];
-							if (!cr)
-								cr = photons[y][x];
-							if (cr)
+							if (c == DECO_DRAW || c == DECO_ERASE || c == DECO_LIGH || c == DECO_DARK || c == DECO_SMDG)
 							{
-								c = sl = cr&0xFF;
-								if (c==PT_LIFE)
-									c = sl = (parts[cr>>8].ctype << 8) | c;
+								unsigned int tempcolor = vid_buf[(my)*(XRES+BARSIZE)+(mx)];
+								int cr = PIXR(tempcolor);
+								int cg = PIXG(tempcolor);
+								int cb = PIXB(tempcolor);
+								if (cr || cg || cb)
+								{
+									if (cr && cr<255) cr++;
+									if (cg && cg<255) cg++;
+									if (cb && cb<255) cb++;
+									decocolor = (255<<24)+PIXRGB(cr, cg, cb);
+								}
 							}
 							else
 							{
-								//Something
+								int cr;
+								cr = pmap[y][x];
+								if (!cr)
+									cr = photons[y][x];
+								if (cr)
+								{
+									c = sl = cr&0xFF;
+									if (c==PT_LIFE)
+										c = sl = (parts[cr>>8].ctype << 8) | c;
+								}
+								else
+								{
+									//Something
+								}
 							}
 						}
 						lx = x;
@@ -2696,6 +2767,8 @@ int main(int argc, char *argv[])
 			if (lb && lm) //lm is box/line tool
 			{
 				c = (lb&1) ? sl : sr;
+				if ((sl == DECO_DRAW || sl == DECO_LIGH || sl == DECO_DARK || sl == DECO_SMDG) && lb == 4)
+					c = DECO_ERASE;
 				su = c;
 				if (lm == 1)//line
 				{

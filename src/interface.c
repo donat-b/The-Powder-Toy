@@ -112,12 +112,11 @@ unsigned char ZSIZE = ZSIZE_D;
 int numframes = 0;
 int framenum = 0;
 int hud_menunum = 0;
-int tool = DECO_DRAW;
 int has_quit = 0;
 int dae = 0;
 int h = 0;
 int over_el = 0;
-int SC_TOTAL = 14;
+int SC_TOTAL = SC_DECO+1;
 int dateformat = 7;
 int show_ids = 1;
 
@@ -412,7 +411,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 				ed->cursor = 0;
 				ed->str[0] = 0;
 			}
-			else if (mx>=ed->x-ed->nx && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+ed->h)
+			else if ((ed->focus || !mbq) && mx>=ed->x-ed->nx && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+ed->h)
 			{
 				ed->focus = 1;
 				ed->cursor = textposxy(str, ed->w-14, mx-ed->x, my-ed->y);
@@ -426,7 +425,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 				ed->cursor = 0;
 				ed->str[0] = 0;
 			}
-			else if (mx>=ed->x-ed->nx && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+11)
+			else if ((ed->focus || !mbq) && mx>=ed->x-ed->nx && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+11)
 			{
 				ed->focus = 1;
 				ed->cursor = textwidthx(str, mx-ed->x);
@@ -2614,12 +2613,13 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 		y = (((YRES/SC_TOTAL)*i2)+((YRES/SC_TOTAL)/2))-(height/2)+(FONT_H/2)+6;
 	}
 	el = -1;
+	deco_showing = 0;
 
 	if (i==SC_WALL)//wall menu
 	{
 		for (n = UI_WALLSTART; n<UI_WALLSTART+UI_WALLCOUNT; n++)
 		{
-			if (n!=SPC_AIR&&n!=SPC_HEAT&&n!=SPC_COOL&&n!=SPC_VACUUM&&n!=SPC_WIND&&n!=SPC_PGRV&&n!=SPC_NGRV&&n!=SPC_PROP&&n!=SPC_PROP2)
+			if (n!=SPC_AIR&&n!=SPC_HEAT&&n!=SPC_COOL&&n!=SPC_VACUUM&&n!=SPC_WIND&&n!=SPC_PGRV&&n!=SPC_NGRV&&n!=SPC_PROP&&n!=SPC_PROP2&&n!=DECO_DRAW&&n!=DECO_ERASE&&n!=DECO_LIGH&&n!=DECO_DARK&&n!=DECO_SMDG)
 			{
 				if (old_menu && x-26<=60)
 				{
@@ -2673,6 +2673,48 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 					el = n;
 					if (b && el==SPC_PROP2)
 						prop_edit_ui(vid_buf, x, y, 0);
+				}
+				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
+				{
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
+				}
+				else if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
+				{
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
+				}
+				else if (n==sl)
+				{
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
+				}
+				else if (n==sr)
+				{
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
+				}
+				else if (n==SLALT)
+				{
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
+				}
+			}
+		}
+	}
+	else if (i==SC_DECO)//deco menu
+	{
+		deco_showing = 1;
+		decoration_editor(vid_buf, b, bq, mx, my);
+		for (n = UI_WALLSTART; n<UI_WALLSTART+UI_WALLCOUNT; n++)
+		{
+			if (n == DECO_DRAW || n == DECO_ERASE || n == DECO_LIGH || n == DECO_DARK || n == DECO_SMDG)
+			{
+				if (old_menu && x-26<=60)
+				{
+					x = XRES-BARSIZE-23;
+					y += 19;
+				}
+				x -= draw_tool_xy(vid_buf, x-xoff, y, n, wtypes[n-UI_WALLSTART].colour)+5;
+				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
+				{
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
+					el = n;
 				}
 				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
 				{
@@ -3257,109 +3299,6 @@ void menu_select_element(int b, int h)
 			}
 		}
 	}
-}
-
-int color_menu_ui(pixel *vid_buf, int i, int *cr, int *cg, int *cb, int b, int bq, int mx, int my)
-{
-	int h,x,y,n=0,height,width,sy,rows=0,xoff=0,fwidth,a,c;
-	fwidth = colorsections[i].itemcount*31;
-	h = -1;
-	x = XRES-BARSIZE-18;
-	y = YRES+5;
-	sy = y;
-	if(i==0) //color menu
-	{
-		if (fwidth > XRES-BARSIZE) { //fancy scrolling
-			float overflow = (float)fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
-			xoff = (int)(overflow / location);
-		}
-		for (n = 0; n<7; n++)
-		{
-				for (a=1; a<15; a++)
-				{
-					for (c=1; c<27; c++)
-					{
-						vid_buf[(XRES+BARSIZE)*(y+a)+((x-xoff)+c)] = colorlist[n].colour;
-					}
-				}
-				x -= 26+5;
-				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-					h = n;
-				}
-		}
-		if(h!=-1)
-		{
-			drawtext(vid_buf, XRES-textwidth((char *)colorlist[h].descs)-BARSIZE, sy+20, (char *)colorlist[h].descs, 255, 255, 255, 255);
-		}
-		else
-		{
-			drawtext(vid_buf, XRES-textwidth((char *)colorsections[i].name)-BARSIZE, sy+20, (char *)colorsections[i].name, 255, 255, 255, 255);
-		}
-		//these are click events, b=1 is left click, b=4 is right
-		//h has the value of the element it is over, and -1 if not over an element
-		if (b==1 && h!=-1)
-		{
-			*cr = PIXR(colorlist[h].colour);
-			*cg = PIXG(colorlist[h].colour);
-			*cb = PIXB(colorlist[h].colour);
-			return 1;
-		}
-	}
-	if(i==1) //deco tool menu
-	{
-		if (fwidth > XRES-BARSIZE) { //fancy scrolling
-			float overflow = (float)fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
-			xoff = (int)(overflow / location);
-		}
-		for (n = 0; n<4; n++)
-		{
-				for (a=1; a<15; a++)
-				{
-					for (c=1; c<27; c++)
-					{
-						if (n == DECO_LIGHTEN)
-							vid_buf[(XRES+BARSIZE)*(y+a)+((x-xoff)+c)] = PIXRGB(PIXR(toollist[n].colour)-10*a, PIXG(toollist[n].colour)-10*a, PIXB(toollist[n].colour)-10*a);
-						else if (n == DECO_DARKEN)
-							vid_buf[(XRES+BARSIZE)*(y+a)+((x-xoff)+c)] = PIXRGB(PIXR(toollist[n].colour)+10*a, PIXG(toollist[n].colour)+10*a, PIXB(toollist[n].colour)+10*a);
-						else if (n == DECO_SMUDGE)
-							vid_buf[(XRES+BARSIZE)*(y+a)+((x-xoff)+c)] = PIXRGB(PIXR(toollist[n].colour), PIXG(toollist[n].colour)-5*c, PIXB(toollist[n].colour)+5*c);
-						else if (n == DECO_DRAW)
-							vid_buf[(XRES+BARSIZE)*(y+a)+((x-xoff)+c)] = PIXRGB(*cr,*cg,*cb);
-						else
-							vid_buf[(XRES+BARSIZE)*(y+a)+((x-xoff)+c)] = toollist[n].colour;
-					}
-				}
-				x -= 26+5;
-				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-					h = n;
-				}
-				else if (n==tool)
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-				}
-		}
-		if(h!=-1)
-		{
-			drawtext(vid_buf, XRES-textwidth((char *)toollist[h].descs)-BARSIZE, sy+20, (char *)toollist[h].descs, 255, 255, 255, 255);
-		}
-		else
-		{
-			drawtext(vid_buf, XRES-textwidth((char *)colorsections[i].name)-BARSIZE, sy+20, (char *)colorsections[i].name, 255, 255, 255, 255);
-		}
-		//these are click events, b=1 is left click, b=4 is right
-		//h has the value of the element it is over, and -1 if not over an element
-		if (b==1 && h!=-1)
-		{
-			tool = h;
-			return 0;
-		}
-	}
-	
-	return 0;
 }
 
 int quickoptions_tooltip_fade = 0;
@@ -6606,10 +6545,21 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 	return NULL;
 }
 
-unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int savedColor)
+ui_edit box_R;
+ui_edit box_G;
+ui_edit box_B;
+ui_edit box_A;
+int currR = 255, currG = 0, currB = 0, currA = 255;
+int currH = 0, currS = 255, currV = 255;
+int on_left = 1, hidden = 0;
+
+int deco_disablestuff;
+int deco_showing;
+void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 {
-	int i,ss,hh,vv,cr=255,cg=0,cb=0,ca=255,b = 0,mx,my,bq = 0,j, lb=0,lx=0,ly=0,lm=0,hidden=0,t;
-	int line_x=0, line_y=0;
+	int i, lb = 0, t, hh, ss, vv;
+	int cr = 255, cg = 0, cb = 0, ca = 255;
+	int th = currH, ts = currS, tv = currV;
 	int window_offset_x_left = 2;
 	int window_offset_x_right = XRES - 279;
 	int window_offset_y = 2;
@@ -6618,674 +6568,323 @@ unsigned int decorations_ui(pixel *vid_buf,int *bsx,int *bsy, unsigned int saved
 	int grid_offset_y = 5;
 	int onleft_button_offset_x_left = 259;
 	int onleft_button_offset_x_right = 4;
-	int on_left = 1;
 	int grid_offset_x;
 	int window_offset_x;
 	int onleft_button_offset_x;
-	int currH = 0, currS = 255, currV = 255;
-	int currR = PIXR(savedColor), currG = PIXG(savedColor), currB = PIXB(savedColor), currA = savedColor>>24;
-	int th = currH, ts = currS, tv = currV;
-	int active_color_menu= 0;
-	pixel *old_buf=calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
-	ui_edit box_R;
-	ui_edit box_G;
-	ui_edit box_B;
-	ui_edit box_A;
 	char frametext[64];
 
-	zoom_en = 0;
-	framenum = 0;
-	tool = DECO_DRAW;
+	if (!deco_disablestuff && b)
+		lb = 1;
+	if (!bq)
+		deco_disablestuff = 0;
+	currR = PIXR(decocolor), currG = PIXG(decocolor), currB = PIXB(decocolor), currA = decocolor>>24;
 
-	box_R.x = 5;
-	box_R.y = 5+255+4;
-	box_R.w = 30;
-	box_R.nx = 1;
-	box_R.def = "";
-	strcpy(box_R.str, "255");
-	box_R.focus = 0;
-	box_R.hide = 0;
-	box_R.multiline = 0;
-	box_R.cursor = box_R.cursorstart = 0;
-
-	box_G.x = 40;
-	box_G.y = 5+255+4;
-	box_G.w = 30;
-	box_G.nx = 1;
-	box_G.def = "";
-	strcpy(box_G.str, "");
-	box_G.focus = 0;
-	box_G.hide = 0;
-	box_G.multiline = 0;
-	box_G.cursor = box_G.cursorstart = 0;
-
-	box_B.x = 75;
-	box_B.y = 5+255+4;
-	box_B.w = 30;
-	box_B.nx = 1;
-	box_B.def = "";
-	strcpy(box_B.str, "");
-	box_B.focus = 0;
-	box_B.hide = 0;
-	box_B.multiline = 0;
-	box_B.cursor = box_B.cursorstart = 0;
-
-	box_A.x = 110;
-	box_A.y = 5+255+4;
-	box_A.w = 30;
-	box_A.nx = 1;
-	box_A.def = "";
-	strcpy(box_A.str, "255");
-	box_A.focus = 0;
-	box_A.hide = 0;
-	box_A.multiline = 0;
-	box_A.cursor = box_A.cursorstart = 0;
-
-	for (i = 0; i <= parts_lastActiveIndex; i++)
+	/*for (i = 0; i <= parts_lastActiveIndex; i++)
 		if (parts[i].type == PT_ANIM)
 		{
 			parts[i].tmp2 = framenum;
-		}
+		}*/
 
-	if (!old_buf)
-		return (currA<<24)+PIXRGB(currR,currG,currB);
-	memcpy(old_buf,vid_buf,(XRES+BARSIZE)*YRES*PIXELSIZE);
-	while (!sdl_poll())
+	
+	ui_edit_process(mx, my, b, bq, &box_R);
+	ui_edit_process(mx, my, b, bq, &box_G);
+	ui_edit_process(mx, my, b, bq, &box_B);
+	ui_edit_process(mx, my, b, bq, &box_A);
+
+	if(on_left==1)
 	{
-		bq = b;
-		b = mouse_get_state(&mx, &my);
+		grid_offset_x = grid_offset_x_left;
+		window_offset_x = window_offset_x_left;
+		onleft_button_offset_x = onleft_button_offset_x_left;
+		box_R.x = 5;
+		box_G.x = 40;
+		box_B.x = 75;
+		box_A.x = 110;
+	}
+	else
+	{
+		grid_offset_x = grid_offset_x_right;
+		window_offset_x = window_offset_x_right;
+		onleft_button_offset_x = onleft_button_offset_x_right;
+		box_R.x = XRES - 254 + 5;
+		box_G.x = XRES - 254 + 40;
+		box_B.x = XRES - 254 + 75;
+		box_A.x = XRES - 254 + 110;
+	}
+	
+	//drawrect(vid_buf, -1, -1, XRES+1, YRES+1, 220, 220, 220, 255);
+	//drawrect(vid_buf, -1, -1, XRES+2, YRES+2, 70, 70, 70, 255);
+	//drawtext(vid_buf, 2, 388, "Welcome to the decoration editor v.3 (by cracker64) \n\nClicking the current color on the window will move it to the other side. Right click is eraser. ", 255, 255, 255, 255);
+	drawtext(vid_buf, 2, 388, "Welcome to the decoration editor v.4 (by cracker64/jacob1)", 255, 255, 255, 255);
+	sprintf(frametext,"Frame %i/%i",framenum+1,maxframes);
+	drawtext(vid_buf, 2, 399, frametext, 255, 255, 255, 255);
 
-		memcpy(vid_buf,old_buf,(XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
-		render_before(vid_buf);
-		render_after(vid_buf, NULL);
-		ui_edit_process(mx, my, b, bq, &box_R);
-		ui_edit_process(mx, my, b, bq, &box_G);
-		ui_edit_process(mx, my, b, bq, &box_B);
-		ui_edit_process(mx, my, b, bq, &box_A);
+	if(!hidden)
+	{
+		char hex[32] = "";
+		fillrect(vid_buf, window_offset_x, window_offset_y, 2+255+4+10+5, 2+255+20, 0, 0, 0, currA);
+		drawrect(vid_buf, window_offset_x, window_offset_y, 2+255+4+10+5, 2+255+20, 255, 255, 255, 255);//window around whole thing
 
-		if(on_left==1)
+		drawrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6, 12, 12, 255, 255, 255, 255);
+		drawrect(vid_buf, window_offset_x + 230, window_offset_y +255+6, 26, 12, 255, 255, 255, 255);
+		drawtext(vid_buf, window_offset_x + 232, window_offset_y +255+9, "Clear", 255, 255, 255, 255);
+		ui_edit_draw(vid_buf, &box_R);
+		ui_edit_draw(vid_buf, &box_G);
+		ui_edit_draw(vid_buf, &box_B);
+		ui_edit_draw(vid_buf, &box_A);
+		sprintf(hex,"0x%.8X",(currA<<24)+(currR<<16)+(currG<<8)+currB);
+		drawtext(vid_buf,on_left?145:504,264,hex,currR,currG,currB,currA);
+
+		//draw color square
+		for(ss=0; ss<=255; ss++)
 		{
-			grid_offset_x = grid_offset_x_left;
-			window_offset_x = window_offset_x_left;
-			onleft_button_offset_x = onleft_button_offset_x_left;
-			box_R.x = 5;
-			box_G.x = 40;
-			box_B.x = 75;
-			box_A.x = 110;
-		}
-		else
-		{
-			grid_offset_x = grid_offset_x_right;
-			window_offset_x = window_offset_x_right;
-			onleft_button_offset_x = onleft_button_offset_x_right;
-			box_R.x = XRES - 254 + 5;
-			box_G.x = XRES - 254 + 40;
-			box_B.x = XRES - 254 + 75;
-			box_A.x = XRES - 254 + 110;
-		}
-		mouse_coords_window_to_sim(&mx, &my, mx, my);//change mouse position while it is in a zoom window
-		
-		drawrect(vid_buf, -1, -1, XRES+1, YRES+1, 220, 220, 220, 255);
-		drawrect(vid_buf, -1, -1, XRES+2, YRES+2, 70, 70, 70, 255);
-		drawtext(vid_buf, 2, 388, "Welcome to the decoration editor v.3 (by cracker64) \n\nClicking the current color on the window will move it to the other side. Right click is eraser. ", 255, 255, 255, 255);
-		sprintf(frametext,"Frame %i/%i",framenum+1,maxframes);
-		drawtext(vid_buf, 2, 400, frametext, 255, 255, 255, 255);
-
-		if(!hidden)
-		{
-			char hex[32] = "";
-			fillrect(vid_buf, window_offset_x, window_offset_y, 2+255+4+10+5, 2+255+20, 0, 0, 0, currA);
-			drawrect(vid_buf, window_offset_x, window_offset_y, 2+255+4+10+5, 2+255+20, 255, 255, 255, 255);//window around whole thing
-
-			drawrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6, 12, 12, 255, 255, 255, 255);
-			drawrect(vid_buf, window_offset_x + 230, window_offset_y +255+6, 26, 12, 255, 255, 255, 255);
-			drawtext(vid_buf, window_offset_x + 232, window_offset_y +255+9, "Clear", 255, 255, 255, 255);
-			ui_edit_draw(vid_buf, &box_R);
-			ui_edit_draw(vid_buf, &box_G);
-			ui_edit_draw(vid_buf, &box_B);
-			ui_edit_draw(vid_buf, &box_A);
-			sprintf(hex,"0x%.8X",(currA<<24)+(currR<<16)+(currG<<8)+currB);
-			drawtext(vid_buf,on_left?145:504,264,hex,currR,currG,currB,currA);
-
-			//draw color square
-			for(ss=0; ss<=255; ss++)
-				for(hh=0;hh<=359;hh++)
-				{
-					t = old_buf[(ss+grid_offset_y)*(XRES+BARSIZE)+(clamp_flt((float)hh, 0, 359)+grid_offset_x)];
-					cr = 0;
-					cg = 0;
-					cb = 0;
-					HSV_to_RGB(hh,255-ss,currV,&cr,&cg,&cb);
-					cr = ((currA*cr + (255-currA)*PIXR(t))>>8);
-					cg = ((currA*cg + (255-currA)*PIXG(t))>>8);
-					cb = ((currA*cb + (255-currA)*PIXB(t))>>8);
-					vid_buf[(ss+grid_offset_y)*(XRES+BARSIZE)+(clamp_flt((float)hh, 0, 359)+grid_offset_x)] = PIXRGB(cr, cg, cb);
-				}
-			//draw brightness bar
-			for(vv=0; vv<=255; vv++)
-				for( i=0; i<10; i++)
-				{
-					t = old_buf[(vv+grid_offset_y)*(XRES+BARSIZE)+(i+grid_offset_x+255+4)];
-					cr = 0;
-					cg = 0;
-					cb = 0;
-					HSV_to_RGB(currH,currS,vv,&cr,&cg,&cb);
-					cr = ((currA*cr + (255-currA)*PIXR(t))>>8);
-					cg = ((currA*cg + (255-currA)*PIXG(t))>>8);
-					cb = ((currA*cb + (255-currA)*PIXB(t))>>8);
-					vid_buf[(vv+grid_offset_y)*(XRES+BARSIZE)+(i+grid_offset_x+255+4)] = PIXRGB(cr, cg, cb);
-				}
-			addpixel(vid_buf,grid_offset_x + clamp_flt((float)currH, 0, 359),grid_offset_y-1,255,255,255,255);
-			addpixel(vid_buf,grid_offset_x -1,grid_offset_y+(255-currS),255,255,255,255);
-
-			addpixel(vid_buf,grid_offset_x + clamp_flt((float)th, 0, 359),grid_offset_y-1,100,100,100,255);
-			addpixel(vid_buf,grid_offset_x -1,grid_offset_y+(255-ts),100,100,100,255);
-
-			addpixel(vid_buf,grid_offset_x + 255 +3,grid_offset_y+tv,100,100,100,255);
-			addpixel(vid_buf,grid_offset_x + 255 +3,grid_offset_y +currV,255,255,255,255);
-
-			fillrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6, 12, 12, currR, currG, currB, currA);
-		}
-		for (i=0; i<2; i++)//draw all the menu sections
-		{
-			draw_color_menu(vid_buf, i, active_color_menu);
-		}
-
-		for (i=0; i<2; i++)//check mouse position to see if it is on a menu section
-		{
-			if (!b&&mx>=XRES-2 && mx<XRES+BARSIZE-1 &&my>= (i*16)+YRES+MENUSIZE-16-(DECO_SECTIONS*16) && my<(i*16)+YRES+MENUSIZE-16-(DECO_SECTIONS*16)+15)
+			int lasth = -1, currh = 0;
+			for(hh=0;hh<=359;hh++)
 			{
-				active_color_menu = i;
+				currh = clamp_flt((float)hh, 0, 359);
+				if (currh == lasth)
+					continue;
+				lasth = currh;
+				t = vid_buf[(ss+grid_offset_y)*(XRES+BARSIZE)+(currh+grid_offset_x)];
+				cr = 0;
+				cg = 0;
+				cb = 0;
+				HSV_to_RGB(hh,255-ss,currV,&cr,&cg,&cb);
+				cr = ((currA*cr + (255-currA)*PIXR(t))>>8);
+				cg = ((currA*cg + (255-currA)*PIXG(t))>>8);
+				cb = ((currA*cb + (255-currA)*PIXB(t))>>8);
+				vid_buf[(ss+grid_offset_y)*(XRES+BARSIZE)+(currh+grid_offset_x)] = PIXRGB(cr, cg, cb);
 			}
 		}
-		if( color_menu_ui(vid_buf, active_color_menu, &currR, &currG, &currB, b, bq, mx, my) )
+		//draw brightness bar
+		for(vv=0; vv<=255; vv++)
+			for( i=0; i<10; i++)
+			{
+				t = vid_buf[(vv+grid_offset_y)*(XRES+BARSIZE)+(i+grid_offset_x+255+4)];
+				cr = 0;
+				cg = 0;
+				cb = 0;
+				HSV_to_RGB(currH,currS,vv,&cr,&cg,&cb);
+				cr = ((currA*cr + (255-currA)*PIXR(t))>>8);
+				cg = ((currA*cg + (255-currA)*PIXG(t))>>8);
+				cb = ((currA*cb + (255-currA)*PIXB(t))>>8);
+				vid_buf[(vv+grid_offset_y)*(XRES+BARSIZE)+(i+grid_offset_x+255+4)] = PIXRGB(cr, cg, cb);
+			}
+		addpixel(vid_buf,grid_offset_x + clamp_flt((float)currH, 0, 359),grid_offset_y-1,255,255,255,255);
+		addpixel(vid_buf,grid_offset_x -1,grid_offset_y+(255-currS),255,255,255,255);
+
+		addpixel(vid_buf,grid_offset_x + clamp_flt((float)th, 0, 359),grid_offset_y-1,100,100,100,255);
+		addpixel(vid_buf,grid_offset_x -1,grid_offset_y+(255-ts),100,100,100,255);
+
+		addpixel(vid_buf,grid_offset_x + 255 +3,grid_offset_y+tv,100,100,100,255);
+		addpixel(vid_buf,grid_offset_x + 255 +3,grid_offset_y +currV,255,255,255,255);
+
+		fillrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6, 12, 12, currR, currG, currB, currA);
+	}
+
+	if(!box_R.focus)//prevent text update if it is being edited
+		sprintf(box_R.str,"%d",currR);
+	else
+	{
+		deco_disablestuff = 1;
+		if(sdl_key == SDLK_RETURN)
+		{
+			cr = atoi(box_R.str);
+			if (cr > 255) cr = 255;
+			if (cr < 0) cr = 0;
+			currR = cr;
 			RGB_to_HSV(currR,currG,currB,&currH,&currS,&currV);
-
-		if(!box_R.focus)//prevent text update if it is being edited
-			sprintf(box_R.str,"%d",currR);
-		else
-		{
-			if(sdl_key == SDLK_RETURN)
-			{
-				cr = atoi(box_R.str);
-				if (cr > 255) cr = 255;
-				if (cr < 0) cr = 0;
-				currR = cr;
-				RGB_to_HSV(currR,currG,currB,&currH,&currS,&currV);
-				box_R.focus = 0;
-			}
-		}
-		if(!box_G.focus)
-			sprintf(box_G.str,"%d",currG);
-		else
-		{
-			if(sdl_key == SDLK_RETURN)
-			{
-				cg = atoi(box_G.str);
-				if (cg > 255) cg = 255;
-				if (cg < 0) cg = 0;
-				currG = cg;
-				RGB_to_HSV(currR,currG,currB,&currH,&currS,&currV);
-				box_G.focus = 0;
-			}
-		}
-		if(!box_B.focus)
-			sprintf(box_B.str,"%d",currB);
-		else
-		{
-			if(sdl_key == SDLK_RETURN)
-			{
-				cb = atoi(box_B.str);
-				if (cb > 255) cb = 255;
-				if (cb < 0) cb = 0;
-				currB = cb;
-				RGB_to_HSV(currR,currG,currB,&currH,&currS,&currV);
-				box_B.focus = 0;
-			}
-		}
-		if(!box_A.focus)
-			sprintf(box_A.str,"%d",currA);
-		else
-		{
-			if(sdl_key == SDLK_RETURN)
-			{
-				ca = atoi(box_A.str);
-				if (ca > 255) ca = 255;
-				if (ca < 0) ca = 0;
-				currA = ca;
-				//RGB_to_HSV(currR,currG,currB,&currH,&currS,&currV);
-				box_A.focus = 0;
-			}
-		}
-
-		fillrect(vid_buf, 250, YRES+4, 40, 15, currR, currG, currB, currA);
-
-		drawrect(vid_buf, 295, YRES+5, 25, 12, 255, 255, 255, 255);
-		if(hidden)
-			drawtext(vid_buf, 297, YRES+5 +3, "Show", 255, 255, 255, 255);
-		else
-			drawtext(vid_buf, 297, YRES+5 +3, "Hide", 255, 255, 255, 255);
-
-		if(!lb && !hidden && mx >= window_offset_x && my >= window_offset_y && mx <= window_offset_x+255+4+10+5 && my <= window_offset_y+255+20)//in the main window
-		{
-			//inside brightness bar
-			if(mx >= grid_offset_x +255+4 && my >= grid_offset_y && mx <= grid_offset_x+255+4+10 && my <= grid_offset_y+255)
-			{
-				tv =  my - grid_offset_y;
-				if(b)
-				{
-					currV =my - grid_offset_y;
-					HSV_to_RGB(currH,currS,tv,&currR,&currG,&currB);
-				}
-				HSV_to_RGB(currH,currS,tv,&cr,&cg,&cb);
-				//clearrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6,12,12);
-				fillrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6, 12, 12, cr, cg, cb, ca);
-				if(!box_R.focus)
-					sprintf(box_R.str,"%d",cr);
-				if(!box_G.focus)
-					sprintf(box_G.str,"%d",cg);
-				if(!box_B.focus)
-					sprintf(box_B.str,"%d",cb);
-				if(!box_A.focus)
-					sprintf(box_A.str,"%d",ca);
-			}
-			//inside color grid
-			if(mx >= grid_offset_x && my >= grid_offset_y && mx <= grid_offset_x+255 && my <= grid_offset_y+255)
-			{
-				th = mx - grid_offset_x;
-				th = (int)( th*359/255 );
-				ts = 255 - (my - grid_offset_y);
-				if(b)
-				{
-					currH = th;
-					currS = ts;
-					HSV_to_RGB(th,ts,currV,&currR,&currG,&currB);
-				}
-				HSV_to_RGB(th,ts,currV,&cr,&cg,&cb);
-				//clearrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6,12,12);
-				fillrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6, 12, 12, cr, cg, cb, ca);
-				//sprintf(box_R.def,"%d",cr);
-				if(!box_R.focus)
-					sprintf(box_R.str,"%d",cr);
-				if(!box_G.focus)
-					sprintf(box_G.str,"%d",cg);
-				if(!box_B.focus)
-					sprintf(box_B.str,"%d",cb);
-				if(!box_A.focus)
-					sprintf(box_A.str,"%d",ca);
-			}
-			//switch side button
-			if(b && !bq && mx >= window_offset_x + onleft_button_offset_x +1 && my >= window_offset_y +255+6 && mx <= window_offset_x + onleft_button_offset_x +13 && my <= window_offset_y +255+5 +13)
-			{
-				on_left = !on_left;
-				lb = 3;//prevent immediate drawing after clicking
-			}
-			//clear button
-			if(b && !bq && mx >= window_offset_x + 230 && my >= window_offset_y +255+6 && mx <= window_offset_x + 230 +26 && my <= window_offset_y +255+5 +13)
-				if (confirm_ui(vid_buf, "Reset Decoration Layer", "Do you really want to erase everything?", "Erase") )
-				{
-					int i;
-					for (i=0;i<NPART;i++)
-						parts[i].dcolour = 0;
-				}
-		}
-		else if (mx > XRES || my > YRES)//mouse outside normal drawing area
-		{
-			//hide/show button
-			if (!zoom_en && b && !bq && mx >= 295 && mx <= 295+25 && my >= YRES+5 && my<= YRES+5+12)
-				hidden = !hidden;
-		}
-		else if (sdl_zoom_trig && zoom_en<2)
-		{
-			mx -= ZSIZE/2;
-			my -= ZSIZE/2;
-			if (mx<0) mx=0;
-			if (my<0) my=0;
-			if (mx>XRES-ZSIZE) mx=XRES-ZSIZE;
-			if (my>YRES-ZSIZE) my=YRES-ZSIZE;
-			zoom_x = mx;
-			zoom_y = my;
-			zoom_wx = (mx<XRES/2) ? XRES-ZSIZE*ZFACTOR : 0;
-			zoom_wy = 0;
-			zoom_en = 1;
-			hidden = 1;
-			if (!b && bq)
-				zoom_en = 2;
-		}
-		else if (b)//there is a click, outside color window
-		{
-			if (lb)//mouse is held down
-			{
-				if (lm == 1)//line tool preview
-				{
-					if (sdl_mod & KMOD_ALT)
-					{
-						float snap_angle = floor(atan2(my-ly, mx-lx)/(M_PI*0.25)+0.5)*M_PI*0.25;
-						float line_mag = sqrtf(pow(mx-lx,2)+pow(my-ly,2));
-						line_x = (int)(line_mag*cos(snap_angle)+lx+0.5f);
-						line_y = (int)(line_mag*sin(snap_angle)+ly+0.5f);
-					}
-					else
-					{
-						line_x = mx;
-						line_y = my;
-					}
-					xor_line(lx, ly, line_x, line_y, vid_buf);
-				}
-				else if (lm == 2)//box tool preview
-				{
-					xor_line(lx, ly, lx, my, vid_buf);
-					xor_line(lx, my, mx, my, vid_buf);
-					xor_line(mx, my, mx, ly, vid_buf);
-					xor_line(mx, ly, lx, ly, vid_buf);
-				}
-				else if(lb!=3)//while mouse is held down, it draws lines between previous and current positions
-				{
-					unsigned int value = b != 4 ? (currA<<24) | PIXRGB(currR,currG,currB) : PIXRGB(0,0,0);
-					prop_format = 0;
-					prop_offset = offsetof(particle,dcolour);
-					prop_value = malloc(sizeof(unsigned int));
-					memcpy(prop_value,&value,sizeof(unsigned int));
-					create_line(lx, ly, mx, my, *bsx, *bsy, SPC_PROP2, 0);
-					lx = mx;
-					ly = my;
-				}
-			}
-			else //first click
-			{
-				if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL)))
-				{
-					unsigned int value = b != 4 ? (currA<<24) | PIXRGB(currR,currG,currB) : PIXRGB(0,0,0);
-					flood_prop(mx, my, offsetof(particle,dcolour), &value, 0);
-				}
-				else if ((sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_CTRL)))
-				{
-					lx = mx;
-					ly = my;
-					lb = b;
-					lm = 1;//line
-				}
-				//start box tool
-				else if ((sdl_mod & (KMOD_CTRL)) && !(sdl_mod & (KMOD_SHIFT|KMOD_ALT)))
-				{
-					lx = mx;
-					ly = my;
-					lb = b;
-					lm = 2;//box
-				}
-				//sample tool
-				else if (((sdl_mod & (KMOD_ALT)) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL))) || b==SDL_BUTTON_MIDDLE)
-				{
-					if (my>=0 && my<YRES && mx>=0 && mx<XRES)
-					{
-						unsigned int tempcolor = vid_buf[(my)*(XRES+BARSIZE)+(mx)];
-						cr = PIXR(tempcolor);
-						cg = PIXG(tempcolor);
-						cb = PIXB(tempcolor);
-						ca = 255;
-						if (cr || cg || cb)
-						{
-							if (cr && cr<255) cr++;
-							if (cg && cg<255) cg++;
-							if (cb && cb<255) cb++;
-							currR = cr;
-							currG = cg;
-							currB = cb;
-							currA = ca;
-							RGB_to_HSV(cr,cg,cb,&th,&ts,&tv);
-							RGB_to_HSV(cr,cg,cb,&currH,&currS,&currV);
-						}
-					}
-					lx = mx;
-					ly = my;
-					lb = 0;
-					lm = 0;
-				}
-				else //normal click, draw deco
-				{
-					unsigned int value = b != 4 ? (currA<<24) | PIXRGB(currR,currG,currB) : PIXRGB(0,0,0);
-					prop_format = 0;
-					prop_offset = offsetof(particle,dcolour);
-					prop_value = malloc(sizeof(unsigned int));
-					memcpy(prop_value,&value,sizeof(unsigned int));
-					create_parts(mx, my, *bsx, *bsy, SPC_PROP2, 0, 1);
-					lx = mx;
-					ly = my;
-					lb = b;
-					lm = 0;
-				}
-			}
-		}
-		else
-		{
-			if (lb && lm) //lm is box/line tool
-			{
-				unsigned int value = b != 4 ? (currA<<24) | PIXRGB(currR,currG,currB) : PIXRGB(0,0,0);
-				prop_format = 0;
-				prop_offset = offsetof(particle,dcolour);
-				prop_value = malloc(sizeof(unsigned int));
-				memcpy(prop_value,&value,sizeof(unsigned int));
-				if (lm == 1)//line
-					create_line(lx, ly, line_x, line_y, *bsx, *bsy, SPC_PROP2, 0);
-				else//box
-					create_box(lx, ly, mx, my, SPC_PROP2, 0);
-				lm = 0;
-			}
-			lb = 0;
-
-		}
-		if (zoom_en!=1)
-			render_cursor(vid_buf, mx, my, PT_DUST, *bsx, *bsy);
-
-		if (zoom_en)
-			render_zoom(vid_buf);
-
-#ifdef OGLR
-		clearScreen(1.0f);
-#endif
-		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
-
-		if (sdl_wheel)
-		{
-			if (sdl_zoom_trig)//zoom window change
-			{
-				ZSIZE += sdl_wheel;
-				if (ZSIZE>60)
-					ZSIZE = 60;
-				if (ZSIZE<2)
-					ZSIZE = 2;
-				ZFACTOR = 256/ZSIZE;
-				sdl_wheel = 0;
-			}
-			else //change brush size
-			{
-				if (!(sdl_mod & (KMOD_SHIFT|KMOD_CTRL)))
-				{
-					*bsx += sdl_wheel;
-					*bsy += sdl_wheel;
-				}
-				else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL)))
-				{
-					*bsx += sdl_wheel;
-				}
-				else if (sdl_mod & (KMOD_CTRL) && !(sdl_mod & (KMOD_SHIFT)))
-				{
-					*bsy += sdl_wheel;
-				}
-				if (*bsx>1180)
-					*bsx = 1180;
-				if (*bsx<0)
-					*bsx = 0;
-				if (*bsy>1180)
-					*bsy = 1180;
-				if (*bsy<0)
-					*bsy = 0;
-				sdl_wheel = 0;
-				/*if(su >= PT_NUM) {
-					if(sl < PT_NUM)
-						su = sl;
-					if(sr < PT_NUM)
-						su = sr;
-				}*/
-			}
-		}
-		if (sdl_key==SDLK_LEFTBRACKET) {
-			if (sdl_zoom_trig)
-			{
-				ZSIZE -= 1;
-				if (ZSIZE>60)
-					ZSIZE = 60;
-				if (ZSIZE<2)
-					ZSIZE = 2;
-				ZFACTOR = 256/ZSIZE;
-			}
-			else
-			{
-				if (sdl_mod & (KMOD_LALT|KMOD_RALT) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL)))
-				{
-					*bsx -= 1;
-					*bsy -= 1;
-				}
-				else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL)))
-				{
-					*bsx -= 1;
-				}
-				else if (sdl_mod & (KMOD_CTRL) && !(sdl_mod & (KMOD_SHIFT)))
-				{
-					*bsy -= 1;
-				}
-				else
-				{
-					*bsx -= (int)ceil((*bsx/5)+0.5f);
-					*bsy -= (int)ceil((*bsy/5)+0.5f);
-				}
-				if (*bsx>1180)
-					*bsx = 1180;
-				if (*bsy>1180)
-					*bsy = 1180;
-				if (*bsx<0)
-					*bsx = 0;
-				if (*bsy<0)
-					*bsy = 0;
-			}
-		}
-		if (sdl_key==SDLK_RIGHTBRACKET) {
-			if (sdl_zoom_trig)
-			{
-				ZSIZE += 1;
-				if (ZSIZE>60)
-					ZSIZE = 60;
-				if (ZSIZE<2)
-					ZSIZE = 2;
-				ZFACTOR = 256/ZSIZE;
-			}
-			else
-			{
-				if (sdl_mod & (KMOD_LALT|KMOD_RALT) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL)))
-				{
-					*bsx += 1;
-					*bsy += 1;
-				}
-				else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL)))
-				{
-					*bsx += 1;
-				}
-				else if (sdl_mod & (KMOD_CTRL) && !(sdl_mod & (KMOD_SHIFT)))
-				{
-					*bsy += 1;
-				}
-				else
-				{
-					*bsx += (int)ceil((*bsx/5)+0.5f);
-					*bsy += (int)ceil((*bsy/5)+0.5f);
-				}
-				if (*bsx>1180)
-					*bsx = 1180;
-				if (*bsy>1180)
-					*bsy = 1180;
-				if (*bsx<0)
-					*bsx = 0;
-				if (*bsy<0)
-					*bsy = 0;
-			}
-		}
-		if (sdl_key==SDLK_TAB)
-		{
-			CURRENT_BRUSH =(CURRENT_BRUSH + 1)%BRUSH_NUM ;
-		}
-
-		if (!sdl_zoom_trig && zoom_en==1)
-		{
-			zoom_en = 0;
-		}
-		if (sdl_key=='z' && zoom_en==2)
-		{
-			zoom_en = 1;
-			hidden = 1;
-		}
-		if (sdl_key==SDLK_RIGHT && framenum < maxframes-1)
-		{
-			int i;
-			framenum++;
-			if (framenum > numframes)
-				numframes = framenum;
-			for (i = 0; i <= parts_lastActiveIndex; i++)
-				if (parts[i].type == PT_ANIM)
-				{
-					parts[i].tmp2 = framenum;
-					if (parts[i].ctype < numframes)
-						parts[i].ctype = numframes;
-					if (sdl_mod & (KMOD_CTRL))
-						parts[i].animations[numframes] = parts[i].animations[numframes-1];
-				}
-		}
-		if (sdl_key==SDLK_LEFT && framenum > 0)
-		{
-			int i;
-			framenum--;
-			for (i = 0; i <= parts_lastActiveIndex; i++)
-				if (parts[i].type == PT_ANIM)
-					parts[i].tmp2 = framenum;
-		}
-		if (sdl_key==SDLK_DELETE && numframes > 0)
-		{
-			int i;
-			numframes--;
-			for (i = 0; i <= parts_lastActiveIndex; i++)
-				if (parts[i].type == PT_ANIM)
-				{
-					int j;
-					for (j = framenum; j <= parts[i].ctype; j++)
-						parts[i].animations[j] = parts[i].animations[j+1];
-					parts[i].animations[parts[i].ctype] = 0;
-					parts[i].ctype--;
-					if (framenum == numframes+1)
-						parts[i].tmp2 = framenum-1;
-				}
-			if (framenum == numframes-1)
-				framenum--;
-		}
-
-		if(sdl_key=='b' || sdl_key==SDLK_ESCAPE)
-		{
-			free(old_buf);
-			for (i = 0; i <= parts_lastActiveIndex; i++)
-				if (parts[i].type == PT_ANIM)
-				{
-					parts[i].tmp2 = 0;
-				}
-			tool = DECO_DRAW;
-			return (currA<<24)+PIXRGB(currR,currG,currB);
+			box_R.focus = 0;
 		}
 	}
-	free(old_buf);
-	for (i = 0; i <= parts_lastActiveIndex; i++)
+	if(!box_G.focus)
+		sprintf(box_G.str,"%d",currG);
+	else
+	{
+		deco_disablestuff = 1;
+		if(sdl_key == SDLK_RETURN)
+		{
+			cg = atoi(box_G.str);
+			if (cg > 255) cg = 255;
+			if (cg < 0) cg = 0;
+			currG = cg;
+			RGB_to_HSV(currR,currG,currB,&currH,&currS,&currV);
+			box_G.focus = 0;
+		}
+	}
+	if(!box_B.focus)
+		sprintf(box_B.str,"%d",currB);
+	else
+	{
+		deco_disablestuff = 1;
+		if(sdl_key == SDLK_RETURN)
+		{
+			cb = atoi(box_B.str);
+			if (cb > 255) cb = 255;
+			if (cb < 0) cb = 0;
+			currB = cb;
+			RGB_to_HSV(currR,currG,currB,&currH,&currS,&currV);
+			box_B.focus = 0;
+		}
+	}
+	if(!box_A.focus)
+		sprintf(box_A.str,"%d",currA);
+	else
+	{
+		deco_disablestuff = 1;
+		if(sdl_key == SDLK_RETURN)
+		{
+			ca = atoi(box_A.str);
+			if (ca > 255) ca = 255;
+			if (ca < 0) ca = 0;
+			currA = ca;
+			//RGB_to_HSV(currR,currG,currB,&currH,&currS,&currV);
+			box_A.focus = 0;
+		}
+	}
+
+	//fillrect(vid_buf, 250, YRES+4, 40, 15, currR, currG, currB, currA);
+
+	drawrect(vid_buf, 295, YRES+5, 25, 12, 255, 255, 255, 255);
+	if(hidden)
+		drawtext(vid_buf, 297, YRES+5 +3, "Show", 255, 255, 255, 255);
+	else
+		drawtext(vid_buf, 297, YRES+5 +3, "Hide", 255, 255, 255, 255);
+
+	if(!lb && !hidden && mx >= window_offset_x && my >= window_offset_y && mx <= window_offset_x+255+4+10+5 && my <= window_offset_y+255+20)//in the main window
+	{
+		//inside brightness bar
+		if(mx >= grid_offset_x +255+4 && my >= grid_offset_y && mx <= grid_offset_x+255+4+10 && my <= grid_offset_y+255)
+		{
+			tv =  my - grid_offset_y;
+			if (b)
+			{
+				currV = my - grid_offset_y;
+				HSV_to_RGB(currH,currS,tv,&currR,&currG,&currB);
+				deco_disablestuff = 1;
+				sl = DECO_DRAW;
+			}
+			HSV_to_RGB(currH,currS,tv,&cr,&cg,&cb);
+			//clearrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6,12,12);
+			fillrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6, 12, 12, cr, cg, cb, ca);
+			if(!box_R.focus)
+				sprintf(box_R.str,"%d",cr);
+			if(!box_G.focus)
+				sprintf(box_G.str,"%d",cg);
+			if(!box_B.focus)
+				sprintf(box_B.str,"%d",cb);
+			if(!box_A.focus)
+				sprintf(box_A.str,"%d",ca);
+		}
+		//inside color grid
+		if(mx >= grid_offset_x && my >= grid_offset_y && mx <= grid_offset_x+255 && my <= grid_offset_y+255)
+		{
+			th = mx - grid_offset_x;
+			th = (int)( th*359/255 );
+			ts = 255 - (my - grid_offset_y);
+			if(b)
+			{
+				currH = th;
+				currS = ts;
+				HSV_to_RGB(th,ts,currV,&currR,&currG,&currB);
+				deco_disablestuff = 1;
+				sl = DECO_DRAW;
+			}
+			HSV_to_RGB(th,ts,currV,&cr,&cg,&cb);
+			//clearrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6,12,12);
+			fillrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6, 12, 12, cr, cg, cb, ca);
+			//sprintf(box_R.def,"%d",cr);
+			if(!box_R.focus)
+				sprintf(box_R.str,"%d",cr);
+			if(!box_G.focus)
+				sprintf(box_G.str,"%d",cg);
+			if(!box_B.focus)
+				sprintf(box_B.str,"%d",cb);
+			if(!box_A.focus)
+				sprintf(box_A.str,"%d",ca);
+		}
+		//switch side button
+		if(b && !bq && mx >= window_offset_x + onleft_button_offset_x +1 && my >= window_offset_y +255+6 && mx <= window_offset_x + onleft_button_offset_x +13 && my <= window_offset_y +255+5 +13)
+		{
+			on_left = !on_left;
+			//lb = 3;//prevent immediate drawing after clicking
+			deco_disablestuff = 1;
+		}
+		//clear button
+		if(b && !bq && mx >= window_offset_x + 230 && my >= window_offset_y +255+6 && mx <= window_offset_x + 230 +26 && my <= window_offset_y +255+5 +13)
+			if (confirm_ui(vid_buf, "Reset Decoration Layer", "Do you really want to erase everything?", "Erase") )
+			{
+				int i;
+				for (i=0;i<NPART;i++)
+					parts[i].dcolour = 0;
+			}
+			deco_disablestuff = 1;
+	}
+	else if (mx > XRES || my > YRES)//mouse outside normal drawing area
+	{
+		//hide/show button
+		if (!zoom_en && b && !bq && mx >= 295 && mx <= 295+25 && my >= YRES+5 && my<= YRES+5+12)
+			hidden = !hidden;
+	}
+	if (sdl_key==SDLK_RIGHT && framenum < maxframes-1)
+	{
+		int i;
+		framenum++;
+		if (framenum > numframes)
+			numframes = framenum;
+		for (i = 0; i <= parts_lastActiveIndex; i++)
+			if (parts[i].type == PT_ANIM)
+			{
+				parts[i].tmp2 = framenum;
+				if (parts[i].ctype < numframes)
+					parts[i].ctype = numframes;
+				if (sdl_mod & (KMOD_CTRL))
+					parts[i].animations[numframes] = parts[i].animations[numframes-1];
+			}
+	}
+	if (sdl_key==SDLK_LEFT && framenum > 0)
+	{
+		int i;
+		framenum--;
+		for (i = 0; i <= parts_lastActiveIndex; i++)
+			if (parts[i].type == PT_ANIM)
+				parts[i].tmp2 = framenum;
+	}
+	if (sdl_key==SDLK_DELETE && numframes > 0)
+	{
+		int i;
+		numframes--;
+		for (i = 0; i <= parts_lastActiveIndex; i++)
+			if (parts[i].type == PT_ANIM)
+			{
+				int j;
+				for (j = framenum; j <= parts[i].ctype; j++)
+					parts[i].animations[j] = parts[i].animations[j+1];
+				parts[i].animations[parts[i].ctype] = 0;
+				parts[i].ctype--;
+				if (framenum == numframes+1)
+					parts[i].tmp2 = framenum-1;
+			}
+		if (framenum == numframes-1)
+			framenum--;
+	}
+	if (sdl_zoom_trig)
+		hidden = 1;
+	/*if(sdl_key=='b' || sdl_key==SDLK_ESCAPE)
+	{
+		/*for (i = 0; i <= parts_lastActiveIndex; i++)
+			if (parts[i].type == PT_ANIM)
+			{
+				parts[i].tmp2 = 0;
+			}* /
+		decocolor = (currA<<24)+PIXRGB(currR,currG,currB);
+	}*/
+	/*for (i = 0; i <= parts_lastActiveIndex; i++)
 		if (parts[i].type == PT_ANIM)
 		{
 			parts[i].tmp2 = 0;
-		}
-	tool = DECO_DRAW;
-	return (currA<<24)+PIXRGB(currR,currG,currB);
+		}*/
+	decocolor = (currA<<24)+PIXRGB(currR,currG,currB);
 }
 struct savelist_e {
 	char *filename;

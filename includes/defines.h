@@ -227,7 +227,6 @@ extern int show_tabs;
 extern int sl;
 extern int sr;
 extern int su;
-extern int tool;
 extern int autosave;
 extern int realistic;
 extern int loop_time;
@@ -248,6 +247,10 @@ extern double totalfps;
 extern double maxfps;
 extern int prevafktime;
 extern int timesplayed;
+
+extern unsigned int decocolor;
+extern int deco_showing;
+extern int deco_disablestuff;
 
 extern int debug_flags;
 #define DEBUG_PERF_FRAMECOUNT 256

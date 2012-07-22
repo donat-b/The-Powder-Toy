@@ -841,6 +841,39 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, int b, unsigned pc)
 			}
 			drawtext(vid_buf, x+14-textwidth((char*)wtypes[b-UI_WALLSTART].name)/2, y+4, (char*)wtypes[b-UI_WALLSTART].name, c, c, c, 255);
 			break;
+		case DECO_DRAW:
+		case DECO_LIGH:
+		case DECO_DARK:
+		case DECO_SMDG:
+		case DECO_ERASE:
+			for (j=1; j<15; j++)
+			{
+				for (i=1; i<27; i++)
+				{
+					if (b == DECO_LIGH)
+						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(pc)-10*j, PIXG(pc)-10*j, PIXB(pc)-10*j);
+					else if (b == DECO_DARK)
+						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(pc)+10*j, PIXG(pc)+10*j, PIXB(pc)+10*j);
+					else if (b == DECO_SMDG)
+						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(pc), PIXG(pc)-5*i, PIXB(pc)+5*i);
+					else if (b == DECO_DRAW || b == DECO_ERASE)
+						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(decocolor),PIXG(decocolor),PIXB(decocolor));
+					else
+						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = pc;
+				}
+			}
+			if (b == DECO_ERASE)
+			{
+				int color = PIXRGB((PIXR((decocolor))+127)%256,(PIXG((decocolor))+127)%256,(PIXB((decocolor))+127)%256);
+				for (j=4; j<12; j++)
+				{
+					vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+6)] = color;
+					vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+7)] = color;
+					vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+21)] = color;
+					vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+22)] = color;
+				}
+			}
+			break;
 		default:
 			for (j=1; j<15; j++)
 				for (i=1; i<27; i++)
@@ -921,20 +954,6 @@ void draw_menu(pixel *vid_buf, int i, int hover)
 	else
 	{
 		drawtext(vid_buf, (XRES+BARSIZE)-13, (i*16)+YRES+MENUSIZE-14-(SC_TOTAL*16), msections[i].icon, 255, 255, 255, 255);
-	}
-}
-
-void draw_color_menu(pixel *vid_buf, int i, int hover)
-{
-	drawrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+YRES+MENUSIZE-16-(DECO_SECTIONS*16), 14, 14, 255, 255, 255, 255);
-	if (hover==i)
-	{
-		fillrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+YRES+MENUSIZE-16-(DECO_SECTIONS*16), 14, 14, 255, 255, 255, 255);
-		drawtext(vid_buf, (XRES+BARSIZE)-13, (i*16)+YRES+MENUSIZE-14-(DECO_SECTIONS*16), colorsections[i].icon, 0, 0, 0, 255);
-	}
-	else
-	{
-		drawtext(vid_buf, (XRES+BARSIZE)-13, (i*16)+YRES+MENUSIZE-14-(DECO_SECTIONS*16), colorsections[i].icon, 255, 255, 255, 255);
 	}
 }
 
@@ -1355,7 +1374,7 @@ void fillcircle(pixel* vid, int x, int y, int rx, int ry, int r, int g, int b, i
 		if (egg_num == 20)
 		{
 			unlockedstuff |= 0x01;
-			SC_TOTAL = 15;
+			SC_TOTAL = SC_CRACKER+1;
 			info_ui(vid_buf, heavy, inside);
 			info_ui(vid_buf, "It's cracker64", "He gives you permanent access to this menu");
 			heavy = "This egg is still heavy";
@@ -3658,12 +3677,13 @@ void create_decoration(int x, int y, int r, int g, int b, int a, int click, int 
 		return;
 	if (tool == DECO_DRAW)
 	{
-		if (click == 4)
-			parts[rp>>8].dcolour = 0;
-		else
-			parts[rp>>8].dcolour = ((a<<24)|(r<<16)|(g<<8)|b);
+		parts[rp>>8].dcolour = ((a<<24)|(r<<16)|(g<<8)|b);
 	}
-	else if (tool == DECO_LIGHTEN)
+	else if (tool == DECO_ERASE)
+	{
+		parts[rp>>8].dcolour = 0;
+	}
+	else if (tool == DECO_LIGH)
 	{//maybe get a better lighten/darken?
 		if (parts[rp>>8].dcolour == 0)
 			return;
@@ -3672,7 +3692,7 @@ void create_decoration(int x, int y, int r, int g, int b, int a, int click, int 
 		tb = (parts[rp>>8].dcolour)&0xFF;
 		parts[rp>>8].dcolour = ((parts[rp>>8].dcolour&0xFF000000)|(clamp_flt(tr+(255-tr)*0.02+1, 0,255)<<16)|(clamp_flt(tg+(255-tg)*0.02+1, 0,255)<<8)|clamp_flt(tb+(255-tb)*0.02+1, 0,255));
 	}
-	else if (tool == DECO_DARKEN)
+	else if (tool == DECO_DARK)
 	{
 		if (parts[rp>>8].dcolour == 0)
 			return;
@@ -3681,7 +3701,7 @@ void create_decoration(int x, int y, int r, int g, int b, int a, int click, int 
 		tb = (parts[rp>>8].dcolour)&0xFF;
 		parts[rp>>8].dcolour = ((parts[rp>>8].dcolour&0xFF000000)|(clamp_flt(tr-(tr)*0.02, 0,255)<<16)|(clamp_flt(tg-(tg)*0.02, 0,255)<<8)|clamp_flt(tb-(tb)*0.02, 0,255));
 	}
-	else if (tool == DECO_SMUDGE)
+	else if (tool == DECO_SMDG)
 	{
 		int rx, ry, num = 0, ta = 0;
 		for (rx=-2; rx<3; rx++)
@@ -4286,7 +4306,7 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 {
 #ifdef OGLR
 	int i;
-	if (t<PT_NUM||(t&0xFF)==PT_LIFE||t==SPC_AIR||t==SPC_HEAT||t==SPC_COOL||t==SPC_VACUUM||t==SPC_WIND||t==SPC_PGRV||t==SPC_NGRV||t==SPC_PROP||t==SPC_PROP2||t-100==WL_SIGN)
+	if (t<PT_NUM||(t&0xFF)==PT_LIFE||t==SPC_AIR||t==SPC_HEAT||t==SPC_COOL||t==SPC_VACUUM||t==SPC_WIND||t==SPC_PGRV||t==SPC_NGRV||t==SPC_PROP||t==SPC_PROP2||t-100==WL_SIGN||t==DECO_DRAW||t==DECO_ERASE||t==DECO_LIGH||t==DECO_DARK||t==DECO_SMDG)
 	{
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, partsFbo);
 		glEnable(GL_COLOR_LOGIC_OP);
@@ -4335,7 +4355,7 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 			if (j != 0)
 				xor_pixel(x, y+j, vid);
 	}
-	else if (t<PT_NUM||(t&0xFF)==PT_LIFE||t==SPC_AIR||t==SPC_HEAT||t==SPC_COOL||t==SPC_VACUUM||t==SPC_WIND||t==SPC_PGRV||t==SPC_NGRV||t==SPC_PROP||t==SPC_PROP2||t-100==WL_SIGN)
+	else if (t<PT_NUM||(t&0xFF)==PT_LIFE||t==SPC_AIR||t==SPC_HEAT||t==SPC_COOL||t==SPC_VACUUM||t==SPC_WIND||t==SPC_PGRV||t==SPC_NGRV||t==SPC_PROP||t==SPC_PROP2||t-100==WL_SIGN||t==DECO_DRAW||t==DECO_ERASE||t==DECO_LIGH||t==DECO_DARK||t==DECO_SMDG)
 	{
 		if (rx<=0)
 			for (j = y - ry; j <= y + ry; j++)

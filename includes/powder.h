@@ -41,7 +41,7 @@
 
 #define UI_WALLSTART 222
 #define UI_ACTUALSTART 122
-#define UI_WALLCOUNT 27
+#define UI_WALLCOUNT 32
 
 #define WL_WALLELEC	122
 #define WL_EWALL	123
@@ -58,6 +58,9 @@
 #define WL_ALLOWSOLID	133
 #define WL_ALLOWALLELEC	134
 #define WL_EHOLE	135
+#define WL_ALLOWGAS	140
+#define WL_GRAV		142
+#define WL_ALLOWENERGY 145
 #define WL_ERASEALL 147
 
 #define SPC_AIR 236
@@ -68,11 +71,13 @@
 #define SPC_PGRV 243
 #define SPC_NGRV 244
 #define SPC_PROP 246
-#define SPC_PROP2 248
+#define SPC_PROP2 253 //TODO: Delete this & combine with PROP
 
-#define WL_ALLOWGAS	140
-#define WL_GRAV		142
-#define WL_ALLOWENERGY 145
+#define DECO_DRAW 248
+#define DECO_ERASE 249
+#define DECO_LIGH 250
+#define DECO_DARK 251
+#define DECO_SMDG 252
 
 
 #define PT_NONE 0
@@ -778,6 +783,11 @@ static wall_type wtypes[] =
 	{"ENERGYWALL",	PIXPACK(0xFFAA00), PIXPACK(0xAA5500), 4,  "Energy wall, allows only energy type particles to pass"},
 	{"PROP",		PIXPACK(0xFFAA00), PIXPACK(0x000000), -1, "Property edit tool"},
 	{"ERASEALL",	PIXPACK(0x808080), PIXPACK(0x000000), -1, "Erases walls, particles, and signs"},
+	{"DRAW",		PIXPACK(0xFF0000), PIXPACK(0x000000), -1, "Draw"},
+	{"ERASE",		PIXPACK(0x000000), PIXPACK(0x000000), -1, "Erase"},
+	{"LIGH",		PIXPACK(0xDDDDDD), PIXPACK(0x000000), -1, "Lighten"},
+	{"DARK",		PIXPACK(0x111111), PIXPACK(0x000000), -1, "Darken"},
+	{"SMDG",		PIXPACK(0x00FF00), PIXPACK(0x000000), -1, "Smudge"},
 	{"PRP2",		PIXPACK(0xFFAA00), PIXPACK(0x000000), -1, "Property drawing tool"},
 };
 

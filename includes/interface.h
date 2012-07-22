@@ -42,13 +42,6 @@ struct quick_option
 };
 typedef struct quick_option quick_option;
 
-struct menu_wall
-{
-	pixel colour;
-	const char *descs;
-};
-typedef struct menu_wall menu_wall;
-
 #define SC_WALL 0
 #define SC_ELEC 1
 #define SC_POWERED 2
@@ -63,9 +56,10 @@ typedef struct menu_wall menu_wall;
 #define SC_LIFE 11
 #define SC_TOOL 12
 #define SC_FAV 13
-#define SC_CRACKER 14
-#define SC_FAV2 15
-#define SC_HUD 16
+#define SC_DECO 14
+#define SC_CRACKER 15
+#define SC_FAV2 16
+#define SC_HUD 17
 extern int SC_TOTAL;
 
 static menu_section msections[] = //doshow does not do anything currently.
@@ -84,6 +78,7 @@ static menu_section msections[] = //doshow does not do anything currently.
 	{"\xD2", "Life", 0, 1},
 	{"\xD7", "Tools", 0, 1},
 	{"\xE2", "\brF\bla\bov\bgo\btr\bbi\bpt\bwe", 0, 1}, //This says Favorite in rainbow colors
+	{"\xC4", "Deco", 0, 1},
 	{"\xC8", "Cracker!", 0, 0},
 	{"\xE2", "Favorite2", 0, 0},
 	{"\xE2", "HUD", 0, 0}
@@ -100,14 +95,7 @@ static quick_option quickmenu[] =
 	{NULL}
 };
 
-static menu_section colorsections[] = //doshow does not do anything currently.
-{
-	{"\xC4", "Colors", 7, 1},
-	{"\xD7", "Tools", 0, 1},
-};
-#define DECO_SECTIONS 2
-
-static menu_wall colorlist[] =
+/*static menu_wall colorlist[] = //TODO: Put these back
 {
 	{PIXPACK(0xFF0000), "Red"},
 	{PIXPACK(0x00FF00), "Green"},
@@ -116,20 +104,7 @@ static menu_wall colorlist[] =
 	{PIXPACK(0xFF00FF), "Pink"},
 	{PIXPACK(0x00FFFF), "Cyan"},
 	{PIXPACK(0xFFFFFF), "White"},
-};
-
-#define DECO_DRAW 0
-#define DECO_LIGHTEN 1
-#define DECO_DARKEN 2
-#define DECO_SMUDGE 3
-
-static menu_wall toollist[] =
-{
-	{PIXPACK(0xFF0000), "Draw"},
-	{PIXPACK(0xDDDDDD), "Lighten"},
-	{PIXPACK(0x111111), "Darken"},
-	{PIXPACK(0x00FF00), "Smudge"},
-};
+};*/
 
 struct ui_edit
 {
@@ -263,6 +238,11 @@ extern int hud_menunum;
 extern int dateformat;
 extern int show_ids;
 
+extern ui_edit box_R;
+extern ui_edit box_G;
+extern ui_edit box_B;
+extern ui_edit box_A;
+
 void menu_count(void);
 
 void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y);
@@ -333,8 +313,6 @@ void menu_draw_text(int h, int i);
 
 void menu_select_element(int b, int h);
 
-int color_menu_ui(pixel *vid_buf, int i, int *cr, int *cg, int *cb, int b, int bq, int mx, int my);
-
 int sdl_poll(void);
 
 void set_cmode(int cm);
@@ -372,6 +350,8 @@ void open_link(char *uri);
 int report_ui(pixel *vid_buf, char *save_id);
 
 char *console_ui(pixel *vid_buf, char error[255],char console_more);
+
+void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my);
 
 void render_ui(pixel *vid_buf, int xcoord, int ycoord, int orientation);
 

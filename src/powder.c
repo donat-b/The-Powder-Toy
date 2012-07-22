@@ -848,7 +848,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 	int t = tv & 0xFF;
 	int v = (tv >> 8) & 0xFF;
 	
-	if (x<0 || y<0 || x>=XRES || y>=YRES || ((t<=0 || t>=PT_NUM)&&t!=SPC_HEAT&&t!=SPC_COOL&&t!=SPC_AIR&&t!=SPC_VACUUM&&t!=SPC_PGRV&&t!=SPC_NGRV&&t!=SPC_PROP2))
+	if (x<0 || y<0 || x>=XRES || y>=YRES || ((t<=0 || t>=PT_NUM)&&t!=SPC_HEAT&&t!=SPC_COOL&&t!=SPC_AIR&&t!=SPC_VACUUM&&t!=SPC_PGRV&&t!=SPC_NGRV&&t!=SPC_PROP2&&t!=DECO_DRAW&&t!=DECO_ERASE&&t!=DECO_LIGH&&t!=DECO_DARK&&t!=DECO_SMDG))
 		return -1;
 	if (t>=0 && t<PT_NUM && !ptypes[t].enabled)
 		return -1;
@@ -897,7 +897,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 			return -1;
 		}
 	}
-	if (t==SPC_AIR)
+	else if (t==SPC_AIR)
 	{
 		float pchange = ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL)))?.3f:.03f;
 		pv[y/CELL][x/CELL] += pchange;
@@ -911,7 +911,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		}
 		return -1;
 	}
-	if (t==SPC_VACUUM)
+	else if (t==SPC_VACUUM)
 	{
 		float pchange = ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL)))?.3f:.03f;
 		pv[y/CELL][x/CELL] -= pchange;
@@ -925,14 +925,19 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		}
 		return -1;
 	}
-	if (t==SPC_PGRV)
+	else if (t==SPC_PGRV)
 	{
 		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = 5;
 		return -1;
 	}
-	if (t==SPC_NGRV)
+	else if (t==SPC_NGRV)
 	{
 		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = -5;
+		return -1;
+	}
+	else if (t == DECO_DRAW || t == DECO_ERASE || t== DECO_LIGH || t == DECO_DARK || t == DECO_SMDG)
+	{
+		create_decoration(x, y, PIXR(decocolor), PIXG(decocolor), PIXB(decocolor), decocolor>>24, 1, t);
 		return -1;
 	}
 
@@ -1384,21 +1389,16 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 int create_property(int x, int y, size_t propoffset, void * propvalue, int proptype)
 {
 	int i = pmap[y][x];
-	if (propoffset == offsetof(particle,dcolour))
-	{
-		create_decoration(x,y,(*((int*)propvalue)>>16)&0xFF,(*((int*)propvalue)>>8)&0xFF,(*((int*)propvalue))&0xFF,(*((int*)propvalue)>>24)&0xFF,1,tool);
-		return i>>8;
-	}
 	if (!propvalue)
 		return -1;
 	if (i&0xFF)
 	{
-		if(proptype==2){
-			*((float*)(((char*)&parts[i>>8])+propoffset)) = *((float*)propvalue);
-		} else if(proptype==0) {
+		if(proptype==0) {
 			*((int*)(((char*)&parts[i>>8])+propoffset)) = *((int*)propvalue);
 		} else if(proptype==1) {
 			*((char*)(((char*)&parts[i>>8])+propoffset)) = *((char*)propvalue);
+		} else if(proptype==2) {
+			*((float*)(((char*)&parts[i>>8])+propoffset)) = *((float*)propvalue);
 		}
 		return i>>8;
 	}
@@ -3806,13 +3806,13 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 		prop_edit_ui(vid_buf, x, y, 1);
 		return 0;
 	}
-	if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM || c == SPC_PGRV || c == SPC_NGRV)
+	if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM || c == SPC_PGRV || c == SPC_NGRV || c == DECO_LIGH || c == DECO_DARK || c == DECO_SMDG)
 		fill = 1;
 	for (r=UI_ACTUALSTART; r<=UI_ACTUALSTART+UI_WALLCOUNT; r++)
 	{
 		if (wall==r)
 		{
-			if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM || c == SPC_PGRV || c == SPC_NGRV || wall == WL_SIGN || c == SPC_PROP2)
+			if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM || c == SPC_PGRV || c == SPC_NGRV || wall == WL_SIGN || c == SPC_PROP2 || c == DECO_DRAW || c == DECO_ERASE || c == DECO_LIGH || c == DECO_DARK || c == DECO_SMDG)
 				break;
 			if (wall == WL_ERASE || wall == WL_ERASEALL)
 				b = 0;
@@ -3915,7 +3915,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 		return 1;
 	}
 
-	if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM || c == SPC_PGRV || c == SPC_NGRV)
+	if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM || c == SPC_PGRV || c == SPC_NGRV || c == DECO_DRAW || c == DECO_ERASE || c == DECO_LIGH || c == DECO_DARK || c == DECO_SMDG)
 		fn = 3;
 	else if (c == 0 && !(flags&BRUSH_REPLACEMODE))								// delete
 		fn = 0;
@@ -4090,7 +4090,7 @@ void create_line(int x1, int y1, int x2, int y2, int rx, int ry, int c, int flag
 			create_parts(y, x, rx, ry, c, flags, fill);
 		else
 			create_parts(x, y, rx, ry, c, flags, fill);
-		if (c != SPC_PROP2 || tool == 0)
+		if (c != SPC_PROP2)
 			fill = 0;
 		e += de;
 		if (e >= 0.5f)
