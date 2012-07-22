@@ -4306,7 +4306,7 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 {
 #ifdef OGLR
 	int i;
-	if (t<PT_NUM||(t&0xFF)==PT_LIFE||t==SPC_AIR||t==SPC_HEAT||t==SPC_COOL||t==SPC_VACUUM||t==SPC_WIND||t==SPC_PGRV||t==SPC_NGRV||t==SPC_PROP||t==SPC_PROP2||t-100==WL_SIGN||t==DECO_DRAW||t==DECO_ERASE||t==DECO_LIGH||t==DECO_DARK||t==DECO_SMDG)
+	if (t<PT_NUM||(t&0xFF)==PT_LIFE||is_TOOL(t)||t-100==WL_SIGN||is_DECOTOOL(t))
 	{
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, partsFbo);
 		glEnable(GL_COLOR_LOGIC_OP);
@@ -4346,7 +4346,7 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 	}
 #else
 	int i,j,c;
-	if ((sdl_mod & KMOD_CTRL) && (sdl_mod & KMOD_SHIFT) && t!=SPC_AIR && t!=SPC_HEAT && t!=SPC_COOL && t!=SPC_VACUUM && t!=SPC_WIND && t!=SPC_PGRV && t!=SPC_NGRV && t!=SPC_PROP && t!=SPC_PROP2 && t-100!=WL_SIGN)
+	if ((sdl_mod & KMOD_CTRL) && (sdl_mod & KMOD_SHIFT) && !is_TOOL(t) && t-100!=WL_SIGN)
 	{
 		for (i = -5; i < 6; i++)
 			if (i != 0)
@@ -4355,7 +4355,7 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 			if (j != 0)
 				xor_pixel(x, y+j, vid);
 	}
-	else if (t<PT_NUM||(t&0xFF)==PT_LIFE||t==SPC_AIR||t==SPC_HEAT||t==SPC_COOL||t==SPC_VACUUM||t==SPC_WIND||t==SPC_PGRV||t==SPC_NGRV||t==SPC_PROP||t==SPC_PROP2||t-100==WL_SIGN||t==DECO_DRAW||t==DECO_ERASE||t==DECO_LIGH||t==DECO_DARK||t==DECO_SMDG)
+	else if (t<PT_NUM||(t&0xFF)==PT_LIFE||is_TOOL(t)||t-100==WL_SIGN||is_DECOTOOL(t))
 	{
 		if (rx<=0)
 			for (j = y - ry; j <= y + ry; j++)

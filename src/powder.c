@@ -848,7 +848,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 	int t = tv & 0xFF;
 	int v = (tv >> 8) & 0xFF;
 	
-	if (x<0 || y<0 || x>=XRES || y>=YRES || ((t<=0 || t>=PT_NUM)&&t!=SPC_HEAT&&t!=SPC_COOL&&t!=SPC_AIR&&t!=SPC_VACUUM&&t!=SPC_PGRV&&t!=SPC_NGRV&&t!=SPC_PROP2&&t!=DECO_DRAW&&t!=DECO_ERASE&&t!=DECO_LIGH&&t!=DECO_DARK&&t!=DECO_SMDG))
+	if (x<0 || y<0 || x>=XRES || y>=YRES || ((t<=0 || t>=PT_NUM)&&!is_TOOL(t)&&!is_DECOTOOL(t)))
 		return -1;
 	if (t>=0 && t<PT_NUM && !ptypes[t].enabled)
 		return -1;
@@ -935,7 +935,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = -5;
 		return -1;
 	}
-	else if (t == DECO_DRAW || t == DECO_ERASE || t== DECO_LIGH || t == DECO_DARK || t == DECO_SMDG)
+	else if (is_DECOTOOL(t))
 	{
 		create_decoration(x, y, PIXR(decocolor), PIXG(decocolor), PIXB(decocolor), decocolor>>24, 1, t);
 		return -1;
@@ -3806,13 +3806,13 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 		prop_edit_ui(vid_buf, x, y, 1);
 		return 0;
 	}
-	if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM || c == SPC_PGRV || c == SPC_NGRV || c == DECO_LIGH || c == DECO_DARK || c == DECO_SMDG)
+	if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM || c == DECO_LIGH || c == DECO_DARK || c == DECO_SMDG)
 		fill = 1;
 	for (r=UI_ACTUALSTART; r<=UI_ACTUALSTART+UI_WALLCOUNT; r++)
 	{
 		if (wall==r)
 		{
-			if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM || c == SPC_PGRV || c == SPC_NGRV || wall == WL_SIGN || c == SPC_PROP2 || c == DECO_DRAW || c == DECO_ERASE || c == DECO_LIGH || c == DECO_DARK || c == DECO_SMDG)
+			if (is_TOOL(c) || c - 100 == WL_SIGN || is_DECOTOOL(c))
 				break;
 			if (wall == WL_ERASE || wall == WL_ERASEALL)
 				b = 0;
@@ -3915,7 +3915,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 		return 1;
 	}
 
-	if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM || c == SPC_PGRV || c == SPC_NGRV || c == DECO_DRAW || c == DECO_ERASE || c == DECO_LIGH || c == DECO_DARK || c == DECO_SMDG)
+	if (is_TOOL(c) || is_DECOTOOL(c))
 		fn = 3;
 	else if (c == 0 && !(flags&BRUSH_REPLACEMODE))								// delete
 		fn = 0;

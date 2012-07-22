@@ -884,50 +884,6 @@ int main(int argc, char *argv[])
 	fmt.callback = mixaudio;
 	fmt.userdata = NULL;
 
-	box_R.x = 5;
-	box_R.y = 5+255+4;
-	box_R.w = 30;
-	box_R.nx = 1;
-	box_R.def = "";
-	strcpy(box_R.str, "255");
-	box_R.focus = 0;
-	box_R.hide = 0;
-	box_R.multiline = 0;
-	box_R.cursor = box_R.cursorstart = 0;
-
-	box_G.x = 40;
-	box_G.y = 5+255+4;
-	box_G.w = 30;
-	box_G.nx = 1;
-	box_G.def = "";
-	strcpy(box_G.str, "");
-	box_G.focus = 0;
-	box_G.hide = 0;
-	box_G.multiline = 0;
-	box_G.cursor = box_G.cursorstart = 0;
-
-	box_B.x = 75;
-	box_B.y = 5+255+4;
-	box_B.w = 30;
-	box_B.nx = 1;
-	box_B.def = "";
-	strcpy(box_B.str, "");
-	box_B.focus = 0;
-	box_B.hide = 0;
-	box_B.multiline = 0;
-	box_B.cursor = box_B.cursorstart = 0;
-
-	box_A.x = 110;
-	box_A.y = 5+255+4;
-	box_A.w = 30;
-	box_A.nx = 1;
-	box_A.def = "";
-	strcpy(box_A.str, "255");
-	box_A.focus = 0;
-	box_A.hide = 0;
-	box_A.multiline = 0;
-	box_A.cursor = box_A.cursorstart = 0;
-
 #ifdef MT
 	numCores = core_count();
 #endif
@@ -944,6 +900,7 @@ int main(int argc, char *argv[])
 	colour_mode = COLOUR_DEFAULT;
 	init_display_modes();
 	TRON_init_graphics();
+	init_color_boxes();
 
 	//fbi_img = render_packed_rgb(fbi, FBI_W, FBI_H, FBI_CMP);
 
@@ -2540,7 +2497,7 @@ int main(int argc, char *argv[])
 				int signi;
 
 				c = (b&1) ? sl : sr; //c is element to be spawned
-				if ((sl == DECO_DRAW || sl == DECO_ERASE ||sl == DECO_LIGH || sl == DECO_DARK || sl == DECO_SMDG) && b == 4)
+				if (is_DECOTOOL(c) && b == 4)
 					c = DECO_ERASE;
 				su = c;
 
@@ -2672,7 +2629,7 @@ int main(int argc, char *argv[])
 					{
 						if (sdl_mod & (KMOD_CAPS))
 							c = 0;
-						if (c!=WL_STREAM+100&&c!=SPC_AIR&&c!=SPC_HEAT&&c!=SPC_COOL&&c!=SPC_VACUUM&&!REPLACE_MODE&&c!=SPC_WIND&&c!=SPC_PGRV&&c!=SPC_NGRV&&c!=DECO_DRAW&&c!=DECO_ERASE)
+						if (c!=WL_STREAM+100&&!is_TOOL(c)&&c!=DECO_DRAW&&c!=DECO_ERASE)
 							flood_parts(x, y, c, -1, -1, get_brush_flags());
 						else if (c==SPC_HEAT || c==SPC_COOL)
 							create_parts(x, y, bsx, bsy, c, get_brush_flags(), 1);
@@ -2691,7 +2648,7 @@ int main(int argc, char *argv[])
 					{
 						if (y>=0 && y<YRES && x>=0 && x<XRES)
 						{
-							if (c == DECO_DRAW || c == DECO_ERASE || c == DECO_LIGH || c == DECO_DARK || c == DECO_SMDG)
+							if (is_DECOTOOL(c))
 							{
 								unsigned int tempcolor = vid_buf[(my)*(XRES+BARSIZE)+(mx)];
 								int cr = PIXR(tempcolor);
@@ -2767,7 +2724,7 @@ int main(int argc, char *argv[])
 			if (lb && lm) //lm is box/line tool
 			{
 				c = (lb&1) ? sl : sr;
-				if ((sl == DECO_DRAW || sl == DECO_LIGH || sl == DECO_DARK || sl == DECO_SMDG) && lb == 4)
+				if (is_DECOTOOL(sl) && lb == 4)
 					c = DECO_ERASE;
 				su = c;
 				if (lm == 1)//line

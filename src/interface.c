@@ -2619,7 +2619,7 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 	{
 		for (n = UI_WALLSTART; n<UI_WALLSTART+UI_WALLCOUNT; n++)
 		{
-			if (n!=SPC_AIR&&n!=SPC_HEAT&&n!=SPC_COOL&&n!=SPC_VACUUM&&n!=SPC_WIND&&n!=SPC_PGRV&&n!=SPC_NGRV&&n!=SPC_PROP&&n!=SPC_PROP2&&n!=DECO_DRAW&&n!=DECO_ERASE&&n!=DECO_LIGH&&n!=DECO_DARK&&n!=DECO_SMDG)
+			if (!is_TOOL(n) && !is_DECOTOOL(n))
 			{
 				if (old_menu && x-26<=60)
 				{
@@ -2659,7 +2659,7 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 	{
 		for (n = UI_WALLSTART; n<UI_WALLSTART+UI_WALLCOUNT; n++)
 		{
-			if (n==SPC_AIR||n==SPC_HEAT||n==SPC_COOL||n==SPC_VACUUM||n==SPC_WIND||n==SPC_PGRV||n==SPC_NGRV||n==SPC_PROP||n==SPC_PROP2)
+			if (is_TOOL(n))
 			{
 				if (old_menu && x-26<=60)
 				{
@@ -2703,7 +2703,7 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 		decoration_editor(vid_buf, b, bq, mx, my);
 		for (n = UI_WALLSTART; n<UI_WALLSTART+UI_WALLCOUNT; n++)
 		{
-			if (n == DECO_DRAW || n == DECO_ERASE || n == DECO_LIGH || n == DECO_DARK || n == DECO_SMDG)
+			if (is_DECOTOOL(n))
 			{
 				if (old_menu && x-26<=60)
 				{
@@ -6549,6 +6549,54 @@ ui_edit box_R;
 ui_edit box_G;
 ui_edit box_B;
 ui_edit box_A;
+
+void init_color_boxes()
+{
+	box_R.x = 5;
+	box_R.y = 5+255+4;
+	box_R.w = 30;
+	box_R.nx = 1;
+	box_R.def = "";
+	strcpy(box_R.str, "255");
+	box_R.focus = 0;
+	box_R.hide = 0;
+	box_R.multiline = 0;
+	box_R.cursor = box_R.cursorstart = 0;
+
+	box_G.x = 40;
+	box_G.y = 5+255+4;
+	box_G.w = 30;
+	box_G.nx = 1;
+	box_G.def = "";
+	strcpy(box_G.str, "");
+	box_G.focus = 0;
+	box_G.hide = 0;
+	box_G.multiline = 0;
+	box_G.cursor = box_G.cursorstart = 0;
+
+	box_B.x = 75;
+	box_B.y = 5+255+4;
+	box_B.w = 30;
+	box_B.nx = 1;
+	box_B.def = "";
+	strcpy(box_B.str, "");
+	box_B.focus = 0;
+	box_B.hide = 0;
+	box_B.multiline = 0;
+	box_B.cursor = box_B.cursorstart = 0;
+
+	box_A.x = 110;
+	box_A.y = 5+255+4;
+	box_A.w = 30;
+	box_A.nx = 1;
+	box_A.def = "";
+	strcpy(box_A.str, "255");
+	box_A.focus = 0;
+	box_A.hide = 0;
+	box_A.multiline = 0;
+	box_A.cursor = box_A.cursorstart = 0;
+}
+
 int currR = 255, currG = 0, currB = 0, currA = 255;
 int currH = 0, currS = 255, currV = 255;
 int on_left = 1, hidden = 0;
@@ -6557,24 +6605,16 @@ int deco_disablestuff;
 int deco_showing;
 void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 {
-	int i, lb = 0, t, hh, ss, vv;
+	int i, t, hh, ss, vv, can_select_color = 1;
 	int cr = 255, cg = 0, cb = 0, ca = 255;
 	int th = currH, ts = currS, tv = currV;
-	int window_offset_x_left = 2;
-	int window_offset_x_right = XRES - 279;
-	int window_offset_y = 2;
-	int grid_offset_x_left = 5;
-	int grid_offset_x_right = XRES - 274;
-	int grid_offset_y = 5;
-	int onleft_button_offset_x_left = 259;
-	int onleft_button_offset_x_right = 4;
 	int grid_offset_x;
 	int window_offset_x;
 	int onleft_button_offset_x;
 	char frametext[64];
 
-	if (!deco_disablestuff && b)
-		lb = 1;
+	if (!deco_disablestuff && b) //If mouse is down, but a color isn't already being picked
+		can_select_color = 0;
 	if (!bq)
 		deco_disablestuff = 0;
 	currR = PIXR(decocolor), currG = PIXG(decocolor), currB = PIXB(decocolor), currA = decocolor>>24;
@@ -6593,9 +6633,9 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 
 	if(on_left==1)
 	{
-		grid_offset_x = grid_offset_x_left;
-		window_offset_x = window_offset_x_left;
-		onleft_button_offset_x = onleft_button_offset_x_left;
+		grid_offset_x = 5;
+		window_offset_x = 2;
+		onleft_button_offset_x = 259;
 		box_R.x = 5;
 		box_G.x = 40;
 		box_B.x = 75;
@@ -6603,9 +6643,9 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	}
 	else
 	{
-		grid_offset_x = grid_offset_x_right;
-		window_offset_x = window_offset_x_right;
-		onleft_button_offset_x = onleft_button_offset_x_right;
+		grid_offset_x = XRES - 274;
+		window_offset_x = XRES - 279;
+		onleft_button_offset_x = 4;
 		box_R.x = XRES - 254 + 5;
 		box_G.x = XRES - 254 + 40;
 		box_B.x = XRES - 254 + 75;
@@ -6622,12 +6662,12 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	if(!hidden)
 	{
 		char hex[32] = "";
-		fillrect(vid_buf, window_offset_x, window_offset_y, 2+255+4+10+5, 2+255+20, 0, 0, 0, currA);
-		drawrect(vid_buf, window_offset_x, window_offset_y, 2+255+4+10+5, 2+255+20, 255, 255, 255, 255);//window around whole thing
+		fillrect(vid_buf, window_offset_x, 2, 2+255+4+10+5, 2+255+20, 0, 0, 0, currA);
+		drawrect(vid_buf, window_offset_x, 2, 2+255+4+10+5, 2+255+20, 255, 255, 255, 255);//window around whole thing
 
-		drawrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6, 12, 12, 255, 255, 255, 255);
-		drawrect(vid_buf, window_offset_x + 230, window_offset_y +255+6, 26, 12, 255, 255, 255, 255);
-		drawtext(vid_buf, window_offset_x + 232, window_offset_y +255+9, "Clear", 255, 255, 255, 255);
+		drawrect(vid_buf, window_offset_x + onleft_button_offset_x +1, 2 +255+6, 12, 12, 255, 255, 255, 255);
+		drawrect(vid_buf, window_offset_x + 230, 2 +255+6, 26, 12, 255, 255, 255, 255);
+		drawtext(vid_buf, window_offset_x + 232, 2 +255+9, "Clear", 255, 255, 255, 255);
 		ui_edit_draw(vid_buf, &box_R);
 		ui_edit_draw(vid_buf, &box_G);
 		ui_edit_draw(vid_buf, &box_B);
@@ -6645,7 +6685,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 				if (currh == lasth)
 					continue;
 				lasth = currh;
-				t = vid_buf[(ss+grid_offset_y)*(XRES+BARSIZE)+(currh+grid_offset_x)];
+				t = vid_buf[(ss+5)*(XRES+BARSIZE)+(currh+grid_offset_x)];
 				cr = 0;
 				cg = 0;
 				cb = 0;
@@ -6653,14 +6693,14 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 				cr = ((currA*cr + (255-currA)*PIXR(t))>>8);
 				cg = ((currA*cg + (255-currA)*PIXG(t))>>8);
 				cb = ((currA*cb + (255-currA)*PIXB(t))>>8);
-				vid_buf[(ss+grid_offset_y)*(XRES+BARSIZE)+(currh+grid_offset_x)] = PIXRGB(cr, cg, cb);
+				vid_buf[(ss+5)*(XRES+BARSIZE)+(currh+grid_offset_x)] = PIXRGB(cr, cg, cb);
 			}
 		}
 		//draw brightness bar
 		for(vv=0; vv<=255; vv++)
 			for( i=0; i<10; i++)
 			{
-				t = vid_buf[(vv+grid_offset_y)*(XRES+BARSIZE)+(i+grid_offset_x+255+4)];
+				t = vid_buf[(vv+5)*(XRES+BARSIZE)+(i+grid_offset_x+255+4)];
 				cr = 0;
 				cg = 0;
 				cb = 0;
@@ -6668,18 +6708,18 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 				cr = ((currA*cr + (255-currA)*PIXR(t))>>8);
 				cg = ((currA*cg + (255-currA)*PIXG(t))>>8);
 				cb = ((currA*cb + (255-currA)*PIXB(t))>>8);
-				vid_buf[(vv+grid_offset_y)*(XRES+BARSIZE)+(i+grid_offset_x+255+4)] = PIXRGB(cr, cg, cb);
+				vid_buf[(vv+5)*(XRES+BARSIZE)+(i+grid_offset_x+255+4)] = PIXRGB(cr, cg, cb);
 			}
-		addpixel(vid_buf,grid_offset_x + clamp_flt((float)currH, 0, 359),grid_offset_y-1,255,255,255,255);
-		addpixel(vid_buf,grid_offset_x -1,grid_offset_y+(255-currS),255,255,255,255);
+		addpixel(vid_buf,grid_offset_x + clamp_flt((float)currH, 0, 359),5-1,255,255,255,255);
+		addpixel(vid_buf,grid_offset_x -1,5+(255-currS),255,255,255,255);
 
-		addpixel(vid_buf,grid_offset_x + clamp_flt((float)th, 0, 359),grid_offset_y-1,100,100,100,255);
-		addpixel(vid_buf,grid_offset_x -1,grid_offset_y+(255-ts),100,100,100,255);
+		addpixel(vid_buf,grid_offset_x + clamp_flt((float)th, 0, 359),5-1,100,100,100,255);
+		addpixel(vid_buf,grid_offset_x -1,5+(255-ts),100,100,100,255);
 
-		addpixel(vid_buf,grid_offset_x + 255 +3,grid_offset_y+tv,100,100,100,255);
-		addpixel(vid_buf,grid_offset_x + 255 +3,grid_offset_y +currV,255,255,255,255);
+		addpixel(vid_buf,grid_offset_x + 255 +3,5+tv,100,100,100,255);
+		addpixel(vid_buf,grid_offset_x + 255 +3,5 +currV,255,255,255,255);
 
-		fillrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6, 12, 12, currR, currG, currB, currA);
+		fillrect(vid_buf, window_offset_x + onleft_button_offset_x +1, 2 +255+6, 12, 12, currR, currG, currB, currA);
 	}
 
 	if(!box_R.focus)//prevent text update if it is being edited
@@ -6751,22 +6791,22 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	else
 		drawtext(vid_buf, 297, YRES+5 +3, "Hide", 255, 255, 255, 255);
 
-	if(!lb && !hidden && mx >= window_offset_x && my >= window_offset_y && mx <= window_offset_x+255+4+10+5 && my <= window_offset_y+255+20)//in the main window
+	if(can_select_color && !hidden && mx >= window_offset_x && my >= 2 && mx <= window_offset_x+255+4+10+5 && my <= 2+255+20)//in the main window
 	{
 		//inside brightness bar
-		if(mx >= grid_offset_x +255+4 && my >= grid_offset_y && mx <= grid_offset_x+255+4+10 && my <= grid_offset_y+255)
+		if(mx >= grid_offset_x +255+4 && my >= 5 && mx <= grid_offset_x+255+4+10 && my <= 5+255)
 		{
-			tv =  my - grid_offset_y;
+			tv =  my - 5;
 			if (b)
 			{
-				currV = my - grid_offset_y;
+				currV = my - 5;
 				HSV_to_RGB(currH,currS,tv,&currR,&currG,&currB);
 				deco_disablestuff = 1;
 				sl = DECO_DRAW;
 			}
 			HSV_to_RGB(currH,currS,tv,&cr,&cg,&cb);
 			//clearrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6,12,12);
-			fillrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6, 12, 12, cr, cg, cb, ca);
+			fillrect(vid_buf, window_offset_x + onleft_button_offset_x +1, 2 +255+6, 12, 12, cr, cg, cb, ca);
 			if(!box_R.focus)
 				sprintf(box_R.str,"%d",cr);
 			if(!box_G.focus)
@@ -6777,11 +6817,11 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 				sprintf(box_A.str,"%d",ca);
 		}
 		//inside color grid
-		if(mx >= grid_offset_x && my >= grid_offset_y && mx <= grid_offset_x+255 && my <= grid_offset_y+255)
+		if(mx >= grid_offset_x && my >= 5 && mx <= grid_offset_x+255 && my <= 5+255)
 		{
 			th = mx - grid_offset_x;
 			th = (int)( th*359/255 );
-			ts = 255 - (my - grid_offset_y);
+			ts = 255 - (my - 5);
 			if(b)
 			{
 				currH = th;
@@ -6792,7 +6832,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 			}
 			HSV_to_RGB(th,ts,currV,&cr,&cg,&cb);
 			//clearrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6,12,12);
-			fillrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6, 12, 12, cr, cg, cb, ca);
+			fillrect(vid_buf, window_offset_x + onleft_button_offset_x +1, 2 +255+6, 12, 12, cr, cg, cb, ca);
 			//sprintf(box_R.def,"%d",cr);
 			if(!box_R.focus)
 				sprintf(box_R.str,"%d",cr);
@@ -6804,14 +6844,13 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 				sprintf(box_A.str,"%d",ca);
 		}
 		//switch side button
-		if(b && !bq && mx >= window_offset_x + onleft_button_offset_x +1 && my >= window_offset_y +255+6 && mx <= window_offset_x + onleft_button_offset_x +13 && my <= window_offset_y +255+5 +13)
+		if(b && !bq && mx >= window_offset_x + onleft_button_offset_x +1 && my >= 2 +255+6 && mx <= window_offset_x + onleft_button_offset_x +13 && my <= 2 +255+5 +13)
 		{
 			on_left = !on_left;
-			//lb = 3;//prevent immediate drawing after clicking
 			deco_disablestuff = 1;
 		}
 		//clear button
-		if(b && !bq && mx >= window_offset_x + 230 && my >= window_offset_y +255+6 && mx <= window_offset_x + 230 +26 && my <= window_offset_y +255+5 +13)
+		if(b && !bq && mx >= window_offset_x + 230 && my >= 2 +255+6 && mx <= window_offset_x + 230 +26 && my <= 2 +255+5 +13)
 			if (confirm_ui(vid_buf, "Reset Decoration Layer", "Do you really want to erase everything?", "Erase") )
 			{
 				int i;

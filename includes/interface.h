@@ -351,6 +351,8 @@ int report_ui(pixel *vid_buf, char *save_id);
 
 char *console_ui(pixel *vid_buf, char error[255],char console_more);
 
+void init_color_boxes();
+
 void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my);
 
 void render_ui(pixel *vid_buf, int xcoord, int ycoord, int orientation);
