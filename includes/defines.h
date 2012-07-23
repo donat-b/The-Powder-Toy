@@ -177,7 +177,10 @@ extern int saveDataOpenSize;
 
 extern int amd;
 
-extern int FPSB;
+extern float FPSB2;
+int limitFPS;
+int main_loop;
+extern int elapsedTime;
 
 int NUM_PARTS;
 int GRAV;
@@ -199,7 +202,6 @@ extern int pretty_powder;
 extern int drawgrav_enable;
 extern int ngrav_enable;
 extern char bframe;
-int limitFPS;
 int water_equal_test;
 extern int quickoptions_tooltip_fade;
 extern int favMenu[19];

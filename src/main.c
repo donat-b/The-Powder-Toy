@@ -216,8 +216,6 @@ int active_menu = 0;
 int framerender = 0;
 int pretty_powder = 0;
 int amd = 1;
-int FPSB = 0;
-float FPSB2 = 0;
 int MSIGN =-1;
 int frameidx = 0;
 //int CGOL = 0;
@@ -250,6 +248,7 @@ int loop_time = 0;
 unsigned int decocolor = (255<<24)+PIXRGB(255,0,0);
 
 int drawinfo = 0;
+int elapsedTime = 0;
 int currentTime = 0;
 int totaltime = 0;
 int totalafktime = 0;
@@ -841,7 +840,6 @@ int main(int argc, char *argv[])
 {
 	pixel *part_vbuf; //Extra video buffer
 	pixel *part_vbuf_store;
-	int FPS = 0, pastFPS = 0, elapsedTime = 0; 
 	void *http_ver_check, *http_session_check = NULL;
 	char *ver_data=NULL, *check_data=NULL, *tmp;
 	//char console_error[255] = "";
@@ -1091,6 +1089,7 @@ int main(int argc, char *argv[])
 	}
 	while (!sdl_poll()) //the main loop
 	{
+		main_loop = 2;
 		frameidx++;
 		frameidx %= 30;
 		if (!sys_pause||framerender) //only update air if not paused
@@ -1394,7 +1393,6 @@ int main(int argc, char *argv[])
 #endif
 		if (!deco_disablestuff && sys_shortcuts==1)//all shortcuts can be disabled by python scripts
 		{
-			SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 			stickmen_keys();
 			if (sdl_key=='q' || sdl_key==SDLK_ESCAPE)
 			{
@@ -1496,9 +1494,7 @@ int main(int argc, char *argv[])
 			{
 				if  (sdl_mod & (KMOD_CTRL))
 				{
-					SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 					catalogue_ui(vid_buf);
-					SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 				}
 				else
 					old_menu = !old_menu;
@@ -1953,7 +1949,6 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_rkey == 'z' && sdl_zoom_trig==1)//if ==2 then it was toggled with alt+z, don't turn off on keyup
 				sdl_zoom_trig = 0;
-			SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 		}
 #ifdef INTERNAL
 		int counterthing;
@@ -2905,31 +2900,12 @@ int main(int argc, char *argv[])
 			drawrect(vid_buf, XRES-19-new_message_len, YRES-37, new_message_len+5, 13, 255, 186, 32, 255);
 		}
 
-		FPS++;
-		currentTime = SDL_GetTicks();
-		elapsedTime = currentTime-pastFPS;
-		if ((FPS>2 || elapsedTime>1000*2/limitFPS) && elapsedTime && FPS*1000/elapsedTime>limitFPS)
+		if (elapsedTime != currentTime && main_loop == 2)
 		{
-			while ((float)(FPS*1000)/elapsedTime>limitFPS)
-			{
-				SDL_Delay(1);
-				currentTime = SDL_GetTicks();
-				elapsedTime = currentTime-pastFPS;
-			}
-		}
-		if (elapsedTime>=1000)
-		{
-			FPSB = FPS;
-			FPSB2 = (float)(FPS*1000)/elapsedTime;
-			FPS = 0;
-			pastFPS = currentTime;
-			if (elapsedTime != currentTime)
-			{
-				frames = frames + 1;
-				totalfps = totalfps + FPSB2;
-				if (FPSB2 > maxfps)
-					maxfps = FPSB2;
-			}
+			frames = frames + 1;
+			totalfps = totalfps + FPSB2;
+			if (FPSB2 > maxfps)
+				maxfps = FPSB2;
 		}
 		if (lastx == mousex && lasty == mousey)
 		{

@@ -3429,6 +3429,14 @@ int sdl_poll(void)
 	if (has_quit)
 		return 1;
 	loop_time = SDL_GetTicks();
+	if (main_loop > 0)
+	{
+		main_loop--;
+		if (main_loop == 0)
+			SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+		else
+			SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
+	}
 	while (SDL_PollEvent(&event))
 	{
 		switch (event.type)
@@ -3512,6 +3520,7 @@ int sdl_poll(void)
 		}
 	}
 	sdl_mod = SDL_GetModState();
+	limit_fps();
 	return 0;
 }
 
@@ -3579,6 +3588,30 @@ void stickmen_keys()
 	if (sdl_rkey == SDLK_s)
 	{
 		player2.comm = (int)(player2.comm)&7;
+	}
+}
+
+int FPS = 0, pastFPS = 0;
+float FPSB2 = 0;
+void limit_fps()
+{
+	FPS++;
+	currentTime = SDL_GetTicks();
+	elapsedTime = currentTime-pastFPS;
+	if ((FPS>2 || elapsedTime>1000*2/limitFPS) && elapsedTime && FPS*1000/elapsedTime>limitFPS)
+	{
+		while ((float)(FPS*1000)/elapsedTime>limitFPS)
+		{
+			SDL_Delay(1);
+			currentTime = SDL_GetTicks();
+			elapsedTime = currentTime-pastFPS;
+		}
+	}
+	if (elapsedTime>=1000)
+	{
+		FPSB2 = (float)(FPS*1000)/elapsedTime;
+		FPS = 0;
+		pastFPS = currentTime;
 	}
 }
 
