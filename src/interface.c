@@ -541,7 +541,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 					memmove(ed->str+ed->highlightstart, ed->str+ed->highlightstart+ed->highlightlength, l-ed->highlightstart);
 					ed->cursor = ed->highlightstart;
 				}
-				memmove(ed->str+ed->cursor+pl, ed->str+ed->cursor, l+pl-ed->cursor);
+				memmove(ed->str+ed->cursor+pl, ed->str+ed->cursor, l-ed->cursor+1);
 				memcpy(ed->str+ed->cursor,paste,pl);
 				ed->cursor += pl;
 				ed->cursorstart = ed->cursor;
