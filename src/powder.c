@@ -2488,7 +2488,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 			vx[y/CELL][x/CELL] = vx[y/CELL][x/CELL]*ptypes[t].airloss + ptypes[t].airdrag*parts[i].vx;
 			vy[y/CELL][x/CELL] = vy[y/CELL][x/CELL]*ptypes[t].airloss + ptypes[t].airdrag*parts[i].vy;
 
-			if (!(ptypes[t].properties & TYPE_SOLID) || (ptypes[t].properties & PROP_MOVS))
+			if (!(ptypes[t].properties & TYPE_SOLID) || (ptypes[t].properties & PROP_MOVS) || ptypes[t].hotair)
 			{
 				if (t==PT_GAS||t==PT_NBLE)
 				{
