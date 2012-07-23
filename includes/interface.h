@@ -177,7 +177,7 @@ typedef struct ui_richtext ui_richtext;
 
 int SLALT;
 extern SDLMod sdl_mod;
-extern int sdl_key, sdl_rkey, sdl_wheel, sdl_caps, sdl_ascii, sdl_zoom_trig;
+extern int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii, sdl_zoom_trig;
 #if (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
 extern SDL_SysWMinfo sdl_wminfo;
 extern Atom XA_CLIPBOARD, XA_TARGETS;
@@ -314,6 +314,8 @@ void menu_draw_text(int h, int i);
 void menu_select_element(int b, int h);
 
 int sdl_poll(void);
+
+void stickmen_keys();
 
 void set_cmode(int cm);
 
