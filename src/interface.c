@@ -7982,10 +7982,7 @@ void simulation_ui(pixel * vid_buf)
 	if(list2.selected>=0 && list2.selected<=2)
 		gravityMode = list2.selected;
 	if(new_scale!=sdl_scale || new_kiosk!=kiosk_enable)
-	{
-		if (!set_scale(new_scale, new_kiosk))
-			error_ui(vid_buf, 0, "Could not change display options");
-	}
+		set_scale(new_scale, new_kiosk);
 	if(ngrav_enable != cb2.checked)
 	{
 		if(cb2.checked)
