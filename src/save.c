@@ -1022,8 +1022,8 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 				bson_append_finish_object(&b);
 			}
 		}
+		bson_append_finish_array(&b);
 	}
-	bson_append_finish_array(&b);
 	bson_finish(&b);
 	bson_print(&b);
 	
@@ -1384,7 +1384,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		}
 		else if(strcmp(bson_iterator_key(&iter), "activeMenu")==0 && replace)
 		{
-			if(bson_iterator_type(&iter)==BSON_INT && bson_iterator_int(&iter) > 0 && ((bson_iterator_int(&iter) < SC_TOTAL && msections[bson_iterator_int(&iter)].doshow) || replace == 2))
+			if(bson_iterator_type(&iter)==BSON_INT && bson_iterator_int(&iter) >= 0 && ((bson_iterator_int(&iter) < SC_TOTAL && msections[bson_iterator_int(&iter)].doshow) || replace == 2))
 			{
 				active_menu = bson_iterator_int(&iter);
 			}
@@ -1617,7 +1617,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						fprintf(stderr, "Out of range [%d]: %d %d, [%d, %d], [%d, %d]\n", i, x, y, (unsigned)partsData[i+1], (unsigned)partsData[i+2], (unsigned)partsData[i+3], (unsigned)partsData[i+4]);
 						goto fail;
 					}
-					if(partsData[i] >= PT_NUM)
+					if(partsData[i] >= PT_NUM || !ptypes[partsData[i]].enabled)
 						partsData[i] = PT_DMND;	//Replace all invalid elements with diamond
 					if(pmap[y][x] && posCount==0) // Check posCount to make sure an existing particle is not replaced twice if two particles are saved in that position
 					{
@@ -2390,7 +2390,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 				//TODO: Possibly some server side translation
 				j = PT_DUST;//goto corrupt;
 			}
-			gol[x][y]=0;
+			gol[y][x]=0;
 			if (j)
 			{
 				if (modver > 0 && modver <= 5)

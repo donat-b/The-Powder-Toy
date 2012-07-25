@@ -47,7 +47,7 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS) {
 	float gvx, gvy;
 	float gx, gy, dl, dr;
 
-	if ((parts[i].ctype>0 && parts[i].ctype<PT_NUM && ptypes[parts[i].ctype].falldown>0) || parts[i].ctype==SPC_AIR || parts[i].ctype == PT_NEUT || parts[i].ctype == PT_PHOT || parts[i].ctype == PT_LIGH)
+	if ((parts[i].ctype>0 && parts[i].ctype<PT_NUM && ptypes[parts[i].ctype].enabled && ptypes[parts[i].ctype].falldown>0) || parts[i].ctype==SPC_AIR || parts[i].ctype == PT_NEUT || parts[i].ctype == PT_PHOT || parts[i].ctype == PT_LIGH)
 		playerp->elem = parts[i].ctype;
 	playerp->frames++;
 
@@ -222,7 +222,10 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS) {
 				if (!r && !bmap[(y+ry)/CELL][(x+rx)/CELL])
 					continue;
 				
-				if (ptypes[r&0xFF].falldown!=0 || ptypes[r&0xFF].state == ST_GAS || (r&0xFF) == PT_NEUT || (r&0xFF) == PT_PHOT)
+				if (ptypes[r&0xFF].falldown!=0 || ptypes[r&0xFF].state == ST_GAS 
+						|| ptypes[r&0xFF].properties&TYPE_GAS
+						|| ptypes[r&0xFF].properties&TYPE_LIQUID
+						|| (r&0xFF) == PT_NEUT || (r&0xFF) == PT_PHOT)
 				{
 					playerp->elem = r&0xFF;  //Current element
 				}

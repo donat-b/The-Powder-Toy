@@ -25,8 +25,8 @@
  
 //VersionInfoStart
 #define SAVE_VERSION 81
-#define MINOR_VERSION 1
-#define BUILD_NUM 183
+#define MINOR_VERSION 3
+#define BUILD_NUM 186
 //VersionInfoEnd
 
 #define MOD_VERSION 17
@@ -295,8 +295,8 @@ int ISWIRE;
 int GSPEED;
 int love[XRES/9][YRES/9];
 int lolz[XRES/9][YRES/9];
-unsigned char gol[XRES][YRES];
-unsigned char gol2[XRES][YRES][NGOL+1];
+unsigned char gol[YRES][XRES];
+unsigned char gol2[YRES][XRES][NGOL+1];
 int SEC;
 int SEC2;
 int console_mode;
