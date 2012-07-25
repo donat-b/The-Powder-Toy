@@ -315,11 +315,13 @@ textboxes and copy/delete just that. SING with a tmp2 of 1 emits gravity
 instead of pressure (still creates tons of pressure anyway), and with a tmp2 
 of 2 does both. Antimatter's ctype and tmp act tike VOID's (eats it's ctype). 
 Right click the reload button to go back to open_ui. Fix moving solids not 
-showing in HUD. Add scrollbar to scrolling menus.
+showing in HUD. Add scrollbar to scrolling menus. Fix VACU/VENT. Limit the 
+FPS everywhere, so tpt doesn't use 100% CPU when you're not in the main game.
 
 Bugs:
 Redo PWHT so it will always load right
 moving solids don't bounce off walls
+all - emp flash not reset on save load
 
 
 
