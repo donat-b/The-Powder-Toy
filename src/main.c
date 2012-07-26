@@ -492,14 +492,14 @@ int clipboard_ready = 0;
 void *clipboard_data = 0;
 int clipboard_length = 0;
 
-void stamp_save(int x, int y, int w, int h)
+char* stamp_save(int x, int y, int w, int h)
 {
 	FILE *f;
 	int n;
 	char fn[64], sn[16];
 	void *s=build_save(&n, x, y, w, h, bmap, vx, vy, pv, fvx, fvy, signs, parts, (sdl_mod & KMOD_SHIFT));
 	if (!s)
-		return;
+		return NULL;
 
 #ifdef WIN32
 	_mkdir("stamps");
@@ -512,7 +512,7 @@ void stamp_save(int x, int y, int w, int h)
 
 	f = fopen(fn, "wb");
 	if (!f)
-		return;
+		return NULL;
 	fwrite(s, n, 1, f);
 	fclose(f);
 
@@ -529,6 +529,7 @@ void stamp_save(int x, int y, int w, int h)
 	stamp_gen_thumb(0);
 
 	stamp_update();
+	return mystrdup(sn);
 }
 
 void tab_save(int num)
@@ -557,7 +558,7 @@ void tab_save(int num)
 	free(s);
 }
 
-void *stamp_load(int i, int *size)
+void *stamp_load(int i, int *size, int reorder)
 {
 	void *data;
 	char fn[64];
@@ -571,7 +572,7 @@ void *stamp_load(int i, int *size)
 	if (!data)
 		return NULL;
 
-	if (i>0)
+	if (reorder && i>0)
 	{
 		memcpy(&tmp, stamps+i, sizeof(struct stamp));
 		memmove(stamps+1, stamps, sizeof(struct stamp)*i);
@@ -1458,12 +1459,12 @@ int main(int argc, char *argv[])
 				{
 					j = stamp_ui(vid_buf);
 					if (j>=0)
-						load_data = stamp_load(j, &load_size);
+						load_data = stamp_load(j, &load_size, 1);
 					else
 						load_data = NULL;
 				}
 				else
-					load_data = stamp_load(0, &load_size);
+					load_data = stamp_load(0, &load_size, 1);
 				if (load_data)
 				{
 					load_img = prerender_save(load_data, load_size, &load_w, &load_h);

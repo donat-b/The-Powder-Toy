@@ -22,6 +22,7 @@
 #include "gravity.h"
 #include <console.h>
 #include <luaconsole.h>
+#include <save.h>
 #include <math.h>
 
 lua_State *l;
@@ -47,6 +48,8 @@ void luacon_open(){
 		{"set_console", &luatpt_setconsole},
 		{"log", &luatpt_log},
 		{"set_pressure", &luatpt_set_pressure},
+		{"set_aheat", &luatpt_set_aheat},
+		{"set_velocity", &luatpt_set_velocity},
 		{"set_gravity", &luatpt_set_gravity},
 		{"reset_gravity_field", &luatpt_reset_gravity_field},
 		{"reset_velocity", &luatpt_reset_velocity},
@@ -107,6 +110,8 @@ void luacon_open(){
 		{"reset_pressure",&luatpt_reset_pressure},
 		{"reset_temp",&luatpt_reset_temp},
 		{"get_pressure",&luatpt_get_pressure},
+		{"get_aheat",&luatpt_get_aheat},
+		{"get_velocity",&luatpt_get_velocity},
 		{"get_gravity",&luatpt_get_gravity},
 		{"maxframes",&luatpt_maxframes},
 		{"get_wall",&luatpt_getwall},
@@ -118,6 +123,8 @@ void luacon_open(){
 		{"create_parts",&luatpt_create_parts},
 		{"create_line",&luatpt_create_line},
 		{"floodfill",&luatpt_floodfill},
+		{"save_stamp",&luatpt_save_stamp},
+		{"load_stamp",&luatpt_load_stamp},
 		{NULL,NULL}
 	};
 
@@ -1019,7 +1026,12 @@ int luatpt_create(lua_State* l)
 int luatpt_setpause(lua_State* l)
 {
 	int pausestate;
-	pausestate = luaL_optint(l, 1, 0);
+	pausestate = luaL_optint(l, 1, -1);
+	if (pausestate == -1)
+	{
+		lua_pushnumber(l, sys_pause);
+		return 1;
+	}
 	sys_pause = (pausestate==0?0:1);
 	return 0;
 }
@@ -1027,19 +1039,26 @@ int luatpt_setpause(lua_State* l)
 int luatpt_togglepause(lua_State* l)
 {
 	sys_pause=!sys_pause;
-	return 0;
+	lua_pushnumber(l, sys_pause);
+	return 1;
 }
 
 int luatpt_togglewater(lua_State* l)
 {
 	water_equal_test=!water_equal_test;
-	return 0;
+	lua_pushnumber(l, water_equal_test);
+	return 1;
 }
 
 int luatpt_setconsole(lua_State* l)
 {
 	int consolestate;
-	consolestate = luaL_optint(l, 1, 0);
+	consolestate = luaL_optint(l, 1, -1);
+	if (consolestate == -1)
+	{
+		lua_pushnumber(l, console_mode);
+		return 1;
+	}
 	console_mode = (consolestate==0?0:1);
 	return 0;
 }
@@ -1052,65 +1071,105 @@ int luatpt_log(lua_State* l)
 	return 0;
 }
 
-int luatpt_set_pressure(lua_State* l)
+void set_map(int x, int y, int width, int height, float value, int map)
 {
 	int nx, ny;
-	int x1, y1, width, height;
+	if(x > (XRES/CELL)-1)
+		x = (XRES/CELL)-1;
+	if(y > (YRES/CELL)-1)
+		y = (YRES/CELL)-1;
+	if(x+width > (XRES/CELL)-1)
+		width = (XRES/CELL)-x;
+	if(y+height > (YRES/CELL)-1)
+		height = (YRES/CELL)-y;
+	for (nx = x; nx<x+width; nx++)
+		for (ny = y; ny<y+height; ny++)
+		{
+			if (map == 1)
+				pv[ny][nx] = value;
+			else if (map == 2)
+				hv[ny][nx] = value;
+			else if (map == 3)
+				vx[ny][nx] = value;
+			else if (map == 4)
+				vy[ny][nx] = value;
+			else
+				gravmap[ny*(XRES/CELL)+nx] = value; //TODO: setting gravity setting doesn't work anymore?
+
+		}
+}
+
+int luatpt_set_pressure(lua_State* l)
+{
+	int x, y, width, height;
 	float value;
-	x1 = abs(luaL_optint(l, 1, 0));
-	y1 = abs(luaL_optint(l, 2, 0));
+	x = abs(luaL_optint(l, 1, 0));
+	y = abs(luaL_optint(l, 2, 0));
 	width = abs(luaL_optint(l, 3, XRES/CELL));
 	height = abs(luaL_optint(l, 4, YRES/CELL));
-	value = (float)luaL_optint(l, 5, 0);
+	value = (float)luaL_optnumber(l, 5, 0);
 	if(value > 256.0f)
 		value = 256.0f;
 	else if(value < -256.0f)
 		value = -256.0f;
 
-	if(x1 > (XRES/CELL)-1)
-		x1 = (XRES/CELL)-1;
-	if(y1 > (YRES/CELL)-1)
-		y1 = (YRES/CELL)-1;
-	if(x1+width > (XRES/CELL)-1)
-		width = (XRES/CELL)-x1;
-	if(y1+height > (YRES/CELL)-1)
-		height = (YRES/CELL)-y1;
-	for (nx = x1; nx<x1+width; nx++)
-		for (ny = y1; ny<y1+height; ny++)
-		{
-			pv[ny][nx] = value;
-		}
+	set_map(x, y, width, height, value, 1);
+	return 0;
+}
+
+int luatpt_set_aheat(lua_State* l)
+{
+	int x, y, width, height;
+	float value;
+	x = abs(luaL_optint(l, 1, 0));
+	y = abs(luaL_optint(l, 2, 0));
+	width = abs(luaL_optint(l, 3, XRES/CELL));
+	height = abs(luaL_optint(l, 4, YRES/CELL));
+	value = (float)luaL_optnumber(l, 5, 0);
+	if(value > MAX_TEMP)
+		value = MAX_TEMP;
+	else if(value < MIN_TEMP)
+		value = MIN_TEMP;
+
+	set_map(x, y, width, height, value, 2);
+	return 0;
+}
+
+int luatpt_set_velocity(lua_State* l)
+{
+	int x, y, width, height, dir;
+	float value;
+	char *direction = (char*)luaL_optstring(l, 1, "");
+	x = abs(luaL_optint(l, 2, 0));
+	y = abs(luaL_optint(l, 3, 0));
+	width = abs(luaL_optint(l, 4, XRES/CELL));
+	height = abs(luaL_optint(l, 5, YRES/CELL));
+	value = (float)luaL_optnumber(l, 6, 0);
+	if(value > 256.0f)
+		value = 256.0f;
+	else if(value < -256.0f)
+		value = -256.0f;
+
+	if (strcmp(direction,"x")==0)
+		set_map(x, y, width, height, value, 3);
+	else if (strcmp(direction,"y")==0)
+		set_map(x, y, width, height, value, 4);
+	else
+		return luaL_error(l, "Invalid direction: %s", direction);
 	return 0;
 }
 
 int luatpt_set_gravity(lua_State* l)
 {
-	int nx, ny;
-	int x1, y1, width, height;
+	int x, y, width, height;
 	float value;
-	x1 = abs(luaL_optint(l, 1, 0));
-	y1 = abs(luaL_optint(l, 2, 0));
+	x = abs(luaL_optint(l, 1, 0));
+	y = abs(luaL_optint(l, 2, 0));
 	width = abs(luaL_optint(l, 3, XRES/CELL));
 	height = abs(luaL_optint(l, 4, YRES/CELL));
-	value = (float)luaL_optint(l, 5, 0);
-	if(value > 256.0f)
-		value = 256.0f;
-	else if(value < -256.0f)
-		value = -256.0f;
+	value = (float)luaL_optnumber(l, 5, 0);
 
-	if(x1 > (XRES/CELL)-1)
-		x1 = (XRES/CELL)-1;
-	if(y1 > (YRES/CELL)-1)
-		y1 = (YRES/CELL)-1;
-	if(x1+width > (XRES/CELL)-1)
-		width = (XRES/CELL)-x1;
-	if(y1+height > (YRES/CELL)-1)
-		height = (YRES/CELL)-y1;
-	for (nx = x1; nx<x1+width; nx++)
-		for (ny = y1; ny<y1+height; ny++)
-		{
-			gravmap[ny*(XRES/CELL)+nx] = value;
-		}
+	set_map(x, y, width, height, value, 5);
 	return 0;
 }
 
@@ -1615,7 +1674,12 @@ int luatpt_get_name(lua_State* l)
 int luatpt_set_shortcuts(lua_State* l)
 {
 	int state;
-	state = luaL_optint(l, 1, 0);
+	state = luaL_optint(l, 1, -1);
+	if (state == -1)
+	{
+		lua_pushnumber(l, sys_shortcuts);
+		return 1;
+	}
 	sys_shortcuts = (state==0?0:1);
 	return 0;
 }
@@ -1874,14 +1938,24 @@ int luatpt_getPartIndex(lua_State* l)
 int luatpt_hud(lua_State* l)
 {
     int hudstate;
-    hudstate = luaL_optint(l, 1, 0);
+    hudstate = luaL_optint(l, 1, -1);
+	if (hudstate == -1)
+	{
+		lua_pushnumber(l, hud_enable);
+		return 1;
+	}
     hud_enable = (hudstate==0?0:1);
     return 0;
 }
 int luatpt_gravity(lua_State* l)
 {
     int gravstate;
-    gravstate = luaL_optint(l, 1, 0);
+    gravstate = luaL_optint(l, 1, -1);
+	if (gravstate == -1)
+	{
+		lua_pushnumber(l, ngrav_enable);
+		return 1;
+	}
     if(gravstate)
         start_grav_async();
     else
@@ -1892,7 +1966,12 @@ int luatpt_gravity(lua_State* l)
 int luatpt_airheat(lua_State* l)
 {
     int aheatstate;
-    aheatstate = luaL_optint(l, 1, 0);
+    aheatstate = luaL_optint(l, 1, -1);
+	if (aheatstate == -1)
+	{
+		lua_pushnumber(l, aheat_enable);
+		return 1;
+	}
     aheat_enable = (aheatstate==0?0:1);
     return 0;
 }
@@ -1900,6 +1979,11 @@ int luatpt_active_menu(lua_State* l)
 {
     int menuid;
     menuid = luaL_optint(l, 1, -1);
+	if (menuid == -1)
+	{
+		lua_pushnumber(l, active_menu);
+		return 1;
+	}
     if (menuid < SC_TOTAL && menuid >= 0)
         active_menu = menuid;
     else
@@ -1908,23 +1992,38 @@ int luatpt_active_menu(lua_State* l)
 }
 int luatpt_decorations_enable(lua_State* l)
 {
-    int aheatstate;
-    aheatstate = luaL_optint(l, 1, 0);
-    decorations_enable = (aheatstate==0?0:1);
+    int decostate;
+    decostate = luaL_optint(l, 1, -1);
+	if (decostate == -1)
+	{
+		lua_pushnumber(l, decorations_enable);
+		return 1;
+	}
+    decorations_enable = (decostate==0?0:1);
     return 0;
 }
 
 int luatpt_heat(lua_State* l)
 {
-	int heatstate;	
-	heatstate = luaL_optint(l, 1, 0);	
+	int heatstate;
+	heatstate = luaL_optint(l, 1, -1);
+	if (heatstate == -1)
+	{
+		lua_pushnumber(l, legacy_enable);
+		return 1;
+	}
 	legacy_enable = (heatstate==1?0:1);
-	return 0;	
+	return 0;
 }
 int luatpt_cmode_set(lua_State* l)
 {
-	int aheatstate = luaL_optint(l, 1, CM_FIRE);
-	set_cmode(aheatstate);
+	int cmode = luaL_optint(l, 1, CM_FIRE);
+	/*if (cmode == -1) //TODO: Functions to set render, display, & color modes
+	{
+		lua_pushnumber(l, ngrav_enable);
+		return 1;
+	}*/
+	set_cmode(cmode);
 	return 0;
 }
 int luatpt_setfire(lua_State* l)
@@ -1936,13 +2035,23 @@ int luatpt_setfire(lua_State* l)
 }
 int luatpt_setdebug(lua_State* l)
 {
-	int debug = luaL_optint(l, 1, 0);
+	int debug = luaL_optint(l, 1, -1);
+	if (debug == -1)
+	{
+		lua_pushnumber(l, debug);
+		return 1;
+	}
 	debug_flags = debug;
 	return 0;
 }
 int luatpt_setfpscap(lua_State* l)
 {
-	int fpscap = luaL_optint(l, 1, 0);
+	int fpscap = luaL_optint(l, 1, -1);
+	if (fpscap == -1)
+	{
+		lua_pushnumber(l, limitFPS);
+		return 1;
+	}
 	if (fpscap < 2)
 		return luaL_error(l, "fps cap too small");
 	limitFPS = fpscap;
@@ -2150,7 +2259,7 @@ int luatpt_reset_temp(lua_State* l)
 
 int luatpt_get_pressure(lua_State* l)
 {
-	int x, y, pressure;
+	int x, y;
 	x = luaL_optint(l, 1, 0);
 	y = luaL_optint(l, 2, 0);
 	if (x*CELL<0 || y*CELL<0 || x*CELL>=XRES || y*CELL>=YRES)
@@ -2159,13 +2268,41 @@ int luatpt_get_pressure(lua_State* l)
 	return 1;
 }
 
+int luatpt_get_aheat(lua_State* l)
+{
+	int x, y;
+	x = luaL_optint(l, 1, 0);
+	y = luaL_optint(l, 2, 0);
+	if (x*CELL<0 || y*CELL<0 || x*CELL>=XRES || y*CELL>=YRES)
+		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
+	lua_pushnumber(l, hv[y][x]);
+	return 1;
+}
+
+int luatpt_get_velocity(lua_State* l)
+{
+	int x, y;
+	char *direction = (char*)luaL_optstring(l, 1, "x");
+	x = luaL_optint(l, 2, 0);
+	y = luaL_optint(l, 3, 0);
+	if (x*CELL<0 || y*CELL<0 || x*CELL>=XRES || y*CELL>=YRES)
+		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
+	if (strcmp(direction,"x")==0)
+		lua_pushnumber(l, vx[y][x]);
+	else if (strcmp(direction,"y")==0)
+		lua_pushnumber(l, vy[y][x]);
+	else
+		return luaL_error(l, "Invalid direction: %s", direction);
+	return 1;
+}
+
 int luatpt_get_gravity(lua_State* l)
 {
-	int x, y, pressure;
+	int x, y;
 	char* xy;
 	x = luaL_optint(l, 1, 0);
 	y = luaL_optint(l, 2, 0);
-	xy = (char*)luaL_optstring(l, 3, "x");
+	xy = (char*)luaL_optstring(l, 3, "");
 	if (x*CELL<0 || y*CELL<0 || x*CELL>=XRES || y*CELL>=YRES)
 		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
 	if (strcmp(xy,"x")==0)
@@ -2173,13 +2310,18 @@ int luatpt_get_gravity(lua_State* l)
 	else if (strcmp(xy,"y")==0)
 		lua_pushnumber(l, (double)gravy[y*XRES/4+x]);
 	else
-		return luaL_error(l, "invalid direction: %s", xy);
+		lua_pushnumber(l,gravmap[y*(XRES/CELL)+x]); //Getting gravity doesn't work either...
 	return 1;
 }
 
 int luatpt_maxframes(lua_State* l)
 {
-	int newmaxframes = luaL_optint(l,1,1), i;
+	int newmaxframes = luaL_optint(l,1,-1), i;
+	if (newmaxframes == -1)
+	{
+		lua_pushnumber(l, maxframes);
+		return 1;
+	}
 	if (newmaxframes > 0 && newmaxframes <= 256)
 		maxframes = newmaxframes;
 	else
@@ -2380,9 +2522,9 @@ int luatpt_create_line(lua_State* l)
 	int flags = luaL_optint(l,9,get_brush_flags());
 	int oldbrush = CURRENT_BRUSH;
 	if (x1 < 0 || x1 > XRES || y1 < 0 || y1 > YRES)
-		return luaL_error(l, "starting coordinates out of range (%d,%d)", x1, y1);
+		return luaL_error(l, "Starting coordinates out of range (%d,%d)", x1, y1);
 	if (x2 < 0 || x2 > XRES || y2 < 0 || y2 > YRES)
-		return luaL_error(l, "ending coordinates out of range (%d,%d)", x2, y2);
+		return luaL_error(l, "Ending coordinates out of range (%d,%d)", x2, y2);
 	if ((c>=0 && c < PT_NUM && !ptypes[c].enabled) || c < 0)
 		return luaL_error(l, "Unrecognised element number '%d'", c);
 	CURRENT_BRUSH = brush;
@@ -2405,6 +2547,44 @@ int luatpt_floodfill(lua_State* l)
 	if ((c>=0 && c < PT_NUM && !ptypes[c].enabled) || c < 0)
 		return luaL_error(l, "Unrecognised element number '%d'", c);
 	ret = flood_parts(x, y, c, cm, bm, flags);
+	lua_pushinteger(l, ret);
+	return 1;
+}
+
+int luatpt_save_stamp(lua_State* l)
+{
+	int x = luaL_optint(l,1,0);
+	int y = luaL_optint(l,2,0);
+	int w = luaL_optint(l,3,XRES);
+	int h = luaL_optint(l,4,YRES);
+	char *name = stamp_save(x, y, w, h);
+	lua_pushstring(l, name);
+	return 1;
+}
+
+int luatpt_load_stamp(lua_State* l)
+{
+	int stamp_size, i, j, x, y, ret;
+	void *load_data;
+	char *filename;
+	if (lua_isstring(l, 1))
+	{
+		filename = (char*)luaL_optstring(l, 1, "error?");
+		for (j=0; j<STAMP_MAX; j++)
+			if (!strcmp(stamps[j].name, filename))
+			{
+				i = j;
+				break;
+			}
+	}
+	else if (lua_isnumber(l, 1))
+		i = luaL_optint(l, 1, -1);
+	x = luaL_optint(l,2,0);
+	y = luaL_optint(l,3,0);
+	if (i < 0 || i >= STAMP_MAX)
+		return luaL_error(l, "Invavlid stamp ID");
+	load_data = stamp_load(i, &stamp_size, 0);
+	ret = parse_save(load_data, stamp_size, 0, x, y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 	lua_pushinteger(l, ret);
 	return 1;
 }

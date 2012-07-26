@@ -80,6 +80,8 @@ int luatpt_togglewater(lua_State* l);
 int luatpt_setconsole(lua_State* l);
 int luatpt_log(lua_State* l);
 int luatpt_set_pressure(lua_State* l);
+int luatpt_set_aheat(lua_State* l);
+int luatpt_set_velocity(lua_State* l);
 int luatpt_set_gravity(lua_State* l);
 int luatpt_reset_gravity_field(lua_State* l);
 int luatpt_reset_velocity(lua_State* l);
@@ -128,6 +130,8 @@ int luatpt_bubble(lua_State* l);
 int luatpt_reset_pressure(lua_State* l);
 int luatpt_reset_temp(lua_State* l);
 int luatpt_get_pressure(lua_State* l);
+int luatpt_get_aheat(lua_State* l);
+int luatpt_get_velocity(lua_State* l);
 int luatpt_get_gravity(lua_State* l);
 int luatpt_maxframes(lua_State* l);
 int luatpt_getwall(lua_State* l);
@@ -141,7 +145,10 @@ int luatpt_moving_solid(lua_State* l);
 int luatpt_create_parts(lua_State* l);
 int luatpt_create_line(lua_State* l);
 int luatpt_floodfill(lua_State* l);
+int luatpt_save_stamp(lua_State* l);
+int luatpt_load_stamp(lua_State* l);
 
+void set_map(int x, int y, int width, int height, float value, int map);
 void addluastuff();
 void readluastuff();
 #endif
