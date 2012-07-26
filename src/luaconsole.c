@@ -115,6 +115,9 @@ void luacon_open(){
 		{"reset_elements",&luatpt_reset_elements},
 		{"indestructible",&luatpt_indestructible},
 		{"moving_solid",&luatpt_moving_solid},
+		{"create_parts",&luatpt_create_parts},
+		{"create_line",&luatpt_create_line},
+		{"floodfill",&luatpt_floodfill},
 		{NULL,NULL}
 	};
 
@@ -136,11 +139,13 @@ void luacon_open(){
 	lua_newtable(l);
 	tptPropertiesVersion = lua_gettop(l);
 	lua_pushinteger(l, SAVE_VERSION);
-	lua_setfield(l, tptPropertiesVersion, "major"); 
+	lua_setfield(l, tptPropertiesVersion, "major");
 	lua_pushinteger(l, MINOR_VERSION);
-	lua_setfield(l, tptPropertiesVersion, "minor"); 
+	lua_setfield(l, tptPropertiesVersion, "minor");
 	lua_pushinteger(l, BUILD_NUM);
-	lua_setfield(l, tptPropertiesVersion, "build"); 
+	lua_setfield(l, tptPropertiesVersion, "build");
+	lua_pushinteger(l, MOD_VERSION);
+	lua_setfield(l, tptPropertiesVersion, "jacob1s_mod");
 	lua_setfield(l, tptProperties, "version");
 	
 #ifdef FFI
@@ -2071,8 +2076,10 @@ int luatpt_sound(lua_State* l)
 int luatpt_load(lua_State* l)
 {
 	char *savenum;
+	int instant;
 	savenum = mystrdup((char*)luaL_optstring(l, 1, ""));
-	open_ui(vid_buf, savenum, NULL, 0);
+	instant = luaL_optint(l, 2, 0);
+	open_ui(vid_buf, savenum, NULL, instant);
 	console_mode = 0;
 	return 0;
 }
@@ -2211,7 +2218,7 @@ int luatpt_createwall(lua_State* l)
 		width = (XRES/CELL)-wx;
 	if (wy+height > (YRES/CELL))
 		height = (YRES/CELL)-wy;
-	if (wt < UI_ACTUALSTART || wt >= UI_ACTUALSTART+UI_WALLCOUNT || (wtypes[wt-UI_ACTUALSTART].drawstyle == -1 && !secret_els))
+	if ((wt < UI_ACTUALSTART && wt != 0) || wt >= UI_ACTUALSTART+UI_WALLCOUNT || (wtypes[wt-UI_ACTUALSTART].drawstyle == -1 && !secret_els))
 		return luaL_error(l, "Unrecognised wall number %d", wt);
 	for (nx = wx; nx < wx+width; nx++)
 		for (ny = wy; ny < wy+height; ny++)
@@ -2336,6 +2343,70 @@ int luatpt_moving_solid(lua_State* l)
 	}
 	init_can_move();
 	return 0;
+}
+
+int luatpt_create_parts(lua_State* l)
+{
+	int x = luaL_optint(l,1,-1);
+	int y = luaL_optint(l,2,-1);
+	int rx = luaL_optint(l,3,5);
+	int ry = luaL_optint(l,4,5);
+	int c = luaL_optint(l,5,sl);
+	int fill = luaL_optint(l,6,1);
+	int brush = luaL_optint(l,7,CIRCLE_BRUSH);
+	int flags = luaL_optint(l,8,get_brush_flags());
+	int ret, oldbrush = CURRENT_BRUSH;
+	if (x < 0 || x > XRES || y < 0 || y > YRES)
+		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
+	if ((c>=0 && c < PT_NUM && !ptypes[c].enabled) || c < 0)
+		return luaL_error(l, "Unrecognised element number '%d'", c);
+	CURRENT_BRUSH = brush;
+	ret = create_parts(x, y, rx, ry, c, flags, fill);
+	CURRENT_BRUSH = oldbrush;
+	lua_pushinteger(l, ret);
+	return 1;
+}
+
+int luatpt_create_line(lua_State* l)
+{
+	int x1 = luaL_optint(l,1,-1);
+	int y1 = luaL_optint(l,2,-1);
+	int x2 = luaL_optint(l,3,-1);
+	int y2 = luaL_optint(l,4,-1);
+	int rx = luaL_optint(l,5,5);
+	int ry = luaL_optint(l,6,5);
+	int c = luaL_optint(l,7,sl);
+	int brush = luaL_optint(l,8,CIRCLE_BRUSH);
+	int flags = luaL_optint(l,9,get_brush_flags());
+	int oldbrush = CURRENT_BRUSH;
+	if (x1 < 0 || x1 > XRES || y1 < 0 || y1 > YRES)
+		return luaL_error(l, "starting coordinates out of range (%d,%d)", x1, y1);
+	if (x2 < 0 || x2 > XRES || y2 < 0 || y2 > YRES)
+		return luaL_error(l, "ending coordinates out of range (%d,%d)", x2, y2);
+	if ((c>=0 && c < PT_NUM && !ptypes[c].enabled) || c < 0)
+		return luaL_error(l, "Unrecognised element number '%d'", c);
+	CURRENT_BRUSH = brush;
+	create_line(x1, y1, x2, y2, rx, ry, c, flags);
+	CURRENT_BRUSH = oldbrush;
+	return 0;
+}
+
+int luatpt_floodfill(lua_State* l)
+{
+	int x = luaL_optint(l,1,-1);
+	int y = luaL_optint(l,2,-1);
+	int c = luaL_optint(l,3,sl);
+	int cm = luaL_optint(l,4,-1);
+	int bm = luaL_optint(l,5,-1);
+	int flags = luaL_optint(l,6,get_brush_flags());
+	int ret;
+	if (x < 0 || x > XRES || y < 0 || y > YRES)
+		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
+	if ((c>=0 && c < PT_NUM && !ptypes[c].enabled) || c < 0)
+		return luaL_error(l, "Unrecognised element number '%d'", c);
+	ret = flood_parts(x, y, c, cm, bm, flags);
+	lua_pushinteger(l, ret);
+	return 1;
 }
 
 void addluastuff()
