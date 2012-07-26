@@ -2567,7 +2567,8 @@ int luatpt_load_stamp(lua_State* l)
 	int stamp_size, i, j, x, y, ret;
 	void *load_data;
 	char *filename;
-	if (lua_isstring(l, 1))
+	i = luaL_optint(l, 1, -1);
+	if (i < 0 || i >= STAMP_MAX)
 	{
 		filename = (char*)luaL_optstring(l, 1, "error?");
 		for (j=0; j<STAMP_MAX; j++)
@@ -2577,12 +2578,10 @@ int luatpt_load_stamp(lua_State* l)
 				break;
 			}
 	}
-	else if (lua_isnumber(l, 1))
-		i = luaL_optint(l, 1, -1);
 	x = luaL_optint(l,2,0);
 	y = luaL_optint(l,3,0);
 	if (i < 0 || i >= STAMP_MAX)
-		return luaL_error(l, "Invavlid stamp ID");
+		return luaL_error(l, "Invavlid stamp ID: %d", i);
 	load_data = stamp_load(i, &stamp_size, 0);
 	ret = parse_save(load_data, stamp_size, 0, x, y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 	lua_pushinteger(l, ret);
