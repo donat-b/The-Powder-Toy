@@ -1922,9 +1922,9 @@ void LIFE_update()
 	int createdsomething = 0;
 	CGOL=0;
 	ISGOL=0;
-	for (ny=CELL; ny<XRES-CELL; ny++)
+	for (ny=CELL; ny<YRES-CELL; ny++)
 	{//go through every particle and set neighbor map
-		for (nx=CELL; nx<YRES-CELL; nx++)
+		for (nx=CELL; nx<XRES-CELL; nx++)
 		{
 			r = pmap[ny][nx];
 			if (!r)
@@ -1967,9 +1967,9 @@ void LIFE_update()
 			}
 		}
 	}
-	for (ny=CELL; ny<XRES-CELL; ny++)
+	for (ny=CELL; ny<YRES-CELL; ny++)
 	{ //go through every particle again, but check neighbor map, then update particles
-		for (nx=CELL; nx<YRES-CELL; nx++)
+		for (nx=CELL; nx<XRES-CELL; nx++)
 		{
 			r = pmap[ny][nx];
 			neighbors = gol2[ny][nx][0];
