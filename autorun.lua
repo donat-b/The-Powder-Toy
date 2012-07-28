@@ -5,19 +5,24 @@
 --Version 1.1.0
 
 --TODO's
--- = key, pressure/velocity reset
---CAPS_MODE, replace mode (for build 185+)
+--sync entire screen with stamps, tpt.load/stave_stamp needs to be changed first
+--make WIND work? try to make FAN work
+--Add custom deco editor (already finished in favorites menu script)
+--CAPS_MODE, replace mode (for build 185+) --except cracker64 forgot to add a way to get SLALT, so now it must be disabled
 --More work on multi-line chat
 --Line tool is still off slightly
 --Hacky method for PROP (read particle before it runs, check for a change after)
 
 --These features are impossible (in v81), don't suggest them, even though they would be great
 --load a save/stamp simultaneously
---sync view mode, gravity/wind modes
+--gravity/wind modes
 --signs, STKM controls
 --AIR/VAC , WIND, PGRV/NGRV. no pressure,velocity,gravity get functions
 --Deco editor (script doesn't run there)
 
+--run lua commands typed in the chat window
+--disable things that can't sync, re-enable with   TODO: way to re-enable, disable more
+--= key resets pressure & velocity/sparks
 --don't send empty lines in chat
 --multiple lines in chat, up to 5(needs more work, optimizations)  v1.1.0
 --floodfill delete while holding
@@ -300,8 +305,7 @@ ch = function(words) --chat
 cm = function(words) --chat
     table.insert(chatbox_messages, "o:".. command:sub(4))
     if chatbox_hidden then chatbox_newmessage = true end
-	local cmd = loadstring(command:sub(4))
-	pcall(cmd) end,
+	runluacode(command:sub(4)) end,
 ping = function(words)
     send("pong") end,
 pong = function(words)
@@ -331,6 +335,18 @@ heat = function(words)
     oldheatsim = tonumber(words[2]) tpt.heat(oldheatsim)
     infotext = otheruser .. " toggled heat simulation"
     infoalpha = 255 end,
+resetp = function(words)
+    if jacob1s_mod then tpt.reset_pressure()
+    else tpt.set_pressure(0,0,152,95,0) end
+    tpt.reset_velocity()
+    infotext = otheruser .. " reset the pressure"
+    infoalpha = 255 end,
+resets = function(words)
+    tpt.reset_spark()
+    infotext = otheruser .. " reset sparks"
+    infoalpha = 255 end,
+cmode = function(words)
+    if jacob1s_mod then tpt.display_mode(words[2]) end end, -- still says not implimented in tpt, even though I put back set_cmode
 }
 --function that you can call from other scripts to recieve new packets and run functions
 function newdatahandler(mess,func)
@@ -449,7 +465,7 @@ function chatkeyprocess(key,nkey)
     if nkey==8 then chatbox_textbox = chatbox_textbox:sub(1,chatbox_cursorpos-1)..chatbox_textbox:sub(chatbox_cursorpos+1) movechatcursor(-1) return false end
     if nkey==127 then chatbox_textbox = chatbox_textbox:sub(1,chatbox_cursorpos)..chatbox_textbox:sub(chatbox_cursorpos+2)  return false end
     if (nkey==13 or nkey==271) and chatbox_textbox~="" then --enter, about to send, check for commands
-        if otheruser=="" and chatbox_textbox:find("/c") then 
+        if otheruser=="" and chatbox_textbox:find("/c") then
             local ip = chatbox_textbox:sub(4,chatbox_textbox:find(" ",4))
             local port = chatbox_textbox:sub(chatbox_textbox:find(" ",4)+1)
             if tonumber(port) then connect(ip,tonumber(port)) else infotext="Bad command" infoalpha=255 end
@@ -459,8 +475,7 @@ function chatkeyprocess(key,nkey)
         if chatbox_textbox:find("tpt.") then
 		    send("cm "..chatbox_textbox)
 			table.insert(chatbox_messages,chatbox_textbox)
-            local cmd = loadstring(chatbox_textbox)
-            pcall(cmd)
+            runluacode(chatbox_textbox)
 		    chatbox_textbox = ""
             return false
         end
@@ -553,8 +568,12 @@ function keyclicky(key,nkey,modifier,event)
     if chatbox_focus then
         return chatkeyprocess(key,nkey)
     end
+    if nkey == 49 and (kmod == 1 or kmod == 2) then send("cmode 9") -- doesn't check if in debug mode
+    elseif nkey > 48 and nkey < 58 then send("cmode ".. nkey-49)
+    elseif nkey == 48 then send("cmode 10") end
     if key==" " then send("pause") end
     if key=="f" then send("f") end
+    if key=="=" then if kmod == 64 or kmod == 128 then send("resets") else send("resetp") end end
     if nkey==9 then mybrushmode=(mybrushmode+1)%3 send("b "..mybrx.." "..mybry.." "..mybrushmode) end --tab
     if nkey == 91 then --Left bracket
        if kmod == 256 or kmod == 512 then mybrx=mybrx-1 mybry=mybry-1 --alt
@@ -717,9 +736,26 @@ function mouseclicky(mousex,mousey,button,event,mouse_wheel)
     end
 end
 
-tpt.register_keypress(keyclicky)
-tpt.register_mouseclick(mouseclicky)
-tpt.register_step(step)
+function runluacode(luacode)
+    local env = {
+        ipairs = ipairs,
+        next = next,
+        pairs = pairs,
+        pcall = pcall,
+        tonumber = tonumber,
+        tostring = tostring,
+        string = string,
+        table = table,
+        math = math,
+        os = { clock = os.clock, difftime = os.difftime, time = os.time, date = os.date },
+        tpt = tpt
+    }
+    if luacode:byte(1) == 27 then return nil end
+    local func, message = loadstring(luacode)
+    if not func then return nil end
+    setfenv(func, env)
+    pcall(func)
+end
 
 if tpt.version.jacob1s_mod then
    disabled = { [226]=true,[236]=true,[239]=true,[241]=true,[243]=true,[244]=true,[246]=true,[248]=true,[249]=true,[250]=true,[251]=true,[252]=true,[253]=true}
@@ -981,3 +1017,7 @@ function clearsim()
 end
 
 end
+
+tpt.register_keypress(keyclicky)
+tpt.register_mouseclick(mouseclicky)
+tpt.register_step(step)
