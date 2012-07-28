@@ -6320,6 +6320,7 @@ const static struct command_match matches [] = {
 	{"tpt.indestructible(", "tpt.ind"},
 	{"tpt.moving_solid(","tpt.mo"},
 	{"tpt.save_stamp(","tpt.sav"},
+	{"tpt.set_decocol(","tpt.set_d"},
 	{"tpt.load_stamp(","tpt.load_"},
 	{"tpt.load(", "tpt.loa"},
 	{"tpt.reset_", "tpt.res"},
