@@ -5118,19 +5118,13 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				ccy = 0;
 				clearrect(vid_buf, 50+(XRES/2)+1, 50, XRES+BARSIZE-100-((XRES/2)+1), YRES+MENUSIZE-100);
 				for (cc=0; cc<info->comment_count; cc++) {
-					if ((ccy + 72 + comment_scroll + ((textwidth(info->comments[cc])/(XRES+BARSIZE-100-((XRES/2)+1)-20)))*12)<(YRES+MENUSIZE-56)) { //Try not to draw off the screen
-						if (ccy+comment_scroll<0) //Try not to draw above the screen either
-						{
-							ccy += 22 + textwrapheight(info->comments[cc],XRES+BARSIZE-100-((XRES/2)+1)-20);
-							if (cc == info->comment_count-1)
-								comment_scroll = 0;
-						}
-						else
+					if (ccy + 72 + comment_scroll<(YRES+MENUSIZE-56-(svf_login?70:0))) { //Try not to draw off the screen
+						if (ccy+comment_scroll >= 0) //Don't draw above the screen either
 						{
 							int r = 255, g = 255, bl = 255;
 							char* author = info->commentauthors[cc];
 							if (!strcmp(author,"jacob1") || !strcmp(author,"Simon") || !strcmp(author,"Lockheedmartin") || !strcmp(author,"lolzy") || !strcmp(author,"ief015") || !strcmp(author,"Catelite") || !strcmp(author,"doxin") || !strcmp(author,"FrankBro")  || !strcmp(author,"cracker64")|| !strcmp(author,"Xenocide") || !strcmp(author,"devast8a") || !strcmp(author,"triclops200") || !strcmp(author,"jacksonmj"))
-							{
+							{ // The way my mod gets comments doesn't have the /t for moderator colors, so they need to be recreated here
 								g = 170;
 								r = 32;
 							}
@@ -5155,13 +5149,39 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 								if (b && !bq && mx > 265+(XRES/2)-textwidth(info->commenttimestamps[cc]) && mx < 265+(XRES/2) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll)
 									show_ids = 1;
 							}
-							drawtext(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, info->commentauthors[cc], r, g, bl, 255);
-							ccy += 12;
+							drawtext(vid_buf, 61+(XRES/2), ccy+60+comment_scroll, info->commentauthors[cc], r, g, bl, 255);
+							if (b && !bq && mx > 61+(XRES/2) && mx < 61+(XRES/2)+textwidth(info->commentauthors[cc]) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll)
+								if (sdl_mod & KMOD_CTRL)
+								{
+									char link[128];
+									strcpy(link, "http://" SERVER "/User.html?Name=");
+									strcaturl(link, info->commentauthors[cc]);
+									open_link(link);
+								}
+								else
+								{
+									sprintf(search_expr,"user:%s",info->commentauthors[cc]);
+									search_ui(vid_buf);
+									retval = 1;
+									goto finish;
+								}
+						}
+						ccy += 12;
+						if (ccy+comment_scroll>=0)
+						{
+							if ((ccy + 72 + comment_scroll + ((textwidth(info->comments[cc])/(XRES+BARSIZE-100-((XRES/2)+1)-20)))*12)>=(YRES+MENUSIZE-56-(svf_login?70:0)))
+								break;
 							ccy += drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, XRES+BARSIZE-100-((XRES/2)+1)-20, info->comments[cc], 255, 255, 255, 185);
 							ccy += 10;
-							if (ccy+52+comment_scroll<YRES+MENUSIZE-50) {
-								draw_line(vid_buf, 50+(XRES/2)+2, ccy+52+comment_scroll, XRES+BARSIZE-50, ccy+52+comment_scroll, 100, 100, 100, XRES+BARSIZE);
-							}
+						}
+						else
+						{
+							ccy += 12 + textwrapheight(info->comments[cc],XRES+BARSIZE-100-((XRES/2)+1)-20);
+							if (cc == info->comment_count-1)
+								comment_scroll = 0;
+						}
+						if (ccy+52+comment_scroll<YRES+MENUSIZE-50 && ccy+comment_scroll>-3) {
+							draw_line(vid_buf, 50+(XRES/2)+2, ccy+52+comment_scroll, XRES+BARSIZE-51, ccy+52+comment_scroll, 100, 100, 100, XRES+BARSIZE);
 						}
 					}
 					else
@@ -5169,7 +5189,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					if (cc == info->comment_count-1 && !http_4 && comment_page < NUM_COMMENTS/10)
 					{
 						comment_page++;
-						uri_4 = malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
+						uri_4 = (char*)malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
 						sprintf(uri_4,"http://%s/Browse/Comments.json?ID=%s&Start=%i&Count=20",SERVER,save_id,comment_page*20);
 						http_4 = http_async_req_start(http_4, uri_4, NULL, 0, 1);
 						http_last_use_4 = time(NULL);
@@ -5441,6 +5461,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		if (!b)
 			break;
 	}
+
+	finish:
 	//Close open connections
 	if (http)
 		http_async_req_close(http);
@@ -6303,8 +6325,8 @@ const static struct command_match matches [] = {
 	{"tpt.setwindowsize(", "tpt.setw"},
 	{"tpt.watertest(", "tpt.wa"},
 	{"tpt.screenshot(", "tpt.sc"},
-	{"tpt.element(\"", "tpt.ele"},
 	{"tpt.element_func(", "tpt.element_"},
+	{"tpt.element(\"", "tpt.ele"},
 	{"tpt.graphics_func(", "tpt.gr"},
 	{"tpt.sound(", "tpt.so"},
 	{"tpt.bubble(", "tpt.bu"},
@@ -6320,6 +6342,7 @@ const static struct command_match matches [] = {
 	{"tpt.indestructible(", "tpt.ind"},
 	{"tpt.moving_solid(","tpt.mo"},
 	{"tpt.save_stamp(","tpt.sav"},
+	{"tpt.set_selected(","tpt.set_se"},
 	{"tpt.set_decocol(","tpt.set_d"},
 	{"tpt.load_stamp(","tpt.load_"},
 	{"tpt.load(", "tpt.loa"},

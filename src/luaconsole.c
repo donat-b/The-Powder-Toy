@@ -125,6 +125,7 @@ void luacon_open(){
 		{"floodfill",&luatpt_floodfill},
 		{"save_stamp",&luatpt_save_stamp},
 		{"load_stamp",&luatpt_load_stamp},
+		{"set_selected",&luatpt_set_selected},
 		{"set_decocol",&luatpt_set_decocolor},
 		{NULL,NULL}
 	};
@@ -2603,6 +2604,17 @@ int luatpt_load_stamp(lua_State* l)
 	ret = parse_save(load_data, stamp_size, 0, x, y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 	lua_pushinteger(l, ret);
 	return 1;
+}
+
+int luatpt_set_selected(lua_State* l)
+{
+	int newsl = luaL_optint(l, 1, sl);
+	int newsr = luaL_optint(l, 2, sr);
+	int newSLALT = luaL_optint(l, 3, SLALT);
+	sl = newsl;
+	sr = newsr;
+	SLALT = newSLALT;
+	return 0;
 }
 
 int luatpt_set_decocolor(lua_State* l)

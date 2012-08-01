@@ -147,6 +147,7 @@ int luatpt_create_line(lua_State* l);
 int luatpt_floodfill(lua_State* l);
 int luatpt_save_stamp(lua_State* l);
 int luatpt_load_stamp(lua_State* l);
+int luatpt_set_selected(lua_State* l);
 int luatpt_set_decocolor(lua_State* l);
 
 void set_map(int x, int y, int width, int height, float value, int map);

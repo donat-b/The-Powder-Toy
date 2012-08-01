@@ -1609,14 +1609,14 @@ int textwrapheight(char *s, int width)
 			}
 			else
 			{
-				cw = font_data[font_ptrs[(int)(*(unsigned char *)s)]];
-				if (x+cw>=width)
+				if (x-cw>=width)
 				{
 					x = 0;
 					height += FONT_H+2;
 					if (*s==' ')
 						continue;
 				}
+				cw = font_data[font_ptrs[(int)(*(unsigned char *)s)]];
 				x += cw;
 			}
 		}
