@@ -780,6 +780,7 @@ int main(int argc, char *argv[])
 		//parsestate = parse_save(load_data, load_size, 1, 0, 0);
 		parsestate = parse_save(load_data, load_size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 		
+		decorations_enable = 0;
 		for(i=0; i<30; i++){
 			memset(vid_buf, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
 			draw_walls(vid_buf);
@@ -1036,6 +1037,7 @@ int main(int argc, char *argv[])
 			{
 				puts("Got ptsave:id");
 				saveURIOpen = tempSaveID;
+				it = 0;
 			}
 			break;
 		}
@@ -2281,7 +2283,7 @@ int main(int argc, char *argv[])
 		if (!sdl_zoom_trig && zoom_en==1)
 			zoom_en = 0;
 
-		if (sdl_key=='z' && zoom_en==2 && sys_shortcuts==1)
+		if (sdl_key=='z' && !(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)) && zoom_en==2 && sys_shortcuts==1)
 			zoom_en = 1;
 
 		if (load_mode)
