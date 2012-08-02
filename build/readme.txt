@@ -308,7 +308,7 @@ small chance of destroying CURE. saving stamps looks better & you can delete
 multiple stamps at once with Ctrl+red delete button. Many other minor fixes 
 and changes.
 
-Next Version
+Version 18 - 8/2/12
 Fix bug where all solids could move like SPNG, fix low pressure transition not 
 working. Fix lava's ctype getting changed. You can now highlight text in 
 textboxes and copy/delete just that. SING with a tmp2 of 1 emits gravity 
@@ -323,6 +323,9 @@ can change it even if your screen if too small if you want. Improvements to
 open_ui, you can click a username to search for their saves, and right click 
 to see their profile.
 
+
+
+
 Bugs:
 Redo PWHT so it will always load right
 moving solids don't bounce off walls
@@ -332,9 +335,8 @@ all - emp flash not reset on save load
 
 
 Future Ideas/TODO: > means currently being worked on/added next
-Add things from tpt++ that look cool (differences like deco editor)
+Add things from tpt++ that look cool
 edge loop (like powder sim)
 a few more HUD options (wall names, photon thing, ...)
-more lua commands
 new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
 option to disable copying/resaving in your saves
