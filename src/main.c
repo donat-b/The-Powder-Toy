@@ -2484,7 +2484,7 @@ int main(int argc, char *argv[])
 						}
 						if (x>=1 && x<=17)
 						{
-							search_ui(vid_buf, "");
+							search_ui(vid_buf);
 							memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
 							memset(fire_r, 0, sizeof(fire_r));
 							memset(fire_g, 0, sizeof(fire_g));
@@ -2912,8 +2912,8 @@ int main(int argc, char *argv[])
 		{
 			frames = frames + 1;
 			totalfps = totalfps + FPSB2;
-			if (FPSB2 > maxfps)
-				maxfps = FPSB2;
+			//if (FPSB2 > maxfps)
+			//	maxfps = FPSB2;
 		}
 		if (lastx == mousex && lasty == mousey)
 		{

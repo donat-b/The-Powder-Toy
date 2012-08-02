@@ -3600,7 +3600,7 @@ void limit_fps()
 	elapsedTime = currentTime-pastFPS;
 	if ((FPS>2 || elapsedTime>1000*2/limitFPS) && elapsedTime && FPS*1000/elapsedTime>limitFPS)
 	{
-		while ((float)(FPS*1000)/elapsedTime>limitFPS)
+		while ((float)(FPS*1000)/elapsedTime>limitFPS && elapsedTime < 1000)
 		{
 			SDL_Delay(1);
 			currentTime = SDL_GetTicks();
@@ -6301,7 +6301,7 @@ const static struct command_match matches [] = {
 	{"tpt.drawcircle(", "tpt.drawc"},
 	{"tpt.fillcircle(", "tpt.fillc"},
 	{"tpt.drawline(", "tpt.drawl"},
-	{"tpt.get_name()", "tpt.get_na"},
+	{"tpt.get_name()", "tpt.get_n"},
 	{"tpt.set_shortcuts(", "tpt.set_s"},
 	{"tpt.delete(", "tpt.de"},
 	{"tpt.register_mouseevent(", "tpt.register_m"},
@@ -6375,7 +6375,7 @@ const static struct command_match matches [] = {
 	{"tempLow", "tempL"},
 	{"presHigh", "pres"},
 	{"pres", "pr"},
-	{"temp", "te"},
+	{"temp", "tem"},
 
 	{"name", "nam"},
 	{"color", "colo"},
