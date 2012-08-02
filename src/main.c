@@ -725,21 +725,6 @@ char my_uri[] = "http://" SERVER "/Update.api?Action=Download&Architecture="
 #endif
                 ;
 
-int set_scale(int scale, int kiosk){
-	int old_scale = sdl_scale, old_kiosk = kiosk_enable;
-	sdl_scale = scale;
-	kiosk_enable = kiosk;
-
-	if (!sdl_open() || !confirm_ui(vid_buf, "Confirm Size Change", "Press OK to confirm the screen size change", "OK"))
-	{
-		sdl_scale = old_scale;
-		kiosk_enable = old_kiosk;
-		sdl_open();
-		return 0;
-	}
-	return 1;
-}
-
 #ifdef RENDERER
 int main(int argc, char *argv[])
 {

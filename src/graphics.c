@@ -1584,7 +1584,7 @@ int textposxy(char *s, int width, int w, int h)
 }
 int textwrapheight(char *s, int width)
 {
-	int x=0, height=FONT_H+2, cw;
+	int x=0, height=FONT_H+2, cw = 0;
 	int wordlen;
 	int charspace;
 	while (*s)
@@ -4419,7 +4419,7 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 }
 
 SDL_VideoInfo info;
-int sdl_opened = 0;
+int sdl_opened = 0, size_error = 0;
 int sdl_open(void)
 {
 	//char screen_err = 0;
@@ -4437,6 +4437,7 @@ int sdl_open(void)
 		fprintf(stderr, "Initializing SDL: %s\n", SDL_GetError());
 		return 0;
 	}
+	size_error= 0;
 	
 #ifdef WIN32
 	SDL_VERSION(&SysInfo.version);
@@ -4460,12 +4461,8 @@ int sdl_open(void)
 	if(!sdl_opened)
 		info = *SDL_GetVideoInfo(); 
 
-	/*if (info.current_w<((XRES+BARSIZE)*sdl_scale) || info.current_h<((YRES+MENUSIZE)*sdl_scale))
-	{
-		sdl_scale = 1;
-		screen_err = 1;
-		fprintf(stderr, "Can't change scale factor, because screen resolution is too small");
-	}*/
+	if (info.current_w<((XRES+BARSIZE)*sdl_scale) || info.current_h<((YRES+MENUSIZE)*sdl_scale))
+		size_error = 1;
 #if defined(OGLR)
 	sdl_scrn=SDL_SetVideoMode(XRES*sdl_scale + BARSIZE*sdl_scale,YRES*sdl_scale + MENUSIZE*sdl_scale,32,SDL_OPENGL);
 	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
@@ -4682,6 +4679,22 @@ int sdl_open(void)
 	sdl_opened = 1;
 	return 1;
 }
+
+int set_scale(int scale, int kiosk){
+	int old_scale = sdl_scale, old_kiosk = kiosk_enable;
+	sdl_scale = scale;
+	kiosk_enable = kiosk;
+
+	if (!sdl_open() || (size_error && !confirm_ui(vid_buf, "Confirm Size Change", "Your screen is too large, press OK to keep the size change anyway", "OK")))
+	{
+		sdl_scale = old_scale;
+		kiosk_enable = old_kiosk;
+		sdl_open();
+		return 0;
+	}
+	return 1;
+}
+
 #ifdef OGLR
 void checkShader(GLuint shader, char * shname)
 {

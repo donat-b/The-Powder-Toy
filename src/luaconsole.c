@@ -2627,7 +2627,7 @@ int luatpt_set_decocolor(lua_State* l)
 		return 1;
 	}
 	else if (acount == 1)
-		color = luaL_optnumber(l, 1, 0xFFFF0000);
+		color = (unsigned int)luaL_optnumber(l, 1, 0xFFFF0000);
 	else
 	{
 		int r, g, b, a;
