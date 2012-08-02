@@ -316,7 +316,12 @@ instead of pressure (still creates tons of pressure anyway), and with a tmp2
 of 2 does both. Antimatter's ctype and tmp act tike VOID's (eats it's ctype). 
 Right click the reload button to go back to open_ui. Fix moving solids not 
 showing in HUD. Add scrollbar to scrolling menus. Fix VACU/VENT. Limit the 
-FPS everywhere, so tpt doesn't use 100% CPU when you're not in the main game.
+FPS everywhere, so tpt doesn't use 100% CPU when you're not in the main game. 
+Tons of new lua commands, you can pass nothing into functions that set a 
+variable to return that variable instead. When changing the screen size, you 
+can change it even if your screen if too small if you want. Improvements to 
+open_ui, you can click a username to search for their saves, and right click 
+to see their profile.
 
 Bugs:
 Redo PWHT so it will always load right
