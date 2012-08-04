@@ -327,6 +327,13 @@ to see their profile.
 
 
 Bugs:
+defaults to save as release version (maybe? haven't checkd yet but seems to always be that)
+crash when checking saves? Finds a null element then crashes
++/- inf pressure happens occasionally
+compatibility mode to disable reversable pipe
+9th tab drawn on top of wall menu
+Exit out of deco menu with b, like it was editor
+middle click doesn't work right in deco menu, but alt+click does
 Redo PWHT so it will always load right
 moving solids don't bounce off walls
 all - emp flash not reset on save load
