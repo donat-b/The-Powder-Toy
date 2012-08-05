@@ -99,9 +99,10 @@ run your function again. This eliminates lag when a lot of particles are
 drawn. The pixel_mode properties can be found in powdergraphics.h.
 Example: 
 function graphics(i, colr, colg, colb)
-   return 1,0x00FF0008,0,0,255,255,255,0,0,255; --cola is ignored, so it didn't matter that I accidentally made it 0
+   return 1,0x00FF0008,0,0,255,255,255,0,0,255; --cola is ignored with PMODE_FLAT, so it didn't matter that I accidentally made it 0
 end -- blue green with a bluish glow
 tpt.graphics_func(graphics,tpt.el.eqve.id)
+--see the lua section on the wiki for a better explanation, with pictures and pixel_mode descriptions
 
 
 
@@ -327,8 +328,6 @@ to see their profile.
 
 
 Bugs:
-defaults to save as release version (maybe? haven't checkd yet but seems to always be that)
-crash when checking saves? Finds a null element then crashes
 +/- inf pressure happens occasionally
 compatibility mode to disable reversable pipe
 9th tab drawn on top of wall menu
@@ -336,7 +335,9 @@ Exit out of deco menu with b, like it was editor
 middle click doesn't work right in deco menu, but alt+click does
 Redo PWHT so it will always load right
 moving solids don't bounce off walls
+
 all - emp flash not reset on save load
+old console commands don't check all particles
 
 
 

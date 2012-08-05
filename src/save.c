@@ -95,7 +95,7 @@ int fix_type(int type, int version)
 
 int invalid_element(int save_as, int el)
 {
-	if (save_as > 0 && (el >= PT_NORMAL_NUM || ptypes[el].enabled == 0)) //Check for mod/disabled elements
+	if (save_as > 0 && (el >= PT_NORMAL_NUM || el < 0 || ptypes[el].enabled == 0)) //Check for mod/disabled elements
 		return 1;
 #ifdef BETA
 	//if (save_as > 1 && (el == PT_EXOT))
@@ -119,22 +119,34 @@ int check_save(int save_as, int orig_x0, int orig_y0, int orig_w, int orig_h)
 		{
 			if (invalid_element(save_as,parts[i].type))
 			{
-				char errortext[256] = "";
-				sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].type].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
+				char errortext[256] = "", elname[24] = "";
+				if (parts[i].type > 0 && parts[i].type < PT_NUM)
+					sprintf(elname, "%s", ptypes[parts[i].type].name);
+				else
+					sprintf(elname, "invalid elnum %i", parts[i].type);
+				sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",elname,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
 				error_ui(vid_buf,0,errortext);
 				return 1;
 			}
 			if ((parts[i].type == PT_CLNE || parts[i].type == PT_PCLN || parts[i].type == PT_BCLN || parts[i].type == PT_PBCN || parts[i].type == PT_STOR || parts[i].type == PT_CONV || parts[i].type == PT_STKM || parts[i].type == PT_STKM2 || parts[i].type == PT_FIGH || parts[i].type == PT_LAVA || parts[i].type == PT_SPRK) && invalid_element(save_as,parts[i].ctype))
 			{
-				char errortext[256] = "";
-				sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].ctype].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
+				char errortext[256] = "", elname[24] = "";
+				if (parts[i].ctype > 0 && parts[i].ctype < PT_NUM)
+					sprintf(elname, "%s", ptypes[parts[i].ctype].name);
+				else
+					sprintf(elname, "invalid elnum %i", parts[i].ctype);
+				sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",elname,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
 				error_ui(vid_buf,0,errortext);
 				return 1;
 			}
 			if (parts[i].type == PT_PIPE && invalid_element(save_as,parts[i].tmp))
 			{
-				char errortext[256] = "";
-				sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",ptypes[parts[i].tmp].name,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
+				char errortext[256] = "", elname[24] = "";
+				if (parts[i].tmp > 0 && parts[i].tmp < PT_NUM)
+					sprintf(elname, "%s", ptypes[parts[i].tmp].name);
+				else
+					sprintf(elname, "invalid elnum %i", parts[i].tmp);
+				sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",elname,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
 				error_ui(vid_buf,0,errortext);
 				return 1;
 			}
@@ -1617,7 +1629,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						fprintf(stderr, "Out of range [%d]: %d %d, [%d, %d], [%d, %d]\n", i, x, y, (unsigned)partsData[i+1], (unsigned)partsData[i+2], (unsigned)partsData[i+3], (unsigned)partsData[i+4]);
 						goto fail;
 					}
-					if(partsData[i] >= PT_NUM || !ptypes[partsData[i]].enabled)
+					if(partsData[i] >= PT_NUM)
 						partsData[i] = PT_DMND;	//Replace all invalid elements with diamond
 					if(pmap[y][x] && posCount==0) // Check posCount to make sure an existing particle is not replaced twice if two particles are saved in that position
 					{
@@ -1863,8 +1875,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					}
 					if (partsptr[newIndex].type == PT_SOAP)
 						partsptr[newIndex].ctype &= ~6; // delete all soap connections, but it looks like if tmp & tmp2 were saved to 3 bytes, connections would load properly
-					if (!ptypes[partsptr[newIndex].type].enabled)
-						partsptr[newIndex].type = PT_NONE;
 					if (!ptypes[partsptr[newIndex].type].enabled && !secret_els)
 						partsptr[newIndex].type = PT_NONE;
 
