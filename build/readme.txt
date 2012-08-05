@@ -328,7 +328,6 @@ to see their profile.
 
 
 Bugs:
-+/- inf pressure happens occasionally
 compatibility mode to disable reversable pipe
 9th tab drawn on top of wall menu
 Exit out of deco menu with b, like it was editor

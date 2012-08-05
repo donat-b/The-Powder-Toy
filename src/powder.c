@@ -2720,7 +2720,7 @@ killed:
 			{
 				if (!(rand()%10))
 				{
-					parts[i].flags = 0;
+					parts[i].flags &= ~FLAG_EXPLODE;
 					pv[y/CELL][x/CELL] += 5.0f;
 					if(!(rand()%3))
 					{
