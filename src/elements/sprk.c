@@ -175,7 +175,7 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 					if (ct==PT_PSCN && parts[r>>8].tmp == 0) parts[r>>8].tmp = 2;
 					else if (ct==PT_NSCN && parts[r>>8].tmp == 3) parts[r>>8].tmp = 1;
 				}
-				if (rt == PT_PIPE && parts[i].life >= 3 && pavg!=PT_INSL)
+				if (rt == PT_PIPE && parts[i].life >= 3 && pavg!=PT_INSL && mod_save)
 				{
 					if (ct == PT_PSCN)
 					{

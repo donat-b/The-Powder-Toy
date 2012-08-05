@@ -328,7 +328,6 @@ to see their profile.
 
 
 Bugs:
-compatibility mode to disable reversable pipe
 9th tab drawn on top of wall menu
 Exit out of deco menu with b, like it was editor
 middle click doesn't work right in deco menu, but alt+click does
