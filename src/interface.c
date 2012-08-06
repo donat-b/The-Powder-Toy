@@ -1397,7 +1397,7 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 	unsigned char valuec;
 	int valuei;
 	unsigned int valueui;
-	int format;
+	int format, pwht_property;
 	size_t propoffset;
 	char *listitems[] = {"type", "life", "ctype", "temp", "tmp", "tmp2", "vy", "vx", "x", "y", "dcolour", "flags"};
 	int listitemscount = 12;
@@ -1486,39 +1486,51 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 		if (strcmp(ed.str,"type")==0){
 			propoffset = offsetof(particle, type);
 			format = 1;
+			pwht_property = 0;
 		} else if (strcmp(ed.str,"life")==0){
 			propoffset = offsetof(particle, life);
 			format = 0;
+			pwht_property = 1;
 		} else if (strcmp(ed.str,"ctype")==0){
 			propoffset = offsetof(particle, ctype);
 			format = 1;
+			pwht_property = 2;
 		} else if (strcmp(ed.str,"temp")==0){
 			propoffset = offsetof(particle, temp);
 			format = 2;
+			pwht_property = 3;
 		} else if (strcmp(ed.str,"tmp")==0){
 			propoffset = offsetof(particle, tmp);
 			format = 0;
+			pwht_property = 4;
 		} else if (strcmp(ed.str,"tmp2")==0){
 			propoffset = offsetof(particle, tmp2);
 			format = 0;
+			pwht_property = 5;
 		} else if (strcmp(ed.str,"vy")==0){
 			propoffset = offsetof(particle, vy);
 			format = 2;
+			pwht_property = 6;
 		} else if (strcmp(ed.str,"vx")==0){
 			propoffset = offsetof(particle, vx);
 			format = 2;
+			pwht_property = 7;
 		} else if (strcmp(ed.str,"x")==0){
 			propoffset = offsetof(particle, x);
 			format = 2;
+			pwht_property = 8;
 		} else if (strcmp(ed.str,"y")==0){
 			propoffset = offsetof(particle, y);
 			format = 2;
+			pwht_property = 9;
 		} else if (strcmp(ed.str,"dcolour")==0){
 			propoffset = offsetof(particle, dcolour);
 			format = 3;
+			pwht_property = 10;
 		} else if (strcmp(ed.str,"flags")==0){
 			propoffset = offsetof(particle, flags);
 			format = 3;
+			pwht_property = 10;
 		}
 	} else {
 		error_ui(vid_buf, 0, "Invalid property");
@@ -1599,9 +1611,9 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 			memcpy(prop_value,&valuei,sizeof(int));
 			if ((pmap[y][x]&0xFF) == PT_PWHT)
 			{
-				parts[pmap[y][x]>>8].ctype = prop_offset;
+				parts[pmap[y][x]>>8].ctype = pwht_property;
 				parts[pmap[y][x]>>8].tmp2 = format;
-				parts[pmap[y][x]>>8].temp = (float)valuei;
+				parts[pmap[y][x]>>8].tmp = valuei;
 			}
 		}
 		else if (format == 1)
@@ -1610,9 +1622,9 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 			memcpy(prop_value,&valuec,sizeof(unsigned char));
 			if ((pmap[y][x]&0xFF) == PT_PWHT)
 			{
-				parts[pmap[y][x]>>8].ctype = prop_offset;
+				parts[pmap[y][x]>>8].ctype = pwht_property;
 				parts[pmap[y][x]>>8].tmp2 = format;
-				parts[pmap[y][x]>>8].temp = (float)valuei;
+				parts[pmap[y][x]>>8].tmp = valuei;
 			}
 		}
 		else if (format == 2)
@@ -1621,7 +1633,7 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 			memcpy(prop_value,&valuef,sizeof(float));
 			if ((pmap[y][x]&0xFF) == PT_PWHT)
 			{
-				parts[pmap[y][x]>>8].ctype = prop_offset;
+				parts[pmap[y][x]>>8].ctype = pwht_property;
 				parts[pmap[y][x]>>8].tmp2 = format;
 				parts[pmap[y][x]>>8].temp = valuef;
 			}
@@ -1633,9 +1645,9 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 			memcpy(prop_value,&valueui,sizeof(unsigned int));
 			if ((pmap[y][x]&0xFF) == PT_PWHT)
 			{
-				parts[pmap[y][x]>>8].ctype = prop_offset;
-				parts[pmap[y][x]>>8].tmp2 = format;
-				parts[pmap[y][x]>>8].temp = (float)valueui;
+				parts[pmap[y][x]>>8].ctype = pwht_property;
+				parts[pmap[y][x]>>8].tmp2 = 3;
+				parts[pmap[y][x]>>8].dcolour = valueui;
 			}
 		}
 	}

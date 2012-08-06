@@ -325,11 +325,16 @@ can change it even if your screen if too small if you want. Improvements to
 open_ui, you can click a username to search for their saves, and right click 
 to see their profile.
 
-
+Next Version
+Fix crash when saving invalid elements (that you shouldn't have anyway). Add 
+an icon to the deco menu and element search ui. Disable reversable pipe on non 
+mod saves. Improvements to the deco menu to make it feel more like the editor, 
+fix middle click to get decocolor inside of it. Fix graphics function crash. 
+Fixes to PWHT so that it works and saves better.
 
 
 Bugs:
-None!!!!! (at least that I know of)
+None (at least that I know of)
 
 fixes for official:
 emp flash not reset on save load
@@ -342,6 +347,7 @@ PROP interface glitch
 
 Future Ideas/TODO: > means currently being worked on/added next
 Combine PROP & PROP2
+GEL absorbs other things besides water
 Add things from tpt++ that look cool
 option to disable copying/resaving in your saves (maybe not actually limit though)
 edge loop (like powder sim)
