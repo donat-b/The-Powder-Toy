@@ -1165,7 +1165,7 @@ void element_search_ui(pixel *vid_buf, int * slp, int * srp)
 		clearrect(vid_buf, x0-2, y0-2, windowWidth+4, windowHeight+4);
 		drawrect(vid_buf, x0, y0, windowWidth, windowHeight, 192, 192, 192, 255);
 		
-		drawtext(vid_buf, x0+8, y0+8, "Element Search", 255, 255, 255, 255);
+		drawtext(vid_buf, x0+8, y0+8, "\xE6 Element Search", 255, 255, 255, 255);
 
 		drawrect(vid_buf, ed.x-4, ed.y-5, ed.w+4, 16, 192, 192, 192, 255);
 		ui_edit_draw(vid_buf, &ed);
@@ -3353,7 +3353,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 	}
 	else
 	{
-		while(i < num_tabs + 2 && i < 10)
+		while(i < num_tabs + 2 && i < 25-SC_TOTAL)
 		{
 			char num[8];
 			sprintf(num,"%d",i);
@@ -3422,6 +3422,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 		quickoptions_tooltip_fade = 0;
 }
 
+int FPSwait = 0;
 int sdl_poll(void)
 {
 	SDL_Event event;
@@ -3433,7 +3434,10 @@ int sdl_poll(void)
 	{
 		main_loop--;
 		if (main_loop == 0)
+		{
 			SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+			FPSwait = 2;
+		}
 		else
 			SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 	}
@@ -3609,7 +3613,10 @@ void limit_fps()
 	}
 	if (elapsedTime>=1000)
 	{
-		FPSB2 = (float)(FPS*1000)/elapsedTime;
+		if (!FPSwait)
+			FPSB2 = (float)(FPS*1000)/elapsedTime;
+		if (main_loop && FPSwait > 0)
+			FPSwait--;
 		FPS = 0;
 		pastFPS = currentTime;
 	}

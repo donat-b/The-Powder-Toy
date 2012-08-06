@@ -388,7 +388,7 @@ void draw_info()
 			fillrect(vid_buf, 12, ytop+38, textwidth(infotext)+8, 15, 0, 0, 0, 140);
 			drawtext(vid_buf, 16, ytop+42, infotext, 255, 255, 255, 200);
 		}
-		sprintf(infotext,"Previous Max FPS: %f", maxfps);
+		sprintf(infotext,"Max FPS: %f", maxfps);
 		fillrect(vid_buf, 12, ytop+52, textwidth(infotext)+8, 15, 0, 0, 0, 140);
 		drawtext(vid_buf, 16, ytop+56, infotext, 255, 255, 255, 200);
 		sprintf(infotext,"Number of Times Played: %i", timesplayed);

@@ -2891,8 +2891,8 @@ int main(int argc, char *argv[])
 		{
 			frames = frames + 1;
 			totalfps = totalfps + FPSB2;
-			//if (FPSB2 > maxfps)
-			//	maxfps = FPSB2;
+			if (FPSB2 > maxfps)
+				maxfps = FPSB2;
 		}
 		if (lastx == mousex && lasty == mousey)
 		{
