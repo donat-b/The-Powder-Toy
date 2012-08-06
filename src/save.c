@@ -1662,7 +1662,11 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					i+=3;
 					
 					if (modsave)
+					{
 						partsptr[newIndex].type = fix_type(partsptr[newIndex].type, inputData[4]);
+						if (ptypes[partsptr[newIndex].type].properties & PROP_POWERED)
+							partsptr[newIndex].flags = FLAG_INSTACTV;
+					}
 
 					//Read temp
 					if(fieldDescriptor & 0x01)

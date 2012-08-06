@@ -40,7 +40,9 @@ shape as your brush, no matter what shape or size it is. They are very
 bouncy, and fall with gravity. Pressure over 10.0 will destroy them, and if 
 the center particle is destroyed, it will fall apart, making really tiny 
 bouncing pixels. Go into the fav2 menu and click SPIN to make them be able 
-to rotate.
+to rotate. NOTE: They don't bounce off walls. This is a glitch that I won't 
+fix, because it would make them a little laggier and they would get eaten 
+by the wall anyway.
 
 Animated LCRY: Found in the powered elements menu. In the decoration editor, 
 press left or right to change frames, and paint each frame normally. Press 
@@ -73,11 +75,10 @@ save. If you don't cure it in time, it will start to die slowly and randomly.
 It is also cured randomly, and not instantly. Note:VIRS can burn and be 
 destroyed, even if it infected something like DMND.
 
-Powered elements: Most powered elements are now activated instantly. The 
-elements that don't are LCRY, ANIM, and PBCN. When you draw a powered element,
-it's tmp is set to 1, which causes it to be instantly activated. Use PROP to 
-change it's tmp back to 0 if you want to keep the old way. Also, PCLN uses 
-tmp2, not tmp, to do this.
+Powered elements: All powered elements are now activated instantly. When 
+you draw a powered element, a flag is set which causes it to be instantly 
+activated. Saves loaded from old saves don't have this set, so won't act this 
+way. Use the prop tool to set the flags to 0 to go back to the old way.
 
 Lua code: Put a lua script in luacode.txt and click the LUA button in the 
 FAV2 menu. It will change the script into INDI and put it in the top left 
@@ -328,20 +329,22 @@ to see their profile.
 
 
 Bugs:
-Redo PWHT so it will always load right
-moving solids don't bounce off walls
+None!!!!! (at least that I know of)
 
 fixes for official:
 emp flash not reset on save load
 old console commands don't check all particles
 fix heating/cooling energy particles
+PROP interface glitch
 
 
 
 
 Future Ideas/TODO: > means currently being worked on/added next
+Combine PROP & PROP2
 Add things from tpt++ that look cool
+option to disable copying/resaving in your saves (maybe not actually limit though)
 edge loop (like powder sim)
 a few more HUD options (wall names, photon thing, ...)
+don't save lua code inside of INDI, since this isn't a lua script anymore
 new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
-option to disable copying/resaving in your saves
