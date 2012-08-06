@@ -328,15 +328,12 @@ to see their profile.
 
 
 Bugs:
-Exit out of deco menu with b, like it was editor
-middle click doesn't work right in deco menu, but alt+click does
 Redo PWHT so it will always load right
 moving solids don't bounce off walls
 
 fixes for official:
 emp flash not reset on save load
 old console commands don't check all particles
-fix graphics func crash (already done)
 fix heating/cooling energy particles
 
 

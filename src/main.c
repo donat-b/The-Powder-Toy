@@ -213,6 +213,7 @@ int aheat_enable; //Ambient heat
 int decorations_enable = 1;
 int hud_enable = 1;
 int active_menu = 0;
+int last_active_menu = 0;
 int framerender = 0;
 int pretty_powder = 0;
 int amd = 1;
@@ -238,6 +239,7 @@ int tab_num = 1;
 int num_tabs = 1;
 int show_tabs = 0;
 int sl = 1;
+int last_sl = 1;
 int sr = 0;
 int su = 0;
 int autosave = 0;
@@ -1697,11 +1699,19 @@ int main(int argc, char *argv[])
 					if (decorations_enable) strcpy(itc_msg, "Decorations layer: On");
 					else strcpy(itc_msg, "Decorations layer: Off");
 				}
+				else if (active_menu == SC_DECO)
+				{
+					active_menu = last_active_menu;
+					sl = last_sl;
+				}
 				else
 				{
+					last_active_menu = active_menu;
 					decorations_enable = 1;
 					sys_pause = 1;
 					active_menu = SC_DECO;
+					if (sl < DECO_DRAW || sl > DECO_SMDG)
+						last_sl = sl;
 					sl = su = DECO_DRAW;
 				}
 			}
@@ -2048,7 +2058,10 @@ int main(int argc, char *argv[])
 			{
 				if (!b && x>=XRES-2 && x<XRES+BARSIZE-1 &&y>= (i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16) && y<(i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16)+15)
 				{
-					active_menu = i;
+					if (i == SC_FAV && (last_active_menu == SC_FAV2 || last_active_menu == SC_HUD))
+						active_menu = last_active_menu;
+					else
+						active_menu = i;
 				}
 			}
 			menu_ui_v3(vid_buf, active_menu, b, bq, x, y); //draw the elements in the current menu
@@ -2491,7 +2504,7 @@ int main(int argc, char *argv[])
 			{
 				int signi;
 
-				c = (b&1) ? sl : sr; //c is element to be spawned
+				c = (!(b&4)) ? sl : sr; //c is element to be spawned
 				if (is_DECOTOOL(sl) && b == 4)
 					c = DECO_ERASE;
 				su = c;

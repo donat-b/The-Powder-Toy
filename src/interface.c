@@ -2838,6 +2838,7 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 				fillrect(vid_buf, x+31-xoff, y, 27, 15, 0, 0, 255, 127);
 			}
 		}
+		last_active_menu = SC_FAV;
 	}
 	else if (i == SC_FAV2) //Favorite
 	{
@@ -2856,6 +2857,7 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 				el = n+FAV_START;
 			}
 		}
+		last_active_menu = SC_FAV2;
 	}
 	else if (i == SC_HUD) //HUD changer
 	{
@@ -2879,6 +2881,7 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 				}
 			}
 		}
+		last_active_menu = SC_HUD;
 	}
 	else //all other menus
 	{
@@ -6661,7 +6664,7 @@ void init_color_boxes()
 
 int currR = 255, currG = 0, currB = 0, currA = 255;
 int currH = 0, currS = 255, currV = 255;
-int on_left = 1, hidden = 0;
+int on_left = 1, decobox_hidden = 0;
 
 int deco_disablestuff;
 int deco_showing;
@@ -6721,7 +6724,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	sprintf(frametext,"Frame %i/%i",framenum+1,maxframes);
 	drawtext(vid_buf, 2, 399, frametext, 255, 255, 255, 255);
 
-	if(!hidden)
+	if(!decobox_hidden)
 	{
 		char hex[32] = "";
 		fillrect(vid_buf, window_offset_x, 2, 2+255+4+10+5, 2+255+20, 0, 0, 0, currA);
@@ -6848,12 +6851,12 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	//fillrect(vid_buf, 250, YRES+4, 40, 15, currR, currG, currB, currA);
 
 	drawrect(vid_buf, 295, YRES+5, 25, 12, 255, 255, 255, 255);
-	if(hidden)
+	if(decobox_hidden)
 		drawtext(vid_buf, 297, YRES+5 +3, "Show", 255, 255, 255, 255);
 	else
 		drawtext(vid_buf, 297, YRES+5 +3, "Hide", 255, 255, 255, 255);
 
-	if(can_select_color && !hidden && mx >= window_offset_x && my >= 2 && mx <= window_offset_x+255+4+10+5 && my <= 2+255+20)//in the main window
+	if(can_select_color && !decobox_hidden && mx >= window_offset_x && my >= 2 && mx <= window_offset_x+255+4+10+5 && my <= 2+255+20)//in the main window
 	{
 		//inside brightness bar
 		if(mx >= grid_offset_x +255+4 && my >= 5 && mx <= grid_offset_x+255+4+10 && my <= 5+255)
@@ -6925,7 +6928,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	{
 		//hide/show button
 		if (!zoom_en && b && !bq && mx >= 295 && mx <= 295+25 && my >= YRES+5 && my<= YRES+5+12)
-			hidden = !hidden;
+			decobox_hidden = !decobox_hidden;
 	}
 	if (sdl_key==SDLK_RIGHT && framenum < maxframes-1)
 	{
@@ -6970,7 +6973,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 			framenum--;
 	}
 	if (sdl_zoom_trig)
-		hidden = 1;
+		decobox_hidden = 1;
 	/*if(sdl_key=='b' || sdl_key==SDLK_ESCAPE)
 	{
 		/*for (i = 0; i <= parts_lastActiveIndex; i++)
