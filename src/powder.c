@@ -3209,8 +3209,6 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 	NUM_PARTS = 0;
 	for (i=0; i<=parts_lastActiveIndex; i++)//the particle loop that resets the pmap/photon maps every frame, to update them.
 	{
-		if (!sys_pause||framerender)
-			decrease_life(i); //decrease the life of certain elements by 1 every frame
 		if (parts[i].type)
 		{
 			t = parts[i].type;
@@ -3247,6 +3245,8 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 			else parts[lastPartUnused].life = i;
 			lastPartUnused = i;
 		}
+		if (!sys_pause||framerender)
+			decrease_life(i); //decrease the life of certain elements by 1 every frame
 	}
 	if (lastPartUnused==-1)
 	{

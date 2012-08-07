@@ -161,7 +161,7 @@ int update_TRON(UPDATE_FUNC_ARGS) {
 		parts[i].life = parts[i].tmp2;
 		parts[i].tmp &= parts[i].tmp&0xF818;
 	}
-	else // fade tail deco, or prevent tail from dieing
+	else // fade tail deco, or prevent tail from dying
 	{
 		if (parts[i].tmp&TRON_NODIE)
 			parts[i].life++;
