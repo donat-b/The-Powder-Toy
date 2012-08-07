@@ -71,17 +71,17 @@ int PWHT_flood(UPDATE_FUNC_ARGS)
 	if (format == 2)
 	{
 		float valuef = parts[i].temp;
-		flood_prop(x, y-1, propoffset, &valuef, format);
+		return flood_prop(x, y-1, propoffset, &valuef, format);
 	}
 	else if (format == 3)
 	{
 		unsigned int valueui = parts[i].dcolour;
-		flood_prop(x, y-1, propoffset, &valueui, 0);
+		return flood_prop(x, y-1, propoffset, &valueui, 0);
 	}
 	else
 	{
 		int valuei = parts[i].tmp;
-		flood_prop(x, y-1, propoffset, &valuei, format);
+		return flood_prop(x, y-1, propoffset, &valuei, format);
 	}
 }
 

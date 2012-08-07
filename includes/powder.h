@@ -41,7 +41,7 @@
 
 #define UI_WALLSTART 222
 #define UI_ACTUALSTART 122
-#define UI_WALLCOUNT 32
+#define UI_WALLCOUNT 31
 
 #define WL_WALLELEC	122
 #define WL_EWALL	123

@@ -332,7 +332,7 @@ mod saves. Improvements to the deco menu to make it feel more like the editor,
 fix middle click to get decocolor inside of it. Fix graphics function crash. 
 Fixes to PWHT so that it works and saves better. Fix instantly powered 
 electronics not saving. Combine PROP & PROP2, to use old prop, flood fill with 
-Ctrl + Shift).
+Ctrl + Shift.
 
 
 Bugs:
@@ -348,7 +348,6 @@ PROP interface glitch
 
 
 Future Ideas/TODO: > means currently being worked on/added next
-Combine PROP & PROP2
 GEL absorbs other things besides water
 Add things from tpt++ that look cool
 option to disable copying/resaving in your saves (maybe not actually limit though)

@@ -2591,7 +2591,7 @@ int luatpt_load_stamp(lua_State* l)
 	y = luaL_optint(l,3,0);
 	if (i < 0 || i >= STAMP_MAX) //Check if it's a 10 digit stamp id
 	{
-		filename = (char*)luaL_optstring(l, 1, "error");
+		filename = (char*)luaL_optstring(l, 1, "");
 		for (j=0; j<STAMP_MAX; j++)
 			if (!strcmp(stamps[j].name, filename))
 			{
