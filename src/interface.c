@@ -5971,28 +5971,40 @@ int execute_tagop(pixel *vid_buf, char *op, char *tag)
 
 void execute_save(pixel *vid_buf)
 {
-	int status;
+	int status, oldsave_as = save_as;
 	char *result;
 
 	char *names[] = {"Name","Description", "Data:save.bin", "Thumb:thumb.bin", "Publish", "ID", NULL};
 	char *uploadparts[6];
 	int plens[6];
 
-	uploadparts[0] = svf_name;
-	plens[0] = strlen(svf_name);
-	uploadparts[1] = svf_description;
-	plens[1] = strlen(svf_description);
-	uploadparts[2] = build_save(plens+2, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, (save_as == 3 && (sdl_mod & KMOD_SHIFT)));
-	uploadparts[3] = build_thumb(plens+3, 1);
-	uploadparts[4] = (svf_publish==1)?"Public":"Private";
-	plens[4] = strlen((svf_publish==1)?"Public":"Private");
 	if (svf_publish == 1 && save_as != 5)
 	{
 		error_ui(vid_buf, 0, "You must save this as the non beta version");
 		return;
 	}
-	if (svf_publish == 1 && check_save(2,0,0,XRES,YRES))
+	if (save_as == 3 && !check_save(2,0,0,XRES,YRES,0))
+	{
+		if (confirm_ui(vid_buf, "Save as official version?", "This save doesn't use any mod elements, and could be opened by everyone and have a correct thumbnail if it was saved as the official version. Click cancel to save like this anyway, incase you used some mod features", "OK"))
+		{
+			oldsave_as = save_as;
+			save_as = 5;
+		}
+	}
+	if (svf_publish == 1 && check_save(2,0,0,XRES,YRES,1))
 		return;
+
+	uploadparts[0] = svf_name;
+	plens[0] = strlen(svf_name);
+	uploadparts[1] = svf_description;
+	plens[1] = strlen(svf_description);
+	uploadparts[2] = build_save(plens+2, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, (save_as == 3 && (sdl_mod & KMOD_SHIFT)));
+	if (uploadparts[2] == NULL)
+		return;
+	uploadparts[3] = build_thumb(plens+3, 1);
+	uploadparts[4] = (svf_publish==1)?"Public":"Private";
+	plens[4] = strlen((svf_publish==1)?"Public":"Private");
+	save_as = oldsave_as;
 
 	if (svf_id[0])
 	{

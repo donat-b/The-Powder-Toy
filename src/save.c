@@ -50,7 +50,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	if (save_as < 3) //No more PSv format anymore
 		return NULL;
 
-	if (check_save(save_as%3, orig_x0, orig_y0, orig_w, orig_h))
+	if (check_save(save_as%3, orig_x0, orig_y0, orig_w, orig_h, 1))
 		return NULL;
 	if (save_as%3 == 1) //Beta
 		saveversion = BETA_VERSION;
@@ -105,7 +105,7 @@ int invalid_element(int save_as, int el)
 }
 
 //checks all elements and ctypes/tmps of certain elements to make sure there are no mod/beta elements in a save or stamp
-int check_save(int save_as, int orig_x0, int orig_y0, int orig_w, int orig_h)
+int check_save(int save_as, int orig_x0, int orig_y0, int orig_w, int orig_h, int give_warning)
 {
 	int i, x0, y0, w, h, bx0=orig_x0/CELL, by0=orig_y0/CELL, bw=(orig_w+orig_x0-bx0*CELL+CELL-1)/CELL, bh=(orig_h+orig_y0-by0*CELL+CELL-1)/CELL;
 	x0 = bx0*CELL;
@@ -119,35 +119,44 @@ int check_save(int save_as, int orig_x0, int orig_y0, int orig_w, int orig_h)
 		{
 			if (invalid_element(save_as,parts[i].type))
 			{
-				char errortext[256] = "", elname[24] = "";
-				if (parts[i].type > 0 && parts[i].type < PT_NUM)
-					sprintf(elname, "%s", ptypes[parts[i].type].name);
-				else
-					sprintf(elname, "invalid elnum %i", parts[i].type);
-				sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",elname,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
-				error_ui(vid_buf,0,errortext);
+				if (give_warning)
+				{
+					char errortext[256] = "", elname[24] = "";
+					if (parts[i].type > 0 && parts[i].type < PT_NUM)
+						sprintf(elname, "%s", ptypes[parts[i].type].name);
+					else
+						sprintf(elname, "invalid elnum %i", parts[i].type);
+					sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",elname,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
+					error_ui(vid_buf,0,errortext);
+				}
 				return 1;
 			}
 			if ((parts[i].type == PT_CLNE || parts[i].type == PT_PCLN || parts[i].type == PT_BCLN || parts[i].type == PT_PBCN || parts[i].type == PT_STOR || parts[i].type == PT_CONV || parts[i].type == PT_STKM || parts[i].type == PT_STKM2 || parts[i].type == PT_FIGH || parts[i].type == PT_LAVA || parts[i].type == PT_SPRK) && invalid_element(save_as,parts[i].ctype))
 			{
-				char errortext[256] = "", elname[24] = "";
-				if (parts[i].ctype > 0 && parts[i].ctype < PT_NUM)
-					sprintf(elname, "%s", ptypes[parts[i].ctype].name);
-				else
-					sprintf(elname, "invalid elnum %i", parts[i].ctype);
-				sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",elname,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
-				error_ui(vid_buf,0,errortext);
+				if (give_warning)
+				{
+					char errortext[256] = "", elname[24] = "";
+					if (parts[i].ctype > 0 && parts[i].ctype < PT_NUM)
+						sprintf(elname, "%s", ptypes[parts[i].ctype].name);
+					else
+						sprintf(elname, "invalid elnum %i", parts[i].ctype);
+					sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",elname,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
+					error_ui(vid_buf,0,errortext);
+				}
 				return 1;
 			}
 			if (parts[i].type == PT_PIPE && invalid_element(save_as,parts[i].tmp))
 			{
-				char errortext[256] = "", elname[24] = "";
-				if (parts[i].tmp > 0 && parts[i].tmp < PT_NUM)
-					sprintf(elname, "%s", ptypes[parts[i].tmp].name);
-				else
-					sprintf(elname, "invalid elnum %i", parts[i].tmp);
-				sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",elname,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
-				error_ui(vid_buf,0,errortext);
+				if (give_warning)
+				{
+					char errortext[256] = "", elname[24] = "";
+					if (parts[i].tmp > 0 && parts[i].tmp < PT_NUM)
+						sprintf(elname, "%s", ptypes[parts[i].tmp].name);
+					else
+						sprintf(elname, "invalid elnum %i", parts[i].tmp);
+					sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",elname,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
+					error_ui(vid_buf,0,errortext);
+				}
 				return 1;
 			}
 		}
@@ -1524,11 +1533,13 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		}
 		else if(strcmp(bson_iterator_key(&iter), "Jacob1's_Mod")==0)
 		{
-			if (!strcmp(svf_user,"jacob1"))
-				info_ui(vid_buf,"Mod","Test");
 			if(bson_iterator_type(&iter)==BSON_INT)
 			{
+				char modver[8];
 				mod_save = modsave = bson_iterator_int(&iter);
+				sprintf(modver, "Made in jacob1's mod version %d", modsave);
+				if (!strcmp(svf_user,"jacob1"))
+					info_ui(vid_buf,"Mod",modver);
 			}
 			else
 			{

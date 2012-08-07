@@ -345,6 +345,7 @@ emp flash not reset on save load
 old console commands don't check all particles
 fix heating/cooling energy particles
 PROP interface glitch
+NULL saves saving
 
 
 
