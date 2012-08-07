@@ -330,7 +330,9 @@ Fix crash when saving invalid elements (that you shouldn't have anyway). Add
 an icon to the deco menu and element search ui. Disable reversable pipe on non 
 mod saves. Improvements to the deco menu to make it feel more like the editor, 
 fix middle click to get decocolor inside of it. Fix graphics function crash. 
-Fixes to PWHT so that it works and saves better.
+Fixes to PWHT so that it works and saves better. Fix instantly powered 
+electronics not saving. Combine PROP & PROP2, to use old prop, flood fill with 
+Ctrl + Shift).
 
 
 Bugs:
