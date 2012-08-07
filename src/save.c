@@ -573,6 +573,12 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 							movscenter = 1;
 					}
 
+					//Skip flags (instantly activated powered elements in my mod)
+					if(fieldDescriptor & 0x4000)
+					{
+						if(i++ >= partsDataLen) goto fail;
+					}
+
 					//Skip animations
 					if ((type == PT_ANIM || type == PT_INDI) && (fieldDescriptor & 0x20))
 					{
@@ -752,7 +758,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	//Copy parts data
 	/* Field descriptor format:
 	|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|
-	|	PROP_MOVS	|												|		tmp2[2]	|		tmp2	|	ctype[2]	|		vy		|		vx		|	dcololour	|	ctype[1]	|		tmp[2]	|		tmp[1]	|		life[2]	|		life[1]	|	temp dbl len|
+	|	PROP_MOVS	|	  flags		|								|		tmp2[2]	|		tmp2	|	ctype[2]	|		vy		|		vx		|	dcololour	|	ctype[1]	|		tmp[2]	|		tmp[1]	|		life[2]	|		life[1]	|	temp dbl len|
 	life[2] means a second byte (for a 16 bit field) if life[1] is present
 	*/
 	partsData = malloc(NPART * (sizeof(particle)+1));
@@ -897,6 +903,12 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 						partsData[partsDataLen++] = ((int)partsptr[i].pavg[0])>>8;
 						partsData[partsDataLen++] = (int)partsptr[i].pavg[1];
 						partsData[partsDataLen++] = ((int)partsptr[i].pavg[1])>>8;
+					}
+					//Instantly activated electronics
+					if (partsptr[i].flags)
+					{
+						fieldDesc |= 1 << 14;
+						partsData[partsDataLen++] = partsptr[i].flags;
 					}
 
 					if ((partsptr[i].type == PT_ANIM || partsptr[i].type == PT_INDI) && partsptr[i].ctype)
@@ -1662,11 +1674,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					i+=3;
 					
 					if (modsave)
-					{
 						partsptr[newIndex].type = fix_type(partsptr[newIndex].type, inputData[4]);
-						if (ptypes[partsptr[newIndex].type].properties & PROP_POWERED)
-							partsptr[newIndex].flags = FLAG_INSTACTV;
-					}
 
 					//Read temp
 					if(fieldDescriptor & 0x01)
@@ -1787,6 +1795,13 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							ptypes[el].falldown = ptypes[PT_MOVS].falldown;
 							init_can_move();
 						}
+					}
+
+					//Read flags (for instantly activated powered elements in my mod)
+					if(fieldDescriptor & 0x4000)
+					{
+						if(i >= partsDataLen) goto fail;
+						partsptr[newIndex].flags = partsData[i++];
 					}
 					
 #ifdef OGLR
