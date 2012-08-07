@@ -1113,7 +1113,7 @@ void RGB_to_HSV(int r,int g,int b,int *h,int *s,int *v)//convert 0-255 RGB value
 
 int is_TOOL(int t)
 {
-	if (t == SPC_AIR || t == SPC_HEAT || t == SPC_COOL || t == SPC_VACUUM || t == SPC_WIND || t == SPC_PGRV || t == SPC_NGRV || t == SPC_PROP || t == SPC_PROP2)
+	if (t == SPC_AIR || t == SPC_HEAT || t == SPC_COOL || t == SPC_VACUUM || t == SPC_WIND || t == SPC_PGRV || t == SPC_NGRV || t == SPC_PROP)
 		return 1;
 	return 0;
 }

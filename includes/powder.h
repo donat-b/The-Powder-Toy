@@ -71,7 +71,6 @@
 #define SPC_PGRV 243
 #define SPC_NGRV 244
 #define SPC_PROP 246
-#define SPC_PROP2 253 //TODO: Delete this & combine with PROP
 
 #define DECO_DRAW 248
 #define DECO_ERASE 249
@@ -781,14 +780,13 @@ static wall_type wtypes[] =
 	{"PGRV",		PIXPACK(0x0000BB), PIXPACK(0x000000), -1, "Positive gravity tool."},
 	{"NGRV",		PIXPACK(0x000099), PIXPACK(0x000000), -1, "Negative gravity tool."},
 	{"ENERGYWALL",	PIXPACK(0xFFAA00), PIXPACK(0xAA5500), 4,  "Energy wall, allows only energy type particles to pass"},
-	{"PROP",		PIXPACK(0xFFAA00), PIXPACK(0x000000), -1, "Property edit tool"},
+	{"PROP",		PIXPACK(0xFFAA00), PIXPACK(0x000000), -1, "Property drawing tool"},
 	{"ERASEALL",	PIXPACK(0x808080), PIXPACK(0x000000), -1, "Erases walls, particles, and signs"},
 	{"DRAW",		PIXPACK(0xFF0000), PIXPACK(0x000000), -1, "Draw"},
 	{"ERASE",		PIXPACK(0x000000), PIXPACK(0x000000), -1, "Erase"},
 	{"LIGH",		PIXPACK(0xDDDDDD), PIXPACK(0x000000), -1, "Lighten"},
 	{"DARK",		PIXPACK(0x111111), PIXPACK(0x000000), -1, "Darken"},
 	{"SMDG",		PIXPACK(0x00FF00), PIXPACK(0x000000), -1, "Smudge"},
-	{"PRP2",		PIXPACK(0xFFAA00), PIXPACK(0x000000), -1, "Property drawing tool"},
 };
 
 #define FAV_START 300

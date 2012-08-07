@@ -826,7 +826,6 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, int b, unsigned pc)
 		case SPC_PGRV:
 		case SPC_NGRV:
 		case SPC_PROP:
-		case SPC_PROP2:
 			for (j=1; j<15; j++)
 				for (i=1; i<27; i++)
 					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = pc;
@@ -4346,7 +4345,7 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 	}
 #else
 	int i,j,c;
-	if ((sdl_mod & KMOD_CTRL) && (sdl_mod & KMOD_SHIFT) && !is_TOOL(t) && t-100!=WL_SIGN)
+	if ((sdl_mod & KMOD_CTRL) && (sdl_mod & KMOD_SHIFT) && (!is_TOOL(t) || t == SPC_PROP) && t-100!=WL_SIGN)
 	{
 		for (i = -5; i < 6; i++)
 			if (i != 0)

@@ -2637,7 +2637,7 @@ int main(int argc, char *argv[])
 					{
 						if (sdl_mod & (KMOD_CAPS))
 							c = 0;
-						if (c!=WL_STREAM+100&&!is_TOOL(c)&&c!=DECO_DRAW&&c!=DECO_ERASE)
+						if (c!=WL_STREAM+100&&(!is_TOOL(c)||c==SPC_PROP)&&c!=DECO_DRAW&&c!=DECO_ERASE)
 							flood_parts(x, y, c, -1, -1, get_brush_flags());
 						else if (c==SPC_HEAT || c==SPC_COOL)
 							create_parts(x, y, bsx, bsy, c, get_brush_flags(), 1);

@@ -853,10 +853,6 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 	if (t>=0 && t<PT_NUM && !ptypes[t].enabled)
 		return -1;
 	if(t==SPC_PROP) {
-		return -1;	//Prop tool works on a mouse click basic, make sure it doesn't do anything here
-	}
-	else if (t==SPC_PROP2)
-	{
 		return create_property(x, y, prop_offset, prop_value, prop_format);
 	}
 
@@ -1399,6 +1395,8 @@ int create_property(int x, int y, size_t propoffset, void * propvalue, int propt
 			*((char*)(((char*)&parts[i>>8])+propoffset)) = *((char*)propvalue);
 		} else if(proptype==2) {
 			*((float*)(((char*)&parts[i>>8])+propoffset)) = *((float*)propvalue);
+		} else if(proptype==3) {
+			*((unsigned int*)(((char*)&parts[i>>8])+propoffset)) = *((unsigned int*)propvalue);
 		}
 		return i>>8;
 	}
@@ -3391,8 +3389,6 @@ void clear_area(int area_x, int area_y, int area_w, int area_h)
 void create_box(int x1, int y1, int x2, int y2, int c, int flags)
 {
 	int i, j;
-	if (c==SPC_PROP)
-		return;
 	if (x1>x2)
 	{
 		i = x2;
@@ -3623,8 +3619,9 @@ int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 	int coord_stack_size = 0;
 	int created_something = 0;
 
-	if (c==SPC_PROP)
-		return 0;
+	if (fullc == SPC_PROP)
+		return flood_prop(x, y, prop_offset, prop_value, prop_format);
+
 	if (cm==-1)
 	{
 		if (c==0)
@@ -3802,10 +3799,6 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 	if (c==SPC_WIND || c==PT_FIGH || c==WL_SIGN+100)
 		return 0;
 
-	if(c==SPC_PROP){
-		prop_edit_ui(vid_buf, x, y, 1);
-		return 0;
-	}
 	if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM || c == DECO_LIGH || c == DECO_DARK || c == DECO_SMDG)
 		fill = 1;
 	for (r=UI_ACTUALSTART; r<=UI_ACTUALSTART+UI_WALLCOUNT; r++)
@@ -4055,8 +4048,6 @@ void create_line(int x1, int y1, int x2, int y2, int rx, int ry, int c, int flag
 {
 	int cp=abs(y2-y1)>abs(x2-x1), x, y, dx, dy, sy, fill = 1;
 	float e, de;
-	if (c==SPC_PROP)
-		return;
 	if (cp)
 	{
 		y = x1;
@@ -4090,7 +4081,7 @@ void create_line(int x1, int y1, int x2, int y2, int rx, int ry, int c, int flag
 			create_parts(y, x, rx, ry, c, flags, fill);
 		else
 			create_parts(x, y, rx, ry, c, flags, fill);
-		if (c != SPC_PROP2)
+		if (c != SPC_PROP)
 			fill = 0;
 		e += de;
 		if (e >= 0.5f)

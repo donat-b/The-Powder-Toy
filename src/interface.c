@@ -1436,7 +1436,7 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 	strncpy(ed2.str, "0", 254);
 	strncpy(ed.str, "ctype", 254);
 
-	if ((pmap[y][x]&0xFF) == PT_PWHT)
+	if (x >= 0 && y >= 0 && x < XRES && y < YRES && (pmap[y][x]&0xFF) == PT_PWHT)
 		flood = 0;
 
 	while (!sdl_poll())
@@ -1530,7 +1530,7 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 		} else if (strcmp(ed.str,"flags")==0){
 			propoffset = offsetof(particle, flags);
 			format = 3;
-			pwht_property = 10;
+			pwht_property = 11;
 		}
 	} else {
 		error_ui(vid_buf, 0, "Invalid property");
@@ -1609,7 +1609,7 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 		{
 			prop_value = malloc(sizeof(int));
 			memcpy(prop_value,&valuei,sizeof(int));
-			if ((pmap[y][x]&0xFF) == PT_PWHT)
+			if (x >= 0 && y >= 0 && x < XRES && y < YRES && (pmap[y][x]&0xFF) == PT_PWHT)
 			{
 				parts[pmap[y][x]>>8].ctype = pwht_property;
 				parts[pmap[y][x]>>8].tmp2 = format;
@@ -1620,7 +1620,7 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 		{
 			prop_value = malloc(sizeof(unsigned char));
 			memcpy(prop_value,&valuec,sizeof(unsigned char));
-			if ((pmap[y][x]&0xFF) == PT_PWHT)
+			if (x >= 0 && y >= 0 && x < XRES && y < YRES && (pmap[y][x]&0xFF) == PT_PWHT)
 			{
 				parts[pmap[y][x]>>8].ctype = pwht_property;
 				parts[pmap[y][x]>>8].tmp2 = format;
@@ -1631,7 +1631,7 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 		{
 			prop_value = malloc(sizeof(float));
 			memcpy(prop_value,&valuef,sizeof(float));
-			if ((pmap[y][x]&0xFF) == PT_PWHT)
+			if (x >= 0 && y >= 0 && x < XRES && y < YRES && (pmap[y][x]&0xFF) == PT_PWHT)
 			{
 				parts[pmap[y][x]>>8].ctype = pwht_property;
 				parts[pmap[y][x]>>8].tmp2 = format;
@@ -1643,7 +1643,7 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 			prop_format = 0;
 			prop_value = malloc(sizeof(unsigned int));
 			memcpy(prop_value,&valueui,sizeof(unsigned int));
-			if ((pmap[y][x]&0xFF) == PT_PWHT)
+			if (x >= 0 && y >= 0 && x < XRES && y < YRES && (pmap[y][x]&0xFF) == PT_PWHT)
 			{
 				parts[pmap[y][x]>>8].ctype = pwht_property;
 				parts[pmap[y][x]>>8].tmp2 = 3;
@@ -2686,8 +2686,8 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 				{
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 					el = n;
-					if (b && el==SPC_PROP2)
-						prop_edit_ui(vid_buf, x, y, 0);
+					if (b && el==SPC_PROP)
+						prop_edit_ui(vid_buf, -1, -1, 0);
 				}
 				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
 				{
