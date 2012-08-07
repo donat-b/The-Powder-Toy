@@ -1395,8 +1395,6 @@ int create_property(int x, int y, size_t propoffset, void * propvalue, int propt
 			*((char*)(((char*)&parts[i>>8])+propoffset)) = *((char*)propvalue);
 		} else if(proptype==2) {
 			*((float*)(((char*)&parts[i>>8])+propoffset)) = *((float*)propvalue);
-		} else if(proptype==3) {
-			*((unsigned int*)(((char*)&parts[i>>8])+propoffset)) = *((unsigned int*)propvalue);
 		}
 		return i>>8;
 	}
