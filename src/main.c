@@ -1729,6 +1729,49 @@ int main(int argc, char *argv[])
 						GRID_MODE = (GRID_MODE+1)%10;
 				}
 			}
+			if (sdl_key == 'a' && !strcmp(svf_user,"jacob1"))
+			{
+				int k;
+				for (i=0; i<=parts_lastActiveIndex; i++)
+				{
+					if (parts[i].dcolour)
+					{
+						int color = vid_buf[((int)(parts[i].y+.5f))*(XRES+BARSIZE)+((int)(parts[i].x+.5f))];
+						int colr = PIXR(color);
+						int colg = PIXG(color);
+						int colb = PIXB(color);
+
+						int maxComponent = colr;
+						if (colg>maxComponent) maxComponent = colg;
+						if (colb>maxComponent) maxComponent = colb;
+						if (maxComponent > 0 && parts[i].dcolour != 0xFF000000)
+						{
+							if (!(sdl_mod & KMOD_SHIFT))
+								continue;
+							if (maxComponent < 60)
+								colb = 60;
+							k = create_part(-3, (int)(parts[i].x+.5), (int)(parts[i].y+.5), PT_EMBR);
+							if (k != -1)
+							{
+								parts[k].ctype = PIXRGB(colr,colg,colb);
+								parts[k].tmp = 1;
+								parts[k].life = 20;
+								parts[k].temp = parts[i].temp;
+							}
+						}
+						else
+						{
+							k = create_part(-3, (int)(parts[i].x+.5), (int)(parts[i].y+.5), PT_PHOT);
+							if (k != -1)
+							{
+								parts[k].ctype = 0;
+								parts[k].life = 0;
+								parts[k].temp = parts[i].temp;
+							}
+						}
+					}
+				}
+			}
 			if (sdl_key=='m')
 			{
 				if(sl!=sr)

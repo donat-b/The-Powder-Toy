@@ -2745,8 +2745,10 @@ void readluastuff()
 					j = num;
 			}
 		}
-		parts[i2>>8].animations[1] = 1;
 		fclose(file);
+		parts[i2>>8].animations[1] = 1;
+		if (!confirm_ui(vid_buf, "Lua code", "Run the lua code in newluacode.txt?", "Run"))
+			return;
 		luaL_dostring(l,"\n\
 			local env = {\n\
 				ipairs = ipairs,\n\

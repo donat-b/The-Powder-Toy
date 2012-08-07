@@ -1535,7 +1535,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			if(bson_iterator_type(&iter)==BSON_INT)
 			{
-				char modver[8];
+				char modver[32];
 				mod_save = modsave = bson_iterator_int(&iter);
 				sprintf(modver, "Made in jacob1's mod version %d", modsave);
 				if (!strcmp(svf_user,"jacob1"))

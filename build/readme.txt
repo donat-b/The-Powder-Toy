@@ -326,15 +326,18 @@ can change it even if your screen if too small if you want. Improvements to
 open_ui, you can click a username to search for their saves, and right click 
 to see their profile.
 
-Next Version
+Version 18.1 8/7/12
 Fix crash when saving invalid elements (that you shouldn't have anyway). Add 
 an icon to the deco menu and element search ui. Disable reversable pipe on non 
 mod saves. Improvements to the deco menu to make it feel more like the editor, 
 fix middle click to get decocolor inside of it. Fix graphics function crash. 
 Fixes to PWHT so that it works and saves better. Fix instantly powered 
-electronics not saving. Combine PROP & PROP2, to use old prop, flood fill with 
+electronics not saving. Combine PROP & PROP2. To use old prop, flood fill with 
 Ctrl + Shift. Fix TRON. GEL and SPNG can absorb water from elements and leaves 
-behind what the element was mixed with. (ex. PSTE + SPNG -> CLST)
+behind what the element was mixed with. (ex. PSTE + SPNG -> CLST). Ask to run 
+lua code in saves, befre it's run automatically.
+
+
 
 
 Bugs:
@@ -356,4 +359,5 @@ option to disable copying/resaving in your saves (maybe not actually limit thoug
 edge loop (like powder sim)
 a few more HUD options (wall names, photon thing, ...)
 don't save lua code inside of INDI, since this isn't a lua script anymore
+command element to run old commands
 new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
