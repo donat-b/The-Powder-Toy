@@ -335,7 +335,7 @@ Fixes to PWHT so that it works and saves better. Fix instantly powered
 electronics not saving. Combine PROP & PROP2. To use old prop, flood fill with 
 Ctrl + Shift. Fix TRON. GEL and SPNG can absorb water from elements and leaves 
 behind what the element was mixed with. (ex. PSTE + SPNG -> CLST). Ask to run 
-lua code in saves, befre it's run automatically.
+lua code in saves, instead of just running automatically.
 
 
 
