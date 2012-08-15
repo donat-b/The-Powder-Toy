@@ -33,8 +33,6 @@ int update_STKM(UPDATE_FUNC_ARGS)
 int graphics_STKM(GRAPHICS_FUNC_ARGS)
 {
 	*colr = *colg = *colb = *cola = 0;
-	if (!(finding & ~0x8))
-		*pixel_mode &= ~PMODE;
 	*pixel_mode = PSPEC_STICKMAN;
 	return 0;
 }

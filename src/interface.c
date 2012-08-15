@@ -668,14 +668,15 @@ void ui_list_process(pixel * vid_buf, int mx, int my, int mb, ui_list *ed)
 					}
 					draw_line(vid_buf, ed->x, ystart + i * 16, ed->x+ed->w, ystart + i * 16, 128, 128, 128, XRES+BARSIZE);
 				}
-				if(!selected && mb)
-					break;
 				drawrect(vid_buf, ed->x, ystart, ed->w, ed->count*16, 255, 255, 255, 255);
 #ifdef OGLR
 				clearScreen(1.0f);
 #endif
 				sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 				clearrect(vid_buf, ed->x-2, ystart-2, ed->w+4, (ed->count*16)+4);
+
+				if(!selected && mb)
+					break;
 			}
 			while (!sdl_poll())
 			{
@@ -1393,6 +1394,7 @@ char *input_ui(pixel *vid_buf, char *title, char *prompt, char *text, char *shad
 
 void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 {
+	pixel * o_vid_buf;
 	float valuef;
 	unsigned char valuec;
 	int valuei;
@@ -1439,6 +1441,9 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 	if (x >= 0 && y >= 0 && x < XRES && y < YRES && (pmap[y][x]&0xFF) == PT_PWHT)
 		flood = 0;
 
+	o_vid_buf = (pixel*)calloc((YRES+MENUSIZE) * (XRES+BARSIZE), PIXELSIZE);
+	if (o_vid_buf)
+		memcpy(o_vid_buf, vid_buf, ((YRES+MENUSIZE) * (XRES+BARSIZE)) * PIXELSIZE);
 	while (!sdl_poll())
 	{
 		b = mouse_get_state(&mx, &my);
@@ -1451,6 +1456,8 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 
+		if (o_vid_buf)
+			memcpy(vid_buf, o_vid_buf, ((YRES+MENUSIZE) * (XRES+BARSIZE)) * PIXELSIZE);
 		clearrect(vid_buf, x0-2, y0-2, xsize+4, ysize+4);
 		drawrect(vid_buf, x0, y0, xsize, ysize, 192, 192, 192, 255);
 		drawtext(vid_buf, x0+8, y0+8, "Change particle property", 160, 160, 255, 255);
@@ -1478,7 +1485,7 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 		if (sdl_key==SDLK_RETURN)
 			break;
 		if (sdl_key==SDLK_ESCAPE)
-			break;
+			goto exit;
 	}
 
 	if(ed.selected!=-1)
@@ -5999,8 +6006,11 @@ void execute_save(pixel *vid_buf)
 	uploadparts[1] = svf_description;
 	plens[1] = strlen(svf_description);
 	uploadparts[2] = build_save(plens+2, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, (save_as == 3 && (sdl_mod & KMOD_SHIFT)));
-	if (uploadparts[2] == NULL)
+	if (!uploadparts[2])
+	{
+		error_ui(vid_buf, 0, "Error creating save");
 		return;
+	}
 	uploadparts[3] = build_thumb(plens+3, 1);
 	uploadparts[4] = (svf_publish==1)?"Public":"Private";
 	plens[4] = strlen((svf_publish==1)?"Public":"Private");
@@ -7182,7 +7192,8 @@ int save_filename_ui(pixel *vid_buf)
 		drawtext(vid_buf, x0+8, y0+ysize-12, "Save", 255, 255, 255, 255);
 
 		ui_edit_draw(vid_buf, &ed);
-		drawtext(vid_buf, x0+12+textwidth(ed.str), y0+25, ".cps", 240, 240, 255, 180);
+		if (strlen(ed.str) || ed.focus)
+			drawtext(vid_buf, x0+12+textwidth(ed.str), y0+25, ".cps", 240, 240, 255, 180);
 #ifdef OGLR
 		clearScreen(1.0f);
 #endif

@@ -70,6 +70,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 		return 1;
 	}
 	force_stacking_check = 1;//check for excessive stacking of particles next time update_particles is run
+	ppip_changed = 1;
 	if(saveData[0] == 'O' && saveData[1] == 'P' && (saveData[2] == 'S' || saveData[2] == 'J'))
 	{
 		return parse_save_OPS(save, size, replace, x0, y0, bmap, vx, vy, pv, fvx, fvy, signs, partsptr, pmap);
@@ -448,6 +449,8 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 					type = fix_type(partsData[i],inputData[4]);
 					if(type >= PT_NUM)
 						type = PT_DMND;	//Replace all invalid elements with diamond
+					if (modsave && modsave < 11 && type == PT_PIPE)
+						type = PT_PPIP;
 					
 					//Draw type
 					if (type==PT_STKM || type==PT_STKM2 || type==PT_FIGH)
@@ -515,6 +518,11 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 						if(fieldDescriptor & 0x10)
 						{
 							if(i++ >= partsDataLen) goto fail;
+							if(fieldDescriptor & 0x1000)
+							{
+								if(i+1 >= partsDataLen) goto fail;
+								i += 2;
+							}
 						}
 					}
 					
@@ -652,7 +660,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	pressDataLen = 0;
 	if (!wallData || !fanData || !pressData)
 	{
-		puts("Save Error\n");
+		puts("Save Error, out of memory\n");
 		outputData = NULL;
 		goto fin;
 	}
@@ -709,7 +717,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	partsPosLink = calloc(NPART, sizeof(unsigned));
 	if (!partsPosFirstMap || !partsPosLastMap || !partsPosCount || !partsPosLink)
 	{
-		puts("Save Error\n");
+		puts("Save Error, out of memory\n");
 		outputData = NULL;
 		goto fin;
 	}
@@ -746,7 +754,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	partsPosDataLen = 0;
 	if (!partsPosData)
 	{
-		puts("Save Error\n");
+		puts("Save Error, out of memory\n");
 		outputData = NULL;
 		goto fin;
 	}
@@ -767,7 +775,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	//Copy parts data
 	/* Field descriptor format:
 	|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|
-	|	PROP_MOVS	|	  flags		|								|		tmp2[2]	|		tmp2	|	ctype[2]	|		vy		|		vx		|	dcololour	|	ctype[1]	|		tmp[2]	|		tmp[1]	|		life[2]	|		life[1]	|	temp dbl len|
+	|	PROP_MOVS	|	  flags		|				|	tmp[3+4]	|		tmp2[2]	|		tmp2	|	ctype[2]	|		vy		|		vx		|	dcololour	|	ctype[1]	|		tmp[2]	|		tmp[1]	|		life[2]	|		life[1]	|	temp dbl len|
 	life[2] means a second byte (for a 16 bit field) if life[1] is present
 	*/
 	partsData = malloc(NPART * (sizeof(particle)+1));
@@ -776,7 +784,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	partsCount = 0;
 	if (!partsData || !partsSaveIndex)
 	{
-		puts("Save Error\n");
+		puts("Save Error, out of memory\n");
 		outputData = NULL;
 		goto fin;
 	}
@@ -834,7 +842,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 					}
 				}
 				
-				//Tmp (optional), 1 to 2 bytes
+				//Tmp (optional), 1, 2 or 4 bytes
 				if(partsptr[i].tmp)
 				{
 					fieldDesc |= 1 << 3;
@@ -843,6 +851,12 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 					{
 						fieldDesc |= 1 << 4;
 						partsData[partsDataLen++] = partsptr[i].tmp >> 8;
+						if(partsptr[i].tmp > 65535)
+						{
+							fieldDesc |= 1 << 12;
+							partsData[partsDataLen++] = (partsptr[i].tmp&0xFF000000)>>24;
+							partsData[partsDataLen++] = (partsptr[i].tmp&0x00FF0000)>>16;
+						}
 					}
 				}
 				
@@ -951,7 +965,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	soapLinkDataLen = 0;
 	if (!soapLinkData)
 	{
-		puts("Save Error\n");
+		puts("Save Error, out of memory\n");
 		outputData = NULL;
 		goto fin;
 	}
@@ -1066,7 +1080,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	outputData = (unsigned char*)malloc(outputDataLen);
 	if (!outputData)
 	{
-		puts("Save Error\n");
+		puts("Save Error, out of memory\n");
 		outputData = NULL;
 		goto fin;
 	}
@@ -1654,6 +1668,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					}
 					if(partsData[i] >= PT_NUM)
 						partsData[i] = PT_DMND;	//Replace all invalid elements with diamond
+					if (modsave && modsave < 11 && partsData[i] == PT_PIPE)
+						partsData[i] = PT_PPIP;
 					if(pmap[y][x] && posCount==0) // Check posCount to make sure an existing particle is not replaced twice if two particles are saved in that position
 					{
 						//Replace existing particle or allocated block
@@ -1725,6 +1741,13 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						{
 							if(i >= partsDataLen) goto fail;
 							partsptr[newIndex].tmp |= (((unsigned)partsData[i++]) << 8);
+							//Read 3rd and 4th bytes
+							if(fieldDescriptor & 0x1000)
+							{
+								if(i+1 >= partsDataLen) goto fail;
+								partsptr[newIndex].tmp |= (((unsigned)partsData[i++]) << 24);
+								partsptr[newIndex].tmp |= (((unsigned)partsData[i++]) << 16);
+							}
 						}
 						if (modsave && partsptr[newIndex].type == PT_PIPE)
 							partsptr[newIndex].tmp = fix_type(partsptr[newIndex].tmp, inputData[4]);

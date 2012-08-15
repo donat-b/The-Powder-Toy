@@ -241,7 +241,8 @@
 #define PT_FIGH 158
 #define PT_FRAY 159
 #define PT_REPL 160
-#define PT_NORMAL_NUM 161
+#define PT_PPIP 161
+#define PT_NORMAL_NUM 162
 
 #define PT_MOVS PT_NORMAL_NUM
 #define PT_ANIM PT_NORMAL_NUM+1
@@ -259,7 +260,7 @@
 #define PT_COND PT_NORMAL_NUM+13
 #define PT_PWHT PT_NORMAL_NUM+14
 #define PT_EXPL PT_NORMAL_NUM+15
-#define PT_NUM 177
+#define PT_NUM 178
 
 #define R_TEMP 22
 #define MAX_TEMP 9999
@@ -387,6 +388,7 @@ int graphics_WARP(GRAPHICS_FUNC_ARGS);
 int graphics_EMBR(GRAPHICS_FUNC_ARGS);
 int graphics_WOOD(GRAPHICS_FUNC_ARGS);
 int graphics_PLNT(GRAPHICS_FUNC_ARGS);
+int graphics_BRCK(GRAPHICS_FUNC_ARGS);
 
 void TRON_init_graphics();
 
@@ -521,6 +523,7 @@ int update_POWERED(UPDATE_FUNC_ARGS);
 int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS);
 void STKM_init_legs(playerst* playerp, int i);
 void STKM_interact(playerst* playerp, int i, int x, int y);
+void PPIP_flood_trigger(int x, int y, int sparkedBy);
 
 struct part_type
 {
@@ -914,6 +917,7 @@ extern int portal_ry[8];
 
 extern int wire_placed;
 extern int force_stacking_check;
+extern int ppip_changed;
 
 extern playerst player;
 extern playerst player2;
@@ -997,6 +1001,8 @@ void GRAV_update();
 void LOVELOLZ_update();
 
 void WIRE_update();
+
+void PPIP_update();
 
 void LIFE_update();
 
