@@ -341,9 +341,7 @@ lua code in saves, instead of just running automatically.
 
 
 Bugs:
-bray graphics
-finding stickmen
-//None (at least that I know of)
+None (at least that I know of)
 
 
 

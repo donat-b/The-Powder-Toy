@@ -2295,7 +2295,7 @@ void render_parts(pixel *vid)
 				if(pixel_mode & PMODE_BLUR && !(render_mode & PMODE_BLUR))
 					pixel_mode |= PMODE_FLAT;
 				if(pixel_mode & PMODE_GLOW && !(render_mode & PMODE_GLOW))
-					pixel_mode |= PMODE_FLAT;
+					pixel_mode |= PMODE_BLEND;
 					
 				pixel_mode &= render_mode;
 				
@@ -2459,7 +2459,7 @@ void render_parts(pixel *vid)
 						drawtext(vid, mousex-8-2*(parts[i].life<100)-2*(parts[i].life<10), mousey-12, buff, 255, 255, 255, 255);
 					}
 
-					if (colour_mode!=COLOUR_HEAT)
+					if (colour_mode!=COLOUR_HEAT && !(finding & ~0x8))
 					{
 						if (cplayer->elem<PT_NUM)
 						{
@@ -2532,7 +2532,7 @@ void render_parts(pixel *vid)
 						legb = 255;
 					}
 
-					if (colour_mode==COLOUR_HEAT)
+					if (colour_mode==COLOUR_HEAT || (finding & ~0x8))
 					{
 						legr = colr;
 						legg = colg;
