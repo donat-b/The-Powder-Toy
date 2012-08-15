@@ -5060,7 +5060,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					{
 						commentobj = cJSON_GetArrayItem(root, i%20);
 						if(commentobj){
-							if((tmpobj = cJSON_GetObjectItem(commentobj, "Username")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
+							if((tmpobj = cJSON_GetObjectItem(commentobj, "FormattedUsername")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "UserID")) && tmpobj->type == cJSON_String) { info->commentauthorIDs[i] = (char*)calloc(16,sizeof(char*)); strncpy(info->commentauthorIDs[i], tmpobj->valuestring, 16); }
 							//if((tmpobj = cJSON_GetObjectItem(commentobj, "Gravatar")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "Text")) && tmpobj->type == cJSON_String)  { info->comments[i] = (char*)calloc(512,sizeof(char*)); strncpy(info->comments[i], tmpobj->valuestring, 512); }
@@ -5155,12 +5155,12 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						{
 							int r = 255, g = 255, bl = 255;
 							char* author = info->commentauthors[cc];
-							if (!strcmp(author,"jacob1") || !strcmp(author,"Simon") || !strcmp(author,"Lockheedmartin") || !strcmp(author,"lolzy") || !strcmp(author,"ief015") || !strcmp(author,"Catelite") || !strcmp(author,"doxin") || !strcmp(author,"FrankBro")  || !strcmp(author,"cracker64")|| !strcmp(author,"Xenocide") || !strcmp(author,"devast8a") || !strcmp(author,"triclops200") || !strcmp(author,"jacksonmj"))
-							{ // The way my mod gets comments doesn't have the /t for moderator colors, so they need to be recreated here
+							/*if (!strcmp(author,"jacob1") || !strcmp(author,"Simon") || !strcmp(author,"Lockheedmartin") || !strcmp(author,"lolzy") || !strcmp(author,"ief015") || !strcmp(author,"Catelite") || !strcmp(author,"doxin") || !strcmp(author,"FrankBro")  || !strcmp(author,"cracker64")|| !strcmp(author,"Xenocide") || !strcmp(author,"devast8a") || !strcmp(author,"triclops200") || !strcmp(author,"jacksonmj"))
+							{ // The way my mod gets comments doesn't have the /t for moderator colors, so they need to be recreated here (now fixed server side for tpt++)
 								g = 170;
 								r = 32;
-							}
-							else if (!strcmp(author,svf_user))
+							}*/
+							if (!strcmp(author,svf_user))
 							{
 								bl = 100;
 							}
@@ -5169,28 +5169,30 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 								g = 100;
 								bl = 100;
 							}
-							if (show_ids && info->commentauthorIDs[cc])
+
+							if (show_ids && info->commentauthorIDs[cc]) //Draw author id
 							{
 								drawtext(vid_buf, 265+(XRES/2)-textwidth(info->commentauthorIDs[cc]), ccy+60+comment_scroll, info->commentauthorIDs[cc], 255, 255, 0, 255);
 								if (b && !bq && mx > 265+(XRES/2)-textwidth(info->commentauthorIDs[cc]) && mx < 265+(XRES/2) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll)
 									show_ids = 0;
 							}
-							else if (info->commenttimestamps[cc])
+							else if (info->commenttimestamps[cc]) //, or draw timestamp
 							{
 								drawtext(vid_buf, 265+(XRES/2)-textwidth(info->commenttimestamps[cc]), ccy+60+comment_scroll, info->commenttimestamps[cc], 255, 255, 0, 255);
 								if (b && !bq && mx > 265+(XRES/2)-textwidth(info->commenttimestamps[cc]) && mx < 265+(XRES/2) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll)
 									show_ids = 1;
 							}
-							drawtext(vid_buf, 61+(XRES/2), ccy+60+comment_scroll, info->commentauthors[cc], r, g, bl, 255);
+							drawtext(vid_buf, 61+(XRES/2), ccy+60+comment_scroll, info->commentauthors[cc], r, g, bl, 255); //Draw author
+
 							if (b && !bq && mx > 61+(XRES/2) && mx < 61+(XRES/2)+textwidth(info->commentauthors[cc]) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll)
-								if (sdl_mod & KMOD_CTRL)
+								if (sdl_mod & KMOD_CTRL) //open profile
 								{
 									char link[128];
 									strcpy(link, "http://" SERVER "/User.html?Name=");
 									strcaturl(link, info->commentauthors[cc]);
 									open_link(link);
 								}
-								else
+								else //, or search for a user's saves
 								{
 									sprintf(search_expr,"user:%s",info->commentauthors[cc]);
 									search_ui(vid_buf);
@@ -5198,8 +5200,9 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 									goto finish;
 								}
 						}
+
 						ccy += 12;
-						if (ccy+comment_scroll>=0)
+						if (ccy+comment_scroll>=0) //draw the comment
 						{
 							if ((ccy + 72 + comment_scroll + ((textwidth(info->comments[cc])/(XRES+BARSIZE-100-((XRES/2)+1)-20)))*12)>=(YRES+MENUSIZE-56-(svf_login?70:0)))
 								break;
@@ -5212,7 +5215,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							if (cc == info->comment_count-1)
 								comment_scroll = 0;
 						}
-						if (ccy+52+comment_scroll<YRES+MENUSIZE-50 && ccy+comment_scroll>-3) {
+						if (ccy+52+comment_scroll<YRES+MENUSIZE-50 && ccy+comment_scroll>-3) { //draw the line that separates comments
 							draw_line(vid_buf, 50+(XRES/2)+2, ccy+52+comment_scroll, XRES+BARSIZE-51, ccy+52+comment_scroll, 100, 100, 100, XRES+BARSIZE);
 						}
 					}

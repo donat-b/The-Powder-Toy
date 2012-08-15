@@ -1154,6 +1154,7 @@ int drawtextwrap(pixel *vid, int x, int y, int w, const char *s, int r, int g, i
 				x = sx;
 				rw = 0;
 				y += FONT_H+2;
+				rh+=FONT_H+2;
 			}
 			else if (*s == '\b')
 			{

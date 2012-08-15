@@ -17,6 +17,7 @@ powder.pref
 /Debug/
 /Release/
 /Normal/
+/official/
 /build/stamps/*
 /includes/SDL/*
 /includes/lua5.1/*
