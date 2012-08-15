@@ -85,8 +85,8 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 int fix_type(int type, int version)
 {
 	int max = 161;
-	if (version <= 73)
-		max = 161;
+	if (version >= 82)
+		max = 162;
 	if (type >= max)
 	{
 		type += (PT_NORMAL_NUM-max);

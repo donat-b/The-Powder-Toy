@@ -343,6 +343,7 @@ lua code in saves, instead of just running automatically.
 Bugs:
 75243
 bray graphics
+finding stickmen
 //None (at least that I know of)
 
 
