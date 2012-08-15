@@ -18,6 +18,7 @@ powder.pref
 /Release/
 /Normal/
 /official/
+/OpenGL/
 /build/stamps/*
 /includes/SDL/*
 /includes/lua5.1/*

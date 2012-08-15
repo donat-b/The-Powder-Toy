@@ -814,7 +814,7 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, int b, unsigned pc)
 					if (b < 15) bd = 1;
 					rc = fmax(0,r); gc = fmax(0,g); bc = fmax(0,b);
 					rc = fmin(150,rc); gc = fmin(200,gc); bc = fmin(200,bc);
-					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = rc*256*256+gc*256+bc;
+					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(rc, gc, bc);
 				}
 			}
 			break;
@@ -4335,10 +4335,10 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 		}
 		else if (CURRENT_BRUSH==TRI_BRUSH)
 		{
-			glVertex2f(x+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)+ry+1);
-			glVertex2f(x+rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)-ry+1);
-			glVertex2f(x-rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)-ry+1);
-			glVertex2f(x+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)+ry+1);
+			glVertex2f(x+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)-ry-1);
+			glVertex2f(x+rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)+ry-1);
+			glVertex2f(x-rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)+ry-1);
+			glVertex2f(x+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)-ry-1);
 		}
 		glEnd();
 		glDisable(GL_COLOR_LOGIC_OP);

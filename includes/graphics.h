@@ -251,6 +251,7 @@ void update_display_modes();
 #ifdef OGLR
 void clearScreen(float alpha);
 void ogl_blit(int x, int y, int w, int h, pixel *src, int pitch, int scale);
+void loadShaders();
 #endif
 
 #endif

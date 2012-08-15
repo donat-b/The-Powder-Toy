@@ -7021,14 +7021,14 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 			{
 				parts[i].tmp2 = 0;
 			}* /
-		decocolor = (currA<<24)+PIXRGB(currR,currG,currB);
+		decocolor = (currA<<24)|PIXRGB(currR,currG,currB);
 	}*/
 	/*for (i = 0; i <= parts_lastActiveIndex; i++)
 		if (parts[i].type == PT_ANIM)
 		{
 			parts[i].tmp2 = 0;
 		}*/
-	decocolor = (currA<<24)+PIXRGB(currR,currG,currB);
+	decocolor = (currA<<24)|PIXRGB(currR,currG,currB);
 }
 struct savelist_e {
 	char *filename;

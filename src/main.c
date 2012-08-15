@@ -247,7 +247,7 @@ int realistic = 0;
 int unlockedstuff = 0;
 int old_menu = 0;
 int loop_time = 0;
-unsigned int decocolor = (255<<24)+PIXRGB(255,0,0);
+unsigned int decocolor = (255<<24)|PIXRGB(255,0,0);
 
 int drawinfo = 0;
 int elapsedTime = 0;
@@ -2711,7 +2711,7 @@ int main(int argc, char *argv[])
 									if (cr && cr<255) cr++;
 									if (cg && cg<255) cg++;
 									if (cb && cb<255) cb++;
-									decocolor = (255<<24)+PIXRGB(cr, cg, cb);
+									decocolor = (255<<24)|PIXRGB(cr, cg, cb);
 								}
 							}
 							else
