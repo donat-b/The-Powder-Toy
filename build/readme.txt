@@ -341,23 +341,21 @@ lua code in saves, instead of just running automatically.
 
 
 Bugs:
-None (at least that I know of)
-
-fixes for official:
-emp flash not reset on save load
-old console commands don't check all particles
-fix heating/cooling energy particles
-PROP interface glitch
-NULL saves saving
+75243
+bray graphics
+//None (at least that I know of)
 
 
 
 
 Future Ideas/TODO: > means currently being worked on/added next
+tpt.ambientheat setting
+urlStream << "http://" << SERVER << "/Browse/Delete.json?ID=" << saveID << "&Mode=Unpublish&Key=" << authUser.SessionKey;
 Add things from tpt++ that look cool
 option to disable copying/resaving in your saves (maybe not actually limit though)
 edge loop (like powder sim)
 a few more HUD options (wall names, photon thing, ...)
+Protons?
 don't save lua code inside of INDI, since this isn't a lua script anymore
 command element to run old commands
 new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
