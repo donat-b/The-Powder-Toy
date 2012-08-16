@@ -347,13 +347,11 @@ None (at least that I know of)
 
 
 Future Ideas/TODO: > means currently being worked on/added next
-tpt.ambientheat setting
-urlStream << "http://" << SERVER << "/Browse/Delete.json?ID=" << saveID << "&Mode=Unpublish&Key=" << authUser.SessionKey;
-Add things from tpt++ that look cool
-option to disable copying/resaving in your saves (maybe not actually limit though)
-edge loop (like powder sim)
 a few more HUD options (wall names, photon thing, ...)
+edge loop (like powder sim)
+Add things from tpt++ that look cool
 Protons?
 don't save lua code inside of INDI, since this isn't a lua script anymore
 command element to run old commands
+urlStream << "http://" << SERVER << "/Browse/Delete.json?ID=" << saveID << "&Mode=Unpublish&Key=" << authUser.SessionKey; //adding this would mean I would have to redo how logging in works to get the sessionkey, I might do that later...
 new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127

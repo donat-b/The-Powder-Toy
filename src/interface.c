@@ -6411,6 +6411,7 @@ const static struct command_match matches [] = {
 	{"tpt.newtonian_gravity(", "tpt.n"},
 	{"tpt.ambient_heat(", "tpt.a"},
 	{"tpt.decorations_enable(", "tpt.d"},
+	{"tpt.outside_airtemp(", "tpt.o"},
 
 	{"presHighType", "presHighT"},
 	{"presLowValue", "presLowV"},

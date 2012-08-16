@@ -36,7 +36,8 @@ float cb_hv[YRES/CELL][XRES/CELL];
 
 float fvx[YRES/CELL][XRES/CELL], fvy[YRES/CELL][XRES/CELL];
 
-float hv[YRES/CELL][XRES/CELL], ohv[YRES/CELL][XRES/CELL]; // For Ambient Heat 
+float hv[YRES/CELL][XRES/CELL], ohv[YRES/CELL][XRES/CELL]; // For Ambient Heat
+float outside_temp = 295.15f;
 
 void make_kernel(void) //used for velocity
 {
@@ -58,23 +59,23 @@ void update_airh(void)
 	int x, y, i, j;
 	float odh, dh, dx, dy, f, tx, ty;
 	
-	for (i=0; i<YRES/CELL; i++) //reduces pressure/velocity on the edges every frame
+	for (i=0; i<YRES/CELL; i++) //set ambient heat temp on the edges every frame
 	{
-		hv[i][0] = 295.15f;
-		hv[i][1] = 295.15f;
-		hv[i][XRES/CELL-3] = 295.15f;
-		hv[i][XRES/CELL-2] = 295.15f;
-		hv[i][XRES/CELL-1] = 295.15f;
+		hv[i][0] = outside_temp;
+		hv[i][1] = outside_temp;
+		hv[i][XRES/CELL-3] = outside_temp;
+		hv[i][XRES/CELL-2] = outside_temp;
+		hv[i][XRES/CELL-1] = outside_temp;
 	}
-	for (i=0; i<XRES/CELL; i++) //reduces pressure/velocity on the edges every frame
+	for (i=0; i<XRES/CELL; i++) //set ambient heat temp on the edges every frame
 	{
-		hv[0][i] = 295.15f;
-		hv[1][i] = 295.15f;
-		hv[YRES/CELL-3][i] = 295.15f;
-		hv[YRES/CELL-2][i] = 295.15f;
-		hv[YRES/CELL-1][i] = 295.15f;
+		hv[0][i] = outside_temp;
+		hv[1][i] = outside_temp;
+		hv[YRES/CELL-3][i] = outside_temp;
+		hv[YRES/CELL-2][i] = outside_temp;
+		hv[YRES/CELL-1][i] = outside_temp;
 	}
-	for (y=0; y<YRES/CELL; y++) //update velocity and pressure
+	for (y=0; y<YRES/CELL; y++) //update ambient heat
 	{
 		for (x=0; x<XRES/CELL; x++)
 		{

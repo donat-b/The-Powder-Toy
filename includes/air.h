@@ -32,6 +32,7 @@ extern float cb_hv[YRES/CELL][XRES/CELL];
 extern float fvx[YRES/CELL][XRES/CELL], fvy[YRES/CELL][XRES/CELL];
 
 extern float hv[YRES/CELL][XRES/CELL], ohv[YRES/CELL][XRES/CELL]; // Ambient Heat
+extern float outside_temp;
 
 extern float kernel[9];
 

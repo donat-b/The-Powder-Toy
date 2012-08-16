@@ -127,6 +127,7 @@ void luacon_open(){
 		{"load_stamp",&luatpt_load_stamp},
 		{"set_selected",&luatpt_set_selected},
 		{"set_decocol",&luatpt_set_decocolor},
+		{"outside_airtemp",&luatpt_outside_airtemp},
 		{NULL,NULL}
 	};
 
@@ -2658,6 +2659,14 @@ int luatpt_set_decocolor(lua_State* l)
 	}
 	decocolor = color;
 	return 0;
+}
+
+int luatpt_outside_airtemp(lua_State* l)
+{
+	float newtemp = luaL_optnumber(l, 1, outside_temp);
+	if (newtemp < MIN_TEMP || newtemp > MAX_TEMP)
+		return luaL_error(l, "Invalid temperature: %i", newtemp);
+	outside_temp = newtemp;
 }
 
 void addluastuff()
