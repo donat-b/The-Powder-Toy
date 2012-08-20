@@ -1668,8 +1668,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					}
 					if(partsData[i] >= PT_NUM)
 						partsData[i] = PT_DMND;	//Replace all invalid elements with diamond
-					if (modsave && modsave < 11 && partsData[i] == PT_PIPE)
-						partsData[i] = PT_PPIP;
 					if(pmap[y][x] && posCount==0) // Check posCount to make sure an existing particle is not replaced twice if two particles are saved in that position
 					{
 						//Replace existing particle or allocated block
@@ -1702,6 +1700,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					
 					if (modsave)
 						partsptr[newIndex].type = fix_type(partsptr[newIndex].type, inputData[4]);
+					if (modsave && modsave < 11 && partsData[i] == PT_PIPE)
+						partsData[i] = partsptr[newIndex].type = PT_PPIP;
 
 					//Read temp
 					if(fieldDescriptor & 0x01)

@@ -1766,7 +1766,7 @@ int main(int argc, char *argv[])
 							if (k != -1)
 							{
 								parts[k].ctype = 0;
-								parts[k].life = 0;
+								parts[k].life = 1;
 								parts[k].temp = parts[i].temp;
 							}
 						}
