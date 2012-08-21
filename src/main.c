@@ -2536,7 +2536,7 @@ int main(int argc, char *argv[])
 			{
 				int signi;
 
-				c = (!(b&4)) ? sl : sr; //c is element to be spawned
+				c = (b&1) ? sl : sr; //c is element to be spawned
 				if (is_DECOTOOL(sl) && b == 4)
 					c = DECO_ERASE;
 				su = c;
