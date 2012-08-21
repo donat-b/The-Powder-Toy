@@ -1,3 +1,4 @@
+remove this line to use/enable this script
 --Cracker64's Lua Multiplayer Script
 --See forum post http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=14352 for more info
 --Update to build 185 to have the mouse wheel change brush size!

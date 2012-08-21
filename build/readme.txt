@@ -342,7 +342,6 @@ lua code in saves, instead of just running automatically.
 
 
 Bugs:
-Fix H2 burning during fusion from the fusion changes
 None (at least that I know of)
 
 

@@ -2477,7 +2477,7 @@ int luatpt_moving_solid(lua_State* l)
 		if (el<0 || el>=PT_NUM)
 			return luaL_error(l, "Unrecognised element number '%d'", el);
 	} else {
-		name = (char*)luaL_optstring(l, 1, "dust");
+		name = (char*)luaL_optstring(l, 1, "");
 		if (!console_parse_type(name, &el, NULL))
 			return luaL_error(l, "Unrecognised element '%s'", name);
 	}

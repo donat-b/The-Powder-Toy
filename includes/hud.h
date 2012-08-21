@@ -29,8 +29,8 @@ typedef struct hud hud;
 
 static hud hud_menu[] =
 {
-	{"BACK", PIXPACK(0xFF7F00), 0, "Go Back"},
-	{"UI", PIXPACK(0x20D8FF), 0, "Change the HUD on the left"},
+	{"BACK",   PIXPACK(0xFF7F00), 0, "Go Back"},
+	{"UI",     PIXPACK(0x20D8FF), 0, "Change the HUD on the left"},
 	{"INFO",   PIXPACK(0xFFFFFF), 0, "Change the top right HUD with particle properties"},
 	{"CORD",   PIXPACK(0xFFFFFF), 0, "Change the bottom right HUD with corrdinate info"},
 	{"RSET",   PIXPACK(0xFF8A08), 0, "Resets the HUD's back to their default values"},
@@ -51,7 +51,7 @@ static hud hud_menu[] =
 	{"CTYP", PIXPACK(0x000000), 2, "Puts the ctype in parentheses"},
 	{"CTP2", PIXPACK(0x000000), 2, "Display invalid ctypes as numbers instead of showing no ctype"},
 	{"MOLT", PIXPACK(0x000000), 2, "Molten [NAME] instead of name & ctype"},
-	{"PIPE", PIXPACK(0x000000), 2, "Pipe ([NAME]) instead of name & not useful ctype"},
+	{"PIPE", PIXPACK(0x000000), 2, "PIPE ([NAME]) instead of name & not useful ctype"},
 	{"CELC", PIXPACK(0x000000), 2, "Show temperatures in Celcius"},
 	{"FARH", PIXPACK(0x000000), 2, "Show temperatures in Farenheit"},
 	{"KELV", PIXPACK(0x000000), 2, "Show temperatures in Kelvin"},
