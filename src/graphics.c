@@ -50,6 +50,7 @@
 #ifdef LUACONSOLE
 #include <luaconsole.h>
 #endif
+#include <hud.h>
 
 #if defined(LIN32) || defined(LIN64)
 #include "icon.h"

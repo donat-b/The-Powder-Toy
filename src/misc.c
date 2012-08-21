@@ -27,6 +27,7 @@
 #include "graphics.h"
 #include "powder.h"
 #include "gravity.h"
+#include "hud.h"
 #include <icondoc.h>
 #include <update.h>
 #if defined WIN32

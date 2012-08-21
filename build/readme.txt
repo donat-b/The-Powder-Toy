@@ -29,6 +29,7 @@ BoredInSchool - fusion
 tommig - VOID ctypes
 Galacticruler - SING can emit gravity instead of pressure (set tmp2 to 1, or 2 for both)
 Joeboy25 - AMTR ctypes
+baizuo - Multiple element highlights
 The-Fall - GEL and SPNG can absorb water from more elements (ex. PSTE + SPNG -> CLST)
 
 
@@ -341,13 +342,13 @@ lua code in saves, instead of just running automatically.
 
 
 Bugs:
+Fix H2 burning during fusion from the fusion changes
 None (at least that I know of)
 
 
 
 
 Future Ideas/TODO: > means currently being worked on/added next
-a few more HUD options (wall names, photon thing, ...)
 edge loop (like powder sim)
 Add things from tpt++ that look cool
 Protons?

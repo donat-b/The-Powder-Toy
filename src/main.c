@@ -858,6 +858,7 @@ int main(int argc, char *argv[])
 
 	memcpy(ptypes2,ptypes,sizeof(ptypes));
 	memcpy(ptransitions2,ptransitions,sizeof(ptransitions));
+	hud_defaults();
 	memcpy(hud_current,hud_modnormal,sizeof(hud_current));
 
 	gravity_init();
@@ -1657,21 +1658,8 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='d' && ((sdl_mod & (KMOD_CTRL)) || !player2.spwn))
 			{
-				if (alt_hud == 1)
-				{
-					if (DEBUG_MODE)
-						memcpy(hud_current,hud_modnormal,sizeof(hud_current));
-					else
-						memcpy(hud_current,hud_moddebug,sizeof(hud_current));
-				}
-				else
-				{
-					if (DEBUG_MODE)
-						memcpy(hud_current,hud_normal,sizeof(hud_current));
-					else
-						memcpy(hud_current,hud_debug,sizeof(hud_current));
-				}
 				DEBUG_MODE = !DEBUG_MODE;
+				set_current_hud();
 			}
 			if (sdl_key=='i')
 			{

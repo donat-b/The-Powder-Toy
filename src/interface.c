@@ -47,6 +47,7 @@
 #endif
 #include <powdergraphics.h>
 #include "save.h"
+#include "hud.h"
 #include "cJSON.h"
 
 SDLMod sdl_mod;
@@ -2883,13 +2884,30 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 	}
 	else if (i == SC_HUD) //HUD changer
 	{
+		fwidth = 0;
+		for (n = 0; n < HUD_NUM; n++)
+		{
+			if (hud_menu[n].menunum == hud_menunum || n == 0)
+			{
+				fwidth++;
+			}
+		}
+		fwidth *= 31;
+		if (!old_menu && fwidth > XRES-BARSIZE) { //fancy scrolling
+			xoff = scrollbar(fwidth, mx, y);
+		}
 		for (n = 0; n < HUD_NUM; n++)
 		{
 			if (hud_menu[n].menunum == hud_menunum || n == 0)
 			{
 				pixel color = hud_menu[n].color;
-				if (color == 0)
+				if (color == PIXPACK(0x000000))
 					color = ptypes[(n*53+7)%(PT_NUM-1)+1].pcolors;
+				if (x-xoff > XRES-26 || x-xoff < 0)
+				{
+					x -= 31;
+					continue;
+				}
 				x -= draw_tool_xy(vid_buf, x-xoff, y, HUD_START+n, color)+5;
 
 				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
@@ -3000,7 +3018,7 @@ void menu_draw_text(int h, int i)
 		sprintf(favtext, fav[h-FAV_START].description);
 		if (h == FAV_HUD)
 		{
-			if (realistic)
+			if (alt_hud)
 				strappend(favtext, "alternate HUD");
 			else
 				strappend(favtext, "original HUD");
@@ -3093,20 +3111,7 @@ void menu_select_element(int b, int h)
 			else if (h == FAV_HUD)
 			{
 				alt_hud = !alt_hud;
-				if (alt_hud == 1)
-				{
-					if (!DEBUG_MODE)
-						memcpy(hud_current,hud_modnormal,sizeof(hud_current));
-					else
-						memcpy(hud_current,hud_moddebug,sizeof(hud_current));
-				}
-				else
-				{
-					if (!DEBUG_MODE)
-						memcpy(hud_current,hud_normal,sizeof(hud_current));
-					else
-						memcpy(hud_current,hud_debug,sizeof(hud_current));
-				}
+				set_current_hud();
 			}
 			else if (h == FAV_FIND)
 			{
@@ -3186,14 +3191,8 @@ void menu_select_element(int b, int h)
 			}
 			else if (h == HUD_START + 4)
 			{
-				int hud_modnormal2[HUD_OPTIONS] = {1,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,0,0,0,0,0,2};
-				int hud_moddebug2[HUD_OPTIONS] =  {1,1,1,2,1,0,0,0,1,0,1,1,1,0,0,1,0,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,0,0,0,0,0,4};
-				int hud_normal2[HUD_OPTIONS] =    {0,0,1,0,0,0,0,0,1,1,1,0,0,1,1,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,0,0,0,0,0,2};
-				int hud_debug2[HUD_OPTIONS] =     {0,1,1,0,1,0,1,1,1,1,1,1,0,1,1,1,0,0,2,1,1,0,0,2,0,2,1,2,1,1,1,2,0,2,0,2,0,0,0,0,0,0,2};
-				memcpy(hud_modnormal,hud_modnormal2,sizeof(hud_modnormal));
-				memcpy(hud_moddebug,hud_moddebug2,sizeof(hud_moddebug));
-				memcpy(hud_normal,hud_normal2,sizeof(hud_normal));
-				memcpy(hud_debug,hud_debug2,sizeof(hud_debug));
+				hud_defaults();
+				set_current_hud();
 			}
 			else if (h < HUD_REALSTART)
 			{

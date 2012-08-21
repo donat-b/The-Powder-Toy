@@ -13,11 +13,41 @@ char infotext[512] = "";
 int wavelength_gfx = 0;
 int quickoptions_tooltip_fade_invert, it_invert = 0;
 
-int hud_modnormal[HUD_OPTIONS] = {1,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,0,0,0,0,0,2};
-int hud_moddebug[HUD_OPTIONS] =  {1,1,1,2,1,0,0,0,1,0,1,1,1,0,0,1,0,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,0,0,0,0,0,4};
-int hud_normal[HUD_OPTIONS] =    {0,0,1,0,0,0,0,0,1,1,1,0,0,1,1,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,0,0,0,0,0,2};
-int hud_debug[HUD_OPTIONS] =     {0,1,1,0,1,0,1,1,1,1,1,1,0,1,1,1,0,0,2,1,1,0,0,2,0,2,1,2,1,1,1,2,0,2,0,2,0,0,0,0,0,0,2};
+int hud_modnormal[HUD_OPTIONS];
+int hud_moddebug[HUD_OPTIONS];
+int hud_normal[HUD_OPTIONS];
+int hud_debug[HUD_OPTIONS];
 int hud_current[HUD_OPTIONS];
+
+void hud_defaults()
+{
+	int hud_modnormal2[HUD_OPTIONS] = {1,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,0,0,0,0,0,2,0,2,1,0,0,1,1};
+	int hud_moddebug2[HUD_OPTIONS] =  {1,1,1,2,1,0,0,0,1,0,1,1,1,0,0,1,0,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,0,0,0,0,0,4,0,4,1,0,0,1,1};
+	int hud_normal2[HUD_OPTIONS] =    {0,0,1,0,0,0,0,0,1,1,1,0,0,1,1,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,0,0,0,0,0,2,0,2,1,0,0,0,0};
+	int hud_debug2[HUD_OPTIONS] =     {0,1,1,0,1,0,1,1,1,1,1,1,0,1,1,1,0,0,2,1,1,0,0,2,0,2,1,2,1,1,1,2,0,2,0,2,0,0,0,0,0,0,2,0,2,1,0,0,0,0};
+	memcpy(hud_modnormal,hud_modnormal2,sizeof(hud_modnormal));
+	memcpy(hud_moddebug,hud_moddebug2,sizeof(hud_moddebug));
+	memcpy(hud_normal,hud_normal2,sizeof(hud_normal));
+	memcpy(hud_debug,hud_debug2,sizeof(hud_debug));
+}
+
+void set_current_hud()
+{
+	if (alt_hud == 1)
+	{
+		if (!DEBUG_MODE)
+			memcpy(hud_current,hud_modnormal,sizeof(hud_current));
+		else
+			memcpy(hud_current,hud_moddebug,sizeof(hud_current));
+	}
+	else
+	{
+		if (!DEBUG_MODE)
+			memcpy(hud_current,hud_normal,sizeof(hud_current));
+		else
+			memcpy(hud_current,hud_debug,sizeof(hud_current));
+	}
+}
 
 void hud_text_right(int x, int y)
 {
@@ -33,7 +63,7 @@ void hud_text_right(int x, int y)
 			if ((cr&0xFF) == PT_PINV && parts[cr>>8].tmp2)
 				cr = parts[cr>>8].tmp2;
 		}
-		if (!cr)
+		if (!cr || !hud_current[10])
 		{
 			wl = bmap[y/CELL][x/CELL];
 		}
@@ -44,26 +74,23 @@ void hud_text_right(int x, int y)
 			{
 				if ((cr&0xFF)==PT_LIFE && parts[cr>>8].ctype>=0 && parts[cr>>8].ctype<NGOLALT)
 				{
-					sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, gmenu[parts[cr>>8].ctype].name);
+					if (hud_current[49] || !hud_current[11])
+						sprintf(nametext, "%s, ", gmenu[parts[cr>>8].ctype].name);
+					else
+						sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, gmenu[parts[cr>>8].ctype].name);
 				}
 				else if (hud_current[13] && (cr&0xFF)==PT_LAVA && parts[cr>>8].ctype > 0 && parts[cr>>8].ctype < PT_NUM )
 				{
 					sprintf(nametext, "Molten %s, ", ptypes[parts[cr>>8].ctype].name);
 				}
-				else if (hud_current[14] && (cr&0xFF)==PT_PIPE && (parts[cr>>8].tmp&0xFF) > 0 && (parts[cr>>8].tmp&0xFF) < PT_NUM )
+				else if (hud_current[14] && hud_current[11] && ((cr&0xFF)==PT_PIPE || (cr&0xFF)==PT_PPIP) && (parts[cr>>8].tmp&0xFF) > 0 && (parts[cr>>8].tmp&0xFF) < PT_NUM )
 				{
-					char lowername[6];
-					int ix;
-					strcpy(lowername, ptypes[parts[cr>>8].tmp&0xFF].name);
-					for (ix = 0; lowername[ix]; ix++)
-						lowername[ix] = tolower(lowername[ix]);
-
-					sprintf(nametext, "Pipe with %s, ", lowername);
+					sprintf(nametext, "PIPE (%s), ", ptypes[parts[cr>>8].tmp&0xFF].name);
 				}
 				else if (hud_current[11])
 				{
 					int tctype = parts[cr>>8].ctype;
-					if ((cr&0xFF)==PT_PIPE && !hud_current[12])
+					if ((cr&0xFF)==PT_PIPE && hud_current[12]) //PIPE Overrides CTP2
 					{
 						tctype = parts[cr>>8].tmp&0xFF;
 					}
@@ -85,6 +112,10 @@ void hud_text_right(int x, int y)
 					sprintf(nametext,"Ctype: %s ", ptypes[parts[cr>>8].ctype].name);
 				else if (hud_current[12])
 					sprintf(nametext,"Ctype: %d ", parts[cr>>8].ctype);
+			}
+			else if (wl && hud_current[48])
+			{
+				sprintf(nametext, "%s, ", wtypes[wl-UI_ACTUALSTART].name);
 			}
 			else
 				sprintf(nametext,"");
@@ -119,6 +150,16 @@ void hud_text_right(int x, int y)
 				sprintf(tempstring,"Tmp2: %d, ",parts[cr>>8].tmp2);
 				strappend(heattext,tempstring);
 			}
+			if (hud_current[46])
+			{
+				sprintf(tempstring,"Dcolor: 0x%.8X, ",parts[cr>>8].dcolour);
+				strappend(heattext,tempstring);
+			}
+			if (hud_current[47])
+			{
+				sprintf(tempstring,"Flags: 0x%.8X, ",parts[cr>>8].flags);
+				strappend(heattext,tempstring);
+			}
 			if (hud_current[22])
 			{
 				sprintf(tempstring,"X: %0.*f, Y: %0.*f, ",hud_current[23],parts[cr>>8].x,hud_current[23],parts[cr>>8].y);
@@ -129,12 +170,11 @@ void hud_text_right(int x, int y)
 				sprintf(tempstring,"Vx: %0.*f, Vy: %0.*f, ",hud_current[25],parts[cr>>8].vx,hud_current[25],parts[cr>>8].vy);
 				strappend(heattext,tempstring);
 			}
-			if ((cr&0xFF)==PT_PHOT) wavelength_gfx = parts[cr>>8].ctype;
+			if ((cr&0xFF)==PT_PHOT && hud_current[45]) wavelength_gfx = parts[cr>>8].ctype;
 		}
-		else if (wl)
+		else if (wl && hud_current[48])
 		{
-			if (hud_current[10])
-				sprintf(heattext, "%s, ", wtypes[wl-UI_ACTUALSTART].name);
+			sprintf(heattext, "%s, ", wtypes[wl-UI_ACTUALSTART].name);
 		}
 		else
 		{
@@ -175,6 +215,11 @@ void hud_text_right(int x, int y)
 		if (hud_current[32])
 		{
 			sprintf(tempstring,"Pressure: %0.*f",hud_current[33],pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+			strappend(coordtext,tempstring);
+		}
+		if (hud_current[43])
+		{
+			sprintf(tempstring,"VX: %0.*f VY: %0.*f",hud_current[44],vx[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL],hud_current[44],vy[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
 			strappend(coordtext,tempstring);
 		}
 		if (strlen(coordtext) > 0 && coordtext[strlen(coordtext)-1] == ' ')
