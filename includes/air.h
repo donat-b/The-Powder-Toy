@@ -42,6 +42,4 @@ void update_airh(void);
 
 void update_air(void);
 
-void clear_pressure();
-
 #endif

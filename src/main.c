@@ -366,7 +366,9 @@ void clear_sim(void)
 	pfree = 0;
 	parts_lastActiveIndex = 0;
 	memset(pmap, 0, sizeof(pmap));
-	clear_pressure();
+	memset(pv, 0, sizeof(pv));
+	memset(vx, 0, sizeof(vx));
+	memset(vy, 0, sizeof(vy));
 	memset(fvx, 0, sizeof(fvx));
 	memset(fvy, 0, sizeof(fvy));
 	memset(photons, 0, sizeof(photons));
@@ -393,7 +395,7 @@ void clear_sim(void)
 		memset(gravp, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
 	for(x = 0; x < XRES/CELL; x++){
 		for(y = 0; y < YRES/CELL; y++){
-			ohv[y][x] = cb_hv[y][x] = hv[y][x] = 273.15f+22.0f; //Set to room temperature
+			hv[y][x] = 273.15f+22.0f; //Set to room temperature
 		}
 	}
 	numballs = 0;
@@ -1790,7 +1792,13 @@ int main(int argc, char *argv[])
 				}
 				else
 				{
-					clear_pressure();
+					for (nx = 0; nx<XRES/CELL; nx++)
+						for (ny = 0; ny<YRES/CELL; ny++)
+						{
+							pv[ny][nx] = 0;
+							vx[ny][nx] = 0;
+							vy[ny][nx] = 0;
+						}
 				}
 			}
 

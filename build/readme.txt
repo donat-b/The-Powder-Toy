@@ -356,7 +356,6 @@ None (at least that I know of)
 
 
 Future Ideas/TODO: > means currently being worked on/added next
-edge loop (like powder sim)
 Add things from tpt++ that look cool
 Protons?
 don't save lua code inside of INDI, since this isn't a lua script anymore

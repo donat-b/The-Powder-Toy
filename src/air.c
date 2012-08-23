@@ -305,15 +305,3 @@ void update_air(void)
 		memcpy(pv, opv, sizeof(pv));
 	}
 }
-void clear_pressure()
-{
-	memset(pv, 0, sizeof(pv));
-	memset(cb_pv, 0, sizeof(cb_pv));
-	memset(opv, 0, sizeof(opv));
-	memset(vx, 0, sizeof(vx));
-	memset(cb_vx, 0, sizeof(cb_vx));
-	memset(ovx, 0, sizeof(ovx));
-	memset(vy, 0, sizeof(vy));
-	memset(cb_vy, 0, sizeof(cb_vy));
-	memset(ovy, 0, sizeof(ovy));
-}
