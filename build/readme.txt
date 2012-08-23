@@ -338,7 +338,7 @@ Ctrl + Shift. Fix TRON. GEL and SPNG can absorb water from elements and leaves
 behind what the element was mixed with. (ex. PSTE + SPNG -> CLST). Ask to run 
 lua code in saves, instead of just running automatically.
 
-Next version //Version 19 8/22/12
+Version 19 8/22/12
 Update to version 82, with all the things I added to that including powered 
 pipe. Fix comments with '/n' in them not displaying correctly. Fix BRAY/EMBR 
 graphics (PMODE_GLOW), make it easier to find stickmen with FIND tool. Add 
