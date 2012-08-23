@@ -2663,7 +2663,7 @@ int luatpt_set_decocolor(lua_State* l)
 
 int luatpt_outside_airtemp(lua_State* l)
 {
-	float newtemp = luaL_optnumber(l, 1, outside_temp);
+	float newtemp = luaL_optnumber(l, 1, 295.15f);
 	if (newtemp < MIN_TEMP || newtemp > MAX_TEMP)
 		return luaL_error(l, "Invalid temperature: %i", newtemp);
 	outside_temp = newtemp;
