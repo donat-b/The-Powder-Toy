@@ -355,10 +355,24 @@ None (at least that I know of)
 
 
 
-Future Ideas/TODO: > means currently being worked on/added next
-Add things from tpt++ that look cool
-Protons?
-don't save lua code inside of INDI, since this isn't a lua script anymore
-command element to run old commands
-urlStream << "http://" << SERVER << "/Browse/Delete.json?ID=" << saveID << "&Mode=Unpublish&Key=" << authUser.SessionKey; //adding this would mean I would have to redo how logging in works to get the sessionkey, I might do that later...
-new lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127
+Future Ideas/TODO: '>' means currently being worked on/added next
+>Add things from tpt++ that look cool, and any new simulation changes once it's finished
+Don't save lua code inside of INDI, since this isn't a lua script anymore
+Unpublish saves from tpt - urlStream << "http://" << SERVER << "/Browse/Delete.json?ID=" << saveID << "&Mode=Unpublish&Key=" << authUser.SessionKey; //adding this would mean I would have to redo how logging in works to get the sessionkey, I might do that later...
+---
+C++ version todo:
+Learn how to compile tpt++
+Start with version 1 changes like Fav elements menu, Find tool, better HUD; but add in the complete versions of those how they act in version 19
+Add back everything in the Fav2 menu, including custom HUD
+Make improvements to tpt++ to fix, add, or change some things I don't like
+Add in all elements except INDI, OTWR, and powered portals (use powered pipe now)
+Start adding in the other features, like the search ui improvements
+Finish adding in other minor things
+Done! continue work on my mod like normal
+
+0% complete, haven't started, or thought about starting soon
+
+maybe in c++ version:
+PROT - Protons
+CMND - command element to run old commands
+New lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127 //A way to allow elements to have multiple sets of properties, allowing combining of element states and custom elements

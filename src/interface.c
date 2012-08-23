@@ -1814,7 +1814,7 @@ int confirm_ui(pixel *vid_buf, char *top, char *msg, char *btn)
 	int x0=(XRES-240)/2,y0=YRES/2,b=1,bq,mx,my,textheight;
 	int ret = 0;
 
-	textheight = textwrapheight(msg, 240);
+	textheight = textwrapheight(msg, 224);
 	y0 -= (52+textheight)/2;
 	if (y0<2)
 		y0 = 2;
@@ -3446,7 +3446,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 		quickoptions_tooltip_fade = 0;
 }
 
-int FPSwait = 0;
+int FPSwait = 0, fastquit = 0;
 int sdl_poll(void)
 {
 	SDL_Event event;
@@ -3500,6 +3500,8 @@ int sdl_poll(void)
 				sdl_wheel--;
 			break;
 		case SDL_QUIT:
+			if (fastquit)
+				has_quit = 1;
 			return 1;
 		case SDL_SYSWMEVENT:
 #if (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
@@ -7896,17 +7898,10 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 void simulation_ui(pixel * vid_buf)
 {
 	int xsize = 300;
-	int ysize = 274;
+	int ysize = 288;
 	int x0=(XRES-xsize)/2,y0=(YRES-MENUSIZE-ysize)/2,b=1,bq,mx,my;
 	int new_scale, new_kiosk;
-	ui_checkbox cb;
-	ui_checkbox cb2;
-	ui_checkbox cb3;
-	ui_checkbox cb4;
-	ui_checkbox cb5;
-	ui_checkbox cb6;
-	ui_checkbox cb7;
-	ui_checkbox cb8;
+	ui_checkbox cb, cb2, cb3, cb4, cb5, cb6, cb7, cb8, cb9;
 	char * airModeList[] = {"On", "Pressure Off", "Velocity Off", "Off", "No Update"};
 	int airModeListCount = 5;
 	char * gravityModeList[] = {"Vertical", "Off", "Radial"};
@@ -7953,6 +7948,11 @@ void simulation_ui(pixel * vid_buf)
 	cb8.y = y0+241;
 	cb8.focus = 0;
 	cb8.checked = edgeloop;
+
+	cb9.x = x0+xsize-16;	//Fast Quit
+	cb9.y = y0+255;
+	cb9.focus = 0;
+	cb9.checked = fastquit;
 	
 	list.x = x0+xsize-76;	//Air Mode
 	list.y = y0+135;
@@ -8024,6 +8024,9 @@ void simulation_ui(pixel * vid_buf)
 		drawtext(vid_buf, x0+8, y0+242, "Edge loop", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12+textwidth("Edge loop"), y0+242, "Particles loop around the edges of the screen", 255, 255, 255, 180);
 
+		drawtext(vid_buf, x0+8, y0+256, "Fast Quit", 255, 255, 255, 255);
+		drawtext(vid_buf, x0+12+textwidth("Fast Quit"), y0+256, "Hitting 'X' will always exit out of tpt", 255, 255, 255, 180);
+
 		drawtext(vid_buf, x0+5, y0+ysize-11, "OK", 255, 255, 255, 255);
 		drawrect(vid_buf, x0, y0+ysize-16, xsize, 16, 192, 192, 192, 255);
 
@@ -8035,6 +8038,7 @@ void simulation_ui(pixel * vid_buf)
 		ui_checkbox_draw(vid_buf, &cb6);
 		ui_checkbox_draw(vid_buf, &cb7);
 		ui_checkbox_draw(vid_buf, &cb8);
+		ui_checkbox_draw(vid_buf, &cb9);
 		ui_list_draw(vid_buf, &list);
 		ui_list_draw(vid_buf, &list2);
 #ifdef OGLR
@@ -8049,6 +8053,7 @@ void simulation_ui(pixel * vid_buf)
 		ui_checkbox_process(mx, my, b, bq, &cb6);
 		ui_checkbox_process(mx, my, b, bq, &cb7);
 		ui_checkbox_process(mx, my, b, bq, &cb8);
+		ui_checkbox_process(mx, my, b, bq, &cb9);
 		ui_list_process(vid_buf, mx, my, b, &list);
 		ui_list_process(vid_buf, mx, my, b, &list2);
 
@@ -8085,6 +8090,7 @@ void simulation_ui(pixel * vid_buf)
 		erase_bframe();
 	bframe = cb7.checked;
 	edgeloop = cb8.checked;
+	fastquit = cb9.checked;
 
 	while (!sdl_poll())
 	{

@@ -238,6 +238,7 @@ extern int framenum;
 extern int hud_menunum;
 extern int dateformat;
 extern int show_ids;
+extern int fastquit;
 
 extern ui_edit box_R;
 extern ui_edit box_G;

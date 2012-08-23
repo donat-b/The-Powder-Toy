@@ -249,6 +249,7 @@ int unlockedstuff = 0;
 int old_menu = 0;
 int loop_time = 0;
 unsigned int decocolor = (255<<24)|PIXRGB(255,0,0);
+int update_check = 191;
 
 int drawinfo = 0;
 int elapsedTime = 0;
@@ -1202,16 +1203,16 @@ int main(int argc, char *argv[])
 				if (http_ret==200 && ver_data)
 				{
 					if (sscanf(ver_data, "%d.%d.%d.%d", &major, &minor, &is_beta, &buildnum)==4)
-						if (buildnum>BUILD_NUM)
+						if (buildnum>update_check)//if (buildnum>BUILD_NUM)
 							old_version = 1;
-						if (is_beta)
-						{
-							old_ver_len = textwidth((char*)old_ver_msg_beta);
-						}
-						else
-						{
-							old_ver_len = textwidth((char*)old_ver_msg);
-						}
+					if (is_beta)
+					{
+						old_ver_len = textwidth((char*)old_ver_msg_beta);
+					}
+					else
+					{
+						old_ver_len = textwidth((char*)old_ver_msg);
+					}
 					free(ver_data);
 				}
 				http_ver_check = NULL;
@@ -1721,49 +1722,6 @@ int main(int argc, char *argv[])
 						GRID_MODE = (GRID_MODE+1)%10;
 				}
 			}
-			if (sdl_key == 'a' && !strcmp(svf_user,"jacob1"))
-			{
-				int k;
-				for (i=0; i<=parts_lastActiveIndex; i++)
-				{
-					if (parts[i].dcolour)
-					{
-						int color = vid_buf[((int)(parts[i].y+.5f))*(XRES+BARSIZE)+((int)(parts[i].x+.5f))];
-						int colr = PIXR(color);
-						int colg = PIXG(color);
-						int colb = PIXB(color);
-
-						int maxComponent = colr;
-						if (colg>maxComponent) maxComponent = colg;
-						if (colb>maxComponent) maxComponent = colb;
-						if (maxComponent > 0 && parts[i].dcolour != 0xFF000000)
-						{
-							if (!(sdl_mod & KMOD_SHIFT))
-								continue;
-							if (maxComponent < 60)
-								colb = 60;
-							k = create_part(-3, (int)(parts[i].x+.5), (int)(parts[i].y+.5), PT_EMBR);
-							if (k != -1)
-							{
-								parts[k].ctype = PIXRGB(colr,colg,colb);
-								parts[k].tmp = 1;
-								parts[k].life = 20;
-								parts[k].temp = parts[i].temp;
-							}
-						}
-						else
-						{
-							k = create_part(-3, (int)(parts[i].x+.5), (int)(parts[i].y+.5), PT_PHOT);
-							if (k != -1)
-							{
-								parts[k].ctype = 0;
-								parts[k].life = 1;
-								parts[k].temp = parts[i].temp;
-							}
-						}
-					}
-				}
-			}
 			if (sdl_key=='m')
 			{
 				if(sl!=sr)
@@ -2162,11 +2120,10 @@ int main(int argc, char *argv[])
 			update_flag = 0;
 		}
 
-		old_version = 0;
 		if (b && !bq && x>=(XRES-19-old_ver_len) &&
 		        x<=(XRES-14) && y>=(YRES-22) && y<=(YRES-9) && old_version)
 		{
-			tmp = malloc(128);
+			tmp = malloc(256);
 #ifdef BETA
 			if (is_beta)
 			{
@@ -2186,7 +2143,8 @@ int main(int argc, char *argv[])
 				sprintf(tmp, "Your version: %d.%d (%d)\nNew version: %d.%d (%d)", SAVE_VERSION, MINOR_VERSION, BUILD_NUM, major, minor, buildnum);
 			}
 #endif
-			if (b == 1 && confirm_ui(vid_buf, "Do you want to update The Powder Toy?", tmp, "Update"))
+			strappend(tmp, "\n\nThis will erase this mod, and you will have to redownload it. If it's a major update, this mod will be updated shortly with the new features or elements");
+			if (b == 1 && confirm_ui(vid_buf, "Do you want to update The Powder Toy?", tmp, "Update") && confirm_ui(vid_buf, "Are you sure?", "You are about to replace this mod with the official version, deleting it", "Update"))
 			{
 				free(tmp);
 				tmp = download_ui(vid_buf, my_uri, &i);
@@ -2205,6 +2163,10 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
+				if (confirm_ui(vid_buf, "Ignore all future updates?", "If you hit cancel, only this update will be ignored", "Ignore"))
+					update_check = 10000;
+				else
+					update_check = buildnum;
 				free(tmp);
 				old_version = 0;
 			}
