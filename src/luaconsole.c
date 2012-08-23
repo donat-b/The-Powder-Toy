@@ -2667,6 +2667,7 @@ int luatpt_outside_airtemp(lua_State* l)
 	if (newtemp < MIN_TEMP || newtemp > MAX_TEMP)
 		return luaL_error(l, "Invalid temperature: %i", newtemp);
 	outside_temp = newtemp;
+	return 0;
 }
 
 void addluastuff()

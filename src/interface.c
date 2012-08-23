@@ -7896,7 +7896,7 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 void simulation_ui(pixel * vid_buf)
 {
 	int xsize = 300;
-	int ysize = 260;
+	int ysize = 274;
 	int x0=(XRES-xsize)/2,y0=(YRES-MENUSIZE-ysize)/2,b=1,bq,mx,my;
 	int new_scale, new_kiosk;
 	ui_checkbox cb;
@@ -7906,6 +7906,7 @@ void simulation_ui(pixel * vid_buf)
 	ui_checkbox cb5;
 	ui_checkbox cb6;
 	ui_checkbox cb7;
+	ui_checkbox cb8;
 	char * airModeList[] = {"On", "Pressure Off", "Velocity Off", "Off", "No Update"};
 	int airModeListCount = 5;
 	char * gravityModeList[] = {"Vertical", "Off", "Radial"};
@@ -7947,6 +7948,11 @@ void simulation_ui(pixel * vid_buf)
 	cb7.y = y0+227;
 	cb7.focus = 0;
 	cb7.checked = bframe;
+
+	cb8.x = x0+xsize-16;	//Edge loop
+	cb8.y = y0+241;
+	cb8.focus = 0;
+	cb8.checked = edgeloop;
 	
 	list.x = x0+xsize-76;	//Air Mode
 	list.y = y0+135;
@@ -8015,8 +8021,8 @@ void simulation_ui(pixel * vid_buf)
 		drawtext(vid_buf, x0+8, y0+228, "Block frame", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12+textwidth("Block frame"), y0+228, "Draws a wall frame around screen", 255, 255, 255, 180);
 
-		//TODO: Options for Air and Normal gravity
-		//Maybe save/load defaults too.
+		drawtext(vid_buf, x0+8, y0+242, "Edge loop", 255, 255, 255, 255);
+		drawtext(vid_buf, x0+12+textwidth("Edge loop"), y0+242, "Particles loop around the edges of the screen", 255, 255, 255, 180);
 
 		drawtext(vid_buf, x0+5, y0+ysize-11, "OK", 255, 255, 255, 255);
 		drawrect(vid_buf, x0, y0+ysize-16, xsize, 16, 192, 192, 192, 255);
@@ -8028,6 +8034,7 @@ void simulation_ui(pixel * vid_buf)
 		ui_checkbox_draw(vid_buf, &cb5);
 		ui_checkbox_draw(vid_buf, &cb6);
 		ui_checkbox_draw(vid_buf, &cb7);
+		ui_checkbox_draw(vid_buf, &cb8);
 		ui_list_draw(vid_buf, &list);
 		ui_list_draw(vid_buf, &list2);
 #ifdef OGLR
@@ -8041,6 +8048,7 @@ void simulation_ui(pixel * vid_buf)
 		ui_checkbox_process(mx, my, b, bq, &cb5);
 		ui_checkbox_process(mx, my, b, bq, &cb6);
 		ui_checkbox_process(mx, my, b, bq, &cb7);
+		ui_checkbox_process(mx, my, b, bq, &cb8);
 		ui_list_process(vid_buf, mx, my, b, &list);
 		ui_list_process(vid_buf, mx, my, b, &list2);
 
@@ -8076,6 +8084,7 @@ void simulation_ui(pixel * vid_buf)
 	if(!cb7.checked && bframe)
 		erase_bframe();
 	bframe = cb7.checked;
+	edgeloop = cb8.checked;
 
 	while (!sdl_poll())
 	{

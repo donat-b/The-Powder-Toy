@@ -216,6 +216,7 @@ int active_menu = 0;
 int last_active_menu = 0;
 int framerender = 0;
 int pretty_powder = 0;
+char edgeloop = 0;
 int amd = 1;
 int MSIGN =-1;
 int frameidx = 0;

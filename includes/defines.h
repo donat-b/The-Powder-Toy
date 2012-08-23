@@ -203,6 +203,7 @@ extern int pretty_powder;
 extern int drawgrav_enable;
 extern int ngrav_enable;
 extern char bframe;
+extern char edgeloop;
 int water_equal_test;
 extern int quickoptions_tooltip_fade;
 extern int favMenu[19];

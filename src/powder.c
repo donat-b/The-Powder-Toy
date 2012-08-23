@@ -503,6 +503,19 @@ int try_move(int i, int x, int y, int nx, int ny)
 int do_move(int i, int x, int y, float nxf, float nyf)
 {
 	int nx = (int)(nxf+0.5f), ny = (int)(nyf+0.5f), result;
+	if (edgeloop)
+	{
+		if (nx < CELL)
+			nxf += XRES-CELL*2;
+		if (nx >= XRES-CELL)
+			nxf -= XRES-CELL*2;
+		if (ny < CELL)
+			nyf += YRES-CELL*2;
+		if (ny >= YRES-CELL)
+			nyf -= YRES-CELL*2;
+		nx = (int)(nxf+0.5f);
+		ny = (int)(nyf+0.5f);
+	}
 	if (parts[i].type == PT_NONE)
 		return 0;
 	result = try_move(i, x, y, nx, ny);
@@ -2796,6 +2809,19 @@ killed:
 					fin_yf += dy;
 					fin_x = (int)(fin_xf+0.5f);
 					fin_y = (int)(fin_yf+0.5f);
+					if (edgeloop)
+					{
+						if (fin_x < CELL)
+							fin_xf += XRES-CELL*2;
+						if (fin_x >= XRES-CELL)
+							fin_xf -= XRES-CELL*2;
+						if (fin_y < CELL)
+							fin_yf += YRES-CELL*2;
+						if (fin_y >= YRES-CELL)
+							fin_yf -= YRES-CELL*2;
+						fin_x = (int)(fin_xf+0.5f);
+						fin_y = (int)(fin_yf+0.5f);
+					}
 					if (mv <= 0.0f)
 					{
 						// nothing found

@@ -267,6 +267,7 @@ void save_presets(int do_update)
 	cJSON_AddNumberToObject(root, "save_as", save_as);
 	cJSON_AddNumberToObject(root, "drawgrav_enable", drawgrav_enable);
 	cJSON_AddNumberToObject(root, "bframe", bframe);
+	cJSON_AddNumberToObject(root, "edgeloop", edgeloop);
 	if (finding & 0x8)
 		cJSON_AddNumberToObject(root, "alt_find", 1);
 	cJSON_AddNumberToObject(root, "dateformat", dateformat);
@@ -483,6 +484,7 @@ void load_presets(void)
 		if(tmpobj = cJSON_GetObjectItem(root, "old_menu")) old_menu = 1;
 		if(tmpobj = cJSON_GetObjectItem(root, "drawgrav_enable")) drawgrav_enable = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "bframe")) bframe = tmpobj->valueint;
+		if(tmpobj = cJSON_GetObjectItem(root, "edgeloop")) edgeloop = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "alt_find")) finding |= 0x8;
 		if(tmpobj = cJSON_GetObjectItem(root, "dateformat")) dateformat = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "show_ids")) show_ids = tmpobj->valueint;
