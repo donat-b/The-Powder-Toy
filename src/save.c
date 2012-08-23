@@ -1926,6 +1926,20 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							STKM_init_legs(&(fighters[fcount]), newIndex);
 						}
 					}
+					else if (partsptr[newIndex].type == PT_SPAWN)
+					{
+						if (ISSPAWN1)
+							partsptr[newIndex].type = PT_NONE;
+						else
+							ISSPAWN1 = 1;
+					}
+					else if (partsptr[newIndex].type == PT_SPAWN2)
+					{
+						if (ISSPAWN2)
+							partsptr[newIndex].type = PT_NONE;
+						else
+							ISSPAWN2 = 1;
+					}
 					if (partsptr[newIndex].type == PT_SOAP)
 						partsptr[newIndex].ctype &= ~6; // delete all soap connections, but it looks like if tmp & tmp2 were saved to 3 bytes, connections would load properly
 					if (!ptypes[partsptr[newIndex].type].enabled && !secret_els)
