@@ -911,30 +911,14 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 	}
 	else if (t==SPC_AIR)
 	{
-		float pchange = ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL)))?.3f:.03f;
+		float pchange = ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL)))?1.0f:.1f;
 		pv[y/CELL][x/CELL] += pchange;
-		if (y+CELL<YRES)
-			pv[y/CELL+1][x/CELL] += pchange;
-		if (x+CELL<XRES)
-		{
-			pv[y/CELL][x/CELL+1] += pchange;
-			if (y+CELL<YRES)
-				pv[y/CELL+1][x/CELL+1] += pchange;
-		}
 		return -1;
 	}
 	else if (t==SPC_VACUUM)
 	{
-		float pchange = ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL)))?.3f:.03f;
+		float pchange = ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL)))?1.0f:.1f;
 		pv[y/CELL][x/CELL] -= pchange;
-		if (y+CELL<YRES)
-			pv[y/CELL+1][x/CELL] -= pchange;
-		if (x+CELL<XRES)
-		{
-			pv[y/CELL][x/CELL+1] -= pchange;
-			if (y+CELL<YRES)
-				pv[y/CELL+1][x/CELL+1] -= pchange;
-		}
 		return -1;
 	}
 	else if (t==SPC_PGRV)

@@ -324,7 +324,7 @@ FPS everywhere, so tpt doesn't use 100% CPU when you're not in the main game.
 Tons of new lua commands, you can pass nothing into functions that set a 
 variable to return that variable instead. When changing the screen size, you 
 can change it even if your screen if too small if you want. Improvements to 
-open_ui, you can click a username to search for their saves, and right click 
+open_ui, you can click a username to search for their saves, and shift click 
 to see their profile.
 
 Version 18.1 8/7/12
@@ -361,7 +361,7 @@ Don't save lua code inside of INDI, since this isn't a lua script anymore
 Unpublish saves from tpt - urlStream << "http://" << SERVER << "/Browse/Delete.json?ID=" << saveID << "&Mode=Unpublish&Key=" << authUser.SessionKey; //adding this would mean I would have to redo how logging in works to get the sessionkey, I might do that later...
 ---
 C++ version todo:
-Learn how to compile tpt++
+>compile tpt++ with visual studio
 Start with version 1 changes like Fav elements menu, Find tool, better HUD; but add in the complete versions of those how they act in version 19
 Add back everything in the Fav2 menu, including custom HUD
 Make improvements to tpt++ to fix, add, or change some things I don't like
@@ -370,7 +370,7 @@ Start adding in the other features, like the search ui improvements
 Finish adding in other minor things
 Done! continue work on my mod like normal
 
-0% complete, haven't started, or thought about starting soon
+0% complete, haven't started yet
 
 maybe in c++ version:
 PROT - Protons

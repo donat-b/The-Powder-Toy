@@ -5193,7 +5193,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 									strcaturl(link, info->commentauthors[cc]);
 									open_link(link);
 								}
-								else //, or search for a user's saves
+								else if (sdl_mod & KMOD_SHIFT) //, or search for a user's saves
 								{
 									sprintf(search_expr,"user:%s",info->commentauthors[cc]);
 									search_ui(vid_buf);
