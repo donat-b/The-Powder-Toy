@@ -189,6 +189,7 @@ part_type ptypes[PT_NUM] =
 	{"FRAY",	PIXPACK(0x00BBFF),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	1,	1,	1,	100,	SC_FORCE,		20.0f+0.0f +273.15f,	0,		"Force Emitter. Push or pull objects based on temp value, use like ARAY", ST_SOLID, TYPE_SOLID|PROP_LIFE_DEC, &update_FRAY, NULL},
 	{"RPEL",	PIXPACK(0x99CC00),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	1,	1,	1,	100,	SC_FORCE,		20.0f+0.0f	+273.15f,	0,		"Repel or attract particles based on temp value.", ST_NONE, TYPE_SOLID, &update_REPL, NULL},
 	{"PPIP",	PIXPACK(0x444466),	0.0f,	0.00f * CFDS,	0.95f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_POWERED,		273.15f,				0,		"Powered version of pipe", ST_SOLID, TYPE_SOLID|PROP_LIFE_DEC, &update_PIPE, &graphics_PIPE},
+	{"DTEC",	PIXPACK(0xFD9D18),	0.0f,	0.00f * CFDS,	0.96f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f  * CFDS,	0,	0,		0,	0,	1,	1,	1,	100,	SC_ELEC,		R_TEMP+273.15f,			0,		"Creates a spark when something with its ctype is nearby", ST_SOLID, TYPE_SOLID, &update_DTEC, &graphics_DTEC},
 	//Mod elements past this point
 	{"BALL",	PIXPACK(0x0010A0),	0.4f,	0.004f * CFDS,	0.92f,	0.80f,	0.00f,	0.1f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	30,	1,	1,	85,		SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	70,		"Moving solid. Acts like a bouncy ball", ST_NONE, TYPE_PART|PROP_MOVS, NULL, NULL},
 	{"ANIM",	PIXPACK(0x505050),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	1,	1,	1,	100,	SC_POWERED,		R_TEMP+0.0f	+273.15f,	0,		"Animated Liquid Crystal", ST_SOLID, TYPE_SOLID|PROP_POWERED, &update_ANIM, NULL},
@@ -430,6 +431,7 @@ part_transition ptransitions[PT_NUM] =
 	/* FRAY */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* REPL */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* PPIP */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* DTEC */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	// Mod elements past this point
 	/* BALL */ {-25.0f,	PT_NONE,	25.0f,	PT_NONE,	ITL,	NT,			ITH,	NT},
 	/* ANIM */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
@@ -618,4 +620,5 @@ unsigned int platent[PT_NUM] =
 	/* FRAY */ 0,
 	/* REPL */ 0,
 	/* PPIP */ 0,
+	/* DTEC */ 0,
 };

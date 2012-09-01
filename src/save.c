@@ -87,6 +87,8 @@ int fix_type(int type, int version)
 	int max = 161;
 	if (version >= 82)
 		max = 162;
+	if (version >= 83)
+		max = 163;
 	if (type >= max)
 	{
 		type += (PT_NORMAL_NUM-max);
@@ -193,6 +195,41 @@ int change_wall(int wt)
 		return WL_EHOLE;
 	else if (wt == 13)
 		return WL_ALLOWGAS;
+	return wt;
+}
+
+int change_wallpp(int wt)
+{
+	if (wt == 1)
+		return WL_WALLELEC;
+	else if (wt == 2)
+		return WL_EWALL;
+	else if (wt == 3)
+		return WL_DETECT;
+	else if (wt == 4)
+		return WL_STREAM;
+	else if (wt == 5)
+		return WL_FAN;
+	else if (wt == 6)
+		return WL_ALLOWLIQUID;
+	else if (wt == 7)
+		return WL_DESTROYALL;
+	else if (wt == 8)
+		return WL_WALL;
+	else if (wt == 9)
+		return WL_ALLOWAIR;
+	else if (wt == 10)
+		return WL_ALLOWSOLID;
+	else if (wt == 11)
+		return WL_ALLOWALLELEC;
+	else if (wt == 12)
+		return WL_EHOLE;
+	else if (wt == 13)
+		return WL_ALLOWGAS;
+	else if (wt == 14)
+		return WL_GRAV;
+	else if (wt == 15)
+		return WL_ALLOWENERGY;
 	return wt;
 }
 
@@ -1576,7 +1613,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			for(y = 0; y < blockH; y++)
 			{
 				if (wallData[y*blockW+x])
-					bmap[blockY+y][blockX+x] = wallData[y*blockW+x];
+					bmap[blockY+y][blockX+x] = change_wallpp(wallData[y*blockW+x]);
 				if (wallData[y*blockW+x] == WL_FAN && fanData)
 				{
 					if(j+1 >= fanDataLen)

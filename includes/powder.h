@@ -242,7 +242,8 @@
 #define PT_FRAY 159
 #define PT_REPL 160
 #define PT_PPIP 161
-#define PT_NORMAL_NUM 162
+#define PT_DTEC 162
+#define PT_NORMAL_NUM 163
 
 #define PT_MOVS PT_NORMAL_NUM
 #define PT_ANIM PT_NORMAL_NUM+1
@@ -260,7 +261,7 @@
 #define PT_COND PT_NORMAL_NUM+13
 #define PT_PWHT PT_NORMAL_NUM+14
 #define PT_EXPL PT_NORMAL_NUM+15
-#define PT_NUM 178
+#define PT_NUM 179
 
 #define R_TEMP 22
 #define MAX_TEMP 9999
@@ -389,6 +390,7 @@ int graphics_EMBR(GRAPHICS_FUNC_ARGS);
 int graphics_WOOD(GRAPHICS_FUNC_ARGS);
 int graphics_PLNT(GRAPHICS_FUNC_ARGS);
 int graphics_BRCK(GRAPHICS_FUNC_ARGS);
+int graphics_DTEC(GRAPHICS_FUNC_ARGS);
 
 void TRON_init_graphics();
 
@@ -515,6 +517,7 @@ int update_WIFI(UPDATE_FUNC_ARGS);
 int update_WIRE(UPDATE_FUNC_ARGS);
 int update_WTRV(UPDATE_FUNC_ARGS);
 int update_YEST(UPDATE_FUNC_ARGS);
+int update_DTEC(UPDATE_FUNC_ARGS);
 
 int update_MISC(UPDATE_FUNC_ARGS);
 int update_legacy_PYRO(UPDATE_FUNC_ARGS);

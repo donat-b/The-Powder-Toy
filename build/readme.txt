@@ -350,6 +350,7 @@ temperatures (from Triclops200 in tpt++). Edge loop option.
 
 
 Bugs:
+putting deco on ANIM - frame 1
 None (at least that I know of)
 
 

@@ -24,16 +24,16 @@
 #endif
  
 //VersionInfoStart
-#define SAVE_VERSION 82
+#define SAVE_VERSION 83
 #define MINOR_VERSION 0
-#define BUILD_NUM 191
+#define BUILD_NUM 203
 //VersionInfoEnd
 
 #define MOD_VERSION 19
 #define MOD_SAVE_VERSION 11 //This is not the version number of my mod anymore, it's only changed when I change the saving code
 #define BETA_VERSION 80
 #define BETA_MINOR_VER 0
-#define RELEASE_VERSION 82
+#define RELEASE_VERSION 83 //This is a Beta, but saves can be saved publicly, so i'll pretend it was a release version
 #define RELEASE_MINOR_VER 0
 
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter

@@ -1024,6 +1024,11 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 				parts[pmap[y][x]>>8].ctype = t;
 				if (t==PT_LIFE && v<NGOLALT && (pmap[y][x]&0xFF)!=PT_STOR) parts[pmap[y][x]>>8].tmp = v;
 			}
+			else if ((pmap[y][x]&0xFF) == PT_DTEC && (pmap[y][x]&0xFF) != t)
+			{
+				parts[pmap[y][x]>>8].ctype = t;
+				if (t==PT_LIFE && v<NGOLALT) parts[pmap[y][x]>>8].tmp = v;
+			}
 			return -1;
 		}
 		if (photons[y][x] && (ptypes[t].properties & TYPE_ENERGY))
@@ -1293,6 +1298,9 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 			break;
 		case PT_BIZR: case PT_BIZRG: case PT_BIZRS:
 			parts[i].ctype = 0x47FFFF;
+			break;
+		case PT_DTEC:
+			parts[i].tmp2 = 2;
 			break;
 		default:
 			if (t==PT_FIGH)
