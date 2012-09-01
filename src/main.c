@@ -249,7 +249,7 @@ int unlockedstuff = 0;
 int old_menu = 0;
 int loop_time = 0;
 unsigned int decocolor = (255<<24)|PIXRGB(255,0,0);
-int update_check = 191;
+int update_check = BUILD_NUM;
 
 int drawinfo = 0;
 int elapsedTime = 0;
@@ -2120,6 +2120,7 @@ int main(int argc, char *argv[])
 			update_flag = 0;
 		}
 
+		old_version = 0;
 		if (b && !bq && x>=(XRES-19-old_ver_len) &&
 		        x<=(XRES-14) && y>=(YRES-22) && y<=(YRES-9) && old_version)
 		{

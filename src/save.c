@@ -384,7 +384,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 			{
 				if(wallData[y*blockW+x])
 				{
-					wt = wallData[y*blockW+x];
+					wt = change_wallpp(wallData[y*blockW+x]);
 					pc = wtypes[wt-UI_ACTUALSTART].colour;
 					gc = wtypes[wt-UI_ACTUALSTART].eglow;
 					if (wtypes[wt-UI_ACTUALSTART].drawstyle==1)
