@@ -224,6 +224,7 @@ extern int search_own;
 extern int search_fav;
 extern int search_date;
 extern int search_page;
+extern int p1_extra;
 extern char search_expr[256];
 
 extern char *tag_names[TAG_MAX];

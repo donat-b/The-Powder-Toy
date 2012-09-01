@@ -97,6 +97,7 @@ int search_own = 0;
 int search_fav = 0;
 int search_date = 0;
 int search_page = 0;
+int p1_extra = 0;
 char search_expr[256] = "";
 
 char server_motd[512] = "";
@@ -3900,7 +3901,7 @@ corrupt:
 int search_ui(pixel *vid_buf)
 {
 	int nmp=-1,uih=0,nyu,nyd,b=1,bq,mx=0,my=0,mxq=0,myq=0,mmt=0,gi,gj,gx,gy,pos,i,mp,dp,dap,own,last_own=search_own,last_fav=search_fav,page_count=0,last_page=0,last_date=0,j,w,h,st=0,lv;
-	int is_p1=0, exp_res=GRID_X*GRID_Y, tp, view_own=0, p1_extra=0, last_p1_extra=0;
+	int is_p1=0, exp_res=GRID_X*GRID_Y, tp, view_own=0, last_p1_extra=0;
 	int thumb_drawn[GRID_X*GRID_Y];
 	pixel *v_buf = (pixel *)malloc(((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 	pixel *bthumb_rsdata = NULL;
@@ -4064,7 +4065,7 @@ int search_ui(pixel *vid_buf)
 			drawtext(vid_buf, 4, YRES+MENUSIZE-16, "\x96", 255, 255, 255, 255);
 			drawrect(vid_buf, 1, YRES+MENUSIZE-20, 16, 16, 255, 255, 255, 255);
 		}
-		else if (page_count > 9 && !(search_own || search_fav || search_date))
+		else if (page_count > 9 && !(search_own || search_fav || search_date) && !strcmp(ed.str,""))
 		{
 			if (p1_extra)
 				drawtext(vid_buf, 4, YRES+MENUSIZE-17, "\x85", 255, 255, 255, 255);
