@@ -346,8 +346,12 @@ tpt.outside_airtemp, sets the outside ambient heat temperature. More custom
 HUD options, plus fix a few bugs with it. Fix H2 and O2 not burning at high 
 temperatures (from Triclops200 in tpt++). Edge loop option.
 
-
-
+Version 19.1 9/2/12
+Fix some stickmen spawning glitches (still in tpt though). Fast quit option 
+(found in the simulation options). Compatibility with saves made in tpt++ 
+(fixes walls). Fix deco not showing when drawing on ANIM. The extra 1st 
+page saves option stays on like the other seach options do. Add things from 
+tpt version 83.0 (DTEC, things from my pull request).
 
 Bugs:
 None (at least that I know of)
@@ -375,4 +379,3 @@ Done! continue work on my mod like normal
 maybe in c++ version:
 PROT - Protons
 CMND - command element to run old commands
-New lua elements - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12127 //A way to allow elements to have multiple sets of properties, allowing combining of element states and custom elements

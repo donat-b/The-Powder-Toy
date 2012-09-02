@@ -5213,7 +5213,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						}
 						else
 						{
-							ccy += 12 + textwrapheight(info->comments[cc],XRES+BARSIZE-100-((XRES/2)+1)-20);
+							ccy += 10 + textwrapheight(info->comments[cc],XRES+BARSIZE-100-((XRES/2)+1)-20);
 							if (cc == info->comment_count-1)
 								comment_scroll = 0;
 						}
