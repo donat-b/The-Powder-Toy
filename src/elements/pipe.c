@@ -135,8 +135,13 @@ void PIPE_transfer_pipe_to_part(particle *pipe, particle *part)
 	part->ctype = (int)pipe->pavg[1];
 	pipe->tmp &= ~0xFF;
 
-	part->vx = 0.0f;
-	part->vy = 0.0f;
+	if (!ptypes[part->type].properties & TYPE_ENERGY)
+	{
+		part->vx = 0.0f;
+		part->vy = 0.0f;
+	}
+	else if (part->type == PT_PHOT && part->ctype == 0x40000000)
+		part->ctype = 0x3FFFFFFF;
 	part->tmp2 = 0;
 	part->flags = 0;
 	part->dcolour = 0;
@@ -480,6 +485,8 @@ int graphics_PIPE(GRAPHICS_FUNC_ARGS)
 		tpart.life = cpart->tmp2;
 		tpart.tmp = (int)cpart->pavg[0];
 		tpart.ctype = (int)cpart->pavg[1];
+		if (tpart.type == PT_PHOT && tpart.ctype == 0x40000000)
+			tpart.ctype = 0x3FFFFFFF;
 		t = tpart.type;
 		if (graphicscache[t].isready)
 		{
