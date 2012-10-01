@@ -37,6 +37,11 @@
 #define SERVER "powdertoy.co.uk"
 #define SCRIPTSERVER "powdertoy.co.uk"
 #define STATICSERVER "static.powdertoy.co.uk"
+//#define UPDATESERVER "powdertoy.co.uk" // change this to check for updates on a different server
+
+#ifndef UPDATESERVER
+	#define UPDATESERVER "powdertoy.co.uk"
+#endif
 
 #define LOCAL_SAVE_DIR "Saves"
 
