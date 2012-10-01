@@ -747,8 +747,10 @@ char itc_msg[128] = "[?]";
 	#define UPDATE_CPU "Unknown"
 #endif
 
-char update_uri[] = "http://178.219.36.155/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
-char changelog_uri[] = "http://178.219.36.155/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
+char update_uri[] = "http://" UPDATESERVER "/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
+char changelog_uri[] = "http://" UPDATESERVER "/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
+char update_uri_alt[] = "http://" UPDATESERVERALT "/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
+char changelog_uri_alt[] = "http://" UPDATESERVERALT "/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
 
 #ifdef RENDERER
 int main(int argc, char *argv[])
@@ -1158,7 +1160,7 @@ int main(int argc, char *argv[])
 	if (strcmp(svf_user, "jacob1"))
 	{
 		if (doUpdates == 2)
-			http_ver_check = http_async_req_start(NULL, "http://mniip.com/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU, NULL, 0, 0);
+			http_ver_check = http_async_req_start(NULL, changelog_uri_alt, NULL, 0, 0);
 		else if (doUpdates)
 			http_ver_check = http_async_req_start(NULL, changelog_uri, NULL, 0, 0);
 		else
@@ -2291,7 +2293,7 @@ int main(int argc, char *argv[])
 			{
 				free(changelog);
 				if (doUpdates == 2)
-					tmp = download_ui(vid_buf, "http://mniip.com/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU, &i);
+					tmp = download_ui(vid_buf, update_uri_alt, &i);
 				else
 					tmp = download_ui(vid_buf, update_uri, &i);
 

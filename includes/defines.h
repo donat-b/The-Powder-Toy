@@ -46,10 +46,10 @@
 #define SERVER "powdertoy.co.uk"
 #define SCRIPTSERVER "powdertoy.co.uk"
 #define STATICSERVER "static.powdertoy.co.uk"
-//#define UPDATESERVER "powdertoy.co.uk" // change this to check for updates on a different server
 
 #ifndef UPDATESERVER
-	#define UPDATESERVER "powdertoy.co.uk"
+	#define UPDATESERVER "178.219.36.155" // change this to check for updates on a different server
+	#define UPDATESERVER_ALT "mniip.com" // alternate update server (same as above)
 #endif
 
 #define LOCAL_SAVE_DIR "Saves"
