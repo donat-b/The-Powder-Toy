@@ -4515,7 +4515,8 @@ int search_ui(pixel *vid_buf)
 				memset(v_buf, 0, ((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 				nmp = -1;
 			
-				sprintf(server_motd,"Links: \bt{a:http://powdertoy.co.uk|Powder Toy main page}\bg, \bt{a:http://powdertoy.co.uk/Discussions/Categories/Index.html|Forums}\bg, \bt{a:https://github.com/FacialTurd/The-Powder-Toy|TPT github}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy|Jacob1's Mod github}");
+				if (rand()%2)
+					sprintf(server_motd,"Links: \bt{a:http://powdertoy.co.uk|Powder Toy main page}\bg, \bt{a:http://powdertoy.co.uk/Discussions/Categories/Index.html|Forums}\bg, \bt{a:https://github.com/FacialTurd/The-Powder-Toy|TPT github}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy|Jacob1's Mod github}");
 				ui_richtext_settext(server_motd, &motd);
 				motd.x = (XRES-textwidth(motd.printstr))/2;
 			}
@@ -5859,7 +5860,7 @@ int search_results(char *str, int votes)
 		}
 		else if (!strncmp(str, "MOTD ", 5))
 		{
-			memcpy(server_motd, str+5, strlen(str+5));
+			memcpy(server_motd, str+5, 511);
 		}
 		else if (!strncmp(str, "TAG ", 4))
 		{

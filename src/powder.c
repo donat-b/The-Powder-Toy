@@ -2388,7 +2388,7 @@ int particle_transitions(int i)
 				t = PT_BRMT;
 			else s = 0;
 		}
-	} else if (pv[y/CELL][x/CELL]<ptransitions[t].plv&&ptransitions[t].plt>-1) {
+	} else if (pv[y/CELL][x/CELL]<ptransitions[t].plv&&ptransitions[t].plt>-1&&gravtot<=(ptransitions[ptransitions[t].plt].phv/4.0f)) {
 		// particle type change due to low pressure
 		if (ptransitions[t].plt!=PT_NUM)
 			t = ptransitions[t].plt;
