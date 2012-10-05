@@ -230,6 +230,7 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 	ed.hide = 0;
 	ed.cursor = ed.cursorstart = strlen(signs[i].text);
 	ed.multiline = 0;
+	ed.limit = 255;
 	strcpy(ed.str, signs[i].text);
 	ju = signs[i].ju;
 
@@ -315,7 +316,7 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 void ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 {
 	int cx, i, cy;
-	char echo[256], *str, highlightstr[256];
+	char echo[1024], *str, highlightstr[1024];
 
 	if (ed->cursor>ed->cursorstart)
 	{
@@ -378,7 +379,7 @@ void ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 
 void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 {
-	char ch, ts[2], echo[256], *str;
+	char ch, ts[2], echo[1024], *str;
 	int l, i;
 #ifdef RAWINPUT
 	char *p;
@@ -418,7 +419,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 				ed->focus = 1;
 				ed->cursor = textposxy(str, ed->w-14, mx-ed->x, my-ed->y);
 			}
-			else
+			else if (!mbq)
 				ed->focus = 0;
 		} else {
 			if (!mbq && mx>=ed->x+ed->w-11 && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+11)
@@ -432,7 +433,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 				ed->focus = 1;
 				ed->cursor = textwidthx(str, mx-ed->x);
 			}
-			else
+			else if (!mbq)
 				ed->focus = 0;
 		}
 	}
@@ -523,7 +524,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			{
 				if (ed->highlightlength)
 				{
-					char highlightstr[256];
+					char highlightstr[1024];
 					strncpy(highlightstr, &str[ed->highlightstart], ed->highlightlength);
 					highlightstr[ed->highlightlength] = 0;
 					clipboard_push_text(highlightstr);
@@ -536,7 +537,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			{
 				char *paste = clipboard_pull_text();
 				int pl = strlen(paste);
-				if ((textwidth(str)+textwidth(paste) > ed->w-14 && !ed->multiline) || (pl+strlen(ed->str)>255) || (float)(((textwidth(str)+textwidth(paste))/(ed->w-14)*12) > ed->h && ed->multiline))
+				if ((textwidth(str)+textwidth(paste) > ed->w-14 && !ed->multiline) || (pl+strlen(ed->str)>ed->limit) || (float)(((textwidth(str)+textwidth(paste))/(ed->w-14)*12) > ed->h && ed->multiline && ed->limit != 1023))
 					break;
 				if (ed->highlightlength)
 				{
@@ -555,7 +556,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 				ed->cursor = l;
 			}
 #ifdef RAWINPUT
-			if (sdl_key>=SDLK_SPACE && sdl_key<=SDLK_z && l<255)
+			if (sdl_key>=SDLK_SPACE && sdl_key<=SDLK_z && l<ed->limit)
 			{
 				if (ed->highlightlength)
 				{
@@ -573,7 +574,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 				}
 				ts[0]=ed->hide?0x8D:ch;
 				ts[1]=0;
-				if ((textwidth(str)+textwidth(ts) > ed->w-14 && !ed->multiline) || (float)(((textwidth(str)+textwidth(ts))/(ed->w-14)*12) > ed->h && ed->multiline))
+				if ((textwidth(str)+textwidth(ts) > ed->w-14 && !ed->multiline) || (float)(((textwidth(str)+textwidth(ts))/(ed->w-14)*12) > ed->h && ed->multiline && ed->limit != 1023))
 					break;
 				memmove(ed->str+ed->cursor+1, ed->str+ed->cursor, l+1-ed->cursor);
 				ed->str[ed->cursor] = ch;
@@ -594,7 +595,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 					memmove(ed->str+ed->highlightstart, ed->str+ed->highlightstart+ed->highlightlength, l-ed->highlightstart);
 					ed->cursor = ed->highlightstart;
 				}
-				if ((textwidth(str) > ed->w-14 && !ed->multiline) || (float)(((textwidth(str))/(ed->w-14)*12) > ed->h && ed->multiline))
+				if ((textwidth(str) > ed->w-14 && !ed->multiline) || (float)(((textwidth(str))/(ed->w-14)*12) > ed->h && ed->multiline && ed->limit != 1023))
 					break;
 				memmove(ed->str+ed->cursor+2, ed->str+ed->cursor, l+2-ed->cursor);
 				ed->str[ed->cursor] = '\b';
@@ -602,7 +603,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 				ed->cursor+=2;
 				ed->cursorstart = ed->cursor;
 			}
-			if (sdl_ascii>=' ' && sdl_ascii<127 && l<255)
+			if (sdl_ascii>=' ' && sdl_ascii<127 && l<ed->limit)
 			{
 				if (ed->highlightlength)
 				{
@@ -612,7 +613,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 				ch = sdl_ascii;
 				ts[0]=ed->hide?0x8D:ch;
 				ts[1]=0;
-				if ((textwidth(str)+textwidth(ts) > ed->w-14 && !ed->multiline) || (float)(((textwidth(str)+textwidth(ts))/(ed->w-14)*12) > ed->h && ed->multiline))
+				if ((textwidth(str)+textwidth(ts) > ed->w-14 && !ed->multiline) || (float)(((textwidth(str)+textwidth(ts))/(ed->w-14)*12) > ed->h && ed->multiline && ed->limit != 1023))
 					break;
 				memmove(ed->str+ed->cursor+1, ed->str+ed->cursor, l+1-ed->cursor);
 				ed->str[ed->cursor] = ch;
@@ -1157,6 +1158,7 @@ void element_search_ui(pixel *vid_buf, int * slp, int * srp)
 	ed.hide = 0;
 	ed.cursor = ed.cursorstart = 0;
 	ed.multiline = 0;
+	ed.limit = 255;
 	ed.str[0] = 0;
 
 
@@ -1344,6 +1346,7 @@ char *input_ui(pixel *vid_buf, char *title, char *prompt, char *text, char *shad
 	ed.hide = 0;
 	ed.cursor = ed.cursorstart = 0;
 	ed.multiline = 0;
+	ed.limit = 255;
 	strncpy(ed.str, text, 254);
 
 	while (!sdl_poll())
@@ -1436,6 +1439,7 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 	ed2.hide = 0;
 	ed2.cursor = ed2.cursorstart = 0;
 	ed2.multiline = 0;
+	ed2.limit = 255;
 	ed2.str[0] = 0;
 	strncpy(ed2.str, "0", 254);
 	strncpy(ed.str, "ctype", 254);
@@ -1897,6 +1901,7 @@ void login_ui(pixel *vid_buf)
 	ed1.focus = 1;
 	ed1.hide = 0;
 	ed1.multiline = 0;
+	ed1.limit = 255;
 	ed1.cursor = ed1.cursorstart = strlen(svf_user);
 	strcpy(ed1.str, svf_user);
 	ed2.x = x0+25;
@@ -1908,6 +1913,7 @@ void login_ui(pixel *vid_buf)
 	ed2.hide = 1;
 	ed2.cursor = ed2.cursorstart = 0;
 	ed2.multiline = 0;
+	ed2.limit = 255;
 	strcpy(ed2.str, "");
 
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
@@ -2242,6 +2248,7 @@ void tag_list_ui(pixel *vid_buf)
 	ed.hide = 0;
 	ed.cursor = ed.cursorstart = 0;
 	ed.multiline = 0;
+	ed.limit = 255;
 	strcpy(ed.str, "");
 
 	fillrect(vid_buf, -1, -1, XRES, YRES+MENUSIZE, 0, 0, 0, 192);
@@ -2401,6 +2408,7 @@ int save_name_ui(pixel *vid_buf)
 	ed.hide = 0;
 	ed.cursor = ed.cursorstart = strlen(svf_name);
 	ed.multiline = 0;
+	ed.limit = 255;
 	strcpy(ed.str, svf_name);
 
 	ed2.x = x0+13;
@@ -2413,6 +2421,7 @@ int save_name_ui(pixel *vid_buf)
 	ed2.hide = 0;
 	ed2.cursor = ed2.cursorstart = strlen(svf_description);
 	ed2.multiline = 1;
+	ed2.limit = 255;
 	strcpy(ed2.str, svf_description);
 
 	ctb.x = 0;
@@ -3963,6 +3972,7 @@ int search_ui(pixel *vid_buf)
 	ed.hide = 0;
 	ed.cursor = ed.cursorstart = strlen(search_expr);
 	ed.multiline = 0;
+	ed.limit = 255;
 	strcpy(ed.str, search_expr);
 
 	motd.x = 20;
@@ -4667,6 +4677,7 @@ int report_ui(pixel* vid_buf, char *save_id)
 	ed.focus = 0;
 	ed.hide = 0;
 	ed.multiline = 1;
+	ed.limit = 255;
 	ed.cursor = ed.cursorstart = 0;
 	strcpy(ed.str, "");
 
@@ -4826,6 +4837,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	ed.focus = 1;
 	ed.hide = 0;
 	ed.multiline = 1;
+	ed.limit = 1023;
 	ed.cursor = ed.cursorstart = 0;
 	strcpy(ed.str, "");
 
@@ -5239,10 +5251,13 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			if (info_ready && svf_login) {
 				//Render the comment box.
-				fillrect(vid_buf, 50+(XRES/2)+1, YRES+MENUSIZE-125, XRES+BARSIZE-100-((XRES/2)+1), 75, 0, 0, 0, 255);
-				drawrect(vid_buf, 50+(XRES/2)+1, YRES+MENUSIZE-125, XRES+BARSIZE-100-((XRES/2)+1), 75, 200, 200, 200, 255);
+				int height = textwrapheight(ed.str, ed.w-21);
+				ed.h = height+2;
+				ed.y = YRES+MENUSIZE-70-height-1;
+				fillrect(vid_buf, 50+(XRES/2)+1, ed.y-6, XRES+BARSIZE-100-((XRES/2)+1), ed.h+25, 0, 0, 0, 255);
+				drawrect(vid_buf, 50+(XRES/2)+1, ed.y-6, XRES+BARSIZE-100-((XRES/2)+1), ed.h+25, 200, 200, 200, 255);
 
-				drawrect(vid_buf, 54+(XRES/2)+1, YRES+MENUSIZE-121, XRES+BARSIZE-108-((XRES/2)+1), 48, 255, 255, 255, 200);
+				drawrect(vid_buf, 54+(XRES/2)+1, ed.y-3, XRES+BARSIZE-108-((XRES/2)+1), ed.h, 255, 255, 255, 200);
 
 				ui_edit_draw(vid_buf, &ed);
 
@@ -6477,6 +6492,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 	ed.focus = 1;
 	ed.hide = 0;
 	ed.multiline = 0;
+	ed.limit = 255;
 	ed.cursor = ed.cursorstart = 0;
 	//fillrect(vid_buf, -1, -1, XRES, 220, 0, 0, 0, 190);
 	if (!old_buf)
@@ -6669,6 +6685,7 @@ void init_color_boxes()
 	box_R.focus = 0;
 	box_R.hide = 0;
 	box_R.multiline = 0;
+	box_R.limit = 255;
 	box_R.cursor = box_R.cursorstart = 0;
 
 	box_G.x = 40;
@@ -6680,6 +6697,7 @@ void init_color_boxes()
 	box_G.focus = 0;
 	box_G.hide = 0;
 	box_G.multiline = 0;
+	box_G.limit = 255;
 	box_G.cursor = box_G.cursorstart = 0;
 
 	box_B.x = 75;
@@ -6691,6 +6709,7 @@ void init_color_boxes()
 	box_B.focus = 0;
 	box_B.hide = 0;
 	box_B.multiline = 0;
+	box_B.limit = 255;
 	box_B.cursor = box_B.cursorstart = 0;
 
 	box_A.x = 110;
@@ -6702,6 +6721,7 @@ void init_color_boxes()
 	box_A.focus = 0;
 	box_A.hide = 0;
 	box_A.multiline = 0;
+	box_A.limit = 255;
 	box_A.cursor = box_A.cursorstart = 0;
 }
 
@@ -7154,6 +7174,7 @@ int save_filename_ui(pixel *vid_buf)
 	ed.hide = 0;
 	ed.cursor = ed.cursorstart = 0;
 	ed.multiline = 0;
+	ed.limit = 255;
 	ed.str[0] = 0;
 	
 	if(svf_fileopen){
@@ -7306,6 +7327,7 @@ void catalogue_ui(pixel * vid_buf)
 	ed.x = x0+11;
 	ed.y = y0+29;
 	ed.multiline = 0;
+	ed.limit = 255;
 	ed.def = "[search]";
 	ed.focus = 0;
 	ed.hide = 0;

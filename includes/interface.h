@@ -109,8 +109,8 @@ static quick_option quickmenu[] =
 
 struct ui_edit
 {
-	int x, y, w, nx, h;
-	char str[256],*def;
+	int x, y, w, nx, h, limit;
+	char str[1024],*def;
 	int focus, cursor, hide, multiline;
 	int cursorstart, highlightstart, highlightlength;
 };
