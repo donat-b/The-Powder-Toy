@@ -179,7 +179,7 @@ void get_sign_pos(int i, int *x0, int *y0, int *w, int *h)
 void add_sign_ui(pixel *vid_buf, int mx, int my)
 {
 	int i, w, h, x, y, nm=0, ju;
-	int x0=(XRES-192)/2,y0=(YRES-80)/2,b=1,bq;
+	int x0=(XRES-204)/2,y0=(YRES-80)/2,b=1,bq;
 	ui_edit ed;
 
 	// if currently moving a sign, stop doing so
@@ -223,7 +223,7 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 
 	ed.x = x0+25;
 	ed.y = y0+25;
-	ed.w = 158;
+	ed.w = 183;
 	ed.nx = 1;
 	ed.def = "[message]";
 	ed.focus = 1;
@@ -240,12 +240,12 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 
-		drawrect(vid_buf, x0, y0, 192, 80, 192, 192, 192, 255);
-		clearrect(vid_buf, x0, y0, 192, 80);
+		drawrect(vid_buf, x0, y0, 217, 80, 192, 192, 192, 255);
+		clearrect(vid_buf, x0, y0, 217, 80);
 		drawtext(vid_buf, x0+8, y0+8, nm ? "New sign:" : "Edit sign:", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12, y0+23, "\xA1", 32, 64, 128, 255);
 		drawtext(vid_buf, x0+12, y0+23, "\xA0", 255, 255, 255, 255);
-		drawrect(vid_buf, x0+8, y0+20, 176, 16, 192, 192, 192, 255);
+		drawrect(vid_buf, x0+8, y0+20, 201, 16, 192, 192, 192, 255);
 		ui_edit_draw(vid_buf, &ed);
 		drawtext(vid_buf, x0+8, y0+46, "Justify:", 255, 255, 255, 255);
 		draw_icon(vid_buf, x0+50, y0+42, 0x9D, ju == 0);
@@ -267,7 +267,7 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 		}
 
 		drawtext(vid_buf, x0+5, y0+69, "OK", 255, 255, 255, 255);
-		drawrect(vid_buf, x0, y0+64, 192, 16, 192, 192, 192, 255);
+		drawrect(vid_buf, x0, y0+64, 217, 16, 192, 192, 192, 255);
 #ifdef OGLR
 		clearScreen(1.0f);
 #endif
@@ -309,7 +309,6 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 	}
 
 	strcpy(signs[i].text, ed.str);
-	clean_text(signs[i].text, 158-14);
 	signs[i].ju = ju;
 }
 //TODO: Finish text wrapping in text edits
