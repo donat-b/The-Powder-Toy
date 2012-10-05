@@ -4205,7 +4205,7 @@ int search_ui(pixel *vid_buf)
 					thumb_drawn[pos] = 1;
 				}
 				own = (svf_login && (!strcmp(svf_user, search_owners[pos]) || svf_admin || svf_mod)) || ((unlockedstuff & 0x08)?1:0);
-				if (mx>=gx-2 && mx<=gx+XRES/GRID_S+3 && my>=gy-2 && my<=gy+YRES/GRID_S+30 && my<YRES+MENUSIZE-25)
+				if (mx>=gx-2 && mx<=gx+XRES/GRID_S+3 && my>=gy-2 && my<=gy+YRES/GRID_S+30)
 					mp = pos;
 				if ((own || search_fav) && mx>=gx+XRES/GRID_S-4 && mx<=gx+XRES/GRID_S+6 && my>=gy-6 && my<=gy+4)
 				{
@@ -4297,7 +4297,7 @@ int search_ui(pixel *vid_buf)
 				}
 			}
 
-		if (mp!=-1 && mmt>=TIMEOUT/5 && !st)
+		if (mp!=-1 && mmt>=TIMEOUT/5 && !st && my<YRES+MENUSIZE-25)
 		{
 			gi = mp % GRID_X;
 			gj = mp / GRID_X;
