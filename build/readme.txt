@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
-Use the lagacy version of my mod if using an older computer that doesn't 
+Use the legacy version of my mod if using an older computer that doesn't 
 support sse2 (yours probably does), or if it just runs faster
 
 Scroll to the bottom for recent changes and a todo list.
@@ -73,7 +73,7 @@ again to go into manual heat display. The min and max temps will stop
 changing when you go into this, so it will help if automatic mode flickers 
 because of something like fire clone constantly changing the max temp. If 
 you right click the  button, it will ask you to enter the new maximum and 
-minimum temp. Enter the temperatures in Celcius. It will change the display 
+minimum temp. Enter the temperatures in Celsius. It will change the display 
 mode into manual automatically after this.
 
 Virus: Found in liquids. Turns everything it touches into VIRS. It has 3
@@ -96,7 +96,7 @@ use tpt.register_step. When you save it in a stamp, and will allow it to be
 run one more time when you open it. After you save a stamp/save or open one, 
 you can delete the INDI. The code will already be in newluacode.txt, and you 
 can look at it to see what it does. I also added in virus prevention. You can 
-only use certain approved funcions, and all of the tpt functions. You also 
+only use certain approved functions, and all of the tpt functions. You also 
 can't do while 1 do end, because the loop will exit after 3 seconds.
 
 Lua Graphics Functions: Allows you to change an element's graphics function. 
@@ -187,7 +187,7 @@ stamps/saves. Press up in the console and then enter to load an example.
 
 Version 9: http://min.us/muN92vQxC
 Fix loading some saves and fixed crash with HUD. Removed update button 
-permanetely and updated to newer source. Also, decoration color is now drawn 
+permanently and updated to newer source. Also, decoration color is now drawn 
 on stamps in the stamp browser. 2 new quickoptions: Newtonian gravity and 
 ambient heat. Custom HUDs. To change one, click the HUD2 button in the second 
 favorites menu and different options will come up. You can change all 4 of 
@@ -222,8 +222,8 @@ new one (what you are doing is copied over). Tabs are saved and not simulated
 when you are not using them. Press shift to save pressure in stamps and saves, 
 RCTRL to keep it when transforming stamps. Added fusion. see thread 12901 for 
 more info (http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12901). 
-Added realistic mode, not by me and not too noticible. Autosave button, 
-disabled by default. If Powder Toy unexpectidely closes, the next time you 
+Added realistic mode, not by me and not too noticeable. Autosave button, 
+disabled by default. If Powder Toy unexpectedly closes, the next time you 
 open it your work will appear. Fix decoration tools.
 
 Version 12.1 - 3/3/12
@@ -260,7 +260,7 @@ destructible again. Added Easter egg hunt, press 'e' to start. Removed in
 version 15.
 
 Version 14.2 - 4/30/12
-update to latest source again. reversable pipe - spark with PSCN to reverse, 
+update to latest source again. reversible pipe - spark with PSCN to reverse, 
 NSCN to unreverse. This mod is temporarily discontinued, but will be started 
 again in May/June.
 
@@ -278,7 +278,7 @@ go in signs or local saves names (colors are removed). Update to 79.2 source.
 Version 16 - 6/14/12
 VOID and PVOD can be set to only eat their ctype (or only not eat it if their 
 tmp is 1). Local save deletion inside tpt. Fix saving as release/beta version, 
-fix many saving propblems. Fix SING explosion. lua functions can be auto-
+fix many saving problems. Fix SING explosion. lua functions can be auto-
 completed when writing commands in the console (ex. type "tpt.s" and press 
 tab, it changes to "tpt.set_property("). Works with many common lua console 
 commands/things. Lightning can be cloned and it's initial direction is 
@@ -307,13 +307,13 @@ Many minor graphical fixes to the HUD. FIND can find 3 things at once. Left
 selected element is red, right selected is blue, and alternate selected is 
 green. LCtrl/RCtrl/Shift + F to toggle these. Also, a new FIND2 button which 
 toggles an alternate find mode more similar to my lua script, where first 
-everything is dimmed, and then a dot is put over what your're finding. Click 
+everything is dimmed, and then a dot is put over what you're finding. Click 
 a user ID to switch to showing comment post times and dates instead. Use the 
 DATE button to change the format. Date format also applies to the HUD now, if 
 you chose to display it. The areas for stamp saving, copying, and cutting can 
 be drawn backwards now. Fix first comment on saves not showing. Fix crash bug 
 with powered electronics and moving solids, ANIM activated instantly now too. 
-New flood-fill brush shape. Many speed improvements by skiping unneeded 
+New flood-fill brush shape. Many speed improvements by skipping unneeded 
 things. WOOD and PLNT look burnt when hot and frozen when cold. VIRS has a 
 small chance of destroying CURE. saving stamps looks better & you can delete 
 multiple stamps at once with Ctrl+red delete button. Many other minor fixes 
@@ -336,7 +336,7 @@ to see their profile.
 
 Version 18.1 8/7/12
 Fix crash when saving invalid elements (that you shouldn't have anyway). Add 
-an icon to the deco menu and element search ui. Disable reversable pipe on non 
+an icon to the deco menu and element search ui. Disable reversible pipe on non 
 mod saves. Improvements to the deco menu to make it feel more like the editor, 
 fix middle click to get decocolor inside of it. Fix graphics function crash. 
 Fixes to PWHT so that it works and saves better. Fix instantly powered 
@@ -357,7 +357,7 @@ Version 19.1 9/2/12
 Fix some stickmen spawning glitches (still in tpt though). Fast quit option 
 (found in the simulation options). Compatibility with saves made in tpt++ 
 (fixes walls). Fix deco not showing when drawing on ANIM. The extra 1st 
-page saves option stays on like the other seach options do. Add things from 
+page saves option stays on like the other search options do. Add things from 
 tpt version 83.0 (DTEC, things from my pull request).
 
 Version 19.2 10/5/12
