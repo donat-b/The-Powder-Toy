@@ -17,6 +17,8 @@
 #ifndef SAVE_H
 #define SAVE_H
 
+int change_wallpp(int wt);
+
 void *transform_save(void *odata, int *size, matrix2d transform, vector2d translate);
 
 void *build_thumb(int *size, int bzip2);
