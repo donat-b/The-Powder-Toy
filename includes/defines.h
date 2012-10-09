@@ -49,7 +49,7 @@
 
 #ifndef UPDATESERVER
 	#define UPDATESERVER "178.219.36.155" // change this to check for updates on a different server
-	#define UPDATESERVER_ALT "mniip.com" // alternate update server (same as above)
+	#define UPDATESERVERALT "mniip.com" // alternate update server (same as above)
 #endif
 
 #define LOCAL_SAVE_DIR "Saves"
