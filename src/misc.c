@@ -119,7 +119,7 @@ void strlist_free(struct strlist **list)
 void clean_text(char *text, int vwidth)
 {
 	int i = 0;
-	if(textwidth(text) > vwidth){
+	if(vwidth>=0 && textwidth(text) > vwidth){
 		text[textwidthx(text, vwidth)] = 0;	
 	}
 	for(i = 0; i < strlen(text); i++){

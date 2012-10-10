@@ -1330,6 +1330,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 								if(strcmp(bson_iterator_key(&signiter), "text")==0 && bson_iterator_type(&signiter)==BSON_STRING)
 								{
 									strncpy(signs[i].text, bson_iterator_string(&signiter), 255);
+									//clean_text(signs[i].text, -1);  //disabling this since I love colors :D
 								}
 								else if(strcmp(bson_iterator_key(&signiter), "justification")==0 && bson_iterator_type(&signiter)==BSON_INT)
 								{
@@ -3103,7 +3104,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			memcpy(signs[k].text, d+p, x);
 			signs[k].text[x] = 0;
-			clean_text(signs[k].text, 158-14 /* Current max sign length */);
+			clean_text(signs[k].text, 158-14); //Current max sign length //Note: did not remove the limit here since this limit was always present when PSV format was used
 		}
 		p += x;
 	}
