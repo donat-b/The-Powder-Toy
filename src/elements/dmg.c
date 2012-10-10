@@ -52,7 +52,7 @@ int update_DMG(UPDATE_FUNC_ARGS)
 										vy[(y+nxj)/CELL][(x+nxi)/CELL] += fy;
 
 										pv[(y+nxj)/CELL][(x+nxi)/CELL] += 1.0f;
-
+										
 										t = parts[rr>>8].type;
 										if(t && ptransitions[t].pht>-1 && ptransitions[t].pht<PT_NUM)
 											part_change_type(rr>>8, x+nxi, y+nxj, ptransitions[t].pht);
@@ -72,7 +72,7 @@ int update_DMG(UPDATE_FUNC_ARGS)
 							return 1;
 				}
 			}
-			return 0;
+	return 0;
 }
 
 int graphics_DMG(GRAPHICS_FUNC_ARGS)

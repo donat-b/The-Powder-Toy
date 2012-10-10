@@ -15,7 +15,7 @@
 
 #include <element.h>
 
-int in_radius(int rd, int x, int y);
+int in_radius(int rd, int x, int y); //defined in dtec.c
 
 int update_TSNS(UPDATE_FUNC_ARGS)
 {
