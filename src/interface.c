@@ -229,7 +229,7 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 			break;
 	}
 
-	ui_edit_init(&ed, x0+25, y0+25, 183, 14);
+	ui_edit_init(&ed, x0+25, y0+25, 184, 14);
 	ed.def = "[message]";
 	ed.cursor = ed.cursorstart = strlen(signs[i].text);
 	strcpy(ed.str, signs[i].text);
