@@ -1100,7 +1100,7 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 			parts[i].tmp2 = 2;
 			break;
 		case PT_TSNS:
-			parts[i].tmp2 = 2;
+			parts[i].tmp2 = 1;
 		default:
 			if (t==PT_FIGH)
 			{
