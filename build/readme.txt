@@ -374,17 +374,15 @@ drawn to the very bottom, bugs with the resizing comment box, and jump when
 scrolling past certain comments.
 
 Bugs:
-lag when in tight loops caused by bad fps limiting (get tpt++'s new fps limiter)
-{t:123456|asdf} - not in this version
-when shift+clicking a comment poster's name to search for them, the search isn't saved after you exit
-944276 - using EXPL on this causes infinite pressure glitch
-//None (at least that I know of)
+None (at least that I know of)
 
 
 
 
 Future Ideas/TODO: '>' means currently being worked on/added next
 >Add things from tpt++ that look cool, and any new simulation changes it gets
+>{t:123456|asdf} - not in this version
+>DMG/TSNS
 Don't save lua code inside of INDI, since this isn't a lua script anymore - for tpt++ version
 ---
 C++ version todo:

@@ -4359,7 +4359,10 @@ int search_ui(pixel *vid_buf)
 			}
 		}
 		if (sdl_key==SDLK_ESCAPE)
+		{
+			strcpy(search_expr, ed.str);
 			goto finish;
+		}
 
 		if (b && !bq && mx>=XRES-64+16 && mx<=XRES-8+16 && my>=8 && my<=24 && svf_login && !search_fav)
 		{
@@ -4429,6 +4432,7 @@ int search_ui(pixel *vid_buf)
 
 		if ((b && !bq && mp!=-1 && !st && !uih) || do_open==1)
 		{
+			strcpy(search_expr, ed.str);
 			if (open_ui(vid_buf, search_ids[mp], search_dates[mp]?search_dates[mp]:NULL, b==4) || do_open==1) {
 				goto finish;
 			}
@@ -4647,6 +4651,7 @@ int search_ui(pixel *vid_buf)
 			lasttime++;
 	}
 
+	strcpy(search_expr, ed.str);
 finish:
 	if (last)
 		free(last);
@@ -4662,8 +4667,6 @@ finish:
 	}
 
 	search_results("", 0);
-
-	strcpy(search_expr, ed.str);
 
 	free(v_buf);
 	return 0;
