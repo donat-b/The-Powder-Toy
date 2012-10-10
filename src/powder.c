@@ -1099,6 +1099,8 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 		case PT_DTEC:
 			parts[i].tmp2 = 2;
 			break;
+		case PT_TSNS:
+			parts[i].tmp2 = 2;
 		default:
 			if (t==PT_FIGH)
 			{
