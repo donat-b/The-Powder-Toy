@@ -2372,7 +2372,7 @@ int main(int argc, char *argv[])
 				{
 					if (!bq)
 						for (signi=0; signi<MAXSIGNS; signi++)
-							if (sregexp(signs[signi].text, "^{c:[0-9]*|.*}$")==0)
+							if (sregexp(signs[signi].text, "^{[c|t]:[0-9]*|.*}$")==0)
 							{
 								int signx, signy, signw, signh;
 								get_sign_pos(signi, &signx, &signy, &signw, &signh);
@@ -2387,7 +2387,18 @@ int main(int argc, char *argv[])
 										buff[sldr-3] = signs[signi].text[sldr];
 
 									buff[sldr-3] = '\0';
-									open_ui(vid_buf, buff, 0);
+									if (signs[signi].text[1] == 'c')
+									{
+										open_ui(vid_buf, buff, 0);
+									}
+									else if (signs[signi].text[1] == 't')
+									{
+										char url[256];
+										int tmpId = 0;
+										sscanf(buff, "%d", &tmpId);
+										sprintf(url, "http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=%d", tmpId);
+										open_link(url);
+									}
 									break;
 								}
 							}
