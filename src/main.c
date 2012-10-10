@@ -2720,7 +2720,9 @@ int main(int argc, char *argv[])
 									{
 										buff[sldr-3] = '\0';
 										if (signs[signi].text[1] == 'c')
+										{
 											open_ui(vid_buf, buff, 0, 0);
+										}
 										else if (signs[signi].text[1] == 's')
 										{
 											strcpy(search_expr, buff);
