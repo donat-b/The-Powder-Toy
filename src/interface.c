@@ -3632,29 +3632,34 @@ void stickmen_keys()
 
 int FPS = 0, pastFPS = 0;
 float FPSB2 = 0;
+float frameTime;
+float frameTimeAvg = 0.0f, correctedFrameTimeAvg = 0.0f;
 void limit_fps()
 {
-	FPS++;
-	currentTime = SDL_GetTicks();
-	elapsedTime = currentTime-pastFPS;
-	if ((FPS>2 || elapsedTime>1000*2/limitFPS) && elapsedTime && FPS*1000/elapsedTime>limitFPS)
+	frameTime = (float)(SDL_GetTicks() - currentTime);
+
+	frameTimeAvg = (frameTimeAvg*(1.0f-0.2f)) + (0.2f*frameTime);
+	if(limitFPS > 2)
 	{
-		while ((float)(FPS*1000)/elapsedTime>limitFPS && elapsedTime < 1000)
+		float targetFrameTime = 1000.0f/((float)limitFPS);
+		if(targetFrameTime - frameTimeAvg > 0)
 		{
-			SDL_Delay(1);
-			currentTime = SDL_GetTicks();
-			elapsedTime = currentTime-pastFPS;
+			SDL_Delay((Uint32)((targetFrameTime - frameTimeAvg) + 0.5f));
+			frameTime = (float)(SDL_GetTicks() - currentTime);//+= (int)(targetFrameTime - frameTimeAvg);
 		}
 	}
-	if (elapsedTime>=1000)
+
+	correctedFrameTimeAvg = (correctedFrameTimeAvg*(1.0f-0.05f)) + (0.05f*frameTime);
+	elapsedTime = currentTime-pastFPS;
+	if (elapsedTime>=500)
 	{
 		if (!FPSwait)
-			FPSB2 = (float)(FPS*1000)/elapsedTime;
+			FPSB2 = 1000.0f/correctedFrameTimeAvg;
 		if (main_loop && FPSwait > 0)
 			FPSwait--;
-		FPS = 0;
 		pastFPS = currentTime;
 	}
+	currentTime = SDL_GetTicks();
 }
 
 void set_cmode(int cm) // sets to given view mode
