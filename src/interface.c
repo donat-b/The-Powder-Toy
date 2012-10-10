@@ -4797,7 +4797,9 @@ void converttotime(char *timestamp, char **timestring, int show_day, int show_ye
 
 int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 {
-	int b=1,bq,mx,my,ca=0,thumb_w,thumb_h,active=0,active_2=0,active_3=0,active_4=0,cc=0,ccy=0,cix=0,hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1,comment_scroll=0,comment_page=0,redraw_comments=1;
+	int b=1,bq,mx,my,ca=0,thumb_w,thumb_h,active=0,active_2=0,active_3=0,active_4=0,cc=0,ccy=0,cix=0;
+	int hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1;
+	int comment_scroll = 0, comment_page = 0, redraw_comments = 1, commentheight = 0;
 	int nyd,nyu,ry,lv;
 	float ryf;
 
@@ -5077,7 +5079,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "FormattedUsername")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "UserID")) && tmpobj->type == cJSON_String) { info->commentauthorIDs[i] = (char*)calloc(16,sizeof(char*)); strncpy(info->commentauthorIDs[i], tmpobj->valuestring, 16); }
 							//if((tmpobj = cJSON_GetObjectItem(commentobj, "Gravatar")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
-							if((tmpobj = cJSON_GetObjectItem(commentobj, "Text")) && tmpobj->type == cJSON_String)  { info->comments[i] = (char*)calloc(512,sizeof(char*)); strncpy(info->comments[i], tmpobj->valuestring, 512); }
+							if((tmpobj = cJSON_GetObjectItem(commentobj, "Text")) && tmpobj->type == cJSON_String)  { info->comments[i] = (char*)calloc(1024,sizeof(char*)); strncpy(info->comments[i], tmpobj->valuestring, 1024); }
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "Timestamp")) && tmpobj->type == cJSON_String) { converttotime(tmpobj->valuestring, &info->commenttimestamps[i], -1, -1, -1); }
 						}
 					}
@@ -5159,12 +5161,14 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				authoritah = svf_login && (!strcmp(info->author, svf_user) || svf_admin || svf_mod);
 				memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 			}
+			if (svf_login)
+				commentheight = drawtextwrap(vid_buf, ed.x, ed.y, ed.w-14, ed.str, 0, 0, 0, 0);
 			if (info_ready && redraw_comments) // draw the comments
 			{
 				ccy = 0;
 				clearrect(vid_buf, 50+(XRES/2)+1, 50, XRES+BARSIZE-100-((XRES/2)+1), YRES+MENUSIZE-100);
 				for (cc=0; cc<info->comment_count; cc++) {
-					if (ccy + 72 + comment_scroll<(YRES+MENUSIZE-56-(svf_login?70:0))) { //Try not to draw off the screen
+					if (ccy + 72 + comment_scroll<YRES+MENUSIZE-56) { //Try not to draw off the screen
 						if (ccy+comment_scroll >= 0) //Don't draw above the screen either
 						{
 							int r = 255, g = 255, bl = 255;
@@ -5218,14 +5222,14 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						ccy += 12;
 						if (ccy+comment_scroll>=0) //draw the comment
 						{
-							if ((ccy + 72 + comment_scroll + ((textwidth(info->comments[cc])/(XRES+BARSIZE-100-((XRES/2)+1)-20)))*12)>=(YRES+MENUSIZE-56-(svf_login?70:0)))
+							if ((ccy + 72 + comment_scroll + ((textwidth(info->comments[cc])/(XRES+BARSIZE-100-((XRES/2)+1)-20)))*12)>=YRES+MENUSIZE-56)
 								break;
 							ccy += drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, XRES+BARSIZE-100-((XRES/2)+1)-20, info->comments[cc], 255, 255, 255, 185);
 							ccy += 10;
 						}
 						else
 						{
-							ccy += 10 + textwrapheight(info->comments[cc],XRES+BARSIZE-100-((XRES/2)+1)-20);
+							ccy += 10 + drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, XRES+BARSIZE-100-((XRES/2)+1)-20, info->comments[cc], 0, 0, 0, 0);
 							if (cc == info->comment_count-1)
 								comment_scroll = 0;
 						}
@@ -5251,9 +5255,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			if (info_ready && svf_login) {
 				//Render the comment box.
-				int height = textwrapheight(ed.str, ed.w-21);
-				ed.h = height+2;
-				ed.y = YRES+MENUSIZE-70-height-1;
+				ed.h = commentheight+2;
+				ed.y = YRES+MENUSIZE-70-commentheight-1;
 				fillrect(vid_buf, 50+(XRES/2)+1, ed.y-6, XRES+BARSIZE-100-((XRES/2)+1), ed.h+25, 0, 0, 0, 255);
 				drawrect(vid_buf, 50+(XRES/2)+1, ed.y-6, XRES+BARSIZE-100-((XRES/2)+1), ed.h+25, 200, 200, 200, 255);
 

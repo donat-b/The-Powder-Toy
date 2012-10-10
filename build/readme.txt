@@ -367,14 +367,17 @@ allow you to make signs the size they are in tpt++. Fix clicking usernames
 on the bottom row of saves not working. Add some minor simulation changes 
 made in tpt and tpt++.
 
+Next Version
+Fix minor problem where PBCN and PLCN wouldn't clone until a frame after they 
+were activated. Fix really long comments not loading, the comments not being 
+drawn to the very bottom, bugs with the resizing comment box, and jump when 
+scrolling past certain comments.
+
 Bugs:
 lag when in tight loops caused by bad fps limiting (get tpt++'s new fps limiter)
 {t:123456|asdf} - not in this version
 when shift+clicking a comment poster's name to search for them, the search isn't saved after you exit
 944276 - using EXPL on this causes infinite pressure glitch
-long comments are not loaded
-comments should be drawn to bottom
-fix check for inside comment box when changing dates to ids
 //None (at least that I know of)
 
 

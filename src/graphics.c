@@ -979,7 +979,7 @@ inline void drawpixel(pixel *vid, int x, int y, int r, int g, int b, int a)
 	vid[y*(XRES+BARSIZE)+x] = PIXRGBA(r,g,b,a);
 #else
 	pixel t;
-	if (x<0 || y<0 || x>=XRES+BARSIZE || y>=YRES+MENUSIZE)
+	if (x<0 || y<0 || x>=XRES+BARSIZE || y>=YRES+MENUSIZE || a == 0)
 		return;
 	if (a!=255)
 	{
