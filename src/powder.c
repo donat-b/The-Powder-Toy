@@ -2677,6 +2677,11 @@ void update_particles_i(pixel *vid, int start, int inc)
 			if (lua_el_mode[t] != 2)
 			{
 #endif
+				if (ptypes[t].properties&PROP_POWERED)
+				{
+					if (update_POWERED(i,x,y,surround_space,nt))
+						continue;
+				}
 				if (ptypes[t].properties&PROP_CLONE)
 				{
 					if (ptypes[t].properties&PROP_POWERED)
@@ -2696,11 +2701,6 @@ void update_particles_i(pixel *vid, int start, int inc)
 						if (update_BCLN(i,x,y,surround_space,nt))
 							continue;
 					}
-				}
-				if (ptypes[t].properties&PROP_POWERED)
-				{
-					if (update_POWERED(i,x,y,surround_space,nt))
-						continue;
 				}
 				if (ptypes[t].properties&PROP_MOVS)
 				{
