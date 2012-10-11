@@ -189,7 +189,9 @@ part_type ptypes[PT_NUM] =
 	{"FRAY",	PIXPACK(0x00BBFF),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	1,	1,	1,	100,	SC_FORCE,		20.0f+0.0f +273.15f,	0,		"Force Emitter. Push or pull objects based on temp value, use like ARAY", ST_SOLID, TYPE_SOLID|PROP_LIFE_DEC, &update_FRAY, NULL},
 	{"RPEL",	PIXPACK(0x99CC00),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	1,	1,	1,	100,	SC_FORCE,		20.0f+0.0f	+273.15f,	0,		"Repel or attract particles based on temp value.", ST_NONE, TYPE_SOLID, &update_REPL, NULL},
 	{"PPIP",	PIXPACK(0x444466),	0.0f,	0.00f * CFDS,	0.95f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_POWERED,		273.15f,				0,		"Powered version of pipe", ST_SOLID, TYPE_SOLID|PROP_LIFE_DEC, &update_PIPE, &graphics_PIPE},
-	{"DTEC",	PIXPACK(0xFD9D18),	0.0f,	0.00f * CFDS,	0.96f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f  * CFDS,	0,	0,		0,	0,	1,	1,	1,	100,	SC_ELEC,		R_TEMP+273.15f,			0,		"Creates a spark when something with its ctype is nearby", ST_SOLID, TYPE_SOLID, &update_DTEC, &graphics_DTEC},
+	{"DTEC",	PIXPACK(0xFD9D18),	0.0f,	0.00f * CFDS,	0.96f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f  * CFDS,	0,	0,		0,	0,	1,	1,	1,	100,	SC_SENSOR,		R_TEMP+273.15f,			0,		"Creates a spark when something with its ctype is nearby", ST_SOLID, TYPE_SOLID, &update_DTEC, &graphics_DTEC},
+	{"DMG",		PIXPACK(0x88FF88),	0.6f,	0.01f * CFDS,	0.98f,	0.95f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	0,	20,	1,	1,	30,		SC_FORCE,		R_TEMP-2.0f	+273.15f,	29,		"DMG.", ST_NONE, TYPE_PART|PROP_LIFE_DEC|PROP_LIFE_KILL_DEC|PROP_SPARKSETTLE, &update_DMG, &graphics_DMG},
+	{"TSNS",	PIXPACK(0xFD9D18),	0.0f,	0.00f * CFDS,	0.96f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	1,	1,	1,	100,	SC_SENSOR,		R_TEMP+0.0f	+273.15f,	0,		"Creates a spark when there's a nearby particle with equal or greater temperature", ST_SOLID, TYPE_SOLID, &update_TSNS, NULL},
 	//Mod elements past this point
 	{"BALL",	PIXPACK(0x0010A0),	0.4f,	0.004f * CFDS,	0.92f,	0.80f,	0.00f,	0.1f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	30,	1,	1,	85,		SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	70,		"Moving solid. Acts like a bouncy ball", ST_NONE, TYPE_PART|PROP_MOVS, NULL, NULL},
 	{"ANIM",	PIXPACK(0x505050),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	1,	1,	1,	100,	SC_POWERED,		R_TEMP+0.0f	+273.15f,	0,		"Animated Liquid Crystal", ST_SOLID, TYPE_SOLID|PROP_POWERED, &update_ANIM, NULL},
@@ -449,6 +451,8 @@ part_transition ptransitions[PT_NUM] =
 	/* COND */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* PWHT */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* EXPL */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* DMG */  {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* TSNS */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 };
 
 part_type ptypes2[PT_NUM];

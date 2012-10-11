@@ -45,21 +45,22 @@ typedef struct quick_option quick_option;
 #define SC_WALL 0
 #define SC_ELEC 1
 #define SC_POWERED 2
-#define SC_FORCE 3
-#define SC_EXPLOSIVE 4
-#define SC_GAS 5
-#define SC_LIQUID 6
-#define SC_POWDERS 7
-#define SC_SOLIDS 8
-#define SC_NUCLEAR 9
-#define SC_SPECIAL 10
-#define SC_LIFE 11
-#define SC_TOOL 12
-#define SC_FAV 13
-#define SC_DECO 14
-#define SC_CRACKER 15
-#define SC_FAV2 16
-#define SC_HUD 17
+#define SC_SENSOR 3
+#define SC_FORCE 4
+#define SC_EXPLOSIVE 5
+#define SC_GAS 6
+#define SC_LIQUID 7
+#define SC_POWDERS 8
+#define SC_SOLIDS 9
+#define SC_NUCLEAR 10
+#define SC_SPECIAL 11
+#define SC_LIFE 12
+#define SC_TOOL 13
+#define SC_FAV 14
+#define SC_DECO 15
+#define SC_CRACKER 16
+#define SC_FAV2 17
+#define SC_HUD 18
 extern int SC_TOTAL;
 
 static menu_section msections[] = //doshow does not do anything currently.
@@ -67,6 +68,7 @@ static menu_section msections[] = //doshow does not do anything currently.
 	{"\xC1", "Walls", 0, 1},
 	{"\xC2", "Electronics", 0, 1},
 	{"\xD6", "Powered Materials", 0, 1},
+	{"\xD6", "Sensors", 0, 1},
 	{"\xE3", "Force Creating", 0, 1},
 	{"\xC3", "Explosives", 0, 1},
 	{"\xC5", "Gases", 0, 1},

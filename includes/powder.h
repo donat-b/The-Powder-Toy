@@ -243,7 +243,9 @@
 #define PT_REPL 160
 #define PT_PPIP 161
 #define PT_DTEC 162
-#define PT_NORMAL_NUM 163
+#define PT_DMG 163
+#define PT_TSNS 164
+#define PT_NORMAL_NUM 165
 
 #define PT_MOVS PT_NORMAL_NUM
 #define PT_ANIM PT_NORMAL_NUM+1
@@ -261,7 +263,7 @@
 #define PT_COND PT_NORMAL_NUM+13
 #define PT_PWHT PT_NORMAL_NUM+14
 #define PT_EXPL PT_NORMAL_NUM+15
-#define PT_NUM 179
+#define PT_NUM 181
 
 #define R_TEMP 22
 #define MAX_TEMP 9999
@@ -391,6 +393,7 @@ int graphics_WOOD(GRAPHICS_FUNC_ARGS);
 int graphics_PLNT(GRAPHICS_FUNC_ARGS);
 int graphics_BRCK(GRAPHICS_FUNC_ARGS);
 int graphics_DTEC(GRAPHICS_FUNC_ARGS);
+int graphics_DMG(GRAPHICS_FUNC_ARGS);
 
 void TRON_init_graphics();
 
@@ -438,6 +441,7 @@ int update_DCEL(UPDATE_FUNC_ARGS);
 int update_DEST(UPDATE_FUNC_ARGS);
 int update_DEUT(UPDATE_FUNC_ARGS);
 int update_DLAY(UPDATE_FUNC_ARGS);
+int update_DMG(UPDATE_FUNC_ARGS);
 int update_DSTW(UPDATE_FUNC_ARGS);
 int update_ELEC(UPDATE_FUNC_ARGS);
 int update_EMBR(UPDATE_FUNC_ARGS);
@@ -506,6 +510,7 @@ int update_STOR(UPDATE_FUNC_ARGS);
 int update_SWCH(UPDATE_FUNC_ARGS);
 int update_THDR(UPDATE_FUNC_ARGS);
 int update_THRM(UPDATE_FUNC_ARGS);
+int update_TSNS(UPDATE_FUNC_ARGS);
 int update_TRON(UPDATE_FUNC_ARGS);
 int update_TTAN(UPDATE_FUNC_ARGS);
 int update_URAN(UPDATE_FUNC_ARGS);

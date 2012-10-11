@@ -15,7 +15,8 @@
 
 #include <element.h>
 
-int update_DTEC(UPDATE_FUNC_ARGS) {
+int update_TSNS(UPDATE_FUNC_ARGS)
+{
 	int r, rx, ry, rt, rd = parts[i].tmp2;
 	if (rd > 25) parts[i].tmp2 = rd = 25;
 	if (parts[i].life)
@@ -26,6 +27,8 @@ int update_DTEC(UPDATE_FUNC_ARGS) {
 				if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
 				{
 					r = pmap[y+ry][x+rx];
+					if (!r)
+						r = photons[y+ry][x+rx];
 					if (!r)
 						continue;
 					rt = parts[r>>8].type;
@@ -47,20 +50,8 @@ int update_DTEC(UPDATE_FUNC_ARGS) {
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if (parts[r>>8].type == parts[i].ctype && (parts[i].ctype != PT_LIFE || parts[i].tmp == parts[r>>8].tmp))
+				if (parts[r>>8].temp >= parts[i].temp && parts[r>>8].type != PT_TSNS)
 					parts[i].life = 1;
 			}
-	return 0;
-}
-
-int in_radius(int rd, int x, int y)
-{
-	return (pow((double)x,2)*pow((double)rd,2)+pow((double)y,2)*pow((double)rd,2)<=pow((double)rd,2)*pow((double)rd,2));
-}
-
-int graphics_DTEC(GRAPHICS_FUNC_ARGS)
-{
-	if (cpart->life)
-		*pixel_mode |=  PMODE_GLOW;
 	return 0;
 }
