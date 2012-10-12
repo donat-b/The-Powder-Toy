@@ -57,7 +57,7 @@ unsigned cb_pmap[YRES][XRES];
 unsigned photons[YRES][XRES];
 
 float msvx[256], msvy[256], msrotation[256], newmsrotation[256];
-int msindex[256], msnum[256], numballs = 0, creatingsolid = 0, ms_rotation = 0;
+int msindex[256], msnum[256], numballs = 0, creatingsolid = 1, ms_rotation = 0;
 
 void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float *pGravX, float *pGravY)
 {
@@ -1084,10 +1084,19 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		{
 			if (creatingsolid)
 			{
-				parts[i].tmp2 = numballs-1;
-				parts[i].pavg[0] = x - parts[msindex[parts[i].tmp2]-1].x;
-				parts[i].pavg[1] = y - parts[msindex[parts[i].tmp2]-1].y;
-				msnum[numballs-1]++;
+				if (numballs && numballs-1 >= 0 && numballs-1 < 256 && msindex[numballs-1]-1 >= 0 && msindex[numballs-1]-1 < NPART && parts[msindex[numballs-1]-1].type == PT_MOVS)
+				{
+					parts[i].tmp2 = numballs-1;
+					parts[i].pavg[0] = x - parts[msindex[parts[i].tmp2]-1].x;
+					parts[i].pavg[1] = y - parts[msindex[parts[i].tmp2]-1].y;
+					msnum[numballs-1]++;
+				}
+				else
+				{
+					parts[i].tmp2 = 255;
+					parts[i].pavg[0] = (float)(rand()%20);
+					parts[i].pavg[1] = (float)(rand()%20);
+				}
 			}
 			else
 			{
@@ -4050,7 +4059,7 @@ void create_moving_solid(int x, int y, int rx, int ry, int type)
 		for (i=-rx; i<=rx; i++)
 			if (InCurrentBrush(i ,j ,rx ,ry))
 				create_part(-2, x+i, y+j, type);
-	creatingsolid = 0;
+	creatingsolid = 1;
 }
 
 int InCurrentBrush(int i, int j, int rx, int ry)
