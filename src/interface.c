@@ -5424,7 +5424,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				redraw_comments = 1;
 			}
 			//If mouse was clicked outside of the window bounds.
-			if (!(mx>50 && my>50 && mx<XRES+BARSIZE-50 && my<YRES+MENUSIZE-50) && b && !bq && !queue_open && my<YRES+MENUSIZE-21) {
+			if (!(mx>50 && my>50 && mx<XRES+BARSIZE-50 && my<YRES+MENUSIZE-50) && b && !bq && !queue_open) {
 				retval = 0;
 				break;
 			}

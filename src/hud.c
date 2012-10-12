@@ -183,7 +183,7 @@ void hud_text_right(int x, int y)
 		}
 		if (hud_current[26])
 		{
-			sprintf(tempstring,"Pressure: %0.*f, ",hud_current[27],pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+			sprintf(tempstring,"Pressure: %0.*f, ",hud_current[27],pv[y/CELL][x/CELL]);
 			strappend(heattext,tempstring);
 		}
 		if (strlen(heattext) > 1)
@@ -199,27 +199,27 @@ void hud_text_right(int x, int y)
 		}
 		if (hud_current[29])
 		{
-			sprintf(tempstring,"X:%d Y:%d ",x/sdl_scale,y/sdl_scale);
+			sprintf(tempstring,"X:%d Y:%d ",x,y);
 			strappend(coordtext,tempstring);
 		}
 		if (hud_current[30] && ngrav_enable)
 		{
-			sprintf(tempstring,"GX: %0.*f GY: %0.*f ",hud_current[31],gravx[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)],hud_current[31],gravy[(((y/sdl_scale)/CELL)*(XRES/CELL))+((x/sdl_scale)/CELL)]);
+			sprintf(tempstring,"GX: %0.*f GY: %0.*f ",hud_current[31],gravx[((y/CELL)*(XRES/CELL))+(x/CELL)],hud_current[31],gravy[((y/CELL)*(XRES/CELL))+(x/CELL)]);
 			strappend(coordtext,tempstring);
 		}
 		if (hud_current[34] && aheat_enable)
 		{
-			sprintf(tempstring,"A.Heat: %0.*f K ",hud_current[35],hv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+			sprintf(tempstring,"A.Heat: %0.*f K ",hud_current[35],hv[y/CELL][x/CELL]);
 			strappend(coordtext,tempstring);
 		}
 		if (hud_current[32])
 		{
-			sprintf(tempstring,"Pressure: %0.*f",hud_current[33],pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+			sprintf(tempstring,"Pressure: %0.*f",hud_current[33],pv[y/CELL][x/CELL]);
 			strappend(coordtext,tempstring);
 		}
 		if (hud_current[43])
 		{
-			sprintf(tempstring,"VX: %0.*f VY: %0.*f",hud_current[44],vx[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL],hud_current[44],vy[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
+			sprintf(tempstring,"VX: %0.*f VY: %0.*f",hud_current[44],vx[y/CELL][x/CELL],hud_current[44],vy[y/CELL][x/CELL]);
 			strappend(coordtext,tempstring);
 		}
 		if (strlen(coordtext) > 0 && coordtext[strlen(coordtext)-1] == ' ')
@@ -230,7 +230,7 @@ void hud_text_right(int x, int y)
 		if (hud_current[10])
 			sprintf(heattext, "Empty");
 		if (hud_current[29])
-			sprintf(coordtext, "X:%d Y:%d", x/sdl_scale, y/sdl_scale);
+			sprintf(coordtext, "X:%d Y:%d", x, y);
 	}
 }
 
