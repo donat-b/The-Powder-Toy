@@ -5404,27 +5404,27 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					ed.str[0] = 0;
 				}
 			}
-			if (sdl_wheel)
+			if (sdl_wheel && (!ed.focus || (sdl_key != '-' && sdl_key != '+')))
 			{
 				comment_scroll += 3*sdl_wheel;
 				if (comment_scroll > 0)
 					comment_scroll = 0;
 				redraw_comments = 1;
 			}
-			if (sdl_key=='[')
+			if (sdl_key=='[' && !ed.focus)
 			{
 				comment_scroll += 10;
 				if (comment_scroll > 0)
 					comment_scroll = 0;
 				redraw_comments = 1;
 			}
-			if (sdl_key==']')
+			if (sdl_key==']' && !ed.focus)
 			{
 				comment_scroll -= 10;
 				redraw_comments = 1;
 			}
-			//If mouse was clicked outsite of the window bounds.
-			if (!(mx>50 && my>50 && mx<XRES+BARSIZE-50 && my<YRES+MENUSIZE-50) && b && !queue_open && my<YRES+MENUSIZE-21) {
+			//If mouse was clicked outside of the window bounds.
+			if (!(mx>50 && my>50 && mx<XRES+BARSIZE-50 && my<YRES+MENUSIZE-50) && b && !bq && !queue_open && my<YRES+MENUSIZE-21) {
 				retval = 0;
 				break;
 			}
