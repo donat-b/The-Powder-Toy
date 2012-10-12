@@ -371,7 +371,9 @@ Next Version
 Fix minor problem where PBCN and PLCN wouldn't clone until a frame after they 
 were activated. Fix really long comments not loading, the comments not being 
 drawn to the very bottom, bugs with the resizing comment box, and jump when 
-scrolling past certain comments.
+scrolling past certain comments. Use {t:id|text} to link to forum threads 
+(added by me in tpt++ first). Added tpt++ elements: DMG and TSNS. Fix being 
+unable to save PIPE sometimes (error when saving, invalid element).
 
 Bugs:
 None (at least that I know of)
@@ -381,8 +383,6 @@ None (at least that I know of)
 
 Future Ideas/TODO: '>' means currently being worked on/added next
 >Add things from tpt++ that look cool, and any new simulation changes it gets
->{t:123456|asdf} - not in this version
->DMG/TSNS
 Don't save lua code inside of INDI, since this isn't a lua script anymore - for tpt++ version
 ---
 C++ version todo:
@@ -402,3 +402,4 @@ maybe in c++ version:
 RAND - deco tool - Uberness - 10/1 #powder at end
 PROT - Protons
 CMND - command element to run old commands
+http://powdertoy.co.uk/Discussions/Thread/View.html?Post=220547
