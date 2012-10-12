@@ -1084,7 +1084,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 		{
 			if (creatingsolid)
 			{
-				if (numballs && numballs-1 >= 0 && numballs-1 < 256 && msindex[numballs-1]-1 >= 0 && msindex[numballs-1]-1 < NPART && parts[msindex[numballs-1]-1].type == PT_MOVS)
+				if (numballs-1 >= 0 && numballs-1 < 256 && msindex[numballs-1]-1 >= 0 && msindex[numballs-1]-1 < NPART && parts[msindex[numballs-1]-1].type == PT_MOVS)
 				{
 					parts[i].tmp2 = numballs-1;
 					parts[i].pavg[0] = x - parts[msindex[parts[i].tmp2]-1].x;
