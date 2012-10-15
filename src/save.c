@@ -89,6 +89,8 @@ int fix_type(int type, int version)
 		max = 162;
 	if (version >= 83)
 		max = 163;
+	if (version >= 84)
+		max = 165;
 	if (type >= max)
 	{
 		type += (PT_NORMAL_NUM-max);
@@ -486,8 +488,8 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 					type = fix_type(partsData[i],inputData[4]);
 					if(type >= PT_NUM)
 						type = PT_DMND;	//Replace all invalid elements with diamond
-					if (modsave && modsave < 11 && type == PT_PIPE)
-						type = PT_PPIP;
+					//if (modsave && modsave < 11 && type == PT_PIPE)
+					//	type = PT_PPIP;
 					
 					//Draw type
 					if (type==PT_STKM || type==PT_STKM2 || type==PT_FIGH)
@@ -1736,8 +1738,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					
 					if (modsave)
 						partsptr[newIndex].type = fix_type(partsptr[newIndex].type, inputData[4]);
-					if (modsave && modsave < 11 && partsData[i] == PT_PIPE)
-						partsData[i] = partsptr[newIndex].type = PT_PPIP;
+					//if (modsave && modsave < 11 && partsData[i] == PT_PIPE)
+					//	partsData[i] = partsptr[newIndex].type = PT_PPIP;
 
 					//Read temp
 					if(fieldDescriptor & 0x01)
@@ -1786,7 +1788,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							}
 						}
 						if (modsave && partsptr[newIndex].type == PT_PIPE)
-							partsptr[newIndex].tmp = fix_type(partsptr[newIndex].tmp, inputData[4]);
+							partsptr[newIndex].tmp = fix_type(partsptr[newIndex].tmp&0xFF, inputData[4])|(parts[newIndex].tmp&~0xFF);
 					}
 					
 					//Read ctype
