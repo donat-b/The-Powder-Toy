@@ -376,7 +376,8 @@ scrolling past certain comments. Use {t:id|text} to link to forum threads
 unable to save PIPE sometimes (error when saving, invalid element).
 
 Bugs:
-None (at least that I know of)
+974917 - solid purple laser
+//None (at least that I know of)
 
 
 
