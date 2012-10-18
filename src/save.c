@@ -150,7 +150,7 @@ int check_save(int save_as, int orig_x0, int orig_y0, int orig_w, int orig_h, in
 				}
 				return 1;
 			}
-			if (parts[i].type == PT_PIPE && invalid_element(save_as,parts[i].tmp&0xFF))
+			if ((parts[i].type == PT_PIPE || parts[i].type == PT_PPIP) && invalid_element(save_as,parts[i].tmp&0xFF))
 			{
 				if (give_warning)
 				{
