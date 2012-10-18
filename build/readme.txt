@@ -363,17 +363,21 @@ tpt version 83.0 (DTEC, things from my pull request).
 Version 19.2 10/5/12
 Allow longer comments on saves, and the comment box resizes to fit. Allow 
 longer signs to be loaded in saves and make the sign creation ui larger to 
-allow you to make signs the size they are in tpt++. Fix clicking usernames 
-on the bottom row of saves not working. Add some minor simulation changes 
-made in tpt and tpt++.
+allow you to make signs the size they are in tpt++. Fix clicking usernames on 
+the bottom row of saves not working. Add some minor simulation changes made 
+in tpt and tpt++.
 
 Next Version
 Fix minor problem where PBCN and PLCN wouldn't clone until a frame after they 
 were activated. Fix really long comments not loading, the comments not being 
-drawn to the very bottom, bugs with the resizing comment box, and jump when 
-scrolling past certain comments. Use {t:id|text} to link to forum threads 
-(added by me in tpt++ first). Added tpt++ elements: DMG and TSNS. Fix being 
-unable to save PIPE sometimes (error when saving, invalid element).
+drawn to the very bottom, bugs with the resizing comment box, jump when 
+scrolling past certain comments, and scrolling when typing certain letters in 
+the comment box. Use {t:id|text} to link to forum threads (added by me in 
+tpt++ first). Added tpt++ elements: DMG and TSNS. Fix being unable to save 
+PIPE sometimes (error when saving, invalid element). Fix some moving solid 
+crashes. Fix HUD showing incorrect values with double scale enabled. Don't 
+load selected elements or render mode in saves anymore. Fix tpt bug that will 
+cause you to get logged out sometimes when you shouldn't.
 
 Bugs:
 974917 - solid purple laser

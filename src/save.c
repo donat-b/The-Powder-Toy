@@ -239,7 +239,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 {
 	unsigned char * inputData = save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *wallData = NULL;
 	int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, wallDataLen;
-	int i, x, y, j, type, ctype, wt, pc, gc, modsave = 0, movscenter = 0;
+	int i, x, y, j, type, ctype, wt, pc, gc, modsave = 0, movscenter = 0, saved_version = inputData[4];
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	int bsonInitialised = 0;
 	pixel * vidBuf = NULL;
@@ -263,7 +263,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 	*height = fullH;
 	
 	//From newer version
-	if (inputData[4] > SAVE_VERSION && inputData[4] != 222)
+	if (saved_version > SAVE_VERSION && saved_version != 222)
 	{
 		fprintf(stderr, "Save from newer version\n");
 		//goto fail;
@@ -362,6 +362,8 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 			if(bson_iterator_type(&iter)==BSON_INT)
 			{
 				modsave = bson_iterator_int(&iter);
+				if (modsave == 12)
+					saved_version = 84;
 			}
 			else
 			{
@@ -485,7 +487,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 						fprintf(stderr, "Out of range [%d]: %d %d, [%d, %d], [%d, %d]\n", i, x, y, (unsigned)partsData[i+1], (unsigned)partsData[i+2], (unsigned)partsData[i+3], (unsigned)partsData[i+4]);
 						goto fail;
 					}
-					type = fix_type(partsData[i],inputData[4]);
+					type = fix_type(partsData[i],saved_version);
 					if(type >= PT_NUM)
 						type = PT_DMND;	//Replace all invalid elements with diamond
 					//if (modsave && modsave < 11 && type == PT_PIPE)
@@ -657,7 +659,7 @@ fail:
 		vidBuf = NULL;
 	}
 fin:
-	//Don't call bson_destroy if bson_init wasn't called, or an uninitialised pointer (b.data) will be freed and the game will crash
+	//Don't call bson_destroy if bson_init wasn't called, or an uninitialized pointer (b.data) will be freed and the game will crash
 	if (bsonInitialised)
 		bson_destroy(&b);
 	return vidBuf;
@@ -1189,7 +1191,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	blockW = inputData[6];
 	blockH = inputData[7];
 	
-	//Full size, normalised
+	//Full size, normalized
 	fullX = blockX*CELL;
 	fullY = blockY*CELL;
 	fullW = blockW*CELL;
@@ -1590,8 +1592,10 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				char modver[32];
 				mod_save = modsave = bson_iterator_int(&iter);
 				sprintf(modver, "Made in jacob1's mod version %d", modsave);
-				if (!strcmp(svf_user,"jacob1"))
+				if (!strcmp(svf_user,"jacob1") && replace)
 					info_ui(vid_buf,"Mod",modver);
+				if (modsave == 12)
+					saved_version = 84;
 			}
 			else
 			{
@@ -1737,7 +1741,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					i+=3;
 					
 					if (modsave)
-						partsptr[newIndex].type = fix_type(partsptr[newIndex].type, inputData[4]);
+						partsptr[newIndex].type = fix_type(partsptr[newIndex].type, saved_version);
 					//if (modsave && modsave < 11 && partsData[i] == PT_PIPE)
 					//	partsData[i] = partsptr[newIndex].type = PT_PPIP;
 
@@ -1787,8 +1791,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 								partsptr[newIndex].tmp |= (((unsigned)partsData[i++]) << 16);
 							}
 						}
-						if (modsave && partsptr[newIndex].type == PT_PIPE)
-							partsptr[newIndex].tmp = fix_type(partsptr[newIndex].tmp&0xFF, inputData[4])|(parts[newIndex].tmp&~0xFF);
+						if (modsave && (partsptr[newIndex].type == PT_PIPE || partsptr[newIndex].type == PT_PPIP))
+							partsptr[newIndex].tmp = fix_type(partsptr[newIndex].tmp&0xFF, saved_version)|(parts[newIndex].tmp&~0xFF);
 					}
 					
 					//Read ctype
@@ -1805,7 +1809,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							partsptr[newIndex].ctype |= (((unsigned)partsData[i++]) << 8);
 						}
 						if (modsave && partsptr[newIndex].type == PT_CLNE || partsptr[newIndex].type == PT_PCLN || partsptr[newIndex].type == PT_BCLN || partsptr[newIndex].type == PT_PBCN || partsptr[newIndex].type == PT_STOR || partsptr[newIndex].type == PT_CONV || partsptr[newIndex].type == PT_STKM || partsptr[newIndex].type == PT_STKM2 || partsptr[newIndex].type == PT_FIGH || partsptr[newIndex].type == PT_LAVA || partsptr[newIndex].type == PT_SPRK || partsptr[newIndex].type == PT_VIRS || partsptr[newIndex].type == PT_VRSS || partsptr[newIndex].type == PT_VRSG)
-							partsptr[newIndex].ctype = fix_type(partsptr[newIndex].ctype, inputData[4]);
+							partsptr[newIndex].ctype = fix_type(partsptr[newIndex].ctype, saved_version);
 					}
 					
 					//Read dcolour
