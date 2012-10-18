@@ -24,6 +24,8 @@
 int portal_rx[8] = {-1, 0, 1, 1, 1, 0,-1,-1};
 int portal_ry[8] = {-1,-1,-1, 0, 1, 1, 1, 0};
 
+particle portalp[CHANNELS][8][80];
+
 int update_PRTI(UPDATE_FUNC_ARGS) {
 	int r, nnx, rx, ry, fe = 0;
 	int count =0;

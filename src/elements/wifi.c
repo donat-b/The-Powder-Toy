@@ -15,6 +15,8 @@
 
 #include <element.h>
 
+int wireless[CHANNELS][2];
+
 int update_WIFI(UPDATE_FUNC_ARGS) {
 	int r, rx, ry;
 	parts[i].tmp = (int)((parts[i].temp-73.15f)/100+1);

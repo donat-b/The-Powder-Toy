@@ -27,7 +27,7 @@
 #include "graphics.h"
 #include "powder.h"
 #include "gravity.h"
-#include <icondoc.h>
+#include "images.h"
 #include <update.h>
 #if defined WIN32
 #include <shlobj.h>
@@ -888,12 +888,12 @@ int register_extension()
 	f = fopen("powdertoy-save-32.png", "wb");
 	if (!f)
 		return 0;
-	fwrite(icon_doc_32_png, 1, sizeof(icon_doc_32_png), f);
+	fwrite(icon_doc_32_png, 1, icon_doc_32_png_size, f);
 	fclose(f);
 	f = fopen("powdertoy-save-16.png", "wb");
 	if (!f)
 		return 0;
-	fwrite(icon_doc_16_png, 1, sizeof(icon_doc_16_png), f);
+	fwrite(icon_doc_16_png, 1, icon_doc_16_png_size, f);
 	fclose(f);
 	system("xdg-icon-resource install --noupdate --context mimetypes --size 32 powdertoy-save-32.png application-vnd.powdertoy.save");
 	system("xdg-icon-resource install --noupdate --context mimetypes --size 16 powdertoy-save-16.png application-vnd.powdertoy.save");

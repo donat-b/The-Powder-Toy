@@ -19,9 +19,17 @@
 #ifdef LUACONSOLE
 #include <powder.h>
 #include "gravity.h"
+#include "http.h"
 #include <console.h>
 #include <luaconsole.h>
 
+#if defined(LIN32) || defined(LIN64)
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif
+
+int *lua_el_func, *lua_el_mode, *lua_gr_func;
+int getPartIndex_curIdx;
 lua_State *l;
 int step_functions[6] = {0, 0, 0, 0, 0, 0};
 int keypress_function_count = 0;

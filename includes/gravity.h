@@ -23,17 +23,17 @@ extern int ngrav_enable; //Newtonian gravity
 extern int gravwl_timeout;
 extern int gravityMode;
 
-float *gravmap;//Maps to be used by the main thread
-float *gravp;
-float *gravy;
-float *gravx;
-unsigned *gravmask;
+extern float *gravmap;//Maps to be used by the main thread
+extern float *gravp;
+extern float *gravy;
+extern float *gravx;
+extern unsigned *gravmask;
 
-float *th_ogravmap;// Maps to be processed by the gravity thread
-float *th_gravmap;
-float *th_gravx;
-float *th_gravy;
-float *th_gravp;
+extern float *th_ogravmap;// Maps to be processed by the gravity thread
+extern float *th_gravmap;
+extern float *th_gravx;
+extern float *th_gravy;
+extern float *th_gravp;
 
 void gravity_init();
 void gravity_cleanup();

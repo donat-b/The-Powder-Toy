@@ -39,9 +39,10 @@ unsigned char fighcount = 0; //Contains the number of fighters
 
 particle *parts;
 particle *cb_parts;
+const particle emptyparticle = {};
 
 int airMode = 0;
-
+int water_equal_test = 0;
 
 unsigned char bmap[YRES/CELL][XRES/CELL];
 unsigned char emap[YRES/CELL][XRES/CELL];
@@ -55,6 +56,31 @@ unsigned pmap[YRES][XRES];
 int pmap_count[YRES][XRES];
 unsigned cb_pmap[YRES][XRES];
 unsigned photons[YRES][XRES];
+int NUM_PARTS = 0;
+
+int GRAV;
+int GRAV_R;
+int GRAV_G;
+int GRAV_B;
+int GRAV_R2;
+int GRAV_G2;
+int GRAV_B2;
+int GSPEED = 1;
+int GENERATION = 0;
+int CGOL = 0;
+int ISGOL = 0;
+int ISLOVE = 0;
+int ISLOLZ = 0;
+int ISGRAV = 0;
+int ISWIRE = 0;
+int VINE_MODE = 0;
+int ISSPAWN1 = 0;
+int ISSPAWN2 = 0;
+
+int love[XRES/9][YRES/9];
+int lolz[XRES/9][YRES/9];
+unsigned char gol[YRES][XRES];
+unsigned char gol2[YRES][XRES][NGOL+1];
 
 void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float *pGravX, float *pGravY)
 {
