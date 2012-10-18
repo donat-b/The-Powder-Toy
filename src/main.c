@@ -1327,8 +1327,8 @@ int main(int argc, char *argv[])
 					save_presets(0);
 					free(check_data);
 				} else {
-					//Unable to check session, YOU WILL BE TERMINATED
-					strcpy(svf_user, "");
+					//Unable to check session, <del>YOU WILL BE TERMINATED</del>
+					/*strcpy(svf_user, "");
 					strcpy(svf_pass, "");
 					strcpy(svf_user_id, "");
 					strcpy(svf_session_id, "");
@@ -1336,7 +1336,7 @@ int main(int argc, char *argv[])
 					svf_own = 0;
 					svf_admin = 0;
 					svf_mod = 0;
-					svf_messages = 0;
+					svf_messages = 0;*/
 				}
 				http_session_check = NULL;
 				if(saveURIOpen)
