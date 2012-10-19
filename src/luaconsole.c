@@ -27,6 +27,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif
+#if defined(WIN32)
+#include <direct.h>
+#endif
 
 int *lua_el_func, *lua_el_mode, *lua_gr_func;
 int getPartIndex_curIdx;
@@ -842,10 +845,10 @@ int luacon_graphics_update(int t, int i, int *pixel_mode, int *cola, int *colr, 
 	lua_pop(l, 10);
 	return cache;
 }
-char *luacon_geterror(){
-	char *error = lua_tostring(l, -1);
+const char *luacon_geterror(){
+	const char *error = (char*)lua_tostring(l, -1);
 	if(error==NULL || !error[0]){
-		error = "failed to execute";
+		return "failed to execute";
 	}
 	return error;
 }
@@ -855,7 +858,7 @@ void luacon_close(){
 int process_command_lua(pixel *vid_buf, char *console, char *console_error)
 {
 	int commandret;
-	char * tmp_error;
+	const char * tmp_error;
 	char console2[15];
 	char console3[15];
 	char console4[15];
@@ -972,7 +975,7 @@ int luatpt_error(lua_State* l)
 }
 int luatpt_drawtext(lua_State* l)
 {
-    char *string;
+    const char *string;
 	int textx, texty, textred, textgreen, textblue, textalpha;
 	textx = luaL_optint(l, 1, 0);
 	texty = luaL_optint(l, 2, 0);
@@ -1001,7 +1004,7 @@ int luatpt_drawtext(lua_State* l)
 int luatpt_create(lua_State* l)
 {
 	int x, y, retid, t = -1;
-	char * name;
+	const char * name;
 	x = abs(luaL_optint(l, 1, 0));
 	y = abs(luaL_optint(l, 2, 0));
 	if(x < XRES && y < YRES){
@@ -1052,7 +1055,7 @@ int luatpt_setconsole(lua_State* l)
 
 int luatpt_log(lua_State* l)
 {
-	char *buffer;
+	const char *buffer;
 	buffer = luaL_optstring(l, 1, "");
 	strncpy(console_error, buffer, 254);
 	return 0;
@@ -1306,7 +1309,7 @@ int luatpt_get_elecmap(lua_State* l)
 
 int luatpt_set_property(lua_State* l)
 {
-	char *prop, *name;
+	const char *prop, *name;
 	int r, i, x, y, w, h, t, format, nx, ny, partsel = 0, acount;
 	float f;
 	size_t offset;
@@ -1446,7 +1449,7 @@ int luatpt_set_property(lua_State* l)
 int luatpt_get_property(lua_State* l)
 {
 	int i, r, y;
-	char *prop;
+	const char *prop;
 	prop = luaL_optstring(l, 1, "");
 	i = luaL_optint(l, 2, 0);
 	y = luaL_optint(l, 3, -1);
@@ -1654,7 +1657,7 @@ int luatpt_drawline(lua_State* l)
 
 int luatpt_textwidth(lua_State* l)
 {
-	char * string;
+	const char * string;
 	int strwidth = 0;
 	string = luaL_optstring(l, 1, "");
 	strwidth = textwidth(string);
@@ -1753,7 +1756,7 @@ int luatpt_register_keypress(lua_State* l)
 			}
 			lua_pop(l, 1);
 		}
-		newfunctions = calloc(keypress_function_count+1, sizeof(int));
+		newfunctions = (int*)calloc(keypress_function_count+1, sizeof(int));
 		if(keypress_functions){
 			memcpy(newfunctions, keypress_functions, keypress_function_count*sizeof(int));
 			free(keypress_functions);
@@ -1782,7 +1785,7 @@ int luatpt_unregister_keypress(lua_State* l)
 			memmove(keypress_functions+functionindex+1, keypress_functions+functionindex+1, (keypress_function_count-functionindex-1)*sizeof(int));
 		}
 		if(keypress_function_count-1 > 0){
-			newfunctions = calloc(keypress_function_count-1, sizeof(int));
+			newfunctions = (int*)calloc(keypress_function_count-1, sizeof(int));
 			memcpy(newfunctions, keypress_functions, (keypress_function_count-1)*sizeof(int));
 			free(keypress_functions);
 			keypress_functions = newfunctions;
@@ -1808,7 +1811,7 @@ int luatpt_register_mouseclick(lua_State* l)
 			}
 			lua_pop(l, 1);
 		}
-		newfunctions = calloc(mouseclick_function_count+1, sizeof(int));
+		newfunctions = (int*)calloc(mouseclick_function_count+1, sizeof(int));
 		if(mouseclick_functions){
 			memcpy(newfunctions, mouseclick_functions, mouseclick_function_count*sizeof(int));
 			free(mouseclick_functions);
@@ -1837,7 +1840,7 @@ int luatpt_unregister_mouseclick(lua_State* l)
 			memmove(mouseclick_functions+functionindex+1, mouseclick_functions+functionindex+1, (mouseclick_function_count-functionindex-1)*sizeof(int));
 		}
 		if(mouseclick_function_count-1 > 0){
-			newfunctions = calloc(mouseclick_function_count-1, sizeof(int));
+			newfunctions = (int*)calloc(mouseclick_function_count-1, sizeof(int));
 			memcpy(newfunctions, mouseclick_functions, (mouseclick_function_count-1)*sizeof(int));
 			free(mouseclick_functions);
 			mouseclick_functions = newfunctions;
@@ -2022,7 +2025,7 @@ int luatpt_getscript(lua_State* l)
 	if(!confirm_ui(vid_buf, "Do you want to install script?", fileid, "Install"))
 		goto fin;
 
-	fileuri = malloc(strlen(SCRIPTSERVER)+strlen(fileauthor)+strlen(fileid)+44);
+	fileuri = (char*)malloc(strlen(SCRIPTSERVER)+strlen(fileauthor)+strlen(fileid)+44);
 	sprintf(fileuri, "http://" SCRIPTSERVER "/GetScript.api?Author=%s&Filename=%s", fileauthor, fileid);
 	
 	filedata = http_auth_get(fileuri, svf_user_id, NULL, svf_session_id, &ret, &len);
@@ -2038,7 +2041,7 @@ int luatpt_getscript(lua_State* l)
 		goto fin;
 	}
 	
-	filename = malloc(strlen(fileauthor)+strlen(fileid)+strlen(PATH_SEP)+strlen(LOCAL_LUA_DIR)+6);
+	filename = (char*)malloc(strlen(fileauthor)+strlen(fileid)+strlen(PATH_SEP)+strlen(LOCAL_LUA_DIR)+6);
 	sprintf(filename, LOCAL_LUA_DIR PATH_SEP "%s_%s.lua", fileauthor, fileid);
 	
 #ifdef WIN32
@@ -2078,7 +2081,7 @@ int luatpt_getscript(lua_State* l)
 	outputfile = NULL;
 	if(run_script)
 	{
-    luacommand = malloc(strlen(filename)+20);
+    luacommand = (char*)malloc(strlen(filename)+20);
     sprintf(luacommand,"dofile(\"%s\")",filename);
     luacon_eval(luacommand);
     }

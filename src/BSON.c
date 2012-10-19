@@ -371,7 +371,7 @@ bson_type bson_iterator_next( bson_iterator *i ) {
         char msg[] = "unknown type: 000000000000";
         bson_numstr( msg+14, ( unsigned )( i->cur[0] ) );
         bson_fatal_msg( 0, msg );
-        return 0;
+        return BSON_EOO;
     }
     }
 
@@ -510,7 +510,7 @@ void bson_iterator_code_scope( const bson_iterator *i, bson *scope ) {
     if ( bson_iterator_type( i ) == BSON_CODEWSCOPE ) {
         int code_len;
         bson_little_endian32( &code_len, bson_iterator_value( i )+4 );
-        bson_init_data( scope, ( void * )( bson_iterator_value( i )+8+code_len ) );
+        bson_init_data( scope, ( char * )( bson_iterator_value( i )+8+code_len ) );
         _bson_reset( scope );
         scope->finished = 1;
     } else {
@@ -623,7 +623,7 @@ int bson_ensure_space( bson *b, const int bytesNeeded ) {
         }
     }
 
-    b->data = bson_realloc( b->data, new_size );
+    b->data = (char*)bson_realloc( b->data, new_size );
     if ( !b->data )
         bson_fatal_msg( !!b->data, "realloc() failed" );
 

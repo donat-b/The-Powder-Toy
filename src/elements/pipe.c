@@ -55,7 +55,7 @@ void PPIP_flood_trigger(int x, int y, int sparkedBy)
 	if (prop==0 || (pmap[y][x]&0xFF)!=PT_PPIP || (parts[pmap[y][x]>>8].tmp & prop))
 		return;
 
-	coord_stack = malloc(sizeof(unsigned short)*2*coord_stack_limit);
+	coord_stack = (unsigned short(*)[2])malloc(sizeof(unsigned short)*2*coord_stack_limit);
 	coord_stack[coord_stack_size][0] = x;
 	coord_stack[coord_stack_size][1] = y;
 	coord_stack_size++;

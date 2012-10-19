@@ -148,10 +148,14 @@ typedef unsigned int pixel;
 #define fmaxf max
 #endif
 
+#ifdef __cplusplus
+#define TPT_INLINE
+#else
 #if defined(WIN32) && !defined(__GNUC__)
 #define TPT_INLINE _inline
 #else
 #define TPT_INLINE inline
+#endif
 #endif
 
 #define SDEUT

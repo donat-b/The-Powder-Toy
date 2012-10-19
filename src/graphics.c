@@ -55,11 +55,6 @@
 #include "images.h"
 #endif
 
-
-#ifdef WIN32
-IMAGE_DOS_HEADER __ImageBase;
-#endif
-
 //unsigned cmode = CM_FIRE;
 unsigned int *render_modes;
 unsigned int render_mode;
@@ -204,8 +199,8 @@ float plasma_data_pos[] = {1.0f, 0.9f, 0.5f, 0.25, 0.0f};
 void init_display_modes()
 {
 	int i;
-	display_modes = calloc(1, sizeof(unsigned int));
-	render_modes = calloc(2, sizeof(unsigned int));
+	display_modes = (unsigned int*)calloc(1, sizeof(unsigned int));
+	render_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
 	
 	display_modes[0] = 0;
 	render_modes[0] = RENDER_FIRE;
@@ -238,7 +233,7 @@ char * generate_gradient(pixel * colours, float * points, int pointcount, int si
 {
 	int cp, i, j;
 	pixel ptemp;
-	char * newdata = malloc(size * 3);
+	char * newdata = (char*)malloc(size * 3);
 	float poss, pose, temp;
 	memset(newdata, 0, size*3);
 	//Sort the Colours and Points
@@ -283,11 +278,11 @@ char * generate_gradient(pixel * colours, float * points, int pointcount, int si
 
 void *ptif_pack(pixel *src, int w, int h, int *result_size){
 	int i = 0, datalen = (w*h)*3, cx = 0, cy = 0;
-	unsigned char *red_chan = calloc(1, w*h); 
-	unsigned char *green_chan = calloc(1, w*h); 
-	unsigned char *blue_chan = calloc(1, w*h); 
-	unsigned char *data = malloc(((w*h)*3)+8);
-	unsigned char *result = malloc(((w*h)*3)+8);
+	unsigned char *red_chan = (unsigned char*)calloc(1, w*h); 
+	unsigned char *green_chan = (unsigned char*)calloc(1, w*h); 
+	unsigned char *blue_chan = (unsigned char*)calloc(1, w*h); 
+	unsigned char *data = (unsigned char*)malloc(((w*h)*3)+8);
+	unsigned char *result = (unsigned char*)malloc(((w*h)*3)+8);
 	
 	for(cx = 0; cx<w; cx++){
 		for(cy = 0; cy<h; cy++){
@@ -331,7 +326,7 @@ pixel *ptif_unpack(void *datain, int size, int *w, int *h){
 	unsigned char *red_chan;
 	unsigned char *green_chan;
 	unsigned char *blue_chan;
-	unsigned char *data = datain;
+	unsigned char *data = (unsigned char*)datain;
 	unsigned char *undata;
 	pixel *result;
 	if(size<16){
@@ -346,11 +341,11 @@ pixel *ptif_unpack(void *datain, int size, int *w, int *h){
 	height = data[6]|(data[7]<<8);
 	
 	i = (width*height)*3;
-	undata = calloc(1, (width*height)*3);
-	red_chan = calloc(1, width*height); 
-	green_chan = calloc(1, width*height); 
-	blue_chan = calloc(1, width*height); 
-	result = calloc(width*height, PIXELSIZE);
+	undata = (unsigned char*)calloc(1, (width*height)*3);
+	red_chan = (unsigned char*)calloc(1, width*height); 
+	green_chan = (unsigned char*)calloc(1, width*height); 
+	blue_chan = (unsigned char*)calloc(1, width*height); 
+	result = (pixel*)calloc(width*height, PIXELSIZE);
 	
 	resCode = BZ2_bzBuffToBuffDecompress((char *)undata, (unsigned *)&i, (char *)(data+8), size-8, 0, 0);
 	if (resCode){
@@ -394,7 +389,7 @@ pixel *resample_img_nn(pixel * src, int sw, int sh, int rw, int rh)
 {
 	int y, x;
 	pixel *q = NULL;
-	q = malloc(rw*rh*PIXELSIZE);
+	q = (pixel*)malloc(rw*rh*PIXELSIZE);
 	for (y=0; y<rh; y++)
 		for (x=0; x<rw; x++){
 			q[rw*y+x] = src[sw*(y*sh/rh)+(x*sw/rw)];
@@ -410,13 +405,13 @@ pixel *resample_img(pixel *src, int sw, int sh, int rw, int rh)
 	//TODO: Actual resampling, this is just cheap nearest pixel crap
 	if(rw == sw && rh == sh){
 		//Don't resample
-		q = malloc(rw*rh*PIXELSIZE);
+		q = (pixel*)malloc(rw*rh*PIXELSIZE);
 		memcpy(q, src, rw*rh*PIXELSIZE);
 	} else if(rw > sw && rh > sh){
 		float fx, fy, fyc, fxc;
 		double intp;
 		pixel tr, tl, br, bl;
-		q = malloc(rw*rh*PIXELSIZE);
+		q = (pixel*)malloc(rw*rh*PIXELSIZE);
 		//Bilinear interpolation for upscaling
 		for (y=0; y<rh; y++)
 			for (x=0; x<rw; x++)
@@ -446,7 +441,7 @@ pixel *resample_img(pixel *src, int sw, int sh, int rw, int rh)
 		pixel tr, tl, br, bl;
 		int rrw = rw, rrh = rh;
 		pixel * oq;
-		oq = malloc(sw*sh*PIXELSIZE);
+		oq = (pixel*)malloc(sw*sh*PIXELSIZE);
 		memcpy(oq, src, sw*sh*PIXELSIZE);
 		rw = sw;
 		rh = sh;
@@ -457,7 +452,7 @@ pixel *resample_img(pixel *src, int sw, int sh, int rw, int rh)
 				rw = rrw;
 				rh = rrh;
 			}
-			q = malloc(rw*rh*PIXELSIZE);
+			q = (pixel*)malloc(rw*rh*PIXELSIZE);
 			//Bilinear interpolation for upscaling
 			for (y=0; y<rh; y++)
 				for (x=0; x<rw; x++)
@@ -495,7 +490,7 @@ pixel *rescale_img(pixel *src, int sw, int sh, int *qw, int *qh, int f)
 	pixel p, *q;
 	w = (sw+f-1)/f;
 	h = (sh+f-1)/f;
-	q = malloc(w*h*PIXELSIZE);
+	q = (pixel*)malloc(w*h*PIXELSIZE);
 	for (y=0; y<h; y++)
 		for (x=0; x<w; x++)
 		{
@@ -1096,13 +1091,13 @@ int drawtext(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a
 }
 
 //Draw text with an outline
-int drawtext_outline(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a, int or, int og, int ob, int oa)
+int drawtext_outline(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a, int outr, int outg, int outb, int outa)
 {
-	drawtext(vid, x-1, y-1, s, or, og, ob, oa);
-	drawtext(vid, x+1, y+1, s, or, og, ob, oa);
+	drawtext(vid, x-1, y-1, s, outr, outg, outb, outa);
+	drawtext(vid, x+1, y+1, s, outr, outg, outb, outa);
 	
-	drawtext(vid, x-1, y+1, s, or, og, ob, oa);
-	drawtext(vid, x+1, y-1, s, or, og, ob, oa);
+	drawtext(vid, x-1, y+1, s, outr, outg, outb, outa);
+	drawtext(vid, x+1, y-1, s, outr, outg, outb, outa);
 	
 	return drawtext(vid, x, y, s, r, g, b, a);
 }
@@ -1231,7 +1226,7 @@ void drawdots(pixel *vid, int x, int y, int h, int r, int g, int b, int a)
 		drawpixel(vid, x, y+i, r, g, b, a);
 }
 
-int textwidth(char *s)
+int textwidth(const char *s)
 {
 	int x = 0;
 	for (; *s; s++)
@@ -1849,7 +1844,7 @@ void draw_other(pixel *vid) // EMP effect
 
 void prepare_graphicscache()
 {
-	graphicscache = malloc(sizeof(gcache_item)*PT_NUM);
+	graphicscache = (gcache_item*)malloc(sizeof(gcache_item)*PT_NUM);
 	memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
 }
 //New function for drawing particles
@@ -3723,10 +3718,10 @@ pixel *render_packed_rgb(void *image, int width, int height, int cmp_size)
 	pixel *res;
 	int i;
 
-	tmp = malloc(width*height*3);
+	tmp = (unsigned char*)malloc(width*height*3);
 	if (!tmp)
 		return NULL;
-	res = malloc(width*height*PIXELSIZE);
+	res = (pixel*)malloc(width*height*PIXELSIZE);
 	if (!res)
 	{
 		free(tmp);
@@ -3931,7 +3926,7 @@ void render_zoom(pixel *img) //draws the zoom box
 
 int render_thumb(void *thumb, int size, int bzip2, pixel *vid_buf, int px, int py, int scl)
 {
-	unsigned char *d,*c=thumb;
+	unsigned char *d,*c=(unsigned char*)thumb;
 	int i,j,x,y,a,t,r,g,b,sx,sy;
 
 	if (bzip2)
@@ -3945,7 +3940,7 @@ int render_thumb(void *thumb, int size, int bzip2, pixel *vid_buf, int px, int p
 		if (c[5]!=CELL || c[6]!=XRES/CELL || c[7]!=YRES/CELL)
 			return 3;
 		i = XRES*YRES;
-		d = malloc(i);
+		d = (unsigned char*)malloc(i);
 		if (!d)
 			return 1;
 
@@ -4153,8 +4148,8 @@ int sdl_open(void)
 	    exit(-1);
 	}
 	WindowHandle = SysInfo.window;
-	hIconSmall = (HICON)LoadImage(&__ImageBase, MAKEINTRESOURCE(101), IMAGE_ICON, 16, 16, LR_SHARED);
-	hIconBig = (HICON)LoadImage(&__ImageBase, MAKEINTRESOURCE(101), IMAGE_ICON, 32, 32, LR_SHARED);
+	hIconSmall = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(101), IMAGE_ICON, 16, 16, LR_SHARED);
+	hIconBig = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(101), IMAGE_ICON, 32, 32, LR_SHARED);
 	SendMessage(WindowHandle, WM_SETICON, ICON_SMALL, (LPARAM)hIconSmall);
 	SendMessage(WindowHandle, WM_SETICON, ICON_BIG, (LPARAM)hIconBig);
 #elif defined(LIN32) || defined(LIN64)

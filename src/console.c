@@ -28,7 +28,7 @@ char console_error[255] = "";
 int file_script = 0;
 
 //takes a a string and compares it to element names, and puts it value into element.
-int console_parse_type(char *txt, int *element, char *err)
+int console_parse_type(const char *txt, int *element, char *err)
 {
 	int i = -1;
 	// alternative names for some elements
@@ -53,7 +53,7 @@ int console_parse_type(char *txt, int *element, char *err)
 	return 0;
 }
 //takes a string of coords "x,y" and puts the values into x and y.
-int console_parse_coords(char *txt, int *x, int *y, char *err)
+int console_parse_coords(const char *txt, int *x, int *y, char *err)
 {
 	int nx = -1, ny = -1;
 	if (sscanf(txt,"%d,%d",&nx,&ny)!=2 || nx<0 || nx>=XRES || ny<0 || ny>=YRES)
@@ -66,7 +66,7 @@ int console_parse_coords(char *txt, int *x, int *y, char *err)
 	return 1;
 }
 //takes a string of either coords or a particle number, and puts the particle number into *which
-int console_parse_partref(char *txt, int *which, char *err)
+int console_parse_partref(const char *txt, int *which, char *err)
 {
 	int i = -1, nx, ny;
 	if (err) strcpy(err,"");
@@ -120,7 +120,7 @@ int process_command_old(pixel *vid_buf, char *console, char *console_error)
 		{
 			if (file_script) {
 				int filesize;
-				char *fileread = file_load(console3, &filesize);
+				char *fileread = (char*)file_load(console3, &filesize);
 				nx = 0;
 				ny = 0;
 				if (console4[0] && !console_parse_coords(console4, &nx , &ny, console_error))

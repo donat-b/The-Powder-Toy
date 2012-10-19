@@ -1498,8 +1498,8 @@ void create_arc(int sx, int sy, int dx, int dy, int midpoints, int variance, int
 	float xint, yint;
 	int *xmid, *ymid;
 	int voffset = variance/2;
-	xmid = calloc(midpoints + 2, sizeof(int));
-	ymid = calloc(midpoints + 2, sizeof(int));
+	xmid = (int*)calloc(midpoints + 2, sizeof(int));
+	ymid = (int*)calloc(midpoints + 2, sizeof(int));
 	xint = (float)(dx-sx)/(float)(midpoints+1.0f);
 	yint = (float)(dy-sy)/(float)(midpoints+1.0f);
 	xmid[0] = sx;
@@ -3088,7 +3088,7 @@ int flood_prop_2(int x, int y, size_t propoffset, void * propvalue, int proptype
 int flood_prop(int x, int y, size_t propoffset, void * propvalue, int proptype)
 {
 	int r = 0;
-	char * bitmap = malloc(XRES*YRES); //Bitmap for checking
+	char * bitmap = (char*)malloc(XRES*YRES); //Bitmap for checking
 	memset(bitmap, 0, XRES*YRES);
 	r = pmap[y][x];
 	flood_prop_2(x, y, propoffset, propvalue, proptype, r&0xFF, bitmap);
@@ -3125,7 +3125,7 @@ int flood_INST(int x, int y, int fullc, int cm)
 	if ((pmap[y][x]&0xFF)!=cm || parts[pmap[y][x]>>8].life!=0)
 		return 1;
 
-	coord_stack = malloc(sizeof(unsigned short)*2*coord_stack_limit);
+	coord_stack = (unsigned short(*)[2])malloc(sizeof(unsigned short)*2*coord_stack_limit);
 	coord_stack[coord_stack_size][0] = x;
 	coord_stack[coord_stack_size][1] = y;
 	coord_stack_size++;
@@ -3289,7 +3289,7 @@ int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 	if (((pmap[y][x]&0xFF)!=cm || bmap[y/CELL][x/CELL]!=bm )||( (flags&BRUSH_SPECIFIC_DELETE) && cm!=SLALT))
 		return 1;
 
-	coord_stack = malloc(sizeof(unsigned short)*2*coord_stack_limit);
+	coord_stack = (unsigned short(*)[2])malloc(sizeof(unsigned short)*2*coord_stack_limit);
 	coord_stack[coord_stack_size][0] = x;
 	coord_stack[coord_stack_size][1] = y;
 	coord_stack_size++;

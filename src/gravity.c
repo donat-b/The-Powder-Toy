@@ -79,16 +79,16 @@ void bilinear_interpolation(float *src, float *dst, int sw, int sh, int rw, int 
 void gravity_init()
 {
 	//Allocate full size Gravmaps
-	th_ogravmap = calloc((XRES/CELL)*(YRES/CELL), sizeof(float));
-	th_gravmap = calloc((XRES/CELL)*(YRES/CELL), sizeof(float));
-	th_gravy = calloc((XRES/CELL)*(YRES/CELL), sizeof(float));
-	th_gravx = calloc((XRES/CELL)*(YRES/CELL), sizeof(float));
-	th_gravp = calloc((XRES/CELL)*(YRES/CELL), sizeof(float));
-	gravmap = calloc((XRES/CELL)*(YRES/CELL), sizeof(float));
-	gravy = calloc((XRES/CELL)*(YRES/CELL), sizeof(float));
-	gravx = calloc((XRES/CELL)*(YRES/CELL), sizeof(float));
-	gravp = calloc((XRES/CELL)*(YRES/CELL), sizeof(float));
-	gravmask = calloc((XRES/CELL)*(YRES/CELL), sizeof(unsigned));
+	th_ogravmap = (float*)calloc((XRES/CELL)*(YRES/CELL), sizeof(float));
+	th_gravmap = (float*)calloc((XRES/CELL)*(YRES/CELL), sizeof(float));
+	th_gravy = (float*)calloc((XRES/CELL)*(YRES/CELL), sizeof(float));
+	th_gravx = (float*)calloc((XRES/CELL)*(YRES/CELL), sizeof(float));
+	th_gravp = (float*)calloc((XRES/CELL)*(YRES/CELL), sizeof(float));
+	gravmap = (float*)calloc((XRES/CELL)*(YRES/CELL), sizeof(float));
+	gravy = (float*)calloc((XRES/CELL)*(YRES/CELL), sizeof(float));
+	gravx = (float*)calloc((XRES/CELL)*(YRES/CELL), sizeof(float));
+	gravp = (float*)calloc((XRES/CELL)*(YRES/CELL), sizeof(float));
+	gravmask = (unsigned*)calloc((XRES/CELL)*(YRES/CELL), sizeof(unsigned));
 }
 
 void gravity_cleanup()
@@ -234,16 +234,16 @@ void grav_fft_init()
 	if (grav_fft_status) return;
 
 	//use fftw malloc function to ensure arrays are aligned, to get better performance
-	th_ptgravx = fftwf_malloc(xblock2*yblock2*sizeof(float));
-	th_ptgravy = fftwf_malloc(xblock2*yblock2*sizeof(float));
-	th_ptgravxt = fftwf_malloc(fft_tsize*sizeof(fftwf_complex));
-	th_ptgravyt = fftwf_malloc(fft_tsize*sizeof(fftwf_complex));
-	th_gravmapbig = fftwf_malloc(xblock2*yblock2*sizeof(float));
-	th_gravmapbigt = fftwf_malloc(fft_tsize*sizeof(fftwf_complex));
-	th_gravxbig = fftwf_malloc(xblock2*yblock2*sizeof(float));
-	th_gravybig = fftwf_malloc(xblock2*yblock2*sizeof(float));
-	th_gravxbigt = fftwf_malloc(fft_tsize*sizeof(fftwf_complex));
-	th_gravybigt = fftwf_malloc(fft_tsize*sizeof(fftwf_complex));
+	th_ptgravx = (float*)fftwf_malloc(xblock2*yblock2*sizeof(float));
+	th_ptgravy = (float*)fftwf_malloc(xblock2*yblock2*sizeof(float));
+	th_ptgravxt = (fftwf_complex*)fftwf_malloc(fft_tsize*sizeof(fftwf_complex));
+	th_ptgravyt = (fftwf_complex*)fftwf_malloc(fft_tsize*sizeof(fftwf_complex));
+	th_gravmapbig = (float*)fftwf_malloc(xblock2*yblock2*sizeof(float));
+	th_gravmapbigt = (fftwf_complex*)fftwf_malloc(fft_tsize*sizeof(fftwf_complex));
+	th_gravxbig = (float*)fftwf_malloc(xblock2*yblock2*sizeof(float));
+	th_gravybig = (float*)fftwf_malloc(xblock2*yblock2*sizeof(float));
+	th_gravxbigt = (fftwf_complex*)fftwf_malloc(fft_tsize*sizeof(fftwf_complex));
+	th_gravybigt = (fftwf_complex*)fftwf_malloc(fft_tsize*sizeof(fftwf_complex));
 
 	//select best algorithm, could use FFTW_PATIENT or FFTW_EXHAUSTIVE but that increases the time taken to plan, and I don't see much increase in execution speed
 	plan_ptgravx = fftwf_plan_dft_r2c_2d(yblock2, xblock2, th_ptgravx, th_ptgravxt, FFTW_MEASURE);
@@ -450,12 +450,13 @@ void grav_mask_r(int x, int y, char checkmap[YRES/CELL][XRES/CELL], char shape[Y
 		grav_mask_r(x, y+1, checkmap, shape, shapeout);
 	return;
 }
+struct mask_el;
+typedef struct mask_el mask_el;
 struct mask_el {
 	char *shape;
 	char shapeout;
-	void *next;
+	mask_el *next;
 };
-typedef struct mask_el mask_el;
 void mask_free(mask_el *c_mask_el){
 	if(c_mask_el==NULL)
 		return;
@@ -482,22 +483,22 @@ void gravity_mask()
 			{
 				//Create a new shape
 				if(t_mask_el==NULL){
-					t_mask_el = malloc(sizeof(mask_el));
-					t_mask_el->shape = malloc((XRES/CELL)*(YRES/CELL));
+					t_mask_el = (mask_el*)malloc(sizeof(mask_el));
+					t_mask_el->shape = (char*)malloc((XRES/CELL)*(YRES/CELL));
 					memset(t_mask_el->shape, 0, (XRES/CELL)*(YRES/CELL));
 					t_mask_el->shapeout = 0;
 					t_mask_el->next = NULL;
 					c_mask_el = t_mask_el;
 				} else {
-					c_mask_el->next = malloc(sizeof(mask_el));
+					c_mask_el->next = (mask_el*)malloc(sizeof(mask_el));
 					c_mask_el = c_mask_el->next;
-					c_mask_el->shape = malloc((XRES/CELL)*(YRES/CELL));
+					c_mask_el->shape = (char*)malloc((XRES/CELL)*(YRES/CELL));
 					memset(c_mask_el->shape, 0, (XRES/CELL)*(YRES/CELL));
 					c_mask_el->shapeout = 0;
 					c_mask_el->next = NULL;
 				}
 				//Fill the shape
-				grav_mask_r(x, y, checkmap, c_mask_el->shape, &c_mask_el->shapeout);
+				grav_mask_r(x, y, checkmap, (char(*)[153])c_mask_el->shape, &c_mask_el->shapeout);
 			}
 		}
 	}

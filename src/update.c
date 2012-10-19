@@ -46,11 +46,11 @@ char *exe_name(void)
 	while ((res = GetModuleFileName(NULL, name, max)) >= max)
 	{
 #elif defined MACOSX
-	char *fn=malloc(64),*name=malloc(PATH_MAX);
+	char *fn=(char*)malloc(64),*name=(char*)malloc(PATH_MAX);
 	uint32_t max=64, res;
 	if (_NSGetExecutablePath(fn, &max) != 0)
 	{
-		fn = realloc(fn, max);
+		fn = (char*)realloc(fn, max);
 		_NSGetExecutablePath(fn, &max);
 	}
 	if (realpath(fn, name) == NULL)
@@ -61,7 +61,7 @@ char *exe_name(void)
 	}
 	res = 1;
 #else
-	char fn[64], *name=malloc(64);
+	char fn[64], *name=(char*)malloc(64);
 	size_t max=64, res;
 	sprintf(fn, "/proc/self/exe");
 	memset(name, 0, max);
@@ -70,7 +70,7 @@ char *exe_name(void)
 #endif
 #ifndef MACOSX
 		max *= 2;
-		name = realloc(name, max);
+		name = (char*)realloc(name, max);
 		memset(name, 0, max);
 	}
 #endif
@@ -95,7 +95,7 @@ int update_start(char *data, int len)
 		return 1;
 
 #ifdef WIN32
-	temp = malloc(strlen(self)+12);
+	temp = (char*)malloc(strlen(self)+12);
 	strcpy(temp, self);
 	p = temp + strlen(temp) - 4;
 	if (_stricmp(p, ".exe"))
@@ -124,7 +124,7 @@ int update_start(char *data, int len)
 
 	return 0;
 #else
-	temp = malloc(strlen(self)+8);
+	temp = (char*)malloc(strlen(self)+8);
 	strcpy(temp, self);
 	strcat(temp, "-update");
 
@@ -166,7 +166,7 @@ int update_finish(void)
 	char *temp, *self=exe_name(), *p;
 	int timeout = 60, err;
 
-	temp = malloc(strlen(self)+12);
+	temp = (char*)malloc(strlen(self)+12);
 	strcpy(temp, self);
 	p = temp + strlen(temp) - 4;
 	if (_stricmp(p, ".exe"))

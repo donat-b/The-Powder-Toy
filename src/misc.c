@@ -33,6 +33,7 @@
 #include <shlobj.h>
 #include <shlwapi.h>
 #include <windows.h>
+#include <direct.h>
 #else
 #include <unistd.h>
 #endif
@@ -71,7 +72,7 @@ TPT_INLINE float restrict_flt(float f, float min, float max)
 	return f;
 }
 
-char *mystrdup(char *s)
+char *mystrdup(const char *s)
 {
 	char *x;
 	if (s)
@@ -80,12 +81,12 @@ char *mystrdup(char *s)
 		strcpy(x, s);
 		return x;
 	}
-	return s;
+	return NULL;
 }
 
 void strlist_add(struct strlist **list, char *str)
 {
-	struct strlist *item = malloc(sizeof(struct strlist));
+	struct strlist *item = (struct strlist *)malloc(sizeof(struct strlist));
 	item->str = mystrdup(str);
 	item->next = *list;
 	*list = item;
@@ -198,9 +199,9 @@ void save_presets(int do_update)
 	cJSON_AddItemToObject(root, "graphics", graphicsobj=cJSON_CreateObject());
 	cJSON_AddNumberToObject(graphicsobj, "colour", colour_mode);
 	count = 0; i = 0; while(display_modes[i++]){ count++; }
-	cJSON_AddItemToObject(graphicsobj, "display", cJSON_CreateIntArray(display_modes, count));
+	cJSON_AddItemToObject(graphicsobj, "display", cJSON_CreateIntArray((int*)display_modes, count));
 	count = 0; i = 0; while(render_modes[i++]){ count++; }
-	cJSON_AddItemToObject(graphicsobj, "render", cJSON_CreateIntArray(render_modes, count));
+	cJSON_AddItemToObject(graphicsobj, "render", cJSON_CreateIntArray((int*)render_modes, count));
 	
 	//General settings
 	cJSON_AddStringToObject(root, "proxy", http_proxy_string);
@@ -265,7 +266,7 @@ int sregexp(const char *str, char *pattern)
 void load_presets(void)
 {
 	int prefdatasize = 0, i, count;
-	char * prefdata = file_load("powder.pref", &prefdatasize);
+	char * prefdata = (char*)file_load("powder.pref", &prefdatasize);
 	cJSON *root;
 	if(prefdata && (root = cJSON_Parse(prefdata)))
 	{
@@ -324,7 +325,7 @@ void load_presets(void)
 				count = cJSON_GetArraySize(tmpobj);
 				free(display_modes);
 				display_mode = 0;
-				display_modes = calloc(count+1, sizeof(unsigned int));
+				display_modes = (unsigned int*)calloc(count+1, sizeof(unsigned int));
 				for(i = 0; i < count; i++)
 				{
 					display_mode |= cJSON_GetArrayItem(tmpobj, i)->valueint;
@@ -336,7 +337,7 @@ void load_presets(void)
 				count = cJSON_GetArraySize(tmpobj);
 				free(render_modes);
 				render_mode = 0;
-				render_modes = calloc(count+1, sizeof(unsigned int));
+				render_modes = (unsigned int*)calloc(count+1, sizeof(unsigned int));
 				for(i = 0; i < count; i++)
 				{
 					render_mode |= cJSON_GetArrayItem(tmpobj, i)->valueint;
@@ -691,7 +692,7 @@ int register_extension()
 	char *protocolcommand = NULL;
 	//char AppDataPath[MAX_PATH];
 	char *AppDataPath = NULL;
-	iconname = malloc(strlen(currentfilename)+6);
+	iconname = (char*)malloc(strlen(currentfilename)+6);
 	sprintf(iconname, "%s,-102", currentfilename);
 	
 	//Create Roaming application data folder
@@ -706,8 +707,8 @@ int register_extension()
 	//Move Game executable into application data folder
 	//TODO: Implement
 	
-	opencommand = malloc(strlen(currentfilename)+53+strlen(AppDataPath));
-	protocolcommand = malloc(strlen(currentfilename)+55+strlen(AppDataPath));
+	opencommand = (char*)malloc(strlen(currentfilename)+53+strlen(AppDataPath));
+	protocolcommand = (char*)malloc(strlen(currentfilename)+55+strlen(AppDataPath));
 	/*if((strlen(AppDataPath)+strlen(APPDATA_SUBDIR "\\Powder Toy"))<MAX_PATH)
 	{
 		strappend(AppDataPath, APPDATA_SUBDIR);
@@ -733,7 +734,7 @@ int register_extension()
 		returnval = 0;
 		goto finalise;
 	}
-	rresult = RegSetValueEx(newkey, (LPBYTE)"URL Protocol", 0, REG_SZ, (LPBYTE)"", strlen("")+1);
+	rresult = RegSetValueEx(newkey, (LPCSTR)"URL Protocol", 0, REG_SZ, (LPBYTE)"", strlen("")+1);
 	if (rresult != ERROR_SUCCESS) {
 		RegCloseKey(newkey);
 		returnval = 0;
@@ -873,7 +874,7 @@ int register_extension()
 "Comment=Physics sandbox game\n"
 "MimeType=application/vnd.powdertoy.save;\n"
 "NoDisplay=true\n";
-	char *desktopfiledata = malloc(strlen(desktopfiledata_tmp)+strlen(currentfilename)+100);
+	char *desktopfiledata = (char*)malloc(strlen(desktopfiledata_tmp)+strlen(currentfilename)+100);
 	strcpy(desktopfiledata, desktopfiledata_tmp);
 	strappend(desktopfiledata, "Exec=");
 	strappend(desktopfiledata, currentfilename);
@@ -983,8 +984,8 @@ void RGB_to_HSV(int r,int g,int b,int *h,int *s,int *v)//convert 0-255 RGB value
 void membwand(void * destv, void * srcv, size_t destsize, size_t srcsize)
 {
 	size_t i;
-	unsigned char * dest = destv;
-	unsigned char * src = srcv;
+	unsigned char * dest = (unsigned char*)destv;
+	unsigned char * src = (unsigned char*)srcv;
 	for(i = 0; i < destsize; i++){
 		dest[i] = dest[i] & src[i%srcsize];
 	}

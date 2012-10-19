@@ -62,7 +62,7 @@ int change_wallpp(int wt)
 //Pop
 pixel *prerender_save(void *save, int size, int *width, int *height)
 {
-	unsigned char * saveData = save;
+	unsigned char * saveData = (unsigned char*)save;
 	if (size<16)
 	{
 		return NULL;
@@ -85,7 +85,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 
 int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, unsigned pmap[YRES][XRES])
 {
-	unsigned char * saveData = save;
+	unsigned char * saveData = (unsigned char*)save;
 	if (size<16)
 	{
 		return 1;
@@ -136,7 +136,7 @@ int change_wall(int wt)
 
 pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 {
-	unsigned char * inputData = save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *wallData = NULL;
+	unsigned char * inputData = (unsigned char*)save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *wallData = NULL;
 	int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, wallDataLen;
 	int i, x, y, j, wt, pc, gc;
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
@@ -187,7 +187,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 	bsonDataLen |= ((unsigned)inputData[10]) << 16;
 	bsonDataLen |= ((unsigned)inputData[11]) << 24;
 	
-	bsonData = malloc(bsonDataLen+1);
+	bsonData = (unsigned char*)malloc(bsonDataLen+1);
 	if(!bsonData)
 	{
 		fprintf(stderr, "Internal error while parsing save: could not allocate buffer\n");
@@ -197,13 +197,13 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 	//(bson_iterator_key returns a pointer into bsonData, which is then used with strcmp)
 	bsonData[bsonDataLen] = 0;
 	
-	if (BZ2_bzBuffToBuffDecompress(bsonData, &bsonDataLen, inputData+12, inputDataLen-12, 0, 0))
+	if (BZ2_bzBuffToBuffDecompress((char*)bsonData, (unsigned int*)(&bsonDataLen), (char*)inputData+12, inputDataLen-12, 0, 0))
 	{
 		fprintf(stderr, "Unable to decompress\n");
 		goto fail;
 	}
 	
-	bson_init_data(&b, bsonData);
+	bson_init_data(&b, (char*)bsonData);
 	bsonInitialised = 1;
 	bson_iterator_init(&iter, &b);
 	while(bson_iterator_next(&iter))
@@ -212,7 +212,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 		{
 			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (partsDataLen = bson_iterator_bin_len(&iter)) > 0)
 			{
-				partsData = bson_iterator_bin_data(&iter);
+				partsData = (unsigned char*)bson_iterator_bin_data(&iter);
 			}
 			else
 			{
@@ -223,7 +223,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 		{
 			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (partsPosDataLen = bson_iterator_bin_len(&iter)) > 0)
 			{
-				partsPosData = bson_iterator_bin_data(&iter);
+				partsPosData = (unsigned char*)bson_iterator_bin_data(&iter);
 			}
 			else
 			{
@@ -234,7 +234,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 		{
 			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (wallDataLen = bson_iterator_bin_len(&iter)) > 0)
 			{
-				wallData = bson_iterator_bin_data(&iter);
+				wallData = (unsigned char*)bson_iterator_bin_data(&iter);
 			}
 			else
 			{
@@ -243,7 +243,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 		}
 	}
 	
-	vidBuf = calloc(fullW*fullH, PIXELSIZE);
+	vidBuf = (pixel*)calloc(fullW*fullH, PIXELSIZE);
 	
 	//Read wall and fan data
 	if(wallData)
@@ -499,11 +499,11 @@ fin:
 
 void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* o_partsptr)
 {
-	particle *partsptr = o_partsptr;
+	particle *partsptr = (particle*)o_partsptr;
 	unsigned char *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *finalData = NULL, *outputData = NULL, *soapLinkData = NULL;
 	unsigned *partsPosLink = NULL, *partsPosFirstMap = NULL, *partsPosCount = NULL, *partsPosLastMap = NULL;
 	unsigned partsCount = 0, *partsSaveIndex = NULL;
-	unsigned *elementCount = calloc(PT_NUM, sizeof(unsigned));
+	unsigned *elementCount = (unsigned*)calloc(PT_NUM, sizeof(unsigned));
 	int partsDataLen, partsPosDataLen, fanDataLen, wallDataLen, finalDataLen, outputDataLen, soapLinkDataLen;
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	int x, y, i, wallDataFound = 0;
@@ -525,9 +525,9 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	fullH = blockH*CELL;
 	
 	//Copy fan and wall data
-	wallData = malloc(blockW*blockH);
+	wallData = (unsigned char*)malloc(blockW*blockH);
 	wallDataLen = blockW*blockH;
-	fanData = malloc((blockW*blockH)*2);
+	fanData = (unsigned char*)malloc((blockW*blockH)*2);
 	fanDataLen = 0;
 	if (!wallData || !fanData)
 	{
@@ -571,10 +571,10 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	//partsPosLastMap is pmap for the last particle in each position
 	//partsPosCount is the number of particles in each position
 	//partsPosLink contains, for each particle, (i<<8)|1 of the next particle in the same position
-	partsPosFirstMap = calloc(fullW*fullH, sizeof(unsigned));
-	partsPosLastMap = calloc(fullW*fullH, sizeof(unsigned));
-	partsPosCount = calloc(fullW*fullH, sizeof(unsigned));
-	partsPosLink = calloc(NPART, sizeof(unsigned));
+	partsPosFirstMap = (unsigned*)calloc(fullW*fullH, sizeof(unsigned));
+	partsPosLastMap = (unsigned*)calloc(fullW*fullH, sizeof(unsigned));
+	partsPosCount = (unsigned*)calloc(fullW*fullH, sizeof(unsigned));
+	partsPosLink = (unsigned*)calloc(NPART, sizeof(unsigned));
 	if (!partsPosFirstMap || !partsPosLastMap || !partsPosCount || !partsPosLink)
 	{
 		puts("Save Error, out of memory\n");
@@ -610,7 +610,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	}
 
 	//Store number of particles in each position
-	partsPosData = malloc(fullW*fullH*3);
+	partsPosData = (unsigned char*)malloc(fullW*fullH*3);
 	partsPosDataLen = 0;
 	if (!partsPosData)
 	{
@@ -635,9 +635,9 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 														tmp[3+4]	|		tmp2[2]	|		tmp2[1]	|	ctype[2]	|		vy		|		vx		|	dcololour	|	ctype[1]	|		tmp[2]	|		tmp[1]	|		life[2]	|		life[1]	|	temp dbl len|
 	life[2] means a second byte (for a 16 bit field) if life[1] is present
 	*/
-	partsData = malloc(NPART * (sizeof(particle)+1));
+	partsData = (unsigned char*)malloc(NPART * (sizeof(particle)+1));
 	partsDataLen = 0;
-	partsSaveIndex = calloc(NPART, sizeof(unsigned));
+	partsSaveIndex = (unsigned*)calloc(NPART, sizeof(unsigned));
 	partsCount = 0;
 	if (!partsData || !partsSaveIndex)
 	{
@@ -783,7 +783,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 		}
 	}
 
-	soapLinkData = malloc(3*elementCount[PT_SOAP]);
+	soapLinkData = (unsigned char*)malloc(3*elementCount[PT_SOAP]);
 	soapLinkDataLen = 0;
 	if (!soapLinkData)
 	{
@@ -847,15 +847,15 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	//bson_append_int(&b, "rightSelectedElement", sr);
 	bson_append_int(&b, "activeMenu", active_menu);
 	if(partsData)
-		bson_append_binary(&b, "parts", BSON_BIN_USER, partsData, partsDataLen);
+		bson_append_binary(&b, "parts", BSON_BIN_USER, (char*)partsData, partsDataLen);
 	if(partsPosData)
-		bson_append_binary(&b, "partsPos", BSON_BIN_USER, partsPosData, partsPosDataLen);
+		bson_append_binary(&b, "partsPos", BSON_BIN_USER, (char*)partsPosData, partsPosDataLen);
 	if(wallData)
-		bson_append_binary(&b, "wallMap", BSON_BIN_USER, wallData, wallDataLen);
+		bson_append_binary(&b, "wallMap", BSON_BIN_USER, (char*)wallData, wallDataLen);
 	if(fanData)
-		bson_append_binary(&b, "fanMap", BSON_BIN_USER, fanData, fanDataLen);
+		bson_append_binary(&b, "fanMap", BSON_BIN_USER, (char*)fanData, fanDataLen);
 	if(soapLinkData)
-		bson_append_binary(&b, "soapLinks", BSON_BIN_USER, soapLinkData, soapLinkDataLen);
+		bson_append_binary(&b, "soapLinks", BSON_BIN_USER, (char*)soapLinkData, soapLinkDataLen);
 	signsCount = 0;
 	for(i = 0; i < MAXSIGNS; i++)
 	{
@@ -884,7 +884,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	bson_finish(&b);
 	bson_print(&b);
 	
-	finalData = bson_data(&b);
+	finalData = (unsigned char*)bson_data(&b);
 	finalDataLen = bson_size(&b);
 	outputDataLen = finalDataLen*2+12;
 	outputData = (unsigned char*)malloc(outputDataLen);
@@ -908,7 +908,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	outputData[10] = finalDataLen >> 16;
 	outputData[11] = finalDataLen >> 24;
 	
-	if (BZ2_bzBuffToBuffCompress(outputData+12, &outputDataLen, finalData, bson_size(&b), 9, 0, 0) != BZ_OK)
+	if (BZ2_bzBuffToBuffCompress((char*)outputData+12, (unsigned*)(&outputDataLen), (char*)finalData, bson_size(&b), 9, 0, 0) != BZ_OK)
 	{
 		puts("Save Error\n");
 		free(outputData);
@@ -940,8 +940,8 @@ fin:
 
 int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* o_partsptr, unsigned pmap[YRES][XRES])
 {
-	particle *partsptr = o_partsptr;
-	unsigned char * inputData = save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *soapLinkData = NULL;
+	particle *partsptr = (particle*)o_partsptr;
+	unsigned char * inputData = (unsigned char*)save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *soapLinkData = NULL;
 	int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, fanDataLen, wallDataLen, soapLinkDataLen;
 	unsigned partsCount = 0, *partsSimIndex = NULL;
 	int i, freeIndicesCount, x, y, returnCode = 0, j;
@@ -989,7 +989,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	bsonDataLen |= ((unsigned)inputData[10]) << 16;
 	bsonDataLen |= ((unsigned)inputData[11]) << 24;
 	
-	bsonData = malloc(bsonDataLen+1);
+	bsonData = (unsigned char*)malloc(bsonDataLen+1);
 	if(!bsonData)
 	{
 		fprintf(stderr, "Internal error while parsing save: could not allocate buffer\n");
@@ -999,7 +999,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	//(bson_iterator_key returns a pointer into bsonData, which is then used with strcmp)
 	bsonData[bsonDataLen] = 0;
 	
-	if (BZ2_bzBuffToBuffDecompress(bsonData, &bsonDataLen, inputData+12, inputDataLen-12, 0, 0))
+	if (BZ2_bzBuffToBuffDecompress((char*)bsonData, (unsigned*)(&bsonDataLen), (char*)inputData+12, inputDataLen-12, 0, 0))
 	{
 		fprintf(stderr, "Unable to decompress\n");
 		return 1;
@@ -1012,7 +1012,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		erase_bframe();
 	}
 	
-	bson_init_data(&b, bsonData);
+	bson_init_data(&b, (char*)bsonData);
 	bson_iterator_init(&iter, &b);
 	while(bson_iterator_next(&iter))
 	{
@@ -1078,7 +1078,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (partsDataLen = bson_iterator_bin_len(&iter)) > 0)
 			{
-				partsData = bson_iterator_bin_data(&iter);
+				partsData = (unsigned char*)bson_iterator_bin_data(&iter);
 			}
 			else
 			{
@@ -1089,7 +1089,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (partsPosDataLen = bson_iterator_bin_len(&iter)) > 0)
 			{
-				partsPosData = bson_iterator_bin_data(&iter);
+				partsPosData = (unsigned char*)bson_iterator_bin_data(&iter);
 			}
 			else
 			{
@@ -1100,7 +1100,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (wallDataLen = bson_iterator_bin_len(&iter)) > 0)
 			{
-				wallData = bson_iterator_bin_data(&iter);
+				wallData = (unsigned char*)bson_iterator_bin_data(&iter);
 			}
 			else
 			{
@@ -1111,7 +1111,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (fanDataLen = bson_iterator_bin_len(&iter)) > 0)
 			{
-				fanData = bson_iterator_bin_data(&iter);
+				fanData = (unsigned char*)bson_iterator_bin_data(&iter);
 			}
 			else
 			{
@@ -1122,7 +1122,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (soapLinkDataLen = bson_iterator_bin_len(&iter)) > 0)
 			{
-				soapLinkData = bson_iterator_bin_data(&iter);
+				soapLinkData = (unsigned char*)bson_iterator_bin_data(&iter);
 			}
 			else
 			{
@@ -1280,8 +1280,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		}
 		parts_lastActiveIndex = NPART-1;
 		freeIndicesCount = 0;
-		freeIndices = calloc(sizeof(int), NPART);
-		partsSimIndex = calloc(NPART, sizeof(unsigned));
+		freeIndices = (int*)calloc(sizeof(int), NPART);
+		partsSimIndex = (unsigned*)calloc(NPART, sizeof(unsigned));
 		partsCount = 0;
 		for (i = 0; i<NPART; i++)
 		{
@@ -1565,7 +1565,7 @@ fin:
 //Old saving
 pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 {
-	unsigned char *d,*c=save;
+	unsigned char *d,*c=(unsigned char*)save;
 	int i,j,k,x,y,rx,ry,p=0, wt, pc, gc;
 	int bw,bh,w,h,new_format = 0;
 	pixel *fb;
@@ -1592,10 +1592,10 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 	i |= ((unsigned)c[9])<<8;
 	i |= ((unsigned)c[10])<<16;
 	i |= ((unsigned)c[11])<<24;
-	d = malloc(i);
+	d = (unsigned char*)malloc(i);
 	if (!d)
 		return NULL;
-	fb = calloc(w*h, PIXELSIZE);
+	fb = (pixel*)calloc(w*h, PIXELSIZE);
 	if (!fb)
 	{
 		free(d);
@@ -1741,12 +1741,12 @@ corrupt:
 
 int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, unsigned pmap[YRES][XRES])
 {
-	unsigned char *d=NULL,*c=save;
+	unsigned char *d=NULL,*c=(unsigned char*)save;
 	int q,i,j,k,x,y,p=0,*m=NULL, ver, pty, ty, legacy_beta=0, tempGrav = 0;
 	int bx0=x0/CELL, by0=y0/CELL, bw, bh, w, h;
 	int nf=0, new_format = 0, ttv = 0;
-	particle *parts = partsptr;
-	int *fp = malloc(NPART*sizeof(int));
+	particle *parts = (particle*)partsptr;
+	int *fp = (int*)malloc(NPART*sizeof(int));
 
 	//New file header uses PSv, replacing fuC. This is to detect if the client uses a new save format for temperatures
 	//This creates a problem for old clients, that display and "corrupt" error instead of a "newer version" error
@@ -1806,7 +1806,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 	i |= ((unsigned)c[9])<<8;
 	i |= ((unsigned)c[10])<<16;
 	i |= ((unsigned)c[11])<<24;
-	d = malloc(i);
+	d = (unsigned char*)malloc(i);
 	if (!d)
 		return 1;
 
@@ -1833,7 +1833,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 		erase_bframe();
 	}
 	parts_lastActiveIndex = NPART-1;
-	m = calloc(XRES*YRES, sizeof(int));
+	m = (int*)calloc(XRES*YRES, sizeof(int));
 
 	// make a catalog of free parts
 	//memset(pmap, 0, sizeof(pmap)); "Using sizeof for array given as function argument returns the size of pointer."
@@ -2343,7 +2343,7 @@ corrupt:
 
 void *build_thumb(int *size, int bzip2)
 {
-	unsigned char *d=calloc(1,XRES*YRES), *c;
+	unsigned char *d=(unsigned char*)calloc(1,XRES*YRES), *c;
 	int i,j,x,y;
 	for (i=0; i<NPART; i++)
 		if (parts[i].type)
@@ -2364,7 +2364,7 @@ void *build_thumb(int *size, int bzip2)
 	if (bzip2)
 	{
 		i = (j*101+99)/100 + 608;
-		c = malloc(i);
+		c = (unsigned char*)malloc(i);
 
 		c[0] = 0x53;
 		c[1] = 0x68;
@@ -2395,26 +2395,26 @@ void *build_thumb(int *size, int bzip2)
 void *transform_save(void *odata, int *size, matrix2d transform, vector2d translate)
 {
 	void *ndata;
-	unsigned char (*bmapo)[XRES/CELL] = calloc((YRES/CELL)*(XRES/CELL), sizeof(unsigned char));
-	unsigned char (*bmapn)[XRES/CELL] = calloc((YRES/CELL)*(XRES/CELL), sizeof(unsigned char));
-	particle *partst = calloc(sizeof(particle), NPART);
-	sign *signst = calloc(MAXSIGNS, sizeof(sign));
-	unsigned (*pmapt)[XRES] = calloc(YRES*XRES, sizeof(unsigned));
-	float (*fvxo)[XRES/CELL] = calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
-	float (*fvyo)[XRES/CELL] = calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
-	float (*fvxn)[XRES/CELL] = calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
-	float (*fvyn)[XRES/CELL] = calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
-	float (*vxo)[XRES/CELL] = calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
-	float (*vyo)[XRES/CELL] = calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
-	float (*vxn)[XRES/CELL] = calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
-	float (*vyn)[XRES/CELL] = calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
-	float (*pvo)[XRES/CELL] = calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
-	float (*pvn)[XRES/CELL] = calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
+	unsigned char (*bmapo)[XRES/CELL] = (unsigned char(*)[XRES/CELL])calloc((YRES/CELL)*(XRES/CELL), sizeof(unsigned char));
+	unsigned char (*bmapn)[XRES/CELL] = (unsigned char(*)[XRES/CELL])calloc((YRES/CELL)*(XRES/CELL), sizeof(unsigned char));
+	particle *partst = (particle*)calloc(sizeof(particle), NPART);
+	sign *signst = (sign*)calloc(MAXSIGNS, sizeof(sign));
+	unsigned (*pmapt)[XRES] = (unsigned(*)[XRES])calloc(YRES*XRES, sizeof(unsigned));
+	float (*fvxo)[XRES/CELL] = (float(*)[XRES/CELL])calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
+	float (*fvyo)[XRES/CELL] = (float(*)[XRES/CELL])calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
+	float (*fvxn)[XRES/CELL] = (float(*)[XRES/CELL])calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
+	float (*fvyn)[XRES/CELL] = (float(*)[XRES/CELL])calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
+	float (*vxo)[XRES/CELL] = (float(*)[XRES/CELL])calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
+	float (*vyo)[XRES/CELL] = (float(*)[XRES/CELL])calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
+	float (*vxn)[XRES/CELL] = (float(*)[XRES/CELL])calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
+	float (*vyn)[XRES/CELL] = (float(*)[XRES/CELL])calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
+	float (*pvo)[XRES/CELL] = (float(*)[XRES/CELL])calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
+	float (*pvn)[XRES/CELL] = (float(*)[XRES/CELL])calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
 	int i, x, y, nx, ny, w, h, nw, nh;
 	vector2d pos, tmp, ctl, cbr;
 	vector2d vel;
 	vector2d cornerso[4];
-	unsigned char *odatac = odata;
+	unsigned char *odatac = (unsigned char*)odata;
 	if (parse_save(odata, *size, 0, 0, 0, bmapo, vxo, vyo, pvo, fvxo, fvyo, signst, partst, pmapt))
 	{
 		free(bmapo);
