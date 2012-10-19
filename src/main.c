@@ -2517,7 +2517,7 @@ int main(int argc, char *argv[])
 				{
 					if (!bq)
 						for (signi=0; signi<MAXSIGNS; signi++)
-							if (sregexp(signs[signi].text, "^{[c|t]:[0-9]*|.*}$")==0)
+							if (sregexp(signs[signi].text, "^{[c|t]:[0-9]*|.*}$") == 0 || sregexp(signs[signi].text, "^{s:.*|.*}$") == 0)
 							{
 								int signx, signy, signw, signh;
 								get_sign_pos(signi, &signx, &signy, &signw, &signh);
@@ -2536,6 +2536,12 @@ int main(int argc, char *argv[])
 										buff[sldr-3] = '\0';
 										if (signs[signi].text[1] == 'c')
 											open_ui(vid_buf, buff, 0, 0);
+										else if (signs[signi].text[1] == 's')
+										{
+											strcpy(search_expr, buff);
+											search_own = 0;
+											search_ui(vid_buf);
+										}
 										else
 										{
 											char url[256];
