@@ -4215,7 +4215,7 @@ int search_ui(pixel *vid_buf)
 					}
 					thumb_drawn[pos] = 1;
 				}
-				own = (svf_login && (!strcmp(svf_user, search_owners[pos]) || svf_admin || svf_mod)) || ((unlockedstuff & 0x08)?1:0);
+				own = (svf_login && (!strcmp(svf_user, search_owners[pos]) || svf_admin || svf_mod));
 				if (mx>=gx-2 && mx<=gx+XRES/GRID_S+3 && my>=gy-2 && my<=gy+YRES/GRID_S+30)
 					mp = pos;
 				if ((own || search_fav) && mx>=gx+XRES/GRID_S-4 && mx<=gx+XRES/GRID_S+6 && my>=gy-6 && my<=gy+4)
@@ -4223,7 +4223,7 @@ int search_ui(pixel *vid_buf)
 					mp = -1;
 					dp = pos;
 				}
-				if (own && !search_dates[pos] && mx>=gx-6 && mx<=gx+4 && my>=gy+YRES/GRID_S-4 && my<=gy+YRES/GRID_S+6)
+				if ((own || (unlockedstuff & 0x08)) && !search_dates[pos] && mx>=gx-6 && mx<=gx+4 && my>=gy+YRES/GRID_S-4 && my<=gy+YRES/GRID_S+6)
 				{
 					mp = -1;
 					dap = pos;
@@ -4249,7 +4249,7 @@ int search_ui(pixel *vid_buf)
 					drawtext(vid_buf, gx-6, gy-6, "\xCD", 255, 255, 255, 255);
 					drawtext(vid_buf, gx-6, gy-6, "\xCE", 212, 151, 81, 255);
 				}
-				if (!search_dates[pos] && own)
+				if (!search_dates[pos] && (own || (unlockedstuff & 0x08)))
 				{
 					fillrect(vid_buf, gx-5, gy+YRES/GRID_S-3, 7, 8, 255, 255, 255, 255);
 					if (dap == pos) {
@@ -4391,7 +4391,7 @@ int search_ui(pixel *vid_buf)
 		if (b && !bq && dp!=-1)
 		{
 			if (search_fav){
-				if(confirm_ui(vid_buf, "Remove from favourites?", search_names[dp], "Remove")){
+				if(confirm_ui(vid_buf, "Remove from favorites?", search_names[dp], "Remove")){
 					execute_unfav(vid_buf, search_ids[dp]);
 					lasttime = TIMEOUT;
 					if (last)

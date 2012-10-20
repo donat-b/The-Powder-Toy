@@ -409,4 +409,5 @@ Don't save lua code inside of INDI, since this isn't a lua script anymore
 RAND - deco tool - Uberness - 10/1 #powder at end
 PROT - Protons
 CMND - command element to run old commands
+ADGS - Adhesive gas - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=15188
 http://powdertoy.co.uk/Discussions/Thread/View.html?Post=220547
