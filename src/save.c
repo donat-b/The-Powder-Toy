@@ -1795,8 +1795,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							partsptr[newIndex].tmp = fix_type(partsptr[newIndex].tmp&0xFF, saved_version)|(parts[newIndex].tmp&~0xFF);
 						if (modsave < 12 && (partsptr[newIndex].type == PT_VRSS || partsptr[newIndex].type == PT_VIRS || partsptr[newIndex].type == PT_VRSG))
 						{
-							parts[i].pavg[0] = parts[i].tmp&0xFF;
-							parts[i].pavg[1] = parts[i].tmp>>8;
+							parts[i].pavg[0] = (float)(parts[i].tmp&0xFF);
+							parts[i].pavg[1] = (float)(parts[i].tmp>>8);
 						}
 					}
 					

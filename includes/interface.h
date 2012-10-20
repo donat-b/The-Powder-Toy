@@ -77,7 +77,7 @@ static menu_section msections[] = //doshow does not do anything currently.
 	{"\xD1", "Solids", 0, 1},
 	{"\xC6", "Radioactive", 0, 1},
 	{"\xCC", "Special", 0, 1},
-	{"\xD2", "Life", 0, 1},
+	{"\xD2", "Game Of Life", 0, 1},
 	{"\xD7", "Tools", 0, 1},
 	{"\xE2", "\brF\bla\bov\bgo\btr\bbi\bpt\bwe", 0, 1}, //This says Favorite in rainbow colors
 	{"\xE5", "Deco", 0, 1},
