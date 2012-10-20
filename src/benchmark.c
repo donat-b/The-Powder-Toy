@@ -160,6 +160,14 @@ void benchmark_run()
 		}
 		BENCHMARK_END()
 
+		printf("Gravity - membwand: ");
+		BENCHMARK_START(benchmark_repeat_count, 10000)
+		{
+			membwand(gravy, gravmask, (XRES/CELL)*(YRES/CELL)*sizeof(float), (XRES/CELL)*(YRES/CELL)*sizeof(unsigned));
+			membwand(gravx, gravmask, (XRES/CELL)*(YRES/CELL)*sizeof(float), (XRES/CELL)*(YRES/CELL)*sizeof(unsigned));
+		}
+		BENCHMARK_END()
+
 		printf("Air - no walls, no changes: ");
 		BENCHMARK_START(benchmark_repeat_count, 3000)
 		{

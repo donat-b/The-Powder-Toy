@@ -311,23 +311,12 @@ void grav_fft_cleanup()
 
 void update_grav()
 {
-	int x, y, changed = 0;
+	int x, y;
 	int xblock2 = XRES/CELL*2, yblock2 = YRES/CELL*2;
 	int i, fft_tsize = (xblock2/2+1)*yblock2;
 	float mr, mc, pr, pc, gr, gc;
-	for (y=0; y<YRES/CELL; y++)
-	{
-		if(changed)
-			break;
-		for (x=0; x<XRES/CELL; x++)
-		{
-			if(th_ogravmap[y*(XRES/CELL)+x]!=th_gravmap[y*(XRES/CELL)+x]){
-				changed = 1;
-				break;
-			}
-		}
-	}
-	if(changed)
+	float *tmp;
+	if (memcmp(th_ogravmap, th_gravmap, sizeof(float)*(XRES/CELL)*(YRES/CELL))!=0)
 	{
 		th_gravchanged = 1;
 		if (!grav_fft_status) grav_fft_init();
@@ -377,7 +366,9 @@ void update_grav()
 	{
 		th_gravchanged = 0;
 	}
-	memcpy(th_ogravmap, th_gravmap, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+	tmp = th_ogravmap;
+	th_ogravmap = th_gravmap;
+	th_gravmap = tmp;
 }
 
 #else

@@ -986,8 +986,17 @@ void membwand(void * destv, void * srcv, size_t destsize, size_t srcsize)
 	size_t i;
 	unsigned char * dest = (unsigned char*)destv;
 	unsigned char * src = (unsigned char*)srcv;
-	for(i = 0; i < destsize; i++){
-		dest[i] = dest[i] & src[i%srcsize];
+	if (srcsize==destsize)
+	{
+		for(i = 0; i < destsize; i++){
+			dest[i] = dest[i] & src[i];
+		}
+	}
+	else
+	{
+		for(i = 0; i < destsize; i++){
+			dest[i] = dest[i] & src[i%srcsize];
+		}
 	}
 }
 vector2d v2d_zero = {0,0};
