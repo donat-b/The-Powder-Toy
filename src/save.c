@@ -625,7 +625,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 						pavg |= (((unsigned)partsData[i++]) << 8);
 						pavg2 = partsData[i++];
 						pavg2 |= (((unsigned)partsData[i++]) << 8);
-						if (pavg || pavg2)
+						if (pavg || pavg2 || type == PT_VRSS || type == PT_VIRS || type == PT_VRSG)
 							movscenter = 0;
 						else
 							movscenter = 1;
@@ -960,7 +960,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 				if (save_as == 3)
 				{
 					//Moving solids, save pavg (and rotation for center particle)
-					if (ptypes[partsptr[i].type].properties&PROP_MOVS)
+					if ((ptypes[partsptr[i].type].properties&PROP_MOVS) || partsptr[i].type == PT_VRSS || partsptr[i].type == PT_VIRS || partsptr[i].type == PT_VRSG)
 					{
 						fieldDesc |= 1 << 15;
 						partsData[partsDataLen++] = (int)partsptr[i].pavg[0];
@@ -1793,6 +1793,11 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						}
 						if (modsave && (partsptr[newIndex].type == PT_PIPE || partsptr[newIndex].type == PT_PPIP))
 							partsptr[newIndex].tmp = fix_type(partsptr[newIndex].tmp&0xFF, saved_version)|(parts[newIndex].tmp&~0xFF);
+						if (modsave < 12 && (partsptr[newIndex].type == PT_VRSS || partsptr[newIndex].type == PT_VIRS || partsptr[newIndex].type == PT_VRSG))
+						{
+							parts[i].pavg[0] = parts[i].tmp&0xFF;
+							parts[i].pavg[1] = parts[i].tmp>>8;
+						}
 					}
 					
 					//Read ctype
@@ -1860,7 +1865,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						pavg = partsData[i++];
 						pavg |= (((unsigned)partsData[i++]) << 8);
 						partsptr[newIndex].pavg[1] = (float)pavg;
-						if (!(ptypes[el].properties&PROP_MOVS))
+						if (!(ptypes[el].properties&PROP_MOVS) && el != PT_VRSS && el != PT_VIRS && el != PT_VRSG)
 						{
 							ptypes[el].properties |= PROP_MOVS;
 							ptypes[el].advection = ptypes[PT_MOVS].advection;
@@ -1908,7 +1913,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						}
 					}
 
-					if ((fieldDescriptor & 0x8000) || (modsave && modsave <= 8 && partsptr[newIndex].type == PT_MOVS))
+					if (((fieldDescriptor & 0x8000) || (modsave && modsave <= 8 && partsptr[newIndex].type == PT_MOVS)) && partsptr[newIndex].type != PT_VRSS && partsptr[newIndex].type != PT_VIRS && partsptr[newIndex].type != PT_VRSG)
 					{
 						if (modsave && modsave <= 8)
 						{
