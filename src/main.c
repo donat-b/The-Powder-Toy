@@ -1095,7 +1095,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	//if (benchmark_enable)
+	if (benchmark_enable)
 	{
 		benchmark_run();
 		exit(0);

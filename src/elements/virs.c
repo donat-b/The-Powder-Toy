@@ -33,8 +33,8 @@ int update_VIRS(UPDATE_FUNC_ARGS) {
 					continue;
 				if (((r&0xFF) == PT_VIRS || (r&0xFF) == PT_VRSS || (r&0xFF) == PT_VRSG) && parts[r>>8].pavg[0] && !parts[i].pavg[0])
 				{
-					int newtmp = parts[r>>8].pavg[0] + (rand()%6 < 1 ? 1:2);
-					parts[i].pavg[0] = newtmp;
+					int newtmp = (int)parts[r>>8].pavg[0] + (rand()%6 < 1 ? 1:2);
+					parts[i].pavg[0] = (float)newtmp;
 				}
 				else if (!(parts[i].pavg[0] || parts[i].pavg[0] > 10) && (r&0xFF) == PT_CURE)
 				{
@@ -46,10 +46,10 @@ int update_VIRS(UPDATE_FUNC_ARGS) {
 				{
 					if (rand()%50<1)
 					{
-						int newtmp = parts[i].pavg[1] + (rand()%3 < 1 ? 0:1);
+						int newtmp = (int)parts[i].pavg[1] + (rand()%3 < 1 ? 0:1);
 						parts[r>>8].tmp2 = (r&0xFF);
 						parts[r>>8].pavg[0] = 0;
-						parts[r>>8].pavg[1] = newtmp;
+						parts[r>>8].pavg[1] = (float)newtmp;
 						if (parts[r>>8].temp < 305)
 							part_change_type(r>>8,x,y,PT_VRSS);
 						else if (parts[r>>8].temp > 673)
