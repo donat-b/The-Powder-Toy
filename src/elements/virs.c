@@ -2,23 +2,24 @@
  
 int update_VIRS(UPDATE_FUNC_ARGS) {
 	int r, rx, ry;
-	if (parts[i].tmp&0xFF)
+	if (parts[i].pavg[0])
 	{
-		parts[i].tmp -= rand()%2 < 1 ? 0:1;
-		if ((parts[i].tmp&0xFF) == 0)
+		parts[i].pavg[0] -= rand()%2 < 1 ? 0:1;
+		if ((parts[i].pavg[0]) == 0)
 		{
 			part_change_type(i,x,y,parts[i].tmp2);
 			parts[i].tmp2 = 0;
-			parts[i].tmp = 0;
+			parts[i].pavg[0] = 0;
+			parts[i].pavg[1] = 0;
 			return 0;
 		}
 	}
-	if ((parts[i].tmp&0xFF00) > 0)
+	if (parts[i].pavg[1] > 0)
 	{
-		if (rand()%20 < 1)
-			parts[i].tmp -= 256;
+		if (rand()%15 < 1)
+			parts[i].pavg[1]--;
 	}
-	else
+	else if (!parts[i].pavg[0])
 	{
 		kill_part(i);
 		return 1;
@@ -30,28 +31,25 @@ int update_VIRS(UPDATE_FUNC_ARGS) {
 				r = ((pmap[y+ry][x+rx]&0xFF)==PT_PINV&&parts[pmap[y+ry][x+rx]>>8].life==10)?0:pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if (((r&0xFF) == PT_VIRS || (r&0xFF) == PT_VRSS || (r&0xFF) == PT_VRSG) && (parts[r>>8].tmp&0xFF) && !(parts[i].tmp&0xFF))
+				if (((r&0xFF) == PT_VIRS || (r&0xFF) == PT_VRSS || (r&0xFF) == PT_VRSG) && parts[r>>8].pavg[0] && !parts[i].pavg[0])
 				{
-					int newtmp = (parts[r>>8].tmp&0xFF) + (rand()%6 < 1 ? 1:2);
-					if (newtmp > 255)
-						newtmp = 255;
-					parts[i].tmp = (parts[i].tmp&0xFF00) + newtmp;
+					int newtmp = parts[r>>8].pavg[0] + (rand()%6 < 1 ? 1:2);
+					parts[i].pavg[0] = newtmp;
 				}
-				else if ((!(parts[i].tmp&0xFF) || (parts[i].tmp&0xFF) > 10) && (r&0xFF) == PT_CURE)
+				else if (!(parts[i].pavg[0] || parts[i].pavg[0] > 10) && (r&0xFF) == PT_CURE)
 				{
-					parts[i].tmp = (parts[i].tmp&0xFF00) + 10;
+					parts[i].pavg[0] += 10;
 					if (rand()%10<1)
 						kill_part(r>>8);
 				}
-				else if (!(parts[i].tmp&0xFF) && (r&0xFF) != PT_VIRS && (r&0xFF) != PT_VRSS && (r&0xFF) != PT_VRSG && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE))
+				else if (!parts[i].pavg[0] && (r&0xFF) != PT_VIRS && (r&0xFF) != PT_VRSS && (r&0xFF) != PT_VRSG && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE))
 				{
 					if (rand()%50<1)
 					{
-						int newtmp = parts[i].tmp + (rand()%3 < 1 ? 0:256);
-						if (newtmp >= 65536)
-							newtmp = 65280;
+						int newtmp = parts[i].pavg[1] + (rand()%3 < 1 ? 0:1);
 						parts[r>>8].tmp2 = (r&0xFF);
-						parts[r>>8].tmp = newtmp;
+						parts[r>>8].pavg[0] = 0;
+						parts[r>>8].pavg[1] = newtmp;
 						if (parts[r>>8].temp < 305)
 							part_change_type(r>>8,x,y,PT_VRSS);
 						else if (parts[r>>8].temp > 673)

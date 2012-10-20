@@ -1137,7 +1137,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 			parts[i].tmp = 1;
 			break;
 		case PT_VIRS: case PT_VRSG: case PT_VRSS:
-			parts[i].tmp = 6400;
+			parts[i].pavg[1] = 100;
 			break;
 		case PT_SOAP:
 			parts[i].tmp = -1;

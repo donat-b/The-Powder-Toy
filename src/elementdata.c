@@ -434,6 +434,8 @@ part_transition ptransitions[PT_NUM] =
 	/* REPL */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* PPIP */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* DTEC */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* DMG  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* TSNS */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	// Mod elements past this point
 	/* BALL */ {-25.0f,	PT_NONE,	25.0f,	PT_NONE,	ITL,	NT,			ITH,	NT},
 	/* ANIM */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
@@ -451,8 +453,6 @@ part_transition ptransitions[PT_NUM] =
 	/* COND */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* PWHT */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* EXPL */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
-	/* DMG */  {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
-	/* TSNS */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 };
 
 part_type ptypes2[PT_NUM];
