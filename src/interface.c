@@ -42,6 +42,9 @@
 #else
 #include <dirent.h>
 #endif
+#if defined(WIN32)
+#include <direct.h>
+#endif
 #if defined(LIN32) || defined(LIN64)
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -1069,7 +1072,7 @@ void error_ui(pixel *vid_buf, int err, char *txt)
 	int x0=(XRES-240)/2,y0=YRES/2,b=1,bq,mx,my,textheight;
 	char *msg;
 
-	msg = malloc(strlen(txt)+16);
+	msg = (char*)malloc(strlen(txt)+16);
 	if (err)
 		sprintf(msg, "%03d %s", err, txt);
 	else
@@ -1134,7 +1137,7 @@ typedef struct int_pair
 int int_pair_cmp (const void * a, const void * b)
 {
 	int_pair *ap = (int_pair*)a;
-	int_pair *bp = (int_pair*)a;
+	int_pair *bp = (int_pair*)b;
 	return ( ap->first - bp->first );
 }
 
@@ -1245,7 +1248,7 @@ void element_search_ui(pixel *vid_buf, int * slp, int * srp)
 				while (ptypes[i].descs[c]) { tempCompare[c] = tolower(ptypes[i].descs[c]); c++; } tempCompare[c] = 0;
 				if(strstr(tempCompare, tempString)!=0 && ptypes[i].enabled)
 				{
-					tempInts[found].first = (int)strstr(tempCompare, tempString);
+					tempInts[found].first = (strstr(tempCompare, tempString)==NULL)?0:1;
 					tempInts[found++].second = i;
 				}
 			}
@@ -2002,7 +2005,7 @@ void login_ui(pixel *vid_buf)
 			
 		u_m = strchr(u_e, ' ');
 		if (!u_m) {
-			u_m = malloc(1);
+			u_m = (char*)malloc(1);
 			memset(u_m, 0, 1);
 		}
 		else
@@ -2441,7 +2444,7 @@ int save_name_ui(pixel *vid_buf)
 	cb.checked = svf_publish;
 
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
-	draw_rgba_image(vid_buf, save_to_server_image, 0, 0, 0.7f);
+	draw_rgba_image(vid_buf, (unsigned char*)save_to_server_image, 0, 0, 0.7f);
 	
 	memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 
@@ -3547,7 +3550,7 @@ int sdl_poll(void)
 				// TODO: Supporting more targets would be nice
 				else if (xe.xselectionrequest.target==XA_STRING && clipboard_text)
 				{
-					XChangeProperty(sdl_wminfo.info.x11.display, xe.xselectionrequest.requestor, xe.xselectionrequest.property, xe.xselectionrequest.target, 8, PropModeReplace, clipboard_text, strlen(clipboard_text)+1);
+					XChangeProperty(sdl_wminfo.info.x11.display, xe.xselectionrequest.requestor, xe.xselectionrequest.property, xe.xselectionrequest.target, 8, PropModeReplace, (unsigned char*)clipboard_text, strlen(clipboard_text)+1);
 				}
 				else
 				{
@@ -3671,24 +3674,24 @@ void set_cmode(int cm) // sets to given view mode
 	colour_mode = COLOUR_DEFAULT;
 	
 	free(render_modes);
-	render_modes = calloc(2, sizeof(unsigned int));
+	render_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
 	render_modes[0] = RENDER_BASC;
 	render_modes[1] = 0;
 	
 	free(display_modes);
-	display_modes = calloc(1, sizeof(unsigned int));
+	display_modes = (unsigned int*)calloc(1, sizeof(unsigned int));
 	display_modes[0] = 0;
 	
 	itc = 51;
 	if (cmode==CM_VEL)
 	{
 		free(render_modes);
-		render_modes = calloc(3, sizeof(unsigned int));
+		render_modes = (unsigned int*)calloc(3, sizeof(unsigned int));
 		render_modes[0] = RENDER_EFFE;
 		render_modes[1] = RENDER_BASC;
 		render_modes[2] = 0;
 		free(display_modes);
-		display_modes = calloc(2, sizeof(unsigned int));
+		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
 		display_modes[0] = DISPLAY_AIRV;
 		display_modes[1] = 0;
 		strcpy(itc_msg, "Velocity Display");
@@ -3696,12 +3699,12 @@ void set_cmode(int cm) // sets to given view mode
 	else if (cmode==CM_PRESS)
 	{
 		free(render_modes);
-		render_modes = calloc(3, sizeof(unsigned int));
+		render_modes = (unsigned int*)calloc(3, sizeof(unsigned int));
 		render_modes[0] = RENDER_EFFE;
 		render_modes[1] = RENDER_BASC;
 		render_modes[2] = 0;
 		free(display_modes);
-		display_modes = calloc(2, sizeof(unsigned int));
+		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
 		display_modes[0] = DISPLAY_AIRP;
 		display_modes[1] = 0;
 		strcpy(itc_msg, "Pressure Display");
@@ -3709,12 +3712,12 @@ void set_cmode(int cm) // sets to given view mode
 	else if (cmode==CM_PERS)
 	{
 		free(render_modes);
-		render_modes = calloc(3, sizeof(unsigned int));
+		render_modes = (unsigned int*)calloc(3, sizeof(unsigned int));
 		render_modes[0] = RENDER_EFFE;
 		render_modes[1] = RENDER_BASC;
 		render_modes[2] = 0;
 		free(display_modes);
-		display_modes = calloc(2, sizeof(unsigned int));
+		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
 		display_modes[0] = DISPLAY_PERS;
 		display_modes[1] = 0;
 		memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
@@ -3723,7 +3726,7 @@ void set_cmode(int cm) // sets to given view mode
 	else if (cmode==CM_FIRE)
 	{
 		free(render_modes);
-		render_modes = calloc(3, sizeof(unsigned int));
+		render_modes = (unsigned int*)calloc(3, sizeof(unsigned int));
 		render_modes[0] = RENDER_FIRE;
 		render_modes[1] = RENDER_EFFE;
 		render_modes[2] = 0;
@@ -3735,12 +3738,12 @@ void set_cmode(int cm) // sets to given view mode
 	else if (cmode==CM_BLOB)
 	{
 		free(display_modes);
-		display_modes = calloc(2, sizeof(unsigned int));
+		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
 		display_mode |= DISPLAY_BLOB;
 		display_modes[0] = DISPLAY_BLOB;
 		display_modes[1] = 0;
 		free(render_modes);
-		render_modes = calloc(3, sizeof(unsigned int));
+		render_modes = (unsigned int*)calloc(3, sizeof(unsigned int));
 		render_mode |= RENDER_FIRE;
 		render_mode |= RENDER_EFFE;
 		render_modes[0] = RENDER_FIRE;
@@ -3756,7 +3759,7 @@ void set_cmode(int cm) // sets to given view mode
 		colour_mode = COLOUR_HEAT;
 		strcpy(itc_msg, "Heat Display");
 		free(display_modes);
-		display_modes = calloc(2, sizeof(unsigned int));
+		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
 		display_mode |= DISPLAY_AIRH;
 		display_modes[0] = DISPLAY_AIRH;
 		display_modes[1] = 0;
@@ -3764,14 +3767,14 @@ void set_cmode(int cm) // sets to given view mode
 	else if (cmode==CM_FANCY)
 	{
 		free(render_modes);
-		render_modes = calloc(5, sizeof(unsigned int));
+		render_modes = (unsigned int*)calloc(5, sizeof(unsigned int));
 		render_modes[0] = RENDER_FIRE;
 		render_modes[1] = RENDER_GLOW;
 		render_modes[2] = RENDER_BLUR;
 		render_modes[3] = RENDER_EFFE;
 		render_modes[4] = 0;
 		free(display_modes);
-		display_modes = calloc(2, sizeof(unsigned int));
+		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
 		display_modes[0] = DISPLAY_WARP;
 		display_modes[1] = 0;
 		memset(fire_r, 0, sizeof(fire_r));
@@ -3796,12 +3799,12 @@ void set_cmode(int cm) // sets to given view mode
 	else if (cmode==CM_CRACK)
 	{
 		free(render_modes);
-		render_modes = calloc(3, sizeof(unsigned int));
+		render_modes = (unsigned int*)calloc(3, sizeof(unsigned int));
 		render_modes[0] = RENDER_EFFE;
 		render_modes[1] = RENDER_BASC;
 		render_modes[2] = 0;
 		free(display_modes);
-		display_modes = calloc(2, sizeof(unsigned int));
+		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
 		display_modes[0] = DISPLAY_AIRC;
 		display_modes[1] = 0;
 		strcpy(itc_msg, "Alternate Velocity Display");
@@ -4180,7 +4183,7 @@ int search_ui(pixel *vid_buf)
 				gy = ((((YRES-(MENUSIZE-20))+15)/GRID_Y)*gj) + ((YRES-(MENUSIZE-20))/GRID_Y-(YRES-(MENUSIZE-20))/GRID_S+10)/2 + 18;
 				if (textwidth(search_names[pos]) > XRES/GRID_X-10)
 				{
-					tmp = malloc(strlen(search_names[pos])+4);
+					tmp = (char*)malloc(strlen(search_names[pos])+4);
 					strcpy(tmp, search_names[pos]);
 					j = textwidthx(tmp, XRES/GRID_X-15);
 					strcpy(tmp+j, "...");
@@ -4469,7 +4472,7 @@ int search_ui(pixel *vid_buf)
 			last_fav = search_fav;
 			last_p1_extra = p1_extra;
 			active = 1;
-			uri = malloc(strlen(last)*3+180+strlen(SERVER)+strlen(svf_user)+20); //Increase "padding" from 80 to 180 to fix the search memory corruption bug
+			uri = (char*)malloc(strlen(last)*3+180+strlen(SERVER)+strlen(svf_user)+20); //Increase "padding" from 80 to 180 to fix the search memory corruption bug
 			if (search_own || svf_admin || svf_mod || (unlockedstuff&0x08))
 				tmp = "&ShowVotes=true";
 			else
@@ -4559,7 +4562,7 @@ int search_ui(pixel *vid_buf)
 				thumb_cache_add(img_id[i], thumb, thlen);
 				for (pos=0; pos<GRID_X*GRID_Y; pos++) {
 					if (search_dates[pos]) {
-						char *id_d_temp = malloc(strlen(search_ids[pos])+strlen(search_dates[pos])+2);
+						char *id_d_temp = (char*)malloc(strlen(search_ids[pos])+strlen(search_dates[pos])+2);
 						if (id_d_temp == 0)
 						{
 							break;
@@ -4595,7 +4598,7 @@ int search_ui(pixel *vid_buf)
 					{
 						if (search_dates[pos])
 						{
-							char *id_d_temp = malloc(strlen(search_ids[pos])+strlen(search_dates[pos])+2);
+							char *id_d_temp = (char*)malloc(strlen(search_ids[pos])+strlen(search_dates[pos])+2);
 							strcpy(id_d_temp, search_ids[pos]);
 							strappend(id_d_temp, "_");
 							strappend(id_d_temp, search_dates[pos]);
@@ -4619,8 +4622,8 @@ int search_ui(pixel *vid_buf)
 				if (pos<GRID_X*GRID_Y)
 				{
 					if (search_dates[pos]) {
-						char *id_d_temp = malloc(strlen(search_ids[pos])+strlen(search_dates[pos])+2);
-						uri = malloc(strlen(search_ids[pos])*3+strlen(search_dates[pos])*3+strlen(STATICSERVER)+71);
+						char *id_d_temp = (char*)malloc(strlen(search_ids[pos])+strlen(search_dates[pos])+2);
+						uri = (char*)malloc(strlen(search_ids[pos])*3+strlen(search_dates[pos])*3+strlen(STATICSERVER)+71);
 						strcpy(uri, "http://" STATICSERVER "/");
 						strcaturl(uri, search_ids[pos]);
 						strappend(uri, "_");
@@ -4633,7 +4636,7 @@ int search_ui(pixel *vid_buf)
 						img_id[i] = mystrdup(id_d_temp);
 						free(id_d_temp);
 					} else {
-						uri = malloc(strlen(search_ids[pos])*3+strlen(SERVER)+64);
+						uri = (char*)malloc(strlen(search_ids[pos])*3+strlen(SERVER)+64);
 						strcpy(uri, "http://" STATICSERVER "/");
 						strcaturl(uri, search_ids[pos]);
 						strappend(uri, "_small.pti");
@@ -4816,7 +4819,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 
 	char *uri, *uri_2, *o_uri, *uri_3, *uri_4;
 	void *data = NULL, *info_data, *thumb_data_full, *comment_data;
-	save_info *info = calloc(sizeof(save_info), 1);
+	save_info *info = (save_info*)calloc(sizeof(save_info), 1);
 	void *http = NULL, *http_2 = NULL, *http_3 = NULL, *http_4 = NULL;
 	int lasttime = TIMEOUT, saveTotal, saveDone, infoTotal, infoDone, downloadDone, downloadTotal;
 	int status, status_2, status_4, info_ready = 0, data_ready = 0, thumb_data_ready = 0;
@@ -4874,17 +4877,17 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	//Try to load the thumbnail from the cache
 	if(save_date)
 	{
-		char * id_d_temp = malloc(strlen(save_id)+strlen(save_date)+2);
+		char * id_d_temp = (char*)malloc(strlen(save_id)+strlen(save_date)+2);
 		strcpy(id_d_temp, save_id);
 		strappend(id_d_temp, "_");
 		strappend(id_d_temp, save_date);
 		
-		status = thumb_cache_find(id_d_temp, &thumb_data, &thumb_data_size);
+		status = thumb_cache_find(id_d_temp, (void**)(&thumb_data), &thumb_data_size);
 		free(id_d_temp);
 	}
 	else
 	{
-		status = thumb_cache_find(save_id, &thumb_data, &thumb_data_size);
+		status = thumb_cache_find(save_id, (void**)(&thumb_data), &thumb_data_size);
 	}
 	if(!status){
 		thumb_data = NULL;	
@@ -4903,21 +4906,21 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	//Begin Async loading of data
 	if (save_date) {
 		// We're loading an historical save
-		uri = malloc(strlen(save_id)*3+strlen(save_date)*3+strlen(STATICSERVER)+71);
+		uri = (char*)malloc(strlen(save_id)*3+strlen(save_date)*3+strlen(STATICSERVER)+71);
 		strcpy(uri, "http://" STATICSERVER "/");
 		strcaturl(uri, save_id);
 		strappend(uri, "_");
 		strcaturl(uri, save_date);
 		strappend(uri, ".cps");
 
-		uri_2 = malloc(strlen(save_id)*3+strlen(save_date)*3+strlen(STATICSERVER)+71);
+		uri_2 = (char*)malloc(strlen(save_id)*3+strlen(save_date)*3+strlen(STATICSERVER)+71);
 		strcpy(uri_2, "http://" STATICSERVER "/");
 		strcaturl(uri_2, save_id);
 		strappend(uri_2, "_");
 		strcaturl(uri_2, save_date);
 		strappend(uri_2, ".info");
 
-		uri_3 = malloc(strlen(save_id)*3+strlen(save_date)*3+strlen(STATICSERVER)+71);
+		uri_3 = (char*)malloc(strlen(save_id)*3+strlen(save_date)*3+strlen(STATICSERVER)+71);
 		strcpy(uri_3, "http://" STATICSERVER "/");
 		strcaturl(uri_3, save_id);
 		strappend(uri_3, "_");
@@ -4925,17 +4928,17 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		strappend(uri_3, "_large.pti");
 	} else {
 		//We're loading a normal save
-		uri = malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
+		uri = (char*)malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
 		strcpy(uri, "http://" STATICSERVER "/");
 		strcaturl(uri, save_id);
 		strappend(uri, ".cps");
 
-		uri_2 = malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
+		uri_2 = (char*)malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
 		strcpy(uri_2, "http://" STATICSERVER "/");
 		strcaturl(uri_2, save_id);
 		strappend(uri_2, ".info");
 
-		uri_3 = malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
+		uri_3 = (char*)malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
 		strcpy(uri_3, "http://" STATICSERVER "/");
 		strcaturl(uri_3, save_id);
 		strappend(uri_3, "_large.pti");
@@ -5022,7 +5025,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			infoDone = infoTotal;
 			if (status_2 == 200 || !info_data)
 			{
-				info_ready = info_parse(info_data, info);
+				info_ready = info_parse((char*)info_data, info);
 				sprintf(viewcountbuffer, "%d", info->downloadcount);
 				if (info_ready<=0) {
 					error_ui(vid_buf, 0, "Save info not found");
@@ -5389,7 +5392,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				fillrect(vid_buf, 250, YRES+MENUSIZE-68, 107, 18, 255, 255, 255, 40);
 				if (b && !bq) {
 					//Button Clicked
-					o_uri = malloc(7+strlen(SERVER)+41+strlen(save_id)*3);
+					o_uri = (char*)malloc(7+strlen(SERVER)+41+strlen(save_id)*3);
 					strcpy(o_uri, "http://" SERVER "/Browse/View.html?ID=");
 					strcaturl(o_uri, save_id);
 					open_link(o_uri);
@@ -5863,7 +5866,7 @@ int search_results(char *str, int votes)
 				search_votes[i] = atoi(s);
 				
 			//Build thumb cache ID and find
-			id_d_temp = malloc(strlen(search_ids[i])+strlen(search_dates[i])+2);
+			id_d_temp = (char*)malloc(strlen(search_ids[i])+strlen(search_dates[i])+2);
 			strcpy(id_d_temp, search_ids[i]);
 			strappend(id_d_temp, "_");
 			strappend(id_d_temp, search_dates[i]);
@@ -5970,7 +5973,7 @@ int execute_tagop(pixel *vid_buf, char *op, char *tag)
 	char *names[] = {"ID", "Tag", NULL};
 	char *parts[2];
 
-	char *uri = malloc(strlen(SERVER)+strlen(op)+36);
+	char *uri = (char*)malloc(strlen(SERVER)+strlen(op)+36);
 	sprintf(uri, "http://" SERVER "/Tag.api?Op=%s", op);
 
 	parts[0] = svf_id;
@@ -6039,14 +6042,14 @@ void execute_save(pixel *vid_buf)
 	plens[0] = strlen(svf_name);
 	uploadparts[1] = svf_description;
 	plens[1] = strlen(svf_description);
-	uploadparts[2] = build_save(plens+2, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, (save_as == 3 && (sdl_mod & KMOD_SHIFT)));
+	uploadparts[2] = (char*)build_save(plens+2, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, (save_as == 3 && (sdl_mod & KMOD_SHIFT)));
 	if (!uploadparts[2])
 	{
 		error_ui(vid_buf, 0, "Error creating save");
 		return;
 	}
-	uploadparts[3] = build_thumb(plens+3, 1);
-	uploadparts[4] = (svf_publish==1)?"Public":"Private";
+	uploadparts[3] = (char*)build_thumb(plens+3, 1);
+	uploadparts[4] = (char*)((svf_publish==1)?"Public":"Private");
 	plens[4] = strlen((svf_publish==1)?"Public":"Private");
 	save_as = oldsave_as;
 
@@ -6326,17 +6329,17 @@ void open_link(char *uri) {
 #ifdef WIN32
 	ShellExecute(0, "OPEN", uri, NULL, NULL, 0);
 #elif MACOSX
-	char *cmd = malloc(7+strlen(uri));
+	char *cmd = (char*)malloc(7+strlen(uri));
 	strcpy(cmd, "open ");
 	strappend(cmd, uri);
 	system(cmd);
 #elif LIN32
-	char *cmd = malloc(11+strlen(uri));
+	char *cmd = (char*)malloc(11+strlen(uri));
 	strcpy(cmd, "xdg-open ");
 	strappend(cmd, uri);
 	system(cmd);
 #elif LIN64
-	char *cmd = malloc(11+strlen(uri));
+	char *cmd = (char*)malloc(11+strlen(uri));
 	strcpy(cmd, "xdg-open ");
 	strappend(cmd, uri);
 	system(cmd);
@@ -6344,11 +6347,12 @@ void open_link(char *uri) {
 	printf("Cannot open browser\n");
 #endif
 }
+struct command_history;
+typedef struct command_history command_history;
 struct command_history {
-	void *prev_command;
+	command_history *prev_command;
 	char *command;
 };
-typedef struct command_history command_history;
 command_history *last_command = NULL;
 command_history *last_command2 = NULL;
 
@@ -6515,7 +6519,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 
 	fillrect(old_buf, -1, -1, XRES+BARSIZE, 220, 0, 0, 0, 190);
 
-	currentcommand2 = malloc(sizeof(command_history));
+	currentcommand2 = (command_history*)malloc(sizeof(command_history));
 	memset(currentcommand2, 0, sizeof(command_history));
 	currentcommand2->prev_command = last_command2;
 	currentcommand2->command = mystrdup(error);
@@ -6629,7 +6633,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 		}
 		if (sdl_key==SDLK_RETURN)
 		{
-			currentcommand = malloc(sizeof(command_history));
+			currentcommand = (command_history*)malloc(sizeof(command_history));
 			memset(currentcommand, 0, sizeof(command_history));
 			currentcommand->prev_command = last_command;
 			currentcommand->command = mystrdup(ed.str);
@@ -7067,14 +7071,15 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 		}*/
 	decocolor = (currA<<24)|PIXRGB(currR,currG,currB);
 }
+struct savelist_e;
+typedef struct savelist_e savelist_e;
 struct savelist_e {
 	char *filename;
 	char *name;
 	pixel *image;
-	void *next;
-	void *prev;
+	savelist_e *next;
+	savelist_e *prev;
 };
-typedef struct savelist_e savelist_e;
 savelist_e *get_local_saves(char *folder, char *search, int *results_ret)
 {
 	int index = 0, results = 0;
@@ -7084,7 +7089,7 @@ savelist_e *get_local_saves(char *folder, char *search, int *results_ret)
 #if defined(WIN32) && !defined(__GNUC__)
 	struct _finddata_t current_file;
 	intptr_t findfile_handle;
-	char *filematch = malloc(strlen(folder)+4);
+	char *filematch = (char*)malloc(strlen(folder)+4);
 	sprintf(filematch, "%s%s", folder, "*.*");
 	findfile_handle = _findfirst(filematch, &current_file);
 	free(filematch);
@@ -7114,8 +7119,8 @@ savelist_e *get_local_saves(char *folder, char *search, int *results_ret)
 			char *ext = fname+(strlen(fname)-4);
 			if((!strncmp(ext, ".cps", 4) || !strncmp(ext, ".stm", 4)) && (search==NULL || strstr(fname, search)))
 			{
-				new_item = malloc(sizeof(savelist_e));
-				new_item->filename = malloc(strlen(folder)+strlen(fname)+1);
+				new_item = (savelist_e*)malloc(sizeof(savelist_e));
+				new_item->filename = (char*)malloc(strlen(folder)+strlen(fname)+1);
 				sprintf(new_item->filename, "%s%s", folder, fname);
 				new_item->name = mystrdup(fname);
 				new_item->image = NULL;
@@ -7209,7 +7214,7 @@ int save_filename_ui(pixel *vid_buf)
 	}
 
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
-	draw_rgba_image(vid_buf, save_to_disk_image, 0, 0, 0.7f);
+	draw_rgba_image(vid_buf, (unsigned char*)save_to_disk_image, 0, 0, 0.7f);
 	
 	memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 
@@ -7250,8 +7255,8 @@ int save_filename_ui(pixel *vid_buf)
 			if(b && !bq)
 			{
 				FILE *f = NULL;
-				savefname = malloc(strlen(ed.str)+5);
-				filename = malloc(strlen(LOCAL_SAVE_DIR)+strlen(PATH_SEP)+strlen(ed.str)+5);
+				savefname = (char*)malloc(strlen(ed.str)+5);
+				filename = (char*)malloc(strlen(LOCAL_SAVE_DIR)+strlen(PATH_SEP)+strlen(ed.str)+5);
 				sprintf(filename, "%s%s%s.cps", LOCAL_SAVE_DIR, PATH_SEP, ed.str);
 				sprintf(savefname, "%s.cps", ed.str);
 			
@@ -7333,7 +7338,7 @@ void catalogue_ui(pixel * vid_buf)
 	savelist_e *saves, *cssave, *csave;
 	ui_edit ed;
 	
-	vid_buf2 = calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
+	vid_buf2 = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	if (!vid_buf2)
 		return;
 	
@@ -7491,12 +7496,12 @@ void catalogue_ui(pixel * vid_buf)
 							free(tmpimage);
 						} else {
 							//Blank image, TODO: this should default to something else
-							csave->image = calloc((XRES/CATALOGUE_S)*(YRES/CATALOGUE_S), PIXELSIZE);
+							csave->image = (pixel*)calloc((XRES/CATALOGUE_S)*(YRES/CATALOGUE_S), PIXELSIZE);
 						}
 						free(data);
 					} else {
 						//Blank image, TODO: this should default to something else
-						csave->image = calloc((XRES/CATALOGUE_S)*(YRES/CATALOGUE_S), PIXELSIZE);
+						csave->image = (pixel*)calloc((XRES/CATALOGUE_S)*(YRES/CATALOGUE_S), PIXELSIZE);
 					}
 					imageoncycle = 1;
 				}
@@ -7667,7 +7672,7 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 	ycoord -= ysize;
 	xcoord -= xsize;
 	
-	colour_cb = calloc(colour_optioncount, sizeof(ui_checkbox));
+	colour_cb = (ui_checkbox*)calloc(colour_optioncount, sizeof(ui_checkbox));
 	for(i = 0; i < colour_optioncount; i++)
 	{
 		colour_cb[i].x = (xcoffset * 0) + xcoord + (i * xoffset) + 5;
@@ -7681,7 +7686,7 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 		}
 	}
 	
-	render_cb = calloc(render_optioncount, sizeof(ui_checkbox));
+	render_cb = (ui_checkbox*)calloc(render_optioncount, sizeof(ui_checkbox));
 	for(i = 0; i < render_optioncount; i++)
 	{
 		render_cb[i].x = (xcoffset * 1) + xcoord + (i * xoffset) + 5;
@@ -7700,7 +7705,7 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 		}
 	}
 	
-	display_cb = calloc(display_optioncount, sizeof(ui_checkbox));
+	display_cb = (ui_checkbox*)calloc(display_optioncount, sizeof(ui_checkbox));
 	for(i = 0; i < display_optioncount; i++)
 	{
 		display_cb[i].x = (xcoffset * 2) + xcoord + (i * xoffset) + 5;
@@ -7719,10 +7724,10 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 		}
 	}
 	
-	o_vid_buf = calloc((YRES+MENUSIZE) * (XRES+BARSIZE), PIXELSIZE);
+	o_vid_buf = (pixel*)calloc((YRES+MENUSIZE) * (XRES+BARSIZE), PIXELSIZE);
 	//memcpy(o_vid_buf, vid_buf, ((YRES+MENUSIZE) * (XRES+BARSIZE)) * PIXELSIZE);
 	
-	part_vbuf = calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE); //Extra video buffer
+	part_vbuf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE); //Extra video buffer
 	part_vbuf_store = part_vbuf;
 	
 	if (!o_vid_buf || !part_vbuf || !part_vbuf_store)
@@ -7797,7 +7802,7 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 			}
 			free(render_modes);
 			render_mode = 0;
-			render_modes = calloc(count, sizeof(unsigned int));
+			render_modes = (unsigned int*)calloc(count, sizeof(unsigned int));
 			count = 0;
 			for(i = 0; i < render_optioncount; i++)
 			{
@@ -7852,7 +7857,7 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 			}
 			free(display_modes);
 			display_mode = 0;
-			display_modes = calloc(count, sizeof(unsigned int));
+			display_modes = (unsigned int*)calloc(count, sizeof(unsigned int));
 			count = 0;
 			for(i = 0; i < display_optioncount; i++)
 			{

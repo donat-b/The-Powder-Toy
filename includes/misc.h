@@ -44,7 +44,7 @@ unsigned clamp_flt(float f, float min, float max);
 
 float restrict_flt(float f, float min, float max);
 
-char *mystrdup(char *s);
+char *mystrdup(const char *s);
 
 struct strlist
 {

@@ -16,6 +16,10 @@
  */
 #ifndef LUACONSOLEH
 #define LUACONSOLEH
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 #ifdef LUA_R_INCL
 #include <lua.h>
 #include <lauxlib.h>
@@ -25,6 +29,10 @@
 #include <lua5.1/lauxlib.h>
 #include <lua5.1/lualib.h>
 #endif
+#ifdef __cplusplus
+}
+#endif
+
 #include <defines.h>
 
 #define LOCAL_LUA_DIR "Lua"
@@ -49,7 +57,7 @@ int luacon_keyevent(int key, int modifier, int event);
 int luacon_eval(char *command);
 int luacon_part_update(int t, int i, int x, int y, int surround_space, int nt);
 int luacon_graphics_update(int t, int i, int *pixel_mode, int *cola, int *colr, int *colg, int *colb, int *firea, int *firer, int *fireg, int *fireb);
-char *luacon_geterror();
+const char *luacon_geterror();
 void luacon_close();
 int luacon_partsread(lua_State* l);
 int luacon_partswrite(lua_State* l);

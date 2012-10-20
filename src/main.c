@@ -113,7 +113,7 @@ void play_sound(char *file)
 	}
 	SDL_BuildAudioCVT(&cvt, wave.format, wave.channels, wave.freq,
 	                  AUDIO_S16,   2,             22050);
-	cvt.buf = malloc(dlen*cvt.len_mult);
+	cvt.buf = (Uint8*)malloc(dlen*cvt.len_mult);
 	memcpy(cvt.buf, data, dlen);
 	cvt.len = dlen;
 	SDL_ConvertAudio(&cvt);
@@ -742,7 +742,7 @@ char my_uri[] = "http://" SERVER "/Update.api?Action=Download&Architecture="
 #ifdef RENDERER
 int main(int argc, char *argv[])
 {
-	pixel *vid_buf = calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
+	pixel *vid_buf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	int load_size, i=0, j=0;
 	void *load_data = file_load(argv[1], &load_size);
 	unsigned char c[3];
@@ -754,13 +754,13 @@ int main(int argc, char *argv[])
 	TRON_init_graphics();
 
 	sys_pause = 1;
-	parts = calloc(sizeof(particle), NPART);
+	parts = (particle*)calloc(sizeof(particle), NPART);
 	for (i=0; i<NPART-1; i++)
 		parts[i].life = i+1;
 	parts[NPART-1].life = -1;
 	pfree = 0;
 
-	pers_bg = calloc((XRES+BARSIZE)*YRES, PIXELSIZE);
+	pers_bg = (pixel*)calloc((XRES+BARSIZE)*YRES, PIXELSIZE);
 	
 	prepare_alpha(CELL, 1.0f);
 	prepare_graphicscache();
@@ -865,10 +865,10 @@ int main(int argc, char *argv[])
     pthread_win32_thread_attach_np();
 #endif
 	limitFPS = 60;
-	vid_buf = calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
-	part_vbuf = calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE); //Extra video buffer
+	vid_buf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
+	part_vbuf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE); //Extra video buffer
 	part_vbuf_store = part_vbuf;
-	pers_bg = calloc((XRES+BARSIZE)*YRES, PIXELSIZE);
+	pers_bg = (pixel*)calloc((XRES+BARSIZE)*YRES, PIXELSIZE);
 
 	memcpy(ptypes2,ptypes,sizeof(ptypes));
 	memcpy(ptransitions2,ptransitions,sizeof(ptransitions));
@@ -891,8 +891,8 @@ int main(int argc, char *argv[])
 #endif
 //TODO: Move out version stuff
 	menu_count();
-	parts = calloc(sizeof(particle), NPART);
-	cb_parts = calloc(sizeof(particle), NPART);
+	parts = (particle*)calloc(sizeof(particle), NPART);
+	cb_parts = (particle*)calloc(sizeof(particle), NPART);
 	init_can_move();
 	
 #ifdef LUACONSOLE
@@ -922,7 +922,7 @@ int main(int argc, char *argv[])
 		}
 		else if (!strncmp(argv[i], "open", 5) && i+1<argc)
 		{
-			saveDataOpen = file_load(argv[i+1], &saveDataOpenSize);
+			saveDataOpen = (char*)file_load(argv[i+1], &saveDataOpenSize);
 			i++;
 		}
 	}
@@ -2150,7 +2150,7 @@ int main(int argc, char *argv[])
 		if (b && !bq && x>=(XRES-19-old_ver_len) &&
 		        x<=(XRES-14) && y>=(YRES-22) && y<=(YRES-9) && old_version)
 		{
-			tmp = malloc(256);
+			tmp = (char*)malloc(128);
 #ifdef BETA
 			if (is_beta)
 			{

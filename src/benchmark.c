@@ -4,6 +4,8 @@
 #include "gravity.h"
 #include "powdergraphics.h"
 #include "benchmark.h"
+#include "save.h"
+#include <math.h>
 
 char *benchmark_file = NULL;
 double benchmark_loops_multiply = 1.0; // Increase for more accurate results (particularly on fast computers)
@@ -51,7 +53,7 @@ double benchmark_get_time()
 
 void benchmark_run()
 {
-	pixel *vid_buf = calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
+	pixel *vid_buf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	if (benchmark_file)
 	{
 		int size;

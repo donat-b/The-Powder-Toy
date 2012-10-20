@@ -77,7 +77,7 @@ static char *mystrdup(char *s)
 	char *x;
 	if (s)
 	{
-		x = malloc(strlen(s)+1);
+		x = (char*)malloc(strlen(s)+1);
 		strcpy(x, s);
 		return x;
 	}
@@ -92,7 +92,7 @@ static int splituri(char *uri, char **host, char **path)
 	q = strchr(p, '/');
 	if (!q)
 		q = p + strlen(p);
-	x = malloc(q-p+1);
+	x = (char*)malloc(q-p+1);
 	if (*q)
 		y = mystrdup(q);
 	else
@@ -222,17 +222,17 @@ struct http_ctx
 };
 void *http_async_req_start(void *ctx, char *uri, char *data, int dlen, int keep)
 {
-	struct http_ctx *cx = ctx;
+	struct http_ctx *cx = (struct http_ctx*)ctx;
 	if (!ctx)
 	{
 		ctx = calloc(1, sizeof(struct http_ctx));
-		cx = ctx;
+		cx = (struct http_ctx*)ctx;
 		cx->fd = PERROR;
 	}
 
 	if (!cx->hbuf)
 	{
-		cx->hbuf = malloc(256);
+		cx->hbuf = (char*)malloc(256);
 		cx->hlen = 256;
 	}
 
@@ -274,7 +274,7 @@ void *http_async_req_start(void *ctx, char *uri, char *data, int dlen, int keep)
 	{
 		if (!dlen)
 			dlen = strlen(data);
-		cx->txd = malloc(dlen);
+		cx->txd = (char*)malloc(dlen);
 		memcpy(cx->txd, data, dlen);
 		cx->txdl = dlen;
 	}
@@ -297,8 +297,8 @@ void *http_async_req_start(void *ctx, char *uri, char *data, int dlen, int keep)
 
 void http_async_add_header(void *ctx, char *name, char *data)
 {
-	struct http_ctx *cx = ctx;
-	cx->thdr = realloc(cx->thdr, cx->thlen + strlen(name) + strlen(data) + 5);
+	struct http_ctx *cx = (struct http_ctx*)ctx;
+	cx->thdr = (char*)realloc(cx->thdr, cx->thlen + strlen(name) + strlen(data) + 5);
 	cx->thlen += sprintf(cx->thdr+cx->thlen, "%s: %s\r\n", name, data);
 }
 
@@ -361,13 +361,13 @@ static void process_byte(struct http_ctx *cx, char ch)
 
 		if (!cx->rbuf)
 		{
-			cx->rbuf = malloc(256);
+			cx->rbuf = (char*)malloc(256);
 			cx->rlen = 256;
 		}
 		if (cx->rptr >= cx->rlen-1)
 		{
 			cx->rlen *= 2;
-			cx->rbuf = realloc(cx->rbuf, cx->rlen);
+			cx->rbuf = (char*)realloc(cx->rbuf, cx->rlen);
 		}
 		cx->rbuf[cx->rptr++] = ch;
 
@@ -387,7 +387,7 @@ static void process_byte(struct http_ctx *cx, char ch)
 			if (cx->hptr >= cx->hlen-1)
 			{
 				cx->hlen *= 2;
-				cx->hbuf = realloc(cx->hbuf, cx->hlen);
+				cx->hbuf = (char*)realloc(cx->hbuf, cx->hlen);
 			}
 			cx->hbuf[cx->hptr++] = ch;
 		}
@@ -396,7 +396,7 @@ static void process_byte(struct http_ctx *cx, char ch)
 
 int http_async_req_status(void *ctx)
 {
-	struct http_ctx *cx = ctx;
+	struct http_ctx *cx = (struct http_ctx*)ctx;
 	char *dns,*srv,buf[CHUNK];
 	int tmp, i;
 	time_t now = time(NULL);
@@ -467,7 +467,7 @@ int http_async_req_status(void *ctx)
 		if (cx->txdl)
 		{
 			// generate POST
-			cx->tbuf = malloc(strlen(cx->host) + strlen(cx->path) + 126 + cx->txdl + cx->thlen);
+			cx->tbuf = (char*)malloc(strlen(cx->host) + strlen(cx->path) + 126 + cx->txdl + cx->thlen);
 			cx->tptr = 0;
 			cx->tlen = 0;
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "POST %s HTTP/1.1\r\n", cx->path);
@@ -501,7 +501,7 @@ int http_async_req_status(void *ctx)
 		else
 		{
 			// generate GET
-			cx->tbuf = malloc(strlen(cx->host) + strlen(cx->path) +93 + cx->thlen);
+			cx->tbuf = (char*)malloc(strlen(cx->host) + strlen(cx->path) +93 + cx->thlen);
 			cx->tptr = 0;
 			cx->tlen = 0;
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "GET %s HTTP/1.1\r\n", cx->path);
@@ -584,7 +584,7 @@ timeout:
 
 char *http_async_req_stop(void *ctx, int *ret, int *len)
 {
-	struct http_ctx *cx = ctx;
+	struct http_ctx *cx = (struct http_ctx*)ctx;
 	char *rxd;
 
 	if (cx->state != HTS_DONE)
@@ -651,7 +651,7 @@ char *http_async_req_stop(void *ctx, int *ret, int *len)
 
 void http_async_get_length(void *ctx, int *total, int *done)
 {
-	struct http_ctx *cx = ctx;
+	struct http_ctx *cx = (struct http_ctx*)ctx;
 	if (done)
 		*done = cx->rptr;
 	if (total)
@@ -660,7 +660,7 @@ void http_async_get_length(void *ctx, int *total, int *done)
 
 void http_async_req_close(void *ctx)
 {
-	struct http_ctx *cx = ctx;
+	struct http_ctx *cx = (struct http_ctx*)ctx;
 	void *tmp;
 	if (cx->host)
 	{
@@ -708,7 +708,7 @@ void http_auth_headers(void *ctx, char *user, char *pass, char *session_id)
 
 			md5_update(&md5, (unsigned char *)pass, strlen(pass));
 			md5_final(hash, &md5);
-			tmp = malloc(33);
+			tmp = (char*)malloc(33);
 			for (i=0; i<16; i++)
 			{
 				tmp[i*2] = hex[hash[i]>>4];
@@ -914,7 +914,7 @@ char *http_multipart_post(char *uri, char **names, char **parts, int *plens, cha
 		{
 			own_plen = 1;
 			for (i=0; names[i]; i++) ;
-			plens = calloc(i, sizeof(int));
+			plens = (int*)calloc(i, sizeof(int));
 			for (i=0; names[i]; i++)
 				plens[i] = strlen(parts[i]);
 		}
@@ -959,7 +959,7 @@ retry:
 		for (i=0; names[i]; i++)
 			dlen += blen+strlen(names[i])+plens[i]+128;
 		dlen += blen+8;
-		data = malloc(dlen);
+		data = (char*)malloc(dlen);
 		dlen = 0;
 		for (i=0; names[i]; i++)
 		{
@@ -1010,7 +1010,7 @@ retry:
 						m += strlen(names[i])+1;
 				}
 
-				tmp = malloc(m);
+				tmp = (char*)malloc(m);
 				m = 0;
 				for (i=0; names[i]; i++)
 				{
@@ -1038,7 +1038,7 @@ retry:
 
 			md5_update(&md5, (unsigned char *)pass, strlen(pass));
 			md5_final(hash, &md5);
-			tmp = malloc(33);
+			tmp = (char*)malloc(33);
 			for (i=0; i<16; i++)
 			{
 				tmp[i*2] = hex[hash[i]>>4];
@@ -1061,7 +1061,7 @@ retry:
 
 	if (data)
 	{
-		tmp = malloc(32+strlen((char *)boundary));
+		tmp = (char*)malloc(32+strlen((char *)boundary));
 		sprintf(tmp, "multipart/form-data, boundary=%s", boundary);
 		http_async_add_header(ctx, "Content-type", tmp);
 		free(tmp);

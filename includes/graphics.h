@@ -147,7 +147,7 @@ int drawtext(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a
 
 int drawhighlight(pixel *vid, int x, int y, const char *s);
 
-int drawtext_outline(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a, int or, int og, int ob, int oa);
+int drawtext_outline(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a, int outr, int outg, int outb, int outa);
 
 int drawtextwrap(pixel *vid, int x, int y, int w, const char *s, int r, int g, int b, int a);
 
@@ -165,7 +165,7 @@ void clearrect(pixel *vid, int x, int y, int w, int h);
 
 void drawdots(pixel *vid, int x, int y, int h, int r, int g, int b, int a);
 
-int textwidth(char *s);
+int textwidth(const char *s);
 
 int drawtextmax(pixel *vid, int x, int y, int w, char *s, int r, int g, int b, int a);
 
