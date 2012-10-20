@@ -394,6 +394,7 @@ void clear_sim(void)
 		memset(gravx, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
 	if(gravp)
 		memset(gravp, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+	gravity_cleared = 1;
 	for(x = 0; x < XRES/CELL; x++){
 		for(y = 0; y < YRES/CELL; y++){
 			hv[y][x] = 273.15f+22.0f; //Set to room temperature

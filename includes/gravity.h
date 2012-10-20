@@ -28,6 +28,7 @@ float *gravp;
 float *gravy;
 float *gravx;
 unsigned *gravmask;
+extern int gravity_cleared;
 
 float *th_ogravmap;// Maps to be processed by the gravity thread
 float *th_gravmap;

@@ -34,6 +34,7 @@ float *gravp = NULL;
 float *gravy = NULL;
 float *gravx = NULL;
 unsigned *gravmask = NULL;
+int gravity_cleared = 0;//used to signal when gravx and gravy have been cleared in clear_sim, meaning that th_gravx/y and th_ogravmap need to be cleared to match them
 
 float *th_ogravmap = NULL;// Maps to be processed by the gravity thread
 float *th_gravmap = NULL;
@@ -112,7 +113,16 @@ void gravity_update_async()
 			if (!sys_pause||framerender){ //Only update if not paused
 				//Switch the full size gravmaps, we don't really need the two above any more
 				float *tmpf;
-				
+
+				if (gravity_cleared)
+				{
+					memset(th_gravx, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+					memset(th_gravy, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+					memset(th_gravp, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+					memset(th_ogravmap, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+					gravity_cleared = 0;
+				}
+
 				if(th_gravchanged)
 				{
 				#if !defined(GRAVFFT) && defined(GRAV_DIFF)
@@ -133,7 +143,7 @@ void gravity_update_async()
 					th_gravp = tmpf;
 				#endif
 				}
-				
+
 				tmpf = gravmap;
 				gravmap = th_gravmap;
 				th_gravmap = tmpf;
