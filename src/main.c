@@ -60,6 +60,7 @@
 #endif
 #include "save.h"
 #include "hud.h"
+#include "benchmark.h"
 
 pixel *vid_buf;
 
@@ -851,6 +852,7 @@ int main(int argc, char *argv[])
 	SDL_AudioSpec fmt;
 	int username_flash = 0, username_flash_t = 1;
 	int saveOpenError = 0;
+	int benchmark_enable = 0;
 #ifdef PTW32_STATIC_LIB
     pthread_win32_process_attach_np();
     pthread_win32_thread_attach_np();
@@ -1033,6 +1035,15 @@ int main(int argc, char *argv[])
 			}
 			break;
 		}
+		else if (!strcmp(argv[i], "benchmark"))
+		{
+			benchmark_enable = 1;
+			if (i+1<argc)
+			{
+				benchmark_file = argv[i+1];
+				i++;
+			}
+		}
 	}
 
 	make_kernel();
@@ -1083,6 +1094,13 @@ int main(int argc, char *argv[])
 			num_tabs++;
 		}
 	}
+
+	//if (benchmark_enable)
+	{
+		benchmark_run();
+		exit(0);
+	}
+
 	while (!sdl_poll()) //the main loop
 	{
 		main_loop = 2;
