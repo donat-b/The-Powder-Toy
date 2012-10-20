@@ -42,8 +42,10 @@
 #else
 #include <dirent.h>
 #endif
-#ifdef PYCONSOLE
-#include <pythonconsole.h>
+#if defined(LIN32) || defined(LIN64)
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 #endif
 #include <powdergraphics.h>
 #include "save.h"
@@ -123,6 +125,7 @@ int dateformat = 7;
 int show_ids = 1;
 
 int drawgrav_enable = 0;
+int SLALT = 0;
 
 void menu_count(void)//puts the number of elements in each section into .itemcount
 {

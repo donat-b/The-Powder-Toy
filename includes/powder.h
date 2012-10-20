@@ -846,9 +846,9 @@ static fav_menu fav[] =
 };
 
 #define CHANNELS ((int)(MAX_TEMP-73)/100+2)
-particle portalp[CHANNELS][8][80];
-const particle emptyparticle;
-int wireless[CHANNELS][2];
+extern particle portalp[CHANNELS][8][80];
+extern const particle emptyparticle;
+extern int wireless[CHANNELS][2];
 extern int portal_rx[8];
 extern int portal_ry[8];
 
@@ -877,9 +877,17 @@ extern unsigned char cb_emap[YRES/CELL][XRES/CELL];
 extern int pfree;
 
 extern unsigned pmap[YRES][XRES];
-unsigned cb_pmap[YRES][XRES];
+extern unsigned cb_pmap[YRES][XRES];
 
-unsigned photons[YRES][XRES];
+extern unsigned photons[YRES][XRES];
+
+extern int GRAV;
+extern int GRAV_R;
+extern int GRAV_G;
+extern int GRAV_B;
+extern int GRAV_R2;
+extern int GRAV_G2;
+extern int GRAV_B2;
 
 extern int msindex[256];
 extern int msnum[256];
@@ -967,9 +975,13 @@ int flood_parts(int x, int y, int c, int cm, int bm, int flags);
 
 int flood_INST(int x, int y, int fullc, int cm);
 
+int flood_water(int x, int y, int i, int originaly, int check);
+
 int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill);
 
 void create_moving_solid(int x, int y, int rx, int ry, int type);
+
+int create_parts2(int f, int x, int y, int c, int rx, int ry, int flags);
 
 void create_line(int x1, int y1, int x2, int y2, int rx, int ry, int c, int flags);
 

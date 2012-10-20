@@ -40,7 +40,7 @@
 #define LUACON_EL_MODIFIED_GRAPHICS 0x2
 #define LUACON_EL_MODIFIED_MENUS 0x4
 
-int *lua_el_func, *lua_el_mode, *lua_gr_func;
+extern int *lua_el_func, *lua_el_mode, *lua_gr_func;
 
 void luacon_open();
 int luacon_step(int mx, int my, int selectl, int selectr, int bsx, int bsy);
@@ -65,7 +65,7 @@ int luacon_element_getproperty(char * key, int * format, unsigned int * modified
 int process_command_lua(pixel *vid_buf, char *console, char *console_error);
 void lua_hook(lua_State *L, lua_Debug *ar);
 
-int getPartIndex_curIdx;
+extern int getPartIndex_curIdx;
 
 //TPT Interface
 int luatpt_test(lua_State* l);

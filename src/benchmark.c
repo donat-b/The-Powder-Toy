@@ -18,7 +18,7 @@ double benchmark_get_time()
 
 #define BENCHMARK_INIT(repeat_count, iterations_count) \
 {\
-	int bench_i, bench_iterations = (iterations_count)*benchmark_loops_multiply;\
+	int bench_i, bench_iterations = (int)((iterations_count)*benchmark_loops_multiply);\
 	int bench_run_i, bench_runs=(repeat_count);\
 	double bench_mean=0.0, bench_prevmean, bench_variance=0.0;\
 	double bench_start, bench_end;\

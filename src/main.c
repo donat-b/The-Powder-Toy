@@ -53,7 +53,7 @@
 #include <update.h>
 #include <hmap.h>
 #include <air.h>
-#include <icon.h>
+#include "images.h"
 #include <console.h>
 #ifdef LUACONSOLE
 #include "luaconsole.h"
@@ -221,8 +221,8 @@ char edgeloop = 0;
 int amd = 1;
 int MSIGN =-1;
 int frameidx = 0;
-//int CGOL = 0;
-//int GSPEED = 1;//causes my .exe to crash..
+int limitFPS = 60;
+int main_loop = 1;
 int sound_enable = 0;
 int favMenu[19] = {300,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17};
 int alt_hud = 1;
@@ -264,6 +264,13 @@ double maxfps = 0;
 int prevafktime = 0;
 int timesplayed = 0;
 
+int SEC;
+int SEC2;
+int console_mode;
+int REPLACE_MODE;
+int CURRENT_BRUSH;
+int GRID_MODE;
+int DEBUG_MODE;
 int debug_flags = 0;
 int debug_perf_istart = 1;
 int debug_perf_iend = 0;

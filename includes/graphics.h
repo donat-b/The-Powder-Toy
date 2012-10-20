@@ -101,7 +101,7 @@ struct gcache_item
 };
 typedef struct gcache_item gcache_item;
 
-gcache_item *graphicscache;
+extern gcache_item *graphicscache;
 
 void prepare_graphicscache();
 
@@ -257,107 +257,14 @@ void loadShaders();
 #endif
 
 #ifdef INCLUDE_SHADERS
-#ifndef SHADERS_H
-#define SHADERS_H
-const char * fireFragment = "#version 120\n\
-uniform sampler2D fireAlpha;\
-void main () {\
-    vec4 texColor = texture2D(fireAlpha, gl_PointCoord);\
-    gl_FragColor = vec4(gl_Color.rgb, texColor.a*gl_Color.a);\
-}";
-const char * fireVertex = "#version 120\n\
-void main(void)\
-{\
-   gl_Position = ftransform();;\
-   gl_FrontColor = gl_Color;\
-}";
-const char * lensFragment = "#version 120\n\
-uniform sampler2D pTex;\
-uniform sampler2D tfX;\
-uniform sampler2D tfY;\
-uniform float xres;\
-uniform float yres;\
-void main () {\
-	vec4 transformX = texture2D(tfX, vec2(gl_TexCoord[0].s, gl_TexCoord[0].t));\
-	vec4 transformY = texture2D(tfY, vec2(gl_TexCoord[0].s, gl_TexCoord[0].t));\
-	transformX.r /= xres/4.0;\
-	transformY.g /= yres/4.0;\
-    vec4 texColor1 = vec4(\
-    	texture2D(pTex, gl_TexCoord[0].st-vec2(transformX.r*0.90, transformY.g*0.90)).r,\
-    	texture2D(pTex, gl_TexCoord[0].st-vec2(transformX.r*0.80, transformY.g*0.80)).g,\
-    	texture2D(pTex, gl_TexCoord[0].st-vec2(transformX.r*0.70, transformY.g*0.70)).b,\
-    	1.0\
-    );\
-	vec4 texColor2 = vec4(\
-		texture2D(pTex, gl_TexCoord[0].st-vec2(transformX.r*0.95, transformY.g*0.95)).r,\
-		texture2D(pTex, gl_TexCoord[0].st-vec2(transformX.r*0.85, transformY.g*0.85)).g,\
-		texture2D(pTex, gl_TexCoord[0].st-vec2(transformX.r*0.75, transformY.g*0.75)).b,\
-		1.0\
-	);\
-	vec4 texColor3 = vec4(\
-		texture2D(pTex, gl_TexCoord[0].st-vec2(transformX.r*0.85, transformY.g*0.85)).r,\
-		texture2D(pTex, gl_TexCoord[0].st-vec2(transformX.r*0.75, transformY.g*0.75)).g,\
-		texture2D(pTex, gl_TexCoord[0].st-vec2(transformX.r*0.65, transformY.g*0.65)).b,\
-		1.0\
-	);\
-	vec4 texColor = texColor1*0.6 + texColor2*0.2 + texColor3*0.2;\
-    gl_FragColor = texColor;\
-}";
-const char * lensVertex = "#version 120\n\
-void main(void)\
-{\
-	gl_TexCoord[0]  = gl_MultiTexCoord0;\
-	gl_Position = ftransform();;\
-	gl_FrontColor = gl_Color;\
-}";
-const char * airVFragment = "#version 120\n\
-uniform sampler2D airX;\
-uniform sampler2D airY;\
-uniform sampler2D airP;\
-void main () {\
-	vec4 texX = texture2D(airX, gl_TexCoord[0].st);\
-	vec4 texY = texture2D(airY, gl_TexCoord[0].st);\
-	vec4 texP = texture2D(airP, gl_TexCoord[0].st);\
-	gl_FragColor = vec4(abs(texX.r)/2.0, texP.b/2.0, abs(texY.g)/2.0, 1.0);\
-}";
-const char * airVVertex = "#version 120\n\
-void main(void)\
-{\
-	gl_TexCoord[0]  = gl_MultiTexCoord0;\
-	gl_Position = ftransform();;\
-	gl_FrontColor = gl_Color;\
-}";
-const char * airPFragment = "#version 120\n\
-uniform sampler2D airX;\
-uniform sampler2D airY;\
-uniform sampler2D airP;\
-void main () {\
-	vec4 texP = texture2D(airP, gl_TexCoord[0].st);\
-    gl_FragColor = vec4(max(texP.b/2.0, 0), 0, abs(min(texP.b/2.0, 0)), 1.0);\
-}";
-const char * airPVertex = "#version 120\n\
-void main(void)\
-{\
-	gl_TexCoord[0]  = gl_MultiTexCoord0;\
-	gl_Position = ftransform();;\
-	gl_FrontColor = gl_Color;\
-}";
-const char * airCFragment = "#version 120\n\
-uniform sampler2D airX;\
-uniform sampler2D airY;\
-uniform sampler2D airP;\
-void main () {\
-	vec4 texX = texture2D(airX, gl_TexCoord[0].st);\
-	vec4 texY = texture2D(airY, gl_TexCoord[0].st);\
-	vec4 texP = texture2D(airP, gl_TexCoord[0].st);\
-    gl_FragColor = vec4(max(texP.b/2.0, 0), 0, abs(min(texP.b/2.0, 0)), 1.0) + vec4(abs(texX.r)/8.0, abs(texX.r)/8.0, abs(texX.r)/8.0, 1.0) + vec4(abs(texY.g)/8.0, abs(texY.g)/8.0, abs(texY.g)/8.0, 1.0);\
-}";
-const char * airCVertex = "#version 120\n\
-void main(void)\
-{\
-	gl_TexCoord[0]  = gl_MultiTexCoord0;\
-	gl_Position = ftransform();;\
-	gl_FrontColor = gl_Color;\
-}";
-#endif
+extern const char * fireFragment;
+extern const char * fireVertex;
+extern const char * lensFragment;
+extern const char * lensVertex;
+extern const char * airVFragment;
+extern const char * airVVertex;
+extern const char * airPFragment;
+extern const char * airPVertex;
+extern const char * airCFragment;
+extern const char * airCVertex;
 #endif
