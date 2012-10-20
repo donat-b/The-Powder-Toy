@@ -367,28 +367,29 @@ allow you to make signs the size they are in tpt++. Fix clicking usernames on
 the bottom row of saves not working. Add some minor simulation changes made 
 in tpt and tpt++.
 
-Next Version
+Version 19.3 10/19/12
 Fix minor problem where PBCN and PLCN wouldn't clone until a frame after they 
 were activated. Fix really long comments not loading, the comments not being 
 drawn to the very bottom, bugs with the resizing comment box, jump when 
 scrolling past certain comments, and scrolling when typing certain letters in 
-the comment box. Use {t:id|text} to link to forum threads (added by me in 
-tpt++ first). Added tpt++ elements: DMG and TSNS. Fix being unable to save 
-PIPE sometimes (error when saving, invalid element). Fix some moving solid 
-crashes. Fix HUD showing incorrect values with double scale enabled. Don't 
-load selected elements or render mode in saves anymore. Fix tpt bug that will 
-cause you to get logged out sometimes when you shouldn't.
+the comment box. Use {t:id|text} to link to forum threads and {s:query|text} 
+to start a save search (added by me in tpt++ first). Added tpt++ elements: 
+DMG and TSNS. Fix being unable to save PIPE sometimes (error when saving, 
+invalid element). Fix some moving solid crashes. Fix HUD showing incorrect 
+values with double scale enabled. Don't load selected elements or render mode 
+in saves anymore. Fix tpt bug that will cause you to get logged out sometimes 
+when you shouldn't. Fix another tpt bug where Newtonian gravity wouldn't get 
+reloaded after reloading a save - thanks to jacksonmj for the fix. Make VIRS 
+last longer. Enable the # of votes icon on all saves for everyone.
 
 Bugs:
-974917 - solid purple laser
-//None (at least that I know of)
+None (at least that I know of)
 
 
 
 
 Future Ideas/TODO: '>' means currently being worked on/added next
 >Add things from tpt++ that look cool, and any new simulation changes it gets
-Don't save lua code inside of INDI, since this isn't a lua script anymore - for tpt++ version
 ---
 C++ version todo:
 done - [compile tpt++ with visual studio]
@@ -404,6 +405,7 @@ Done! continue work on my mod like normal
 0% complete, haven't started yet. With school, it will be slow, but since it's mostly copying it might be easier
 
 maybe in c++ version:
+Don't save lua code inside of INDI, since this isn't a lua script anymore
 RAND - deco tool - Uberness - 10/1 #powder at end
 PROT - Protons
 CMND - command element to run old commands
