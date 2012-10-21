@@ -4814,7 +4814,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	int b=1,bq,mx,my,ca=0,thumb_w,thumb_h,active=0,active_2=0,active_3=0,active_4=0,cc=0,ccy=0,cix=0;
 	int hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1;
 	int comment_scroll = 0, comment_page = 0, redraw_comments = 1, commentheight = 0;
-	int nyd,nyu,ry,lv, i;
+	int nyd,nyu,ry,lv;
 	float ryf;
 
 	char *uri, *uri_2, *o_uri, *uri_3, *uri_4;

@@ -1721,7 +1721,7 @@ int main(int argc, char *argv[])
 				else if (active_menu == SC_DECO)
 				{
 					active_menu = last_active_menu;
-					sl = last_sl;
+					sl = su = last_sl;
 				}
 				else
 				{
@@ -2116,6 +2116,16 @@ int main(int argc, char *argv[])
 				if(!b && i < SC_FAV && x>= XRES+1 && x< XRES+BARSIZE-1 && y>= ((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+3 && y<((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+17)
 					menu_ui(vid_buf, i); //draw the elements in the current menu
 			}
+		}
+		if (last_active_menu != SC_DECO && active_menu == SC_DECO)
+		{
+			if (sl < DECO_DRAW || sl > DECO_SMDG)
+				last_sl = sl;
+			sl = su = DECO_DRAW;
+		}
+		else
+		{
+			sl = su = last_sl;
 		}
 		if (deco_disablestuff)
 			b = 0;
