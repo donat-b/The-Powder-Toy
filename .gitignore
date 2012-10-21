@@ -16,6 +16,7 @@ powder.pref
 /build2/
 /Debug/
 /Release/
+/Release-legacy/
 /Normal/
 /official/
 /OpenGL/

@@ -4814,7 +4814,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	int b=1,bq,mx,my,ca=0,thumb_w,thumb_h,active=0,active_2=0,active_3=0,active_4=0,cc=0,ccy=0,cix=0;
 	int hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1;
 	int comment_scroll = 0, comment_page = 0, redraw_comments = 1, commentheight = 0;
-	int nyd,nyu,ry,lv;
+	int nyd,nyu,ry,lv, i;
 	float ryf;
 
 	char *uri, *uri_2, *o_uri, *uri_3, *uri_4;
@@ -4943,7 +4943,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		strcaturl(uri_3, save_id);
 		strappend(uri_3, "_large.pti");
 	}
-	uri_4 = malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
+	uri_4 = (char*)malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
 	strcpy(uri_4, "http://" SERVER "/Browse/Comments.json?ID=");
 	strcaturl(uri_4, save_id);
 	strappend(uri_4, "&Start=0&Count=20");
@@ -5076,6 +5076,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				{
 					if (info->comments[i]) { free(info->comments[i]); info->comments[i] = NULL; }
 					if (info->commentauthors[i]) { free(info->commentauthors[i]); info->commentauthors[i] = NULL; }
+					if (info->commentauthorsunformatted[i]) { free(info->commentauthorsunformatted[i]); info->commentauthorsunformatted[i] = NULL; }
 					if (info->commentauthorIDs[i]) { free(info->commentauthorIDs[i]); info->commentauthorIDs[i] = NULL; }
 				}
 				if(comment_data && (root = cJSON_Parse((const char*)comment_data)))
@@ -5091,9 +5092,10 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						commentobj = cJSON_GetArrayItem(root, i%20);
 						if(commentobj){
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "FormattedUsername")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
+							if((tmpobj = cJSON_GetObjectItem(commentobj, "Username")) && tmpobj->type == cJSON_String) { info->commentauthorsunformatted[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthorsunformatted[i], tmpobj->valuestring, 63); }
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "UserID")) && tmpobj->type == cJSON_String) { info->commentauthorIDs[i] = (char*)calloc(16,sizeof(char*)); strncpy(info->commentauthorIDs[i], tmpobj->valuestring, 16); }
 							//if((tmpobj = cJSON_GetObjectItem(commentobj, "Gravatar")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
-							if((tmpobj = cJSON_GetObjectItem(commentobj, "Text")) && tmpobj->type == cJSON_String)  { info->comments[i] = (char*)calloc(1024,sizeof(char*)); strncpy(info->comments[i], tmpobj->valuestring, 1024); }
+							if((tmpobj = cJSON_GetObjectItem(commentobj, "Text")) && tmpobj->type == cJSON_String)  { info->comments[i] = (char*)calloc(strlen(tmpobj->valuestring)+1,sizeof(char*)); strncpy(info->comments[i], tmpobj->valuestring, strlen(tmpobj->valuestring)+1); }
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "Timestamp")) && tmpobj->type == cJSON_String) { converttotime(tmpobj->valuestring, &info->commenttimestamps[i], -1, -1, -1); }
 						}
 					}
@@ -5205,28 +5207,29 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							if (show_ids && info->commentauthorIDs[cc]) //Draw author id
 							{
 								drawtext(vid_buf, 265+(XRES/2)-textwidth(info->commentauthorIDs[cc]), ccy+60+comment_scroll, info->commentauthorIDs[cc], 255, 255, 0, 255);
-								if (b && !bq && mx > 265+(XRES/2)-textwidth(info->commentauthorIDs[cc]) && mx < 265+(XRES/2) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll)
+								if (b && !bq && mx > 265+(XRES/2)-textwidth(info->commentauthorIDs[cc]) && mx < 265+(XRES/2) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll && my < YRES+MENUSIZE-76-commentheight)
 									show_ids = 0;
 							}
 							else if (info->commenttimestamps[cc]) //, or draw timestamp
 							{
 								drawtext(vid_buf, 265+(XRES/2)-textwidth(info->commenttimestamps[cc]), ccy+60+comment_scroll, info->commenttimestamps[cc], 255, 255, 0, 255);
-								if (b && !bq && mx > 265+(XRES/2)-textwidth(info->commenttimestamps[cc]) && mx < 265+(XRES/2) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll)
+								if (b && !bq && mx > 265+(XRES/2)-textwidth(info->commenttimestamps[cc]) && mx < 265+(XRES/2) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll && my < YRES+MENUSIZE-76-commentheight)
 									show_ids = 1;
 							}
 							drawtext(vid_buf, 61+(XRES/2), ccy+60+comment_scroll, info->commentauthors[cc], r, g, bl, 255); //Draw author
 
-							if (b && !bq && mx > 61+(XRES/2) && mx < 61+(XRES/2)+textwidth(info->commentauthors[cc]) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll)
+							if (b && !bq && mx > 61+(XRES/2) && mx < 61+(XRES/2)+textwidth(info->commentauthors[cc]) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll && my < YRES+MENUSIZE-76-commentheight)
 								if (sdl_mod & KMOD_CTRL) //open profile
 								{
 									char link[128];
 									strcpy(link, "http://" SERVER "/User.html?Name=");
-									strcaturl(link, info->commentauthors[cc]);
+									strcaturl(link, info->commentauthorsunformatted[cc]);
 									open_link(link);
 								}
 								else if (sdl_mod & KMOD_SHIFT) //, or search for a user's saves
 								{
-									sprintf(search_expr,"user:%s",info->commentauthors[cc]);
+									sprintf(search_expr,"user:%s", info->commentauthorsunformatted[cc]);
+									search_own = 0;
 									search_ui(vid_buf);
 									retval = 1;
 									goto finish;
@@ -5430,7 +5433,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				redraw_comments = 1;
 			}
 			//If mouse was clicked outside of the window bounds.
-			if (!(mx>50 && my>50 && mx<XRES+BARSIZE-50 && my<YRES+MENUSIZE-50) && b && !bq && !queue_open) {
+			if (!(mx>50 && my>50 && mx<XRES+BARSIZE-50 && my<YRES+MENUSIZE-50) && !(mx >= ctb.x && mx <= ctb.x+ctb.width && my >= ctb.y && my <= ctb.y+ctb.height) && b && !bq && !queue_open) {
 				retval = 0;
 				break;
 			}
@@ -5566,6 +5569,7 @@ int info_parse(char *info_data, save_info *info)
 	{
 		if (info->comments[i]) free(info->comments[i]);
 		if (info->commentauthors[i]) free(info->commentauthors[i]);
+		if (info->commentauthorsunformatted[i]) free(info->commentauthorsunformatted[i]);
 		if (info->commentauthorIDs[i]) free(info->commentauthorIDs[i]);
 	}
 	memset(info, 0, sizeof(save_info));
@@ -5661,6 +5665,7 @@ int info_parse(char *info_data, save_info *info)
 				q = strchr(info_data+8, ' ');
 				*(q++) = 0;
 				info->commentauthors[info->comment_count] = mystrdup(info_data+8);
+				info->commentauthorsunformatted[info->comment_count] = mystrdup(info_data+8);
 				info->comments[info->comment_count] = mystrdup(q);
 				info->comment_count++;
 			}

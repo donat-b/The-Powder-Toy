@@ -382,9 +382,15 @@ when you shouldn't. Fix another tpt bug where Newtonian gravity wouldn't get
 reloaded after reloading a save - thanks to jacksonmj for the fix. Make VIRS 
 last longer. Enable the # of votes icon on all saves for everyone.
 
+Next Version
+Remove DISPLAY_EFFE from render options. Fix clicking the copy id button 
+exiting the save preview. Fix being able to click usernames and id's from 
+under the comment box (again). Shift-clicking a username from the my own 
+section to search for their saves will work correctly now. Fix shift/ctrl 
+clicking moderators' not searching correctly. Increase number of comments 
+that can be loaded to 200.
+
 Bugs:
-copy as id button
-shift-clicking a user's name from my own section
 None (at least that I know of)
 
 

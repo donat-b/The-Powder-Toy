@@ -134,7 +134,7 @@ struct ui_copytext
 };
 typedef struct ui_copytext ui_copytext;
 
-#define NUM_COMMENTS 100
+#define NUM_COMMENTS 200
 struct save_info
 {
 	char *title;
@@ -153,6 +153,7 @@ struct save_info
 	int comment_count;
 	char *comments[NUM_COMMENTS];
 	char *commentauthors[NUM_COMMENTS];
+	char *commentauthorsunformatted[NUM_COMMENTS];
 	char *commentauthorIDs[NUM_COMMENTS];
 	char *commenttimestamps[NUM_COMMENTS];
 };
