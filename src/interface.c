@@ -7651,10 +7651,17 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 	int render_optionicons[] = {0xE1, 0xDF, 0x9B, 0xC4, 0xDB, 0xDB};
 	char * render_desc[] = {"Effects", "Glow", "Fire", "Blur", "Basic", "None"};
 
+#ifdef OGLR
 	int display_optioncount = 8;
 	int display_options[] = {DISPLAY_AIRC, DISPLAY_AIRP, DISPLAY_AIRV, DISPLAY_AIRH, DISPLAY_WARP, DISPLAY_PERS, DISPLAY_BLOB, DISPLAY_EFFE};
 	int display_optionicons[] = {0xD4, 0x99, 0x98, 0xBE, 0xDE, 0x9A, 0xBF, 0xE1};
 	char * display_desc[] = {"Air: Cracker", "Air: Pressure", "Air: Velocity", "Air: Heat", "Warp effect", "Persistent", "Blob", "Effects"};
+#else
+	int display_optioncount = 7;
+	int display_options[] = {DISPLAY_AIRC, DISPLAY_AIRP, DISPLAY_AIRV, DISPLAY_AIRH, DISPLAY_WARP, DISPLAY_PERS, DISPLAY_BLOB};
+	int display_optionicons[] = {0xD4, 0x99, 0x98, 0xBE, 0xDE, 0x9A, 0xBF};
+	char * display_desc[] = {"Air: Cracker", "Air: Pressure", "Air: Velocity", "Air: Heat", "Warp effect", "Persistent", "Blob"};
+#endif
 
 	int colour_optioncount = 4;
 	int colour_options[] = {COLOUR_BASC, COLOUR_LIFE, COLOUR_HEAT, COLOUR_GRAD};

@@ -383,6 +383,8 @@ reloaded after reloading a save - thanks to jacksonmj for the fix. Make VIRS
 last longer. Enable the # of votes icon on all saves for everyone.
 
 Bugs:
+copy as id button
+shift-clicking a user's name from my own section
 None (at least that I know of)
 
 
