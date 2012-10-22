@@ -90,7 +90,6 @@ int update_ELEC(UPDATE_FUNC_ARGS) {
 					if(parts[r>>8].life < 6000)
 						parts[r>>8].life += 1;
 					parts[r>>8].temp = 0;
-					parts[i].temp = 0;
 					kill_part(i);
 					return 1;
 				}
