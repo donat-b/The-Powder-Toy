@@ -239,7 +239,9 @@
 #define PT_DTEC 162
 #define PT_DMG  163
 #define PT_TSNS 164
-#define PT_NUM  165
+#define PT_VIBR 165
+#define PT_BVBR 166
+#define PT_NUM  167
 
 #define R_TEMP 22
 #define MAX_TEMP 9999
@@ -358,6 +360,7 @@ int graphics_BRCK(GRAPHICS_FUNC_ARGS);
 int graphics_WOOD(GRAPHICS_FUNC_ARGS);
 int graphics_PLNT(GRAPHICS_FUNC_ARGS);
 int graphics_DMG(GRAPHICS_FUNC_ARGS);
+int graphics_VIBR(GRAPHICS_FUNC_ARGS);
 
 
 void TRON_init_graphics();
@@ -486,6 +489,7 @@ int update_TRON(UPDATE_FUNC_ARGS);
 int update_TTAN(UPDATE_FUNC_ARGS);
 int update_BREL(UPDATE_FUNC_ARGS);
 int update_EXOT(UPDATE_FUNC_ARGS);
+int update_VIBR(UPDATE_FUNC_ARGS);
 
 int update_MISC(UPDATE_FUNC_ARGS);
 int update_legacy_PYRO(UPDATE_FUNC_ARGS);

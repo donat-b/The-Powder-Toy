@@ -196,6 +196,8 @@ part_type ptypes[PT_NUM] =
 	{"DTEC",	PIXPACK(0xFD9D18),	0.0f,	0.00f * CFDS,	0.96f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	1,	1,	1,	100,	SC_SENSOR,		R_TEMP+273.15f,			0,		"Creates a spark when something with its ctype is nearby", ST_SOLID, TYPE_SOLID, &update_DTEC, NULL},
 	{"DMG" ,	PIXPACK(0x88FF88),	0.0f,	0.01f * CFDS,	0.98f,	0.95f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	0,	20,	1,	1,	30,		SC_FORCE,		R_TEMP-2.0f  +273.15f,	29,		"DMG.", ST_NONE, TYPE_PART|PROP_LIFE_DEC|PROP_LIFE_KILL_DEC|PROP_SPARKSETTLE, &update_DMG, &graphics_DMG},
 	{"TSNS",	PIXPACK(0xFD9D18),	0.0f,	0.00f * CFDS,	0.96f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	1,	1,	1,	100,	SC_SENSOR,		R_TEMP+0.0f  +273.15f,	0,		"Creates a spark when there's a nearby particle with equal or greater temperature", ST_SOLID, TYPE_SOLID, &update_TSNS, NULL},
+	{"VIBR",	PIXPACK(0x002900),	0.0f,	0.00f * CFDS,	0.85f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_SOLIDS,		R_TEMP+0.0f  +273.15f,	251,	"Vibranium. Stores energy and releases it in violent explosions.", ST_SOLID, TYPE_SOLID|PROP_LIFE_DEC, &update_VIBR, &graphics_VIBR},
+	{"BVBR",	PIXPACK(0x002900),	0.3f,	0.02f * CFDS,	0.95f,	0.80f,	0.0f,	0.15f,	0.00f,	0.0003f	* CFDS,	1,	0,		0,	0,	0,	1,	1,	67,		SC_POWDERS,		273.15f,				164,	"Broken vibranium.", ST_SOLID, TYPE_PART|PROP_LIFE_DEC, &update_VIBR, &graphics_VIBR},
 	//Name		Colour				Advec	Airdrag			Airloss	Loss	Collid	Grav	Diffus	Hotair			Fal	Burn	Exp	Mel	Hrd M	Use	Weight	Section			H						Ins		Description
 };
 
@@ -376,6 +378,8 @@ part_transition ptransitions[PT_NUM] =
 	/* DTEC */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* DMG  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* TSNS */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* VIBR */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* BVBR */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 };
 
 // This is an enthalpy values table, converted into TPT imaginary units
@@ -547,6 +551,8 @@ unsigned int platent[PT_NUM] =
 	/* DTEC */ 0,
 	/* DMG  */ 0,
 	/* TSNS */ 0,
+	/* VIBR */ 0,
+	/* BVBR */ 0,
 };
 #undef IPL
 #undef IPH
