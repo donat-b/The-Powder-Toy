@@ -2607,8 +2607,8 @@ int main(int argc, char *argv[])
 					{
 						if (sdl_mod & KMOD_ALT)
 						{
-							float snap_angle = floor(atan2(y-ly, x-lx)/(M_PI*0.25)+0.5)*M_PI*0.25;
-							float line_mag = sqrtf(pow(x-lx,2)+pow(y-ly,2));
+							float snap_angle = floor(atan2((float)y-ly, x-lx)/(M_PI*0.25)+0.5)*M_PI*0.25;
+							float line_mag = sqrtf(pow(x-lx,2.0f)+pow(y-ly,2.0f));
 							line_x = (int)(line_mag*cos(snap_angle)+lx+0.5f);
 							line_y = (int)(line_mag*sin(snap_angle)+ly+0.5f);
 						}
