@@ -46,11 +46,7 @@
 char *clipboard_text = NULL;
 
 //Signum function
-#if defined(WIN32) && !defined(__GNUC__)
-int isign(float i)
-#else
-inline int isign(float i)
-#endif
+TPT_INLINE int isign(float i)
 {
 	if (i<0)
 		return -1;
@@ -59,11 +55,7 @@ inline int isign(float i)
 	return 0;
 }
 
-#if defined(WIN32) && !defined(__GNUC__)
-unsigned clamp_flt(float f, float min, float max)
-#else
-inline unsigned clamp_flt(float f, float min, float max)
-#endif
+TPT_INLINE unsigned clamp_flt(float f, float min, float max)
 {
 	if (f<min)
 		return 0;
@@ -72,11 +64,7 @@ inline unsigned clamp_flt(float f, float min, float max)
 	return (int)(255.0f*(f-min)/(max-min));
 }
 
-#if defined(WIN32) && !defined(__GNUC__)
-float restrict_flt(float f, float min, float max)
-#else
-inline float restrict_flt(float f, float min, float max)
-#endif
+TPT_INLINE float restrict_flt(float f, float min, float max)
 {
 	if (f<min)
 		return min;
