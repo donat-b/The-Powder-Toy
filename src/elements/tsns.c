@@ -15,6 +15,8 @@
 
 #include <element.h>
 
+int in_radius(int rd, int x, int y);
+
 int update_TSNS(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, rt, rd = parts[i].tmp2;

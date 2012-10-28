@@ -718,29 +718,29 @@ char *tag = "(c) 2008-9 Stanislaw Skowronek";
 int itc = 0;
 char itc_msg[64] = "[?]";
 
-char my_uri[] = "http://" SERVER "/Update.api?Action=Download&Architecture="
 #if defined WIN32
-                "Windows32"
+	#define UPDATE_ARCH "Windows32"
 #elif defined LIN32
-                "Linux32"
+	#define UPDATE_ARCH "Linux32"
 #elif defined LIN64
-                "Linux64"
+	#define UPDATE_ARCH "Linux64"
 #elif defined MACOSX
-                "MacOSX"
+	#define UPDATE_ARCH "MacOSX"
 #else
-                "Unknown"
+	#define UPDATE_ARCH "Unknown"
 #endif
-                "&InstructionSet="
+
 #if defined X86_SSE3
-                "SSE3"
+	#define UPDATE_CPU "SSE3"
 #elif defined X86_SSE2
-                "SSE2"
+	#define UPDATE_CPU "SSE2"
 #elif defined X86_SSE
-                "SSE"
+	#define UPDATE_CPU "SSE"
 #else
-                "SSE"
+	#define UPDATE_CPU "Unknown"
 #endif
-                ;
+
+char my_uri[] = "http://" UPDATESERVER "/Update.api?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
 
 #ifdef RENDERER
 int main(int argc, char *argv[])
@@ -1083,9 +1083,14 @@ int main(int argc, char *argv[])
 		error_ui(vid_buf, 0, "Unable to open save file.");
 	}
 
-	http_ver_check = http_async_req_start(NULL, "http://" SERVER "/Update.api?Action=CheckVersion", NULL, 0, 0);
+	http_ver_check = http_async_req_start(NULL, "http://" UPDATESERVER "/Update.api?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU, NULL, 0, 0);
 	if (svf_login) {
-		http_auth_headers(http_ver_check, svf_user_id, NULL, svf_session_id); //Add authentication so beta checking can be done from user basis
+		if (strcmp(UPDATESERVER, SERVER)==0)
+		{
+			//Add authentication so beta checking can be done from user basis
+			//but for mods using the same simulation server and a different update server, don't send the session id to the update server
+			http_auth_headers(http_ver_check, svf_user_id, NULL, svf_session_id);
+		}
 		http_session_check = http_async_req_start(NULL, "http://" SERVER "/Login.api?Action=CheckSession", NULL, 0, 0);
 		http_auth_headers(http_session_check, svf_user_id, NULL, svf_session_id);
 	}
