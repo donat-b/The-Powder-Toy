@@ -6677,7 +6677,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 				}
 				else
 				{
-					currentcommand = malloc(sizeof(command_history));
+					currentcommand = (command_history*)malloc(sizeof(command_history));
 					memset(currentcommand, 0, sizeof(command_history));
 					currentcommand->prev_command = last_command;
 					currentcommand->command = "tpt.load(644543)";

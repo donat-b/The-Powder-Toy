@@ -180,6 +180,9 @@ extern int saveURIOpen;
 extern char * saveDataOpen;
 extern int saveDataOpenSize;
 
+#ifdef INTERNAL
+	extern int vs;
+#endif
 extern int amd;
 
 extern float FPSB2;

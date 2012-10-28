@@ -206,6 +206,9 @@ int saveURIOpen = 0;
 char * saveDataOpen = NULL;
 int saveDataOpenSize = 0;
 
+#ifdef INTERNAL
+	int vs = 0;
+#endif
 int do_open = 0;
 int sys_pause = 0;
 int sys_shortcuts = 1;
@@ -846,9 +849,6 @@ int main(int argc, char *argv[])
 	char *ver_data=NULL, *check_data=NULL, *tmp;
 	//char console_error[255] = "";
 	int result, i, j, bq, bc = 0, do_check=0, do_s_check=0, old_version=0, http_ret=0,http_s_ret=0, major, minor, buildnum, is_beta = 0, old_ver_len, new_message_len=0, afk = 0, afkstart = 0;
-#ifdef INTERNAL
-	int vs = 0;
-#endif
 	int x, y, line_x, line_y, b = 0, c, lb = 0, lx = 0, ly = 0, lm = 0;//, tx, ty;
 	int da = 0, db = 0, it = 2047, mx, my, bsx = 2, bsy = 2;
 	float nfvx, nfvy;

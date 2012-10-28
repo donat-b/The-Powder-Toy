@@ -2760,7 +2760,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					parts[i-1].ctype = d[p++];
 					if (parts[i-1].ctype > maxframes)
 						maxframes = parts[i-1].ctype;
-					parts[i-1].animations = calloc(maxframes,sizeof(unsigned int));
+					parts[i-1].animations = (unsigned int*)calloc(maxframes,sizeof(unsigned int));
 					if (parts[i-1].animations == NULL) {
 						goto corrupt;
 					}

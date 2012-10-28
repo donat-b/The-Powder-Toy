@@ -1154,7 +1154,7 @@ inline int create_part(int p, int x, int y, int tv)//the function for creating a
 			parts[i].tmp2 = 2;
 			break;
 		case PT_ANIM:
-			parts[i].animations = calloc(maxframes,sizeof(unsigned int));
+			parts[i].animations = (unsigned int*)calloc(maxframes,sizeof(unsigned int));
 			if (parts[i].animations == NULL) {
 				return -1;
 			}

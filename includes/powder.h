@@ -989,4 +989,6 @@ void orbitalparts_get(int block1, int block2, int resblock1[], int resblock2[]);
 
 void orbitalparts_set(int *block1, int *block2, int resblock1[], int resblock2[]);
 
+int in_radius(int rd, int x, int y);
+
 #endif
