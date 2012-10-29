@@ -150,11 +150,14 @@ typedef unsigned int pixel;
 
 #ifdef __cplusplus
 #define TPT_INLINE
+#define TPT_NO_INLINE
 #else
 #if defined(WIN32) && !defined(__GNUC__)
 #define TPT_INLINE _inline
+#define TPT_NO_INLINE
 #else
 #define TPT_INLINE inline
+#define TPT_NO_INLINE inline
 #endif
 #endif
 

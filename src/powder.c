@@ -1458,7 +1458,7 @@ void set_emap(int x, int y)
 			}
 }
 
-TPT_INLINE int parts_avg(int ci, int ni,int t)
+TPT_NO_INLINE int parts_avg(int ci, int ni,int t)
 {
 	if (t==PT_INSL)//to keep electronics working
 	{
@@ -3730,7 +3730,7 @@ void create_line(int x1, int y1, int x2, int y2, int rx, int ry, int c, int flag
 	}
 }
 
-TPT_INLINE void orbitalparts_get(int block1, int block2, int resblock1[], int resblock2[])
+TPT_NO_INLINE void orbitalparts_get(int block1, int block2, int resblock1[], int resblock2[])
 {
 	resblock1[0] = (block1&0x000000FF);
 	resblock1[1] = (block1&0x0000FF00)>>8;
@@ -3743,7 +3743,7 @@ TPT_INLINE void orbitalparts_get(int block1, int block2, int resblock1[], int re
 	resblock2[3] = (block2&0xFF000000)>>24;
 }
 
-TPT_INLINE void orbitalparts_set(int *block1, int *block2, int resblock1[], int resblock2[])
+TPT_NO_INLINE void orbitalparts_set(int *block1, int *block2, int resblock1[], int resblock2[])
 {
 	int block1tmp = 0;
 	int block2tmp = 0;
