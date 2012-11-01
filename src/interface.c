@@ -2876,7 +2876,7 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 				fillrect(vid_buf, x+31-xoff, y, 27, 15, 0, 0, 255, 127);
 			}
 		}
-		last_active_menu = SC_FAV;
+		last_fav_menu = SC_FAV;
 	}
 	else if (i == SC_FAV2) //Favorite
 	{
@@ -2895,7 +2895,7 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 				el = n+FAV_START;
 			}
 		}
-		last_active_menu = SC_FAV2;
+		last_fav_menu = SC_FAV2;
 	}
 	else if (i == SC_HUD) //HUD changer
 	{
@@ -2936,7 +2936,7 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 				}
 			}
 		}
-		last_active_menu = SC_HUD;
+		last_fav_menu = SC_HUD;
 	}
 	else //all other menus
 	{

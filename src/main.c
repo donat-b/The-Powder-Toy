@@ -218,6 +218,7 @@ int decorations_enable = 1;
 int hud_enable = 1;
 int active_menu = 0;
 int last_active_menu = 0;
+int last_fav_menu = SC_FAV;
 int framerender = 0;
 int pretty_powder = 0;
 char edgeloop = 0;
@@ -2088,8 +2089,10 @@ int main(int argc, char *argv[])
 			{
 				if (!b && x>=XRES-2 && x<XRES+BARSIZE-1 &&y>= (i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16) && y<(i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16)+15)
 				{
-					if (i == SC_FAV && (last_active_menu == SC_FAV2 || last_active_menu == SC_HUD))
-						active_menu = last_active_menu;
+					if (i ==SC_DECO && active_menu != SC_DECO)
+						last_active_menu = active_menu;
+					if (i == SC_FAV)
+						active_menu = last_fav_menu;
 					else
 						active_menu = i;
 				}
@@ -2122,13 +2125,12 @@ int main(int argc, char *argv[])
 					menu_ui(vid_buf, i); //draw the elements in the current menu
 			}
 		}
-		if (last_active_menu != SC_DECO && active_menu == SC_DECO)
+		if (active_menu == SC_DECO && (sl < DECO_DRAW || sl > DECO_SMDG))
 		{
-			if (sl < DECO_DRAW || sl > DECO_SMDG)
-				last_sl = sl;
+			last_sl = sl;
 			sl = su = DECO_DRAW;
 		}
-		else
+		else if (active_menu != SC_DECO && sl >= DECO_DRAW && sl <= DECO_SMDG)
 		{
 			sl = su = last_sl;
 		}
