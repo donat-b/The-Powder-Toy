@@ -221,7 +221,7 @@ int last_active_menu = 0;
 int last_fav_menu = SC_FAV;
 int framerender = 0;
 int pretty_powder = 0;
-char edgeloop = 0;
+char edgeMode = 0;
 int amd = 1;
 int MSIGN =-1;
 int frameidx = 0;
@@ -355,8 +355,6 @@ void dump_frame(pixel *src, int w, int h, int pitch)
 	frame_idx++;
 }
 
-char bframe = 0;
-
 void clear_sim(void)
 {
 	int i,x, y;
@@ -421,7 +419,7 @@ void clear_sim(void)
 	memset(newmsrotation, 0, sizeof(newmsrotation));
 	finding &= 0x8;
 	mod_save = MOD_SAVE_VERSION;
-	if(bframe)
+	if(edgeMode == 1)
 		draw_bframe();
 }
 

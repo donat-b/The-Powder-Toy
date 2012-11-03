@@ -1070,7 +1070,8 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	bson_append_int(&b, "display_mode", display_mode);
 	bson_append_int(&b, "color_mode", colour_mode);
 	bson_append_int(&b, "Jacob1's_Mod", MOD_SAVE_VERSION);
-	bson_append_int(&b, "compatible_with", 8);
+	bson_append_int(&b, "edgeMode", edgeMode);
+	bson_append_int(&b, "compatible_with", 8); //unused?
 	
 	bson_append_int(&b, "leftSelectedElement", sl);
 	bson_append_int(&b, "rightSelectedElement", sr);
@@ -1596,6 +1597,17 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				sprintf(modver, "Made in jacob1's mod version %d", modsave);
 				if (!strcmp(svf_user,"jacob1") && replace)
 					info_ui(vid_buf,"Mod",modver);
+			}
+			else
+			{
+				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
+			}
+		}
+		else if(strcmp(bson_iterator_key(&iter), "edgeMode")==0 && replace)
+		{
+			if(bson_iterator_type(&iter)==BSON_INT)
+			{
+				edgeMode = bson_iterator_int(&iter);
 			}
 			else
 			{

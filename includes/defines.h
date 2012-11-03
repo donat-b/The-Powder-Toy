@@ -30,7 +30,7 @@
 //VersionInfoEnd
 
 #define MOD_VERSION 19
-#define MOD_MINOR_VERSION 3
+#define MOD_MINOR_VERSION 4
 #define MOD_SAVE_VERSION 13 //This is not the version number of my mod anymore, it's only changed when I change the saving code
 #define BETA_VERSION 80
 #define BETA_MINOR_VER 0
@@ -211,8 +211,7 @@ extern int hud_enable;
 extern int pretty_powder;
 extern int drawgrav_enable;
 extern int ngrav_enable;
-extern char bframe;
-extern char edgeloop;
+extern char edgeMode;
 extern int limitFPS;
 extern int water_equal_test;
 extern int quickoptions_tooltip_fade;

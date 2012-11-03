@@ -525,11 +525,19 @@ int try_move(int i, int x, int y, int nx, int ny)
 	return 1;
 }
 
+int OutOfBounds(int x, int y)
+{
+	if (edgeMode != 3)
+		return (x < CELL || x > XRES-CELL || y < CELL || y > YRES-CELL);
+	else
+		return (x < 0 || x > XRES || y < 0 || y > YRES);
+}
+
 // try to move particle, and if successful call move() to update variables
 int do_move(int i, int x, int y, float nxf, float nyf)
 {
 	int nx = (int)(nxf+0.5f), ny = (int)(nyf+0.5f), result;
-	if (edgeloop)
+	if (edgeMode == 2)
 	{
 		if (nx < CELL)
 			nxf += XRES-CELL*2;
@@ -561,7 +569,7 @@ int move(int i, int x, int y, float nxf, float nyf)
 		if ((pmap[y][x]>>8)==i) pmap[y][x] = 0;
 		else if ((pmap[y][x]&0xFF)==PT_PINV && (parts[pmap[y][x]>>8].tmp2>>8)==i) parts[pmap[y][x]>>8].tmp2 = 0;
 		else if ((photons[y][x]>>8)==i) photons[y][x] = 0;
-		if (nx<CELL || nx>=XRES-CELL || ny<CELL || ny>=YRES-CELL)//kill_part if particle is out of bounds
+		if (OutOfBounds(nx, ny))//kill_part if particle is out of bounds
 		{
 			if (!(ptypes[t].properties&PROP_MOVS) || (parts[i].tmp2 < 0 || parts[i].tmp2 > 255 || !msindex[parts[i].tmp2]))
 				kill_part(i);
@@ -2496,18 +2504,18 @@ void update_particles_i(pixel *vid, int start, int inc)
 			y = (int)(parts[i].y+0.5f);
 
 			//this kills any particle out of the screen, or in a wall where it isn't supposed to go
-			if (x<CELL || y<CELL || x>=XRES-CELL || y>=YRES-CELL ||
-			        (bmap[y/CELL][x/CELL] &&
-			         (bmap[y/CELL][x/CELL]==WL_WALL ||
-			          bmap[y/CELL][x/CELL]==WL_WALLELEC ||
-			          bmap[y/CELL][x/CELL]==WL_ALLOWAIR ||
-			          (bmap[y/CELL][x/CELL]==WL_DESTROYALL) ||
-			          (bmap[y/CELL][x/CELL]==WL_ALLOWLIQUID && ptypes[t].falldown!=2) ||
-			          (bmap[y/CELL][x/CELL]==WL_ALLOWSOLID && ptypes[t].falldown!=1) ||
-			          (bmap[y/CELL][x/CELL]==WL_ALLOWGAS && !(ptypes[t].properties&TYPE_GAS)) || //&& ptypes[t].falldown!=0 && parts[i].type!=PT_FIRE && parts[i].type!=PT_SMKE && parts[i].type!=PT_HFLM) ||
-			          (bmap[y/CELL][x/CELL]==WL_ALLOWENERGY && !(ptypes[t].properties&TYPE_ENERGY)) ||
-					  (bmap[y/CELL][x/CELL]==WL_DETECT && (t==PT_METL || t==PT_SPRK)) ||
-			          (bmap[y/CELL][x/CELL]==WL_EWALL && !emap[y/CELL][x/CELL])) && (t!=PT_STKM) && (t!=PT_STKM2) && (t!=PT_FIGH)))
+			if (OutOfBounds(x, y) ||
+				(bmap[y/CELL][x/CELL] &&
+				(bmap[y/CELL][x/CELL]==WL_WALL ||
+				(bmap[y/CELL][x/CELL]==WL_WALLELEC) ||
+				(bmap[y/CELL][x/CELL]==WL_ALLOWAIR) ||
+				(bmap[y/CELL][x/CELL]==WL_DESTROYALL) ||
+				(bmap[y/CELL][x/CELL]==WL_ALLOWLIQUID && ptypes[t].falldown!=2) ||
+				(bmap[y/CELL][x/CELL]==WL_ALLOWSOLID && ptypes[t].falldown!=1) ||
+				(bmap[y/CELL][x/CELL]==WL_ALLOWGAS && !(ptypes[t].properties&TYPE_GAS)) || //&& ptypes[t].falldown!=0 && parts[i].type!=PT_FIRE && parts[i].type!=PT_SMKE && parts[i].type!=PT_HFLM) ||
+				(bmap[y/CELL][x/CELL]==WL_ALLOWENERGY && !(ptypes[t].properties&TYPE_ENERGY)) ||
+				(bmap[y/CELL][x/CELL]==WL_DETECT && (t==PT_METL || t==PT_SPRK)) ||
+				(bmap[y/CELL][x/CELL]==WL_EWALL && !emap[y/CELL][x/CELL])) && (t!=PT_STKM) && (t!=PT_STKM2) && (t!=PT_FIGH)))
 			{
 				kill_part(i);
 				continue;
@@ -2610,12 +2618,22 @@ void update_particles_i(pixel *vid, int start, int inc)
 			for (nx=-1; nx<2; nx++)
 				for (ny=-1; ny<2; ny++) {
 					if (nx||ny) {
-						surround[j] = r = pmap[y+ny][x+nx];
-						j++;
-						if (!(r&0xFF))
-							surround_space++;//there is empty space
-						if ((r&0xFF)!=t)
-							nt++;//there is nothing or a different particle
+						if (!OutOfBounds(x+nx, y+ny))
+						{
+							surround[j] = r = pmap[y+ny][x+nx];
+							j++;
+							if (!(r&0xFF))
+								surround_space++;//there is empty space
+							if ((r&0xFF)!=t)
+								nt++;//there is nothing or a different particle
+						}
+						else
+						{
+							surround[j] = 0;
+							j++;
+							surround_space++;
+							nt++;
+						}
 					}
 				}
 
@@ -2813,7 +2831,7 @@ killed:
 					fin_yf += dy;
 					fin_x = (int)(fin_xf+0.5f);
 					fin_y = (int)(fin_yf+0.5f);
-					if (edgeloop)
+					if (edgeMode == 2)
 					{
 						if (fin_x < CELL)
 							fin_xf += XRES-CELL*2;
@@ -2839,7 +2857,7 @@ killed:
 						clear_y = (int)(clear_yf+0.5f);
 						break;
 					}
-					if (fin_x<CELL || fin_y<CELL || fin_x>=XRES-CELL || fin_y>=YRES-CELL || ((((pmap[fin_y][fin_x]&0xFF)==PT_SPNG||(ptypes[pmap[fin_y][fin_x]&0xFF].properties&PROP_MOVS)||(pmap[fin_y][fin_x]&0xFF)==PT_PINV&&parts[pmap[fin_y][fin_x]>>8].life==10))?0:pmap[fin_y][fin_x]) || (bmap[fin_y/CELL][fin_x/CELL] && (bmap[fin_y/CELL][fin_x/CELL]==WL_DESTROYALL || !eval_move(t,fin_x,fin_y,NULL))))
+					if (OutOfBounds(fin_x, fin_y) || ((((pmap[fin_y][fin_x]&0xFF)==PT_SPNG||(ptypes[pmap[fin_y][fin_x]&0xFF].properties&PROP_MOVS)||(pmap[fin_y][fin_x]&0xFF)==PT_PINV&&parts[pmap[fin_y][fin_x]>>8].life==10))?0:pmap[fin_y][fin_x]) || (bmap[fin_y/CELL][fin_x/CELL] && (bmap[fin_y/CELL][fin_x/CELL]==WL_DESTROYALL || !eval_move(t,fin_x,fin_y,NULL))))
 					{
 						// found an obstacle
 						clear_xf = fin_xf-dx;

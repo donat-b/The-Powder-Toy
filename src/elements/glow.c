@@ -30,7 +30,7 @@ int update_GLOW(UPDATE_FUNC_ARGS) {
 					part_change_type(r>>8,x+rx,y+ry,PT_DEUT);
 					parts[r>>8].life = 10;
 				}
-				else if (((r&0xFF)==PT_TTAN || ((r&0xFF)==PT_LAVA && parts[r>>8].ctype == PT_TTAN)) && pv[y/CELL][x/CELL] < -200)
+				/*else if (((r&0xFF)==PT_TTAN || ((r&0xFF)==PT_LAVA && parts[r>>8].ctype == PT_TTAN)) && pv[y/CELL][x/CELL] < -200) //not final
 				{
 					int index;
 					if (rand()%5)
@@ -39,7 +39,7 @@ int update_GLOW(UPDATE_FUNC_ARGS) {
 					if (index != -1)
 						parts[index].ctype = 1;
 					return 1;
-				}
+				}*/
 			}
 	parts[i].ctype = (int)pv[y/CELL][x/CELL]*16;
 

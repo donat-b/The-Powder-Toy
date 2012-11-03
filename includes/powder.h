@@ -901,6 +901,7 @@ extern float newmsrotation[256];
 extern int numballs;
 extern int ms_rotation;
 
+int OutOfBounds(int x, int y);
 int move(int i, int x, int y, float nxf, float nyf);
 int do_move(int i, int x, int y, float nxf, float nyf);
 int try_move(int i, int x, int y, int nx, int ny);
