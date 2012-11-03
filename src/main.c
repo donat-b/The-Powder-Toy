@@ -553,9 +553,12 @@ char* stamp_save(int x, int y, int w, int h)
 void tab_save(int num)
 {
 	FILE *f;
-	int n;
+	int n, oldsave_as = save_as;
 	char fn[64];
-	void *s=build_save(&n, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, 1);
+	void *s;
+	save_as = 3;
+	s = build_save(&n, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, 1);
+	save_as = oldsave_as;
 	if (!s)
 		return;
 
