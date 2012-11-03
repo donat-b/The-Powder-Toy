@@ -1262,6 +1262,7 @@ int main(int argc, char *argv[])
 			svf_myvote = 0;
 			svf_open = 0;
 			svf_publish = 0;
+			svf_modsave = 0;
 			svf_own = 0;
 			svf_id[0] = 0;
 			svf_name[0] = 0;
@@ -2473,6 +2474,7 @@ int main(int argc, char *argv[])
 						svf_myvote = 0;
 						svf_open = 0;
 						svf_publish = 0;
+						svf_modsave = 0;
 						svf_own = 0;
 						svf_id[0] = 0;
 						svf_name[0] = 0;

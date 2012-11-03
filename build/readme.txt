@@ -142,7 +142,7 @@ Version 5.0: http://min.us/lbh6DDTJzdNFU3
 Added automatic and manual heat displays. In automatic heat display, 
 the highest temp is pink and the lowest is dark blue. In Manual, 
 you can decide which temp is displayed as the hottest color and which is 
-the lowest, and everything inbetween will be based off that. 
+the lowest, and everything in between will be based off that. 
 I also added powdered portals and virus/cure, and updated to the latest 
 source to get rid of the update box.
 
@@ -391,6 +391,8 @@ clicking moderators' not searching correctly. Increase number of comments
 that can be loaded to 200.
 
 Bugs:
+save edge mode in saves
+fix WOOD+NEUT
 None (at least that I know of)
 
 

@@ -1244,7 +1244,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		clear_sim();
 		oldnumballs = 0;
 		erase_bframe();
-		mod_save = 0;
+		svf_modsave = mod_save = 0;
 	}
 	
 	bson_init_data(&b, (char*)bsonData);
@@ -1591,6 +1591,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			{
 				char modver[32];
 				mod_save = modsave = bson_iterator_int(&iter);
+				if (replace)
+					svf_modsave = modsave;
 				sprintf(modver, "Made in jacob1's mod version %d", modsave);
 				if (!strcmp(svf_user,"jacob1") && replace)
 					info_ui(vid_buf,"Mod",modver);
@@ -2443,7 +2445,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 		}
 		clear_sim();
 		erase_bframe();
-		mod_save = 0;
+		svf_modsave = mod_save = 0;
 	}
 	if (modver >= 3 && replace)
 		oldnumballs = 0;

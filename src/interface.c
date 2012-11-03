@@ -78,6 +78,7 @@ int svf_open = 0;
 int svf_own = 0;
 int svf_myvote = 0;
 int svf_publish = 0;
+int svf_modsave = 0;
 char svf_filename[255] = "";
 int svf_fileopen = 0;
 char svf_id[16] = "";
@@ -2388,14 +2389,18 @@ finish:
 int save_name_ui(pixel *vid_buf)
 {
 	int x0=(XRES-420)/2,y0=(YRES-68-YRES/4)/2,b=1,bq,mx,my,ths,idtxtwidth,nd=0;
+	int can_publish = 1;
 	void *th;
 	pixel *old_vid=(pixel *)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	ui_edit ed;
 	ui_edit ed2;
 	ui_checkbox cb;
+	ui_checkbox cb2;
 	ui_copytext ctb;
 
 	th = build_thumb(&ths, 0);
+	if (check_save(2,0,0,XRES,YRES,0))
+		can_publish = 0;
 
 	while (!sdl_poll())
 	{
@@ -2437,12 +2442,16 @@ int save_name_ui(pixel *vid_buf)
 	ctb.state = 0;
 	strcpy(ctb.text, svf_id);
 
-
 	cb.x = x0+10;
 	cb.y = y0+53+YRES/4;
 	cb.focus = 0;
-	cb.checked = svf_publish;
+	cb.checked = (svf_publish && can_publish && save_as != 3);
 
+	cb2.x = x0+90;
+	cb2.y = y0+53+YRES/4;
+	cb2.focus = 0;
+	cb2.checked = (!can_publish || save_as == 3);
+	
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
 	draw_rgba_image(vid_buf, (unsigned char*)save_to_server_image, 0, 0, 0.7f);
 	
@@ -2467,8 +2476,19 @@ int save_name_ui(pixel *vid_buf)
 		drawrect(vid_buf, x0+(205-XRES/3)/2-2+205, y0+30, XRES/3+3, YRES/3+3, 128, 128, 128, 255);
 		render_thumb(th, ths, 0, vid_buf, x0+(205-XRES/3)/2+205, y0+32, 3);
 
-		ui_checkbox_draw(vid_buf, &cb);
-		drawtext(vid_buf, x0+34, y0+50+YRES/4, "Publish? (Do not publish others'\nworks without permission)", 192, 192, 192, 255);
+		if (can_publish)
+		{
+			ui_checkbox_draw(vid_buf, &cb);
+			drawtext(vid_buf, x0+34, y0+53+YRES/4, "Publish?", 192, 192, 192, 255);
+
+			ui_checkbox_draw(vid_buf, &cb2);
+			drawtext(vid_buf, x0+114, y0+53+YRES/4, "Mod save?", 192, 192, 192, 255);
+		}
+		else
+		{
+			drawtext(vid_buf, x0+10, y0+53+YRES/4, "\xE4", 255, 255, 0, 255);
+			drawtext(vid_buf, x0+26, y0+55+YRES/4, "Uses mod elements, can't publish", 192, 192, 192, 255);
+		}
 
 		drawtext(vid_buf, x0+5, y0+79+YRES/4, "Save simulation", 255, 255, 255, 255);
 		drawrect(vid_buf, x0, y0+74+YRES/4, 192, 16, 192, 192, 192, 255);
@@ -2495,7 +2515,13 @@ int save_name_ui(pixel *vid_buf)
 
 		ui_edit_process(mx, my, b, bq, &ed);
 		ui_edit_process(mx, my, b, bq, &ed2);
-		ui_checkbox_process(mx, my, b, bq, &cb);
+		if (can_publish)
+		{
+			ui_checkbox_process(mx, my, b, bq, &cb);
+			ui_checkbox_process(mx, my, b, bq, &cb2);
+		}
+		if (cb2.checked)
+			cb.checked = 0;
 
 		if ((b && !bq && ((mx>=x0+9 && mx<x0+23 && my>=y0+22 && my<y0+36) ||
 		                 (mx>=x0 && mx<x0+192 && my>=y0+74+YRES/4 && my<y0+90+YRES/4)))
@@ -2517,6 +2543,7 @@ int save_name_ui(pixel *vid_buf)
 			svf_open = 1;
 			svf_own = 1;
 			svf_publish = cb.checked;
+			svf_modsave = cb2.checked;
 			svf_filename[0] = 0;
 			svf_fileopen = 0;
 			free(old_vid);
@@ -5467,6 +5494,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					svf_open = 1;
 					svf_own = svf_login && !strcmp(info->author, svf_user);
 					svf_publish = info->publish && svf_login && !strcmp(info->author, svf_user);
+					svf_modsave = 0;
 
 					strcpy(svf_id, save_id);
 					strcpy(svf_name, info->name);
@@ -5489,6 +5517,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					svf_open = 0;
 					svf_filename[0] = 0;
 					svf_fileopen = 0;
+					svf_modsave = 0;
 					svf_publish = 0;
 					svf_own = 0;
 					svf_myvote = 0;
@@ -6027,18 +6056,28 @@ void execute_save(pixel *vid_buf)
 	char *uploadparts[6];
 	int plens[6];
 
-	if (svf_publish == 1 && save_as != 5)
-	{
-		error_ui(vid_buf, 0, "You must save this as the non beta version");
-		return;
-	}
-	if (save_as == 3 && !check_save(2,0,0,XRES,YRES,0))
+	/*if (save_as == 3 && !check_save(2,0,0,XRES,YRES,0))
 	{
 		if (confirm_ui(vid_buf, "Save as official version?", "This save doesn't use any mod elements, and could be opened by everyone and have a correct thumbnail if it was saved as the official version. Click cancel to save like this anyway, incase you used some mod features", "OK"))
 		{
 			oldsave_as = save_as;
 			save_as = 5;
 		}
+	}*/
+	if (save_as != 4 && !svf_modsave)
+	{
+		oldsave_as = save_as;
+		save_as = 5;
+	}
+	else if (svf_modsave)
+	{
+		oldsave_as = save_as;
+		save_as = 3;
+	}
+	if (svf_publish == 1 && save_as != 5)
+	{
+		error_ui(vid_buf, 0, "You must save this as the non beta version");
+		return;
 	}
 	if (svf_publish == 1 && check_save(2,0,0,XRES,YRES,1))
 		return;
@@ -6056,7 +6095,6 @@ void execute_save(pixel *vid_buf)
 	uploadparts[3] = (char*)build_thumb(plens+3, 1);
 	uploadparts[4] = (char*)((svf_publish==1)?"Public":"Private");
 	plens[4] = strlen((svf_publish==1)?"Public":"Private");
-	save_as = oldsave_as;
 
 	if (svf_id[0])
 	{
@@ -6079,6 +6117,7 @@ void execute_save(pixel *vid_buf)
 
 	free(uploadparts[3]);
 
+	save_as = oldsave_as;
 	if (status!=200)
 	{
 		error_ui(vid_buf, status, http_ret_text(status));
@@ -7467,6 +7506,7 @@ void catalogue_ui(pixel * vid_buf)
 								svf_fileopen = 1;
 								svf_open = 0;
 								svf_publish = 0;
+								svf_modsave = 0;
 								svf_own = 0;
 								svf_myvote = 0;
 								svf_id[0] = 0;
