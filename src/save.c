@@ -82,15 +82,17 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 	return 1;
 }
 
-int fix_type(int type, int version)
+int fix_type(int type, int version, int modver)
 {
 	int max = 161;
 	if (version >= 82)
 		max = 162;
 	if (version >= 83)
 		max = 163;
-	if (version >= 84)
+	if (modver == 12)
 		max = 165;
+	if (version >= 84 || modver == 13)
+		max = 167;
 	if (type >= max)
 	{
 		type += (PT_NORMAL_NUM-max);
@@ -362,8 +364,6 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 			if(bson_iterator_type(&iter)==BSON_INT)
 			{
 				modsave = bson_iterator_int(&iter);
-				if (modsave == 12)
-					saved_version = 84;
 			}
 			else
 			{
@@ -487,7 +487,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 						fprintf(stderr, "Out of range [%d]: %d %d, [%d, %d], [%d, %d]\n", i, x, y, (unsigned)partsData[i+1], (unsigned)partsData[i+2], (unsigned)partsData[i+3], (unsigned)partsData[i+4]);
 						goto fail;
 					}
-					type = fix_type(partsData[i],saved_version);
+					type = fix_type(partsData[i],saved_version, modsave);
 					if(type >= PT_NUM)
 						type = PT_DMND;	//Replace all invalid elements with diamond
 					//if (modsave && modsave < 11 && type == PT_PIPE)
@@ -1198,7 +1198,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	fullH = blockH*CELL;
 	
 	//From newer version
-	if (saved_version > SAVE_VERSION && saved_version != 222)
+	if (saved_version > SAVE_VERSION && saved_version != 84 && saved_version != 222)
 	{
 		info_ui(vid_buf,"Save is from a newer version","Attempting to load it anyway, this may cause a crash");
 	}
@@ -1594,8 +1594,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				sprintf(modver, "Made in jacob1's mod version %d", modsave);
 				if (!strcmp(svf_user,"jacob1") && replace)
 					info_ui(vid_buf,"Mod",modver);
-				if (modsave == 12)
-					saved_version = 84;
 			}
 			else
 			{
@@ -1741,7 +1739,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					i+=3;
 					
 					if (modsave)
-						partsptr[newIndex].type = fix_type(partsptr[newIndex].type, saved_version);
+						partsptr[newIndex].type = fix_type(partsptr[newIndex].type, saved_version, modsave);
 					//if (modsave && modsave < 11 && partsData[i] == PT_PIPE)
 					//	partsData[i] = partsptr[newIndex].type = PT_PPIP;
 
@@ -1792,7 +1790,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							}
 						}
 						if (modsave && (partsptr[newIndex].type == PT_PIPE || partsptr[newIndex].type == PT_PPIP))
-							partsptr[newIndex].tmp = fix_type(partsptr[newIndex].tmp&0xFF, saved_version)|(parts[newIndex].tmp&~0xFF);
+							partsptr[newIndex].tmp = fix_type(partsptr[newIndex].tmp&0xFF, saved_version, modsave)|(parts[newIndex].tmp&~0xFF);
 						if (modsave < 12 && (partsptr[newIndex].type == PT_VRSS || partsptr[newIndex].type == PT_VIRS || partsptr[newIndex].type == PT_VRSG))
 						{
 							parts[i].pavg[0] = (float)(parts[i].tmp&0xFF);
@@ -1814,7 +1812,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							partsptr[newIndex].ctype |= (((unsigned)partsData[i++]) << 8);
 						}
 						if (modsave && partsptr[newIndex].type == PT_CLNE || partsptr[newIndex].type == PT_PCLN || partsptr[newIndex].type == PT_BCLN || partsptr[newIndex].type == PT_PBCN || partsptr[newIndex].type == PT_STOR || partsptr[newIndex].type == PT_CONV || partsptr[newIndex].type == PT_STKM || partsptr[newIndex].type == PT_STKM2 || partsptr[newIndex].type == PT_FIGH || partsptr[newIndex].type == PT_LAVA || partsptr[newIndex].type == PT_SPRK || partsptr[newIndex].type == PT_VIRS || partsptr[newIndex].type == PT_VRSS || partsptr[newIndex].type == PT_VRSG)
-							partsptr[newIndex].ctype = fix_type(partsptr[newIndex].ctype, saved_version);
+							partsptr[newIndex].ctype = fix_type(partsptr[newIndex].ctype, saved_version, modsave);
 					}
 					
 					//Read dcolour
