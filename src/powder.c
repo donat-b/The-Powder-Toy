@@ -496,7 +496,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 		return 0;
 
 	e = r >> 8; //e is now the particle number at r (pmap[ny][nx])
-	if (r && ((pmap[y][x]&0xFF) == parts[i].type))//the swap part, if we make it this far, swap
+	if (r)//the swap part, if we make it this far, swap
 	{
 		if (parts[i].type==PT_NEUT) {
 			// target material is NEUTPENETRATE, meaning it gets moved around when neutron passes

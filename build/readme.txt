@@ -392,8 +392,10 @@ that can be loaded to 200.
 
 Bugs:
 save edge mode in saves
-fix WOOD+NEUT
-None (at least that I know of)
+can't save tabs with release save mode on sometimes
+extra space in TOOL's menu in old menu
+swch difference
+//None (at least that I know of)
 
 
 
