@@ -3562,7 +3562,7 @@ int search_ui(pixel *vid_buf)
 					pixel *thumb_rsdata = NULL;
 					pixel *thumb_imgdata = ptif_unpack(search_thumbs[pos], search_thsizes[pos], &finw, &finh);
 					if(thumb_imgdata!=NULL){
-						thumb_rsdata = resample_img_nn(thumb_imgdata, finw, finh, XRES/GRID_S, YRES/GRID_S);
+						thumb_rsdata = resample_img(thumb_imgdata, finw, finh, XRES/GRID_S, YRES/GRID_S);
 						draw_image(v_buf, thumb_rsdata, gx, gy, XRES/GRID_S, YRES/GRID_S, 255);					
 						free(thumb_imgdata);
 						free(thumb_rsdata);
