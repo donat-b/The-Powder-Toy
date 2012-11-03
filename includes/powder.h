@@ -225,7 +225,6 @@
 #define PT_TRON 143
 #define PT_TTAN	144
 #define PT_EXOT	145
-
 #define OLD_PT_WIND 147
 #define PT_EMBR 147
 #define PT_H2   148
@@ -245,7 +244,9 @@
 #define PT_DTEC 162
 #define PT_DMG 163
 #define PT_TSNS 164
-#define PT_NORMAL_NUM 165
+#define PT_VIBR 165
+#define PT_BVBR 166
+#define PT_NORMAL_NUM 167
 
 #define PT_MOVS PT_NORMAL_NUM
 #define PT_ANIM PT_NORMAL_NUM+1
@@ -263,7 +264,7 @@
 #define PT_COND PT_NORMAL_NUM+13
 #define PT_PWHT PT_NORMAL_NUM+14
 #define PT_EXPL PT_NORMAL_NUM+15
-#define PT_NUM 181
+#define PT_NUM 183
 
 #define R_TEMP 22
 #define MAX_TEMP 9999
@@ -394,6 +395,7 @@ int graphics_PLNT(GRAPHICS_FUNC_ARGS);
 int graphics_BRCK(GRAPHICS_FUNC_ARGS);
 int graphics_DTEC(GRAPHICS_FUNC_ARGS);
 int graphics_DMG(GRAPHICS_FUNC_ARGS);
+int graphics_VIBR(GRAPHICS_FUNC_ARGS);
 
 void TRON_init_graphics();
 
@@ -443,6 +445,7 @@ int update_DEUT(UPDATE_FUNC_ARGS);
 int update_DLAY(UPDATE_FUNC_ARGS);
 int update_DMG(UPDATE_FUNC_ARGS);
 int update_DSTW(UPDATE_FUNC_ARGS);
+int update_DTEC(UPDATE_FUNC_ARGS);
 int update_ELEC(UPDATE_FUNC_ARGS);
 int update_EMBR(UPDATE_FUNC_ARGS);
 int update_EMP(UPDATE_FUNC_ARGS);
@@ -514,6 +517,7 @@ int update_TSNS(UPDATE_FUNC_ARGS);
 int update_TRON(UPDATE_FUNC_ARGS);
 int update_TTAN(UPDATE_FUNC_ARGS);
 int update_URAN(UPDATE_FUNC_ARGS);
+int update_VIBR(UPDATE_FUNC_ARGS);
 int update_VINE(UPDATE_FUNC_ARGS);
 int update_VIRS(UPDATE_FUNC_ARGS);
 int update_WARP(UPDATE_FUNC_ARGS);
@@ -522,7 +526,6 @@ int update_WIFI(UPDATE_FUNC_ARGS);
 int update_WIRE(UPDATE_FUNC_ARGS);
 int update_WTRV(UPDATE_FUNC_ARGS);
 int update_YEST(UPDATE_FUNC_ARGS);
-int update_DTEC(UPDATE_FUNC_ARGS);
 
 int update_MISC(UPDATE_FUNC_ARGS);
 int update_legacy_PYRO(UPDATE_FUNC_ARGS);

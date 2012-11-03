@@ -192,6 +192,8 @@ part_type ptypes[PT_NUM] =
 	{"DTEC",	PIXPACK(0xFD9D18),	0.0f,	0.00f * CFDS,	0.96f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f  * CFDS,	0,	0,		0,	0,	1,	1,	1,	100,	SC_SENSOR,		R_TEMP+273.15f,			0,		"Creates a spark when something with its ctype is nearby", ST_SOLID, TYPE_SOLID, &update_DTEC, &graphics_DTEC},
 	{"DMG",		PIXPACK(0x88FF88),	0.6f,	0.01f * CFDS,	0.98f,	0.95f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	0,	20,	1,	1,	30,		SC_FORCE,		R_TEMP-2.0f	+273.15f,	29,		"DMG.", ST_NONE, TYPE_PART|PROP_LIFE_DEC|PROP_LIFE_KILL_DEC|PROP_SPARKSETTLE, &update_DMG, &graphics_DMG},
 	{"TSNS",	PIXPACK(0xFD9D18),	0.0f,	0.00f * CFDS,	0.96f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	1,	1,	1,	100,	SC_SENSOR,		R_TEMP+0.0f	+273.15f,	0,		"Creates a spark when there's a nearby particle with equal or greater temperature", ST_SOLID, TYPE_SOLID, &update_TSNS, NULL},
+	{"VIBR",	PIXPACK(0x005000),	0.0f,	0.00f * CFDS,	0.85f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_SOLIDS,		R_TEMP+0.0f	+273.15f,	251,	"Vibranium. Stores energy and releases it in violent explosions.", ST_SOLID, TYPE_SOLID|PROP_LIFE_DEC, &update_VIBR, &graphics_VIBR},
+	{"BVBR",	PIXPACK(0x005000),	0.3f,	0.02f * CFDS,	0.95f,	0.80f,	0.0f,	0.15f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	0,	0,	1,	1,	67,		SC_POWDERS,		R_TEMP+0.0f	+273.15f,	164,	"Broken vibranium.", ST_SOLID, TYPE_PART|PROP_LIFE_DEC, &update_VIBR, &graphics_VIBR},
 	//Mod elements past this point
 	{"BALL",	PIXPACK(0x0010A0),	0.4f,	0.004f * CFDS,	0.92f,	0.80f,	0.00f,	0.1f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	30,	1,	1,	85,		SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	70,		"Moving solid. Acts like a bouncy ball", ST_NONE, TYPE_PART|PROP_MOVS, NULL, NULL},
 	{"ANIM",	PIXPACK(0x505050),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	1,	1,	1,	100,	SC_POWERED,		R_TEMP+0.0f	+273.15f,	0,		"Animated Liquid Crystal", ST_SOLID, TYPE_SOLID|PROP_POWERED, &update_ANIM, NULL},
@@ -436,6 +438,8 @@ part_transition ptransitions[PT_NUM] =
 	/* DTEC */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* DMG  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* TSNS */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* VIBR */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* BVBR */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	// Mod elements past this point
 	/* BALL */ {-25.0f,	PT_NONE,	25.0f,	PT_NONE,	ITL,	NT,			ITH,	NT},
 	/* ANIM */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
