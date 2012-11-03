@@ -15,7 +15,7 @@ int update_POWERED(UPDATE_FUNC_ARGS) {
 					continue;
 				if ((parts[i].type != PT_SWCH && parts[i].type != PT_ACTV) || parts_avg(i,r>>8,PT_INSL)!=PT_INSL)
 				{
-					if ((r&0xFF)==PT_SPRK && parts[r>>8].life>0 && parts[r>>8].life<4)
+					if ((r&0xFF)==PT_SPRK && ((parts[r>>8].life>0 && parts[r>>8].life<4) || parts[i].type == PT_SWCH))
 					{
 						if (!(parts[i].flags & FLAG_INSTACTV))
 						{
