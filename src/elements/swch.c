@@ -15,7 +15,7 @@
 
 #include <element.h>
 
-bool isRedBRAY(UPDATE_FUNC_ARGS, int xc, int yc)
+int isRedBRAY(UPDATE_FUNC_ARGS, int xc, int yc)
 {
 	return (pmap[yc][xc]&0xFF) == PT_BRAY && parts[pmap[yc][xc]>>8].tmp == 2;
 }

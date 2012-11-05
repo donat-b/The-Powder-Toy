@@ -419,6 +419,7 @@ Done! continue work on my mod like normal
 maybe in c++ version:
 Don't save lua code inside of INDI, since this isn't a lua script anymore
 RAND - deco tool - Uberness - 10/1 #powder at end
+FRME
 PROT - Protons
 CMND - command element to run old commands
 ADGS - Adhesive gas - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=15188
