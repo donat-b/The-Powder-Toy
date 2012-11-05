@@ -26,7 +26,7 @@ void transferProp(UPDATE_FUNC_ARGS, int propOffset)
 		if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
 		{
 			r = pmap[y+ry][x+rx];
-			if ((r&0xFF) != parts[i].type)
+			if (((r&0xFF) != PT_VIBR && (r&0xFF) != PT_BVBR))
 				continue;
 			if (*((int*)(((char*)&parts[i])+propOffset)) > *((int*)(((char*)&parts[r>>8])+propOffset)))
 			{
@@ -110,7 +110,7 @@ int update_VIBR(UPDATE_FUNC_ARGS) {
 			if(x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES)
 			{
 				r = pmap[y+ry][x+rx];
-				if ((r&0xFF) && (r&0xFF) != parts[i].type)
+				if ((r&0xFF) && (r&0xFF) != PT_VIBR && (r&0xFF) != PT_BVBR && ptypes[r&0xFF].hconduct && ((r&0xFF)!=PT_HSWC||parts[r>>8].life==10))
 				{
 					parts[r>>8].temp += parts[i].tmp*3;
 					parts[i].tmp = 0;
@@ -134,6 +134,8 @@ int update_VIBR(UPDATE_FUNC_ARGS) {
 				parts[index].temp = 7000;
 			parts[i].temp=9000;
 			pv[y/CELL][x/CELL] += 50;
+
+			return 1;
 		}
 	}
 	//Neighbor check loop
@@ -156,7 +158,7 @@ int update_VIBR(UPDATE_FUNC_ARGS) {
 					part_change_type(i,x,y,PT_BVBR);
 					pv[y/CELL][x/CELL] -= 1;
 				}
-				else if (parts[i].life && (r&0xFF) == parts[i].type && !parts[r>>8].life)
+				else if (parts[i].life && ((r&0xFF) == PT_VIBR || (r&0xFF) == PT_BVBR) && !parts[r>>8].life)
 				{
 					parts[r>>8].tmp += 10;
 				}
