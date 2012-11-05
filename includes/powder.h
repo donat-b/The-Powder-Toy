@@ -811,15 +811,15 @@ static wall_type wtypes[] =
 #define FAV_INFO 304
 #define FAV_ROTATE 305
 #define FAV_HEAT 306
-#define FAV_SAVE 307
-#define FAV_LUA 308
-#define FAV_CUSTOMHUD 309
-#define FAV_AUTOSAVE 310
-#define FAV_REAL 311
-#define FAV_FIND2 312
-#define FAV_DATE 313
-#define FAV_SECR 314
-#define FAV_END 315
+//#define FAV_SAVE 307
+#define FAV_LUA 307
+#define FAV_CUSTOMHUD 308
+#define FAV_AUTOSAVE 309
+#define FAV_REAL 310
+#define FAV_FIND2 311
+#define FAV_DATE 312
+#define FAV_SECR 313
+#define FAV_END 314
 
 struct fav_menu
 {
@@ -838,7 +838,7 @@ static fav_menu fav[] =
 	{"INFO", PIXPACK(0x00FF00), "Displays statistics and records about The Powder Toy. Left click to toggle display"},
 	{"SPIN", PIXPACK(0x0010A0), "Makes moving solids rotate. Currently "},
 	{"HEAT", PIXPACK(0xFF00D4), "Changes heat display mode. Current mode: "},
-	{"SAVE", PIXPACK(0x2B1AC9), "Makes saves/stamps compatible with: "},
+	//{"SAVE", PIXPACK(0x2B1AC9), "Makes saves/stamps compatible with: "},
 	{"LUA",  PIXPACK(0xFFFF00), "Add Lua code to a save"},
 	{"HUD2", PIXPACK(0x20D8FF), "Make a custom HUD"},
 	{"AUTO", PIXPACK(0xDF1BFF), "Sets how often your work is autosaved. Currently: "},

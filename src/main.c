@@ -237,7 +237,7 @@ int lowesttemp = MIN_TEMP;
 int heatmode = 0;
 int maxframes = 25;
 int secret_els = 0;
-int save_as = 3;
+int save_as = 5;
 void *prop_value = 0;
 int prop_format = 0;
 unsigned int prop_offset = 0;
@@ -2511,14 +2511,30 @@ int main(int argc, char *argv[])
 							if (!svf_open || !svf_own || x>51)
 							{
 								if (save_name_ui(vid_buf)) {
-									execute_save(vid_buf);
-									if (svf_id[0]) {
+									if (!execute_save(vid_buf) && svf_id[0]) {
 										copytext_ui(vid_buf, "Save ID", "Saved successfully!", svf_id);
+									}
+									else
+									{
+										itc = 200;
+										strcpy(itc_msg, "Error Saving");
 									}
 								}
 							}
 							else
-								execute_save(vid_buf);
+							{
+								if (execute_save(vid_buf))
+								{
+									itc = 200;
+									strcpy(itc_msg, "Error Saving");
+								}
+								else
+								{
+									itc = 200;
+									strcpy(itc_msg, "Saved Successfully");
+								}
+								
+							}
 							while (!sdl_poll())
 								if (!mouse_get_state(&x, &y))
 									break;

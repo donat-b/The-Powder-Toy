@@ -1186,6 +1186,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	bson b;
 	bson_iterator iter;
 
+	if (replace)
+		svf_modsave = (inputData[2] == 'J');
 	//Block sizes
 	blockX = x0/CELL;
 	blockY = y0/CELL;
@@ -1592,8 +1594,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			{
 				char modver[32];
 				mod_save = modsave = bson_iterator_int(&iter);
-				if (replace)
-					svf_modsave = modsave;
 				sprintf(modver, "Made in jacob1's mod version %d", modsave);
 				if (!strcmp(svf_user,"jacob1") && replace)
 					info_ui(vid_buf,"Mod",modver);

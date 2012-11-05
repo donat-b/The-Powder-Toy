@@ -2445,12 +2445,12 @@ int save_name_ui(pixel *vid_buf)
 	cb.x = x0+10;
 	cb.y = y0+53+YRES/4;
 	cb.focus = 0;
-	cb.checked = (svf_publish && can_publish && save_as != 3);
+	cb.checked = (svf_publish && can_publish);
 
 	cb2.x = x0+90;
 	cb2.y = y0+53+YRES/4;
 	cb2.focus = 0;
-	cb2.checked = (!can_publish || save_as == 3);
+	cb2.checked = !can_publish;
 	
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
 	draw_rgba_image(vid_buf, (unsigned char*)save_to_server_image, 0, 0, 0.7f);
@@ -3081,7 +3081,7 @@ void menu_draw_text(int h, int i)
 			else
 				sprintf(favtext, "%smanual: %iC - %iC",fav[h-FAV_START].description,lowesttemp-273,highesttemp-273);
 		}
-		else if (h == FAV_SAVE)
+		/*else if (h == FAV_SAVE)
 		{
 			if (save_as%3 == 0)
 				strappend(favtext, "Jacob's Mod ver. " MTOS(MOD_VERSION));
@@ -3089,7 +3089,7 @@ void menu_draw_text(int h, int i)
 				strappend(favtext, "Powder Toy beta ver. " MTOS(BETA_VERSION));
 			else
 				strappend(favtext, "Powder Toy release ver. " MTOS(RELEASE_VERSION));
-		}
+		}*/
 		else if (h == FAV_AUTOSAVE)
 		{
 			if (!autosave)
@@ -3172,14 +3172,14 @@ void menu_select_element(int b, int h)
 				ms_rotation = !ms_rotation;
 			else if (h == FAV_HEAT)
 				heatmode = (heatmode + 1)%3;
-			else if (h == FAV_SAVE)
+			/*else if (h == FAV_SAVE)
 			{
 				save_as = 3+(save_as + 1)%3;
 #ifndef BETA
 				if (save_as%3 == 1)
 					save_as++;
 #endif
-			}
+			}*/
 			else if (h == FAV_LUA)
 #ifdef LUACONSOLE
 				addluastuff();
@@ -6047,7 +6047,7 @@ int execute_tagop(pixel *vid_buf, char *op, char *tag)
 	return 0;
 }
 
-void execute_save(pixel *vid_buf)
+int execute_save(pixel *vid_buf)
 {
 	int status, oldsave_as = save_as;
 	char *result;
@@ -6077,10 +6077,10 @@ void execute_save(pixel *vid_buf)
 	if (svf_publish == 1 && save_as != 5)
 	{
 		error_ui(vid_buf, 0, "You must save this as the non beta version");
-		return;
+		return 1;
 	}
 	if (svf_publish == 1 && check_save(2,0,0,XRES,YRES,1))
-		return;
+		return 1;
 
 	uploadparts[0] = svf_name;
 	plens[0] = strlen(svf_name);
@@ -6090,7 +6090,7 @@ void execute_save(pixel *vid_buf)
 	if (!uploadparts[2])
 	{
 		error_ui(vid_buf, 0, "Error creating save");
-		return;
+		return 1;
 	}
 	uploadparts[3] = (char*)build_thumb(plens+3, 1);
 	uploadparts[4] = (char*)((svf_publish==1)?"Public":"Private");
@@ -6123,7 +6123,7 @@ void execute_save(pixel *vid_buf)
 		error_ui(vid_buf, status, http_ret_text(status));
 		if (result)
 			free(result);
-		return;
+		return 1;
 	}
 	if (!result || strncmp(result, "OK", 2))
 	{
@@ -6131,7 +6131,7 @@ void execute_save(pixel *vid_buf)
 			result = mystrdup("Could not save - no reply from server");
 		error_ui(vid_buf, 0, result);
 		free(result);
-		return;
+		return 1;
 	}
 
 	if (result && result[2])
@@ -6144,7 +6144,7 @@ void execute_save(pixel *vid_buf)
 	{
 		error_ui(vid_buf, 0, "No ID supplied by server");
 		free(result);
-		return;
+		return 1;
 	}
 
 	thumb_cache_inval(svf_id);
@@ -6152,6 +6152,7 @@ void execute_save(pixel *vid_buf)
 	svf_own = 1;
 	if (result)
 		free(result);
+	return 0;
 }
 
 int execute_delete(pixel *vid_buf, char *id)

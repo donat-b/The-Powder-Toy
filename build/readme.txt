@@ -382,16 +382,19 @@ when you shouldn't. Fix another tpt bug where Newtonian gravity wouldn't get
 reloaded after reloading a save - thanks to jacksonmj for the fix. Make VIRS 
 last longer. Enable the # of votes icon on all saves for everyone.
 
-Next Version
+Version 19.4 11/3/12
 Remove DISPLAY_EFFE from render options. Fix clicking the copy id button 
 exiting the save preview. Fix being able to click usernames and id's from 
 under the comment box (again). Shift-clicking a username from the my own 
 section to search for their saves will work correctly now. Fix shift/ctrl 
 clicking moderators' not searching correctly. Increase number of comments 
-that can be loaded to 200.
+that can be loaded to 200. Add in VIBR and BVBR from tpt++ (still not the 
+final version, 19.4.1 will be soon). Fix PROP_NEUTPENETRATE. Fix bug causing 
+switch to act differently in some rare cases. Fix tools menusection having 
+an extra empty space in old menu ('o') mode. Add 'Empty' edge mode option.
 
 Bugs:
-save edge mode in saves
+sensors icon
 //None (at least that I know of)
 
 

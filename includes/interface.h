@@ -342,7 +342,7 @@ int search_results(char *str, int votes);
 
 int execute_tagop(pixel *vid_buf, char *op, char *tag);
 
-void execute_save(pixel *vid_buf);
+int execute_save(pixel *vid_buf);
 
 int execute_delete(pixel *vid_buf, char *id);
 
