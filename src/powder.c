@@ -211,6 +211,11 @@ void init_can_move()
 		//void behaviour varies with powered state and ctype
 		can_move[t][PT_PVOD] = 3;
 		can_move[t][PT_VOID] = 3;
+		if (ptypes[t].properties&TYPE_ENERGY)
+		{
+			can_move[t][PT_VIBR] = 1;
+			can_move[t][PT_BVBR] = 1;
+		}
 		if (ptypes[t].properties&PROP_MOVS)
 			can_move[t][t] = 2;
 	}
@@ -483,6 +488,12 @@ int try_move(int i, int x, int y, int nx, int ny)
 		{
 			parts[r>>8].temp = restrict_flt(parts[r>>8].temp- (MAX_TEMP-parts[i].temp)/2, MIN_TEMP, MAX_TEMP);
 		}
+		return 0;
+	}
+	if (((r&0xFF)==PT_VIBR || (r&0xFF)==PT_BVBR) && (ptypes[parts[i].type].properties & TYPE_ENERGY))
+	{
+		parts[r>>8].tmp += 20;
+		kill_part(i);
 		return 0;
 	}
 
@@ -2318,6 +2329,7 @@ int transfer_heat(int i, int surround[8])
 				else if (t==PT_LAVA) {
 					if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && parts[i].ctype!=PT_LAVA) {
 						if (parts[i].ctype==PT_THRM&&pt>=ptransitions[PT_BMTL].thv) s = 0;
+						else if ((parts[i].ctype==PT_VIBR || parts[i].ctype==PT_BVBR) && pt>=273.15f) s = 0;
 						else if (ptransitions[parts[i].ctype].tht==PT_LAVA) {
 							if (pt>=ptransitions[parts[i].ctype].thv) s = 0;
 						}
