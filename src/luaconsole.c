@@ -2597,8 +2597,9 @@ int luatpt_save_stamp(lua_State* l)
 	int w = luaL_optint(l,3,XRES);
 	int h = luaL_optint(l,4,YRES);
 	int oldsave_as = save_as;
+	char *name;
 	save_as = 3;
-	char *name = stamp_save(x, y, w, h);
+	name = stamp_save(x, y, w, h);
 	save_as = oldsave_as;
 	lua_pushstring(l, name);
 	return 1;
