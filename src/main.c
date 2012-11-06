@@ -2391,22 +2391,34 @@ int main(int argc, char *argv[])
 				{
 					if (copy_mode==1)//CTRL-C, copy
 					{
+						int oldsave_as = save_as;
+						save_as = 3;
 						clipboard_data=build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts, (sdl_mod & KMOD_SHIFT));
 						if (clipboard_data)
 							clipboard_ready = 1;
+						save_as = oldsave_as;
 					}
 					else if (copy_mode==2)//CTRL-X, cut
 					{
+						int oldsave_as = save_as;
+						save_as = 3;
 						clipboard_data=build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts, (sdl_mod & KMOD_SHIFT));
 						if (clipboard_data)
 						{
 							clipboard_ready = 1;
 							clear_area(save_x, save_y, save_w, save_h);
 						}
+						save_as = oldsave_as;
 					}
 					else//normal save
 					{
+						int oldsave_as = save_as;
+						if (check_save(save_as%3, save_x, save_y, save_w, save_h, 0))
+						{
+							save_as = 3;
+						}
 						stamp_save(save_x, save_y, save_w, save_h);
+						save_as = oldsave_as;
 					}
 				}
 				copy_mode = 0;

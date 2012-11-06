@@ -393,9 +393,17 @@ final version, 19.4.1 will be soon). Fix PROP_NEUTPENETRATE. Fix bug causing
 switch to act differently in some rare cases. Fix tools menusection having 
 an extra empty space in old menu ('o') mode. Add 'Empty' edge mode option.
 
+Version 19.4.1 11/5/12
+Fix save as current name and improve how saving works (will allow public / 
+mod saves easily now). Put in the final version of VIBR. Make the thumbnails 
+look as good as I can get them, tpt++'s thumbnail renderer isn't as good, 
+so new thumbnails won't look as good. Add sensors menu icon.
+
+
+
+
 Bugs:
-sensors icon
-//None (at least that I know of)
+/None (at least that I know of)
 
 
 

@@ -195,7 +195,7 @@ void init_can_move()
 		can_move[PT_STKM2][t] = stkm_move;
 		can_move[PT_FIGH][t] = stkm_move;
 	}
-	for (t=0;t<PT_NUM;t++)
+	for (t=1;t<PT_NUM;t++)
 	{
 		// make them eat things
 		can_move[t][PT_BHOL] = 1;
@@ -211,6 +211,8 @@ void init_can_move()
 		//void behaviour varies with powered state and ctype
 		can_move[t][PT_PVOD] = 3;
 		can_move[t][PT_VOID] = 3;
+		can_move[t][PT_EMBR] = 0;
+		can_move[PT_EMBR][t] = 0;
 		if (ptypes[t].properties&TYPE_ENERGY)
 		{
 			can_move[t][PT_VIBR] = 1;
