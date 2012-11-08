@@ -403,13 +403,16 @@ so new thumbnails won't look as good. Add sensors menu icon.
 
 
 Bugs:
-/None (at least that I know of)
+water equalization with VIRS
+//None (at least that I know of)
 
 
 
 
 Future Ideas/TODO: '>' means currently being worked on/added next
 >Add things from tpt++ that look cool, and any new simulation changes it gets
+Add color presets to deco editor
+improve comment scrolling
 ---
 C++ version todo:
 done - [compile tpt++ with visual studio]
