@@ -5352,9 +5352,9 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			drawtext(vid_buf, 258, YRES+MENUSIZE-64, "\x81", 255, 255, 255, bc);
 
 			//Open Button
-			if (sdl_key==SDLK_RETURN && openable) {
-				queue_open = 1;
-			}
+			//if (sdl_key==SDLK_RETURN && openable) {
+			//	queue_open = 1;
+			//}
 			if (mx > 50 && mx < 50+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && openable && !queue_open) {
 				fillrect(vid_buf, 50, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
 				if (b && !bq) {

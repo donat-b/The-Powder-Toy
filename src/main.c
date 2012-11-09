@@ -2146,6 +2146,7 @@ int main(int argc, char *argv[])
 		        x<=(XRES-14) && y>=(YRES-37) && y<=(YRES-24) && svf_messages)
 		{
 			open_link("http://" SERVER "/Conversations.html");
+			svf_messages = 0;
 		}
 		if (update_flag)
 		{
