@@ -208,6 +208,11 @@ void init_can_move()
 		can_move[t][PT_VOID] = 3;
 		can_move[t][PT_EMBR] = 0;
 		can_move[PT_EMBR][t] = 0;
+		if (ptypes[t].properties&TYPE_ENERGY)
+		{
+			can_move[t][PT_VIBR] = 1;
+			can_move[t][PT_BVBR] = 1;
+		}
 	}
 	for (t=0;t<PT_NUM;t++)
 	{
@@ -447,6 +452,12 @@ int try_move(int i, int x, int y, int nx, int ny)
 		if(parts[r>>8].life < 6000)
 			parts[r>>8].life += 1;
 		parts[r>>8].temp = 0;
+		kill_part(i);
+		return 0;
+	}
+	if (((r&0xFF)==PT_VIBR || (r&0xFF)==PT_BVBR) && (ptypes[parts[i].type].properties & TYPE_ENERGY))
+	{
+		parts[r>>8].tmp += 20;
 		kill_part(i);
 		return 0;
 	}
@@ -2272,6 +2283,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 						else if (t==PT_LAVA) {
 							if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && parts[i].ctype!=PT_LAVA) {
 								if (parts[i].ctype==PT_THRM&&pt>=ptransitions[PT_BMTL].thv) s = 0;
+								else if ((parts[i].ctype==PT_VIBR || parts[i].ctype==PT_BVBR) && pt>=273.15f) s = 0;
 								else if (ptransitions[parts[i].ctype].tht==PT_LAVA) {
 									if (pt>=ptransitions[parts[i].ctype].thv) s = 0;
 								}
