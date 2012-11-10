@@ -246,6 +246,7 @@ void init_can_move()
 	//whol eats anar
 	can_move[PT_ANAR][PT_WHOL] = 1;
 	can_move[PT_ANAR][PT_NWHL] = 1;
+	can_move[PT_ELEC][PT_DEUT] = 1;
 	can_move[PT_SPNG][PT_SPNG] = 3;
 	can_move[PT_RAZR][PT_CNCT] = 1;
 	can_move[PT_THDR][PT_THDR] = 2;
@@ -459,6 +460,11 @@ int try_move(int i, int x, int y, int nx, int ny)
 			if (temp_bin > 25) temp_bin = 25;
 			parts[i].ctype = 0x1F << temp_bin;
 		}
+		if (((r&0xFF)==PT_BIZR || (r&0xFF)==PT_BIZRG || (r&0xFF)==PT_BIZRS) && parts[i].type==PT_PHOT)
+		{
+			part_change_type(i, x, y, PT_ELEC);
+			parts[i].ctype = 0;
+		}
 		return 1;
 	}
 	//else e=1 , we are trying to swap the particles, return 0 no swap/move, 1 is still overlap/move, because the swap takes place later
@@ -495,6 +501,14 @@ int try_move(int i, int x, int y, int nx, int ny)
 	if (((r&0xFF)==PT_VIBR || (r&0xFF)==PT_BVBR) && (ptypes[parts[i].type].properties & TYPE_ENERGY))
 	{
 		parts[r>>8].tmp += 20;
+		kill_part(i);
+		return 0;
+	}
+	if ((r&0xFF)==PT_DEUT && parts[i].type==PT_ELEC)
+	{
+		if(parts[r>>8].life < 6000)
+		parts[r>>8].life += 1;
+		parts[r>>8].temp = 0;
 		kill_part(i);
 		return 0;
 	}
@@ -2159,7 +2173,9 @@ int transfer_heat(int i, int surround[8])
 
 			if (rt&&ptypes[rt].hconduct&&(rt!=PT_HSWC||parts[r>>8].life==10)
 					&&(t!=PT_FILT||(rt!=PT_BRAY&&rt!=PT_BIZR&&rt!=PT_BIZRG))
-					&&(rt!=PT_FILT||(t!=PT_BRAY&&t!=PT_PHOT&&t!=PT_BIZR&&t!=PT_BIZRG)))
+					&&(rt!=PT_FILT||(t!=PT_BRAY&&t!=PT_PHOT&&t!=PT_BIZR&&t!=PT_BIZRG))
+					&&(t!=PT_ELEC||rt!=PT_DEUT)
+					&&(t!=PT_DEUT||rt!=PT_ELEC))
 			{
 				surround_hconduct[j] = r>>8;
 				if (realistic)
