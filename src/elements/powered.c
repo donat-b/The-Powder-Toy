@@ -15,13 +15,23 @@ int update_POWERED(UPDATE_FUNC_ARGS) {
 					continue;
 				if ((parts[i].type != PT_SWCH && parts[i].type != PT_ACTV) || parts_avg(i,r>>8,PT_INSL)!=PT_INSL)
 				{
+					if ((r&0xFF)==parts[i].type && parts[i].type == PT_SWCH)
+					{
+						if (parts[i].life>=10&&parts[r>>8].life<10&&parts[r>>8].life>0)
+							parts[i].life = 9;
+						else if (parts[i].life==0&&parts[r>>8].life>=10)
+						{
+							//Set to other particle's life instead of 10, otherwise spark loops form when SWCH is sparked while turning on
+							parts[i].life = parts[r>>8].life;
+						}
+					}
 					if ((r&0xFF)==PT_SPRK && ((parts[r>>8].life>0 && parts[r>>8].life<4) || parts[i].type == PT_SWCH))
 					{
 						if (!(parts[i].flags & FLAG_INSTACTV))
 						{
-							if (parts[r>>8].ctype==PT_PSCN && parts[i].life < 10)
+							if (parts[i].type != PT_SWCH && parts[r>>8].ctype==PT_PSCN && parts[i].life < 10)
 								parts[i].life = 10;
-							else if (parts[r>>8].ctype==PT_NSCN)
+							else if (parts[i].type != PT_SWCH && parts[r>>8].ctype==PT_NSCN)
 								parts[i].life = 9;
 							else if ((parts[i].type == PT_SWCH || parts[i].type == PT_ACTV) && parts[r>>8].ctype != PT_PSCN && parts[r>>8].ctype != PT_NSCN && !(parts[r>>8].ctype == PT_INWR && parts[r>>8].tmp == 1) && parts[i].life == 10)
 							{
@@ -97,7 +107,7 @@ int update_POWERED(UPDATE_FUNC_ARGS) {
 							}
 						}
 					}
-					if ((r&0xFF)==parts[i].type)
+					if ((r&0xFF)==parts[i].type && parts[i].type != PT_SWCH)
 					{
 						if (parts[i].life==10&&parts[r>>8].life<10&&parts[r>>8].life>0)
 							parts[i].life = 9;
