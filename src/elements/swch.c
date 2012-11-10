@@ -15,6 +15,11 @@
 
 #include <element.h>
 
+int isRedBRAY(UPDATE_FUNC_ARGS, int xc, int yc)
+{
+       return (pmap[yc][xc]&0xFF) == PT_BRAY && parts[pmap[yc][xc]>>8].tmp == 2;
+}
+
 int update_SWCH(UPDATE_FUNC_ARGS) {
 	int r, rt, rx, ry;
 	if (parts[i].life>0 && parts[i].life!=10)
@@ -45,15 +50,13 @@ int update_SWCH(UPDATE_FUNC_ARGS) {
 					}
 				}
 			}
-	//turn off SWCH from two red BRAYS
-	if (parts[i].life==10 && (!(pmap[y-1][x-1]&0xFF) && ((pmap[y-1][x]&0xFF)==PT_BRAY&&parts[pmap[y-1][x]>>8].tmp==2) && !(pmap[y-1][x+1]&0xFF) && ((pmap[y][x+1]&0xFF)==PT_BRAY&&parts[pmap[y][x+1]>>8].tmp==2)))
+	//turn SWCH on/off from two red BRAYS. There must be one either above or below, and one either left or right to work, and it can't come from the side, it must be a diagonal beam
+	if (!(pmap[y-1][x-1]&0xFF) && !(pmap[y-1][x+1]&0xFF) && (isRedBRAY(UPDATE_FUNC_SUBCALL_ARGS, x, y-1) || isRedBRAY(UPDATE_FUNC_SUBCALL_ARGS, x, y+1)) && (isRedBRAY(UPDATE_FUNC_SUBCALL_ARGS, x+1, y) || isRedBRAY(UPDATE_FUNC_SUBCALL_ARGS, x-1, y)))
 	{
-		parts[i].life = 9;
-	}
-	//turn on SWCH from two red BRAYS
-	else if (parts[i].life<=5 && (!(pmap[y-1][x-1]&0xFF) && (((pmap[y-1][x]&0xFF)==PT_BRAY&&parts[pmap[y-1][x]>>8].tmp==2) || ((pmap[y+1][x]&0xFF)==PT_BRAY&&parts[pmap[y+1][x]>>8].tmp==2)) && !(pmap[y-1][x+1]&0xFF) && (((pmap[y][x+1]&0xFF)==PT_BRAY&&parts[pmap[y][x+1]>>8].tmp==2) || ((pmap[y][x-1]&0xFF)==PT_BRAY&&parts[pmap[y][x-1]>>8].tmp==2))))
-	{
-		parts[i].life = 14;
+		if (parts[i].life == 10)
+			parts[i].life = 9;
+		else if (parts[i].life <= 5)
+			parts[i].life = 14;
 	}
 	return 0;
 }
