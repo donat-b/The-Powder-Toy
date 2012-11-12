@@ -64,6 +64,8 @@
 #include "hud.h"
 #include "benchmark.h"
 
+#include "simulation/Simulation.h"
+
 pixel *vid_buf;
 
 #define NUM_SOUNDS 2
@@ -995,6 +997,9 @@ void ctrlzSnapshot()
 }
 int main(int argc, char *argv[])
 {
+	Simulation *mainSim = new Simulation();
+	mainSim->InitElements();
+
 	pixel *part_vbuf; //Extra video buffer
 	pixel *part_vbuf_store;
 	void *http_ver_check, *http_session_check = NULL;

@@ -53,7 +53,7 @@ void LAVA_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->LowPressureTransitionElement = NT;
 	elem->HighPressureTransitionThreshold = IPH;
 	elem->HighPressureTransitionElement = NT;
-	elem->LowTemperatureTransitionThreshold = 3695.0f;
+	elem->LowTemperatureTransitionThreshold = 3695.0f; // Highest temperature at which any type of lava can solidify
 	elem->LowTemperatureTransitionElement = ST;
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
