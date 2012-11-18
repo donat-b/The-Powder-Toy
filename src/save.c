@@ -492,7 +492,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 						goto fail;
 					}
 					type = fix_type(partsData[i],saved_version, modsave);
-					if(type >= PT_NUM)
+					if(type >= PT_NUM || !ptypes[partsData[i]].enabled)
 						type = PT_DMND;	//Replace all invalid elements with diamond
 					//if (modsave && modsave < 11 && type == PT_PIPE)
 					//	type = PT_PPIP;
