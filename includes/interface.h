@@ -348,7 +348,7 @@ int execute_delete(pixel *vid_buf, char *id);
 
 int execute_report(pixel *vid_buf, char *id, char *reason);
 
-void execute_submit(pixel *vid_buf, char *id, char *message);
+int execute_submit(pixel *vid_buf, char *id, char *message);
 
 void execute_fav(pixel *vid_buf, char *id);
 

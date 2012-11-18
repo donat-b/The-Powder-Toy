@@ -5436,8 +5436,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					//Button Clicked
 					fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
 					info_box(vid_buf, "Submitting Comment...");
-					execute_submit(vid_buf, save_id, ed.str);
-					ed.str[0] = 0;
+					if (!execute_submit(vid_buf, save_id, ed.str))
+						ed.str[0] = 0;
 				}
 			}
 			if (sdl_wheel && (!ed.focus || (sdl_key != '-' && sdl_key != '+')))
@@ -6196,7 +6196,7 @@ int execute_delete(pixel *vid_buf, char *id)
 	return 1;
 }
 
-void execute_submit(pixel *vid_buf, char *id, char *message)
+int execute_submit(pixel *vid_buf, char *id, char *message)
 {
 	int status;
 	char *result;
@@ -6218,17 +6218,18 @@ void execute_submit(pixel *vid_buf, char *id, char *message)
 		error_ui(vid_buf, status, http_ret_text(status));
 		if (result)
 			free(result);
-		return;
+		return 1;
 	}
 	if (result && strncmp(result, "OK", 2))
 	{
 		error_ui(vid_buf, 0, result);
 		free(result);
-		return;
+		return 1;
 	}
 
 	if (result)
 		free(result);
+	return 0;
 }
 
 int execute_report(pixel *vid_buf, char *id, char *reason)
