@@ -1015,6 +1015,7 @@ int main(int argc, char *argv[])
 	int benchmark_enable = 0;
 	Simulation *mainSim = new Simulation();
 	mainSim->InitElements();
+	globalSim = mainSim;
 
 #ifdef PTW32_STATIC_LIB
 	pthread_win32_process_attach_np();
@@ -1033,8 +1034,6 @@ int main(int argc, char *argv[])
 			ptypes[i].name = "";
 			ptypes[i].descs = "";
 		}
-	memcpy(ptypes2,ptypes,sizeof(ptypes));
-	memcpy(ptransitions2,ptransitions,sizeof(ptransitions));
 	initIdentifiers();
 	HudDefaults();
 	memcpy(currentHud,normalHud,sizeof(currentHud));
@@ -1054,7 +1053,6 @@ int main(int argc, char *argv[])
 	numCores = core_count();
 #endif
 	menu_count();
-	parts = (particle*)calloc(sizeof(particle), NPART);
 	cb_parts = (particle*)calloc(sizeof(particle), NPART);
 	init_can_move();
 
@@ -1094,6 +1092,7 @@ int main(int argc, char *argv[])
 		memcpy(currentHud,debugHud,sizeof(currentHud));
 	else
 		memcpy(currentHud,normalHud,sizeof(currentHud));
+	memset(parts, 0, sizeof(particle)*NPART);
 	clear_sim();
 
 	for (i=1; i<argc; i++)

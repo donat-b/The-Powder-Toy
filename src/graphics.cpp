@@ -56,6 +56,9 @@
 #include "images.h"
 #endif
 
+#include "simulation/Simulation.h"
+
+
 //unsigned cmode = CM_FIRE;
 unsigned int *render_modes;
 unsigned int render_mode;
@@ -1091,7 +1094,7 @@ TPT_INLINE void drawpixel(pixel *vid, int x, int y, int r, int g, int b, int a)
 TPT_INLINE int drawchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a)
 {
 	int i, j, w, bn = 0, ba = 0;
-	char *rp = font_data + font_ptrs[c];
+	char *rp = (char*)font_data + font_ptrs[c];
 	w = *(rp++);
 	for (j=0; j<FONT_H; j++)
 		for (i=0; i<w; i++)
@@ -1111,7 +1114,7 @@ TPT_INLINE int drawchar(pixel *vid, int x, int y, int c, int r, int g, int b, in
 int addchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a)
 {
 	int i, j, w, bn = 0, ba = 0;
-	char *rp = font_data + font_ptrs[c];
+	char *rp = (char*)font_data + font_ptrs[c];
 	w = *(rp++);
 	for (j=0; j<FONT_H; j++)
 		for (i=0; i<w; i++)
@@ -2434,6 +2437,7 @@ GLfloat ablurLineC[(((YRES*XRES)*2)*4)];
 #endif
 void render_parts(pixel *vid)
 {
+	Simulation *sim = globalSim;
 	int deca, decr, decg, decb, cola, colr, colg, colb, firea, firer = 0, fireg = 0, fireb = 0, pixel_mode, q, i, t, nx, ny, x, y, caddress;
 	int orbd[4] = {0, 0, 0, 0}, orbl[4] = {0, 0, 0, 0};
 	float gradv, flicker, fnx, fny, flx, fly;
@@ -2561,7 +2565,7 @@ void render_parts(pixel *vid)
 					if (ptypes[t].graphics_func)
 					{
 #endif
-						if ((*(ptypes[t].graphics_func))(&(parts[i]), nx, ny, &pixel_mode, &cola, &colr, &colg, &colb, &firea, &firer, &fireg, &fireb)) //That's a lot of args, a struct might be better
+						if ((*(ptypes[t].graphics_func))(sim, &(parts[i]), nx, ny, &pixel_mode, &cola, &colr, &colg, &colb, &firea, &firer, &fireg, &fireb)) //That's a lot of args, a struct might be better
 						{
 							graphicscache[t].isready = 1;
 							graphicscache[t].pixel_mode = pixel_mode;
@@ -2581,7 +2585,7 @@ void render_parts(pixel *vid)
 #endif
 					else
 					{
-						if(graphics_DEFAULT(&(parts[i]), nx, ny, &pixel_mode, &cola, &colr, &colg, &colb, &firea, &firer, &fireg, &fireb))
+						if(graphics_DEFAULT(sim, &(parts[i]), nx, ny, &pixel_mode, &cola, &colr, &colg, &colb, &firea, &firer, &fireg, &fireb))
 						{
 							graphicscache[t].isready = 1;
 							graphicscache[t].pixel_mode = pixel_mode;
@@ -2639,7 +2643,7 @@ void render_parts(pixel *vid)
 				{
 					gradv = 0.4f;
 					if (!(parts[i].life<5))
-						q = (int)sqrtf(parts[i].life);
+						q = (int)sqrtf((float)parts[i].life);
 					else
 						q = parts[i].life;
 					colr = colg = colb = (int)(sin(gradv*q) * 100 + 128);

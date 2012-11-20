@@ -26,6 +26,7 @@
 #include <luaconsole.h>
 #endif
 
+#include "simulation/Simulation.h"
 
 part_type ptypes[PT_NUM];
 part_transition ptransitions[PT_NUM];
@@ -103,13 +104,13 @@ void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float
 			break;
 		case 1: //no gravity
 			angle = rand()%360;
-			*pGravX -= cosf(angle);
-			*pGravY -= sinf(angle);
+			*pGravX -= cosf((float)angle);
+			*pGravY -= sinf((float)angle);
 			break;
 		case 2: //radial gravity
 			if (x-XCNTR != 0 || y-YCNTR != 0)
 			{
-				float pGravMult = particleGrav/sqrtf((x-XCNTR)*(x-XCNTR) + (y-YCNTR)*(y-YCNTR));
+				float pGravMult = particleGrav/sqrtf((float)(x-XCNTR)*(x-XCNTR) + (y-YCNTR)*(y-YCNTR));
 				*pGravX -= pGravMult * (float)(x - XCNTR);
 				*pGravY -= pGravMult * (float)(y - YCNTR);
 			}
@@ -2268,8 +2269,8 @@ int transfer_heat(int i, int surround[8])
 		{
 			if (realistic)
 			{
-				c_heat = parts[i].temp*96.645/ptypes[t].hconduct*gel_scale*fabs(ptypes[t].weight) + hv[y/CELL][x/CELL]*100*(pv[y/CELL][x/CELL]+273.15f)/256;
-				c_Cm = 96.645/ptypes[t].hconduct*gel_scale*fabs(ptypes[t].weight) + 100*(pv[y/CELL][x/CELL]+273.15f)/256;
+				c_heat = parts[i].temp*96.645/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight) + hv[y/CELL][x/CELL]*100*(pv[y/CELL][x/CELL]+273.15f)/256;
+				c_Cm = 96.645/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight) + 100*(pv[y/CELL][x/CELL]+273.15f)/256;
 				pt = c_heat/c_Cm;
 				pt = restrict_flt(pt, -MAX_TEMP+MIN_TEMP, MAX_TEMP-MIN_TEMP);
 				parts[i].temp = pt;
@@ -2311,8 +2312,8 @@ int transfer_heat(int i, int surround[8])
 						gel_scale = parts[r>>8].tmp*2.55f;
 					else gel_scale = 1.0f;
 
-					c_heat += parts[r>>8].temp*96.645/ptypes[rt].hconduct*fabs(ptypes[rt].weight);
-					c_Cm += 96.645/ptypes[rt].hconduct*fabs(ptypes[rt].weight);
+					c_heat += parts[r>>8].temp*96.645/ptypes[rt].hconduct*fabs((float)ptypes[rt].weight);
+					c_Cm += 96.645/ptypes[rt].hconduct*fabs((float)ptypes[rt].weight);
 				}
 				else
 				{
@@ -2330,9 +2331,9 @@ int transfer_heat(int i, int surround[8])
 			if (t == PT_PHOT)
 				pt = (c_heat+parts[i].temp*96.645)/(c_Cm+96.645);
 			else
-				pt = (c_heat+parts[i].temp*96.645/ptypes[t].hconduct*gel_scale*fabs(ptypes[t].weight))/(c_Cm+96.645/ptypes[t].hconduct*gel_scale*fabs(ptypes[t].weight));
-			c_heat += parts[i].temp*96.645/ptypes[t].hconduct*gel_scale*fabs(ptypes[t].weight);
-			c_Cm += 96.645/ptypes[t].hconduct*gel_scale*fabs(ptypes[t].weight);
+				pt = (c_heat+parts[i].temp*96.645/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight))/(c_Cm+96.645/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight));
+			c_heat += parts[i].temp*96.645/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight);
+			c_Cm += 96.645/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight);
 			parts[i].temp = restrict_flt(pt, MIN_TEMP, MAX_TEMP);
 		}
 		else
@@ -2652,6 +2653,13 @@ int particle_transitions(int i)
 	return t;
 }
 
+//todo, I never really like this so maybe remove it ...
+int PCLN_update(UPDATE_FUNC_ARGS);
+int CLNE_update(UPDATE_FUNC_ARGS);
+int PBCN_update(UPDATE_FUNC_ARGS);
+int BCLN_update(UPDATE_FUNC_ARGS);
+int MOVS_update(UPDATE_FUNC_ARGS);
+
 //the main function for updating particles
 void update_particles_i(pixel *vid, int start, int inc)
 {
@@ -2929,37 +2937,37 @@ void update_particles_i(pixel *vid, int start, int inc)
 #endif
 				if (ptypes[t].properties&PROP_POWERED)
 				{
-					if (update_POWERED(i,x,y,surround_space,nt))
+					if (update_POWERED(globalSim,i,x,y,surround_space,nt))
 						continue;
 				}
 				if (ptypes[t].properties&PROP_CLONE)
 				{
 					if (ptypes[t].properties&PROP_POWERED)
-						update_PCLN(i,x,y,surround_space,nt);
+						PCLN_update(globalSim,i,x,y,surround_space,nt);
 					else
-						update_CLNE(i,x,y,surround_space,nt);
+						CLNE_update(globalSim,i,x,y,surround_space,nt);
 				}
 				else if (ptypes[t].properties&PROP_BREAKABLECLONE)
 				{
 					if (ptypes[t].properties&PROP_POWERED)
 					{
-						if (update_PBCN(i,x,y,surround_space,nt))
+						if (PBCN_update(globalSim,i,x,y,surround_space,nt))
 							continue;
 					}
 					else
 					{
-						if (update_BCLN(i,x,y,surround_space,nt))
+						if (BCLN_update(globalSim,i,x,y,surround_space,nt))
 							continue;
 					}
 				}
 				if (ptypes[t].properties&PROP_MOVS)
 				{
-					if (update_MOVS(i,x,y,surround_space,nt))
+					if (MOVS_update(globalSim,i,x,y,surround_space,nt))
 						continue;
 				}
 				if (ptypes[t].update_func)
 				{
-					if ((*(ptypes[t].update_func))(i,x,y,surround_space,nt))
+					if ((*(ptypes[t].update_func))(globalSim,i,x,y,surround_space,nt))
 						continue;
 					else if (t==PT_WARP)
 					{
@@ -2980,7 +2988,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 			}
 #endif
 			if (legacy_enable)//if heat sim is off
-				update_legacy_all(i,x,y,surround_space,nt);
+				update_legacy_all(globalSim, i,x,y,surround_space,nt);
 
 killed:
 			if (parts[i].type == PT_NONE)//if its dead, skip to next particle
