@@ -162,7 +162,6 @@ int FIGH_create_override(ELEMENT_CREATE_OVERRIDE_FUNC_ARGS)
 		sim->parts[i].lastY = (float)y;
 #endif
 		sim->parts[i].tmp = fcount;
-		sim->parts[i].temp = sim->elements[t].CreationTemperature;
 		STKM_init_legs(&fighters[fcount], i);
 		fighters[fcount].rocketBoots = 0;
 		fighters[fcount].spwn = 1;
@@ -202,7 +201,7 @@ void FIGH_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 50;
 
-	elem->CreationTemperature = R_TEMP+14.6f+273.15f;
+	elem->DefaultProperties.temp = R_TEMP+14.6f+273.15f;
 	elem->HeatConduct = 0;
 	elem->Latent = 0;
 	elem->Description = "Fighter. Tries to kill stickmen. You must first give it an element to kill him with.";

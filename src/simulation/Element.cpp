@@ -39,7 +39,6 @@ Element::Element():
 	Meltable(0),
 	Hardness(0),
 	Weight(100),
-	CreationTemperature(R_TEMP + 273.15f),
 	HeatConduct(255),
 	Latent(0),
 	Description(""),
@@ -59,4 +58,5 @@ Element::Element():
 	Func_Create_Override(NULL)
 {
 	memset(&DefaultProperties, 0, sizeof(particle));
+	DefaultProperties.temp = R_TEMP + 273.15f;
 }

@@ -43,7 +43,7 @@ void VRSG_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 1;
 
-	elem->CreationTemperature = R_TEMP+500.0f+273.15f;
+	elem->DefaultProperties.temp = 522.0f + 273.15f;
 	elem->HeatConduct = 251;
 	elem->Latent = 0;
 	elem->Description = "Gas Virus. Turns everything it touches into virus.";

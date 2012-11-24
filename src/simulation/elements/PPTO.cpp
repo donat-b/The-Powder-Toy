@@ -59,7 +59,7 @@ void PPTO_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 100;
 
-	elem->CreationTemperature = R_TEMP	+273.15f;
+	elem->DefaultProperties.temp = R_TEMP + 273.15f;
 	elem->HeatConduct = 0;
 	elem->Latent = 0;
 	elem->Description = "Powered Portal OUT, can be turned on/off.";
