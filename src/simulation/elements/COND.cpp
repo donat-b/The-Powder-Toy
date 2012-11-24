@@ -58,6 +58,8 @@ void COND_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
+	elem->DefaultProperties.life = 60;
+
 	elem->Update = NULL;
 	elem->Graphics = NULL;
 }

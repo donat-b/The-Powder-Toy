@@ -378,7 +378,7 @@ void clear_sim()
 	for (i=0; i<NPART-1; i++)
 		parts[i].life = i+1;
 	parts[NPART-1].life = -1;
-	pfree = 0;
+	globalSim->pfree = 0;
 	parts_lastActiveIndex = 0;
 	memset(pmap, 0, sizeof(pmap));
 	memset(pv, 0, sizeof(pv));
@@ -832,7 +832,7 @@ int main(int argc, char *argv[])
 	for (i=0; i<NPART-1; i++)
 		parts[i].life = i+1;
 	parts[NPART-1].life = -1;
-	pfree = 0;
+	globalSim->pfree = 0;
 
 	pers_bg = (pixel*)calloc((XRES+BARSIZE)*YRES, PIXELSIZE);
 	
@@ -2693,7 +2693,7 @@ int main(int argc, char *argv[])
 						for (i=0; i<NPART-1; i++)
 							parts[i].life = i+1;
 						parts[NPART-1].life = -1;
-						pfree = 0;
+						globalSim->pfree = 0;
 					}
 					if (x>=(XRES+BARSIZE-(510-385)) && x<=(XRES+BARSIZE-(510-476)))
 					{
@@ -3259,7 +3259,7 @@ int main(int argc, char *argv[])
 				player2.elem = PT_DUST;
 		}
 
-#ifndef _DEBUG
+#if !defined(DEBUG) && !defined(_DEBUG)
 	if (!signal_hooks)
 	{
 		signal(SIGSEGV, SigHandler);

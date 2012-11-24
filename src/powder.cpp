@@ -56,8 +56,6 @@ unsigned char emap[YRES/CELL][XRES/CELL];
 unsigned char cb_bmap[YRES/CELL][XRES/CELL];
 unsigned char cb_emap[YRES/CELL][XRES/CELL];
 
-int pfree;
-
 unsigned pmap[YRES][XRES];
 int pmap_count[YRES][XRES];
 unsigned cb_pmap[YRES][XRES];
@@ -89,7 +87,7 @@ unsigned char gol[YRES][XRES];
 short gol2[YRES][XRES][9];
 
 float msvx[256], msvy[256], msrotation[256], newmsrotation[256];
-int msindex[256], msnum[256], numballs = 0, creatingsolid = 1, ms_rotation = 0;
+int msindex[256], msnum[256], numballs = 0, ms_rotation = 0;
 
 void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float *pGravX, float *pGravY)
 {
@@ -896,9 +894,7 @@ void kill_part(int i)//kills particle number i
 			photons[y][x] = 0;
 	}
 
-	parts[i].type = PT_NONE;
-	parts[i].life = pfree;
-	pfree = i;
+	globalSim->part_free(i);
 }
 
 TPT_INLINE void part_change_type(int i, int x, int y, int t)//changes the type of particle number i, to t.  This also changes pmap at the same time.
@@ -971,7 +967,7 @@ TPT_INLINE void part_change_type(int i, int x, int y, int t)//changes the type o
 	}
 }
 
-TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creating a particle, use p=-1 for creating a new particle, -2 is from a brush, or a particle number to replace a particle.
+int create_part(int p, int x, int y, int tv)//the function for creating a particle, use p=-1 for creating a new particle, -2 is from a brush, or a particle number to replace a particle.
 {
 	int i;
 
@@ -1086,32 +1082,7 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 			parts[index].temp = parts[index].temp+10.0f;
 		return index;
 	}
-	if (t==PT_SPAWN&&ISSPAWN1)
-		return -1;
-	if (t==PT_SPAWN2&&ISSPAWN2)
-		return -1;
-	if (p==-1)//creating from anything but brush
-	{
-		// If there is a particle, only allow creation if the new particle can occupy the same space as the existing particle
-		// If there isn't a particle but there is a wall, check whether the new particle is allowed to be in it
-		//   (not "!=2" for wall check because eval_move returns 1 for moving into empty space)
-		// If there's no particle and no wall, assume creation is allowed
-		if (pmap[y][x] ? (eval_move(t, x, y, NULL)!=2) : (bmap[y/CELL][x/CELL] && eval_move(t, x, y, NULL)==0))
-		{
-			if ((pmap[y][x]&0xFF)!=PT_SPAWN&&(pmap[y][x]&0xFF)!=PT_SPAWN2)
-			{
-				if (t!=PT_STKM&&t!=PT_STKM2&&t!=PT_FIGH)
-				{
-					return -1;
-				}
-			}
-		}
-		if (pfree == -1)
-			return -1;
-		i = pfree;
-		pfree = parts[i].life;
-	}
-	else if (p==-2)//creating from brush
+	if (p==-2)//creating from brush
 	{
 		if (pmap[y][x])
 		{
@@ -1137,6 +1108,7 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 		}
 		if (photons[y][x] && (ptypes[t].properties & TYPE_ENERGY))
 			return -1;
+/*<<<<<<< HEAD:src/powder.cpp
 		if (pfree == -1)
 			return -1;
 		i = pfree;
@@ -1307,7 +1279,7 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 		  case PT_WOOD:
 		  parts[i].life = 150;
 		  break;
-		  End Testing*/
+		  End Testing*
 		case PT_WARP:
 			parts[i].life = rand()%95+70;
 			break;
@@ -1554,8 +1526,18 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 		colg = colg>255 ? 255 : (colg<0 ? 0 : colg);
 		colb = colb>255 ? 255 : (colb<0 ? 0 : colb);
 		parts[i].dcolour = 0xFF000000 | (colr<<16) | (colg<<8) | colb;
+=======*/
 	}
-	
+	i = globalSim->part_create(p, x, y, t);
+	if (t==PT_LIFE && i>=0)
+	{
+		if (v < NGOL)
+		{
+			parts[i].tmp = grule[v+1][9] - 1;
+			parts[i].ctype = v;
+		}
+//>>>>>>> 355438f... Simulation::part_create.:src/powder.c
+	}
 	return i;
 }
 
@@ -1583,10 +1565,6 @@ static void create_gain_photon(int pp)//photons from PHOT going through GLOW
 	float xx, yy;
 	int i, lr, temp_bin, nx, ny;
 
-	if (pfree == -1)
-		return;
-	i = pfree;
-
 	lr = rand() % 2;
 
 	if (lr) {
@@ -1606,19 +1584,16 @@ static void create_gain_photon(int pp)//photons from PHOT going through GLOW
 	if ((pmap[ny][nx] & 0xFF) != PT_GLOW)
 		return;
 
-	pfree = parts[i].life;
-	if (i>parts_lastActiveIndex) parts_lastActiveIndex = i;
+	i = globalSim->part_create(-1, nx, ny, PT_PHOT);
+	if (i<0)
+		return;
 
-	parts[i].type = PT_PHOT;
 	parts[i].life = 680;
 	parts[i].x = xx;
 	parts[i].y = yy;
 	parts[i].vx = parts[pp].vx;
 	parts[i].vy = parts[pp].vy;
 	parts[i].temp = parts[pmap[ny][nx] >> 8].temp;
-	parts[i].tmp = 0;
-	parts[i].pavg[0] = parts[i].pavg[1] = 0.0f;
-	photons[ny][nx] = PT_PHOT|(i<<8);
 
 	temp_bin = (int)((parts[i].temp-273.0f)*0.25f);
 	if (temp_bin < 0) temp_bin = 0;
@@ -1631,10 +1606,6 @@ static void create_cherenkov_photon(int pp)//photons from NEUT going through GLA
 	int i, lr, nx, ny;
 	float r, eff_ior;
 
-	if (pfree == -1)
-		return;
-	i = pfree;
-
 	nx = (int)(parts[pp].x + 0.5f);
 	ny = (int)(parts[pp].y + 0.5f);
 	if ((pmap[ny][nx] & 0xFF) != PT_GLAS)
@@ -1643,20 +1614,18 @@ static void create_cherenkov_photon(int pp)//photons from NEUT going through GLA
 	if (hypotf(parts[pp].vx, parts[pp].vy) < 1.44f)
 		return;
 
-	pfree = parts[i].life;
-	if (i>parts_lastActiveIndex) parts_lastActiveIndex = i;
+	i = globalSim->part_create(-1, nx, ny, PT_PHOT);
+	if (i<0)
+		return;
 
 	lr = rand() % 2;
 
-	parts[i].type = PT_PHOT;
 	parts[i].ctype = 0x00000F80;
 	parts[i].life = 680;
 	parts[i].x = parts[pp].x;
 	parts[i].y = parts[pp].y;
 	parts[i].temp = parts[pmap[ny][nx] >> 8].temp;
-	parts[i].tmp = 0;
 	parts[i].pavg[0] = parts[i].pavg[1] = 0.0f;
-	photons[ny][nx] = PT_PHOT|(i<<8);
 
 	if (lr) {
 		parts[i].vx = parts[pp].vx - 2.5f*parts[pp].vy;
@@ -3494,6 +3463,7 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 	int i, x, y, t;
 	int lastPartUsed = 0;
 	int lastPartUnused = -1;
+	int pfree = globalSim->pfree;
 #ifdef MT
 	int pt = 0, pc = 0;
 	pthread_t *InterThreads;
@@ -3554,6 +3524,7 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 		if (parts_lastActiveIndex>=NPART-1) parts[lastPartUnused].life = -1;
 		else parts[lastPartUnused].life = parts_lastActiveIndex+1;
 	}
+	globalSim->pfree = pfree;
 	parts_lastActiveIndex = lastPartUsed;
 	if (!sys_pause||framerender)
 	{
@@ -4298,18 +4269,39 @@ int create_parts2(int f, int x, int y, int c, int rx, int ry, int flags)
 
 void create_moving_solid(int x, int y, int rx, int ry, int type)
 {
-	int i, j, index;
-	creatingsolid = 0;
+	int index, i, j;
+	//max of 255 moving solids for now
 	if (numballs >= 255)
 		return;
-	create_part(-2, x, y, type);
-	if (!creatingsolid)
+
+	//create the center "control" particle, set it's default properties and init moving solid variables
+	index = create_part(-2, x, y, type);
+	if (index < 0)
 		return;
+	parts[index].tmp2 = numballs;
+	parts[index].pavg[0] = 0;
+	parts[index].pavg[1] = 0;
+	msindex[numballs] = index+1;
+	msnum[numballs] = 1;
+	msvx[numballs] = 0;
+	msvy[numballs] = 0;
+	msrotation[numballs] = 0;
+
+	numballs = numballs + 1;
+
 	for (j=-ry; j<=ry; j++)
 		for (i=-rx; i<=rx; i++)
-			if (InCurrentBrush(i ,j ,rx ,ry))
-				create_part(-2, x+i, y+j, type);
-	creatingsolid = 1;
+			if (InCurrentBrush(i ,j ,rx ,ry) && (i || j))
+			{
+				index = create_part(-2, x+i, y+j, type);
+				if (index < 0)
+					return;
+				//set which ball # it belongs to, and which position in the ball it is
+				parts[index].tmp2 = numballs-1;
+				parts[index].pavg[0] = x+i - parts[msindex[numballs-1]-1].x;
+				parts[index].pavg[1] = y+j - parts[msindex[numballs-1]-1].y;
+				msnum[numballs-1]++;
+			}
 }
 
 int InCurrentBrush(int i, int j, int rx, int ry)

@@ -15,7 +15,7 @@
 
 #include "simulation/ElementsCommon.h"
 
-int ICEI_update(UPDATE_FUNC_ARGS)
+int ICE_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
 	if (parts[i].ctype==PT_FRZW)//get colder if it is from FRZW
@@ -83,6 +83,8 @@ void ICEI_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = 252.05f;
 	elem->HighTemperatureTransitionElement = ST;
 
-	elem->Update = &ICEI_update;
+	elem->DefaultProperties.ctype = PT_WATR;
+
+	elem->Update = &ICE_update;
 	elem->Graphics = NULL;
 }

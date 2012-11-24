@@ -60,6 +60,8 @@ void VRSS_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = 305.0f;
 	elem->HighTemperatureTransitionElement = PT_VIRS;
 
+	elem->DefaultProperties.pavg[1] = 100;
+
 	elem->Update = &VIRS_update;
 	elem->Graphics = NULL;
 }

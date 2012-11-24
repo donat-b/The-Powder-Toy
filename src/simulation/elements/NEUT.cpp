@@ -15,7 +15,7 @@
 
 #include "simulation/ElementsCommon.h"
 
-int DeutExplosion(int n, int x, int y, float temp, int t)
+int DeutExplosion(Simulation *sim, int n, int x, int y, float temp, int t)
 {
 	int i, c;
 	n = (n/50);
@@ -27,7 +27,7 @@ int DeutExplosion(int n, int x, int y, float temp, int t)
 	}
 	for (c=0; c<n; c++)
 	{
-		i = create_part(-3, x, y, t);
+		i = sim->part_create(-3, x, y, t);
 		if (i > -1)
 			parts[i].temp = temp;
 		pv[y/CELL][x/CELL] += 6.0f * CFDS;
@@ -75,7 +75,7 @@ int NEUT_update(UPDATE_FUNC_ARGS)
 #ifdef SDEUT
 				else if ((r&0xFF)==PT_DEUT && (pressureFactor+1+(parts[r>>8].life/100))>(rand()%1000))
 				{
-					DeutExplosion(parts[r>>8].life, x+rx, y+ry, restrict_flt(parts[r>>8].temp + parts[r>>8].life*500, MIN_TEMP, MAX_TEMP), PT_NEUT);
+					DeutExplosion(sim, parts[r>>8].life, x+rx, y+ry, restrict_flt(parts[r>>8].temp + parts[r>>8].life*500, MIN_TEMP, MAX_TEMP), PT_NEUT);
 					kill_part(r>>8);
 				}
 #else
@@ -149,6 +149,15 @@ int NEUT_graphics(GRAPHICS_FUNC_ARGS)
 	return 1;
 }
 
+void NEUT_create(ELEMENT_CREATE_FUNC_ARGS)
+{
+	float r = (rand()%128+128)/127.0f;
+	float a = (rand()%360)*3.14159f/180.0f;
+	sim->parts[i].life = rand()%480+480;
+	sim->parts[i].vx = r*cosf(a);
+	sim->parts[i].vy = r*sinf(a);
+}
+
 void NEUT_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_NEUT";
@@ -194,4 +203,5 @@ void NEUT_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &NEUT_update;
 	elem->Graphics = &NEUT_graphics;
+	elem->Func_Create = &NEUT_create;
 }

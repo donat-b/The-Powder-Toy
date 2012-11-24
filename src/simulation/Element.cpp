@@ -18,7 +18,7 @@
 
 #include "powder.h"
 
-Element::Element() :
+Element::Element():
 	Identifier(""),
 	Name(""),
 	Colour(PIXPACK(0xFFFFFF)),
@@ -54,7 +54,9 @@ Element::Element() :
 	HighTemperatureTransitionThreshold(ITH),
 	HighTemperatureTransitionElement(NT),
 	Update(NULL),
-	Graphics(NULL)
+	Graphics(NULL),
+	Func_Create(NULL),
+	Func_Create_Override(NULL)
 {
-	;
+	memset(&DefaultProperties, 0, sizeof(particle));
 }

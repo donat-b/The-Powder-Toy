@@ -60,6 +60,8 @@ void VRSG_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
+	elem->DefaultProperties.pavg[1] = 100;
+
 	elem->Update = &VIRS_update;
 	elem->Graphics = NULL;
 }

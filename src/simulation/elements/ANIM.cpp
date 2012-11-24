@@ -69,6 +69,20 @@ int ANIM_update(UPDATE_FUNC_ARGS)
 	ISANIM = 1;
 	return 0;
 }
+
+void ANIM_create(ELEMENT_CREATE_FUNC_ARGS)
+{
+	sim->parts[i].animations = (unsigned int*)calloc(maxframes,sizeof(unsigned int));
+	if (sim->parts[i].animations == NULL)
+	{
+		//return -1; //it will just be deleted later anyway, don't deal with override functions for now until I have everything merged and can figure this all out.
+		return;
+	}
+	memset(sim->parts[i].animations, 0, sizeof(sim->parts[i].animations));
+	sim->parts[i].life = 10;
+	sim->parts[i].tmp = 1;
+}
+
 void ANIM_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_ANIM";
@@ -114,4 +128,5 @@ void ANIM_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &ANIM_update;
 	elem->Graphics = NULL;
+	elem->Func_Create = &ANIM_create;
 }

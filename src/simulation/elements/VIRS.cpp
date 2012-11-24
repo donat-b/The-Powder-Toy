@@ -121,6 +121,8 @@ void VIRS_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = 673.0f;
 	elem->HighTemperatureTransitionElement = PT_VRSG;
 
+	elem->DefaultProperties.pavg[1] = 100;
+
 	elem->Update = &VIRS_update;
 	elem->Graphics = NULL;
 }
