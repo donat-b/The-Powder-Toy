@@ -47,10 +47,10 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS)
 	{
 		for (r=-2; r<=1; r++)
 		{
-			create_part(-1, x+r, y-2, playerp->elem);
-			create_part(-1, x+r+1, y+2, playerp->elem);
-			create_part(-1, x-2, y+r+1, playerp->elem);
-			create_part(-1, x+2, y+r, playerp->elem);
+			sim->part_create(-1, x+r, y-2, playerp->elem);
+			sim->part_create(-1, x+r+1, y+2, playerp->elem);
+			sim->part_create(-1, x-2, y+r+1, playerp->elem);
+			sim->part_create(-1, x+2, y+r, playerp->elem);
 		}
 		kill_part(i);  //Kill him
 		return 1;
@@ -198,7 +198,7 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS)
 				if (leg==1 && (((int)(playerp->comm)&0x02) == 0x02))
 					continue;
 				footX = (int)playerp->legs[leg*8+4], footY = (int)playerp->legs[leg*8+5];
-				np = create_part(-1, footX, footY, PT_PLSM);
+				np = sim->part_create(-1, footX, footY, PT_PLSM);
 				if (np>=0)
 				{
 					parts[np].vx = parts[i].vx+rby*25;
@@ -250,7 +250,7 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS)
 				if (leg==0 && (((int)(playerp->comm)&0x01) == 0x01))
 					continue;
 				footX = (int)playerp->legs[leg*8+4], footY = (int)playerp->legs[leg*8+5];
-				np = create_part(-1, footX, footY, PT_PLSM);
+				np = sim->part_create(-1, footX, footY, PT_PLSM);
 				if (np>=0)
 				{
 					parts[np].vx = parts[i].vx-rby*25;
@@ -286,7 +286,7 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS)
 			for (leg=0; leg<2; leg++)
 			{
 				int footX = (int)playerp->legs[leg*8+4], footY = (int)playerp->legs[leg*8+5];
-				int np = create_part(-1, footX, footY+1, PT_PLSM);
+				int np = sim->part_create(-1, footX, footY+1, PT_PLSM);
 				if (np>=0)
 				{
 					parts[np].vx = parts[i].vx+rbx*30;
@@ -373,6 +373,7 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS)
 		r = pmap[ry][rx];
 		if (ptypes[r&0xFF].state == ST_SOLID)
 		{
+			// TODO: change this create_part
 			create_part(-1, rx, ry, PT_SPRK);
 			playerp->frames = 0;
 		}
@@ -389,7 +390,7 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS)
 			else if (playerp->elem==PT_LIGH && playerp->frames<30)//limit lightning creation rate
 				np = -1;
 			else
-				np = create_part(-1, rx, ry, playerp->elem);
+				np = sim->part_create(-1, rx, ry, playerp->elem);
 			if ( (np < NPART) && np>=0)
 			{
 				if (playerp->elem == PT_PHOT)
@@ -689,7 +690,7 @@ int STKM_create_override(ELEMENT_CREATE_OVERRIDE_FUNC_ARGS)
 	player.rocketBoots = 0;
 	player.spwn = 1;
 
-	create_part(-3, x, y, PT_SPAWN);
+	sim->part_create(-3, x, y, PT_SPAWN);
 
 	sim->elementCount[t]++;
 	sim->pmap_add(i, x, y, t);

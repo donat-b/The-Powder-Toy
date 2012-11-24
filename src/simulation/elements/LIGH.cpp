@@ -57,9 +57,9 @@ int contact_part(int i, int tp)
 	return -1;
 }
 
-int create_LIGH(int x, int y, int c, int temp, int life, int tmp, int tmp2)
+int create_LIGH(Simulation *sim, int x, int y, int c, int temp, int life, int tmp, int tmp2)
 {
-	int p = create_part(-1, x, y,c);
+	int p = sim->part_create(-1, x, y,c);
 	if (p != -1)
 	{
 		parts[p].life = life;
@@ -76,7 +76,7 @@ int create_LIGH(int x, int y, int c, int temp, int life, int tmp, int tmp2)
 	return 0;
 }
 
-void create_line_par(int x1, int y1, int x2, int y2, int c, int temp, int life, int tmp, int tmp2)
+void create_line_par(Simulation *sim, int x1, int y1, int x2, int y2, int c, int temp, int life, int tmp, int tmp2)
 {
 	int reverseXY=abs(y2-y1)>abs(x2-x1), back = 0, x, y, dx, dy, Ystep;
 	float e = 0.0f, de;
@@ -107,9 +107,9 @@ void create_line_par(int x1, int y1, int x2, int y2, int c, int temp, int life, 
 		{
 			int ret;
 			if (reverseXY)
-				ret = create_LIGH(y, x, c, temp, life, tmp, tmp2);
+				ret = create_LIGH(sim, y, x, c, temp, life, tmp, tmp2);
 			else
-				ret = create_LIGH(x, y, c, temp, life, tmp, tmp2);
+				ret = create_LIGH(sim, x, y, c, temp, life, tmp, tmp2);
 			if (ret)
 				return;
 
@@ -127,9 +127,9 @@ void create_line_par(int x1, int y1, int x2, int y2, int c, int temp, int life, 
 		{
 			int ret;
 			if (reverseXY)
-				ret = create_LIGH(y, x, c, temp, life, tmp, tmp2);
+				ret = create_LIGH(sim, y, x, c, temp, life, tmp, tmp2);
 			else
-				ret = create_LIGH(x, y, c, temp, life, tmp, tmp2);
+				ret = create_LIGH(sim, x, y, c, temp, life, tmp, tmp2);
 			if (ret)
 				return;
 
@@ -183,6 +183,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 					{
 						if ((ptypes[r&0xFF].properties&PROP_CONDUCTS) && parts[r>>8].life==0)
 						{
+							// TODO: change this create_part
 							create_part(r>>8,x+rx,y+ry,PT_SPRK);
 						}
 						pv[y/CELL][x/CELL] += powderful/400;
@@ -261,7 +262,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 			angle_diff = M_PI*2 - angle_diff;
 		if (parts[i].life<5 || angle_diff<M_PI*0.8) // lightning strike
 		{
-			create_line_par(x, y, x+rx, y+ry, PT_LIGH, (int)parts[i].temp, parts[i].life, parts[i].tmp-90, 0);
+			create_line_par(sim, x, y, x+rx, y+ry, PT_LIGH, (int)parts[i].temp, parts[i].life, parts[i].tmp-90, 0);
 
 			if (t!=PT_TESC)
 			{
@@ -297,7 +298,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 	multipler=(int)(parts[i].life*1.5+rand()%((int)(parts[i].life+1)));
 	rx=(int)(cos(angle*M_PI/180)*multipler);
 	ry=(int)(-sin(angle*M_PI/180)*multipler);
-	create_line_par(x, y, x+rx, y+ry, PT_LIGH, (int)parts[i].temp, parts[i].life, (int)angle, 0);
+	create_line_par(sim, x, y, x+rx, y+ry, PT_LIGH, (int)parts[i].temp, parts[i].life, (int)angle, 0);
 
 	if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
 	{
@@ -316,7 +317,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 		multipler=(int)(parts[i].life*1.5+rand()%((int)(parts[i].life+1)));
 		rx=(int)(cos(angle2*M_PI/180)*multipler);
 		ry=(int)(-sin(angle2*M_PI/180)*multipler);
-		create_line_par(x, y, x+rx, y+ry, PT_LIGH, (int)parts[i].temp, parts[i].life, (int)angle2, 0);
+		create_line_par(sim, x, y, x+rx, y+ry, PT_LIGH, (int)parts[i].temp, parts[i].life, (int)angle2, 0);
 
 		if (BOUNDS_CHECK && (rx || ry))
 		{

@@ -38,7 +38,7 @@ int BOMB_update(UPDATE_FUNC_ARGS)
 								if (!(ptypes[pmap[y+nxj][x+nxi]&0xFF].properties&PROP_INDESTRUCTIBLE) && !(ptypes[pmap[y+nxj][x+nxi]&0xFF].properties&PROP_CLONE) && (pmap[y+nxj][x+nxi]&0xFF)!=PT_VIBR) {
 									delete_part(x+nxi, y+nxj, 0);
 									pv[(y+nxj)/CELL][(x+nxi)/CELL] += 0.1f;
-									nb = create_part(-3, x+nxi, y+nxj, PT_EMBR);
+									nb = sim->part_create(-3, x+nxi, y+nxj, PT_EMBR);
 									if (nb!=-1) {
 										parts[nb].tmp = 2;
 										parts[nb].life = 2;
@@ -48,7 +48,7 @@ int BOMB_update(UPDATE_FUNC_ARGS)
 					for (nxj=-(rad+1); nxj<=(rad+1); nxj++)
 						for (nxi=-(rad+1); nxi<=(rad+1); nxi++)
 							if ((pow((float)nxi,2.0f))/(pow((float)(rad+1),2.0f))+(pow((float)nxj,2.0f))/(pow((float)(rad+1),2.0f))<=1 && !(pmap[y+nxj][x+nxi]&0xFF)) {
-								nb = create_part(-3, x+nxi, y+nxj, PT_EMBR);
+								nb = sim->part_create(-3, x+nxi, y+nxj, PT_EMBR);
 								if (nb!=-1) {
 									parts[nb].tmp = 0;
 									parts[nb].life = 50;

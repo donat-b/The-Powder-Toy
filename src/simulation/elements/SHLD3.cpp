@@ -27,7 +27,7 @@ int SHLD3_update(UPDATE_FUNC_ARGS)
 				{
 					if (1>rand()%2500)
 					{
-						np = create_part(-1,x+rx,y+ry,PT_SHLD1);
+						np = sim->part_create(-1,x+rx,y+ry,PT_SHLD1);
 						if (np<0) continue;
 						parts[np].life=7;
 						part_change_type(i,x,y,PT_SHLD2);
@@ -54,7 +54,7 @@ int SHLD3_update(UPDATE_FUNC_ARGS)
 
 							if (!pmap[y+ry+nny][x+rx+nnx])
 							{
-								np = create_part(-1,x+rx+nnx,y+ry+nny,PT_SHLD1);
+								np = sim->part_create(-1,x+rx+nnx,y+ry+nny,PT_SHLD1);
 								if (np<0) continue;
 								parts[np].life=7;
 							}

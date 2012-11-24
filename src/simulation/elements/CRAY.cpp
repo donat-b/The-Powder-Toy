@@ -84,6 +84,7 @@ int CRAY_update(UPDATE_FUNC_ARGS)
 							r = pmap[y+nyi+nyy][x+nxi+nxx];
 							if (!IsWallBlocking(x+nxi+nxx, y+nyi+nyy, parts[i].ctype) && (!pmap[y+nyi+nyy][x+nxi+nxx] || createSpark)) { // create, also set color if it has passed through FILT
 								int nr;
+								// TODO: change these create_parts
 								if (parts[i].ctype == PT_LIFE)
 									nr = create_part(-1, x+nxi+nxx, y+nyi+nyy, parts[i].ctype|(parts[i].tmp2<<8));
 								else

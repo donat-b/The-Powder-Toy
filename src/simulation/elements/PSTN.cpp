@@ -244,7 +244,7 @@ int PSTN_update(UPDATE_FUNC_ARGS)
 										int j;
 										//Create new piston section
 										for(j = 0; j < newSpace; j++) {
-											int nr = create_part(-3, pistonEndX+(nxi*j), pistonEndY+(nyi*j), PT_PSTN);
+											int nr = sim->part_create(-3, pistonEndX+(nxi*j), pistonEndY+(nyi*j), PT_PSTN);
 											if (nr > -1) {
 												parts[nr].life = 1;
 												if (parts[i].dcolour)
