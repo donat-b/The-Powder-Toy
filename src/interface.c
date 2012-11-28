@@ -3301,6 +3301,8 @@ void menu_select_element(int b, int h)
 		else if (h >= DECO_PRESET_START && h < DECO_PRESET_START+NUM_COLOR_PRESETS)
 		{
 			decocolor = (255<<24)|colorlist[h-DECO_PRESET_START].colour;
+			currR = PIXR(decocolor), currG = PIXG(decocolor), currB = PIXB(decocolor), currA = decocolor>>24;
+			RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
 		}
 		else if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
 		{
@@ -7092,8 +7094,11 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	else if (mx > XRES || my > YRES)//mouse outside normal drawing area
 	{
 		//hide/show button
-		if (!zoom_en && b && !bq && mx >= 295 && mx <= 295+25 && my >= YRES+5 && my<= YRES+5+12)
+		if (b && !bq && mx >= 295 && mx <= 295+25 && my >= YRES+5 && my<= YRES+5+12)
+		{
 			decobox_hidden = !decobox_hidden;
+			zoom_en = 0;
+		}
 	}
 	if (sdl_key==SDLK_RIGHT && framenum < maxframes-1)
 	{

@@ -2763,6 +2763,8 @@ int main(int argc, char *argv[])
 									if (cg && cg<255) cg++;
 									if (cb && cb<255) cb++;
 									decocolor = (255<<24)|PIXRGB(cr, cg, cb);
+									currR = PIXR(decocolor), currG = PIXG(decocolor), currB = PIXB(decocolor), currA = decocolor>>24;
+									RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
 								}
 							}
 							else

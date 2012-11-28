@@ -2682,6 +2682,8 @@ int luatpt_set_decocolor(lua_State* l)
 		color = (a << 24) + PIXRGB(r, g, b);
 	}
 	decocolor = color;
+	currR = PIXR(decocolor), currG = PIXG(decocolor), currB = PIXB(decocolor), currA = decocolor>>24;
+	RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
 	return 0;
 }
 

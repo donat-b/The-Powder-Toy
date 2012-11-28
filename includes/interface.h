@@ -268,6 +268,13 @@ extern ui_edit box_R;
 extern ui_edit box_G;
 extern ui_edit box_B;
 extern ui_edit box_A;
+extern int currR;
+extern int currG;
+extern int currB;
+extern int currA;
+extern int currH;
+extern int currS;
+extern int currV ;
 
 void menu_count(void);
 
