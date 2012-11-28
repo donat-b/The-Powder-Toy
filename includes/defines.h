@@ -300,6 +300,7 @@ extern int ISLOVE;
 extern int ISLOLZ;
 extern int ISGRAV;
 extern int ISWIRE;
+extern int ISANIM;
 extern int GSPEED;
 extern int love[XRES/9][YRES/9];
 extern int lolz[XRES/9][YRES/9];

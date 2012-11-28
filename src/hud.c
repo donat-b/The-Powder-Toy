@@ -321,6 +321,12 @@ void hud_text_left(float FPSB2, int it)
 		sprintf(tempstring, "[GRID: %d] ", GRID_MODE);
 		strappend(uitext, tempstring);
 	}
+	if (active_menu == SC_DECO && ISANIM)
+	{
+		sprintf(tempstring,"[Frame %i/%i] ",framenum+1,maxframes);
+		strappend(uitext, tempstring);
+		ISANIM = 0;
+	}
 #ifdef INTERNAL
 	if (vs)
 		strappend(uitext, "[FRAME CAPTURE]");

@@ -2803,6 +2803,36 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 				}
 			}
 		}
+		x = 6;
+		for (n = DECO_PRESET_START; n < DECO_PRESET_START+NUM_COLOR_PRESETS; n++)
+		{
+			if (!bq && mx>=x-1 && mx<x+27 && my>=y && my< y+15)
+			{
+				drawrect(vid_buf, x-1, y-1, 29, 17, 255, 55, 55, 255);
+				el = n;
+			}
+			if (!bq && mx>=x-1 && mx<x+27 && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
+			{
+				drawrect(vid_buf, x-1, y-1, 29, 17, 0, 255, 255, 255);
+			}
+			else if (!bq && mx>=x-1 && mx<x+27 && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
+			{
+				drawrect(vid_buf, x-1, y-1, 29, 17, 0, 255, 0, 255);
+			}
+			else if (n==sl)
+			{
+				drawrect(vid_buf, x-1, y-1, 29, 17, 255, 55, 55, 255);
+			}
+			else if (n==sr)
+			{
+				drawrect(vid_buf, x-1, y-1, 29, 17, 55, 55, 255, 255);
+			}
+			else if (n==SLALT)
+			{
+				drawrect(vid_buf, x-1-xoff, y-1, 29, 17, 0, 255, 255, 255);
+			}
+			x += draw_tool_xy(vid_buf, x, y, n, colorlist[n-DECO_PRESET_START].colour)+5;
+		}
 	}
 	else if(i==SC_LIFE)
 	{
@@ -3123,6 +3153,10 @@ void menu_draw_text(int h, int i)
 	{
 		drawtext(vid_buf, XRES-textwidth((char *)gmenu[(h>>8)&0xFF].description)-BARSIZE, sy-10, (char *)gmenu[(h>>8)&0xFF].description, 255, 255, 255, dae*5);
 	}
+	else if (h >= DECO_PRESET_START && h < DECO_PRESET_START + NUM_COLOR_PRESETS)
+	{
+		drawtext(vid_buf, XRES-textwidth((char *)colorlist[h-DECO_PRESET_START].descs)-BARSIZE, sy-10, (char *)colorlist[h-DECO_PRESET_START].descs, 255, 255, 255, dae*5);
+	}
 	else //if (h >= UI_WALLSTART)
 	{
 		drawtext(vid_buf, XRES-textwidth((char *)wtypes[h-UI_WALLSTART].descs)-BARSIZE, sy-10, (char *)wtypes[h-UI_WALLSTART].descs, 255, 255, 255, dae*5);
@@ -3263,6 +3297,10 @@ void menu_select_element(int b, int h)
 						memcpy(hud_normal,hud_current,sizeof(hud_normal));
 				}
 			}
+		}
+		else if (h >= DECO_PRESET_START && h < DECO_PRESET_START+NUM_COLOR_PRESETS)
+		{
+			decocolor = (255<<24)|colorlist[h-DECO_PRESET_START].colour;
 		}
 		else if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
 		{
@@ -6847,9 +6885,9 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	//drawrect(vid_buf, -1, -1, XRES+1, YRES+1, 220, 220, 220, 255);
 	//drawrect(vid_buf, -1, -1, XRES+2, YRES+2, 70, 70, 70, 255);
 	//drawtext(vid_buf, 2, 388, "Welcome to the decoration editor v.3 (by cracker64) \n\nClicking the current color on the window will move it to the other side. Right click is eraser. ", 255, 255, 255, 255);
-	drawtext(vid_buf, 2, 388, "Welcome to the decoration editor v.4 (by cracker64/jacob1)", 255, 255, 255, 255);
-	sprintf(frametext,"Frame %i/%i",framenum+1,maxframes);
-	drawtext(vid_buf, 2, 399, frametext, 255, 255, 255, 255);
+	//drawtext(vid_buf, 2, 388, "Welcome to the decoration editor v.4 (by cracker64/jacob1)", 255, 255, 255, 255);
+	//sprintf(frametext,"Frame %i/%i",framenum+1,maxframes);
+	//drawtext(vid_buf, 2, 399, frametext, 255, 255, 255, 255);
 
 	if(!decobox_hidden)
 	{

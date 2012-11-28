@@ -98,7 +98,14 @@ static quick_option quickmenu[] =
 	{NULL}
 };
 
-/*static menu_wall colorlist[] = //TODO: Put these back
+struct menu_wall
+{
+	pixel colour;
+	const char *descs;
+};
+typedef struct menu_wall menu_wall;
+
+static menu_wall colorlist[] =
 {
 	{PIXPACK(0xFF0000), "Red"},
 	{PIXPACK(0x00FF00), "Green"},
@@ -107,7 +114,19 @@ static quick_option quickmenu[] =
 	{PIXPACK(0xFF00FF), "Pink"},
 	{PIXPACK(0x00FFFF), "Cyan"},
 	{PIXPACK(0xFFFFFF), "White"},
-};*/
+	{PIXPACK(0x000000), "Black"},
+};
+#define DECO_RED 260
+#define DECO_GREEN 261
+#define DECO_BLUE 262
+#define DECO_YELLOW 263
+#define DECO_PINK 264
+#define DECO_CYAN 265
+#define DECO_WHITE 266
+#define DECO_BLACK 267
+
+#define DECO_PRESET_START 260
+#define NUM_COLOR_PRESETS 8
 
 struct ui_edit
 {

@@ -44,5 +44,6 @@ int update_ANIM(UPDATE_FUNC_ARGS) {
 					}
 				}
 	}
+	ISANIM = 1;
 	return 0;
 }
