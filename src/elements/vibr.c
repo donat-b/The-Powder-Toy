@@ -15,41 +15,8 @@
 
 #include <element.h>
 
-void transferProp(UPDATE_FUNC_ARGS, int propOffset)
-{
-	int r, rx, ry, trade, transfer;
-	for (trade = 0; trade < 9; trade++)
-	{
-		int random = rand();
-		rx = random%7-3;
-		ry = (random>>3)%7-3;
-		if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
-		{
-			r = pmap[y+ry][x+rx];
-			if (((r&0xFF) != PT_VIBR && (r&0xFF) != PT_BVBR))
-				continue;
-			if (*((int*)(((char*)&parts[i])+propOffset)) > *((int*)(((char*)&parts[r>>8])+propOffset)))
-			{
-				transfer = *((int*)(((char*)&parts[i])+propOffset)) - *((int*)(((char*)&parts[r>>8])+propOffset));
-				if (transfer == 1)
-				{
-					*((int*)(((char*)&parts[r>>8])+propOffset)) += 1;
-					*((int*)(((char*)&parts[i])+propOffset)) -= 1;
-					trade = 9;
-				}
-				else if (transfer > 0)
-				{
-					*((int*)(((char*)&parts[r>>8])+propOffset)) += transfer/2;
-					*((int*)(((char*)&parts[i])+propOffset)) -= transfer/2;
-					trade = 9;
-				}
-			}
-		}
-	}	
-}
-
 int update_VIBR(UPDATE_FUNC_ARGS) {
-	int r, rx, ry;
+	int r, rx, ry, transfer, trade;
 	if (parts[i].ctype == 1) //newly created BVBR
 	{
 		if (pv[y/CELL][x/CELL] > -2.5 || parts[i].tmp)
@@ -169,7 +136,34 @@ int update_VIBR(UPDATE_FUNC_ARGS) {
 					kill_part(r>>8);
 				}
 			}
-	transferProp(UPDATE_FUNC_SUBCALL_ARGS, offsetof(particle, tmp));
+	for (trade = 0; trade < 9; trade++)
+	{
+		int random = rand();
+		rx = random%7-3;
+		ry = (random>>3)%7-3;
+		if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+		{
+			r = pmap[y+ry][x+rx];
+			if ((r&0xFF) != PT_VIBR && (r&0xFF) != PT_BVBR)
+				continue;
+			if (parts[i].tmp > parts[r>>8].tmp)
+			{
+				transfer = parts[i].tmp - parts[r>>8].tmp;
+				if (transfer == 1)
+				{
+					parts[r>>8].tmp += 1;
+					parts[i].tmp -= 1;
+					trade = 9;
+				}
+				else if (transfer > 0)
+				{
+					parts[r>>8].tmp += transfer/2;
+					parts[i].tmp -= transfer/2;
+					trade = 9;
+				}
+			}
+		}
+	}
 	if (parts[i].tmp < 0)
 		parts[i].tmp = 0; // only preventing because negative tmp doesn't save
 	return 0;
