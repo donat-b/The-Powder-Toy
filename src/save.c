@@ -809,7 +809,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 			partsPosData[partsPosDataLen++] = (posCount&0x000000FF);
 		}
 	}
-
+	
 	i = pmap[4][4]>>8;
 	if (parts[i].type == PT_INDI && parts[i].animations)
 		parts[i].animations[1] = 0; //Save lua code as not being run yet, so it will run when the save is opened

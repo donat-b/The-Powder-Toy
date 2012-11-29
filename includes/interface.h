@@ -274,7 +274,7 @@ extern int currB;
 extern int currA;
 extern int currH;
 extern int currS;
-extern int currV ;
+extern int currV;
 
 void menu_count(void);
 

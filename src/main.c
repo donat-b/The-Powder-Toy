@@ -202,7 +202,6 @@ static const char *old_ver_msg = "A new version is available - click here!";
 char new_message_msg[255];
 float mheat = 0.0f;
 
-int saveURIOpen = 0;
 char * saveDataOpen = NULL;
 int saveDataOpenSize = 0;
 
@@ -1038,8 +1037,10 @@ int main(int argc, char *argv[])
 			}
 			if(tempSaveID > 0)
 			{
+				char saveURIOpenString[512];
 				puts("Got ptsave:id");
-				saveURIOpen = tempSaveID;
+				sprintf(saveURIOpenString, "%d", tempSaveID);
+				open_ui(vid_buf, saveURIOpenString, NULL, 0);
 				it = 0;
 			}
 			break;
@@ -1373,15 +1374,7 @@ int main(int argc, char *argv[])
 					svf_messages = 0;*/
 				}
 				http_session_check = NULL;
-				if(saveURIOpen)
-				{
-					sprintf(saveURIOpenString, "%d", saveURIOpen);
-					open_ui(vid_buf, saveURIOpenString, NULL, 0);
-					saveURIOpen = 0;
-				}
 			} else {
-				if(saveURIOpen)
-					info_box_overlay(vid_buf, "Waiting for login...");
 				clearrect(vid_buf, XRES-125+BARSIZE/*385*/, YRES+(MENUSIZE-16), 91, 14);
 				drawrect(vid_buf, XRES-125+BARSIZE/*385*/, YRES+(MENUSIZE-16), 91, 14, 255, 255, 255, 255);
 				drawtext(vid_buf, XRES-122+BARSIZE/*388*/, YRES+(MENUSIZE-13), "\x84", 255, 255, 255, 255);
@@ -1399,16 +1392,6 @@ int main(int argc, char *argv[])
 					drawtext(vid_buf, XRES-104+BARSIZE/*406*/, YRES+(MENUSIZE-12), "[checking]", 255, 255, 255, 255);
 			}
 			do_s_check = (do_s_check+1) & 15;
-		}
-		else
-		{
-			char saveURIOpenString[512];
-			if(saveURIOpen)
-			{
-				sprintf(saveURIOpenString, "%d", saveURIOpen);
-				open_ui(vid_buf, saveURIOpenString, NULL, 0);
-				saveURIOpen = 0;
-			}
 		}
 #ifdef LUACONSOLE
 		if(sdl_key){
