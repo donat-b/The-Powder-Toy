@@ -197,7 +197,6 @@ typedef struct
 	pixel *vid;
 } upstruc;
 
-static const char *old_ver_msg_beta = "A new beta is available - click here!";
 static const char *old_ver_msg = "A new version is available - click here!";
 char new_message_msg[255];
 float mheat = 0.0f;
@@ -253,7 +252,6 @@ int unlockedstuff = 0x08;
 int old_menu = 0;
 int loop_time = 0;
 unsigned int decocolor = (255<<24)|PIXRGB(255,0,0);
-int update_check = BUILD_NUM;
 
 int drawinfo = 0;
 int elapsedTime = 0;
@@ -741,7 +739,7 @@ char itc_msg[64] = "[?]";
 	#define UPDATE_CPU "Unknown"
 #endif
 
-char my_uri[] = "http://" UPDATESERVER "/Update.api?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
+char my_uri[] = "http://mniip.com/jacob1/Update_" UPDATE_ARCH "_" UPDATE_CPU;
 
 #ifdef RENDERER
 int main(int argc, char *argv[])
@@ -847,9 +845,9 @@ int main(int argc, char *argv[])
 	pixel *part_vbuf; //Extra video buffer
 	pixel *part_vbuf_store;
 	void *http_ver_check, *http_session_check = NULL;
-	char *ver_data=NULL, *check_data=NULL, *tmp;
+	char *ver_data=NULL, *check_data=NULL, *tmp, *changelog;
 	//char console_error[255] = "";
-	int result, i, j, bq, bc = 0, do_check=0, do_s_check=0, old_version=0, http_ret=0,http_s_ret=0, major, minor, buildnum, is_beta = 0, old_ver_len, new_message_len=0, afk = 0, afkstart = 0;
+	int result, i, j, bq, bc = 0, do_check=0, do_s_check=0, old_version=0, http_ret=0,http_s_ret=0, old_ver_len, new_message_len=0, afk = 0, afkstart = 0;
 	int x, y, line_x, line_y, b = 0, c, lb = 0, lx = 0, ly = 0, lm = 0;//, tx, ty;
 	int da = 0, db = 0, it = 2047, mx, my, bsx = 2, bsy = 2;
 	float nfvx, nfvy;
@@ -1086,7 +1084,7 @@ int main(int argc, char *argv[])
 		error_ui(vid_buf, 0, "Unable to open save file.");
 	}
 
-	http_ver_check = http_async_req_start(NULL, "http://" UPDATESERVER "/Update.api?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU, NULL, 0, 0);
+	http_ver_check = http_async_req_start(NULL, "http://mniip.com/jacob1/changelog.txt", NULL, 0, 0);
 	if (svf_login) {
 		if (strcmp(UPDATESERVER, SERVER)==0)
 		{
@@ -1233,20 +1231,19 @@ int main(int argc, char *argv[])
 		{
 			if (!do_check && http_async_req_status(http_ver_check))
 			{
-				ver_data = http_async_req_stop(http_ver_check, &http_ret, NULL);
+				int len;
+				ver_data = http_async_req_stop(http_ver_check, &http_ret, &len);
 				if (http_ret==200 && ver_data)
 				{
-					if (sscanf(ver_data, "%d.%d.%d.%d", &major, &minor, &is_beta, &buildnum)==4)
-						if (buildnum>update_check)//if (buildnum>BUILD_NUM)
+					int count, buildnum, major, minor;
+					if (sscanf(ver_data, "%d %d %d%n", &buildnum, &major, &minor, &count) == 3)
+						if (buildnum>MOD_BUILD_VERSION)
+						{
 							old_version = 1;
-					if (is_beta)
-					{
-						old_ver_len = textwidth((char*)old_ver_msg_beta);
-					}
-					else
-					{
-						old_ver_len = textwidth((char*)old_ver_msg);
-					}
+							changelog = (char*)malloc((len-count)*sizeof(char)+64);
+							sprintf(changelog, "\bbYour version: %d.%d (%d)\nNew version: %d.%d (%d)\n\n\bwChangeLog:\n%s", MOD_VERSION, MOD_MINOR_VERSION, MOD_BUILD_VERSION, major, minor, buildnum, &ver_data[count+2]);
+						}
+					old_ver_len = textwidth((char*)old_ver_msg);
 					free(ver_data);
 				}
 				http_ver_check = NULL;
@@ -2144,39 +2141,17 @@ int main(int argc, char *argv[])
 				if (update_finish())
 					error_ui(vid_buf, 0, "Update failed - try downloading a new version.");
 				else
-					info_ui(vid_buf, "Update success", "You have successfully updated the Powder Toy!");
+					info_ui(vid_buf, "Update success", "You have successfully updated Jacob1's Mod!");
 			}
 			update_flag = 0;
 		}
 
-		old_version = 0;
 		if (b && !bq && x>=(XRES-19-old_ver_len) &&
 		        x<=(XRES-14) && y>=(YRES-22) && y<=(YRES-9) && old_version)
 		{
-			tmp = (char*)malloc(128);
-#ifdef BETA
-			if (is_beta)
+			if (b == 1 && confirm_ui(vid_buf, "\bwDo you want to update Jacob1's Mod?", changelog, "\btUpdate"))
 			{
-				sprintf(tmp, "Your version: %d.%d Beta (%d)\nNew version: %d.%d Beta (%d)", SAVE_VERSION, MINOR_VERSION, BUILD_NUM, major, minor, buildnum);
-			}
-			else
-			{
-				sprintf(tmp, "Your version: %d.%d Beta (%d)\nNew version: %d.%d (%d)", SAVE_VERSION, MINOR_VERSION, BUILD_NUM, major, minor, buildnum);
-			}
-#else
-			if (is_beta)
-			{
-				sprintf(tmp, "Your version: %d.%d (%d)\nNew version: %d.%d Beta (%d)", SAVE_VERSION, MINOR_VERSION, BUILD_NUM, major, minor, buildnum);
-			}
-			else
-			{
-				sprintf(tmp, "Your version: %d.%d (%d)\nNew version: %d.%d (%d)", SAVE_VERSION, MINOR_VERSION, BUILD_NUM, major, minor, buildnum);
-			}
-#endif
-			strappend(tmp, "\n\nThis will erase this mod, and you will have to redownload it. If it's a major update, this mod will be updated shortly with the new features or elements");
-			if (b == 1 && confirm_ui(vid_buf, "Do you want to update The Powder Toy?", tmp, "Update") && confirm_ui(vid_buf, "Are you sure?", "You are about to replace this mod with the official version, deleting it", "Update"))
-			{
-				free(tmp);
+				free(changelog);
 				tmp = download_ui(vid_buf, my_uri, &i);
 				if (tmp)
 				{
@@ -2191,15 +2166,7 @@ int main(int argc, char *argv[])
 						return 0;
 				}
 			}
-			else
-			{
-				if (confirm_ui(vid_buf, "Ignore all future updates?", "If you hit cancel, only this update will be ignored", "Ignore"))
-					update_check = 10000;
-				else
-					update_check = buildnum;
-				free(tmp);
-				old_version = 0;
-			}
+			old_version = 0;
 		}
 		if (y>=(YRES+(MENUSIZE-20))) //mouse checks for buttons at the bottom, to draw mouseover texts
 		{
@@ -2519,6 +2486,12 @@ int main(int argc, char *argv[])
 							}
 							else
 							{
+								int oldsave_as = save_as;
+								if (svf_modsave && check_save(2,0,0,XRES,YRES,0))
+								{
+									svf_publish = 0;
+									save_as = 3;
+								}
 								if (execute_save(vid_buf))
 								{
 									itc = 200;
@@ -2529,6 +2502,7 @@ int main(int argc, char *argv[])
 									itc = 200;
 									strcpy(itc_msg, "Saved Successfully");
 								}
+								save_as = oldsave_as;
 								
 							}
 							while (!sdl_poll())
@@ -2959,14 +2933,7 @@ int main(int argc, char *argv[])
 		if (old_version)
 		{
 			clearrect(vid_buf, XRES-21-old_ver_len, YRES-24, old_ver_len+9, 17);
-			if (is_beta)
-			{
-				drawtext(vid_buf, XRES-16-old_ver_len, YRES-19, old_ver_msg_beta, 255, 216, 32, 255);
-			}
-			else
-			{
-				drawtext(vid_buf, XRES-16-old_ver_len, YRES-19, old_ver_msg, 255, 216, 32, 255);
-			}
+			drawtext(vid_buf, XRES-16-old_ver_len, YRES-19, old_ver_msg, 255, 216, 32, 255);
 			drawrect(vid_buf, XRES-19-old_ver_len, YRES-22, old_ver_len+5, 13, 255, 216, 32, 255);
 		}
 		

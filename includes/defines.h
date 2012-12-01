@@ -32,6 +32,7 @@
 #define MOD_VERSION 19
 #define MOD_MINOR_VERSION 4
 #define MOD_SAVE_VERSION 13 //This is not the version number of my mod anymore, it's only changed when I change the saving code
+#define MOD_BUILD_VERSION 0 //For update checks
 #define BETA_VERSION 80
 #define BETA_MINOR_VER 0
 #define RELEASE_VERSION 83 //Not pretending to be tpt++ at the moment
@@ -244,7 +245,6 @@ extern int over_el;
 extern int loop_time;
 extern int mod_save;
 extern int decobox_hidden;
-extern int update_check;
 
 extern int drawinfo;
 extern int currentTime;

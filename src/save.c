@@ -1186,8 +1186,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	bson b;
 	bson_iterator iter;
 
-	if (replace)
-		svf_modsave = (inputData[2] == 'J');
 	//Block sizes
 	blockX = x0/CELL;
 	blockY = y0/CELL;
@@ -1248,6 +1246,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		oldnumballs = 0;
 		erase_bframe();
 		svf_modsave = mod_save = 0;
+		if (inputData[2] == 'J')
+			svf_modsave = 1;
 	}
 	
 	bson_init_data(&b, (char*)bsonData);
@@ -1573,21 +1573,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}*/
-		else if(strcmp(bson_iterator_key(&iter), "compatible_with")==0)
-		{
-			if(bson_iterator_type(&iter)==BSON_INT)
-			{
-				if (bson_iterator_int(&iter) > MOD_SAVE_VERSION)
-				{
-					fprintf(stderr, "Save is not compatible\n");
-					return 2;
-				}
-			}
-			else
-			{
-				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
-			}
-		}
 		else if(strcmp(bson_iterator_key(&iter), "Jacob1's_Mod")==0)
 		{
 			if(bson_iterator_type(&iter)==BSON_INT)

@@ -38,9 +38,9 @@ int main(int argc, char *argv[])
 	int exe_size, outputDataLen;
 	unsigned char *outputData = NULL;
 	void *exe_data = NULL;
-	if (!argv[1])
+	if (!argv[1] || !argv[2])
 	{
-		printf("Error, no arguments\nIt takes the filename/filepath of the exe to compress as the only argument\n");
+		printf("Argument error\nIt takes the filename/filepath of the exe to compress as the first argument\nAnd the filename/filepath of the output file as the second");
 		goto end;
 	}
 	exe_data = file_load(argv[1], &exe_size);
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 	outputData = (unsigned char*)malloc(outputDataLen);
 	if (!outputData)
 	{
-		puts("Error, out of memory ...?\n");
+		printf("Error, out of memory ...?\n");
 		goto end;
 	}
 
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 	
 	printf("compressed data: %d\n", outputDataLen);
 
-	if (file_save("Update.api", outputData, outputDataLen+12))
+	if (file_save(argv[2], outputData, outputDataLen+12))
 		printf("Error when writing file\n", outputDataLen);
 	else
 		printf("Successfully packaged file\n");

@@ -387,19 +387,26 @@ Remove DISPLAY_EFFE from render options. Fix clicking the copy id button
 exiting the save preview. Fix being able to click usernames and id's from 
 under the comment box (again). Shift-clicking a username from the my own 
 section to search for their saves will work correctly now. Fix shift/ctrl 
-clicking moderators' not searching correctly. Increase number of comments 
-that can be loaded to 200. Add in VIBR and BVBR from tpt++ (still not the 
-final version, 19.4.1 will be soon). Fix PROP_NEUTPENETRATE. Fix bug causing 
-switch to act differently in some rare cases. Fix tools menusection having 
-an extra empty space in old menu ('o') mode. Add 'Empty' edge mode option.
+clicking moderators' not searching correctly. Increase number of comments that 
+can be loaded to 200. Add in VIBR and BVBR from tpt++ (still not the final 
+version, 19.4.1 will be soon). Fix PROP_NEUTPENETRATE. Fix bug causing switch 
+to act differently in some rare cases. Fix tools menusection having an extra 
+empty space in old menu ('o') mode. Add 'Empty' edge mode option.
 
 Version 19.4.1 11/5/12
 Fix save as current name and improve how saving works (will allow public / 
 mod saves easily now). Put in the final version of VIBR. Make the thumbnails 
-look as good as I can get them, tpt++'s thumbnail renderer isn't as good, 
-so new thumbnails won't look as good. Add sensors menu icon.
+look as good as I can get them, tpt++'s thumbnail renderer isn't as good, so 
+new thumbnails won't look as good. Add sensors menu icon.
 
-
+Version 19.5
+Fix DTEC and TSNS not detecting energy particles. Make pressing enter not 
+open the save in the save preview, deleting the comment. Make an error while 
+sending a comment (like posting too frequently) not delete the comment.Fix not 
+being able to remove convo notifications.Fix VIRS+water equalization.Fix any 
+differences with SWCH from tpt that was breaking saves. Some minor simulation 
+updates from tpt++. Add back color presets to deco editor, fix some minor bugs 
+with the editor. Add in updater!
 
 
 Bugs:
@@ -410,7 +417,6 @@ None (at least that I know of)
 
 Future Ideas/TODO: '>' means currently being worked on/added next
 >Add things from tpt++ that look cool, and any new simulation changes it gets
-Add color presets to deco editor
 improve comment scrolling
 ---
 C++ version todo:

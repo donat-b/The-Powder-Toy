@@ -17,7 +17,7 @@
 
 int update_CLST(UPDATE_FUNC_ARGS) {
 	int r, rx, ry;
-	float cxy;
+	float cxy = 0;
 	for (rx=-2; rx<3; rx++)
 		for (ry=-2; ry<3; ry++)
 			if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
@@ -43,7 +43,7 @@ int update_CLST(UPDATE_FUNC_ARGS) {
 						cxy = 0.015f;
 					if(parts[i].temp >= 295 && parts[i].temp <350)
 						cxy = 0.01f;
-					if(parts[i].temp > 350)
+					if(parts[i].temp >= 350)
 						cxy = 0.005f;
 					parts[i].vx += cxy*rx;
 					parts[i].vy += cxy*ry;//These two can be set not to calculate over 350 later. They do virtually nothing over 0.005.

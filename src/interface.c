@@ -3893,9 +3893,9 @@ char *download_ui(pixel *vid_buf, char *uri, int *len)
 	int done, total, i, ret, zlen, ulen;
 	char str[16], *tmp, *res;
 	
-	if (svf_login) {
-		http_auth_headers(http, svf_user_id, NULL, svf_session_id);
-	}
+	//if (svf_login) {
+	//	http_auth_headers(http, svf_user_id, NULL, svf_session_id);
+	//}
 
 	while (!http_async_req_status(http))
 	{
@@ -3972,7 +3972,7 @@ char *download_ui(pixel *vid_buf, char *uri, int *len)
 		free(res);
 		goto corrupt;
 	}
-
+	
 	free(tmp);
 	if (len)
 		*len = ulen;
@@ -5181,7 +5181,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			if (save_pic_thumb!=NULL && !hasdrawncthumb) {
 				draw_image(vid_buf, save_pic_thumb, 51, 51, XRES/2, YRES/2, 255);
 				free(save_pic_thumb);
-				save_pic_thumb = NULL;		
+				save_pic_thumb = NULL;
 				hasdrawncthumb = 1;
 				memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 			}
@@ -5251,7 +5251,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				ccy = 0;
 				clearrect(vid_buf, 50+(XRES/2)+1, 50, XRES+BARSIZE-100-((XRES/2)+1), YRES+MENUSIZE-100);
 				for (cc=0; cc<info->comment_count; cc++) {
-					if (ccy + 72 + comment_scroll<YRES+MENUSIZE-56) { //Try not to draw off the screen
+					if (ccy + 72 + comment_scroll<YRES+MENUSIZE-56 && info->comments[cc]) { //Try not to draw off the screen
 						if (ccy+comment_scroll >= 0) //Don't draw above the screen either
 						{
 							int r = 255, g = 255, bl = 255;
@@ -5482,7 +5482,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			if (sdl_wheel && (!ed.focus || (sdl_key != '-' && sdl_key != '+')))
 			{
-				comment_scroll += 3*sdl_wheel;
+				comment_scroll += 5*sdl_wheel;
 				if (comment_scroll > 0)
 					comment_scroll = 0;
 				redraw_comments = 1;
@@ -5534,7 +5534,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					svf_open = 1;
 					svf_own = svf_login && !strcmp(info->author, svf_user);
 					svf_publish = info->publish && svf_login && !strcmp(info->author, svf_user);
-					svf_modsave = 0;
 
 					strcpy(svf_id, save_id);
 					strcpy(svf_name, info->name);
