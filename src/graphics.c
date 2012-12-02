@@ -2348,7 +2348,11 @@ void render_parts(pixel *vid)
 							graphicscache[t].fireg = fireg;
 							graphicscache[t].fireb = fireb;
 						}
+#ifdef LUACONSOLE
 					}
+#else
+					}
+#endif
 					else
 					{
 						if(graphics_DEFAULT(&(parts[i]), nx, ny, &pixel_mode, &cola, &colr, &colg, &colb, &firea, &firer, &fireg, &fireb))

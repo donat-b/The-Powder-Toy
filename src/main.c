@@ -2125,8 +2125,10 @@ int main(int argc, char *argv[])
 		if (b && !bq && x>=(XRES-19-new_message_len) &&
 		        x<=(XRES-14) && y>=(YRES-37) && y<=(YRES-24) && svf_messages)
 		{
-			open_link("http://" SERVER "/Conversations.html");
+			if (b == 1)
+				open_link("http://" SERVER "/Conversations.html");
 			svf_messages = 0;
+			b = 0;
 		}
 		if (update_flag)
 		{
@@ -2167,6 +2169,7 @@ int main(int argc, char *argv[])
 				}
 			}
 			old_version = 0;
+			b = 0;
 		}
 		if (y>=(YRES+(MENUSIZE-20))) //mouse checks for buttons at the bottom, to draw mouseover texts
 		{
