@@ -410,14 +410,14 @@ with the editor. Add in updater!
 
 
 Bugs:
-None (at least that I know of)
+With Empty edge mode on, putting a fire or pressure element in the bottom corners causes infinite pressure / pixelated fire glitches
+//None (at least that I know of)
 
 
 
 
 Future Ideas/TODO: '>' means currently being worked on/added next
 >Add things from tpt++ that look cool, and any new simulation changes it gets
-improve comment scrolling
 ---
 C++ version todo:
 done - [compile tpt++ with visual studio]

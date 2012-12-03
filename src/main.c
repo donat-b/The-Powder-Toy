@@ -379,6 +379,7 @@ void clear_sim(void)
 	memset(vy, 0, sizeof(vy));
 	memset(fvx, 0, sizeof(fvx));
 	memset(fvy, 0, sizeof(fvy));
+	make_kernel();
 	memset(photons, 0, sizeof(photons));
 	memset(wireless, 0, sizeof(wireless));
 	memset(gol2, 0, sizeof(gol2));
@@ -393,6 +394,8 @@ void clear_sim(void)
 	memset(fire_r, 0, sizeof(fire_r));
 	memset(fire_g, 0, sizeof(fire_g));
 	memset(fire_b, 0, sizeof(fire_b));
+	memset(fire_alpha, 0, sizeof(fire_alpha));
+	prepare_alpha(CELL, 1.0f);
 	if(gravmask)
 		memset(gravmask, 0xFFFFFFFF, (XRES/CELL)*(YRES/CELL)*sizeof(unsigned));
 	if(gravy)
@@ -739,7 +742,8 @@ char itc_msg[64] = "[?]";
 	#define UPDATE_CPU "Unknown"
 #endif
 
-char my_uri[] = "http://mniip.com/jacob1/Update_" UPDATE_ARCH "_" UPDATE_CPU;
+char update_uri[] = "http://mniip.com/jacob1/Update_" UPDATE_ARCH "_" UPDATE_CPU;
+char changelog_uri[] = "http://mniip.com/jacob1/Changelog_" UPDATE_ARCH "_" UPDATE_CPU ".txt";
 
 #ifdef RENDERER
 int main(int argc, char *argv[])
@@ -1084,7 +1088,7 @@ int main(int argc, char *argv[])
 		error_ui(vid_buf, 0, "Unable to open save file.");
 	}
 
-	http_ver_check = http_async_req_start(NULL, "http://mniip.com/jacob1/changelog.txt", NULL, 0, 0);
+	http_ver_check = http_async_req_start(NULL, changelog_uri, NULL, 0, 0);
 	if (svf_login) {
 		/*if (strcmp(UPDATESERVER, SERVER)==0)
 		{
@@ -2154,7 +2158,7 @@ int main(int argc, char *argv[])
 			if (b == 1 && confirm_ui(vid_buf, "\bwDo you want to update Jacob1's Mod?", changelog, "\btUpdate"))
 			{
 				free(changelog);
-				tmp = download_ui(vid_buf, my_uri, &i);
+				tmp = download_ui(vid_buf, update_uri, &i);
 				if (tmp)
 				{
 					save_presets(1);
