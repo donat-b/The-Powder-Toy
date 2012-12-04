@@ -29,6 +29,8 @@ int update_POWERED(UPDATE_FUNC_ARGS) {
 					{
 						if (!(parts[i].flags & FLAG_INSTACTV))
 						{
+							if ((parts[i].type == PT_PUMP || parts[i].type == PT_GPMP || parts[i].type == PT_HSWC || parts[i].type == PT_PBCN))
+								continue;
 							if (parts[i].type != PT_SWCH && parts[r>>8].ctype==PT_PSCN && parts[i].life < 10)
 								parts[i].life = 10;
 							else if (parts[i].type != PT_SWCH && parts[r>>8].ctype==PT_NSCN)

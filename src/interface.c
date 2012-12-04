@@ -5482,7 +5482,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			if (sdl_wheel && (!ed.focus || (sdl_key != '-' && sdl_key != '+')))
 			{
-				comment_scroll += 5*sdl_wheel;
+				comment_scroll += 6*sdl_wheel;
 				if (comment_scroll > 0)
 					comment_scroll = 0;
 				redraw_comments = 1;

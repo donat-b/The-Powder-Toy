@@ -140,7 +140,7 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 				conduct_sprk = 1;
 
 				pavg = parts_avg(r>>8, i,PT_INSL);
-				if (parts[r>>8].tmp == 0)
+				if (!(parts[i].flags & FLAG_INSTACTV))
 				{
 					if ((rt==PT_SWCH||(rt==PT_SPRK&&parts[r>>8].ctype==PT_SWCH)) && pavg!=PT_INSL && parts[i].life<4) // make sparked SWCH turn off correctly
 					{
@@ -165,7 +165,7 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 						}
 					}
 				}
-				if ((ct==PT_PSCN||ct==PT_NSCN) && (((rt==PT_PUMP||rt==PT_GPMP||rt==PT_HSWC)&&parts[r>>8].tmp==0)||rt==PT_PBCN) && parts[i].life<4) // PROP_PTOGGLE, Maybe? We seem to use 2 different methods for handling actived elements, this one seems better. Yes, use this one for new elements, PCLN is different for compatibility with existing saves
+				if ((ct==PT_PSCN||ct==PT_NSCN) && (((rt==PT_PUMP||rt==PT_GPMP||rt==PT_HSWC)&&!(parts[i].flags & FLAG_INSTACTV))||rt==PT_PBCN) && parts[i].life<4) // PROP_PTOGGLE, Maybe? We seem to use 2 different methods for handling actived elements, this one seems better. Yes, use this one for new elements, PCLN is different for compatibility with existing saves
 				{
 					if (ct==PT_PSCN) parts[r>>8].life = 10;
 					else if (ct==PT_NSCN && parts[r>>8].life>=10) parts[r>>8].life = 9;

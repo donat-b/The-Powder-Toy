@@ -1472,7 +1472,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}*/
-		else if(strcmp(bson_iterator_key(&iter), "activeMenu")==0 && replace)
+		/*else if(strcmp(bson_iterator_key(&iter), "activeMenu")==0 && replace)
 		{
 			if(bson_iterator_type(&iter)==BSON_INT && bson_iterator_int(&iter) >= 0 && ((bson_iterator_int(&iter) < SC_TOTAL && msections[bson_iterator_int(&iter)].doshow) || replace == 2))
 			{
@@ -1482,7 +1482,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			{
 				fprintf(stderr, "Wrong value for %s\n", bson_iterator_key(&iter));
 			}
-		}
+		}*/
 		else if(strcmp(bson_iterator_key(&iter), "numballs")==0)
 		{
 			if(bson_iterator_type(&iter)==BSON_INT)

@@ -395,7 +395,6 @@ void clear_sim(void)
 	memset(fire_g, 0, sizeof(fire_g));
 	memset(fire_b, 0, sizeof(fire_b));
 	memset(fire_alpha, 0, sizeof(fire_alpha));
-	prepare_alpha(CELL, 1.0f);
 	if(gravmask)
 		memset(gravmask, 0xFFFFFFFF, (XRES/CELL)*(YRES/CELL)*sizeof(unsigned));
 	if(gravy)
