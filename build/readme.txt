@@ -402,11 +402,11 @@ new thumbnails won't look as good. Add sensors menu icon.
 Version 19.5
 Fix DTEC and TSNS not detecting energy particles. Make pressing enter not 
 open the save in the save preview, deleting the comment. Make an error while 
-sending a comment (like posting too frequently) not delete the comment.Fix not 
-being able to remove convo notifications.Fix VIRS+water equalization.Fix any 
-differences with SWCH from tpt that was breaking saves. Some minor simulation 
-updates from tpt++. Add back color presets to deco editor, fix some minor bugs 
-with the editor. Add in updater!
+sending a comment (like posting too frequently) not delete the comment. Fix not 
+being able to remove convo notifications. Fix VIRS+water equalization. Fix any 
+differences with SWCH and other electronics from tpt that was breaking saves. 
+Some minor simulation updates from tpt++. Add back color presets to deco 
+editor, fix some minor bugs with the editor. Add in updater!
 
 
 Bugs:

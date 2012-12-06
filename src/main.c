@@ -741,8 +741,8 @@ char itc_msg[64] = "[?]";
 	#define UPDATE_CPU "Unknown"
 #endif
 
-char update_uri[] = "http://mniip.com/jacob1/Update_" UPDATE_ARCH "_" UPDATE_CPU;
-char changelog_uri[] = "http://mniip.com/jacob1/Changelog_" UPDATE_ARCH "_" UPDATE_CPU ".txt";
+char update_uri[] = "http://77.72.131.69/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
+char changelog_uri[] = "http://77.72.131.69/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
 
 #ifdef RENDERER
 int main(int argc, char *argv[])
@@ -1236,7 +1236,7 @@ int main(int argc, char *argv[])
 			{
 				int len;
 				ver_data = http_async_req_stop(http_ver_check, &http_ret, &len);
-				if (http_ret==200 && ver_data)
+				if (http_ret == 200 && ver_data)
 				{
 					int count, buildnum, major, minor;
 					if (sscanf(ver_data, "%d %d %d%n", &buildnum, &major, &minor, &count) == 3)
@@ -1248,6 +1248,12 @@ int main(int argc, char *argv[])
 						}
 					old_ver_len = textwidth((char*)old_ver_msg);
 					free(ver_data);
+				}
+				else
+				{
+					strcpy(itc_msg, "Error, could not find update server. Press Ctrl+u to go check for a newer version manually on the tpt website");
+					itc = 500;
+					it = 0;
 				}
 				http_ver_check = NULL;
 			}
@@ -1830,7 +1836,13 @@ int main(int argc, char *argv[])
 			if (sdl_key==SDLK_SPACE)
 				sys_pause = !sys_pause;
 			if (sdl_key=='u')
-				aheat_enable = !aheat_enable;
+			{
+				if (sdl_mod & KMOD_CTRL)
+					open_link("http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11117");
+				else
+					aheat_enable = !aheat_enable;
+
+			}
 			if (sdl_key=='h' && !(sdl_mod & KMOD_LCTRL))
 			{
 				hud_enable = !hud_enable;
