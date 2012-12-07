@@ -83,7 +83,7 @@ int trymovetron(int x, int y, int dir, int i, int len)
 		rx += tron_rx[dir];
 		ry += tron_ry[dir];
 		r = pmap[ry][rx];
-		if (canmovetron(r, k) && !bmap[(ry)/CELL][(rx)/CELL] && ry > CELL && rx > CELL && ry < YRES-CELL && rx < XRES-CELL)
+		if (canmovetron(r, k-1) && !bmap[(ry)/CELL][(rx)/CELL] && ry > CELL && rx > CELL && ry < YRES-CELL && rx < XRES-CELL)
 		{
 			count++;
 			for (tx = rx - tron_ry[dir] , ty = ry - tron_rx[dir], j=1; abs(tx-rx) < (len-k) && abs(ty-ry) < (len-k); tx-=tron_ry[dir],ty-=tron_rx[dir],j++)

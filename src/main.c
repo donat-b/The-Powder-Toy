@@ -201,6 +201,7 @@ static const char *old_ver_msg = "A new version is available - click here!";
 char new_message_msg[255];
 float mheat = 0.0f;
 
+int saveURIOpen = 0;
 char * saveDataOpen = NULL;
 int saveDataOpenSize = 0;
 
@@ -395,6 +396,7 @@ void clear_sim(void)
 	memset(fire_g, 0, sizeof(fire_g));
 	memset(fire_b, 0, sizeof(fire_b));
 	memset(fire_alpha, 0, sizeof(fire_alpha));
+	prepare_alpha(CELL, 1.0f);
 	if(gravmask)
 		memset(gravmask, 0xFFFFFFFF, (XRES/CELL)*(YRES/CELL)*sizeof(unsigned));
 	if(gravy)
@@ -1038,10 +1040,8 @@ int main(int argc, char *argv[])
 			}
 			if(tempSaveID > 0)
 			{
-				char saveURIOpenString[512];
 				puts("Got ptsave:id");
-				sprintf(saveURIOpenString, "%d", tempSaveID);
-				open_ui(vid_buf, saveURIOpenString, NULL, 0);
+				saveURIOpen = tempSaveID;
 				it = 0;
 			}
 			break;
@@ -1401,6 +1401,13 @@ int main(int argc, char *argv[])
 					drawtext(vid_buf, XRES-104+BARSIZE/*406*/, YRES+(MENUSIZE-12), "[checking]", 255, 255, 255, 255);
 			}
 			do_s_check = (do_s_check+1) & 15;
+		}
+		if(saveURIOpen)
+		{
+			char saveURIOpenString[512];
+			sprintf(saveURIOpenString, "%d", saveURIOpen);
+			open_ui(vid_buf, saveURIOpenString, NULL, 0);
+			saveURIOpen = 0;
 		}
 #ifdef LUACONSOLE
 		if(sdl_key){

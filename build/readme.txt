@@ -410,6 +410,12 @@ editor, fix some minor bugs with the editor. Add in updater! Thanks to mniip
 for the space on his server. This readme probably won't update with future 
 updates, but you can still see it on the mod's thread and on github.
 
+Version 20.1 12/7/12
+Fix no fire effects showing after clearing the sim or opening any save. Fix 
+the 'open; button from the website (if you have this 'installed' with ctrl+i)
+
+
+
 
 Bugs:
 With Empty edge mode on, putting a fire or pressure element in the bottom corners causes infinite pressure / pixelated fire glitches
