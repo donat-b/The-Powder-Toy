@@ -399,7 +399,7 @@ mod saves easily now). Put in the final version of VIBR. Make the thumbnails
 look as good as I can get them, tpt++'s thumbnail renderer isn't as good, so 
 new thumbnails won't look as good. Add sensors menu icon.
 
-Version 19.5
+Version 20.0 12/6/12
 Fix DTEC and TSNS not detecting energy particles. Make pressing enter not 
 open the save in the save preview, deleting the comment. Make an error while 
 sending a comment (like posting too frequently) not delete the comment. Fix not 
