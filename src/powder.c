@@ -252,6 +252,7 @@ void init_can_move()
 	can_move[PT_RAZR][PT_CNCT] = 1;
 	can_move[PT_THDR][PT_THDR] = 2;
 	can_move[PT_EMBR][PT_EMBR] = 2;
+	can_move[PT_TRON][PT_SWCH] = 3;
 }
 
 /*
@@ -309,6 +310,13 @@ int eval_move(int pt, int nx, int ny, unsigned *rr)
 				result = 1;
 			else
 				result = 0;
+		}
+		else if (pt == PT_TRON && (r&0xFF) == PT_SWCH)
+		{
+			if (parts[r>>8].life >= 10)
+				return 2;
+			else
+				return 0;
 		}
 		else if ((r&0xFF)==PT_SPNG)
 		{
@@ -3337,7 +3345,7 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 						parts[pmap[y][x]>>8].tmp2 = t|(i<<8);
 					// Count number of particles at each location, for excess stacking check
 					// (does not include energy particles or THDR - currently no limit on stacking those)
-					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM)
+					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM && t!=PT_MOVS)
 						pmap_count[y][x]++;
 				}
 			}

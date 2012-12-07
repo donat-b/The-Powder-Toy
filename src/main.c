@@ -150,11 +150,11 @@ static const char *it_msg =
     "The numbers on the keyboard will change the display mode\n"
     "Use the mouse scroll wheel or '[' and ']' to change the tool size for particles.\n"
     "The spacebar can be used to pause and unpause physics.\n"
-    "'P' will take a screenshot and save it into the current directory.\n"
     "\n"
     "Contributors: \bgStanislaw K Skowronek (\brhttp://powder.unaligned.org\bg, \bbirc.unaligned.org #wtf\bg),\n"
     "\bgSimon Robertshaw, Skresanov Savely, cracker64, Catelite, Bryan Hoyle, Nathan Cousins, jacksonmj,\n"
     "\bgLieuwe Mosch, Anthony Boot, Matthew \"me4502\", MaksProg, jacob1\n"
+	"Thanks to mniip for the update server for my mod\n"
     "\n"
     "\bgTo use online features such as saving, you need to register at: \brhttp://powdertoy.co.uk/Register.html\n"
     "\n"
@@ -741,8 +741,8 @@ char itc_msg[64] = "[?]";
 	#define UPDATE_CPU "Unknown"
 #endif
 
-char update_uri[] = "http://77.72.131.69/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
-char changelog_uri[] = "http://77.72.131.69/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
+char update_uri[] = "http://mniip.com/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
+char changelog_uri[] = "http://mniip.com/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
 
 #ifdef RENDERER
 int main(int argc, char *argv[])
@@ -1087,7 +1087,10 @@ int main(int argc, char *argv[])
 		error_ui(vid_buf, 0, "Unable to open save file.");
 	}
 
-	http_ver_check = http_async_req_start(NULL, changelog_uri, NULL, 0, 0);
+	if (strcmp(svf_user, "jacob1"))
+		http_ver_check = http_async_req_start(NULL, changelog_uri, NULL, 0, 0);
+	else
+		http_ver_check = NULL;
 	if (svf_login) {
 		/*if (strcmp(UPDATESERVER, SERVER)==0)
 		{

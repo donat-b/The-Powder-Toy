@@ -406,7 +406,9 @@ sending a comment (like posting too frequently) not delete the comment. Fix not
 being able to remove convo notifications. Fix VIRS+water equalization. Fix any 
 differences with SWCH and other electronics from tpt that was breaking saves. 
 Some minor simulation updates from tpt++. Add back color presets to deco 
-editor, fix some minor bugs with the editor. Add in updater!
+editor, fix some minor bugs with the editor. Add in updater! Thanks to mniip 
+for the space on his server. This readme probably won't update with future 
+updates, but you can still see it on the mod's thread and on github.
 
 
 Bugs:

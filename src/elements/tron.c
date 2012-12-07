@@ -18,7 +18,7 @@
 /* TRON element is meant to resemble a tron bike (or worm) moving around and trying to avoid obstacles itself.
  * It has four direction each turn to choose from, 0 (left) 1 (up) 2 (right) 3 (down).
  * Each turn has a small random chance to randomly turn one way (so it doesn't do the exact same thing in a large room)
- * If the place it wants to move isn't a barrier, it will try and 'see' infront of itself to determine its safety.
+ * If the place it wants to move isn't a barrier, it will try and 'see' in front of itself to determine its safety.
  * For now the tron can only see its own body length in pixels ahead of itself (and around corners)
  *  - - - - - - - - - -
  *  - - - - + - - - - -
@@ -27,7 +27,7 @@
  *  - +<----+---->+ - -
  *  - - - - H - - - - -
  * Where H is the head with tail length 4, it checks the + area to see if it can hit any of the edges, then it is called safe, or picks the biggest area if none safe.
- * .tmp bit values: 1st head, 2nd no tail growth, 3rd wait flag, 4th Nodie, 5th Dying, 6th & 7th is direction, 8th - 16th hue
+ * .tmp bit values: 1st head, 2nd no tail growth, 3rd wait flag, 4th Nodie, 5th Dying, 6th & 7th is direction, 8th - 16th hue, 17th Norandom
  * .tmp2 is tail length (gets longer every few hundred frames)
  * .life is the timer that kills the end of the tail (the head uses life for how often it grows longer)
  * .ctype Contains the colour, lost on save, regenerated using hue tmp (bits 7 - 16)
@@ -37,6 +37,7 @@
 #define TRON_WAIT 4 //it was just created, so WAIT a frame
 #define TRON_NODIE 8
 #define TRON_DEATH 16 //Crashed, now dying
+#define TRON_NORANDOM 65536
 int tron_rx[4] = {-1, 0, 1, 0};
 int tron_ry[4] = { 0,-1, 0, 1};
 unsigned int tron_colours[32];
@@ -61,6 +62,16 @@ int new_tronhead(int x, int y, int i, int direction)
 	parts[np].life = parts[i].life + 2;
 	return 1;
 }
+
+int canmovetron(int r, int len)
+{
+	if (!r || ((r&0xFF) == PT_SWCH && parts[r>>8].life >= 10) || ((r&0xFF) == PT_INVIS && parts[r>>8].tmp == 1))
+		return 1;
+	if (((ptypes[r&0xFF].properties & PROP_LIFE_KILL_DEC) || ((ptypes[r&0xFF].properties & PROP_LIFE_KILL) && (ptypes[r&0xFF].properties & PROP_LIFE_DEC))) && parts[r>>8].life < len)
+		return 1;
+	return 0;
+}
+
 int trymovetron(int x, int y, int dir, int i, int len)
 {
 	int k,j,r,rx,ry,tx,ty,count;
@@ -72,13 +83,13 @@ int trymovetron(int x, int y, int dir, int i, int len)
 		rx += tron_rx[dir];
 		ry += tron_ry[dir];
 		r = pmap[ry][rx];
-		if (!r && !bmap[(ry)/CELL][(rx)/CELL] && ry > CELL && rx > CELL && ry < YRES-CELL && rx < XRES-CELL)
+		if (canmovetron(r, k) && !bmap[(ry)/CELL][(rx)/CELL] && ry > CELL && rx > CELL && ry < YRES-CELL && rx < XRES-CELL)
 		{
 			count++;
 			for (tx = rx - tron_ry[dir] , ty = ry - tron_rx[dir], j=1; abs(tx-rx) < (len-k) && abs(ty-ry) < (len-k); tx-=tron_ry[dir],ty-=tron_rx[dir],j++)
 			{
 				r = pmap[ty][tx];
-				if (!r && !bmap[(ty)/CELL][(tx)/CELL] && ty > CELL && tx > CELL && ty < YRES-CELL && tx < XRES-CELL)
+				if (canmovetron(r, j+k-1) && !bmap[(ty)/CELL][(tx)/CELL] && ty > CELL && tx > CELL && ty < YRES-CELL && tx < XRES-CELL)
 				{
 					if (j == (len-k))//there is a safe path, so we can break out
 						return len+1;
@@ -90,7 +101,7 @@ int trymovetron(int x, int y, int dir, int i, int len)
 			for (tx = rx + tron_ry[dir] , ty = ry + tron_rx[dir], j=1; abs(tx-rx) < (len-k) && abs(ty-ry) < (len-k); tx+=tron_ry[dir],ty+=tron_rx[dir],j++)
 			{
 				r = pmap[ty][tx];
-				if (!r && !bmap[(ty)/CELL][(tx)/CELL] && ty > CELL && tx > CELL && ty < YRES-CELL && tx < XRES-CELL)
+				if (canmovetron(r, j+k-1) && !bmap[(ty)/CELL][(tx)/CELL] && ty > CELL && tx > CELL && ty < YRES-CELL && tx < XRES-CELL)
 				{
 					if (j == (len-k))
 						return len+1;
@@ -100,7 +111,7 @@ int trymovetron(int x, int y, int dir, int i, int len)
 					break;
 			}
 		}
-		else //a block infront, no need to continue
+		else //a block in front, no need to continue
 			break;
 	}
 	return count;
@@ -120,18 +131,23 @@ int update_TRON(UPDATE_FUNC_ARGS) {
 
 		//random turn
 		int random = rand()%340;
-		if (random==1 || random==3)
+		if ((random==1 || random==3) && !(parts[i].tmp & TRON_NORANDOM))
 		{
 			//randomly turn left(3) or right(1)
 			direction = (direction + random)%4;
 		}
 		
-		//check infront
+		//check in front
 		//do sight check
 		firstdircheck = trymovetron(x,y,direction,i,parts[i].tmp2);
 		if (firstdircheck < parts[i].tmp2)
 		{
-			if (originaldir != direction) //if we just tried a random turn, don't pick random again
+			if (parts[i].tmp & TRON_NORANDOM)
+			{
+				seconddir = (direction + 1)%4;
+				lastdir = (direction + 3)%4;
+			}
+			else if (originaldir != direction) //if we just tried a random turn, don't pick random again
 			{
 				seconddir = originaldir;
 				lastdir = (direction + 2)%4;
