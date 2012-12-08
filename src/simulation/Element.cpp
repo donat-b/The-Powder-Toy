@@ -21,7 +21,7 @@
 Element::Element():
 	Identifier(""),
 	Name(""),
-	Colour(PIXPACK(0xFFFFFF)),
+	Colour(COLPACK(0xFFFFFF)),
 	MenuVisible(0),
 	MenuSection(0),
 	Enabled(0),
@@ -38,6 +38,7 @@ Element::Element():
 	Explosive(0),
 	Meltable(0),
 	Hardness(0),
+	PhotonReflectWavelengths(0x3FFFFFFF),
 	Weight(100),
 	HeatConduct(255),
 	Latent(0),
