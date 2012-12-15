@@ -34,7 +34,7 @@ class Simulation;
 #define GRAPHICS_FUNC_SUBCALL_ARGS sim, cpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb
 #define ELEMENT_CREATE_FUNC_ARGS Simulation *sim, int i, int x, int y
 #define ELEMENT_CREATE_OVERRIDE_FUNC_ARGS Simulation *sim, int p, int x, int y, int t
-#define ELEMENT_INIT_FUNC_ARGS Element *elem, int t
+#define ELEMENT_INIT_FUNC_ARGS Simulation *sim, Element *elem, int t
 
 
 class Element

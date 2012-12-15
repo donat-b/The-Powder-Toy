@@ -363,7 +363,7 @@ void dump_frame(pixel *src, int w, int h, int pitch)
 
 void clear_sim()
 {
-	int i,x, y;
+	int i, x, y;
 	for (i=0; i<NPART; i++)
 	{
 		if (parts[i].animations)
@@ -372,6 +372,7 @@ void clear_sim()
 			parts[i].animations = NULL;
 		}
 	}
+	globalSim->Clear();
 	memset(bmap, 0, sizeof(bmap));
 	memset(emap, 0, sizeof(emap));
 	memset(signs, 0, sizeof(signs));
@@ -380,7 +381,6 @@ void clear_sim()
 	for (i=0; i<NPART-1; i++)
 		parts[i].life = i+1;
 	parts[NPART-1].life = -1;
-	globalSim->pfree = 0;
 	parts_lastActiveIndex = 0;
 	memset(pmap, 0, sizeof(pmap));
 	memset(pv, 0, sizeof(pv));
@@ -390,7 +390,6 @@ void clear_sim()
 	memset(fvy, 0, sizeof(fvy));
 	make_kernel();
 	memset(photons, 0, sizeof(photons));
-	memset(wireless, 0, sizeof(wireless));
 	memset(gol2, 0, sizeof(gol2));
 	memset(portalp, 0, sizeof(portalp));
 	memset(fighters, 0, sizeof(fighters));

@@ -1249,7 +1249,7 @@ int elements_loadDefault(lua_State * l)
 		if(id < PT_NUM)
 		{
 			if (globalSim->elements[id].Init)
-				globalSim->elements[id].Init(&globalSim->elements[id], id);
+				globalSim->elements[id].Init(globalSim, &globalSim->elements[id], id);
 			else
 				globalSim->elements[id] = Element();
 			Simulation_Compat_CopyData(globalSim);
@@ -1263,7 +1263,7 @@ int elements_loadDefault(lua_State * l)
 	{
 		for (int i = 0; i < PT_NUM; i++)
 			if (globalSim->elements[i].Init)
-				globalSim->elements[i].Init(&globalSim->elements[i], i);
+				globalSim->elements[i].Init(globalSim, &globalSim->elements[i], i);
 		Simulation_Compat_CopyData(globalSim);
 		lua_pushnil(l);
 		lua_setglobal(l, "elements");

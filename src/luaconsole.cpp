@@ -2909,7 +2909,7 @@ int luatpt_moving_solid(lua_State* l)
 	{
 		if (globalSim->elements[el].Init)
 		{
-			globalSim->elements[el].Init(&globalSim->elements[el], el);
+			globalSim->elements[el].Init(globalSim, &globalSim->elements[el], el);
 			Simulation_Compat_CopyData(globalSim);
 		}
 	}

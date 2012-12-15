@@ -30,6 +30,7 @@
 #include "game/Brush.h"
 #include "simulation/Tool.h"
 #include "simulation/Simulation.h"
+#include "simulation/ElementDataContainer.h"
 
 part_type ptypes[PT_NUM];
 part_transition ptransitions[PT_NUM];
@@ -1789,17 +1790,6 @@ void LIFE_update()
 		GENERATION ++;
 }
 
-void WIFI_update()
-{
-	int q;
-	for (q = 0; q<(int)(MAX_TEMP-73.15f)/100+2; q++)
-	{
-		wireless[q][0] = wireless[q][1];
-		wireless[q][1] = 0;
-	}
-	ISWIRE--;
-}
-
 void decrease_life(int i)
 {
 	int t;
@@ -2298,8 +2288,13 @@ void update_particles_i(pixel *vid, int start, int inc)
 	if (ISGOL==1&&++CGOL>=GSPEED) //GSPEED is frames per generation
 		LIFE_update();
 
-	if (ISWIRE>0) //wifi channel reseting
-		WIFI_update();
+	for (t=1; t<PT_NUM; t++)
+	{
+		if (globalSim->elementData[t])
+		{
+			globalSim->elementData[t]->Simulation_BeforeUpdate(globalSim);
+		}
+	}
 
 	if (lighting_recreate)
 		lighting_recreate--;

@@ -475,7 +475,6 @@ static fav_menu fav[] =
 #define CHANNELS ((int)(MAX_TEMP-73)/100+2)
 extern particle portalp[CHANNELS][8][80];
 extern const particle emptyparticle;
-extern int wireless[CHANNELS][2];
 extern const int portal_rx[8];
 extern const int portal_ry[8];
 
