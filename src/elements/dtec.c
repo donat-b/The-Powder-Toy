@@ -15,8 +15,6 @@
 
 #include <element.h>
 
-int in_radius(int rd, int x, int y);
-
 int update_DTEC(UPDATE_FUNC_ARGS) {
 	int r, rx, ry, rt, rd = parts[i].tmp2;
 	if (rd > 25) parts[i].tmp2 = rd = 25;
@@ -33,7 +31,7 @@ int update_DTEC(UPDATE_FUNC_ARGS) {
 					rt = parts[r>>8].type;
 					if (parts_avg(i,r>>8,PT_INSL) != PT_INSL)
 					{
-						if ((ptypes[rt].properties&PROP_CONDUCTS) && !(rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR) && parts[r>>8].life==0 && in_radius(rd, rx, ry))
+						if ((ptypes[rt].properties&PROP_CONDUCTS) && !(rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR) && parts[r>>8].life==0)
 						{
 							parts[r>>8].life = 4;
 							parts[r>>8].ctype = rt;
@@ -55,11 +53,6 @@ int update_DTEC(UPDATE_FUNC_ARGS) {
 					parts[i].life = 1;
 			}
 	return 0;
-}
-
-int in_radius(int rd, int x, int y)
-{
-	return (pow((double)x,2)*pow((double)rd,2)+pow((double)y,2)*pow((double)rd,2)<=pow((double)rd,2)*pow((double)rd,2));
 }
 
 int graphics_DTEC(GRAPHICS_FUNC_ARGS)
