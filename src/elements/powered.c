@@ -43,47 +43,53 @@ int update_POWERED(UPDATE_FUNC_ARGS) {
 								return 0;
 							}
 						}
-						else if ((parts[i].type == PT_PPTI || parts[i].type == PT_PPTO) && parts[r>>8].life>2)
+						else if ((parts[i].type == PT_PPTI || parts[i].type == PT_PPTO))
 						{
-							int tentmp2 = 10, ninetmp2 = 9, skipmoveflags = parts[i].flags|FLAG_SKIPMOVE;
-							if (parts[r>>8].ctype==PT_PSCN && parts[i].tmp2 < 10)
+							if (parts[r>>8].life>2)
 							{
-								flood_prop(x,y,offsetof(particle, tmp2),&tentmp2,0);
-								flood_prop(x,y,offsetof(particle, flags),&skipmoveflags,0);
-							}
-							else if (parts[r>>8].ctype==PT_NSCN && parts[i].tmp2 >= 10)
-							{
-								flood_prop(x,y,offsetof(particle, tmp2),&ninetmp2,0);
-								flood_prop(x,y,offsetof(particle, flags),&skipmoveflags,0);
-							}
-						}
-						else if (parts[i].type == PT_ANIM && parts[r>>8].life>2)
-						{
-							int tenlife = 10, ninelife = 9, twelvelife = 12, zero = 0, skipmoveflags = parts[i].flags|FLAG_SKIPMOVE;
-							if (parts[r>>8].ctype==PT_PSCN && parts[i].life < 10)
-							{
-								flood_prop(x,y,offsetof(particle, life),&tenlife,0);
-								flood_prop(x,y,offsetof(particle, flags),&skipmoveflags,0);
-							}
-							else if (parts[r>>8].ctype==PT_NSCN && parts[i].life >= 10)
-							{
-								flood_prop(x,y,offsetof(particle, life),&ninelife,0);
-								flood_prop(x,y,offsetof(particle, tmp),&zero,0);
-								flood_prop(x,y,offsetof(particle, tmp2),&zero,0);
-								flood_prop(x,y,offsetof(particle, flags),&skipmoveflags,0);
-							}
-							else if (parts[r>>8].ctype==PT_METL && parts[r>>8].life>2)
-							{
-								if (parts[i].life == 10)
+								int tentmp2 = 10, ninetmp2 = 9, skipmoveflags = parts[i].flags|FLAG_SKIPMOVE;
+								if (parts[r>>8].ctype==PT_PSCN && parts[i].tmp2 < 10)
 								{
-									flood_prop(x,y,offsetof(particle, life),&ninelife,0);
+									flood_prop(x,y,offsetof(particle, tmp2),&tentmp2,0);
 									flood_prop(x,y,offsetof(particle, flags),&skipmoveflags,0);
 								}
-								else if (parts[i].life == 0)
+								else if (parts[r>>8].ctype==PT_NSCN && parts[i].tmp2 >= 10)
 								{
-									flood_prop(x,y,offsetof(particle, life),&twelvelife,0);
+									flood_prop(x,y,offsetof(particle, tmp2),&ninetmp2,0);
 									flood_prop(x,y,offsetof(particle, flags),&skipmoveflags,0);
-									return 1;
+								}
+							}
+						}
+						else if (parts[i].type == PT_ANIM)
+						{
+							if (parts[r>>8].life>2)
+							{
+								int tenlife = 10, ninelife = 9, fourteenlife = 14, zero = 0, skipmoveflags = parts[i].flags|FLAG_SKIPMOVE;
+								if (parts[r>>8].ctype==PT_PSCN && parts[i].life < 10)
+								{
+									flood_prop(x,y,offsetof(particle, life),&tenlife,0);
+									flood_prop(x,y,offsetof(particle, flags),&skipmoveflags,0);
+								}
+								else if (parts[r>>8].ctype==PT_NSCN && (parts[i].life >= 10 || parts[i].tmp != (int)(parts[i].temp-273.15) || parts[i].tmp2 > 1))
+								{
+									flood_prop(x,y,offsetof(particle, life),&ninelife,0);
+									flood_prop(x,y,offsetof(particle, tmp),&zero,0);
+									flood_prop(x,y,offsetof(particle, tmp2),&zero,0);
+									flood_prop(x,y,offsetof(particle, flags),&skipmoveflags,0);
+								}
+								else if (parts[r>>8].ctype==PT_METL)
+								{
+									if (parts[i].life == 10)
+									{
+										flood_prop(x,y,offsetof(particle, life),&ninelife,0);
+										//flood_prop(x,y,offsetof(particle, flags),&skipmoveflags,0);
+									}
+									else if (parts[i].life == 0)
+									{
+										flood_prop(x,y,offsetof(particle, life),&fourteenlife,0);
+										//flood_prop(x,y,offsetof(particle, flags),&skipmoveflags,0);
+										return 1;
+									}
 								}
 							}
 						}

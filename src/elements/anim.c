@@ -12,10 +12,16 @@ int update_ANIM(UPDATE_FUNC_ARGS) {
 	if (parts[i].tmp == 0)
 	{
 		parts[i].tmp = (int)(parts[i].temp-273.15);
+		if (framenum == parts[i].tmp2)
+			framenum++;
 		parts[i].tmp2++;
 	}
 	if (parts[i].tmp2 > parts[i].ctype)
+	{
+		if (framenum == parts[i].tmp2)
+			framenum = 0;
 		parts[i].tmp2 = 0;
+	}
 	parts[i].dcolour = parts[i].animations[parts[i].tmp2];
 	if (parts[i].life==10)
 	{

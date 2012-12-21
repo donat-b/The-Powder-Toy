@@ -7133,14 +7133,17 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 			if (parts[i].type == PT_ANIM)
 			{
 				int j;
-				for (j = framenum; j <= parts[i].ctype; j++)
-					parts[i].animations[j] = parts[i].animations[j+1];
-				parts[i].animations[parts[i].ctype] = 0;
+				if (parts[i].ctype != numframes)
+				{
+					for (j = framenum; j <= parts[i].ctype; j++)
+						parts[i].animations[j] = parts[i].animations[j+1];
+					parts[i].animations[parts[i].ctype] = 0;
+				}
 				parts[i].ctype--;
 				if (framenum == numframes+1)
 					parts[i].tmp2 = framenum-1;
 			}
-		if (framenum == numframes-1)
+		if (framenum >= numframes)
 			framenum--;
 	}
 	if (sdl_zoom_trig)

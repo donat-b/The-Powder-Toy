@@ -325,7 +325,8 @@ void hud_text_left(float FPSB2, int it)
 	{
 		sprintf(tempstring,"[Frame %i/%i] ",framenum+1,maxframes);
 		strappend(uitext, tempstring);
-		ISANIM = 0;
+		if (!sys_pause && !framerender)
+			ISANIM = 0;
 	}
 #ifdef INTERNAL
 	if (vs)
