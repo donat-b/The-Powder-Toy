@@ -25,6 +25,7 @@
 #include "defines.h"
 #include "interface.h"
 #include "graphics.h"
+#include "powdergraphics.h"
 #include "powder.h"
 #include "gravity.h"
 #include "hud.h"
@@ -159,9 +160,10 @@ void erase_bframe()
 void save_presets(int do_update)
 {
 	//*/
-	int i, count;
+	int i = 0, count;
 	char * outputdata;
-	cJSON *root, *userobj, *versionobj, *recobj, *graphicsobj, *hudobj;
+	char mode[32];
+	cJSON *root, *userobj, *userobj2, *versionobj, *recobj, *graphicsobj, *graphicsobj2, *hudobj, *simulationobj, *tmpobj;
 	FILE *f = fopen("powder.pref", "wb");
 	if(!f)
 		return;
@@ -169,8 +171,63 @@ void save_presets(int do_update)
 	
 	cJSON_AddStringToObject(root, "Powder Toy Preferences", "Don't modify this file unless you know what you're doing. P.S: editing the admin/mod fields in your user info doesn't give you magical powers");
 	
-	//User Info
+	//Tpt++ User Info
 	if(svf_login){
+		cJSON_AddItemToObject(root, "User", userobj2=cJSON_CreateObject());
+		cJSON_AddStringToObject(userobj2, "Username", svf_user);
+		cJSON_AddNumberToObject(userobj2, "ID", atoi(svf_user_id));
+		cJSON_AddStringToObject(userobj2, "SessionID", svf_session_id);
+		cJSON_AddStringToObject(userobj2, "SessionKey", svf_session_key);
+		if(svf_admin){
+			cJSON_AddStringToObject(userobj2, "Elevation", "Admin");
+		} else if(svf_mod){
+			cJSON_AddStringToObject(userobj2, "Elevation", "Mod");
+		} else {
+			cJSON_AddStringToObject(userobj2, "Elevation", "None");
+		}
+	}
+
+	//Tpt++ Renderer settings
+	cJSON_AddItemToObject(root, "Renderer", graphicsobj2=cJSON_CreateObject());
+	sprintf(mode, "%i", colour_mode);
+	cJSON_AddStringToObject(graphicsobj2, "ColourMode", mode);
+	tmpobj = cJSON_CreateStringArray(NULL, 0);
+	while(display_modes[i])
+	{
+		sprintf(mode, "%x", display_modes[i]);
+		cJSON_AddItemToArray(tmpobj, cJSON_CreateString(mode));
+		i++;
+	}
+	cJSON_AddItemToObject(graphicsobj2, "DisplayModes", tmpobj);
+	tmpobj = cJSON_CreateStringArray(NULL, 0);
+	i = 0;
+	while(render_modes[i])
+	{
+		sprintf(mode, "%x", render_modes[i]);
+		cJSON_AddItemToArray(tmpobj, cJSON_CreateString(mode));
+		i++;
+	}
+	cJSON_AddItemToObject(graphicsobj2, "RenderModes", tmpobj);
+	if (drawgrav_enable)
+		cJSON_AddTrueToObject(graphicsobj2, "GravityField");
+	else
+		cJSON_AddFalseToObject(graphicsobj2, "GravityField");
+	if (decorations_enable)
+		cJSON_AddTrueToObject(graphicsobj2, "Decorations");
+	else
+		cJSON_AddFalseToObject(graphicsobj2, "Decorations");
+	
+	//Tpt++ Simulation setting(s)
+	cJSON_AddItemToObject(root, "Simulation", simulationobj=cJSON_CreateObject());
+	sprintf(mode, "%i", edgeMode);
+	cJSON_AddStringToObject(simulationobj, "EdgeMode", mode);
+
+	//Tpt++ install check, prevents annoyingness
+	cJSON_AddTrueToObject(root, "InstallCheck");
+
+	//Tpt User info
+	if (svf_login)
+	{
 		cJSON_AddItemToObject(root, "user", userobj=cJSON_CreateObject());
 		cJSON_AddStringToObject(userobj, "name", svf_user);
 		cJSON_AddStringToObject(userobj, "id", svf_user_id);
@@ -186,7 +243,6 @@ void save_presets(int do_update)
 			cJSON_AddFalseToObject(userobj, "mod");
 		}
 	}
-	
 	//Version Info
 	cJSON_AddItemToObject(root, "version", versionobj=cJSON_CreateObject());
 	cJSON_AddNumberToObject(versionobj, "major", SAVE_VERSION);
@@ -197,6 +253,7 @@ void save_presets(int do_update)
 	} else {
 		cJSON_AddFalseToObject(versionobj, "update");
 	}
+
 	
 	//Fav Menu/Records
 	cJSON_AddItemToObject(root, "records", recobj=cJSON_CreateObject());
@@ -222,7 +279,7 @@ void save_presets(int do_update)
 	cJSON_AddItemToObject(graphicsobj, "display", cJSON_CreateIntArray((int*)display_modes, count));
 	count = 0; i = 0; while(render_modes[i++]){ count++; }
 	cJSON_AddItemToObject(graphicsobj, "render", cJSON_CreateIntArray((int*)render_modes, count));
-	
+
 	//HUDs
 	cJSON_AddItemToObject(root, "HUD", hudobj=cJSON_CreateObject());
 	cJSON_AddItemToObject(hudobj, "normal", cJSON_CreateIntArray(hud_normal, HUD_OPTIONS));
@@ -318,11 +375,31 @@ void load_presets(void)
 	cJSON *root;
 	if(prefdata && (root = cJSON_Parse(prefdata)))
 	{
-		cJSON *userobj, *versionobj, *recobj, *tmpobj, *graphicsobj, *hudobj, *tmparray;
+		cJSON *userobj, *versionobj, *recobj, *tmpobj, *graphicsobj, *hudobj, *simulationobj, *tmparray;
 		
 		//Read user data
-		userobj = cJSON_GetObjectItem(root, "user");
-		if(userobj){	
+		userobj = cJSON_GetObjectItem(root, "User");
+		if (userobj && (tmpobj = cJSON_GetObjectItem(userobj, "SessionKey"))) { //tpt++ format
+			svf_login = 1;
+			if((tmpobj = cJSON_GetObjectItem(userobj, "Username")) && tmpobj->type == cJSON_String) strncpy(svf_user, tmpobj->valuestring, 63); else svf_user[0] = 0;
+			if((tmpobj = cJSON_GetObjectItem(userobj, "ID")) && tmpobj->type == cJSON_Number) sprintf(svf_user_id, "%i", tmpobj->valueint, 63); else svf_user_id[0] = 0;
+			if((tmpobj = cJSON_GetObjectItem(userobj, "SessionID")) && tmpobj->type == cJSON_String) strncpy(svf_session_id, tmpobj->valuestring, 63); else svf_session_id[0] = 0;
+			if((tmpobj = cJSON_GetObjectItem(userobj, "SessionKey")) && tmpobj->type == cJSON_String) strncpy(svf_session_key, tmpobj->valuestring, 63); else svf_session_key[0] = 0;
+			if((tmpobj = cJSON_GetObjectItem(userobj, "Elevation")) && tmpobj->type == cJSON_String) {
+				if (!strcmp(tmpobj->valuestring, "Admin")) {
+					svf_admin = 1;
+					svf_mod = 0;
+				} else if (!strcmp(tmpobj->valuestring, "Mod")) {
+					svf_mod = 1;
+					svf_admin = 0;
+				} else {
+					svf_admin = 0;
+					svf_mod = 0;
+				}
+			}
+		}
+		else if (userobj && cJSON_GetObjectItem(userobj, "name")) //tpt format
+		{
 			svf_login = 1;
 			if((tmpobj = cJSON_GetObjectItem(userobj, "name")) && tmpobj->type == cJSON_String) strncpy(svf_user, tmpobj->valuestring, 63); else svf_user[0] = 0;
 			if((tmpobj = cJSON_GetObjectItem(userobj, "id")) && tmpobj->type == cJSON_String) strncpy(svf_user_id, tmpobj->valuestring, 63); else svf_user_id[0] = 0;
@@ -337,7 +414,9 @@ void load_presets(void)
 				svf_admin = 0;
 				svf_mod = 0;
 			}
-		} else {
+		}
+		else 
+		{
 			svf_login = 0;
 			svf_user[0] = 0;
 			svf_user_id[0] = 0;
@@ -412,6 +491,55 @@ void load_presets(void)
 				}
 			}
 		}
+		else
+		{
+			graphicsobj = cJSON_GetObjectItem(root, "Renderer");
+			if (graphicsobj)
+			{
+				if(tmpobj = cJSON_GetObjectItem(graphicsobj, "ColourMode")) colour_mode = atoi(tmpobj->valuestring);
+				if(tmpobj = cJSON_GetObjectItem(graphicsobj, "DisplayModes"))
+				{
+					char *temp = (char*)malloc(32*sizeof(char));
+					count = cJSON_GetArraySize(tmpobj);
+					free(display_modes);
+					display_mode = 0;
+					display_modes = (unsigned int*)calloc(count+1, sizeof(unsigned int));
+					for(i = 0; i < count; i++)
+					{
+						strncpy(temp, cJSON_GetArrayItem(tmpobj, i)->valuestring, 31);
+						display_mode |= strtol(temp, NULL, 16);
+						display_modes[i] = strtol(temp, NULL, 16);
+					}
+				}
+				if(tmpobj = cJSON_GetObjectItem(graphicsobj, "RenderModes"))
+				{
+					char *temp = (char*)malloc(32*sizeof(char));
+					count = cJSON_GetArraySize(tmpobj);
+					free(render_modes);
+					render_mode = 0;
+					render_modes = (unsigned int*)calloc(count+1, sizeof(unsigned int));
+					for(i = 0; i < count; i++)
+					{
+						int mode;
+						strncpy(temp, cJSON_GetArrayItem(tmpobj, i)->valuestring, 31);
+						mode = strtol(temp, NULL, 16);
+						render_mode |= strtol(temp, NULL, 16);
+						render_modes[i] = strtol(temp, NULL, 16);
+					}
+				}
+				if((tmpobj = cJSON_GetObjectItem(root, "Decorations")) && tmpobj->type == cJSON_True) decorations_enable = tmpobj->valueint;
+				if((tmpobj = cJSON_GetObjectItem(root, "GravityField")) && tmpobj->type == cJSON_True) drawgrav_enable = tmpobj->valueint;
+			}
+		}
+
+		simulationobj = cJSON_GetObjectItem(root, "Simulation");
+		if (simulationobj)
+		{
+			if(tmpobj = cJSON_GetObjectItem(simulationobj, "EdgeMode"))
+			{
+				edgeMode = tmpobj->valueint;
+			}
+		}
 
 		//Read HUDs
 		hudobj = cJSON_GetObjectItem(root, "HUD");
@@ -454,6 +582,7 @@ void load_presets(void)
 		//Read general settings
 		if((tmpobj = cJSON_GetObjectItem(root, "proxy")) && tmpobj->type == cJSON_String) strncpy(http_proxy_string, tmpobj->valuestring, 255); else http_proxy_string[0] = 0;
 		if(tmpobj = cJSON_GetObjectItem(root, "scale")) sdl_scale = tmpobj->valueint;
+		else if(tmpobj = cJSON_GetObjectItem(root, "Scale")) sdl_scale = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "Debug mode")) DEBUG_MODE = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "heatmode")) heatmode = tmpobj->valueint;
 		//if(tmpobj = cJSON_GetObjectItem(root, "save_as")) save_as = tmpobj->valueint;
@@ -473,6 +602,7 @@ void load_presets(void)
 		if(tmpobj = cJSON_GetObjectItem(root, "old_menu")) old_menu = 1;
 		if(tmpobj = cJSON_GetObjectItem(root, "drawgrav_enable")) drawgrav_enable = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "edgeMode")) edgeMode = tmpobj->valueint;
+		if (edgeMode > 3) edgeMode = 0;
 		if(tmpobj = cJSON_GetObjectItem(root, "alt_find")) finding |= 0x8;
 		if(tmpobj = cJSON_GetObjectItem(root, "dateformat")) dateformat = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "show_ids")) show_ids = tmpobj->valueint;

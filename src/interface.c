@@ -73,6 +73,7 @@ char svf_user[64] = "";
 char svf_user_id[64] = "";
 char svf_pass[64] = "";
 char svf_session_id[64] = "";
+char svf_session_key[64] = "";
 
 int svf_open = 0;
 int svf_own = 0;
@@ -3793,10 +3794,11 @@ void set_cmode(int cm) // sets to given view mode
 	else if (cmode==CM_FIRE)
 	{
 		free(render_modes);
-		render_modes = (unsigned int*)calloc(3, sizeof(unsigned int));
+		render_modes = (unsigned int*)calloc(4, sizeof(unsigned int));
 		render_modes[0] = RENDER_FIRE;
 		render_modes[1] = RENDER_EFFE;
-		render_modes[2] = 0;
+		render_modes[2] = RENDER_BASC;
+		render_modes[3] = 0;
 		memset(fire_r, 0, sizeof(fire_r));
 		memset(fire_g, 0, sizeof(fire_g));
 		memset(fire_b, 0, sizeof(fire_b));
@@ -3806,13 +3808,10 @@ void set_cmode(int cm) // sets to given view mode
 	{
 		free(display_modes);
 		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
-		display_mode |= DISPLAY_BLOB;
 		display_modes[0] = DISPLAY_BLOB;
 		display_modes[1] = 0;
 		free(render_modes);
 		render_modes = (unsigned int*)calloc(3, sizeof(unsigned int));
-		render_mode |= RENDER_FIRE;
-		render_mode |= RENDER_EFFE;
 		render_modes[0] = RENDER_FIRE;
 		render_modes[1] = RENDER_EFFE;
 		render_modes[2] = 0;
@@ -3834,12 +3833,13 @@ void set_cmode(int cm) // sets to given view mode
 	else if (cmode==CM_FANCY)
 	{
 		free(render_modes);
-		render_modes = (unsigned int*)calloc(5, sizeof(unsigned int));
+		render_modes = (unsigned int*)calloc(6, sizeof(unsigned int));
 		render_modes[0] = RENDER_FIRE;
 		render_modes[1] = RENDER_GLOW;
 		render_modes[2] = RENDER_BLUR;
 		render_modes[3] = RENDER_EFFE;
-		render_modes[4] = 0;
+		render_modes[4] = RENDER_BASC;
+		render_modes[5] = 0;
 		free(display_modes);
 		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
 		display_modes[0] = DISPLAY_WARP;
@@ -4261,7 +4261,7 @@ int search_ui(pixel *vid_buf)
 					drawtext(vid_buf, gx+XRES/(GRID_S*2)-textwidth(search_names[pos])/2, gy+YRES/GRID_S+7, search_names[pos], 192, 192, 192, 255);
 				j = textwidth(search_owners[pos]);
 				if (mx>=gx+XRES/(GRID_S*2)-j/2 && mx<=gx+XRES/(GRID_S*2)+j/2 &&
-				        my>=gy+YRES/GRID_S+18 && my<=gy+YRES/GRID_S+31)
+				        my>=gy+YRES/GRID_S+18 && my<=gy+YRES/GRID_S+29)
 				{
 					st = 1;
 					drawtext(vid_buf, gx+XRES/(GRID_S*2)-j/2, gy+YRES/GRID_S+20, search_owners[pos], 128, 128, 160, 255);
@@ -4283,7 +4283,7 @@ int search_ui(pixel *vid_buf)
 					thumb_drawn[pos] = 1;
 				}
 				own = (svf_login && (!strcmp(svf_user, search_owners[pos]) || svf_admin || svf_mod));
-				if (mx>=gx-2 && mx<=gx+XRES/GRID_S+3 && my>=gy-2 && my<=gy+YRES/GRID_S+30)
+				if (mx>=gx-2 && mx<=gx+XRES/GRID_S+3 && my>=gy && my<=gy+YRES/GRID_S+29)
 					mp = pos;
 				if ((own || search_fav) && mx>=gx+XRES/GRID_S-4 && mx<=gx+XRES/GRID_S+6 && my>=gy-6 && my<=gy+4)
 				{
@@ -8044,8 +8044,8 @@ void simulation_ui(pixel * vid_buf)
 	int airModeListCount = 5;
 	char * gravityModeList[] = {"Vertical", "Off", "Radial"};
 	int gravityModeListCount = 3;
-	char * edgeModeList[] = {"Void", "Solid", "Loop", "Empty"};
-	int edgeModeListCount = 4;
+	char * edgeModeList[] = {"Void", "Solid", "Loop"};//, "Empty"};
+	int edgeModeListCount = 3;
 	ui_list list;
 	ui_list list2;
 	ui_list list3;

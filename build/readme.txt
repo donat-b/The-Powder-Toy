@@ -418,7 +418,9 @@ the 'open; button from the website (if you have this 'installed' with ctrl+i)
 
 
 Bugs:
+make CLNE/VOID not indestructible
 With Empty edge mode on, putting a fire or pressure element in the bottom corners causes infinite pressure / pixelated fire glitches
+pausing ANIM
 //None (at least that I know of)
 
 
@@ -426,6 +428,7 @@ With Empty edge mode on, putting a fire or pressure element in the bottom corner
 
 Future Ideas/TODO: '>' means currently being worked on/added next
 >Add things from tpt++ that look cool, and any new simulation changes it gets
+see about getting rid of "posting too frequently" like tpt++
 ---
 C++ version todo:
 done - [compile tpt++ with visual studio]

@@ -216,6 +216,7 @@ extern char svf_user[64];
 extern char svf_pass[64];
 extern char svf_user_id[64];
 extern char svf_session_id[64];
+extern char svf_session_key[64];
 
 
 extern char svf_filename[255];

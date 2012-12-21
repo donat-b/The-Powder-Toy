@@ -1061,9 +1061,10 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 	{
 		if (pmap[y][x])
 		{
+			int drawOn = pmap[y][x]&0xFF;
 			if ((
-				((pmap[y][x]&0xFF)==PT_STOR&&!(ptypes[t].properties&TYPE_SOLID))||
-				(pmap[y][x]&0xFF)==PT_CONV||
+				(drawOn == PT_STOR && !(ptypes[t].properties&TYPE_SOLID)) ||
+				drawOn == PT_CONV ||
 				((ptypes[pmap[y][x]&0xFF].properties&PROP_CLONE || (ptypes[pmap[y][x]&0xFF].properties&PROP_BREAKABLECLONE)) && (!(ptypes[pmap[y][x]&0xFF].properties&PROP_POWERED) || (t!=PT_PSCN && t!=PT_NSCN)))
 			)&&(
 				!(ptypes[t].properties&PROP_CLONE)&&
@@ -1073,12 +1074,14 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 			)
 			{
 				parts[pmap[y][x]>>8].ctype = t;
-				if (t==PT_LIFE && v<NGOLALT && (pmap[y][x]&0xFF)!=PT_STOR) parts[pmap[y][x]>>8].tmp = v;
+				if (t == PT_LIFE && v < NGOLALT && drawOn != PT_STOR)
+					parts[pmap[y][x]>>8].tmp = v;
 			}
-			else if ((pmap[y][x]&0xFF) == PT_DTEC && (pmap[y][x]&0xFF) != t)
+			else if (drawOn == PT_DTEC && drawOn != t)
 			{
 				parts[pmap[y][x]>>8].ctype = t;
-				if (t==PT_LIFE && v<NGOLALT) parts[pmap[y][x]>>8].tmp = v;
+				if (t==PT_LIFE && v<NGOLALT)
+					parts[pmap[y][x]>>8].tmp = v;
 			}
 			return -1;
 		}
