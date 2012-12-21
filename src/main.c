@@ -1769,8 +1769,8 @@ int main(int argc, char *argv[])
 				int nx, ny;
 				if (sdl_mod & (KMOD_CTRL))
 				{
-					for (i=0; i<NPART; i++)
-						if (parts[i].type==PT_SPRK)
+					for (i=0; i < NPART; i++)
+						if (parts[i].type == PT_SPRK)
 						{
 							if (parts[i].ctype >= 0 && parts[i].ctype < PT_NUM && ptypes[parts[i].ctype].enabled)
 							{
@@ -1783,12 +1783,17 @@ int main(int argc, char *argv[])
 				}
 				else
 				{
-					for (nx = 0; nx<XRES/CELL; nx++)
-						for (ny = 0; ny<YRES/CELL; ny++)
+					for (nx = 0; nx < XRES/CELL; nx++)
+						for (ny = 0; ny < YRES/CELL; ny++)
 						{
 							pv[ny][nx] = 0;
 							vx[ny][nx] = 0;
 							vy[ny][nx] = 0;
+						}
+					for (i=0; i < NPART; i++)
+						if (parts[i].type == PT_QRTZ || parts[i].type == PT_GLAS)
+						{
+							parts[i].pavg[0] = parts[i].pavg[1] = 0;
 						}
 				}
 			}
