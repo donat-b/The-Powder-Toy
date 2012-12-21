@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 	void *exe_data = NULL;
 	if (!argv[1] || !argv[2])
 	{
-		printf("Argument error\nIt takes the filename/filepath of the exe to compress as the first argument\nAnd the filename/filepath of the output file as the second");
+		printf("Argument error\nIt takes the filename/filepath of the exe to compress as the first argument\nAnd the filename/filepath of the output file as the second\n");
 		goto end;
 	}
 	exe_data = file_load(argv[1], &exe_size);

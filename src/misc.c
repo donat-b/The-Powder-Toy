@@ -243,6 +243,7 @@ void save_presets(int do_update)
 			cJSON_AddFalseToObject(userobj, "mod");
 		}
 	}
+
 	//Version Info
 	cJSON_AddItemToObject(root, "version", versionobj=cJSON_CreateObject());
 	cJSON_AddNumberToObject(versionobj, "major", SAVE_VERSION);
@@ -253,7 +254,6 @@ void save_presets(int do_update)
 	} else {
 		cJSON_AddFalseToObject(versionobj, "update");
 	}
-
 	
 	//Fav Menu/Records
 	cJSON_AddItemToObject(root, "records", recobj=cJSON_CreateObject());
