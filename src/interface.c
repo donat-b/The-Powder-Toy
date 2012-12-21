@@ -2060,7 +2060,7 @@ fail:
 	save_presets(0);
 }
 
-int stamp_ui(pixel *vid_buf)
+int stamp_ui(pixel *vid_buf, int *reorder)
 {
 	int b=1,bq,mx,my,d=-1,i,j,k,x,gx,gy,y,w,h,r=-1,stamp_page=0,per_page=GRID_X*GRID_Y,page_count,numdelete=0,lastdelete;
 	char page_info[64];
@@ -2225,6 +2225,8 @@ int stamp_ui(pixel *vid_buf)
 			break;
 		}
 	}
+	if (sdl_mod & KMOD_CTRL)
+		*reorder = 0;
 
 	while (!sdl_poll())
 	{

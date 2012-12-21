@@ -1483,9 +1483,10 @@ int main(int argc, char *argv[])
 					it = 50;
 				if (sdl_key=='k' && stamps[1].name[0])
 				{
-					j = stamp_ui(vid_buf);
+					int reorder = 1;
+					j = stamp_ui(vid_buf, &reorder);
 					if (j>=0)
-						load_data = stamp_load(j, &load_size, 1);
+						load_data = stamp_load(j, &load_size, reorder);
 					else
 						load_data = NULL;
 				}

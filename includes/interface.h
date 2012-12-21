@@ -329,7 +329,7 @@ int confirm_ui(pixel *vid_buf, char *top, char *msg, char *btn);
 
 void login_ui(pixel *vid_buf);
 
-int stamp_ui(pixel *vid_buf);
+int stamp_ui(pixel *vid_buf, int *reorder);
 
 void tag_list_ui(pixel *vid_buf);
 
