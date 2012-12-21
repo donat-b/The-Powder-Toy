@@ -2402,7 +2402,10 @@ void render_parts(pixel *vid)
 					fireg = colg = (unsigned char)color_data[caddress+1];
 					fireb = colb = (unsigned char)color_data[caddress+2];
 					cola = 255;
-					if(pixel_mode & (FIREMODE | PMODE_GLOW)) pixel_mode = (pixel_mode & ~(FIREMODE|PMODE_GLOW)) | PMODE_BLUR;
+					if(pixel_mode & (FIREMODE | PMODE_GLOW))
+						pixel_mode = (pixel_mode & ~(FIREMODE|PMODE_GLOW)) | PMODE_BLUR;
+					else if (!pixel_mode)
+						pixel_mode |= PMODE_FLAT;
 				}
 				else if(colour_mode & COLOUR_LIFE)
 				{
@@ -2413,7 +2416,10 @@ void render_parts(pixel *vid)
 						q = parts[i].life;
 					colr = colg = colb = (int)(sin(gradv*q) * 100 + 128);
 					cola = 255;
-					if(pixel_mode & (FIREMODE | PMODE_GLOW)) pixel_mode = (pixel_mode & ~(FIREMODE|PMODE_GLOW)) | PMODE_BLUR;
+					if(pixel_mode & (FIREMODE | PMODE_GLOW))
+						pixel_mode = (pixel_mode & ~(FIREMODE|PMODE_GLOW)) | PMODE_BLUR;
+					else if (!pixel_mode)
+						pixel_mode |= PMODE_FLAT;
 				}
 				else if (colour_mode & COLOUR_BASC)
 				{
