@@ -1092,14 +1092,13 @@ int main(int argc, char *argv[])
 	else
 		http_ver_check = NULL;
 	if (svf_login) {
-		/*if (strcmp(UPDATESERVER, SERVER)==0)
+		if (http_ver_check)
 		{
-			//Add authentication so beta checking can be done from user basis
-			//but for mods using the same simulation server and a different update server, don't send the session id to the update server
-			http_auth_headers(http_ver_check, svf_user_id, NULL, svf_session_id);
-		}*/
+			http_auth_headers(http_ver_check, svf_user, NULL, NULL);
+		}
 		http_session_check = http_async_req_start(NULL, "http://" SERVER "/Login.api?Action=CheckSession", NULL, 0, 0);
-		http_auth_headers(http_session_check, svf_user_id, NULL, svf_session_id);
+		if (http_session_check)
+			http_auth_headers(http_session_check, svf_user_id, NULL, svf_session_id);
 	}
 #ifdef LUACONSOLE
 	luacon_eval("dofile(\"autorun.lua\")"); //Autorun lua script
