@@ -414,11 +414,20 @@ Version 20.1 12/7/12
 Fix no fire effects showing after clearing the sim or opening any save. Fix 
 the 'open; button from the website (if you have this 'installed' with ctrl+i)
 
+Version 20.2 12/21/12
+Support both tpt and tpt++ readme's at the same time. Many tpt++ bug fixes to 
+elements like TRON, GLAS, TSNS, SLTW, and WARP. Hold control when selecting a 
+stamp to not reorder it. Change destructibility of clones and voids to match 
+tpt's (although I changed it because I liked my ways better). Fix ANIM pausing 
+and improve the editing of it. Fix really old tpt bug where thumbnails may not 
+load in the save browser, make them load much faster. Send version info and 
+username to the update server when checking.
+
 
 
 
 Bugs:
-With Empty edge mode on, putting a fire or pressure element in the bottom corners causes infinite pressure / pixelated fire glitches
+With Empty edge mode on, putting a fire or pressure element in the bottom corners causes infinite pressure / pixelated fire glitches.
 //None (at least that I know of)
 
 
