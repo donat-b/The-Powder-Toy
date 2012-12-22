@@ -4625,10 +4625,10 @@ int search_ui(pixel *vid_buf)
 				{
 					if (thumb)
 						free(thumb);
-					thumb = calloc(1,4);
-					thlen = 4;
+					thumb = NULL;
 				}
-				thumb_cache_add(img_id[i], thumb, thlen);
+				else
+					thumb_cache_add(img_id[i], thumb, thlen);
 				for (pos=0; pos<GRID_X*GRID_Y; pos++) {
 					if (search_dates[pos]) {
 						char *id_d_temp = (char*)malloc(strlen(search_ids[pos])+strlen(search_dates[pos])+2);
@@ -4650,13 +4650,16 @@ int search_ui(pixel *vid_buf)
 						}
 					}
 				}
-				if (pos<GRID_X*GRID_Y)
+				if (thumb)
 				{
-					search_thumbs[pos] = thumb;
-					search_thsizes[pos] = thlen;
+					if (pos<GRID_X*GRID_Y)
+					{
+						search_thumbs[pos] = thumb;
+						search_thsizes[pos] = thlen;
+					}
+					else
+						free(thumb);
 				}
-				else
-					free(thumb);
 				free(img_id[i]);
 				img_id[i] = NULL;
 			}

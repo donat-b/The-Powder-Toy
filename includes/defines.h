@@ -65,7 +65,7 @@
 #define M_GRAV 6.67300e-1
 #endif
 
-#define IMGCONNS 3
+#define IMGCONNS 6
 #define TIMEOUT 100
 #define HTTP_TIMEOUT 10
 
