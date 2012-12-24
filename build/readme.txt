@@ -423,6 +423,9 @@ and improve the editing of it. Fix really old tpt bug where thumbnails may not
 load in the save browser, make them load much faster. Send version info and 
 username to the update server when checking.
 
+Version 20.3 12/23/12
+Fix possible crash glitch caused by my tpt++ STKM eaten by CONV fix
+
 
 
 

@@ -1101,7 +1101,53 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 	}
 	else
 	{
-		kill_part(p);
+		int oldX = (int)(parts[p].x+0.5f);
+		int oldY = (int)(parts[p].y+0.5f);
+		if ((pmap[oldY][oldX]>>8)==p)
+			pmap[oldY][oldX] = 0;
+		if ((photons[oldY][oldX]>>8)==p)
+			photons[oldY][oldX] = 0;
+
+		if (parts[p].type == PT_STKM)
+		{
+			player.spwn = 0;
+		}
+		else if (parts[p].type == PT_STKM2)
+		{
+			player2.spwn = 0;
+		}
+		if (parts[p].type == PT_FIGH)
+		{
+			fighters[(unsigned char)parts[p].tmp].spwn = 0;
+			fighcount--;
+		}
+		else if (parts[p].type == PT_SPAWN)
+		{
+			ISSPAWN1 = 0;
+		}
+		else if (parts[p].type == PT_SPAWN2)
+		{
+			ISSPAWN2 = 0;
+		}
+		else if (parts[p].type == PT_SOAP)
+		{
+			detach(p);
+		}
+		else if (ptypes[parts[p].type].properties&PROP_MOVS)
+		{
+			int bn = parts[p].tmp2;
+			if (bn >= 0 && bn < 256)
+			{
+				msnum[bn]--;
+				if (msindex[bn]-1 == i)
+					msindex[bn] = 0;
+			}
+		}
+		else if (parts[p].type == PT_ANIM && parts[p].animations)
+		{
+			free(parts[p].animations);
+			parts[p].animations = NULL;
+		}
 		i = p;
 	}
 
