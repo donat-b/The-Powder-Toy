@@ -57,13 +57,32 @@ int contact_part(int i, int tp)
 	return -1;
 }
 
+int create_LIGH(int x, int y, int c, int temp, int life, int tmp, int tmp2)
+{
+	int p = create_part(-1, x, y,c);
+	if (p != -1)
+	{
+		parts[p].life = life;
+		parts[p].temp = temp;
+		parts[p].tmp = tmp;
+		parts[p].tmp2 = tmp2;
+	}
+	else
+	{
+		int r = pmap[y][x];
+		if ((((r&0xFF)==PT_VOID || ((r&0xFF)==PT_PVOD && parts[r>>8].life >= 10)) && (!parts[r>>8].ctype || (parts[r>>8].ctype==c)!=(parts[r>>8].tmp&1))) || (r&0xFF)==PT_BHOL || (r&0xFF)==PT_NBHL) // VOID, PVOD, VACU, and BHOL eat LIGH here
+			return 1;
+	}
+	return 0;
+}
+
 void create_line_par(int x1, int y1, int x2, int y2, int c, int temp, int life, int tmp, int tmp2)
 {
-	int cp=abs(y2-y1)>abs(x2-x1), x, y, dx, dy, sy;
-	float e, de;
+	int reverseXY=abs(y2-y1)>abs(x2-x1), back = 0, x, y, dx, dy, Ystep;
+	float e = 0.0f, de;
 	if (c==WL_EHOLE || c==WL_ALLOWGAS || c==WL_ALLOWALLELEC || c==WL_ALLOWSOLID || c==WL_ALLOWAIR || c==WL_WALL || c==WL_DESTROYALL || c==WL_ALLOWLIQUID || c==WL_FAN || c==WL_STREAM || c==WL_DETECT || c==WL_EWALL || c==WL_WALLELEC)
 		return; // this function only for particles, no walls
-	if (cp)
+	if (reverseXY)
 	{
 		y = x1;
 		x1 = y1;
@@ -73,42 +92,53 @@ void create_line_par(int x1, int y1, int x2, int y2, int c, int temp, int life, 
 		y2 = y;
 	}
 	if (x1 > x2)
-	{
-		y = x1;
-		x1 = x2;
-		x2 = y;
-		y = y1;
-		y1 = y2;
-		y2 = y;
-	}
+		back = 1;
 	dx = x2 - x1;
 	dy = abs(y2 - y1);
-	e = 0.0f;
 	if (dx)
 		de = dy/(float)dx;
 	else
 		de = 0.0f;
 	y = y1;
-	sy = (y1<y2) ? 1 : -1;
-	for (x=x1; x<=x2; x++)
+	Ystep = (y1<y2) ? 1 : -1;
+	if (!back)
 	{
-		int p;
-		if (cp)
-			p=create_part(-1, y, x, c);
-		else
-			p=create_part(-1, x, y,c);
-		if (p!=-1)
+		for (x = x1; x <= x2; x++)
 		{
-			parts[p].life=life;
-			parts[p].temp=(float)temp;
-			parts[p].tmp=tmp;
-			parts[p].tmp2=tmp2;
+			int ret;
+			if (reverseXY)
+				ret = create_LIGH(y, x, c, temp, life, tmp, tmp2);
+			else
+				ret = create_LIGH(x, y, c, temp, life, tmp, tmp2);
+			if (ret)
+				return;
+
+			e += de;
+			if (e >= 0.5f)
+			{
+				y += Ystep;
+				e -= 1.0f;
+			}
 		}
-		e += de;
-		if (e >= 0.5f)
+	}
+	else
+	{
+		for (x = x1; x >= x2; x--)
 		{
-			y += sy;
-			e -= 1.0f;
+			int ret;
+			if (reverseXY)
+				ret = create_LIGH(y, x, c, temp, life, tmp, tmp2);
+			else
+				ret = create_LIGH(x, y, c, temp, life, tmp, tmp2);
+			if (ret)
+				return;
+
+			e += de;
+			if (e <= -0.5f)
+			{
+				y += Ystep;
+				e += 1.0f;
+			}
 		}
 	}
 }
