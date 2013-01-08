@@ -426,6 +426,12 @@ username to the update server when checking.
 Version 20.3 12/23/12
 Fix possible crash glitch caused by my tpt++ STKM eaten by CONV fix
 
+Version 20.4 1/8/13
+Fix freeze and remove message when it can't find the update server. The 
+updater will probably continue working when the server is back up. Simulation 
+updates from tpt++ (DTEC detecting GOL fix, VOID/BHOL eat LIGH). Paused 
+checkbox when saving.
+
 
 
 
