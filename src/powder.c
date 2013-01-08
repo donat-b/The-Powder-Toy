@@ -553,10 +553,13 @@ int try_move(int i, int x, int y, int nx, int ny)
 			return 1;
 		}
 
-		if ((pmap[ny][nx]>>8)==e) pmap[ny][nx] = 0;
-		parts[e].x += x-nx;
-		parts[e].y += y-ny;
-		pmap[(int)(parts[e].y+0.5f)][(int)(parts[e].x+0.5f)] = (e<<8)|parts[e].type;
+		if (!OutOfBounds(x-nx, y-ny))
+		{
+			if ((pmap[ny][nx]>>8)==e) pmap[ny][nx] = 0;
+			parts[e].x += x-nx;
+			parts[e].y += y-ny;
+			pmap[(int)(parts[e].y+0.5f)][(int)(parts[e].x+0.5f)] = (e<<8)|parts[e].type;
+		}
 	}
 	return 1;
 }
@@ -1139,7 +1142,7 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 			if (bn >= 0 && bn < 256)
 			{
 				msnum[bn]--;
-				if (msindex[bn]-1 == i)
+				if (msindex[bn]-1 == p)
 					msindex[bn] = 0;
 			}
 		}
@@ -4068,7 +4071,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 
 	if (is_TOOL(c) || is_DECOTOOL(c))
 		fn = 3;
-	else if (c == 0 && !(flags&BRUSH_REPLACEMODE))								// delete
+	else if (c == 0 && !(flags&BRUSH_REPLACEMODE))							// delete
 		fn = 0;
 	else if ((flags&BRUSH_SPECIFIC_DELETE) && !(flags&BRUSH_REPLACEMODE))	// specific delete
 		fn = 1;
