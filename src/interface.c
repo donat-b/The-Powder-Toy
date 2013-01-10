@@ -2056,48 +2056,15 @@ void login_ui(pixel *vid_buf)
 					tmpobj = cJSON_GetObjectItem(root, "Error");
 					if (tmpobj && tmpobj->type == cJSON_String)
 						error_ui(vid_buf, 0, tmpobj->valuestring);
+					else
+						error_ui(vid_buf, 0, "Could not read Error response");
 					if (data)
 						free(data);
 					goto fail;
 				}
 			}
-			
-			/*
-			if (status_4 == 200)
-			{
-				int i;
-				cJSON *root, *commentobj, *tmpobj;
-				for (i=comment_page*20;i<comment_page*20+20&&i<NUM_COMMENTS;i++)
-				{
-					if (info->comments[i]) { free(info->comments[i]); info->comments[i] = NULL; }
-					if (info->commentauthors[i]) { free(info->commentauthors[i]); info->commentauthors[i] = NULL; }
-					if (info->commentauthorsunformatted[i]) { free(info->commentauthorsunformatted[i]); info->commentauthorsunformatted[i] = NULL; }
-					if (info->commentauthorIDs[i]) { free(info->commentauthorIDs[i]); info->commentauthorIDs[i] = NULL; }
-				}
-				if(comment_data && (root = cJSON_Parse((const char*)comment_data)))
-				{
-					if (comment_page == 0)
-						info->comment_count = cJSON_GetArraySize(root);
-					else
-						info->comment_count += cJSON_GetArraySize(root);
-					if (info->comment_count > NUM_COMMENTS)
-						info->comment_count = NUM_COMMENTS;
-					for (i = comment_page*20; i < info->comment_count; i++)
-					{
-						commentobj = cJSON_GetArrayItem(root, i%20);
-						if(commentobj){
-							if((tmpobj = cJSON_GetObjectItem(commentobj, "FormattedUsername")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
-							if((tmpobj = cJSON_GetObjectItem(commentobj, "Username")) && tmpobj->type == cJSON_String) { info->commentauthorsunformatted[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthorsunformatted[i], tmpobj->valuestring, 63); }
-							if((tmpobj = cJSON_GetObjectItem(commentobj, "UserID")) && tmpobj->type == cJSON_String) { info->commentauthorIDs[i] = (char*)calloc(16,sizeof(char*)); strncpy(info->commentauthorIDs[i], tmpobj->valuestring, 16); }
-							//if((tmpobj = cJSON_GetObjectItem(commentobj, "Gravatar")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
-							if((tmpobj = cJSON_GetObjectItem(commentobj, "Text")) && tmpobj->type == cJSON_String)  { info->comments[i] = (char*)calloc(strlen(tmpobj->valuestring)+1,sizeof(char*)); strncpy(info->comments[i], tmpobj->valuestring, strlen(tmpobj->valuestring)+1); }
-							if((tmpobj = cJSON_GetObjectItem(commentobj, "Timestamp")) && tmpobj->type == cJSON_String) { converttotime(tmpobj->valuestring, &info->commenttimestamps[i], -1, -1, -1); }
-						}
-					}
-					cJSON_Delete(root);
-					redraw_comments = 1;
-				}
-				*/
+			else
+				error_ui(vid_buf, 0, "Could not read response");
 		}
 		else
 			error_ui(vid_buf, dataStatus, http_ret_text(dataStatus));
@@ -6316,30 +6283,69 @@ int execute_submit(pixel *vid_buf, char *id, char *message)
 	int status;
 	char *result;
 
-	char *names[] = {"ID", "Message", NULL};
-	char *parts[2];
-
-	parts[0] = id;
-	parts[1] = message;
-
-	result = http_multipart_post(
-	             "http://" SERVER "/Comment.api",
-	             names, parts, NULL,
-	             svf_user_id, /*svf_pass*/NULL, svf_session_id,
-	             &status, NULL);
-
-	if (status!=200)
+	if (strlen(svf_session_key))
 	{
-		error_ui(vid_buf, status, http_ret_text(status));
-		if (result)
-			free(result);
-		return 1;
+		char * postNames[] = { "Comment", NULL };
+		char * postDatas[] = { message };
+		int postLengths[] = { strlen(message) };
+		int dataLength;
+		char *url = (char*)malloc(sizeof(message)+sizeof(id) + 128);
+		sprintf(url, "http://%s/Browse/Comments.json?ID=%s&Key=%s", SERVER, id, svf_session_key);
+		result = http_multipart_post(url, postNames, postDatas, postLengths, svf_user_id, NULL, svf_session_id, &status, &dataLength);
+
+		if (status!=200)
+		{
+			error_ui(vid_buf, status, http_ret_text(status));
+			if (result)
+				free(result);
+			return 1;
+		}
+		else
+		{
+			cJSON *root, *tmpobj;
+			if (root = cJSON_Parse((const char*)result))
+			{
+				tmpobj = cJSON_GetObjectItem(root, "Status");
+				if (tmpobj && tmpobj->type == cJSON_Number && tmpobj->valueint != 1)
+				{
+					tmpobj = cJSON_GetObjectItem(root, "Error");
+					if (tmpobj && tmpobj->type == cJSON_String)
+					{
+						error_ui(vid_buf, 0, tmpobj->valuestring);
+					}
+					else
+						error_ui(vid_buf, 0, "Could not read response");
+				}
+			}
+		}
 	}
-	if (result && strncmp(result, "OK", 2))
+	else
 	{
-		error_ui(vid_buf, 0, result);
-		free(result);
-		return 1;
+		char *names[] = {"ID", "Message", NULL};
+		char *parts[2];
+
+		parts[0] = id;
+		parts[1] = message;
+
+		result = http_multipart_post(
+					 "http://" SERVER "/Comment.api",
+					 names, parts, NULL,
+					 svf_user_id, /*svf_pass*/NULL, svf_session_id,
+					 &status, NULL);
+
+		if (status!=200)
+		{
+			error_ui(vid_buf, status, http_ret_text(status));
+			if (result)
+				free(result);
+			return 1;
+		}
+		if (result && strncmp(result, "OK", 2))
+		{
+			error_ui(vid_buf, 0, result);
+			free(result);
+			return 1;
+		}
 	}
 
 	if (result)
