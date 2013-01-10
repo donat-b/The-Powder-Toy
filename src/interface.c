@@ -1892,6 +1892,9 @@ void login_ui(pixel *vid_buf)
 	int x0=(XRES+BARSIZE-192)/2,y0=(YRES+MENUSIZE-80)/2,b=1,bq,mx,my,err;
 	ui_edit ed1,ed2;
 	char *res;
+	char passwordHash[33];
+	char totalHash[33];
+	char hashStream[65]; //not really a stream ...
 
 	while (!sdl_poll())
 	{
@@ -1979,73 +1982,129 @@ void login_ui(pixel *vid_buf)
 	}
 
 	strcpy(svf_user, ed1.str);
-	md5_ascii(svf_pass, (unsigned char *)ed2.str, 0);
-	res = http_multipart_post(
-	          "http://" SERVER "/Login.api",
-	          NULL, NULL, NULL,
-	          svf_user, svf_pass, NULL,
-	          &err, NULL);
-	if (err != 200)
-	{
-		error_ui(vid_buf, err, http_ret_text(err));
-		if (res)
-			free(res);
-		goto fail;
-	}
-	if (res && !strncmp(res, "OK ", 3))
-	{
-		char *s_id,*u_e,*nres,*u_m,*mres;
-		s_id = strchr(res+3, ' ');
-		if (!s_id)
-			goto fail;
-		*(s_id++) = 0;
+	strcpy(svf_pass, ed2.str);
+	//md5_ascii(svf_pass, (unsigned char *)ed2.str, 0);
 
-		u_e = strchr(s_id, ' ');
-		if (!u_e)
-			goto fail;
-		*(u_e++) = 0;
+	md5_ascii(passwordHash, (unsigned char *)svf_pass, strlen(svf_pass));
+	passwordHash[32] = 0;
+	sprintf(hashStream, "%s-%s", svf_user, passwordHash);
+	//hashStream << username << "-" << passwordHash;
+	md5_ascii(totalHash, (const unsigned char *)hashStream, strlen(hashStream));
+	totalHash[32] = 0;
+	if (totalHash)
+	{
+		int dataStatus, dataLength;
+		char * postNames[] = { "Username", "Hash", NULL };
+		char * postDatas[] = { svf_user, totalHash };
+		int postLengths[] = { strlen(svf_user), 32 };
+		char * data;
+		data = http_multipart_post(
+				  "http://" SERVER "/Loin.json",
+				  postNames, postDatas, postLengths,
+				  NULL, NULL, NULL,
+				  &dataStatus, &dataLength);
+		if(dataStatus == 200 && data)
+		{
+			cJSON *root, *tmpobj;//, *notificationarray, *notificationobj;
+			int i = 0;
+			if (root = cJSON_Parse((const char*)data))
+			{
+				tmpobj = cJSON_GetObjectItem(root, "Status");
+				if (tmpobj && tmpobj->type == cJSON_Number && tmpobj->valueint == 1)
+				{
+					if((tmpobj = cJSON_GetObjectItem(root, "UserID")) && tmpobj->type == cJSON_Number)
+						sprintf(svf_user_id, "%i", tmpobj->valueint);
+					if((tmpobj = cJSON_GetObjectItem(root, "SessionID")) && tmpobj->type == cJSON_String)
+						strcpy(svf_session_id, tmpobj->valuestring);
+					if((tmpobj = cJSON_GetObjectItem(root, "SessionKey")) && tmpobj->type == cJSON_String)
+						strcpy(svf_session_key, tmpobj->valuestring);
+					if((tmpobj = cJSON_GetObjectItem(root, "Elevation")) && tmpobj->type == cJSON_String)
+					{
+						char * elevation = tmpobj->valuestring;
+						if (!strcmp(elevation, "Mod"))
+						{
+							svf_admin = 0;
+							svf_mod = 1;
+						}
+						else if (!strcmp(elevation, "Admin"))
+						{
+							svf_admin = 1;
+							svf_mod = 0;
+						}
+						else
+						{
+							svf_admin = 0;
+							svf_mod = 0;
+						}
+					}
+					/*notificationarray = cJSON_GetObjectItem(root, "Notifications");
+					notificationobj = cJSON_GetArrayItem(notificationarray, 0);
+					while (notificationobj)
+					{
+						i++;
+						if((tmpobj = cJSON_GetObjectItem(notificationarray, "Text")) && tmpobj->type == cJSON_String)
+							if (strstr(tmpobj->valuestring, "message"))
+								svf_messages++;
+						notificationobj = cJSON_GetArrayItem(notificationarray, i);
+					}*/
+
+					svf_login = 1;
+					save_presets(0);
+				}
+				else
+				{
+					tmpobj = cJSON_GetObjectItem(root, "Error");
+					if (tmpobj && tmpobj->type == cJSON_String)
+						error_ui(vid_buf, 0, tmpobj->valuestring);
+					if (data)
+						free(data);
+					goto fail;
+				}
+			}
 			
-		u_m = strchr(u_e, ' ');
-		if (!u_m) {
-			u_m = (char*)malloc(1);
-			memset(u_m, 0, 1);
+			/*
+			if (status_4 == 200)
+			{
+				int i;
+				cJSON *root, *commentobj, *tmpobj;
+				for (i=comment_page*20;i<comment_page*20+20&&i<NUM_COMMENTS;i++)
+				{
+					if (info->comments[i]) { free(info->comments[i]); info->comments[i] = NULL; }
+					if (info->commentauthors[i]) { free(info->commentauthors[i]); info->commentauthors[i] = NULL; }
+					if (info->commentauthorsunformatted[i]) { free(info->commentauthorsunformatted[i]); info->commentauthorsunformatted[i] = NULL; }
+					if (info->commentauthorIDs[i]) { free(info->commentauthorIDs[i]); info->commentauthorIDs[i] = NULL; }
+				}
+				if(comment_data && (root = cJSON_Parse((const char*)comment_data)))
+				{
+					if (comment_page == 0)
+						info->comment_count = cJSON_GetArraySize(root);
+					else
+						info->comment_count += cJSON_GetArraySize(root);
+					if (info->comment_count > NUM_COMMENTS)
+						info->comment_count = NUM_COMMENTS;
+					for (i = comment_page*20; i < info->comment_count; i++)
+					{
+						commentobj = cJSON_GetArrayItem(root, i%20);
+						if(commentobj){
+							if((tmpobj = cJSON_GetObjectItem(commentobj, "FormattedUsername")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
+							if((tmpobj = cJSON_GetObjectItem(commentobj, "Username")) && tmpobj->type == cJSON_String) { info->commentauthorsunformatted[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthorsunformatted[i], tmpobj->valuestring, 63); }
+							if((tmpobj = cJSON_GetObjectItem(commentobj, "UserID")) && tmpobj->type == cJSON_String) { info->commentauthorIDs[i] = (char*)calloc(16,sizeof(char*)); strncpy(info->commentauthorIDs[i], tmpobj->valuestring, 16); }
+							//if((tmpobj = cJSON_GetObjectItem(commentobj, "Gravatar")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
+							if((tmpobj = cJSON_GetObjectItem(commentobj, "Text")) && tmpobj->type == cJSON_String)  { info->comments[i] = (char*)calloc(strlen(tmpobj->valuestring)+1,sizeof(char*)); strncpy(info->comments[i], tmpobj->valuestring, strlen(tmpobj->valuestring)+1); }
+							if((tmpobj = cJSON_GetObjectItem(commentobj, "Timestamp")) && tmpobj->type == cJSON_String) { converttotime(tmpobj->valuestring, &info->commenttimestamps[i], -1, -1, -1); }
+						}
+					}
+					cJSON_Delete(root);
+					redraw_comments = 1;
+				}
+				*/
 		}
 		else
-			*(u_m++) = 0;
-
-		strcpy(svf_user_id, res+3);
-		strcpy(svf_session_id, s_id);
-		mres = mystrdup(u_e);
-		nres = mystrdup(u_m);
-
-		#ifdef DEBUG
-		printf("{%s} {%s} {%s} {%s}\n", svf_user_id, svf_session_id, nres, mres);
-		#endif
-
-		if (!strncmp(nres, "ADMIN", 5))
-		{
-			svf_admin = 1;
-			svf_mod = 0;
-		}
-		else if (!strncmp(nres, "MOD", 3))
-		{
-			svf_admin = 0;
-			svf_mod = 1;
-		}
-		else
-		{
-			svf_admin = 0;
-			svf_mod = 0;
-		}
-		svf_messages = atoi(mres);
-		free(res);
-		svf_login = 1;
+			error_ui(vid_buf, dataStatus, http_ret_text(dataStatus));
+		if (data)
+			free(data);
 		return;
 	}
-	if (!res)
-		res = mystrdup("Unspecified Error");
-	error_ui(vid_buf, 0, res);
-	free(res);
 
 fail:
 	strcpy(svf_user, "");
