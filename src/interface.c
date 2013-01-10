@@ -5188,6 +5188,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					if (info->commentauthors[i]) { free(info->commentauthors[i]); info->commentauthors[i] = NULL; }
 					if (info->commentauthorsunformatted[i]) { free(info->commentauthorsunformatted[i]); info->commentauthorsunformatted[i] = NULL; }
 					if (info->commentauthorIDs[i]) { free(info->commentauthorIDs[i]); info->commentauthorIDs[i] = NULL; }
+					if (info->commenttimestamps[i]) { free(info->commenttimestamps[i]); info->commenttimestamps[i] = NULL; }
 				}
 				if(comment_data && (root = cJSON_Parse((const char*)comment_data)))
 				{
@@ -5344,6 +5345,14 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 									retval = 1;
 									goto finish;
 								}
+								else //copy name to comment box
+								{
+									if (strlen(ed.str) + strlen(info->commentauthorsunformatted[cc]) < 1023)
+									{
+										strappend(ed.str, info->commentauthorsunformatted[cc]);
+										strappend(ed.str, ": ");
+									}
+								}
 						}
 
 						ccy += 12;
@@ -5357,7 +5366,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						else
 						{
 							ccy += 10 + drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, XRES+BARSIZE-100-((XRES/2)+1)-20, info->comments[cc], 0, 0, 0, 0);
-							if (cc == info->comment_count-1)
+							if (cc == info->comment_count-1 && !active_4)
 								comment_scroll = 0;
 						}
 						if (ccy+52+comment_scroll<YRES+MENUSIZE-50 && ccy+comment_scroll>-3) { //draw the line that separates comments
@@ -5366,7 +5375,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					}
 					else
 						break;
-					if (cc == info->comment_count-1 && !http_4 && comment_page < NUM_COMMENTS/10)
+					if (cc == info->comment_count-1 && !http_4 && comment_page < NUM_COMMENTS/10 && !(info->comment_count%20))
 					{
 						comment_page++;
 						uri_4 = (char*)malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
@@ -5520,7 +5529,28 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
 					info_box(vid_buf, "Submitting Comment...");
 					if (!execute_submit(vid_buf, save_id, ed.str))
+					{
+						int i;
 						ed.str[0] = 0;
+						uri_4 = (char*)malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
+						sprintf(uri_4,"http://%s/Browse/Comments.json?ID=%s&Start=%i&Count=20",SERVER,save_id,0);
+						http_4 = http_async_req_start(http_4, uri_4, NULL, 0, 1);
+						http_last_use_4 = time(NULL);
+						free(uri_4);
+						active_4 = 1;
+
+						for (i=0; i < NUM_COMMENTS; i++)
+						{
+							if (info->comments[i]) { free(info->comments[i]); info->comments[i] = NULL; }
+							if (info->commentauthors[i]) { free(info->commentauthors[i]); info->commentauthors[i] = NULL; }
+							if (info->commentauthorsunformatted[i]) { free(info->commentauthorsunformatted[i]); info->commentauthorsunformatted[i] = NULL; }
+							if (info->commentauthorIDs[i]) { free(info->commentauthorIDs[i]); info->commentauthorIDs[i] = NULL; }
+							if (info->commenttimestamps[i]) { free(info->commenttimestamps[i]); info->commenttimestamps[i] = NULL; }
+						}
+						comment_page = 0;
+						info->comment_count = 0;
+						comment_scroll = 0;
+					}
 				}
 			}
 			if (sdl_wheel && (!ed.focus || (sdl_key != '-' && sdl_key != '+')))
