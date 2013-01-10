@@ -201,11 +201,13 @@ void init_display_modes()
 {
 	int i;
 	display_modes = (unsigned int*)calloc(1, sizeof(unsigned int));
-	render_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
+	render_modes = (unsigned int*)calloc(4, sizeof(unsigned int));
 	
 	display_modes[0] = 0;
 	render_modes[0] = RENDER_FIRE;
-	render_modes[1] = 0;
+	render_modes[1] = RENDER_EFFE;
+	render_modes[2] = RENDER_BASC;
+	render_modes[3] = 0;
 	
 	update_display_modes();
 }
