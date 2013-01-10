@@ -1999,7 +1999,7 @@ void login_ui(pixel *vid_buf)
 		int postLengths[] = { strlen(svf_user), 32 };
 		char * data;
 		data = http_multipart_post(
-				  "http://" SERVER "/Loin.json",
+				  "http://" SERVER "/Login.json",
 				  postNames, postDatas, postLengths,
 				  NULL, NULL, NULL,
 				  &dataStatus, &dataLength);
