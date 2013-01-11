@@ -319,7 +319,7 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 	strcpy(signs[i].text, ed.str);
 	signs[i].ju = ju;
 }
-//TODO: Finish text wrapping in text edits
+
 void ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 {
 	int cx, i, cy;
@@ -629,6 +629,112 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			}
 #endif
 			break;
+		}
+	}
+	if (!mb || !mbq)
+		if (ed->cursorstart == ed->cursor || (mb && !mbq))
+			ed->cursorstart = ed->cursor;
+}
+
+int ui_label_draw(pixel *vid_buf, ui_label *ed)
+{
+	char *str = ed->str, highlightstr[1024];
+	int ret;
+
+	if (ed->cursor>ed->cursorstart)
+	{
+		ed->highlightstart = ed->cursorstart;
+		ed->highlightlength = ed->cursor-ed->cursorstart;
+	}
+	else
+	{
+		ed->highlightstart = ed->cursor;
+		ed->highlightlength = ed->cursorstart-ed->cursor;
+	}
+
+	if (ed->str[0])
+	{
+		if (ed->multiline) {
+			ret = drawtextwrap(vid_buf, ed->x, ed->y, ed->w-14, str, 255, 255, 255, 185);
+			ed->h = ret;
+			if (ed->highlightlength)
+			{
+				
+				strncpy(highlightstr, &str[ed->highlightstart], ed->highlightlength);
+				highlightstr[ed->highlightlength] = 0;
+				drawhighlightwrap(vid_buf, ed->x, ed->y, ed->w-14, ed->str, ed->highlightstart, ed->highlightlength);
+			}
+		} else {
+			ret = drawtext(vid_buf, ed->x, ed->y, str, 255, 255, 255, 255);
+			ed->h = 12;
+			if (ed->highlightlength)
+			{
+				strncpy(highlightstr, &str[ed->highlightstart], ed->highlightlength);
+				highlightstr[ed->highlightlength] = 0;
+				drawhighlight(vid_buf, ed->x+textwidth(str)-textwidth(&str[ed->highlightstart]), ed->y, highlightstr);
+			}
+		}
+	}
+	return ret;
+}
+
+void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
+{
+	char *str = ed->str;
+	int l;
+#ifdef RAWINPUT
+	char *p;
+#endif
+
+	if (ed->cursor>ed->cursorstart)
+	{
+		ed->highlightstart = ed->cursorstart;
+		ed->highlightlength = ed->cursor-ed->cursorstart;
+	}
+	else
+	{
+		ed->highlightstart = ed->cursor;
+		ed->highlightlength = ed->cursorstart-ed->cursor;
+	}
+	if (mb)
+	{
+		if (ed->multiline) {
+			if ((ed->focus || !mbq) && mx>=ed->x && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+ed->h)
+			{
+				ed->focus = 1;
+				ed->cursor = textposxy(str, ed->w-14, mx-ed->x, my-ed->y);
+			}
+			else if (!mbq)
+				ed->focus = 0;
+		} else {
+			if ((ed->focus || !mbq) && mx>=ed->x && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+11)
+			{
+				ed->focus = 1;
+				ed->cursor = textwidthx(str, mx-ed->x);
+			}
+			else if (!mbq)
+				ed->focus = 0;
+		}
+	}
+	if (ed->focus && sdl_key)
+	{
+		l = strlen(ed->str);
+		if(sdl_mod & (KMOD_CTRL) && sdl_key=='c')//copy
+		{
+			if (ed->highlightlength)
+			{
+				char highlightstr[1024];
+				strncpy(highlightstr, &str[ed->highlightstart], ed->highlightlength);
+				highlightstr[ed->highlightlength] = 0;
+				clipboard_push_text(highlightstr);
+			}
+			else
+				clipboard_push_text(ed->str);
+		}
+		else if(sdl_mod & (KMOD_CTRL) && sdl_key=='a')//highlight all
+		{
+			ed->cursorstart = 0;
+			ed->cursor = l;
 		}
 	}
 	if (!mb || !mbq)
@@ -4921,7 +5027,7 @@ void converttotime(char *timestamp, char **timestring, int show_day, int show_ye
 
 int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 {
-	int b=1,bq,mx,my,ca=0,thumb_w,thumb_h,active=0,active_2=0,active_3=0,active_4=0,cc=0,ccy=0,cix=0;
+	int b=1,bq,mx,my,ca=0,thumb_w,thumb_h,active=0,active_2=0,active_3=0,active_4=0,cc=0,ccy=0,cix=0, i;
 	int hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1;
 	int comment_scroll = 0, comment_page = 0, redraw_comments = 1, commentheight = 0;
 	int nyd,nyu,ry,lv;
@@ -5184,7 +5290,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				cJSON *root, *commentobj, *tmpobj;
 				for (i=comment_page*20;i<comment_page*20+20&&i<NUM_COMMENTS;i++)
 				{
-					if (info->comments[i]) { free(info->comments[i]); info->comments[i] = NULL; }
+					if (info->comments[i].str) { info->comments[i].str[0] = 0; }
 					if (info->commentauthors[i]) { free(info->commentauthors[i]); info->commentauthors[i] = NULL; }
 					if (info->commentauthorsunformatted[i]) { free(info->commentauthorsunformatted[i]); info->commentauthorsunformatted[i] = NULL; }
 					if (info->commentauthorIDs[i]) { free(info->commentauthorIDs[i]); info->commentauthorIDs[i] = NULL; }
@@ -5206,7 +5312,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "Username")) && tmpobj->type == cJSON_String) { info->commentauthorsunformatted[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthorsunformatted[i], tmpobj->valuestring, 63); }
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "UserID")) && tmpobj->type == cJSON_String) { info->commentauthorIDs[i] = (char*)calloc(16,sizeof(char*)); strncpy(info->commentauthorIDs[i], tmpobj->valuestring, 16); }
 							//if((tmpobj = cJSON_GetObjectItem(commentobj, "Gravatar")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
-							if((tmpobj = cJSON_GetObjectItem(commentobj, "Text")) && tmpobj->type == cJSON_String)  { info->comments[i] = (char*)calloc(strlen(tmpobj->valuestring)+1,sizeof(char*)); strncpy(info->comments[i], tmpobj->valuestring, strlen(tmpobj->valuestring)+1); }
+							if((tmpobj = cJSON_GetObjectItem(commentobj, "Text")) && tmpobj->type == cJSON_String)  { strncpy(info->comments[i].str, tmpobj->valuestring, 1023); }
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "Timestamp")) && tmpobj->type == cJSON_String) { converttotime(tmpobj->valuestring, &info->commenttimestamps[i], -1, -1, -1); }
 						}
 					}
@@ -5293,9 +5399,10 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			if (info_ready && redraw_comments) // draw the comments
 			{
 				ccy = 0;
+				info->comments[0].y = 72+comment_scroll;
 				clearrect(vid_buf, 50+(XRES/2)+1, 50, XRES+BARSIZE-100-((XRES/2)+1), YRES+MENUSIZE-100);
 				for (cc=0; cc<info->comment_count; cc++) {
-					if (ccy + 72 + comment_scroll<YRES+MENUSIZE-56 && info->comments[cc]) { //Try not to draw off the screen
+					if (ccy + 72 + comment_scroll<YRES+MENUSIZE-56 && info->comments[cc].str) { //Try not to draw off the screen
 						if (ccy+comment_scroll >= 0) //Don't draw above the screen either
 						{
 							int r = 255, g = 255, bl = 255;
@@ -5358,14 +5465,22 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						ccy += 12;
 						if (ccy+comment_scroll>=0) //draw the comment
 						{
-							if ((ccy + 72 + comment_scroll + ((textwidth(info->comments[cc])/(XRES+BARSIZE-100-((XRES/2)+1)-20)))*12)>=YRES+MENUSIZE-56)
+							int change;
+							if ((ccy + 72 + comment_scroll + ((textwidth(info->comments[cc].str)/(XRES+BARSIZE-100-((XRES/2)+1)-20)))*12)>=YRES+MENUSIZE-56)
 								break;
-							ccy += drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, XRES+BARSIZE-100-((XRES/2)+1)-20, info->comments[cc], 255, 255, 255, 185);
-							ccy += 10;
+							change = ui_label_draw(vid_buf, &info->comments[cc]);
+							ui_label_process(mx, my, b, bq, &info->comments[cc]);
+							//ccy += drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, XRES+BARSIZE-100-((XRES/2)+1)-20, info->comments[cc].str, 255, 255, 255, 185);
+							ccy += change + 10;
+							if (cc < NUM_COMMENTS-1)
+								info->comments[cc+1].y = info->comments[cc].y + change + 22;
 						}
 						else
 						{
-							ccy += 10 + drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, XRES+BARSIZE-100-((XRES/2)+1)-20, info->comments[cc], 0, 0, 0, 0);
+							int change = drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, XRES+BARSIZE-100-((XRES/2)+1)-20, info->comments[cc].str, 0, 0, 0, 0);
+							ccy += change + 10;
+							if (cc < NUM_COMMENTS-1)
+								info->comments[cc+1].y = info->comments[cc].y + change + 22;
 							if (cc == info->comment_count-1 && !active_4)
 								comment_scroll = 0;
 						}
@@ -5541,7 +5656,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 
 						for (i=0; i < NUM_COMMENTS; i++)
 						{
-							if (info->comments[i]) { free(info->comments[i]); info->comments[i] = NULL; }
+							if (info->comments[i].str) { info->comments[i].str[0] = 0; }
 							if (info->commentauthors[i]) { free(info->commentauthors[i]); info->commentauthors[i] = NULL; }
 							if (info->commentauthorsunformatted[i]) { free(info->commentauthorsunformatted[i]); info->commentauthorsunformatted[i] = NULL; }
 							if (info->commentauthorIDs[i]) { free(info->commentauthorIDs[i]); info->commentauthorIDs[i] = NULL; }
@@ -5708,12 +5823,21 @@ int info_parse(char *info_data, save_info *info)
 	if (info->tags) free(info->tags);
 	for (i=0;i<NUM_COMMENTS;i++)
 	{
-		if (info->comments[i]) free(info->comments[i]);
 		if (info->commentauthors[i]) free(info->commentauthors[i]);
 		if (info->commentauthorsunformatted[i]) free(info->commentauthorsunformatted[i]);
 		if (info->commentauthorIDs[i]) free(info->commentauthorIDs[i]);
 	}
 	memset(info, 0, sizeof(save_info));
+	for (i = 0; i < NUM_COMMENTS; i++)
+	{
+		info->comments[i].x = 61+(XRES/2);
+		info->comments[i].y = 0;
+		info->comments[i].w = XRES+BARSIZE-107-(XRES/2);
+		info->comments[i].h = 0;
+		info->comments[i].focus = 0;
+		info->comments[i].multiline = 1;
+		info->comments[i].cursor = info->comments[i].cursorstart = 0;
+	}
 
 	if (!info_data || !*info_data)
 		return 0;
@@ -5807,7 +5931,7 @@ int info_parse(char *info_data, save_info *info)
 				*(q++) = 0;
 				info->commentauthors[info->comment_count] = mystrdup(info_data+8);
 				info->commentauthorsunformatted[info->comment_count] = mystrdup(info_data+8);
-				info->comments[info->comment_count] = mystrdup(q);
+				strcpy(info->comments[info->comment_count].str,mystrdup(q));
 				info->comment_count++;
 			}
 			j++;

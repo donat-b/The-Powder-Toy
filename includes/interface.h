@@ -137,6 +137,14 @@ struct ui_edit
 };
 typedef struct ui_edit ui_edit;
 
+struct ui_label
+{
+	int x, y, w, h, focus, multiline;
+	char str[1024];
+	int cursor, cursorstart, highlightstart, highlightlength;
+};
+typedef struct ui_label ui_label;
+
 struct ui_list
 {
 	int x, y, w, h;
@@ -170,7 +178,8 @@ struct save_info
 	int myfav;
 	char *tags;
 	int comment_count;
-	char *comments[NUM_COMMENTS];
+	//char *comments[NUM_COMMENTS];
+	ui_label comments[NUM_COMMENTS];
 	char *commentauthors[NUM_COMMENTS];
 	char *commentauthorsunformatted[NUM_COMMENTS];
 	char *commentauthorIDs[NUM_COMMENTS];
@@ -290,6 +299,10 @@ void add_sign_ui(pixel *vid_buf, int mx, int my);
 void ui_edit_draw(pixel *vid_buf, ui_edit *ed);
 
 void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed);
+
+int ui_label_draw(pixel *vid_buf, ui_label *ed);
+
+void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed);
 
 void ui_list_draw(pixel *vid_buf, ui_list *ed);
 

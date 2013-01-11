@@ -63,7 +63,7 @@ int create_LIGH(int x, int y, int c, int temp, int life, int tmp, int tmp2)
 	if (p != -1)
 	{
 		parts[p].life = life;
-		parts[p].temp = temp;
+		parts[p].temp = (float)temp;
 		parts[p].tmp = tmp;
 		parts[p].tmp2 = tmp2;
 	}
