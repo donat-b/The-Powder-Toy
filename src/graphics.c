@@ -1133,12 +1133,38 @@ int addchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a)
 int drawtext(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a)
 {
 	int sx = x;
+	int invert = 0;
+	int oR = r, oG = g, oB = b;
 	for (; *s; s++)
 	{
 		if (*s == '\n')
 		{
 			x = sx;
 			y += FONT_H+2;
+		}
+		else if (*s == '\x0F')
+		{
+			if(!s[1] || !s[2] || !s[3]) break;
+			oR = r;
+			oG = g;
+			oB = b;
+			r = (unsigned char)s[1];
+			g = (unsigned char)s[2];
+			b = (unsigned char)s[3];
+			s += 3;
+		}
+		else if (*s == '\x0E')
+		{
+			r = oR;
+			g = oG;
+			b = oB;
+		}
+		else if (*s == '\x01')
+		{
+			invert = !invert;
+			r = 255-r;
+			g = 255-g;
+			b = 255-b;
 		}
 		else if (*s == '\b')
 		{
@@ -1178,6 +1204,12 @@ int drawtext(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a
 				r = 100;
 				break;
 			}
+			if(invert)
+			{
+				r = 255-r;
+				g = 255-g;
+				b = 255-b;
+			}
 			s++;
 		}
 		else
@@ -1195,6 +1227,18 @@ int drawhighlight(pixel *vid, int x, int y, const char *s)
 		{
 			x = sx;
 			y += FONT_H+2;
+		}
+		else if (*s == '\x0F')
+		{
+			s += 3;
+		}
+		else if (*s == '\x0E')
+		{
+			
+		}
+		else if (*s == '\x01')
+		{
+			
 		}
 		else if (*s == '\b')
 		{
@@ -1229,6 +1273,8 @@ int drawtextwrap(pixel *vid, int x, int y, int w, const char *s, int r, int g, i
 	int cw = x;
 	int wordlen;
 	int charspace;
+	int invert = 0;
+	int oR = r, oG = g, oB = b;
 	while (*s)
 	{
 		wordlen = strcspn(s," .,!?\n");
@@ -1248,6 +1294,30 @@ int drawtextwrap(pixel *vid, int x, int y, int w, const char *s, int r, int g, i
 				rw = 0;
 				y += FONT_H+2;
 				rh+=FONT_H+2;
+			}
+			else if (*s == '\x0F')
+			{
+				if(!s[1] || !s[2] || !s[3]) break;
+				oR = r;
+				oG = g;
+				oB = b;
+				r = (unsigned char)s[1];
+				g = (unsigned char)s[2];
+				b = (unsigned char)s[3];
+				s += 3;
+			}
+			else if (*s == '\x0E')
+			{
+				r = oR;
+				g = oG;
+				b = oB;
+			}
+			else if (*s == '\x01')
+			{
+				invert = !invert;
+				r = 255-r;
+				g = 255-g;
+				b = 255-b;
 			}
 			else if (*s == '\b')
 			{
@@ -1281,6 +1351,12 @@ int drawtextwrap(pixel *vid, int x, int y, int w, const char *s, int r, int g, i
 					g = 170;
 					r = 32;
 					break;
+				}
+				if(invert)
+				{
+					r = 255-r;
+					g = 255-g;
+					b = 255-b;
 				}
 				s++;
 			}
@@ -1331,6 +1407,19 @@ int drawhighlightwrap(pixel *vid, int x, int y, int w, const char *s, int highli
 				x = sx;
 				rw = 0;
 				y += FONT_H+2;
+			}
+			else if (*s == '\x0F')
+			{
+				s += 3;
+				num += 4;
+			}
+			else if (*s == '\x0E')
+			{
+				num++;
+			}
+			else if (*s == '\x01')
+			{
+				num++;
 			}
 			else if (*s == '\b')
 			{
@@ -1534,6 +1623,16 @@ int textwidth(const char *s)
 		if (*s == '\n')
 		{
 		}
+		else if (*s == '\x0F')
+		{
+			s += 3;
+		}
+		else if (*s == '\x0E')
+		{
+		}
+		else if (*s == '\x01')
+		{
+		}
 		else if (*s == '\b')
 		{
 			s++;
@@ -1566,7 +1665,18 @@ int textnwidth(char *s, int n)
 	{
 		if (!n)
 			break;
-		if (*s == '\b')
+		if (*s == '\x0F')
+		{
+			s += 3;
+			n = min(1,n-3);
+		}
+		else if (*s == '\x0E')
+		{
+		}
+		else if (*s == '\x01')
+		{
+		}
+		else if (*s == '\b')
 		{
 			s++;
 			if (n > 1)
@@ -1597,7 +1707,18 @@ void textnpos(char *s, int n, int w, int *cx, int *cy)
 			if (!n) {
 				break;
 			}
-			if (*s == '\b')
+			if (*s == '\x0F')
+			{
+				s += 3;
+				n = min(1,n-3);
+			}
+			else if (*s == '\x0E')
+			{
+			}
+			else if (*s == '\x01')
+			{
+			}
+			else if (*s == '\b')
 			{
 				s++;
 				if (n > 1)
@@ -1624,7 +1745,20 @@ int textwidthx(char *s, int w)
 	int x=0,n=0,cw;
 	for (; *s; s++)
 	{
-		if (*s == '\b')
+		if (*s == '\x0F') //i'm not sure if these are right ... but they won't be used for this anyway
+		{
+			s += 4;
+			n += 4;
+			if (!*s)
+				break;
+		}
+		else if (*s == '\x0E')
+		{
+		}
+		else if (*s == '\x01')
+		{
+		}
+		else if (*s == '\b')
 		{
 			s+=2;
 			n+=2;
@@ -1653,7 +1787,20 @@ int textposxy(char *s, int width, int w, int h)
 		}
 		for (; *s && --wordlen>=-1; s++)
 		{
-			if (*s == '\b')
+			if (*s == '\x0F') //i'm not sure if these are right ... but they won't be used for this anyway
+			{
+				s += 4;
+				n += 4;
+				if (!*s)
+					break;
+			}
+			else if (*s == '\x0E')
+			{
+			}
+			else if (*s == '\x01')
+			{
+			}
+			else if (*s == '\b')
 			{
 				s+=2;
 				n+=2;
@@ -1695,6 +1842,16 @@ int textwrapheight(char *s, int width)
 			{
 				x = 0;
 				height += FONT_H+2;
+			}
+			else if (*s == '\x0F') //i'm not sure if these are right ... but they won't be used for this anyway
+			{
+				s += 3;
+			}
+			else if (*s == '\x0E')
+			{
+			}
+			else if (*s == '\x01')
+			{
 			}
 			else if (*s == '\b')
 			{
