@@ -1843,7 +1843,7 @@ int textwrapheight(char *s, int width)
 				x = 0;
 				height += FONT_H+2;
 			}
-			else if (*s == '\x0F') //i'm not sure if these are right ... but they won't be used for this anyway
+			else if (*s == '\x0F')
 			{
 				s += 3;
 			}
