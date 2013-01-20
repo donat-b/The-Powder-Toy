@@ -856,12 +856,17 @@ void kill_part(int i)//kills particle number i
 
 TPT_INLINE void part_change_type(int i, int x, int y, int t)//changes the type of particle number i, to t.  This also changes pmap at the same time.
 {
-	if (x<0 || y<0 || x>=XRES || y>=YRES || i>=NPART || t<0 || t>=PT_NUM)
+	if (x<0 || y<0 || x>=XRES || y>=YRES || i>=NPART || t<0 || t>=PT_NUM || !parts[i].type)
 		return;
 	if (!ptypes[t].enabled)
 		t = PT_NONE;
 	if (ptypes[parts[i].type].properties&PROP_INDESTRUCTIBLE)
 		return;
+	if (t == PT_NONE)
+	{
+		kill_part(i);
+		return;
+	}
 
 	if (parts[i].type == PT_STKM)
 	{

@@ -2099,9 +2099,9 @@ int main(int argc, char *argv[])
 
 			for (i=0; i<SC_TOTAL; i++)//check mouse position to see if it is on a menu section
 			{
-				if (!b && x>=XRES-2 && x<XRES+BARSIZE-1 &&y>= (i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16) && y<(i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16)+15)
+				if (((i != SC_DECO && !b) || (i == SC_DECO && b && !bq)) && x>=XRES-2 && x<XRES+BARSIZE-1 &&y>= (i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16) && y<(i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16)+15)
 				{
-					if (i ==SC_DECO && active_menu != SC_DECO)
+					if (i == SC_DECO && active_menu != SC_DECO)
 						last_active_menu = active_menu;
 					if (i == SC_FAV)
 						active_menu = last_fav_menu;

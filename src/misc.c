@@ -865,9 +865,11 @@ char * clipboardtext = NULL;
 void clipboard_push_text(char * text)
 {
 	if (clipboardtext)
+	{
 		free(clipboardtext);
-	clipboardtext = (char*)calloc(strlen(text)+1,sizeof(char));
-	strcpy(clipboardtext, text);
+		clipboardtext = NULL;
+	}
+	clipboardtext = mystrdup(text);
 #ifdef MACOSX
 	PasteboardRef newclipboard;
 
@@ -925,9 +927,9 @@ char * clipboard_pull_text()
 		CloseClipboard();
 		if(glbuffer!=NULL){
 			return mystrdup(glbuffer);
-		} else {
-			return "";
-		}
+		} //else {
+		//	return "";
+		//}
 	}
 #elif (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
 	printf("Not implemented: get text from clipboard\n");
@@ -935,7 +937,7 @@ char * clipboard_pull_text()
 	printf("Not implemented: get text from clipboard\n");
 #endif
 	if (clipboardtext)
-		return clipboardtext;
+		return mystrdup(clipboardtext);
 	return "";
 }
 
