@@ -1668,7 +1668,7 @@ int textnwidth(char *s, int n)
 		if (*s == '\x0F')
 		{
 			s += 3;
-			n = min(1,n-3);
+			n = (int)fmin(1,n-3);
 		}
 		else if (*s == '\x0E')
 		{
@@ -1710,7 +1710,7 @@ void textnpos(char *s, int n, int w, int *cx, int *cy)
 			if (*s == '\x0F')
 			{
 				s += 3;
-				n = min(1,n-3);
+				n = (int)fmin(1,n-3);
 			}
 			else if (*s == '\x0E')
 			{
