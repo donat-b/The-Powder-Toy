@@ -23,6 +23,7 @@
 #include "http.h"
 #include <console.h>
 #include <luaconsole.h>
+#include <luascriptinterface.h>
 #include <save.h>
 #include <math.h>
 
@@ -147,6 +148,8 @@ void luacon_open(){
 	luaopen_bit(l);
 	luaL_register(l, "tpt", tptluaapi);
 	
+	initSimulationAPI(l);
+
 	tptProperties = lua_gettop(l);
 	
 	lua_pushinteger(l, 0);
@@ -1133,7 +1136,7 @@ void set_map(int x, int y, int width, int height, float value, int map)
 				vx[ny][nx] = value;
 			else if (map == 4)
 				vy[ny][nx] = value;
-			else
+			else if (map == 5)
 				gravmap[ny*(XRES/CELL)+nx] = value; //TODO: setting gravity setting doesn't work anymore?
 
 		}
