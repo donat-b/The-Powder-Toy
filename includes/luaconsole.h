@@ -51,6 +51,7 @@ extern "C" {
 extern int *lua_el_func, *lua_el_mode, *lua_gr_func;
 
 void luacon_open();
+int luaopen_bit(lua_State *L);
 int luacon_step(int mx, int my, int selectl, int selectr, int bsx, int bsy);
 int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel);
 int luacon_keyevent(int key, int modifier, int event);

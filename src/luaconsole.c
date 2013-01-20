@@ -144,6 +144,7 @@ void luacon_open(){
 
 	l = lua_open();
 	luaL_openlibs(l);
+	luaopen_bit(l);
 	luaL_register(l, "tpt", tptluaapi);
 	
 	tptProperties = lua_gettop(l);
