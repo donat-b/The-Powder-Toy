@@ -246,7 +246,8 @@
 #define PT_TSNS 164
 #define PT_VIBR 165
 #define PT_BVBR 166
-#define PT_NORMAL_NUM 167
+#define PT_CRAY 167
+#define PT_NORMAL_NUM 168
 
 #define PT_MOVS PT_NORMAL_NUM
 #define PT_ANIM PT_NORMAL_NUM+1
@@ -264,7 +265,7 @@
 #define PT_COND PT_NORMAL_NUM+13
 #define PT_PWHT PT_NORMAL_NUM+14
 #define PT_EXPL PT_NORMAL_NUM+15
-#define PT_NUM 183
+#define PT_NUM 184
 
 #define R_TEMP 22
 #define MAX_TEMP 9999
@@ -441,6 +442,7 @@ int update_CLST(UPDATE_FUNC_ARGS);
 int update_CO2(UPDATE_FUNC_ARGS);
 int update_COAL(UPDATE_FUNC_ARGS);
 int update_CONV(UPDATE_FUNC_ARGS);
+int update_CRAY(UPDATE_FUNC_ARGS);
 int update_DCEL(UPDATE_FUNC_ARGS);
 int update_DEST(UPDATE_FUNC_ARGS);
 int update_DEUT(UPDATE_FUNC_ARGS);

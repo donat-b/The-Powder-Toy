@@ -1073,12 +1073,12 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 			if ((
 				(drawOn == PT_STOR && !(ptypes[t].properties&TYPE_SOLID)) ||
 				drawOn == PT_CONV ||
+				drawOn == PT_CRAY ||
 				((ptypes[pmap[y][x]&0xFF].properties&PROP_CLONE || (ptypes[pmap[y][x]&0xFF].properties&PROP_BREAKABLECLONE)) && (!(ptypes[pmap[y][x]&0xFF].properties&PROP_POWERED) || (t!=PT_PSCN && t!=PT_NSCN)))
 			)&&(
-				!(ptypes[t].properties&PROP_CLONE)&&
-				!(ptypes[t].properties&PROP_BREAKABLECLONE)&&
-				t!=PT_STKM&&t!=PT_STKM2&&
-				t!=PT_STOR&&t!=PT_FIGH)
+				!(ptypes[t].properties&PROP_CLONE) &&
+				!(ptypes[t].properties&PROP_BREAKABLECLONE) &&
+				t != PT_STKM && t != PT_STKM2 && t != PT_STOR && t != PT_FIGH && t != PT_CRAY)
 			)
 			{
 				parts[pmap[y][x]>>8].ctype = t;
