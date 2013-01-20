@@ -24,18 +24,18 @@
 #endif
  
 //VersionInfoStart
-#define SAVE_VERSION 83
+#define SAVE_VERSION 85
 #define MINOR_VERSION 0
-#define BUILD_NUM 192
+#define BUILD_NUM 255
 //VersionInfoEnd
 
 #define MOD_VERSION 20
 #define MOD_MINOR_VERSION 4
 #define MOD_SAVE_VERSION 13 //This is not the version number of my mod anymore, it's only changed when I change the saving code
 #define MOD_BUILD_VERSION 5 //For update checks
-#define BETA_VERSION 80
+#define BETA_VERSION 85
 #define BETA_MINOR_VER 0
-#define RELEASE_VERSION 83 //Not pretending to be tpt++ at the moment
+#define RELEASE_VERSION 85
 #define RELEASE_MINOR_VER 0
 
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter
