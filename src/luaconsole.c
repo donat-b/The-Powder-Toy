@@ -149,6 +149,7 @@ void luacon_open(){
 	luaL_register(l, "tpt", tptluaapi);
 	
 	initSimulationAPI(l);
+	initRendererAPI(l);
 
 	tptProperties = lua_gettop(l);
 	

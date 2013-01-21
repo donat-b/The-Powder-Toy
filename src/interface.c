@@ -6893,7 +6893,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 		{
 			if (currentcommand2==NULL)
 				break;
-			drawtext(vid_buf, 215, 175-(cc*12), currentcommand2->command, 255, 225, 225, 255);
+			drawtext(vid_buf, 180, 175-(cc*12), currentcommand2->command, 255, 225, 225, 255);
 			if (currentcommand2->prev_command!=NULL)
 			{
 				if (cc<9) {

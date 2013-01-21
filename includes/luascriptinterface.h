@@ -14,4 +14,10 @@ int simulation_velocityX(lua_State* l);
 int simulation_velocityY(lua_State* l);
 int simulation_gravMap(lua_State* l);
 
+void initRendererAPI(lua_State * l);
+int renderer_renderModes(lua_State * l);
+int renderer_displayModes(lua_State * l);
+int renderer_colourMode(lua_State * l);
+int renderer_decorations(lua_State * l);
+
 #endif
