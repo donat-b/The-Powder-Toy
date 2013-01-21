@@ -247,7 +247,8 @@
 #define PT_VIBR 165
 #define PT_BVBR 166
 #define PT_CRAY 167
-#define PT_NORMAL_NUM 168
+#define PT_PSTN 168
+#define PT_NORMAL_NUM 169
 
 #define PT_MOVS PT_NORMAL_NUM
 #define PT_ANIM PT_NORMAL_NUM+1
@@ -265,7 +266,7 @@
 #define PT_COND PT_NORMAL_NUM+13
 #define PT_PWHT PT_NORMAL_NUM+14
 #define PT_EXPL PT_NORMAL_NUM+15
-#define PT_NUM 184
+#define PT_NUM 185
 
 #define R_TEMP 22
 #define MAX_TEMP 9999
@@ -399,6 +400,7 @@ int graphics_BRCK(GRAPHICS_FUNC_ARGS);
 int graphics_DTEC(GRAPHICS_FUNC_ARGS);
 int graphics_DMG(GRAPHICS_FUNC_ARGS);
 int graphics_VIBR(GRAPHICS_FUNC_ARGS);
+int graphics_PSTN(GRAPHICS_FUNC_ARGS);
 
 void TRON_init_graphics();
 
@@ -494,6 +496,7 @@ int update_PLNT(UPDATE_FUNC_ARGS);
 int update_PLUT(UPDATE_FUNC_ARGS);
 int update_PRTI(UPDATE_FUNC_ARGS);
 int update_PRTO(UPDATE_FUNC_ARGS);
+int update_PSTN(UPDATE_FUNC_ARGS);
 int update_PWHT(UPDATE_FUNC_ARGS);
 int update_PYRO(UPDATE_FUNC_ARGS);
 int update_PUMP(UPDATE_FUNC_ARGS);

@@ -86,7 +86,7 @@ int fix_type(int type, int version, int modver)
 {
 	int max = 161;
 	if (version >= 86 || modver == 14)
-		max = 168;
+		max = 169;
 	else if (version >= 84 || modver == 13)
 		max = 167;
 	else if (modver == 12)
