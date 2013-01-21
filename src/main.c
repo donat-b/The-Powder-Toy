@@ -1557,12 +1557,15 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='4')
 			{
-				set_cmode(CM_FIRE);
+				if (sdl_mod & (KMOD_CTRL))
+					render_mode = render_mode&FIREMODE ? render_mode&~FIREMODE:render_mode|FIREMODE;
+				else
+					set_cmode(CM_FIRE);
 			}
 			if (sdl_key=='5')
 			{
 				if (sdl_mod & (KMOD_CTRL))
-					display_mode = display_mode&DISPLAY_BLOB ? display_mode&!DISPLAY_BLOB:display_mode|DISPLAY_BLOB;
+					render_mode = render_mode&PMODE_BLOB ? render_mode&~PMODE_BLOB:render_mode|PMODE_BLOB;
 				else
 					set_cmode(CM_BLOB);
 			}

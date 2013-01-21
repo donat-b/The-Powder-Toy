@@ -2546,6 +2546,8 @@ void render_parts(pixel *vid)
 					pixel_mode |= PMODE_FLAT;
 				if(pixel_mode & PMODE_GLOW && !(render_mode & PMODE_GLOW))
 					pixel_mode |= PMODE_BLEND;
+				if (render_mode & PMODE_BLOB)
+					pixel_mode |= PMODE_BLOB;
 					
 				pixel_mode &= render_mode;
 				
@@ -2689,7 +2691,7 @@ void render_parts(pixel *vid)
 	#endif
 
 				//Pixel rendering
-				if (t==PT_SOAP)
+				if (t==PT_SOAP) //pixel_mode & EFFECT_LINES, pointless to check if only soap has it ...
 				{
 					if ((parts[i].ctype&7) == 7)
 						draw_line(vid, nx, ny, (int)(parts[parts[i].tmp].x+0.5f), (int)(parts[parts[i].tmp].y+0.5f), colr, colg, colb, XRES+BARSIZE);
@@ -2918,7 +2920,7 @@ void render_parts(pixel *vid)
 					addpixel(vid, nx, ny, colr, colg, colb, cola);
 #endif
 				}
-				if(display_mode & DISPLAY_BLOB)
+				if(pixel_mode & PMODE_BLOB)
 				{
 #ifdef OGLR
                     blobV[cblobV++] = nx;
@@ -3804,7 +3806,7 @@ void draw_walls(pixel *vid)
 								vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = PIXPACK(0x242424);
 					}
 				}
-				if (display_mode & DISPLAY_BLOB)
+				if (render_mode & PMODE_BLOB)
 				{
 					// when in blob view, draw some blobs...
 					if (wtypes[wt].drawstyle==1)

@@ -3952,15 +3952,12 @@ void set_cmode(int cm) // sets to given view mode
 	}
 	else if (cmode==CM_BLOB)
 	{
-		free(display_modes);
-		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
-		display_modes[0] = DISPLAY_BLOB;
-		display_modes[1] = 0;
 		free(render_modes);
-		render_modes = (unsigned int*)calloc(3, sizeof(unsigned int));
+		render_modes = (unsigned int*)calloc(4, sizeof(unsigned int));
 		render_modes[0] = RENDER_FIRE;
 		render_modes[1] = RENDER_EFFE;
-		render_modes[2] = 0;
+		render_modes[2] = RENDER_BLOB;
+		render_modes[3] = 0;
 		memset(fire_r, 0, sizeof(fire_r));
 		memset(fire_g, 0, sizeof(fire_g));
 		memset(fire_b, 0, sizeof(fire_b));
@@ -7974,21 +7971,21 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 	ui_checkbox *display_cb;
 	ui_checkbox *colour_cb;
 
-	int render_optioncount = 6;
-	int render_options[] = {RENDER_EFFE, RENDER_GLOW, RENDER_FIRE, RENDER_BLUR, RENDER_BASC, RENDER_NONE};
-	int render_optionicons[] = {0xE1, 0xDF, 0x9B, 0xC4, 0xDB, 0xDB};
-	char * render_desc[] = {"Effects", "Glow", "Fire", "Blur", "Basic", "None"};
+	int render_optioncount = 7;
+	int render_options[] = {RENDER_EFFE, RENDER_GLOW, RENDER_FIRE, RENDER_BLUR, RENDER_BASC, RENDER_BLOB, RENDER_NONE};
+	int render_optionicons[] = {0xE1, 0xDF, 0x9B, 0xC4, 0xDB, 0xBF, 0xDB};
+	char * render_desc[] = {"Effects", "Glow", "Fire", "Blur", "Basic", "Blob", "None"};
 
 #ifdef OGLR
-	int display_optioncount = 8;
-	int display_options[] = {DISPLAY_AIRC, DISPLAY_AIRP, DISPLAY_AIRV, DISPLAY_AIRH, DISPLAY_WARP, DISPLAY_PERS, DISPLAY_BLOB, DISPLAY_EFFE};
-	int display_optionicons[] = {0xD4, 0x99, 0x98, 0xBE, 0xDE, 0x9A, 0xBF, 0xE1};
-	char * display_desc[] = {"Air: Cracker", "Air: Pressure", "Air: Velocity", "Air: Heat", "Warp effect", "Persistent", "Blob", "Effects"};
-#else
 	int display_optioncount = 7;
-	int display_options[] = {DISPLAY_AIRC, DISPLAY_AIRP, DISPLAY_AIRV, DISPLAY_AIRH, DISPLAY_WARP, DISPLAY_PERS, DISPLAY_BLOB};
-	int display_optionicons[] = {0xD4, 0x99, 0x98, 0xBE, 0xDE, 0x9A, 0xBF};
-	char * display_desc[] = {"Air: Cracker", "Air: Pressure", "Air: Velocity", "Air: Heat", "Warp effect", "Persistent", "Blob"};
+	int display_options[] = {DISPLAY_AIRC, DISPLAY_AIRP, DISPLAY_AIRV, DISPLAY_AIRH, DISPLAY_WARP, DISPLAY_PERS, DISPLAY_EFFE};
+	int display_optionicons[] = {0xD4, 0x99, 0x98, 0xBE, 0xDE, 0x9A, 0xE1};
+	char * display_desc[] = {"Air: Cracker", "Air: Pressure", "Air: Velocity", "Air: Heat", "Warp effect", "Persistent", "Effects"};
+#else
+	int display_optioncount = 6;
+	int display_options[] = {DISPLAY_AIRC, DISPLAY_AIRP, DISPLAY_AIRV, DISPLAY_AIRH, DISPLAY_WARP, DISPLAY_PERS};
+	int display_optionicons[] = {0xD4, 0x99, 0x98, 0xBE, 0xDE, 0x9A};
+	char * display_desc[] = {"Air: Cracker", "Air: Pressure", "Air: Velocity", "Air: Heat", "Warp effect", "Persistent"};
 #endif
 
 	int colour_optioncount = 4;
@@ -8002,7 +7999,7 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 	xcoffset = 35;
 	
 	xsize = xcoffset*3;
-	ysize = display_optioncount * yoffset + 6;
+	ysize = render_optioncount * yoffset + 6;
 	
 	ycoord -= ysize;
 	xcoord -= xsize;
