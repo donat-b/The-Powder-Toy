@@ -695,9 +695,9 @@ int fileSystem_copy(lua_State * l)
 	int ret = 1;
 
 	char buf[BUFSIZ];
-    size_t size;
+	size_t size;
 
-    FILE* source = fopen(filename, "rb");
+	FILE* source = fopen(filename, "rb");
 	if(source)
 	{
 		FILE* dest = fopen(newFilename, "wb");
@@ -761,7 +761,7 @@ int graphics_textSize(lua_State * l)
 
 int graphics_drawText(lua_State * l)
 {
-    char * text;
+	char * text;
 	int x, y, r, g, b, a;
 	x = lua_tointeger(l, 1);
 	y = lua_tointeger(l, 2);
@@ -853,5 +853,718 @@ int graphics_fillRect(lua_State * l)
 	if (a<0) a = 0;
 	if (a>255) a = 255;
 	fillrect(vid_buf, x, y, w, h, r, g, b, a);
+	return 0;
+}
+
+/*
+
+ELEMENTS API
+
+*/
+
+void initElementsAPI(lua_State * l)
+{
+	int elementsAPI, i;
+	//Methods
+	struct luaL_reg elementsAPIMethods [] = {
+		{"allocate", elements_allocate},
+		{"element", elements_element},
+		{"property", elements_property},
+		{"free", elements_free},
+		{"loadDefault", elements_loadDefault},
+		{NULL, NULL}
+	};
+	luaL_register(l, "elements", elementsAPIMethods);
+
+	//elem shortcut
+	lua_getglobal(l, "elements");
+	lua_setglobal(l, "elem");
+
+	elementsAPI = lua_gettop(l);
+
+	//Static values
+	//Element types/properties/states
+	lua_pushinteger(l, TYPE_PART); 			lua_setfield(l, elementsAPI, "TYPE_PART");
+	lua_pushinteger(l, TYPE_LIQUID); 		lua_setfield(l, elementsAPI, "TYPE_LIQUID");
+	lua_pushinteger(l, TYPE_SOLID); 		lua_setfield(l, elementsAPI, "TYPE_SOLID");
+	lua_pushinteger(l, TYPE_GAS); 			lua_setfield(l, elementsAPI, "TYPE_GAS");
+	lua_pushinteger(l, TYPE_ENERGY); 		lua_setfield(l, elementsAPI, "TYPE_ENERGY");
+	lua_pushinteger(l, PROP_CONDUCTS); 		lua_setfield(l, elementsAPI, "PROP_CONDUCTS");
+	lua_pushinteger(l, PROP_BLACK); 		lua_setfield(l, elementsAPI, "PROP_BLACK");
+	lua_pushinteger(l, PROP_NEUTPENETRATE); lua_setfield(l, elementsAPI, "PROP_NEUTPENETRATE");
+	lua_pushinteger(l, PROP_NEUTABSORB); 	lua_setfield(l, elementsAPI, "PROP_NEUTABSORB");
+	lua_pushinteger(l, PROP_NEUTPASS); 		lua_setfield(l, elementsAPI, "PROP_NEUTPASS");
+	lua_pushinteger(l, PROP_DEADLY); 		lua_setfield(l, elementsAPI, "PROP_DEADLY");
+	lua_pushinteger(l, PROP_HOT_GLOW); 		lua_setfield(l, elementsAPI, "PROP_HOT_GLOW");
+	lua_pushinteger(l, PROP_LIFE); 			lua_setfield(l, elementsAPI, "PROP_LIFE");
+	lua_pushinteger(l, PROP_RADIOACTIVE); 	lua_setfield(l, elementsAPI, "PROP_RADIOACTIVE");
+	lua_pushinteger(l, PROP_LIFE_DEC); 		lua_setfield(l, elementsAPI, "PROP_LIFE_DEC");
+	lua_pushinteger(l, PROP_LIFE_KILL); 	lua_setfield(l, elementsAPI, "PROP_LIFE_KILL");
+	lua_pushinteger(l, PROP_LIFE_KILL_DEC); lua_setfield(l, elementsAPI, "PROP_LIFE_KILL_DEC");
+	lua_pushinteger(l, PROP_INDESTRUCTIBLE); lua_setfield(l, elementsAPI, "PROP_INDESTRUCTIBLE");
+	lua_pushinteger(l, PROP_CLONE);			lua_setfield(l, elementsAPI, "PROP_CLONE");
+	lua_pushinteger(l, PROP_BREAKABLECLONE); lua_setfield(l, elementsAPI, "PROP_BREAKABLECLONE");
+	lua_pushinteger(l, PROP_POWERED);		lua_setfield(l, elementsAPI, "PROP_POWERED");
+	lua_pushinteger(l, PROP_SPARKSETTLE); 	lua_setfield(l, elementsAPI, "PROP_SPARKSETTLE");
+	lua_pushinteger(l, PROP_NOAMBHEAT); 	lua_setfield(l, elementsAPI, "PROP_NOAMBHEAT");
+	lua_pushinteger(l, PROP_MOVS); 			lua_setfield(l, elementsAPI, "PROP_MOVS");
+	lua_pushinteger(l, FLAG_STAGNANT); 		lua_setfield(l, elementsAPI, "FLAG_STAGNANT");
+	lua_pushinteger(l, FLAG_SKIPMOVE); 		lua_setfield(l, elementsAPI, "FLAG_SKIPMOVE");
+	lua_pushinteger(l, 0); 					lua_setfield(l, elementsAPI, "FLAG_MOVABLE");
+	lua_pushinteger(l, FLAG_EXPLODE); 		lua_setfield(l, elementsAPI, "FLAG_EXPLODE");
+	lua_pushinteger(l, FLAG_INSTACTV); 		lua_setfield(l, elementsAPI, "FLAG_INSTACTV");
+	lua_pushinteger(l, FLAG_WATEREQUAL); 	lua_setfield(l, elementsAPI, "FLAG_WATEREQUAL");
+	lua_pushinteger(l, ST_NONE); 			lua_setfield(l, elementsAPI, "ST_NONE");
+	lua_pushinteger(l, ST_SOLID); 			lua_setfield(l, elementsAPI, "ST_SOLID");
+	lua_pushinteger(l, ST_LIQUID); 			lua_setfield(l, elementsAPI, "ST_LIQUID");
+	lua_pushinteger(l, ST_GAS); 			lua_setfield(l, elementsAPI, "ST_GAS");
+
+	lua_pushinteger(l, SC_WALL);		lua_setfield(l, elementsAPI, "SC_WALL");
+	lua_pushinteger(l, SC_ELEC);		lua_setfield(l, elementsAPI, "SC_ELEC");
+	lua_pushinteger(l, SC_POWERED);		lua_setfield(l, elementsAPI, "SC_POWERED");
+	lua_pushinteger(l, SC_FORCE);		lua_setfield(l, elementsAPI, "SC_FORCE");
+	lua_pushinteger(l, SC_EXPLOSIVE);	lua_setfield(l, elementsAPI, "SC_EXPLOSIVE");
+	lua_pushinteger(l, SC_GAS);			lua_setfield(l, elementsAPI, "SC_GAS");
+	lua_pushinteger(l, SC_LIQUID);		lua_setfield(l, elementsAPI, "SC_LIQUID");
+	lua_pushinteger(l, SC_POWDERS);		lua_setfield(l, elementsAPI, "SC_POWDERS");
+	lua_pushinteger(l, SC_SOLIDS);		lua_setfield(l, elementsAPI, "SC_SOLIDS");
+	lua_pushinteger(l, SC_NUCLEAR);		lua_setfield(l, elementsAPI, "SC_NUCLEAR");
+	lua_pushinteger(l, SC_SPECIAL);		lua_setfield(l, elementsAPI, "SC_SPECIAL");
+	lua_pushinteger(l, SC_LIFE);		lua_setfield(l, elementsAPI, "SC_LIFE");
+	lua_pushinteger(l, SC_TOOL);		lua_setfield(l, elementsAPI, "SC_TOOL");
+	lua_pushinteger(l, SC_DECO);		lua_setfield(l, elementsAPI, "SC_DECO");
+	lua_pushinteger(l, SC_FAV);			lua_setfield(l, elementsAPI, "SC_FAV");
+	lua_pushinteger(l, SC_FAV2);		lua_setfield(l, elementsAPI, "SC_FAV2");
+	lua_pushinteger(l, SC_HUD);			lua_setfield(l, elementsAPI, "SC_HUD");
+	lua_pushinteger(l, SC_CRACKER);		lua_setfield(l, elementsAPI, "SC_CRACKER");
+
+	//Element identifiers
+	for(i = 0; i < PT_NUM; i++)
+	{
+		if(ptypes[i].enabled)
+		{
+			char identifier[24];
+			lua_pushinteger(l, i);
+			if (i == PT_EQUALVEL)
+				sprintf(identifier,"DEFAULT_PT_116");//This list is much larger than I expected ...
+			else if (i == 146)
+				sprintf(identifier,"DEFAULT_PT_146");
+			else if (i == PT_BANG)
+				sprintf(identifier,"DEFAULT_PT_BANG");
+			else if (i == PT_BHOL)
+				sprintf(identifier,"DEFAULT_PT_BHOL");
+			else if (i == PT_WHOL)
+				sprintf(identifier,"DEFAULT_PT_WHOL");
+			else if (i == PT_NBHL)
+				sprintf(identifier,"DEFAULT_PT_NBHL");
+			else if (i == PT_NWHL)
+				sprintf(identifier,"DEFAULT_PT_NBWL");
+			else if (i == PT_BREL)
+				sprintf(identifier,"DEFAULT_PT_BREC");
+			else if (i == PT_CBNW)
+				sprintf(identifier,"DEFAULT_PT_CBNW");
+			else if (i == PT_H2)
+				sprintf(identifier,"DEFAULT_PT_H2");
+			else if (i == PT_ICEI)
+				sprintf(identifier,"DEFAULT_PT_ICEI");
+			else if (i == PT_INVIS)
+				sprintf(identifier,"DEFAULT_PT_INVIS");
+			else if (i == PT_LNTG)
+				sprintf(identifier,"DEFAULT_PT_LNTG");
+			else if (i == PT_LO2)
+				sprintf(identifier,"DEFAULT_PT_LO2");
+			else if (i == PT_NONE)
+				sprintf(identifier,"DEFAULT_PT_NONE");
+			else if (i == PT_O2)
+				sprintf(identifier,"DEFAULT_PT_O2");
+			else if (i == PT_PLEX)
+				sprintf(identifier,"DEFAULT_PT_PLEX");
+			else if (i == PT_SHLD1)
+				sprintf(identifier,"DEFAULT_PT_SHLD1");
+			else if (i == PT_SHLD2)
+				sprintf(identifier,"DEFAULT_PT_SHLD2");
+			else if (i == PT_SHLD3)
+				sprintf(identifier,"DEFAULT_PT_SHLD3");
+			else if (i == PT_SHLD4)
+				sprintf(identifier,"DEFAULT_PT_SHLD4");
+			else if (i == PT_SHLD4)
+				sprintf(identifier,"DEFAULT_PT_SHLD1");
+			else if (i == PT_SPAWN)
+				sprintf(identifier,"DEFAULT_PT_SPAWN");
+			else if (i == PT_SPAWN2)
+				sprintf(identifier,"DEFAULT_PT_SPAWN2");
+			else if (i == PT_STKM2)
+				sprintf(identifier,"DEFAULT_PT_STKM2");
+			else if (i == PT_SHLD4)
+				sprintf(identifier,"DEFAULT_PT_SHLD1");
+			else if (i == PT_SHLD4)
+				sprintf(identifier,"DEFAULT_PT_SHLD1");
+			else
+				sprintf(identifier,"DEFAULT_PT_%s",ptypes[i].name);
+			lua_setfield(l, elementsAPI, identifier);
+		}
+	}
+}
+
+int elements_getProperty(char * key, int * format)
+{
+	int offset;
+	if (strcmp(key, "Name")==0){
+		offset = offsetof(part_type, name);
+		*format = 2;
+	}
+	else if (strcmp(key, "Color")==0){
+		offset = offsetof(part_type, pcolors);
+		*format = 4;
+	}
+	else if (strcmp(key, "Colour")==0){
+		offset = offsetof(part_type, pcolors);
+		*format = 4;
+	}
+	else if (strcmp(key, "Advection")==0){
+		offset = offsetof(part_type, advection);
+		*format = 1;
+	}
+	else if (strcmp(key, "AirDrag")==0){
+		offset = offsetof(part_type, airdrag);
+		*format = 1;
+	}
+	else if (strcmp(key, "AirLoss")==0){
+		offset = offsetof(part_type, airloss);
+		*format = 1;
+	}
+	else if (strcmp(key, "Loss")==0){
+		offset = offsetof(part_type, loss);
+		*format = 1;
+	}
+	else if (strcmp(key, "Collision")==0){
+		offset = offsetof(part_type, collision);
+		*format = 1;
+	}
+	else if (strcmp(key, "Gravity")==0){
+		offset = offsetof(part_type, gravity);
+		*format = 1;
+	}
+	else if (strcmp(key, "Diffusion")==0){
+		offset = offsetof(part_type, diffusion);
+		*format = 1;
+	}
+	else if (strcmp(key, "HotAir")==0){
+		offset = offsetof(part_type, hotair);
+		*format = 1;
+	}
+	else if (strcmp(key, "Falldown")==0){
+		offset = offsetof(part_type, falldown);
+		*format = 0;
+	}
+	else if (strcmp(key, "Flammable")==0){
+		offset = offsetof(part_type, flammable);
+		*format = 0;
+	}
+	else if (strcmp(key, "Explosive")==0){
+		offset = offsetof(part_type, explosive);
+		*format = 0;
+	}
+	else if (strcmp(key, "Meltable")==0){
+		offset = offsetof(part_type, meltable);
+		*format = 0;
+	}
+	else if (strcmp(key, "Hardness")==0){
+		offset = offsetof(part_type, hardness);
+		*format = 0;
+	}
+	else if (strcmp(key, "MenuVisible")==0){
+		offset = offsetof(part_type, menu);
+		*format = 0;
+	}
+	else if (strcmp(key, "Enabled")==0){
+		offset = offsetof(part_type, enabled);
+		*format = 0;
+	}
+	else if (strcmp(key, "Weight")==0){
+		offset = offsetof(part_type, weight);
+		*format = 0;
+	}
+	else if (strcmp(key, "MenuSection")==0){
+		offset = offsetof(part_type, menusection);
+		*format = 0;
+	}
+	else if (strcmp(key, "Temperature")==0){
+		offset = offsetof(part_type, heat);
+		*format = 1;
+	}
+	else if (strcmp(key, "HeatConduct")==0){
+		offset = offsetof(part_type, hconduct);
+		*format = 3;
+	}
+	else if (strcmp(key, "State")==0){
+		offset = offsetof(part_type, state);
+		*format = 6;
+	}
+	else if (strcmp(key, "Properties")==0){
+		offset = offsetof(part_type, properties);
+		*format = 5;
+	}
+	else if (strcmp(key, "Description")==0){
+		offset = offsetof(part_type, descs);
+		*format = 2;
+	}
+	else if (strcmp(key, "LowPressure")==0){
+		offset = offsetof(part_transition, plv);
+		*format = 8;
+	}
+	else if (strcmp(key, "LowPressureTransition")==0){
+		offset = offsetof(part_transition, plt);
+		*format = 7;
+	}
+	else if (strcmp(key, "HighPressure")==0){
+		offset = offsetof(part_transition, phv);
+		*format = 8;
+	}
+	else if (strcmp(key, "HighPressureTransition")==0){
+		offset = offsetof(part_transition, pht);
+		*format = 7;
+	}
+	else if (strcmp(key, "LowTemperature")==0){
+		offset = offsetof(part_transition, tlv);
+		*format = 8;
+	}
+	else if (strcmp(key, "LowTemperatureTransition")==0){
+		offset = offsetof(part_transition, tlt);
+		*format = 7;
+	}
+	else if (strcmp(key, "HighTemperature")==0){
+		offset = offsetof(part_transition, thv);
+		*format = 8;
+	}
+	else if (strcmp(key, "HighTemperatureTransition")==0){
+		offset = offsetof(part_transition, tht);
+		*format = 7;
+	}
+	else {
+		return -1;
+	}
+	return offset;
+}
+
+int elements_loadDefault(lua_State * l)
+{
+	/*int args = lua_gettop(l);
+	if(args)
+	{
+		luaL_checktype(l, 1, LUA_TNUMBER);
+		int id = lua_tointeger(l, 1);
+		if(id < 0 || id >= PT_NUM)
+			return luaL_error(l, "Invalid element");
+
+		lua_getglobal(l, "elements");
+		lua_pushnil(l);
+		lua_setfield(l, -2, luacon_sim->elements[id].Identifier);
+
+		std::vector<Element> elementList = GetElements();
+		if(id < elementList.size())
+			luacon_sim->elements[id] = elementList[id];
+		else
+			luacon_sim->elements[id] = Element();
+
+		lua_pushinteger(l, id);
+		lua_setfield(l, -2, luacon_sim->elements[id].Identifier);
+		lua_pop(l, 1);
+	}
+	else
+	{
+		std::vector<Element> elementList = GetElements();
+		for(int i = 0; i < PT_NUM; i++)
+		{
+			if(i < elementList.size())
+				luacon_sim->elements[i] = elementList[i];
+			else
+				luacon_sim->elements[i] = Element();
+		}
+		lua_pushnil(l);
+		lua_setglobal(l, "elements");
+		lua_pushnil(l);
+		lua_setglobal(l, "elem");
+
+		lua_getglobal(l, "package");
+		lua_getfield(l, -1, "loaded");
+		lua_pushnil(l);
+		lua_setfield(l, -2, "elements");
+
+		luacon_ci->initElementsAPI();
+	}
+
+	luacon_model->BuildMenus();
+	luacon_sim->init_can_move();
+	std::fill(luacon_ren->graphicscache, luacon_ren->graphicscache+PT_NUM, gcache_item());*/
+	return 0;
+}
+
+int elements_allocate(lua_State * l)
+{
+	/*std::string group, id, identifier;
+	luaL_checktype(l, 1, LUA_TSTRING);
+	luaL_checktype(l, 2, LUA_TSTRING);
+	group = std::string(lua_tostring(l, 1));
+	std::transform(group.begin(), group.end(), group.begin(), ::toupper);
+	id = std::string(lua_tostring(l, 2));
+	std::transform(id.begin(), id.end(), id.begin(), ::toupper);
+
+	if(group == "DEFAULT")
+		return luaL_error(l, "You cannot create elements in the 'default' group.");
+
+	identifier = group + "_PT_" + id;
+
+	for(int i = 0; i < PT_NUM; i++)
+	{
+		if(luacon_sim->elements[i].Enabled && std::string(luacon_sim->elements[i].Identifier) == identifier)
+			return luaL_error(l, "Element identifier already in use");
+	}
+
+	int newID = -1;
+	for(int i = PT_NUM-1; i >= 0; i--)
+	{
+		if(!luacon_sim->elements[i].Enabled)
+		{
+			newID = i;
+			luacon_sim->elements[i] = Element();
+			luacon_sim->elements[i].Enabled = true;
+			luacon_sim->elements[i].Identifier = strdup(identifier.c_str());
+			break;
+		}
+	}
+
+	if(newID != -1)
+	{	
+		lua_getglobal(l, "elements");
+		lua_pushinteger(l, newID);
+		lua_setfield(l, -2, identifier.c_str());
+		lua_pop(l, 1);
+	}
+
+	lua_pushinteger(l, newID);
+	return 1;*/
+	return 0;
+}
+
+int elements_element(lua_State * l)
+{
+	/*int args = lua_gettop(l);
+	int id;
+	luaL_checktype(l, 1, LUA_TNUMBER);
+	id = lua_tointeger(l, 1);
+
+	if(id < 0 || id >= PT_NUM || !luacon_sim->elements[id].Enabled)
+		return luaL_error(l, "Invalid element");
+
+	if(args > 1)
+	{
+		luaL_checktype(l, 2, LUA_TTABLE);
+		std::vector<StructProperty> properties = Element::GetProperties();
+		//Write values from native data to a table
+		for(std::vector<StructProperty>::iterator iter = properties.begin(), end = properties.end(); iter != end; ++iter)
+		{
+			lua_getfield(l, -1, (*iter).Name.c_str());
+			if(lua_type(l, -1) != LUA_TNIL)
+			{
+				intptr_t offset = (*iter).Offset;
+				switch((*iter).Type)
+				{
+					case StructProperty::ParticleType:
+					case StructProperty::Integer:
+						*((int*)(((unsigned char*)&luacon_sim->elements[id])+offset)) = lua_tointeger(l, -1);
+						break;
+					case StructProperty::UInteger:
+						*((unsigned int*)(((unsigned char*)&luacon_sim->elements[id])+offset)) = lua_tointeger(l, -1);
+						break;
+					case StructProperty::Float:
+						*((float*)(((unsigned char*)&luacon_sim->elements[id])+offset)) = lua_tonumber(l, -1);
+						break;
+					case StructProperty::Char:
+						*((char*)(((unsigned char*)&luacon_sim->elements[id])+offset)) = lua_tointeger(l, -1);
+						break;
+					case StructProperty::UChar:
+						*((unsigned char*)(((unsigned char*)&luacon_sim->elements[id])+offset)) = lua_tointeger(l, -1);
+						break;
+					case StructProperty::String:
+						*((char**)(((unsigned char*)&luacon_sim->elements[id])+offset)) = strdup(lua_tostring(l, -1));
+						break;
+					case StructProperty::Colour:
+#if PIXELSIZE == 4
+						*((unsigned int*)(((unsigned char*)&luacon_sim->elements[id])+offset)) = lua_tointeger(l, -1);
+#else
+						*((unsigned short*)(((unsigned char*)&luacon_sim->elements[id])+offset)) = lua_tointeger(l, -1);
+#endif
+						break;
+				}
+				lua_pop(l, 1);
+			}
+		}
+
+		lua_getfield(l, -1, "Update");
+		if(lua_type(l, -1) == LUA_TFUNCTION)
+		{
+			lua_el_func[id] = luaL_ref(l, LUA_REGISTRYINDEX);
+			lua_el_mode[id] = 1;
+		}
+		else if(lua_type(l, -1) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
+		{
+			lua_el_func[id] = 0;
+			lua_el_mode[id] = 0;
+			luacon_sim->elements[id].Update = NULL;
+		}
+		else
+			lua_pop(l, 1);
+
+		lua_getfield(l, -1, "Graphics");
+		if(lua_type(l, -1) == LUA_TFUNCTION)
+		{
+			lua_gr_func[id] = luaL_ref(l, LUA_REGISTRYINDEX);
+			luacon_sim->elements[id].Graphics = &luacon_graphicsReplacement;
+		}
+		else if(lua_type(l, -1) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
+		{
+			lua_gr_func[id] = 0;
+			luacon_sim->elements[id].Graphics = NULL;
+		}
+		else
+			lua_pop(l, 1);
+
+		luacon_model->BuildMenus();
+		luacon_sim->init_can_move();
+		std::fill(luacon_ren->graphicscache, luacon_ren->graphicscache+PT_NUM, gcache_item());
+
+		lua_pop(l, 1);
+		return 0;
+	}
+	else
+	{
+		std::vector<StructProperty> properties = Element::GetProperties();
+		//Write values from native data to a table
+		lua_newtable(l);
+		for(std::vector<StructProperty>::iterator iter = properties.begin(), end = properties.end(); iter != end; ++iter)
+		{
+			intptr_t offset = (*iter).Offset;
+			switch((*iter).Type)
+			{
+				case StructProperty::ParticleType:
+				case StructProperty::Integer:
+					lua_pushinteger(l, *((int*)(((unsigned char*)&luacon_sim->elements[id])+offset)));
+					break;
+				case StructProperty::UInteger:
+					lua_pushinteger(l, *((unsigned int*)(((unsigned char*)&luacon_sim->elements[id])+offset)));
+					break;
+				case StructProperty::Float:
+					lua_pushnumber(l, *((float*)(((unsigned char*)&luacon_sim->elements[id])+offset)));
+					break;
+				case StructProperty::Char:
+					lua_pushinteger(l, *((char*)(((unsigned char*)&luacon_sim->elements[id])+offset)));
+					break;
+				case StructProperty::UChar:
+					lua_pushinteger(l, *((unsigned char*)(((unsigned char*)&luacon_sim->elements[id])+offset)));
+					break;
+				case StructProperty::String:
+					lua_pushstring(l, *((char**)(((unsigned char*)&luacon_sim->elements[id])+offset)));
+					break;
+				case StructProperty::Colour:
+#if PIXELSIZE == 4
+					lua_pushinteger(l, *((unsigned int*)(((unsigned char*)&luacon_sim->elements[id])+offset)));
+#else
+					lua_pushinteger(l, *((unsigned short*)(((unsigned char*)&luacon_sim->elements[id])+offset)));
+#endif
+					break;
+				default:
+					lua_pushnil(l);
+			}
+			lua_setfield(l, -2, (*iter).Name.c_str());
+		}
+		return 1;
+	}*/
+	return 0;
+}
+
+int elements_property(lua_State * l)
+{
+	int args = lua_gettop(l);
+	int id;
+	char *propertyName;
+	luaL_checktype(l, 1, LUA_TNUMBER);
+	id = lua_tointeger(l, 1);
+	luaL_checktype(l, 2, LUA_TSTRING);
+	propertyName = (char*)lua_tostring(l, 2);
+
+	if(id < 0 || id >= PT_NUM || !ptypes[id].enabled)
+		return luaL_error(l, "Invalid element");
+
+	if(args > 2)
+	{
+		int format;
+		int offset = elements_getProperty(propertyName, &format);
+
+		if(offset != -1)
+		{
+			if(lua_type(l, 3) != LUA_TNIL)
+			{
+				switch(format)
+				{
+					case 0: //Int
+						*((int*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, 3);
+						break;
+					case 1: //Float
+						*((float*)(((unsigned char*)&ptypes[id])+offset)) = lua_tonumber(l, 3);
+						break;
+					case 2: //String
+						*((char**)(((unsigned char*)&ptypes[id])+offset)) = strdup(lua_tostring(l, 3));
+						break;
+					//Extra things just used for one type ...
+					case 3: //Unsigned char (hconduct)
+						*((unsigned char*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, 3);
+						break;
+					case 4: //Color (color)
+#if PIXELSIZE == 4
+						*((unsigned int*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, 3);
+#else
+						*((unsigned short*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, 3);
+#endif
+						break;
+					case 5: //Unsigned int (properties)
+						*((unsigned int*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, 3);
+						break;
+					case 6: //Char (state)
+						*((char*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, 3);
+						break;
+					//Transitions, in a separate array so done separately
+					case 7: //Int
+						*((int*)(((unsigned char*)&ptransitions[id])+offset)) = lua_tointeger(l, 3);
+						break;
+					case 8: //Float
+						*((float*)(((unsigned char*)&ptransitions[id])+offset)) = lua_tonumber(l, 3);
+						break;
+				}
+			}
+
+			menu_count();
+			init_can_move();
+			graphicscache[id].isready = 0;
+
+			return 0;
+		}
+		else if(!strcmp(propertyName,"Update"))
+		{
+			if(lua_type(l, 3) == LUA_TFUNCTION)
+			{
+				lua_pushvalue(l, 3);
+				lua_el_func[id] = luaL_ref(l, LUA_REGISTRYINDEX);
+				if (args > 3)
+				{
+					int replace;
+					luaL_checktype(l, 4, LUA_TNUMBER);
+					replace = lua_tointeger(l, 4);
+					if (replace == 1)
+						lua_el_mode[id] = 2;
+					else
+						lua_el_mode[id] = 1;
+				}
+				else
+					lua_el_mode[id] = 1;
+			}
+			else if(lua_type(l, 3) == LUA_TBOOLEAN && !lua_toboolean(l, 3))
+			{
+				lua_el_func[id] = 0;
+				lua_el_mode[id] = 0;
+				ptypes[id].update_func = NULL;
+			}
+		}
+		else if(!strcmp(propertyName,"Graphics"))
+		{
+			if(lua_type(l, 3) == LUA_TFUNCTION)
+			{
+				lua_pushvalue(l, 3);
+				lua_gr_func[id] = luaL_ref(l, LUA_REGISTRYINDEX);
+				graphicscache[id].isready = 0;
+			}
+			else if(lua_type(l, 3) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
+			{
+				lua_gr_func[id] = 0;
+				ptypes[id].graphics_func = NULL;
+			}
+			memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
+		}
+		else
+			return luaL_error(l, "Invalid element property");
+	}
+	else
+	{
+		int format;
+		int offset = elements_getProperty(propertyName, &format);
+
+		if(offset != -1)
+		{
+			switch(format)
+			{
+				case 0: //Int
+					lua_pushinteger(l, *((int*)(((unsigned char*)&ptypes[id])+offset)));
+					break;
+				case 1: //Float
+					lua_pushnumber(l, *((float*)(((unsigned char*)&ptypes[id])+offset)));
+					break;
+				case 2: //String
+					lua_pushstring(l, *((char**)(((unsigned char*)&ptypes[id])+offset)));
+					break;
+				//Extra things just used for one type ...
+				case 3: //Unsigned char (hconduct)
+					lua_pushinteger(l, *((unsigned char*)(((unsigned char*)&ptypes[id])+offset)));
+					break;
+				case 4: //Color (color)
+#if PIXELSIZE == 4
+					lua_pushinteger(l, *((unsigned int*)(((unsigned char*)&ptypes[id])+offset)));
+#else
+					lua_pushinteger(l, *((unsigned short*)(((unsigned char*)&ptypes[id])+offset)));
+#endif
+					break;
+				case 5: //Unsigned int (properties)
+					lua_pushinteger(l, *((unsigned int*)(((unsigned char*)&ptypes[id])+offset)));
+					break;
+				case 6: //Char (state)
+					lua_pushinteger(l, *((char*)(((unsigned char*)&ptypes[id])+offset)));
+					break;
+				//Transitions, in a separate array so done separately
+				case 7: //Int
+					lua_pushinteger(l, *((int*)(((unsigned char*)&ptransitions[id])+offset)));
+					break;
+				case 8: //Float
+					lua_pushnumber(l, *((float*)(((unsigned char*)&ptransitions[id])+offset)));
+					break;
+				default:
+					lua_pushnil(l);
+			}
+			return 1;
+		}
+		else
+			return luaL_error(l, "Invalid element property");
+	}
+	return 0;
+}
+
+int elements_free(lua_State * l)
+{
+	/*int id;
+	luaL_checktype(l, 1, LUA_TNUMBER);
+	id = lua_tointeger(l, 1);
+	
+	if(id < 0 || id >= PT_NUM || !luacon_sim->elements[id].Enabled)
+		return luaL_error(l, "Invalid element");
+
+	std::string identifier = luacon_sim->elements[id].Identifier;
+	if(identifier.length()>7 && identifier.substr(0, 7) == "DEFAULT")
+		return luaL_error(l, "Cannot free default elements");
+
+	luacon_sim->elements[id].Enabled = false;
+
+	lua_getglobal(l, "elements");
+	lua_pushnil(l);
+	lua_setfield(l, -2, identifier.c_str());
+	lua_pop(l, 1);*/
+
 	return 0;
 }

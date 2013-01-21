@@ -38,4 +38,11 @@ int graphics_drawLine(lua_State * l);
 int graphics_drawRect(lua_State * l);
 int graphics_fillRect(lua_State * l);
 
+void initElementsAPI(lua_State * l);
+int elements_allocate(lua_State * l);
+int elements_element(lua_State * l);
+int elements_property(lua_State * l);
+int elements_loadDefault(lua_State * l);
+int elements_free(lua_State * l);
+
 #endif
