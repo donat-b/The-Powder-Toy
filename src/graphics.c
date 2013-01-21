@@ -1773,6 +1773,43 @@ int textwidthx(char *s, int w)
 	}
 	return n;
 }
+void textsize(char * s, int *width, int *height)
+{
+	int cHeight = FONT_H, cWidth = 0, lWidth = 0;
+	if(!strlen(s))
+	{
+		*width = 0;
+		*height = FONT_H;
+		return;
+	}
+
+	for (; *s; s++)
+	{
+		if (*s == '\n')
+		{
+			cWidth = 0;
+			cHeight += FONT_H+2;
+		}
+		else if (*s == '\x0F')
+		{
+			if(!s[1] || !s[2] || !s[1]) break;
+			s+=3;
+		}
+		else if (*s == '\b')
+		{
+			if(!s[1]) break;
+			s++;
+		}
+		else
+		{
+			cWidth += font_data[font_ptrs[(int)(*(unsigned char *)s)]];
+			if(cWidth>lWidth)
+				lWidth = cWidth;
+		}
+	}
+	*width = lWidth;
+	*height = cHeight;
+}
 int textposxy(char *s, int width, int w, int h)
 {
 	int x=0,y=0,n=0,cw, wordlen, charspace;
@@ -3249,7 +3286,7 @@ void render_parts(pixel *vid)
 							addpixel(vid, nx+nxo, ny+nyo, colr, colg, colb, 255-orbd[r]);
 					}
 				}
-				if ((pixel_mode & EFFECT_LINES) && DEBUG_MODE)
+				if ((pixel_mode & EFFECT_DBGLINES) && DEBUG_MODE)
 				{
 					if (mousex==(nx) && mousey==(ny))//draw lines connecting wifi/portal channels
 					{

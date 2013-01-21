@@ -20,4 +20,22 @@ int renderer_displayModes(lua_State * l);
 int renderer_colourMode(lua_State * l);
 int renderer_decorations(lua_State * l);
 
+void initFileSystemAPI(lua_State * l);
+int fileSystem_list(lua_State * l);
+int fileSystem_exists(lua_State * l);
+int fileSystem_isFile(lua_State * l);
+int fileSystem_isDirectory(lua_State * l);
+int fileSystem_makeDirectory(lua_State * l);
+int fileSystem_removeDirectory(lua_State * l);
+int fileSystem_removeFile(lua_State * l);
+int fileSystem_move(lua_State * l);
+int fileSystem_copy(lua_State * l);
+
+void initGraphicsAPI(lua_State * l);
+int graphics_textSize(lua_State * l);
+int graphics_drawText(lua_State * l);
+int graphics_drawLine(lua_State * l);
+int graphics_drawRect(lua_State * l);
+int graphics_fillRect(lua_State * l);
+
 #endif

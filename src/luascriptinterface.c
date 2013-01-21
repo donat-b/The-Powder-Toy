@@ -3,6 +3,10 @@
 #include <powder.h>
 #include <gravity.h>
 #include <powdergraphics.h>
+#include <dirent.h>
+#ifdef WIN32
+#include <direct.h>
+#endif
 
 /*
 
@@ -462,4 +466,392 @@ int renderer_decorations(lua_State * l)
 		lua_pushboolean(l, decorations_enable);
 		return 1;
 	}
+}
+
+/*
+
+FILESYSTEM API
+
+*/
+
+void initFileSystemAPI(lua_State * l)
+{
+	int fileSystemAPI;
+	//Methods
+	struct luaL_reg fileSystemAPIMethods [] = {
+		{"list", fileSystem_list},
+		{"exists", fileSystem_exists},
+		{"isFile", fileSystem_isFile},
+		{"isDirectory", fileSystem_isDirectory},
+		{"makeDirectory", fileSystem_makeDirectory},
+		{"removeDirectory", fileSystem_removeDirectory},
+		{"removeFile", fileSystem_removeFile},
+		{"move", fileSystem_move},
+		{"copy", fileSystem_copy},
+		{NULL, NULL}
+	};
+	luaL_register(l, "fileSystem", fileSystemAPIMethods);
+
+	//elem shortcut
+	lua_getglobal(l, "fileSystem");
+	lua_setglobal(l, "fs");
+
+	fileSystemAPI = lua_gettop(l);
+}
+
+int fileSystem_list(lua_State * l)
+{
+	const char * directoryName = lua_tostring(l, 1);
+	DIR * directory;
+	struct dirent * entry;
+
+	int index = 1;
+	lua_newtable(l);
+
+	directory = opendir(directoryName);
+	if (directory != NULL)
+	{
+		while (entry = readdir(directory))
+		{
+			if(strncmp(entry->d_name, "..", 3) && strncmp(entry->d_name, ".", 2))
+			{
+				lua_pushstring(l, entry->d_name);
+				lua_rawseti(l, -2, index++);
+			}
+		}
+		closedir(directory);
+	}
+	else
+	{
+		lua_pushnil(l);
+	}
+
+	return 1;
+}
+
+int fileSystem_exists(lua_State * l)
+{
+	const char * filename = lua_tostring(l, 1);
+
+	int exists = 0;
+#ifdef WIN
+	struct _stat s;
+	if(_stat(filename, &s) == 0)
+#else
+	struct stat s;
+	if(stat(filename, &s) == 0)
+#endif
+	{
+		if(s.st_mode & S_IFDIR)
+		{
+			exists = 1;
+		}
+		else if(s.st_mode & S_IFREG)
+		{
+			exists = 1;
+		}
+		else
+		{
+			exists = 1;
+		}
+	}
+	else
+	{
+		exists = 0;
+	}
+
+	lua_pushboolean(l, exists);
+	return 1;
+}
+
+int fileSystem_isFile(lua_State * l)
+{
+	const char * filename = lua_tostring(l, 1);
+
+	int exists = 0;
+#ifdef WIN
+	struct _stat s;
+	if(_stat(filename, &s) == 0)
+#else
+	struct stat s;
+	if(stat(filename, &s) == 0)
+#endif
+	{
+		if(s.st_mode & S_IFDIR)
+		{
+			exists = 1;
+		}
+		else if(s.st_mode & S_IFREG)
+		{
+			exists = 0;
+		}
+		else
+		{
+			exists = 0;
+		}
+	}
+	else
+	{
+		exists = 0;
+	}
+
+	lua_pushboolean(l, exists);
+	return 1;
+}
+
+int fileSystem_isDirectory(lua_State * l)
+{
+	const char * filename = lua_tostring(l, 1);
+
+	int exists = 0;
+#ifdef WIN
+	struct _stat s;
+	if(_stat(filename, &s) == 0)
+#else
+	struct stat s;
+	if(stat(filename, &s) == 0)
+#endif
+	{
+		if(s.st_mode & S_IFDIR)
+		{
+			exists = 0;
+		}
+		else if(s.st_mode & S_IFREG)
+		{
+			exists = 1;
+		}
+		else
+		{
+			exists = 0;
+		}
+	}
+	else
+	{
+		exists = 0;
+	}
+
+	lua_pushboolean(l, exists);
+	return 1;
+}
+
+int fileSystem_makeDirectory(lua_State * l)
+{
+	const char * dirname = lua_tostring(l, 1);
+
+	int ret = 0;
+#ifdef WIN32
+	ret = _mkdir(dirname);
+#else
+	ret = mkdir(dirname, 0755);
+#endif
+	lua_pushboolean(l, ret == 0);
+	return 1;
+}
+
+int fileSystem_removeDirectory(lua_State * l)
+{
+	const char * filename = lua_tostring(l, 1);
+
+	int ret = 0;
+#ifdef WIN32
+	ret = _rmdir(filename);
+#else
+	ret = rmdir(filename);
+#endif
+	lua_pushboolean(l, ret == 0);
+	return 1;
+}
+
+int fileSystem_removeFile(lua_State * l)
+{
+	const char * filename = lua_tostring(l, 1);
+
+	int ret = 0;
+#ifdef WIN32
+	ret = _unlink(filename);
+#else
+	ret = unlink(filename);
+#endif
+	lua_pushboolean(l, ret == 0);
+	return 1;
+}
+
+int fileSystem_move(lua_State * l)
+{
+	const char * filename = lua_tostring(l, 1);
+	const char * newFilename = lua_tostring(l, 2);
+	int ret = 0;
+
+	ret = rename(filename, newFilename);
+
+	lua_pushboolean(l, ret == 0);
+	return 1;
+}
+
+int fileSystem_copy(lua_State * l)
+{
+	const char * filename = lua_tostring(l, 1);
+	const char * newFilename = lua_tostring(l, 2);
+	int ret = 1;
+
+	char buf[BUFSIZ];
+    size_t size;
+
+    FILE* source = fopen(filename, "rb");
+	if(source)
+	{
+		FILE* dest = fopen(newFilename, "wb");
+		if (dest)
+		{
+			while (size = fread(buf, 1, BUFSIZ, source)) {
+				fwrite(buf, 1, size, dest);
+			}
+
+			fclose(dest);
+			ret = 0;
+		}
+		fclose(source);
+	}
+
+	lua_pushboolean(l, ret == 0);
+	return 1;
+}
+
+/*
+
+GRAPHICS API
+
+*/
+
+void initGraphicsAPI(lua_State * l)
+{
+	int graphicsAPI;
+	//Methods
+	struct luaL_reg graphicsAPIMethods [] = {
+		{"textSize", graphics_textSize},
+		{"drawText", graphics_drawText},
+		{"drawLine", graphics_drawLine},
+		{"drawRect", graphics_drawRect},
+		{"fillRect", graphics_fillRect},
+		{NULL, NULL}
+	};
+	luaL_register(l, "graphics", graphicsAPIMethods);
+
+	//elem shortcut
+	lua_getglobal(l, "graphics");
+	lua_setglobal(l, "gfx");
+
+	graphicsAPI = lua_gettop(l);
+
+	lua_pushinteger(l, XRES+BARSIZE);	lua_setfield(l, graphicsAPI, "WIDTH");
+	lua_pushinteger(l, YRES+MENUSIZE);	lua_setfield(l, graphicsAPI, "HEIGHT");
+}
+
+int graphics_textSize(lua_State * l)
+{
+    char * text;
+    int width, height;
+	text = (char*)lua_tostring(l, 1);
+	textsize(text, &width, &height);
+
+	lua_pushinteger(l, width);
+	lua_pushinteger(l, height);
+	return 2;
+}
+
+int graphics_drawText(lua_State * l)
+{
+    char * text;
+	int x, y, r, g, b, a;
+	x = lua_tointeger(l, 1);
+	y = lua_tointeger(l, 2);
+	text = (char*)lua_tostring(l, 3);
+	r = luaL_optint(l, 4, 255);
+	g = luaL_optint(l, 5, 255);
+	b = luaL_optint(l, 6, 255);
+	a = luaL_optint(l, 7, 255);
+	
+	if (r<0) r = 0;
+	if (r>255) r = 255;
+	if (g<0) g = 0;
+	if (g>255) g = 255;
+	if (b<0) b = 0;
+	if (b>255) b = 255;
+	if (a<0) a = 0;
+	if (a>255) a = 255;
+
+	drawtext(vid_buf, x, y, text, r, g, b, a);
+	return 0;
+}
+
+int graphics_drawLine(lua_State * l)
+{
+	int x1, y1, x2, y2, r, g, b, a;
+	x1 = lua_tointeger(l, 1);
+	y1 = lua_tointeger(l, 2);
+	x2 = lua_tointeger(l, 3);
+	y2 = lua_tointeger(l, 4);
+	r = luaL_optint(l, 5, 255);
+	g = luaL_optint(l, 6, 255);
+	b = luaL_optint(l, 7, 255);
+	a = luaL_optint(l, 8, 255);
+
+	if (r<0) r = 0;
+	if (r>255) r = 255;
+	if (g<0) g = 0;
+	if (g>255) g = 255;
+	if (b<0) b = 0;
+	if (b>255) b = 255;
+	if (a<0) a = 0;
+	if (a>255) a = 255;
+	draw_line(vid_buf, x1, y1, x2, y2, r, g, b, a);
+	return 0;
+}
+
+int graphics_drawRect(lua_State * l)
+{
+	int x, y, w, h, r, g, b, a;
+	x = lua_tointeger(l, 1);
+	y = lua_tointeger(l, 2);
+	w = lua_tointeger(l, 3)-1;
+	h = lua_tointeger(l, 4)-1;
+	r = luaL_optint(l, 5, 255);
+	g = luaL_optint(l, 6, 255);
+	b = luaL_optint(l, 7, 255);
+	a = luaL_optint(l, 8, 255);
+
+	if (r<0) r = 0;
+	if (r>255) r = 255;
+	if (g<0) g = 0;
+	if (g>255) g = 255;
+	if (b<0) b = 0;
+	if (b>255) b = 255;
+	if (a<0) a = 0;
+	if (a>255) a = 255;
+	drawrect(vid_buf, x, y, w, h, r, g, b, a);
+	return 0;
+}
+
+int graphics_fillRect(lua_State * l)
+{
+	int x, y, w, h, r, g, b, a;
+	x = lua_tointeger(l, 1)-1;
+	y = lua_tointeger(l, 2)-1;
+	w = lua_tointeger(l, 3)+1;
+	h = lua_tointeger(l, 4)+1;
+	r = luaL_optint(l, 5, 255);
+	g = luaL_optint(l, 6, 255);
+	b = luaL_optint(l, 7, 255);
+	a = luaL_optint(l, 8, 255);
+
+	if (r<0) r = 0;
+	if (r>255) r = 255;
+	if (g<0) g = 0;
+	if (g>255) g = 255;
+	if (b<0) b = 0;
+	if (b>255) b = 255;
+	if (a<0) a = 0;
+	if (a>255) a = 255;
+	fillrect(vid_buf, x, y, w, h, r, g, b, a);
+	return 0;
 }

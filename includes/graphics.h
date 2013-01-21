@@ -175,6 +175,8 @@ void textnpos(char *s, int n, int w, int *cx, int *cy);
 
 int textwidthx(char *s, int w);
 
+void textsize(char * s, int *width, int *height);
+
 int textposxy(char *s, int width, int w, int h);
 
 int textwrapheight(char *s, int width);

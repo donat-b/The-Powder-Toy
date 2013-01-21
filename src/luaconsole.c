@@ -150,6 +150,8 @@ void luacon_open(){
 	
 	initSimulationAPI(l);
 	initRendererAPI(l);
+	initFileSystemAPI(l);
+	initGraphicsAPI(l);
 
 	tptProperties = lua_gettop(l);
 	

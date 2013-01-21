@@ -3089,7 +3089,11 @@ int main(int argc, char *argv[])
 		sprintf(name,"tabs%s%d.stm",PATH_SEP,i);
 		remove(name);
 	}
+#ifdef WIN32
+	_rmdir("tabs");
+#else
 	rmdir("tabs");
+#endif
 	return 0;
 }
 #endif

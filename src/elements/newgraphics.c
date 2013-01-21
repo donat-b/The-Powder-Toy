@@ -157,7 +157,7 @@ int graphics_WIFI(GRAPHICS_FUNC_ARGS)
 	*colr = (int)(sin(frequency*q + 0) * 127 + 128);
 	*colg = (int)(sin(frequency*q + 2) * 127 + 128);
 	*colb = (int)(sin(frequency*q + 4) * 127 + 128);
-	*pixel_mode |= EFFECT_LINES;
+	*pixel_mode |= EFFECT_DBGLINES;
 	return 0;
 }
 int graphics_GEL(GRAPHICS_FUNC_ARGS)
@@ -175,7 +175,7 @@ int graphics_PRTI(GRAPHICS_FUNC_ARGS)
 	*fireg = 0;
 	*fireb = 0;
 	*pixel_mode |= EFFECT_GRAVIN;
-	*pixel_mode |= EFFECT_LINES;
+	*pixel_mode |= EFFECT_DBGLINES;
 	*pixel_mode &= ~PMODE;
 	*pixel_mode |= PMODE_ADD;
 	return 1;
@@ -187,7 +187,7 @@ int graphics_PRTO(GRAPHICS_FUNC_ARGS)
 	*fireg = 0;
 	*fireb = 255;
 	*pixel_mode |= EFFECT_GRAVOUT;
-	*pixel_mode |= EFFECT_LINES;
+	*pixel_mode |= EFFECT_DBGLINES;
 	*pixel_mode &= ~PMODE;
 	*pixel_mode |= PMODE_ADD;
 	return 1;
@@ -200,7 +200,7 @@ int graphics_PPTI(GRAPHICS_FUNC_ARGS)
 	*fireg = 0;
 	*fireb = 0;
 	*pixel_mode |= EFFECT_GRAVIN;
-	*pixel_mode |= EFFECT_LINES;
+	*pixel_mode |= EFFECT_DBGLINES;
 	lifemod = ((cpart->tmp2>10?10:cpart->tmp2)*10);
 	*colr = 155 + lifemod;
 	if (cpart->tmp2 < 10)
@@ -215,7 +215,7 @@ int graphics_PPTO(GRAPHICS_FUNC_ARGS)
 	*fireg = 0;
 	*fireb = 255;
 	*pixel_mode |= EFFECT_GRAVOUT;
-	*pixel_mode |= EFFECT_LINES;
+	*pixel_mode |= EFFECT_DBGLINES;
 	lifemod = ((cpart->tmp2>10?10:cpart->tmp2)*20);
 	*colb = 55 + lifemod;
 	if (cpart->tmp2 < 10)
