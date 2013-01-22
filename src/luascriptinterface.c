@@ -1249,56 +1249,65 @@ int elements_allocate(lua_State * l)
 
 int elements_element(lua_State * l)
 {
-	/*int args = lua_gettop(l);
-	int id;
+	int args = lua_gettop(l);
+	int id, i = 0;
+	char *propertyList[] = { "Name", "Colour", "Color", "MenuVisible", "MenuSection", "Advection", "AirDrag", "AirLoss", "Loss", "Collision", "Gravity", "Diffusion", "HotAir", "Falldown", "Flammable", "Explosive", "Meltable", "Hardness", "Weight", "Temperature", "HeatConduct", "Description", "State", "Properties", "LowPressure", "LowPressureTransition", "HighPressure", "HighPressureTransition", "LowTemperature", "LowTemperatureTransition", "HighTemperature", "HighTemperatureTransition", NULL};
 	luaL_checktype(l, 1, LUA_TNUMBER);
 	id = lua_tointeger(l, 1);
 
-	if(id < 0 || id >= PT_NUM || !luacon_sim->elements[id].Enabled)
+	if(id < 0 || id >= PT_NUM || !ptypes[id].enabled)
 		return luaL_error(l, "Invalid element");
 
 	if(args > 1)
 	{
 		luaL_checktype(l, 2, LUA_TTABLE);
-		std::vector<StructProperty> properties = Element::GetProperties();
 		//Write values from native data to a table
-		for(std::vector<StructProperty>::iterator iter = properties.begin(), end = properties.end(); iter != end; ++iter)
+		while (propertyList[i])
 		{
-			lua_getfield(l, -1, (*iter).Name.c_str());
+			lua_getfield(l, -1, propertyList[i]);
 			if(lua_type(l, -1) != LUA_TNIL)
 			{
-				intptr_t offset = (*iter).Offset;
-				switch((*iter).Type)
+				int format;
+				int offset = elements_getProperty(propertyList[i], &format);
+				switch(format)
 				{
-					case StructProperty::ParticleType:
-					case StructProperty::Integer:
-						*((int*)(((unsigned char*)&luacon_sim->elements[id])+offset)) = lua_tointeger(l, -1);
+					case 0: //Int
+						*((int*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, -1);
 						break;
-					case StructProperty::UInteger:
-						*((unsigned int*)(((unsigned char*)&luacon_sim->elements[id])+offset)) = lua_tointeger(l, -1);
+					case 1: //Float
+						*((float*)(((unsigned char*)&ptypes[id])+offset)) = lua_tonumber(l, -1);
 						break;
-					case StructProperty::Float:
-						*((float*)(((unsigned char*)&luacon_sim->elements[id])+offset)) = lua_tonumber(l, -1);
+					case 2: //String
+						*((char**)(((unsigned char*)&ptypes[id])+offset)) = strdup(lua_tostring(l, -1));
 						break;
-					case StructProperty::Char:
-						*((char*)(((unsigned char*)&luacon_sim->elements[id])+offset)) = lua_tointeger(l, -1);
+					//Extra things just used for one type ...
+					case 3: //Unsigned char (hconduct)
+						*((unsigned char*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, -1);
 						break;
-					case StructProperty::UChar:
-						*((unsigned char*)(((unsigned char*)&luacon_sim->elements[id])+offset)) = lua_tointeger(l, -1);
-						break;
-					case StructProperty::String:
-						*((char**)(((unsigned char*)&luacon_sim->elements[id])+offset)) = strdup(lua_tostring(l, -1));
-						break;
-					case StructProperty::Colour:
+					case 4: //Color (color)
 #if PIXELSIZE == 4
-						*((unsigned int*)(((unsigned char*)&luacon_sim->elements[id])+offset)) = lua_tointeger(l, -1);
+						*((unsigned int*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, -1);
 #else
-						*((unsigned short*)(((unsigned char*)&luacon_sim->elements[id])+offset)) = lua_tointeger(l, -1);
+						*((unsigned short*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, -1);
 #endif
+						break;
+					case 5: //Unsigned int (properties)
+						*((unsigned int*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, -1);
+						break;
+					case 6: //Char (state)
+						*((char*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, -1);
+						break;
+					//Transitions, in a separate array so done separately
+					case 7: //Int
+						*((int*)(((unsigned char*)&ptransitions[id])+offset)) = lua_tointeger(l, -1);
+						break;
+					case 8: //Float
+						*((float*)(((unsigned char*)&ptransitions[id])+offset)) = lua_tonumber(l, -1);
 						break;
 				}
 				lua_pop(l, 1);
 			}
+			i++;
 		}
 
 		lua_getfield(l, -1, "Update");
@@ -1311,7 +1320,7 @@ int elements_element(lua_State * l)
 		{
 			lua_el_func[id] = 0;
 			lua_el_mode[id] = 0;
-			luacon_sim->elements[id].Update = NULL;
+			ptypes[id].update_func = NULL;
 		}
 		else
 			lua_pop(l, 1);
@@ -1320,66 +1329,73 @@ int elements_element(lua_State * l)
 		if(lua_type(l, -1) == LUA_TFUNCTION)
 		{
 			lua_gr_func[id] = luaL_ref(l, LUA_REGISTRYINDEX);
-			luacon_sim->elements[id].Graphics = &luacon_graphicsReplacement;
 		}
 		else if(lua_type(l, -1) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
 		{
 			lua_gr_func[id] = 0;
-			luacon_sim->elements[id].Graphics = NULL;
+			ptypes[id].graphics_func = NULL;
 		}
 		else
 			lua_pop(l, 1);
 
-		luacon_model->BuildMenus();
-		luacon_sim->init_can_move();
-		std::fill(luacon_ren->graphicscache, luacon_ren->graphicscache+PT_NUM, gcache_item());
+		menu_count();
+		init_can_move();
+		graphicscache[id].isready = 0;
 
 		lua_pop(l, 1);
 		return 0;
 	}
 	else
 	{
-		std::vector<StructProperty> properties = Element::GetProperties();
 		//Write values from native data to a table
 		lua_newtable(l);
-		for(std::vector<StructProperty>::iterator iter = properties.begin(), end = properties.end(); iter != end; ++iter)
+		while (propertyList[i])
 		{
-			intptr_t offset = (*iter).Offset;
-			switch((*iter).Type)
+			int format;
+			int offset = elements_getProperty(propertyList[i], &format);
+			switch(format)
 			{
-				case StructProperty::ParticleType:
-				case StructProperty::Integer:
-					lua_pushinteger(l, *((int*)(((unsigned char*)&luacon_sim->elements[id])+offset)));
+				case 0: //Int
+					lua_pushinteger(l, *((int*)(((unsigned char*)&ptypes[id])+offset)));
 					break;
-				case StructProperty::UInteger:
-					lua_pushinteger(l, *((unsigned int*)(((unsigned char*)&luacon_sim->elements[id])+offset)));
+				case 1: //Float
+					lua_pushnumber(l, *((float*)(((unsigned char*)&ptypes[id])+offset)));
 					break;
-				case StructProperty::Float:
-					lua_pushnumber(l, *((float*)(((unsigned char*)&luacon_sim->elements[id])+offset)));
+				case 2: //String
+					lua_pushstring(l, *((char**)(((unsigned char*)&ptypes[id])+offset)));
 					break;
-				case StructProperty::Char:
-					lua_pushinteger(l, *((char*)(((unsigned char*)&luacon_sim->elements[id])+offset)));
+				//Extra things just used for one type ...
+				case 3: //Unsigned char (hconduct)
+					lua_pushinteger(l, *((unsigned char*)(((unsigned char*)&ptypes[id])+offset)));
 					break;
-				case StructProperty::UChar:
-					lua_pushinteger(l, *((unsigned char*)(((unsigned char*)&luacon_sim->elements[id])+offset)));
-					break;
-				case StructProperty::String:
-					lua_pushstring(l, *((char**)(((unsigned char*)&luacon_sim->elements[id])+offset)));
-					break;
-				case StructProperty::Colour:
+				case 4: //Color (color)
 #if PIXELSIZE == 4
-					lua_pushinteger(l, *((unsigned int*)(((unsigned char*)&luacon_sim->elements[id])+offset)));
+					lua_pushinteger(l, *((unsigned int*)(((unsigned char*)&ptypes[id])+offset)));
 #else
-					lua_pushinteger(l, *((unsigned short*)(((unsigned char*)&luacon_sim->elements[id])+offset)));
+					lua_pushinteger(l, *((unsigned short*)(((unsigned char*)&ptypes[id])+offset)));
 #endif
+					break;
+				case 5: //Unsigned int (properties)
+					lua_pushinteger(l, *((unsigned int*)(((unsigned char*)&ptypes[id])+offset)));
+					break;
+				case 6: //Char (state)
+					lua_pushinteger(l, *((char*)(((unsigned char*)&ptypes[id])+offset)));
+					break;
+				//Transitions, in a separate array so done separately
+				case 7: //Int
+					lua_pushinteger(l, *((int*)(((unsigned char*)&ptransitions[id])+offset)));
+					break;
+				case 8: //Float
+					lua_pushnumber(l, *((float*)(((unsigned char*)&ptransitions[id])+offset)));
 					break;
 				default:
 					lua_pushnil(l);
 			}
-			lua_setfield(l, -2, (*iter).Name.c_str());
+			lua_setfield(l, -2, propertyList[i]);
+			i++;
 		}
 		return 1;
-	}*/
+	}
 	return 0;
 }
 
