@@ -657,3 +657,5 @@ unsigned int platent[PT_NUM] =
 	/* PWHT */ 0,
 	/* EXPL */ 0,
 };
+
+char* pidentifiers[PT_NUM];

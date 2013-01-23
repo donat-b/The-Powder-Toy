@@ -57,6 +57,7 @@
 #include <console.h>
 #ifdef LUACONSOLE
 #include "luaconsole.h"
+#include "luascriptinterface.h"
 #endif
 #include "save.h"
 #include "hud.h"
@@ -874,8 +875,15 @@ int main(int argc, char *argv[])
 	part_vbuf_store = part_vbuf;
 	pers_bg = (pixel*)calloc((XRES+BARSIZE)*YRES, PIXELSIZE);
 
+	for (i = 0; i < PT_NUM; i++)
+		if (!ptypes[i].name)
+		{
+			ptypes[i].name = "";
+			ptypes[i].descs = "";
+		}
 	memcpy(ptypes2,ptypes,sizeof(ptypes));
 	memcpy(ptransitions2,ptransitions,sizeof(ptransitions));
+	initIdentifiers();
 	hud_defaults();
 	memcpy(hud_current,hud_modnormal,sizeof(hud_current));
 

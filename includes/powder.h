@@ -266,7 +266,7 @@
 #define PT_COND PT_NORMAL_NUM+13
 #define PT_PWHT PT_NORMAL_NUM+14
 #define PT_EXPL PT_NORMAL_NUM+15
-#define PT_NUM 185
+#define PT_NUM 221
 
 #define R_TEMP 22
 #define MAX_TEMP 9999
@@ -592,6 +592,7 @@ typedef struct part_transition part_transition;
 extern part_type ptypes[PT_NUM];
 extern part_type ptypes2[PT_NUM];
 extern unsigned int platent[PT_NUM];
+extern char* pidentifiers[PT_NUM];
 
 extern part_transition ptransitions[PT_NUM];
 extern part_transition ptransitions2[PT_NUM];

@@ -862,6 +862,79 @@ ELEMENTS API
 
 */
 
+char * getIdentifier(int i)
+{
+	char identifier[24];
+	if (i == PT_EQUALVEL)
+		sprintf(identifier,"DEFAULT_PT_116");//This list is much larger than I expected ...
+	else if (i == 146)
+		sprintf(identifier,"DEFAULT_PT_146");
+	else if (i == PT_BANG)
+		sprintf(identifier,"DEFAULT_PT_BANG");
+	else if (i == PT_BIZRG)
+		sprintf(identifier,"DEFAULT_PT_BIZRG");
+	else if (i == PT_BIZRS)
+		sprintf(identifier,"DEFAULT_PT_BIZRS");
+	else if (i == PT_BHOL)
+		sprintf(identifier,"DEFAULT_PT_BHOL");
+	else if (i == PT_WHOL)
+		sprintf(identifier,"DEFAULT_PT_WHOL");
+	else if (i == PT_NBHL)
+		sprintf(identifier,"DEFAULT_PT_NBHL");
+	else if (i == PT_NWHL)
+		sprintf(identifier,"DEFAULT_PT_NBWL");
+	else if (i == PT_BREL)
+		sprintf(identifier,"DEFAULT_PT_BREC");
+	else if (i == PT_CBNW)
+		sprintf(identifier,"DEFAULT_PT_CBNW");
+	else if (i == PT_H2)
+		sprintf(identifier,"DEFAULT_PT_H2");
+	else if (i == PT_ICEI)
+		sprintf(identifier,"DEFAULT_PT_ICEI");
+	else if (i == PT_INVIS)
+		sprintf(identifier,"DEFAULT_PT_INVIS");
+	else if (i == PT_LNTG)
+		sprintf(identifier,"DEFAULT_PT_LNTG");
+	else if (i == PT_LO2)
+		sprintf(identifier,"DEFAULT_PT_LO2");
+	else if (i == PT_NONE)
+		sprintf(identifier,"DEFAULT_PT_NONE");
+	else if (i == PT_O2)
+		sprintf(identifier,"DEFAULT_PT_O2");
+	else if (i == PT_PLEX)
+		sprintf(identifier,"DEFAULT_PT_PLEX");
+	else if (i == PT_SHLD1)
+		sprintf(identifier,"DEFAULT_PT_SHLD1");
+	else if (i == PT_SHLD2)
+		sprintf(identifier,"DEFAULT_PT_SHLD2");
+	else if (i == PT_SHLD3)
+		sprintf(identifier,"DEFAULT_PT_SHLD3");
+	else if (i == PT_SHLD4)
+		sprintf(identifier,"DEFAULT_PT_SHLD4");
+	else if (i == PT_SHLD4)
+		sprintf(identifier,"DEFAULT_PT_SHLD1");
+	else if (i == PT_SPAWN)
+		sprintf(identifier,"DEFAULT_PT_SPAWN");
+	else if (i == PT_SPAWN2)
+		sprintf(identifier,"DEFAULT_PT_SPAWN2");
+	else if (i == PT_STKM2)
+		sprintf(identifier,"DEFAULT_PT_STKM2");
+	else if (i == PT_SHLD4)
+		sprintf(identifier,"DEFAULT_PT_SHLD1");
+	else if (i == PT_SHLD4)
+		sprintf(identifier,"DEFAULT_PT_SHLD1");
+	else
+		sprintf(identifier,"DEFAULT_PT_%s",ptypes[i].name);
+	return strdup(identifier);
+}
+
+void initIdentifiers()
+{
+	int i;
+	for (i = 0; i < PT_NUM; i++)
+		pidentifiers[i] = getIdentifier(i);
+}
+
 void initElementsAPI(lua_State * l)
 {
 	int elementsAPI, i;
@@ -943,65 +1016,8 @@ void initElementsAPI(lua_State * l)
 	{
 		if(ptypes[i].enabled)
 		{
-			char identifier[24];
 			lua_pushinteger(l, i);
-			if (i == PT_EQUALVEL)
-				sprintf(identifier,"DEFAULT_PT_116");//This list is much larger than I expected ...
-			else if (i == 146)
-				sprintf(identifier,"DEFAULT_PT_146");
-			else if (i == PT_BANG)
-				sprintf(identifier,"DEFAULT_PT_BANG");
-			else if (i == PT_BHOL)
-				sprintf(identifier,"DEFAULT_PT_BHOL");
-			else if (i == PT_WHOL)
-				sprintf(identifier,"DEFAULT_PT_WHOL");
-			else if (i == PT_NBHL)
-				sprintf(identifier,"DEFAULT_PT_NBHL");
-			else if (i == PT_NWHL)
-				sprintf(identifier,"DEFAULT_PT_NBWL");
-			else if (i == PT_BREL)
-				sprintf(identifier,"DEFAULT_PT_BREC");
-			else if (i == PT_CBNW)
-				sprintf(identifier,"DEFAULT_PT_CBNW");
-			else if (i == PT_H2)
-				sprintf(identifier,"DEFAULT_PT_H2");
-			else if (i == PT_ICEI)
-				sprintf(identifier,"DEFAULT_PT_ICEI");
-			else if (i == PT_INVIS)
-				sprintf(identifier,"DEFAULT_PT_INVIS");
-			else if (i == PT_LNTG)
-				sprintf(identifier,"DEFAULT_PT_LNTG");
-			else if (i == PT_LO2)
-				sprintf(identifier,"DEFAULT_PT_LO2");
-			else if (i == PT_NONE)
-				sprintf(identifier,"DEFAULT_PT_NONE");
-			else if (i == PT_O2)
-				sprintf(identifier,"DEFAULT_PT_O2");
-			else if (i == PT_PLEX)
-				sprintf(identifier,"DEFAULT_PT_PLEX");
-			else if (i == PT_SHLD1)
-				sprintf(identifier,"DEFAULT_PT_SHLD1");
-			else if (i == PT_SHLD2)
-				sprintf(identifier,"DEFAULT_PT_SHLD2");
-			else if (i == PT_SHLD3)
-				sprintf(identifier,"DEFAULT_PT_SHLD3");
-			else if (i == PT_SHLD4)
-				sprintf(identifier,"DEFAULT_PT_SHLD4");
-			else if (i == PT_SHLD4)
-				sprintf(identifier,"DEFAULT_PT_SHLD1");
-			else if (i == PT_SPAWN)
-				sprintf(identifier,"DEFAULT_PT_SPAWN");
-			else if (i == PT_SPAWN2)
-				sprintf(identifier,"DEFAULT_PT_SPAWN2");
-			else if (i == PT_STKM2)
-				sprintf(identifier,"DEFAULT_PT_STKM2");
-			else if (i == PT_SHLD4)
-				sprintf(identifier,"DEFAULT_PT_SHLD1");
-			else if (i == PT_SHLD4)
-				sprintf(identifier,"DEFAULT_PT_SHLD1");
-			else
-				sprintf(identifier,"DEFAULT_PT_%s",ptypes[i].name);
-			lua_setfield(l, elementsAPI, identifier);
+			lua_setfield(l, elementsAPI, pidentifiers[i]);
 		}
 	}
 }
@@ -1149,38 +1165,35 @@ int elements_getProperty(char * key, int * format)
 
 int elements_loadDefault(lua_State * l)
 {
-	/*int args = lua_gettop(l);
+	int args = lua_gettop(l);
 	if(args)
 	{
+		int id;
 		luaL_checktype(l, 1, LUA_TNUMBER);
-		int id = lua_tointeger(l, 1);
+		id = lua_tointeger(l, 1);
 		if(id < 0 || id >= PT_NUM)
 			return luaL_error(l, "Invalid element");
 
 		lua_getglobal(l, "elements");
 		lua_pushnil(l);
-		lua_setfield(l, -2, luacon_sim->elements[id].Identifier);
+		lua_setfield(l, -2, pidentifiers[id]);
 
-		std::vector<Element> elementList = GetElements();
-		if(id < elementList.size())
-			luacon_sim->elements[id] = elementList[id];
-		else
-			luacon_sim->elements[id] = Element();
+		if(id < PT_NUM)
+		{
+			ptypes[id] = ptypes2[id];
+			ptransitions[id] = ptransitions2[id];
+			pidentifiers[id] = getIdentifier(id);
+		}
+		//else
+		//	luacon_sim->elements[id] = Element();
 
 		lua_pushinteger(l, id);
-		lua_setfield(l, -2, luacon_sim->elements[id].Identifier);
+		lua_setfield(l, -2, pidentifiers[id]);
 		lua_pop(l, 1);
 	}
 	else
 	{
-		std::vector<Element> elementList = GetElements();
-		for(int i = 0; i < PT_NUM; i++)
-		{
-			if(i < elementList.size())
-				luacon_sim->elements[i] = elementList[i];
-			else
-				luacon_sim->elements[i] = Element();
-		}
+		memcpy(ptypes,ptypes2,sizeof(ptypes2));
 		lua_pushnil(l);
 		lua_setglobal(l, "elements");
 		lua_pushnil(l);
@@ -1191,45 +1204,62 @@ int elements_loadDefault(lua_State * l)
 		lua_pushnil(l);
 		lua_setfield(l, -2, "elements");
 
-		luacon_ci->initElementsAPI();
+		initElementsAPI(l);
 	}
 
-	luacon_model->BuildMenus();
-	luacon_sim->init_can_move();
-	std::fill(luacon_ren->graphicscache, luacon_ren->graphicscache+PT_NUM, gcache_item());*/
+	menu_count();
+	init_can_move();
+	memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
 	return 0;
 }
 
 int elements_allocate(lua_State * l)
 {
-	/*std::string group, id, identifier;
+	char *group, *id, *identifier, *tmp;
+	int i, newID = -1;
 	luaL_checktype(l, 1, LUA_TSTRING);
 	luaL_checktype(l, 2, LUA_TSTRING);
-	group = std::string(lua_tostring(l, 1));
-	std::transform(group.begin(), group.end(), group.begin(), ::toupper);
-	id = std::string(lua_tostring(l, 2));
-	std::transform(id.begin(), id.end(), id.begin(), ::toupper);
+	group = (char*)lua_tostring(l, 1);
+	tmp = group;
+	while (*tmp) { *tmp = toupper(*tmp); tmp++; }
+	id = (char*)lua_tostring(l, 2);
+	tmp = id;
+	while (*tmp) { *tmp = toupper(*tmp); tmp++; }
 
-	if(group == "DEFAULT")
+	if(!strcmp(group,"DEFAULT"))
 		return luaL_error(l, "You cannot create elements in the 'default' group.");
 
-	identifier = group + "_PT_" + id;
+	identifier = (char*)calloc(strlen(group)+strlen(id)+5,sizeof(char));
+	sprintf(identifier,"%s_PT_%s",group,id);
 
-	for(int i = 0; i < PT_NUM; i++)
+	for(i = 0; i < PT_NUM; i++)
 	{
-		if(luacon_sim->elements[i].Enabled && std::string(luacon_sim->elements[i].Identifier) == identifier)
+		if(ptypes[i].enabled && !strcmp(pidentifiers[i],identifier))
 			return luaL_error(l, "Element identifier already in use");
 	}
 
-	int newID = -1;
-	for(int i = PT_NUM-1; i >= 0; i--)
+	for(i = PT_NUM-1; i >= 0; i--)
 	{
-		if(!luacon_sim->elements[i].Enabled)
+		if(!ptypes[i].enabled)
 		{
 			newID = i;
-			luacon_sim->elements[i] = Element();
-			luacon_sim->elements[i].Enabled = true;
-			luacon_sim->elements[i].Identifier = strdup(identifier.c_str());
+			ptypes[i].pcolors = 0xFF00FF;
+			ptypes[i].airloss = 1.0f;
+			ptypes[i].loss = 1.0f;
+			ptypes[i].hardness = 30;
+			ptypes[i].weight = 50;
+			ptypes[i].heat = 273.15f;
+			ptypes[i].hconduct = 128;
+			ptypes[i].descs = "No description";
+			ptypes[i].state = ST_SOLID;
+			ptypes[i].properties = TYPE_SOLID;
+			ptypes[i].enabled = 1;
+			ptransitions[i].pht = ptransitions[i].plt = ptransitions[i].tht = ptransitions[i].tlt = -1;
+			ptransitions[i].phv = 257.0f;
+			ptransitions[i].plv = -257.0f;
+			ptransitions[i].thv = MAX_TEMP+1;
+			ptransitions[i].tlv = MIN_TEMP-1;
+			pidentifiers[i]  = strdup(identifier);
 			break;
 		}
 	}
@@ -1238,13 +1268,12 @@ int elements_allocate(lua_State * l)
 	{	
 		lua_getglobal(l, "elements");
 		lua_pushinteger(l, newID);
-		lua_setfield(l, -2, identifier.c_str());
+		lua_setfield(l, -2, pidentifiers[i]);
 		lua_pop(l, 1);
 	}
 
 	lua_pushinteger(l, newID);
-	return 1;*/
-	return 0;
+	return 1;
 }
 
 int elements_element(lua_State * l)
@@ -1421,6 +1450,7 @@ int elements_property(lua_State * l)
 		{
 			if(lua_type(l, 3) != LUA_TNIL)
 			{
+				unsigned int col;
 				switch(format)
 				{
 					case 0: //Int
@@ -1438,7 +1468,8 @@ int elements_property(lua_State * l)
 						break;
 					case 4: //Color (color)
 #if PIXELSIZE == 4
-						*((unsigned int*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, 3);
+						col = (unsigned int)lua_tonumber(l, 3);
+						*((unsigned int*)(((unsigned char*)&ptypes[id])+offset)) = col;
 #else
 						*((unsigned short*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, 3);
 #endif
@@ -1564,23 +1595,24 @@ int elements_property(lua_State * l)
 
 int elements_free(lua_State * l)
 {
-	/*int id;
+	int id;
+	char *identifier;
 	luaL_checktype(l, 1, LUA_TNUMBER);
 	id = lua_tointeger(l, 1);
 	
-	if(id < 0 || id >= PT_NUM || !luacon_sim->elements[id].Enabled)
+	if(id < 0 || id >= PT_NUM || !ptypes[id].enabled)
 		return luaL_error(l, "Invalid element");
 
-	std::string identifier = luacon_sim->elements[id].Identifier;
-	if(identifier.length()>7 && identifier.substr(0, 7) == "DEFAULT")
+	identifier = pidentifiers[id];
+	if(strstr(identifier,"DEFAULT") == identifier)
 		return luaL_error(l, "Cannot free default elements");
 
-	luacon_sim->elements[id].Enabled = false;
+	ptypes[id].enabled = 0;
 
 	lua_getglobal(l, "elements");
 	lua_pushnil(l);
-	lua_setfield(l, -2, identifier.c_str());
-	lua_pop(l, 1);*/
+	lua_setfield(l, -2, identifier);
+	lua_pop(l, 1);
 
 	return 0;
 }
