@@ -5063,7 +5063,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	ed.h = 48;
 	ed.nx = 1;
 	ed.def = "Add comment";
-	ed.focus = 1;
+	ed.focus = svf_login?1:0;
 	ed.hide = 0;
 	ed.multiline = 1;
 	ed.limit = 1023;
