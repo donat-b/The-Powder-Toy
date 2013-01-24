@@ -8272,7 +8272,7 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 void simulation_ui(pixel * vid_buf)
 {
 	int xsize = 300;
-	int ysize = 288;
+	int ysize = 316;
 	int x0=(XRES-xsize)/2,y0=(YRES-MENUSIZE-ysize)/2,b=1,bq,mx,my;
 	int new_scale, new_kiosk, oldedgeMode = edgeMode;
 	ui_checkbox cb, cb2, cb3, cb4, cb5, cb6, cb7;
@@ -8282,9 +8282,12 @@ void simulation_ui(pixel * vid_buf)
 	int gravityModeListCount = 3;
 	char * edgeModeList[] = {"Void", "Solid", "Loop"};//, "Empty"};
 	int edgeModeListCount = 3;
+	char * updateList[] = {"No Update Check", "ip: 178.219.36.155", "website: mniip.com"};//, "Empty"};
+	int updateListCount = 3;
 	ui_list list;
 	ui_list list2;
 	ui_list list3;
+	ui_list listUpdate;
 
 	cb.x = x0+xsize-16;		//Heat simulation
 	cb.y = y0+23;
@@ -8297,12 +8300,12 @@ void simulation_ui(pixel * vid_buf)
 	cb2.checked = ngrav_enable;
 	
 	cb3.x = x0+xsize-16;	//Large window
-	cb3.y = y0+227;
+	cb3.y = y0+255;
 	cb3.focus = 0;
 	cb3.checked = (sdl_scale==2)?1:0;
 	
 	cb4.x = x0+xsize-16;	//Fullscreen
-	cb4.y = y0+241;
+	cb4.y = y0+269;
 	cb4.focus = 0;
 	cb4.checked = (kiosk_enable==1)?1:0;
 	
@@ -8316,8 +8319,8 @@ void simulation_ui(pixel * vid_buf)
 	cb6.focus = 0;
 	cb6.checked = water_equal_test;
 
-	cb7.x = x0+xsize-16;	//Block frame
-	cb7.y = y0+255;
+	cb7.x = x0+xsize-16;	//Fast Quit
+	cb7.y = y0+283;
 	cb7.focus = 0;
 	cb7.checked = fastquit;
 	
@@ -8347,6 +8350,15 @@ void simulation_ui(pixel * vid_buf)
 	list3.selected = edgeMode;
 	list3.items = edgeModeList;
 	list3.count = edgeModeListCount;
+
+	listUpdate.x = x0+xsize-100;	//Edge Mode
+	listUpdate.y = y0+219;
+	listUpdate.w = 96;
+	listUpdate.h = 16;
+	listUpdate.def = "[update server]";
+	listUpdate.selected = doUpdates;
+	listUpdate.items = updateList;
+	listUpdate.count = updateListCount;
 
 	while (!sdl_poll())
 	{
@@ -8388,17 +8400,20 @@ void simulation_ui(pixel * vid_buf)
 
 		drawtext(vid_buf, x0+8, y0+194, "Edge Mode", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12, y0+208, "edgeMode", 255, 255, 255, 120);
-		
-		draw_line(vid_buf, x0, y0+222, x0+xsize, y0+222, 150, 150, 150, XRES+BARSIZE);
-		
-		drawtext(vid_buf, x0+8, y0+228, "Large window", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+12+textwidth("Large window"), y0+228, "Double window size for small screens", 255, 255, 255, 180);
-		
-		drawtext(vid_buf, x0+8, y0+242, "Fullscreen", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+12+textwidth("Fullscreen"), y0+242, "Fill the entire screen", 255, 255, 255, 180);
 
-		drawtext(vid_buf, x0+8, y0+256, "Fast Quit", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+12+textwidth("Fast Quit"), y0+256, "Hitting 'X' will always exit out of tpt", 255, 255, 255, 180);
+		drawtext(vid_buf, x0+8, y0+222, "Update Check", 255, 255, 255, 255);
+		drawtext(vid_buf, x0+12, y0+236, "doUpdates", 255, 255, 255, 120);
+		
+		draw_line(vid_buf, x0, y0+250, x0+xsize, y0+250, 150, 150, 150, XRES+BARSIZE);
+		
+		drawtext(vid_buf, x0+8, y0+256, "Large window", 255, 255, 255, 255);
+		drawtext(vid_buf, x0+12+textwidth("Large window"), y0+256, "Double window size for small screens", 255, 255, 255, 180);
+		
+		drawtext(vid_buf, x0+8, y0+270, "Fullscreen", 255, 255, 255, 255);
+		drawtext(vid_buf, x0+12+textwidth("Fullscreen"), y0+270, "Fill the entire screen", 255, 255, 255, 180);
+
+		drawtext(vid_buf, x0+8, y0+284, "Fast Quit", 255, 255, 255, 255);
+		drawtext(vid_buf, x0+12+textwidth("Fast Quit"), y0+284, "Hitting 'X' will always exit out of tpt", 255, 255, 255, 180);
 
 		drawtext(vid_buf, x0+5, y0+ysize-11, "OK", 255, 255, 255, 255);
 		drawrect(vid_buf, x0, y0+ysize-16, xsize, 16, 192, 192, 192, 255);
@@ -8413,6 +8428,7 @@ void simulation_ui(pixel * vid_buf)
 		ui_list_draw(vid_buf, &list);
 		ui_list_draw(vid_buf, &list2);
 		ui_list_draw(vid_buf, &list3);
+		ui_list_draw(vid_buf, &listUpdate);
 #ifdef OGLR
 		clearScreen(1.0f);
 #endif
@@ -8427,6 +8443,7 @@ void simulation_ui(pixel * vid_buf)
 		ui_list_process(vid_buf, mx, my, b, &list);
 		ui_list_process(vid_buf, mx, my, b, &list2);
 		ui_list_process(vid_buf, mx, my, b, &list3);
+		ui_list_process(vid_buf, mx, my, b, &listUpdate);
 
 		if (b && !bq && mx>=x0 && mx<x0+xsize && my>=y0+ysize-16 && my<=y0+ysize)
 			break;
@@ -8460,6 +8477,7 @@ void simulation_ui(pixel * vid_buf)
 		draw_bframe();
 	else if(edgeMode != 1 && oldedgeMode == 1)
 		erase_bframe();
+	doUpdates = listUpdate.selected;
 	fastquit = cb7.checked;
 
 	while (!sdl_poll())

@@ -319,6 +319,7 @@ void save_presets(int do_update)
 	cJSON_AddNumberToObject(root, "show_ids", show_ids);
 	cJSON_AddNumberToObject(root, "decobox_hidden", decobox_hidden);
 	cJSON_AddNumberToObject(root, "fastquit", fastquit);
+	cJSON_AddNumberToObject(root, "doUpdates", doUpdates);
 	
 	outputdata = cJSON_Print(root);
 	cJSON_Delete(root);
@@ -608,6 +609,7 @@ void load_presets(void)
 		if(tmpobj = cJSON_GetObjectItem(root, "show_ids")) show_ids = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "decobox_hidden")) decobox_hidden = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "fastquit")) fastquit = tmpobj->valueint;
+		if(tmpobj = cJSON_GetObjectItem(root, "doUpdates")) doUpdates = tmpobj->valueint;
 
 		cJSON_Delete(root);
 		free(prefdata);

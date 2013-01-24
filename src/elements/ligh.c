@@ -67,7 +67,7 @@ int create_LIGH(int x, int y, int c, int temp, int life, int tmp, int tmp2)
 		parts[p].tmp = tmp;
 		parts[p].tmp2 = tmp2;
 	}
-	else
+	else if (x >= 0 && x < XRES && y >= 0 && y < YRES)
 	{
 		int r = pmap[y][x];
 		if ((((r&0xFF)==PT_VOID || ((r&0xFF)==PT_PVOD && parts[r>>8].life >= 10)) && (!parts[r>>8].ctype || (parts[r>>8].ctype==c)!=(parts[r>>8].tmp&1))) || (r&0xFF)==PT_BHOL || (r&0xFF)==PT_NBHL) // VOID, PVOD, VACU, and BHOL eat LIGH here

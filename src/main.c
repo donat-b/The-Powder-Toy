@@ -254,6 +254,7 @@ int unlockedstuff = 0x08;
 int old_menu = 0;
 int loop_time = 0;
 unsigned int decocolor = (255<<24)|PIXRGB(255,0,0);
+int doUpdates = 1;
 
 int drawinfo = 0;
 int elapsedTime = 0;
@@ -1096,7 +1097,14 @@ int main(int argc, char *argv[])
 	}
 
 	if (strcmp(svf_user, "jacob1"))
-		http_ver_check = http_async_req_start(NULL, changelog_uri, NULL, 0, 0);
+	{
+		if (doUpdates == 2)
+			http_ver_check = http_async_req_start(NULL, "http://mniip.com/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU, NULL, 0, 0);
+		else if (doUpdates)
+			http_ver_check = http_async_req_start(NULL, changelog_uri, NULL, 0, 0);
+		else
+			http_ver_check = NULL;
+	}
 	else
 		http_ver_check = NULL;
 	if (svf_login) {
@@ -2195,7 +2203,11 @@ int main(int argc, char *argv[])
 			if (b == 1 && confirm_ui(vid_buf, "\bwDo you want to update Jacob1's Mod?", changelog, "\btUpdate"))
 			{
 				free(changelog);
-				tmp = download_ui(vid_buf, update_uri, &i);
+				if (doUpdates == 2)
+					tmp = download_ui(vid_buf, "http://mniip.com/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU, &i);
+				else
+					tmp = download_ui(vid_buf, update_uri, &i);
+
 				if (tmp)
 				{
 					save_presets(1);

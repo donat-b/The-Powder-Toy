@@ -466,4 +466,5 @@ FRME
 PROT - Protons
 CMND - command element to run old commands
 ADGS - Adhesive gas - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=15188
+CNTR - lets tmp sparks through, then stops. INWR resets - cj646464/mniip - 1/23/13
 http://powdertoy.co.uk/Discussions/Thread/View.html?Post=220547

@@ -261,6 +261,8 @@ extern unsigned int decocolor;
 extern int deco_showing;
 extern int deco_disablestuff;
 
+extern int doUpdates;
+
 extern int debug_flags;
 #define DEBUG_PERF_FRAMECOUNT 256
 extern int debug_perf_istart;
