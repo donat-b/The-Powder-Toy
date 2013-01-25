@@ -745,8 +745,8 @@ char itc_msg[128] = "[?]";
 	#define UPDATE_CPU "Unknown"
 #endif
 
-char update_uri[] = "http://77.72.131.69/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
-char changelog_uri[] = "http://77.72.131.69/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
+char update_uri[] = "http://178.219.36.155/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
+char changelog_uri[] = "http://178.219.36.155/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
 
 #ifdef RENDERER
 int main(int argc, char *argv[])
@@ -1269,9 +1269,9 @@ int main(int argc, char *argv[])
 				}
 				else
 				{
-					//strcpy(itc_msg, "Error, could not find update server. Press Ctrl+u to go check for a newer version manually on the tpt website");
-					//itc = 500;
-					//it = 0;
+					strcpy(itc_msg, "Error, could not find update server. Press Ctrl+u to go check for a newer version manually on the tpt website");
+					itc = 500;
+					it = 0;
 				}
 				http_ver_check = NULL;
 			}

@@ -86,7 +86,7 @@ int fix_type(int type, int version, int modver)
 {
 	int max = 161;
 	if (version >= 86 || modver == 14)
-		max = 169;
+		max = 170;
 	else if (version >= 84 || modver == 13)
 		max = 167;
 	else if (modver == 12)
@@ -104,7 +104,7 @@ int fix_type(int type, int version, int modver)
 
 int invalid_element(int save_as, int el)
 {
-	if (save_as > 0 && (el >= PT_NORMAL_NUM || el < 0 || ptypes[el].enabled == 0)) //Check for mod/disabled elements
+	if (save_as > 0 && (el >= PT_NORMAL_NUM-3 || el < 0 || ptypes[el].enabled == 0)) //Check for mod/disabled elements
 		return 1;
 #ifdef BETA
 	//if (save_as > 1 && (el == PT_EXOT))

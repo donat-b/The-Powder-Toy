@@ -982,6 +982,21 @@ int luatpt_element_func(lua_State *l)
 			return luaL_error(l, "Invalid element");
 		}
 	}
+	else if(lua_isnil(l, 1))
+	{
+		int element = luaL_optint(l, 2, 0);
+		if(element > 0 && element < PT_NUM)
+		{
+			lua_el_func[element] = 0;
+			lua_el_mode[element] = 0;
+		}
+		else
+		{
+			return luaL_error(l, "Invalid element");
+		}
+	}
+	else
+		return luaL_error(l, "Not a function");
 	return 0;
 }
 int luatpt_graphics_func(lua_State *l)
@@ -997,6 +1012,19 @@ int luatpt_graphics_func(lua_State *l)
 			lua_gr_func[element] = function;
 			graphicscache[element].isready = 0;
 			return 0;
+		}
+		else
+		{
+			return luaL_error(l, "Invalid element");
+		}
+	}
+	else if(lua_isnil(l, 1))
+	{
+		int element = luaL_optint(l, 2, 0);
+		if(element > 0 && element < PT_NUM)
+		{
+			lua_gr_func[element] = 0;
+			graphicscache[element].isready = 0;
 		}
 		else
 		{

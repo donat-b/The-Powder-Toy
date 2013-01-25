@@ -248,7 +248,8 @@
 #define PT_BVBR 166
 #define PT_CRAY 167
 #define PT_PSTN 168
-#define PT_NORMAL_NUM 169
+#define PT_FRME 169
+#define PT_NORMAL_NUM 170
 
 #define PT_MOVS PT_NORMAL_NUM
 #define PT_ANIM PT_NORMAL_NUM+1

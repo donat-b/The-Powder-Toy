@@ -568,7 +568,7 @@ int fileSystem_isFile(lua_State * l)
 {
 	const char * filename = lua_tostring(l, 1);
 
-	int exists = 0;
+	int isFile = 0;
 #ifdef WIN
 	struct _stat s;
 	if(_stat(filename, &s) == 0)
@@ -577,25 +577,21 @@ int fileSystem_isFile(lua_State * l)
 	if(stat(filename, &s) == 0)
 #endif
 	{
-		if(s.st_mode & S_IFDIR)
+		if(s.st_mode & S_IFREG)
 		{
-			exists = 1;
-		}
-		else if(s.st_mode & S_IFREG)
-		{
-			exists = 0;
+			isFile = 1; //Is file
 		}
 		else
 		{
-			exists = 0;
+			isFile = 0; //Is directory or something else
 		}
 	}
 	else
 	{
-		exists = 0;
+		isFile = 0; //Doesn't exist
 	}
 
-	lua_pushboolean(l, exists);
+	lua_pushboolean(l, isFile);
 	return 1;
 }
 
@@ -603,7 +599,7 @@ int fileSystem_isDirectory(lua_State * l)
 {
 	const char * filename = lua_tostring(l, 1);
 
-	int exists = 0;
+	int isDir = 0;
 #ifdef WIN
 	struct _stat s;
 	if(_stat(filename, &s) == 0)
@@ -614,23 +610,19 @@ int fileSystem_isDirectory(lua_State * l)
 	{
 		if(s.st_mode & S_IFDIR)
 		{
-			exists = 0;
-		}
-		else if(s.st_mode & S_IFREG)
-		{
-			exists = 1;
+			isDir = 1; //Is directory
 		}
 		else
 		{
-			exists = 0;
+			isDir = 0; //Is file or something else
 		}
 	}
 	else
 	{
-		exists = 0;
+		isDir = 0; //Doesn't exist
 	}
 
-	lua_pushboolean(l, exists);
+	lua_pushboolean(l, isDir);
 	return 1;
 }
 

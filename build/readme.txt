@@ -432,6 +432,18 @@ updater will probably continue working when the server is back up. Simulation
 updates from tpt++ (DTEC detecting GOL fix, VOID/BHOL eat LIGH). Paused 
 checkbox when saving.
 
+Version 21.0 1/24/13
+Change login to tpt++ method, if you login again, this allows comments to be 
+submitted like it, meaning no "posting to frequently" message anymore. Reload 
+comments after submitting one. Highlightable comments. Deco menu must be 
+clicked to open (like tpt++ will be), or press b. New tpt++ elements before 
+they are out (possibly incomplete): CRAY, PSTN, FRME. All the tpt++ lua api's 
+except for interface, lua sctips using the elements api will work now this 
+means. Fix '[' / ']' keys not scrolling comments when not logged in. An option 
+to turn off updates, change the update server to check mniip.com instead, or 
+to just turn them off completely. Fix things being invisible on first startup. 
+Change version number to 85.0, now pretends to be tpt++.
+
 
 
 
