@@ -5635,12 +5635,12 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			//Submit Button
 			if (mx > XRES+BARSIZE-100 && mx < XRES+BARSIZE-100+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && info_ready && !queue_open) {
-				fillrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
+				fillrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40+active_4*80);
 				if (b && !bq) {
 					//Button Clicked
 					fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
 					info_box(vid_buf, "Submitting Comment...");
-					if (!execute_submit(vid_buf, save_id, ed.str))
+					if (!active_4 && !execute_submit(vid_buf, save_id, ed.str))
 					{
 						int i;
 						ed.str[0] = 0;
@@ -6466,6 +6466,7 @@ int execute_submit(pixel *vid_buf, char *id, char *message)
 					}
 					else
 						error_ui(vid_buf, 0, "Could not read response");
+					return 1;
 				}
 			}
 		}
