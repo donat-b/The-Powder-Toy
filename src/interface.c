@@ -4741,7 +4741,7 @@ int search_ui(pixel *vid_buf)
 				nmp = -1;
 			
 				if (rand()%2)
-					sprintf(server_motd,"Links: \bt{a:http://powdertoy.co.uk|Powder Toy main page}\bg, \bt{a:http://powdertoy.co.uk/Discussions/Categories/Index.html|Forums}\bg, \bt{a:https://github.com/FacialTurd/The-Powder-Toy|TPT github}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy|Jacob1's Mod github}");
+					sprintf(server_motd,"Links: \bt{a:http://powdertoy.co.uk|Powder Toy main page}\bg, \bt{a:http://powdertoy.co.uk/Discussions/Categories/Index.html|Forums}\bg, \bt{a:https://github.com/FacialTurd/The-Powder-Toy|TPT github}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy/tree/jacob1's_mod|Jacob1's Mod github}");
 				ui_richtext_settext(server_motd, &motd);
 				motd.x = (XRES-textwidth(motd.printstr))/2;
 			}
