@@ -451,9 +451,13 @@ Update this mod's github link in the motd. Fix cause of infinite pressure
 bug caused by assigning large hotair values with lua. Update PSTN and FRME to
 current tpt++ version.
 
-Version21.2 2/1/13
+Version 21.2 2/1/13
 Fix crash when trying to submit another comment before the comments have 
-reloaded. Fix error messages not being considered errors.
+reloaded. Fix error messages not being considered errors. Fix updating 
+when using mniip.com update server (change back to default IP address to 
+update)
+
+
 
 
 Bugs:

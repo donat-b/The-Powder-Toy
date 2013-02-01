@@ -2204,7 +2204,7 @@ int main(int argc, char *argv[])
 			{
 				free(changelog);
 				if (doUpdates == 2)
-					tmp = download_ui(vid_buf, "http://mniip.com/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU, &i);
+					tmp = download_ui(vid_buf, "http://mniip.com/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU, &i);
 				else
 					tmp = download_ui(vid_buf, update_uri, &i);
 
