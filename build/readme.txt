@@ -444,19 +444,24 @@ to turn off updates, change the update server to check mniip.com instead, or
 to just turn them off completely. Fix things being invisible on first startup. 
 Change version number to 85.0, now pretends to be tpt++.
 
+Version 21.1 1/31/13
+Fix excessive stacking bug and weird problems with particle movement, that 
+was creating many problems. Fix copying from comments usually not working. 
+Update this mod's github link in the motd. Fix cause of infinite pressure 
+bug caused by assigning large hotair values with lua. Update PSTN and FRME to
+current tpt++ version.
+
 
 
 
 Bugs:
-deco should not show on ctrl+v with deco off
-//None (at least that I know of)
+None (at least that I know of)
 
 
 
 
 Future Ideas/TODO: '>' means currently being worked on/added next
 >Add things from tpt++ that look cool, and any new simulation changes it gets
-see about getting rid of "posting too frequently" like tpt++
 ---
 C++ version todo:
 done - [compile tpt++ with visual studio]
