@@ -5393,7 +5393,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			if (svf_login)
 				commentheight = drawtextwrap(vid_buf, ed.x, ed.y, ed.w-14, ed.str, 0, 0, 0, 0);
-			if (info_ready && redraw_comments) // draw the comments
+			if (info_ready)// && redraw_comments) // draw the comments
 			{
 				ccy = 0;
 				info->comments[0].y = 72+comment_scroll;
