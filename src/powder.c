@@ -2644,14 +2644,16 @@ void update_particles_i(pixel *vid, int start, int inc)
 				}
 				else//add the hotair variable to the pressure map, like black hole, or white hole.
 				{
-					pv[y/CELL][x/CELL] += ptypes[t].hotair;
+					float value = ptypes[t].hotair;
+					value = restrict_flt(value, -256.0f, 256.0f);
+					pv[y/CELL][x/CELL] += value;
 					if (y+CELL<YRES)
-						pv[y/CELL+1][x/CELL] += ptypes[t].hotair;
+						pv[y/CELL+1][x/CELL] += value;
 					if (x+CELL<XRES)
 					{
-						pv[y/CELL][x/CELL+1] += ptypes[t].hotair;
+						pv[y/CELL][x/CELL+1] += value;
 						if (y+CELL<YRES)
-							pv[y/CELL+1][x/CELL+1] += ptypes[t].hotair;
+							pv[y/CELL+1][x/CELL+1] += value;
 					}
 				}
 

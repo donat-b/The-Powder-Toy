@@ -448,10 +448,6 @@ Change version number to 85.0, now pretends to be tpt++.
 
 
 Bugs:
-With Empty edge mode on, putting a fire or pressure element in the bottom corners causes infinite pressure / pixelated fire glitches.
-some saves turn off HUD
-1083118
-lua code saves invalid?
 deco should not show on ctrl+v with deco off
 //None (at least that I know of)
 
