@@ -553,7 +553,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 			return 1;
 		}
 
-		if (!OutOfBounds(x-nx, y-ny))
+		if (!OutOfBounds(nx, ny))
 		{
 			if ((pmap[ny][nx]>>8)==e) pmap[ny][nx] = 0;
 			parts[e].x += x-nx;
