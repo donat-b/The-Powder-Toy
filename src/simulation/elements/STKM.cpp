@@ -14,6 +14,8 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "simulation/elements/FIGH.h"
+#include "simulation/elements/PRTI.h"
 
 #define INBOND(x, y) ((x)>=0 && (y)>=0 && (x)<XRES && (y)<YRES)
 
@@ -357,7 +359,7 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS)
 				else if (bmap[(ry+y)/CELL][(rx+x)/CELL]==WL_GRAV /* && parts[i].type!=PT_FIGH */)
 					playerp->rocketBoots = true;
 				if ((r&0xFF)==PT_PRTI || (r&0xFF)==PT_PPTI)
-					STKM_interact(playerp, i, rx, ry);
+					STKM_interact(sim, playerp, i, rx, ry);
 				if (!parts[i].type)//STKM_interact may kill STKM
 					return 1;
 			}
@@ -526,10 +528,10 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS)
 	}
 
 	//If legs touch something
-	STKM_interact(playerp, i, (int)(playerp->legs[4]+0.5), (int)(playerp->legs[5]+0.5));
-	STKM_interact(playerp, i, (int)(playerp->legs[12]+0.5), (int)(playerp->legs[13]+0.5));
-	STKM_interact(playerp, i, (int)(playerp->legs[4]+0.5), (int)playerp->legs[5]);
-	STKM_interact(playerp, i, (int)(playerp->legs[12]+0.5), (int)playerp->legs[13]);
+	STKM_interact(sim, playerp, i, (int)(playerp->legs[4]+0.5), (int)(playerp->legs[5]+0.5));
+	STKM_interact(sim, playerp, i, (int)(playerp->legs[12]+0.5), (int)(playerp->legs[13]+0.5));
+	STKM_interact(sim, playerp, i, (int)(playerp->legs[4]+0.5), (int)playerp->legs[5]);
+	STKM_interact(sim, playerp, i, (int)(playerp->legs[12]+0.5), (int)playerp->legs[13]);
 	if (!parts[i].type)
 		return 1;
 
@@ -537,7 +539,7 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-void STKM_interact(playerst* playerp, int i, int x, int y)
+void STKM_interact(Simulation* sim, playerst* playerp, int i, int x, int y)
 {
 	int r;
 	if (x<0 || y<0 || x>=XRES || y>=YRES || !parts[i].type)
@@ -571,21 +573,17 @@ void STKM_interact(playerst* playerp, int i, int x, int y)
 
 		if (((r&0xFF)==PT_PRTI || (r&0xFF)==PT_PPTI) && parts[i].type)
 		{
-			int nnx, count=1;//gives rx=0, ry=1 in update_PRTO
-			parts[r>>8].tmp = (int)((parts[r>>8].temp-73.15f)/100+1);
-			if (parts[r>>8].tmp>=CHANNELS) parts[r>>8].tmp = CHANNELS-1;
-			else if (parts[r>>8].tmp<0) parts[r>>8].tmp = 0;
-			for (nnx=0; nnx<80; nnx++)
-				if (!portalp[parts[r>>8].tmp][count][nnx].type)
-				{
-					portalp[parts[r>>8].tmp][count][nnx] = parts[i];
-					kill_part(i);
-					//stop new STKM/fighters being created to replace the ones in the portal:
+			int t = parts[i].type;
+			int tmp = parts[i].tmp;
+			PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, r>>8);
+			if (channel->StoreParticle(sim, i, 1))//slot=1 gives rx=0, ry=1 in PRTO_update
+			{
+				//stop new STKM/fighters being created to replace the ones in the portal:
+				if (t==PT_FIGH)
+					((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->AllocSpecific(tmp);
+				else
 					playerp->spwn = 1;
-					if (portalp[parts[r>>8].tmp][count][nnx].type==PT_FIGH)
-						fighcount++;
-					break;
-				}
+			}
 		}
 
 		if (((r&0xFF)==PT_BHOL || (r&0xFF)==PT_NBHL) && parts[i].type)
@@ -648,20 +646,27 @@ int STKM_graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
-int STKM_create_override(ELEMENT_CREATE_OVERRIDE_FUNC_ARGS)
+bool STKM_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 {
-	if (player.spwn || (p == -2 && ISSPAWN1))
-		return -1;
-	else
-		return -4;
+	return !player.spwn;
 }
 
 void STKM_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	STKM_init_legs(&player, i);
-	player.rocketBoots = 0;
-	player.spwn = 1;
 	sim->part_create(-3, x, y, PT_SPAWN);
+}
+
+void STKM_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
+{
+	if (to==PT_STKM)
+	{
+		STKM_init_legs(&player, i);
+		player.spwn = 1;
+	}
+	else
+	{
+		player.spwn = 0;
+	}
 }
 
 void STKM_init_element(ELEMENT_INIT_FUNC_ARGS)
@@ -711,7 +716,8 @@ void STKM_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &STKM_update;
 	elem->Graphics = &STKM_graphics;
-	elem->Func_Create_Override = &STKM_create_override;
+	elem->Func_Create_Allowed = &STKM_create_allowed;
 	elem->Func_Create = &STKM_create;
+	elem->Func_ChangeType = &STKM_ChangeType;
 	elem->Init = &STKM_init_element;
 }

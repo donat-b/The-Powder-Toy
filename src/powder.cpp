@@ -31,6 +31,7 @@
 #include "simulation/Tool.h"
 #include "simulation/Simulation.h"
 #include "simulation/ElementDataContainer.h"
+#include "simulation/elements/PRTI.h"
 
 part_type ptypes[PT_NUM];
 part_transition ptransitions[PT_NUM];
@@ -43,9 +44,6 @@ int force_stacking_check = 0;//whether to force a check for excessively stacked 
 
 playerst player;
 playerst player2;
-
-playerst fighters[256]; //255 is the maximum number of fighters
-unsigned char fighcount = 0; //Contains the number of fighters
 
 particle *parts;
 particle *cb_parts;
@@ -81,8 +79,6 @@ int ISLOLZ = 0;
 int ISGRAV = 0;
 int ISWIRE = 0;
 int ISANIM = 0;
-int ISSPAWN1 = 0;
-int ISSPAWN2 = 0;
 
 int love[XRES/9][YRES/9];
 int lolz[XRES/9][YRES/9];
@@ -441,23 +437,10 @@ int try_move(int i, int x, int y, int nx, int ny)
 		}
 		if (((r&0xFF)==PT_PRTI || (r&0xFF)==PT_PPTI) && (ptypes[parts[i].type].properties & TYPE_ENERGY))
 		{
-			int nnx, count;
-			for (count=0; count<8; count++)
-			{
-				if (isign((float)x-nx)==isign((float)portal_rx[count]) && isign((float)y-ny)==isign((float)portal_ry[count]))
-					break;
-			}
-			count = count%8;
-			parts[r>>8].tmp = (int)((parts[r>>8].temp-73.15f)/100+1);
-			if (parts[r>>8].tmp>=CHANNELS) parts[r>>8].tmp = CHANNELS-1;
-			else if (parts[r>>8].tmp<0) parts[r>>8].tmp = 0;
-			for ( nnx=0; nnx<80; nnx++)
-				if (!portalp[parts[r>>8].tmp][count][nnx].type)
-				{
-					portalp[parts[r>>8].tmp][count][nnx] = parts[i];
-					kill_part(i);
-					break;
-				}
+			PortalChannel *channel = ((PRTI_ElementDataContainer*)globalSim->elementData[PT_PRTI])->GetParticleChannel(globalSim, r);
+			int slot = PRTI_ElementDataContainer::GetSlot(x-nx,y-ny);
+			if (channel->StoreParticle(globalSim, i, slot))
+				return -1;
 		}
 		return 0;
 	}
@@ -665,7 +648,10 @@ int OutOfBounds(int x, int y)
 // try to move particle, and if successful call move() to update variables
 int do_move(int i, int x, int y, float nxf, float nyf)
 {
-	int nx = (int)(nxf+0.5f), ny = (int)(nyf+0.5f), result;
+	// volatile to hopefully force truncation of floats in x87 registers by storing and reloading from memory, so that rounding issues don't cause particles to appear in the wrong pmap list. If using -mfpmath=sse or an ARM CPU, this may be unnecessary.
+	volatile float tmpx = nxf, tmpy = nyf;
+	int nx = (int)(tmpx+0.5f), ny = (int)(tmpy+0.5f), result;
+
 	if (edgeMode == 2)
 	{
 		if (nx < CELL)
@@ -690,7 +676,9 @@ int do_move(int i, int x, int y, float nxf, float nyf)
 //update pmap and parts[i].x,y
 int move(int i, int x, int y, float nxf, float nyf)
 {
-	int t = parts[i].type, nx = (int)(nxf+0.5f), ny = (int)(nyf+0.5f);
+	// volatile to hopefully force truncation of floats in x87 registers by storing and reloading from memory, so that rounding issues don't cause particles to appear in the wrong pmap list. If using -mfpmath=sse or an ARM CPU, this may be unnecessary.
+	volatile float tmpx = nxf, tmpy = nyf;
+	int nx = (int)(tmpx+0.5f), ny = (int)(tmpy+0.5f), t = parts[i].type;
 	parts[i].x = nxf;
 	parts[i].y = nyf;
 	if (ny!=y || nx!=x)
@@ -888,36 +876,9 @@ void kill_part(int i)//kills particle number i
 	globalSim->part_kill(i);
 }
 
-TPT_INLINE void part_change_type(int i, int x, int y, int t)//changes the type of particle number i, to t.  This also changes pmap at the same time.
+void part_change_type(int i, int x, int y, int t)//changes the type of particle number i, to t.  This also changes pmap at the same time.
 {
-	if (x<0 || y<0 || x>=XRES || y>=YRES || i>=NPART || t<0 || t>=PT_NUM || !parts[i].type)
-		return;
-	if (!ptypes[t].enabled)
-		t = PT_NONE;
-	if (ptypes[parts[i].type].properties&PROP_INDESTRUCTIBLE)
-		return;
-	if (t == PT_NONE)
-	{
-		kill_part(i);
-		return;
-	}
-
-	globalSim->delete_part_info(i);
-	globalSim->elementCount[t]++;
-
-	parts[i].type = t;
-	if (ptypes[t].properties & TYPE_ENERGY)
-	{
-		photons[y][x] = t|(i<<8);
-		if ((pmap[y][x]>>8)==i)
-			pmap[y][x] = 0;
-	}
-	else
-	{
-		pmap[y][x] = t|(i<<8);
-		if ((photons[y][x]>>8)==i)
-			photons[y][x] = 0;
-	}
+	globalSim->part_change_type(i, x, y, t);
 }
 
 int create_part(int p, int x, int y, int tv)//the function for creating a particle, use p=-1 for creating a new particle, -2 is from a brush, or a particle number to replace a particle.

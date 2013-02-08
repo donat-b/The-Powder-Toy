@@ -88,7 +88,7 @@ int Simulation::part_create(int p, int x, int y, int t)
 	// This function is only for actually creating particles.
 	// Not for tools, or changing things into spark, or special brush things like setting clone ctype.
 
-	int i;
+	int i, oldType = PT_NONE;
 	if (x<0 || y<0 || x>=XRES || y>=YRES || t<=0 || t>=PT_NUM || !elements[t].Enabled)
 	{
 		return -1;
@@ -102,6 +102,12 @@ int Simulation::part_create(int p, int x, int y, int t)
 		// Useful if creation should be blocked in some conditions, but otherwise no changes to this function (e.g. SPWN)
 		if (ret!=-4)
 			return ret;
+	}
+
+	if (elements[t].Func_Create_Allowed)
+	{
+		if (!(*(elements[t].Func_Create_Allowed))(this, p, x, y, t))
+			return -1;
 	}
 
 	if (p==-1)
@@ -126,7 +132,12 @@ int Simulation::part_create(int p, int x, int y, int t)
 	{
 		int oldX = (int)(parts[p].x+0.5f);
 		int oldY = (int)(parts[p].y+0.5f);
-		//TODO: this doesn't do stkm checks or free ANIM memory ...
+		oldType = parts[p].type;
+		if (elements[oldType].Func_ChangeType)
+		{
+			(*(elements[oldType].Func_ChangeType))(this, p, oldX, oldY, oldType, t);
+		}
+		delete_part_info(p);
 		pmap_remove(p, oldX, oldY);
 		i = p;
 	}
@@ -156,20 +167,6 @@ int Simulation::part_create(int p, int x, int y, int t)
 		parts[i].flags |= FLAG_INSTACTV;
 	}
 
-	// Set non-static properties (such as randomly generated ones)
-	if (elements[t].Func_Create)
-	{
-		(*(elements[t].Func_Create))(this, i, x, y);
-	}
-
-	//default moving solid values, not part of any ball and random "bounciness"
-	if (ptypes[t].properties & PROP_MOVS)
-	{
-		parts[i].tmp2 = 255;
-		parts[i].pavg[0] = (float)(rand()%20);
-		parts[i].pavg[1] = (float)(rand()%20);
-	}
-
 	// Fancy dust effects for powder types
 	if ((elements[t].Properties & TYPE_PART) && pretty_powder)
 	{
@@ -184,74 +181,100 @@ int Simulation::part_create(int p, int x, int y, int t)
 		parts[i].dcolour = COLRGB(colr, colg, colb);
 	}
 
+	// Set non-static properties (such as randomly generated ones)
+	if (elements[t].Func_Create)
+	{
+		(*(elements[t].Func_Create))(this, i, x, y, t);
+	}
+
+	//default moving solid values, not part of any ball and random "bounciness"
+	if (ptypes[t].properties & PROP_MOVS)
+	{
+		parts[i].tmp2 = 255;
+		parts[i].pavg[0] = (float)(rand()%20);
+		parts[i].pavg[1] = (float)(rand()%20);
+	}
+
+	pmap_add(i, x, y, t);
+
+	if (elements[t].Func_ChangeType)
+	{
+		(*(elements[t].Func_ChangeType))(this, i, x, y, oldType, t);
+	}
+
 	elementCount[t]++;
 	return i;
+}
+
+bool Simulation::part_change_type(int i, int x, int y, int t)//changes the type of particle number i, to t.  This also changes pmap at the same time.
+{
+	if (x<0 || y<0 || x>=XRES || y>=YRES || i>=NPART || t<0 || t>=PT_NUM)
+		return false;
+
+	if (t==parts[i].type)
+		return true;
+
+	if (elements[t].Func_Create_Allowed)
+	{
+		if (!(*(elements[t].Func_Create_Allowed))(this, i, x, y, t))
+			return false;
+	}
+
+
+	int oldType = parts[i].type;
+	if (oldType) elementCount[oldType]--;
+
+	if (!ptypes[t].enabled)
+		t = PT_NONE;
+
+	parts[i].type = t;
+	if (t) elementCount[t]++;
+	if (elements[oldType].Func_ChangeType)
+	{
+		(*(elements[oldType].Func_ChangeType))(this, i, x, y, oldType, t);
+	}
+	if (elements[t].Func_ChangeType)
+	{
+		(*(elements[t].Func_ChangeType))(this, i, x, y, oldType, t);
+	}
+	delete_part_info(i);
+	return true;
 }
 
 void Simulation::part_kill(int i)//kills particle number i
 {
 	int x, y;
+	int t = parts[i].type;
 
-	if (parts[i].type == PT_NONE) // TODO: remove this? (//This shouldn't happen anymore, but it's here just in case)
-		return;
-
-	// Remove from pmap even if type==0, otherwise infinite recursion occurs when flood fill deleting
-	// a particle which sets type to 0 without calling kill_part (such as LIFE)
 	x = (int)(parts[i].x+0.5f);
 	y = (int)(parts[i].y+0.5f);
-	pmap_remove(i, x, y);
 
+	if (t && elements[t].Func_ChangeType)
+	{
+		(*(elements[t].Func_ChangeType))(this, i, x, y, t, PT_NONE);
+	}
+	delete_part_info(i);
+
+	pmap_remove(i, x, y);
+	if (t == PT_NONE) // TODO: remove this? (//This shouldn't happen anymore, but it's here just in case)
+		return;
+	if (t) elementCount[t]--;
 	part_free(i);
 }
 
+//delete some extra info that isn't specific to just one particle (TODO: maybe remove tpt.moving_solid()?)
 void Simulation::delete_part_info(int i)
 {
-	if (parts[i].type)
-	{
-		elementCount[parts[i].type]--;
-	}
-
-	// TODO: move these into element functions?
-	if (parts[i].type == PT_STKM)
-	{
-		player.spwn = 0;
-	}
-	else if (parts[i].type == PT_STKM2)
-	{
-		player2.spwn = 0;
-	}
-	else if (parts[i].type == PT_FIGH)
-	{
-		fighters[(unsigned char)parts[i].tmp].spwn = 0;
-		fighcount--;
-	}
-	else if (parts[i].type == PT_SPAWN)
-	{
-		ISSPAWN1 = 0;
-	}
-	else if (parts[i].type == PT_SPAWN2)
-	{
-		ISSPAWN2 = 0;
-	}
-	else if (parts[i].type == PT_SOAP)
-	{
-		detach(i);
-	}
-	else if (parts[i].type == PT_ANIM && parts[i].animations)
-	{
-		free(parts[i].animations);
-		parts[i].animations = NULL;
-	}
 	if (ptypes[parts[i].type].properties&PROP_MOVS)
-	{
-		int bn = parts[i].tmp2;
-		if (bn >= 0 && bn < 256)
-		{
-			msnum[bn]--;
-			if (msindex[bn]-1 == i)
-				msindex[bn] = 0;
-		}
-	}
+    {
+            int bn = parts[i].tmp2;
+            if (bn >= 0 && bn < 256)
+            {
+                    msnum[bn]--;
+                    if (msindex[bn]-1 == i)
+                            msindex[bn] = 0;
+            }
+    }
 }
 
 void Simulation_Compat_CopyData(Simulation* sim)

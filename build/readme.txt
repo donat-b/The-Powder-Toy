@@ -617,6 +617,7 @@ fix from tpt. Start on merging some major optimizations from cracker64.
 wall id's don't match with tpt++ in lua
 figure out why STKM die if comm/pcomm aren't reset
 STKM(AIR) is weak
+when using console, particles may not be killed properly (ChangeType function not called)
 //None (at least that I know of)
 
 

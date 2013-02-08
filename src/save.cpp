@@ -28,6 +28,7 @@
 #include "game/Menus.h"
 #include "simulation/Tool.h"
 #include "simulation/Simulation.h"
+#include "simulation/elements/FIGH.h"
 
 int saveversion;
 int mod_save;
@@ -2223,33 +2224,29 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					}
 					else if (partsptr[newIndex].type == PT_FIGH)
 					{
-						unsigned char fcount = 0;
-						while (fcount < 100 && fcount < (fighcount+1) && fighters[fcount].spwn==1) fcount++;
-						if (fcount < 100 && fighters[fcount].spwn==0)
+						partsptr[newIndex].tmp = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Alloc();
+						if (partsptr[newIndex].tmp>=0)
 						{
-							partsptr[newIndex].tmp = fcount;
-							fighters[fcount].spwn = 1;
-							fighters[fcount].elem = PT_DUST;
-							fighters[fcount].rocketBoots = 0;
-							fighcount++;
-							STKM_init_legs(&(fighters[fcount]), newIndex);
+							playerst* figh = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get(partsptr[newIndex].tmp);
+							figh->spwn = 1;
+							figh->elem = PT_DUST;
+							figh->rocketBoots = 0;
+							STKM_init_legs(figh, newIndex);
 							if (parts[newIndex].ctype == 256 || parts[newIndex].ctype == OLD_SPC_AIR)
 								parts[newIndex].ctype = SPC_AIR;
 						}
+						else
+							partsptr[newIndex].type = PT_NONE;
 					}
 					else if (partsptr[newIndex].type == PT_SPAWN)
 					{
-						if (ISSPAWN1)
+						if (globalSim->elementCount[PT_SPAWN])
 							partsptr[newIndex].type = PT_NONE;
-						else
-							ISSPAWN1 = 1;
 					}
 					else if (partsptr[newIndex].type == PT_SPAWN2)
 					{
-						if (ISSPAWN2)
+						if (globalSim->elementCount[PT_SPAWN2])
 							partsptr[newIndex].type = PT_NONE;
-						else
-							ISSPAWN2 = 1;
 					}
 					if (partsptr[newIndex].type == PT_SOAP)
 						partsptr[newIndex].ctype &= ~6; // delete all soap connections, but it looks like if tmp & tmp2 were saved to 3 bytes, connections would load properly
@@ -3180,19 +3177,19 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 			}
 			else if (parts[i-1].type == PT_FIGH)
 			{
-				unsigned char fcount = 0;
-				while (fcount < 100 && fcount < (fighcount+1) && fighters[fcount].spwn==1) fcount++;
-				if (fcount < 100 && fighters[fcount].spwn==0)
+				parts[i-1].tmp = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Alloc();
+				if (parts[i-1].tmp>=0)
 				{
-					parts[i-1].tmp = fcount;
-					fighters[fcount].spwn = 1;
-					fighters[fcount].elem = PT_DUST;
-					fighters[fcount].rocketBoots = 0;
-					fighcount++;
-					STKM_init_legs(&(fighters[fcount]), i-1);
+					playerst* figh = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get(parts[i-1].tmp);
+					figh->spwn = 1;
+					figh->elem = PT_DUST;
+					figh->rocketBoots = 0;
+					STKM_init_legs(figh, i-1);
 					if (parts[i-1].ctype == OLD_SPC_AIR)
 						parts[i-1].ctype = SPC_AIR;
 				}
+				else
+					parts[i-1].type = PT_NONE;
 			}
 			if (parts[i-1].type == PT_MOVS)
 			{

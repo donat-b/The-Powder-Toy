@@ -391,10 +391,6 @@ void clear_sim()
 	make_kernel();
 	memset(photons, 0, sizeof(photons));
 	memset(gol2, 0, sizeof(gol2));
-	memset(portalp, 0, sizeof(portalp));
-	memset(fighters, 0, sizeof(fighters));
-	fighcount = 0;
-	ISSPAWN1 = ISSPAWN2 = 0;
 	player.spwn = 0;
 	player2.spwn = 0;
 	emp_decor = 0;

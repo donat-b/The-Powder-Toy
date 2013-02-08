@@ -15,17 +15,16 @@
 
 #include "simulation/ElementsCommon.h"
 
-int SPAWN_create_override(ELEMENT_CREATE_OVERRIDE_FUNC_ARGS)
+int SPAWN_update(UPDATE_FUNC_ARGS)
 {
-	if (ISSPAWN1)
-		return -1; // Prevent creation
-	else
-		return -4; // Continue creating particle
+	if (!player.spwn)
+		sim->part_create(-1, x, y, PT_STKM);
+	return 0;
 }
 
-void SPAWN_create(ELEMENT_CREATE_FUNC_ARGS)
+bool SPAWN_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 {
-	ISSPAWN1 = 1;
+	return (sim->elementCount[t]<=0);
 }
 
 void SPAWN_init_element(ELEMENT_INIT_FUNC_ARGS)
@@ -73,7 +72,6 @@ void SPAWN_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = NULL;
 	elem->Graphics = NULL;
-	elem->Func_Create = &SPAWN_create;
-	elem->Func_Create_Override = &SPAWN_create_override;
+	elem->Func_Create_Allowed = &SPAWN_create_allowed;
 	elem->Init = &SPAWN_init_element;
 }

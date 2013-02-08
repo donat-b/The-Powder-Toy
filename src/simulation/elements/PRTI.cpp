@@ -14,6 +14,7 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "simulation/elements/PRTI.h"
 
 /*these are the count values of where the particle gets stored, depending on where it came from
    0 1 2
@@ -24,19 +25,18 @@
 */
 const int portal_rx[8] = {-1, 0, 1, 1, 1, 0,-1,-1};
 const int portal_ry[8] = {-1,-1,-1, 0, 1, 1, 1, 0};
-particle portalp[CHANNELS][8][80];
 
 int PRTI_update(UPDATE_FUNC_ARGS)
 {
-	int r, nnx, rx, ry, fe = 0;
-	int count =0;
-	parts[i].tmp = (int)((parts[i].temp-73.15f)/100+1);
-	if (parts[i].tmp>=CHANNELS) parts[i].tmp = CHANNELS-1;
-	else if (parts[i].tmp<0) parts[i].tmp = 0;
-	if (parts[i].type == PT_PPTI && parts[i].tmp2 < 10)
+	if (!sim->elementData[PT_PRTI])
 		return 0;
+	int r, nnx, rx, ry, fe = 0;
+	int count = 0;
+	PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, i);
 	for (count=0; count<8; count++)
 	{
+		if (channel->particleCount[count] >= channel->storageSize)
+			continue;
 		rx = portal_rx[count];
 		ry = portal_ry[count];
 		if (BOUNDS_CHECK && (rx || ry))
@@ -57,17 +57,8 @@ int PRTI_update(UPDATE_FUNC_ARGS)
 			if ((r&0xFF) == PT_SOAP)
 				detach(r>>8);
 
-			for ( nnx=0; nnx<80; nnx++)
-				if (!portalp[parts[i].tmp][count][nnx].type)
-				{
-					portalp[parts[i].tmp][count][nnx] = parts[r>>8];
-					if ((r&0xFF)==PT_SPRK)
-						part_change_type(r>>8,x+rx,y+ry,parts[r>>8].ctype);
-					else
-						kill_part(r>>8);
-					fe = 1;
-					break;
-				}
+			if (channel->StoreParticle(sim, r>>8, count))
+				fe = 1;
 		}
 	}
 
@@ -160,4 +151,10 @@ void PRTI_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &PRTI_update;
 	elem->Graphics = &PRTI_graphics;
 	elem->Init = &PRTI_init_element;
+
+	if (sim->elementData[t])
+	{
+		delete sim->elementData[t];
+	}
+	sim->elementData[t] = new PRTI_ElementDataContainer;
 }

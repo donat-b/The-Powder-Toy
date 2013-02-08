@@ -61,7 +61,7 @@
 #include "game/Menus.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
-
+#include "simulation/elements/FIGH.h"
 
 //unsigned cmode = CM_FIRE;
 unsigned int *render_modes;
@@ -2715,7 +2715,7 @@ void render_parts(pixel *vid)
 					else if(t==PT_STKM2)
 						cplayer = &player2;
 					else if(t==PT_FIGH)
-						cplayer = &fighters[(unsigned char)parts[i].tmp];
+						cplayer = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get(parts[i].tmp);
 					else
 						continue;
 

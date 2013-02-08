@@ -51,13 +51,14 @@ public:
 	void Clear();
 	void recountElements();
 	int part_create(int p, int x, int y, int t);
-	void part_change_type(int i, int x, int y, int t);
 	void part_kill(int i);
+	bool part_change_type(int i, int x, int y, int t);
 	void delete_part_info(int i);
-	
+
 	// Functions defined here should hopefully be inlined
 	// Don't put anything that will change often here, since changes cause a lot of recompiling
-	bool is_element(int t)
+
+	bool is_element(int t) const
 	{
 		return (t>=0 && t<PT_NUM && elements[t].Enabled);
 	}
@@ -95,9 +96,6 @@ public:
 			pmap[y][x] = 0;
 		if ((photons[y][x]>>8)==i)
 			photons[y][x] = 0;
-
-		// update elementCount, reset some stickmen / moving solid / animation stuff
-		delete_part_info(i);
 	}
 };
 

@@ -57,7 +57,10 @@ Element::Element():
 	Graphics(NULL),
 	Func_Create(NULL),
 	Func_Create_Override(NULL),
-	Init(NULL)
+	Func_Create_Allowed(NULL),
+	Func_ChangeType(NULL),
+	Init(NULL),
+	DefaultProperties({})
 {
 	memset(&DefaultProperties, 0, sizeof(particle));
 	DefaultProperties.temp = R_TEMP + 273.15f;

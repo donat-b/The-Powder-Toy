@@ -160,7 +160,7 @@ int update_legacy_all(UPDATE_FUNC_ARGS);
 int update_POWERED(UPDATE_FUNC_ARGS);
 int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS);
 void STKM_init_legs(playerst* playerp, int i);
-void STKM_interact(playerst* playerp, int i, int x, int y);
+void STKM_interact(Simulation* sim, playerst* playerp, int i, int x, int y);
 void PPIP_flood_trigger(int x, int y, int sparkedBy);
 
 struct part_type
@@ -473,10 +473,7 @@ static fav_menu fav[] =
 };
 
 #define CHANNELS ((int)(MAX_TEMP-73)/100+2)
-extern particle portalp[CHANNELS][8][80];
 extern const particle emptyparticle;
-extern const int portal_rx[8];
-extern const int portal_ry[8];
 
 extern int wire_placed;
 extern int force_stacking_check;

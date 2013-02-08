@@ -84,6 +84,15 @@ void ANIM_create(ELEMENT_CREATE_FUNC_ARGS)
 	sim->parts[i].tmp = 1;
 }
 
+void ANIM_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
+{
+	if (to != PT_ANIM && parts[i].animations)
+    {
+            free(parts[i].animations);
+            parts[i].animations = NULL;
+    }
+}
+
 void ANIM_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_ANIM";
@@ -130,5 +139,6 @@ void ANIM_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &ANIM_update;
 	elem->Graphics = NULL;
 	elem->Func_Create = &ANIM_create;
+	elem->Func_ChangeType = &ANIM_ChangeType;
 	elem->Init = &ANIM_init_element;
 }
