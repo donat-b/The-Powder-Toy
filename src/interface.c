@@ -115,8 +115,8 @@ int tag_votes[TAG_MAX];
 int zoom_en = 0;
 int zoom_x=(XRES-ZSIZE_D)/2, zoom_y=(YRES-ZSIZE_D)/2;
 int zoom_wx=0, zoom_wy=0;
-unsigned char ZFACTOR = 256/ZSIZE_D;
-unsigned char ZSIZE = ZSIZE_D;
+unsigned char ZFACTOR = 8;
+unsigned char ZSIZE = 32;
 
 int numframes = 0;
 int framenum = 0;
