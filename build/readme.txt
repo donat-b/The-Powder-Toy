@@ -461,7 +461,6 @@ update)
 
 
 Bugs:
-edge mode saved as on (when it's on in saves)
 negative votes bug
 extra pages bug
 //None (at least that I know of)
