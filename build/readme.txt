@@ -461,9 +461,7 @@ update)
 
 
 Bugs:
-negative votes bug
-extra pages bug
-//None (at least that I know of)
+None (at least that I know of)
 
 
 

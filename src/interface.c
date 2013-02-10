@@ -4295,7 +4295,7 @@ int search_ui(pixel *vid_buf)
 			drawtext(vid_buf, 4, YRES+MENUSIZE-16, "\x96", 255, 255, 255, 255);
 			drawrect(vid_buf, 1, YRES+MENUSIZE-20, 16, 16, 255, 255, 255, 255);
 		}
-		else if (page_count > 9 && !(search_own || search_fav || search_date) && !strcmp(ed.str,""))
+		else if (page_count > exp_res && !(search_own || search_fav || search_date) && !strcmp(ed.str,""))
 		{
 			if (p1_extra)
 				drawtext(vid_buf, 4, YRES+MENUSIZE-17, "\x85", 255, 255, 255, 255);
@@ -4303,7 +4303,7 @@ int search_ui(pixel *vid_buf)
 				drawtext(vid_buf, 4, YRES+MENUSIZE-17, "\x89", 255, 255, 255, 255);
 			drawrect(vid_buf, 1, YRES+MENUSIZE-20, 15, 15, 255, 255, 255, 255);
 		}
-		if (page_count > 9)
+		if (page_count > exp_res)
 		{
 			drawtext(vid_buf, XRES-15, YRES+MENUSIZE-16, "\x95", 255, 255, 255, 255);
 			drawrect(vid_buf, XRES-18, YRES+MENUSIZE-20, 16, 16, 255, 255, 255, 255);
@@ -4486,7 +4486,8 @@ int search_ui(pixel *vid_buf)
 					drawtext(vid_buf, w, h, ts, 192, 192, 192, 255);
 					sprintf(ts, "%d", search_votes[pos]);
 					for (j=0; ts[j]; j++)
-						ts[j] += 127;
+						if (ts[j] != '-')
+							ts[j] += 127;
 					drawtext(vid_buf, w+3, h, ts, 255, 255, 255, 255);
 				}
 				if (search_scoreup[pos]>0||search_scoredown[pos]>0)
