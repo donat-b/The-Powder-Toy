@@ -5929,7 +5929,7 @@ int info_parse(char *info_data, save_info *info)
 				*(q++) = 0;
 				info->commentauthors[info->comment_count] = mystrdup(info_data+8);
 				info->commentauthorsunformatted[info->comment_count] = mystrdup(info_data+8);
-				strcpy(info->comments[info->comment_count].str,mystrdup(q));
+				strncpy(info->comments[info->comment_count].str,mystrdup(q), 1023);
 				info->comment_count++;
 			}
 			j++;
