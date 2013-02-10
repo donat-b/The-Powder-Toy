@@ -461,12 +461,16 @@ update)
 
 
 Bugs:
-None (at least that I know of)
+edge mode saved as on (when it's on in saves)
+negative votes bug
+extra pages bug
+//None (at least that I know of)
 
 
 
 
 Future Ideas/TODO: '>' means currently being worked on/added next
+>make zoom window bigger by default
 >Add things from tpt++ that look cool, and any new simulation changes it gets
 ---
 C++ version todo:

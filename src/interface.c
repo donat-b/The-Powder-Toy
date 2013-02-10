@@ -6348,7 +6348,8 @@ int execute_save(pixel *vid_buf)
 	svf_last = uploadparts[2];
 	svf_lsize = plens[2];
 
-	free(uploadparts[3]);
+	if (uploadparts[3])
+		free(uploadparts[3]);
 
 	save_as = oldsave_as;
 	if (status!=200)
@@ -7794,6 +7795,8 @@ void catalogue_ui(pixel * vid_buf)
 								svf_name[0] = 0;
 								svf_description[0] = 0;
 								svf_tags[0] = 0;
+								if (svf_last)
+									free(svf_last);
 								svf_last = data;
 								data = NULL;
 								svf_lsize = size;
@@ -8063,8 +8066,20 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 	part_vbuf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE); //Extra video buffer
 	part_vbuf_store = part_vbuf;
 	
-	if (!o_vid_buf || !part_vbuf || !part_vbuf_store)
+	if (!o_vid_buf || !part_vbuf || !display_cb || !colour_cb || !render_cb)
+	{
+		if(o_vid_buf)
+			free(o_vid_buf);
+		if(part_vbuf)
+			free(part_vbuf);
+		if (display_cb)
+			free(display_cb);
+		if (colour_cb)
+			free(colour_cb);
+		if (render_cb)
+			free(render_cb);
 		return;
+	}
 	while (!sdl_poll())
 	{
 		b = mouse_get_state(&mx, &my);

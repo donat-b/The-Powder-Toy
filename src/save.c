@@ -1165,12 +1165,24 @@ fin:
 		free(wallData);
 	if(fanData)
 		free(fanData);
+	if (pressData)
+		free(pressData);
 	if (elementCount)
 		free(elementCount);
 	if (partsSaveIndex)
 		free(partsSaveIndex);
 	if (soapLinkData)
 		free(soapLinkData);
+	if (partsPosData)
+		free(partsPosData);
+	if (partsPosLink)
+		free(partsPosLink);
+	if (partsPosCount)
+		free(partsPosCount);
+	if (partsPosFirstMap)
+		free(partsPosFirstMap);
+	if (partsPosLastMap)
+		free(partsPosLastMap);
 	
 	return outputData;
 }

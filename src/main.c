@@ -1900,11 +1900,13 @@ int main(int argc, char *argv[])
 			{
 				if (clipboard_ready==1 && clipboard_data)
 				{
+					if (load_data)
+						free(load_data);
 					load_data = malloc(clipboard_length);
-					memcpy(load_data, clipboard_data, clipboard_length);
-					load_size = clipboard_length;
 					if (load_data)
 					{
+						memcpy(load_data, clipboard_data, clipboard_length);
+						load_size = clipboard_length;
 						load_img = prerender_save(load_data, load_size, &load_w, &load_h);
 						if (load_img)
 							load_mode = 1;
@@ -2400,6 +2402,8 @@ int main(int argc, char *argv[])
 					{
 						int oldsave_as = save_as;
 						save_as = 3;
+						if (clipboard_data)
+							free(clipboard_data);
 						clipboard_data=build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts, (sdl_mod & KMOD_SHIFT));
 						if (clipboard_data)
 							clipboard_ready = 1;
@@ -2409,6 +2413,8 @@ int main(int argc, char *argv[])
 					{
 						int oldsave_as = save_as;
 						save_as = 3;
+						if (clipboard_data)
+							free(clipboard_data);
 						clipboard_data=build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts, (sdl_mod & KMOD_SHIFT));
 						if (clipboard_data)
 						{
