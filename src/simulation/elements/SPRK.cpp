@@ -338,7 +338,7 @@ conduct:
 				{
 					if (parts[r>>8].life==0 && parts[i].life<4)
 					{
-						flood_INST(x+rx,y+ry,PT_SPRK,PT_INST);//spark the wire
+						INST_flood_spark(sim, x+rx, y+ry);
 					}
 				}
 				else if (parts[r>>8].life==0 && parts[i].life<4)

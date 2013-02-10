@@ -71,7 +71,7 @@ void SetRightHudText(int x, int y)
 					else
 						sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, gmenu[parts[cr>>8].ctype].name);
 				}
-				else if (currentHud[13] && (cr&0xFF)==PT_LAVA && globalSim->is_element(parts[cr>>8].ctype))
+				else if (currentHud[13] && (cr&0xFF)==PT_LAVA && globalSim->IsElement(parts[cr>>8].ctype))
 				{
 					sprintf(nametext, "Molten %s, ", ptypes[parts[cr>>8].ctype].name);
 				}
@@ -83,7 +83,7 @@ void SetRightHudText(int x, int y)
 					else
 						sprintf(nametext, "FILT (unknown mode), ", filtModes[parts[cr>>8].tmp]);
 				}
-				else if (currentHud[14] && currentHud[11] && ((cr&0xFF)==PT_PIPE || (cr&0xFF)==PT_PPIP) && globalSim->is_element(parts[cr>>8].tmp&0xFF))
+				else if (currentHud[14] && currentHud[11] && ((cr&0xFF)==PT_PIPE || (cr&0xFF)==PT_PPIP) && globalSim->IsElement(parts[cr>>8].tmp&0xFF))
 				{
 					sprintf(nametext, "PIPE (%s), ", ptypes[parts[cr>>8].tmp&0xFF].name);
 				}
@@ -96,7 +96,7 @@ void SetRightHudText(int x, int y)
 					}
 					if (!currentHud[12] && (tctype>=PT_NUM || tctype<0 || (cr&0xFF)==PT_PHOT))
 						tctype = 0;
-					if (globalSim->is_element(tctype))
+					if (globalSim->IsElement(tctype))
 						sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, ptypes[tctype].name);
 					else
 						sprintf(nametext, "%s (%d), ", ptypes[cr&0xFF].name, tctype);

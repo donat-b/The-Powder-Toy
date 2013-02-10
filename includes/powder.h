@@ -597,7 +597,7 @@ void create_box(int x1, int y1, int x2, int y2, int c, int flags);
 int FloodParts(int x, int y, int fullc, int cm, int flags);
 int FloodWalls(int x, int y, int wall, int bm, int flags);
 
-int flood_INST(int x, int y, int fullc, int cm);
+int INST_flood_spark(Simulation *sim, int x, int y);
 
 int flood_water(int x, int y, int i, int originaly, int check);
 

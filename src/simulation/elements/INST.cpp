@@ -14,6 +14,113 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "simulation/CoordStack.h"
+
+bool contains_sparkable_INST(Simulation *sim, int x, int y)
+{
+	return (pmap[y][x]&0xFF) == PT_INST && parts[pmap[y][x]>>8].life <= 0;
+}
+
+int INST_flood_spark(Simulation *sim, int x, int y)
+{
+	int x1, x2;
+	const int cm = PT_INST;
+	int created_something = 0;
+	bool found;
+
+	if (!contains_sparkable_INST(sim, x, y))
+		return 0;
+
+	try
+	{
+		CoordStack cs;
+		cs.push(x, y);
+
+		do
+		{
+			cs.pop(x, y);
+			x1 = x2 = x;
+			// go left as far as possible
+			while (x1>=CELL)
+			{
+				if (!contains_sparkable_INST(sim, x1-1, y)) break;
+				x1--;
+			}
+			// go right as far as possible
+			while (x2<XRES-CELL)
+			{
+				if (!contains_sparkable_INST(sim, x2+1, y)) break;
+				x2++;
+			}
+			// fill span
+			for (x=x1; x<=x2; x++)
+			{
+				if (contains_sparkable_INST(sim, x, y))
+				{
+					sim->spark_conductive(pmap[y][x]>>8, x, y);
+					created_something = 1;
+				}
+			}
+
+			// add vertically adjacent pixels to stack
+			// (wire crossing for INST)
+			if (y>=CELL+1 && x1==x2 &&
+					sim->part_cmp_conductive(parts[pmap[y-1][x1-1]>>8], cm) &&
+					sim->part_cmp_conductive(parts[pmap[y-1][x1]>>8], cm) &&
+					sim->part_cmp_conductive(parts[pmap[y-1][x1+1]>>8], cm) &&
+					!sim->part_cmp_conductive(parts[pmap[y-2][x1-1]>>8], cm) &&
+					sim->part_cmp_conductive(parts[pmap[y-2][x1]>>8], cm) &&
+					!sim->part_cmp_conductive(parts[pmap[y-2][x1+1]>>8], cm))
+			{
+				// travelling vertically up, skipping a horizontal line
+				if (contains_sparkable_INST(sim, x1, y-2))
+					cs.push(x1, y-2);
+			}
+			else if (y>=CELL+1)
+			{
+				for (x=x1; x<=x2; x++)
+				{
+					// if at the end of a horizontal section, or if it's a T junction
+					if (x==x1 || x==x2 || y>=YRES-CELL-1 || !sim->part_cmp_conductive(parts[pmap[y+1][x]>>8],cm))
+					{
+						if (contains_sparkable_INST(sim, x, y-1))
+							cs.push(x, y-1);
+					}
+				}
+			}
+
+			if (y<YRES-CELL-1 && x1==x2 &&
+					sim->part_cmp_conductive(parts[pmap[y+1][x1-1]>>8], cm) &&
+					sim->part_cmp_conductive(parts[pmap[y+1][x1]>>8], cm) &&
+					sim->part_cmp_conductive(parts[pmap[y+1][x1+1]>>8], cm) &&
+					!sim->part_cmp_conductive(parts[pmap[y+2][x1-1]>>8], cm) &&
+					sim->part_cmp_conductive(parts[pmap[y+2][x1]>>8], cm) &&
+					!sim->part_cmp_conductive(parts[pmap[y+2][x1+1]>>8], cm))
+			{
+				// travelling vertically down, skipping a horizontal line
+				if (contains_sparkable_INST(sim, x1, y+2))
+					cs.push(x1, y+2);
+			}
+			else if (y<YRES-CELL-1)
+			{
+				for (x=x1; x<=x2; x++)
+				{
+					if (x==x1 || x==x2 || y<0 || !sim->part_cmp_conductive(parts[pmap[y-1][x]>>8],cm))
+					{
+						if (contains_sparkable_INST(sim, x, y+1))
+							cs.push(x, y+1);
+					}
+				}
+			}
+		} while (cs.getSize()>0);
+	}
+	catch (std::exception& e)
+	{
+		return -1;
+	}
+
+	return created_something;
+}
 
 void INST_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
