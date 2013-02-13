@@ -639,7 +639,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 int ui_label_draw(pixel *vid_buf, ui_label *ed)
 {
 	char *str = ed->str, highlightstr[1024];
-	int ret;
+	int ret = 0;
 
 	if (ed->cursor>ed->cursorstart)
 	{
@@ -5401,20 +5401,19 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				clearrect(vid_buf, 50+(XRES/2)+1, 50, XRES+BARSIZE-100-((XRES/2)+1), YRES+MENUSIZE-100);
 				for (cc=0; cc<info->comment_count; cc++) {
 					if (ccy + 72 + comment_scroll<YRES+MENUSIZE-56 && info->comments[cc].str) { //Try not to draw off the screen
-						if (ccy+comment_scroll >= 0) //Don't draw above the screen either
+						if (ccy+comment_scroll >= 0 && info->commentauthors[cc]) //Don't draw above the screen either
 						{
 							int r = 255, g = 255, bl = 255;
-							char* author = info->commentauthors[cc];
 							/*if (!strcmp(author,"jacob1") || !strcmp(author,"Simon") || !strcmp(author,"Lockheedmartin") || !strcmp(author,"lolzy") || !strcmp(author,"ief015") || !strcmp(author,"Catelite") || !strcmp(author,"doxin") || !strcmp(author,"FrankBro")  || !strcmp(author,"cracker64")|| !strcmp(author,"Xenocide") || !strcmp(author,"devast8a") || !strcmp(author,"triclops200") || !strcmp(author,"jacksonmj"))
 							{ // The way my mod gets comments doesn't have the /t for moderator colors, so they need to be recreated here (now fixed server side for tpt++)
 								g = 170;
 								r = 32;
 							}*/
-							if (!strcmp(author,svf_user))
+							if (!strcmp(info->commentauthors[cc], svf_user))
 							{
 								bl = 100;
 							}
-							else if (!strcmp(author,info->author))
+							else if (!strcmp(info->commentauthors[cc], info->author))
 							{
 								g = 100;
 								bl = 100;
