@@ -457,6 +457,14 @@ reloaded. Fix error messages not being considered errors. Fix updating
 when using mniip.com update server (change back to default IP address to 
 update)
 
+Version 21.3 2/15/13
+Increase zoom to default tpt++ size. Fix crash when one of the first 7 
+comments is REALLY long. Fix crash when loading deleted saves with comments. 
+Fix negative votes display bug and next page arrow showing when it shouldn't. 
+Fix setting deco color with tpt.set_property. DEST won't move clone elements 
+anymore. Don't load edge mode in saves anymore. Memory leak fixes.
+
+
 
 
 
