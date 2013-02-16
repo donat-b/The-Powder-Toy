@@ -267,7 +267,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 	*height = fullH;
 	
 	//From newer version
-	if (saved_version > SAVE_VERSION && saved_version != 222)
+	if (saved_version > 86 /*SAVE_VERSION*/ && saved_version != 222)
 	{
 		fprintf(stderr, "Save from newer version\n");
 		//goto fail;
@@ -1213,7 +1213,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	fullH = blockH*CELL;
 	
 	//From newer version
-	if (saved_version > SAVE_VERSION && saved_version != 222)
+	if (saved_version > 86/*SAVE_VERSION*/ && saved_version != 222)
 	{
 		info_ui(vid_buf,"Save is from a newer version","Attempting to load it anyway, this may cause a crash");
 	}
