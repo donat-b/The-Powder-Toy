@@ -462,13 +462,15 @@ Increase zoom to default tpt++ size. Fix crash when one of the first 7
 comments is REALLY long. Fix crash when loading deleted saves with comments. 
 Fix negative votes display bug and next page arrow showing when it shouldn't. 
 Fix setting deco color with tpt.set_property. DEST won't move clone elements 
-anymore. Don't load edge mode in saves anymore. Memory leak fixes.
+anymore. Don't load edge mode in saves anymore. Memory leak fixes. Allow 
+saving of new elements, since official version 86 is out now.
 
 
 
 
 
 Bugs:
+press caps lock when not in tpt, doesn't register as pressed
 None (at least that I know of)
 
 

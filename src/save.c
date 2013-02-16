@@ -104,7 +104,7 @@ int fix_type(int type, int version, int modver)
 
 int invalid_element(int save_as, int el)
 {
-	if (save_as > 0 && (el >= PT_NORMAL_NUM-3 || el < 0 || ptypes[el].enabled == 0)) //Check for mod/disabled elements
+	if (save_as > 0 && (el >= PT_NORMAL_NUM || el < 0 || ptypes[el].enabled == 0)) //Check for mod/disabled elements
 		return 1;
 #ifdef BETA
 	//if (save_as > 1 && (el == PT_EXOT))
@@ -267,7 +267,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 	*height = fullH;
 	
 	//From newer version
-	if (saved_version > 86 /*SAVE_VERSION*/ && saved_version != 222)
+	if (saved_version > SAVE_VERSION && saved_version != 222)
 	{
 		fprintf(stderr, "Save from newer version\n");
 		//goto fail;
@@ -1213,7 +1213,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	fullH = blockH*CELL;
 	
 	//From newer version
-	if (saved_version > 86/*SAVE_VERSION*/ && saved_version != 222)
+	if (saved_version > SAVE_VERSION && saved_version != 222)
 	{
 		info_ui(vid_buf,"Save is from a newer version","Attempting to load it anyway, this may cause a crash");
 	}
