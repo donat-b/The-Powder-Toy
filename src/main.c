@@ -1513,7 +1513,10 @@ int main(int argc, char *argv[])
 					if (load_img)
 						load_mode = 1;
 					else
+					{
 						free(load_data);
+						load_data = NULL;
+					}
 				}
 			}
 			if (sdl_key=='s' && (((sdl_mod & (KMOD_CTRL)) || !player2.spwn) || ((sdl_mod & (KMOD_LCTRL)) && player2.spwn)))
@@ -1911,7 +1914,10 @@ int main(int argc, char *argv[])
 						if (load_img)
 							load_mode = 1;
 						else
+						{
 							free(load_data);
+							load_data = NULL;
+						}
 					}
 				}
 			}
@@ -2346,13 +2352,17 @@ int main(int argc, char *argv[])
 			{
 				parse_save(load_data, load_size, 0, load_x, load_y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 				free(load_data);
+				load_data = NULL;
 				free(load_img);
+				load_img = NULL;
 				load_mode = 0;
 			}
 			else if (bq==4 && !b)
 			{
 				free(load_data);
+				load_data = NULL;
 				free(load_img);
+				load_img = NULL;
 				load_mode = 0;
 			}
 		}
