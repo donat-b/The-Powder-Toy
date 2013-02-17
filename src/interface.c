@@ -115,8 +115,8 @@ int tag_votes[TAG_MAX];
 int zoom_en = 0;
 int zoom_x=(XRES-ZSIZE_D)/2, zoom_y=(YRES-ZSIZE_D)/2;
 int zoom_wx=0, zoom_wy=0;
-unsigned char ZFACTOR = 256/ZSIZE_D;
-unsigned char ZSIZE = ZSIZE_D;
+unsigned char ZFACTOR = 8;
+unsigned char ZSIZE = 32;
 
 int numframes = 0;
 int framenum = 0;
@@ -639,7 +639,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 int ui_label_draw(pixel *vid_buf, ui_label *ed)
 {
 	char *str = ed->str, highlightstr[1024];
-	int ret;
+	int ret = 0;
 
 	if (ed->cursor>ed->cursorstart)
 	{
@@ -4295,7 +4295,7 @@ int search_ui(pixel *vid_buf)
 			drawtext(vid_buf, 4, YRES+MENUSIZE-16, "\x96", 255, 255, 255, 255);
 			drawrect(vid_buf, 1, YRES+MENUSIZE-20, 16, 16, 255, 255, 255, 255);
 		}
-		else if (page_count > 9 && !(search_own || search_fav || search_date) && !strcmp(ed.str,""))
+		else if (page_count > exp_res && !(search_own || search_fav || search_date) && !strcmp(ed.str,""))
 		{
 			if (p1_extra)
 				drawtext(vid_buf, 4, YRES+MENUSIZE-17, "\x85", 255, 255, 255, 255);
@@ -4303,7 +4303,7 @@ int search_ui(pixel *vid_buf)
 				drawtext(vid_buf, 4, YRES+MENUSIZE-17, "\x89", 255, 255, 255, 255);
 			drawrect(vid_buf, 1, YRES+MENUSIZE-20, 15, 15, 255, 255, 255, 255);
 		}
-		if (page_count > 9)
+		if (page_count > exp_res)
 		{
 			drawtext(vid_buf, XRES-15, YRES+MENUSIZE-16, "\x95", 255, 255, 255, 255);
 			drawrect(vid_buf, XRES-18, YRES+MENUSIZE-20, 16, 16, 255, 255, 255, 255);
@@ -4486,7 +4486,8 @@ int search_ui(pixel *vid_buf)
 					drawtext(vid_buf, w, h, ts, 192, 192, 192, 255);
 					sprintf(ts, "%d", search_votes[pos]);
 					for (j=0; ts[j]; j++)
-						ts[j] += 127;
+						if (ts[j] != '-')
+							ts[j] += 127;
 					drawtext(vid_buf, w+3, h, ts, 255, 255, 255, 255);
 				}
 				if (search_scoreup[pos]>0||search_scoredown[pos]>0)
@@ -4741,7 +4742,7 @@ int search_ui(pixel *vid_buf)
 				nmp = -1;
 			
 				if (rand()%2)
-					sprintf(server_motd,"Links: \bt{a:http://powdertoy.co.uk|Powder Toy main page}\bg, \bt{a:http://powdertoy.co.uk/Discussions/Categories/Index.html|Forums}\bg, \bt{a:https://github.com/FacialTurd/The-Powder-Toy|TPT github}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy|Jacob1's Mod github}");
+					sprintf(server_motd,"Links: \bt{a:http://powdertoy.co.uk|Powder Toy main page}\bg, \bt{a:http://powdertoy.co.uk/Discussions/Categories/Index.html|Forums}\bg, \bt{a:https://github.com/FacialTurd/The-Powder-Toy|TPT github}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy/tree/jacob1's_mod|Jacob1's Mod github}");
 				ui_richtext_settext(server_motd, &motd);
 				motd.x = (XRES-textwidth(motd.printstr))/2;
 			}
@@ -5393,27 +5394,26 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			if (svf_login)
 				commentheight = drawtextwrap(vid_buf, ed.x, ed.y, ed.w-14, ed.str, 0, 0, 0, 0);
-			if (info_ready && redraw_comments) // draw the comments
+			if (info_ready)// && redraw_comments) // draw the comments
 			{
 				ccy = 0;
 				info->comments[0].y = 72+comment_scroll;
 				clearrect(vid_buf, 50+(XRES/2)+1, 50, XRES+BARSIZE-100-((XRES/2)+1), YRES+MENUSIZE-100);
 				for (cc=0; cc<info->comment_count; cc++) {
 					if (ccy + 72 + comment_scroll<YRES+MENUSIZE-56 && info->comments[cc].str) { //Try not to draw off the screen
-						if (ccy+comment_scroll >= 0) //Don't draw above the screen either
+						if (ccy+comment_scroll >= 0 && info->commentauthors[cc]) //Don't draw above the screen either
 						{
 							int r = 255, g = 255, bl = 255;
-							char* author = info->commentauthors[cc];
 							/*if (!strcmp(author,"jacob1") || !strcmp(author,"Simon") || !strcmp(author,"Lockheedmartin") || !strcmp(author,"lolzy") || !strcmp(author,"ief015") || !strcmp(author,"Catelite") || !strcmp(author,"doxin") || !strcmp(author,"FrankBro")  || !strcmp(author,"cracker64")|| !strcmp(author,"Xenocide") || !strcmp(author,"devast8a") || !strcmp(author,"triclops200") || !strcmp(author,"jacksonmj"))
 							{ // The way my mod gets comments doesn't have the /t for moderator colors, so they need to be recreated here (now fixed server side for tpt++)
 								g = 170;
 								r = 32;
 							}*/
-							if (!strcmp(author,svf_user))
+							if (!strcmp(info->commentauthors[cc], svf_user))
 							{
 								bl = 100;
 							}
-							else if (!strcmp(author,info->author))
+							else if (!strcmp(info->commentauthors[cc], info->author))
 							{
 								g = 100;
 								bl = 100;
@@ -5635,12 +5635,12 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			//Submit Button
 			if (mx > XRES+BARSIZE-100 && mx < XRES+BARSIZE-100+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && info_ready && !queue_open) {
-				fillrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
+				fillrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40+active_4*80);
 				if (b && !bq) {
 					//Button Clicked
 					fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
 					info_box(vid_buf, "Submitting Comment...");
-					if (!execute_submit(vid_buf, save_id, ed.str))
+					if (!active_4 && !execute_submit(vid_buf, save_id, ed.str))
 					{
 						int i;
 						ed.str[0] = 0;
@@ -5928,7 +5928,7 @@ int info_parse(char *info_data, save_info *info)
 				*(q++) = 0;
 				info->commentauthors[info->comment_count] = mystrdup(info_data+8);
 				info->commentauthorsunformatted[info->comment_count] = mystrdup(info_data+8);
-				strcpy(info->comments[info->comment_count].str,mystrdup(q));
+				strncpy(info->comments[info->comment_count].str,mystrdup(q), 1023);
 				info->comment_count++;
 			}
 			j++;
@@ -6348,7 +6348,8 @@ int execute_save(pixel *vid_buf)
 	svf_last = uploadparts[2];
 	svf_lsize = plens[2];
 
-	free(uploadparts[3]);
+	if (uploadparts[3])
+		free(uploadparts[3]);
 
 	save_as = oldsave_as;
 	if (status!=200)
@@ -6466,6 +6467,7 @@ int execute_submit(pixel *vid_buf, char *id, char *message)
 					}
 					else
 						error_ui(vid_buf, 0, "Could not read response");
+					return 1;
 				}
 			}
 		}
@@ -7793,6 +7795,8 @@ void catalogue_ui(pixel * vid_buf)
 								svf_name[0] = 0;
 								svf_description[0] = 0;
 								svf_tags[0] = 0;
+								if (svf_last)
+									free(svf_last);
 								svf_last = data;
 								data = NULL;
 								svf_lsize = size;
@@ -8062,8 +8066,20 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 	part_vbuf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE); //Extra video buffer
 	part_vbuf_store = part_vbuf;
 	
-	if (!o_vid_buf || !part_vbuf || !part_vbuf_store)
+	if (!o_vid_buf || !part_vbuf || !display_cb || !colour_cb || !render_cb)
+	{
+		if(o_vid_buf)
+			free(o_vid_buf);
+		if(part_vbuf)
+			free(part_vbuf);
+		if (display_cb)
+			free(display_cb);
+		if (colour_cb)
+			free(colour_cb);
+		if (render_cb)
+			free(render_cb);
 		return;
+	}
 	while (!sdl_poll())
 	{
 		b = mouse_get_state(&mx, &my);

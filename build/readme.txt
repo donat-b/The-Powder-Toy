@@ -444,19 +444,41 @@ to turn off updates, change the update server to check mniip.com instead, or
 to just turn them off completely. Fix things being invisible on first startup. 
 Change version number to 85.0, now pretends to be tpt++.
 
+Version 21.1 1/31/13
+Fix excessive stacking bug and weird problems with particle movement, that 
+was creating many problems. Fix copying from comments usually not working. 
+Update this mod's github link in the motd. Fix cause of infinite pressure 
+bug caused by assigning large hotair values with lua. Update PSTN and FRME to
+current tpt++ version.
+
+Version 21.2 2/1/13
+Fix crash when trying to submit another comment before the comments have 
+reloaded. Fix error messages not being considered errors. Fix updating 
+when using mniip.com update server (change back to default IP address to 
+update)
+
+Version 21.3 2/15/13
+Increase zoom to default tpt++ size. Fix crash when one of the first 7 
+comments is REALLY long. Fix crash when loading deleted saves with comments. 
+Fix negative votes display bug and next page arrow showing when it shouldn't. 
+Fix setting deco color with tpt.set_property. DEST won't move clone elements 
+anymore. Don't load edge mode in saves anymore. Memory leak fixes. Allow 
+saving of new elements, since official version 86 is out now.
+
+
 
 
 
 Bugs:
-With Empty edge mode on, putting a fire or pressure element in the bottom corners causes infinite pressure / pixelated fire glitches.
-//None (at least that I know of)
+press caps lock when not in tpt, doesn't register as pressed
+None (at least that I know of)
 
 
 
 
 Future Ideas/TODO: '>' means currently being worked on/added next
+>make zoom window bigger by default
 >Add things from tpt++ that look cool, and any new simulation changes it gets
-see about getting rid of "posting too frequently" like tpt++
 ---
 C++ version todo:
 done - [compile tpt++ with visual studio]
@@ -480,3 +502,4 @@ CMND - command element to run old commands
 ADGS - Adhesive gas - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=15188
 CNTR - lets tmp sparks through, then stops. INWR resets - cj646464/mniip - 1/23/13
 http://powdertoy.co.uk/Discussions/Thread/View.html?Post=220547
+INST reverses ANIM?

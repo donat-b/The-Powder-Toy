@@ -1324,6 +1324,7 @@ int luatpt_set_property(lua_State* l)
 	const char *prop, *name;
 	int r, i, x, y, w, h, t, format, nx, ny, partsel = 0, acount;
 	float f;
+	unsigned int u;
 	size_t offset;
 	acount = lua_gettop(l);
 	prop = (char*)luaL_optstring(l, 1, "");
@@ -1376,7 +1377,7 @@ int luatpt_set_property(lua_State* l)
 		format = 2;
 	} else if (strcmp(prop,"dcolour")==0 || strcmp(prop,"dcolor")==0){
 		offset = offsetof(particle, dcolour);
-		format = 1;
+		format = 5;
 	} else {
 		return luaL_error(l, "Invalid property '%s'", prop);
 	}
@@ -1390,6 +1391,8 @@ int luatpt_set_property(lua_State* l)
 	if(lua_isnumber(l, 2)){
 		if(format==2){
 			f = luaL_optnumber(l, 2, 0);
+		} else if(format==5) {
+			u = luaL_optnumber(l, 2, 0);
 		} else {
 			t = luaL_optint(l, 2, 0);
 		}
@@ -1425,6 +1428,8 @@ int luatpt_set_property(lua_State* l)
 				{
 					if(format==2){
 						*((float*)(((char*)&parts[i])+offset)) = f;
+					} else if (format == 5) {
+						*((unsigned int*)(((char*)&parts[i])+offset)) = u;
 					} else {
 						*((int*)(((char*)&parts[i])+offset)) = t;
 					}
@@ -1451,6 +1456,8 @@ int luatpt_set_property(lua_State* l)
 			return 0;
 		if(format==2){
 			*((float*)(((char*)&parts[i])+offset)) = f;
+		} else if (format == 5) {
+			*((unsigned int*)(((char*)&parts[i])+offset)) = u;
 		} else {
 			*((int*)(((char*)&parts[i])+offset)) = t;
 		}

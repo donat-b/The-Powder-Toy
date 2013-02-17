@@ -16,23 +16,26 @@
 #include <element.h>
 
 int tempParts[128];
+int tempPartAmount[128];
 
 #define PISTON_INACTIVE	0x00
 #define PISTON_RETRACT	0x01
 #define PISTON_EXTEND	0x02
 #define MAX_FRAME		0x0F
 #define DEFAULT_LIMIT	0x1F
+#define DEFAULT_ARM_LIMIT	0xFF
 
 int MoveStack(int stackX, int stackY, int directionX, int directionY, int size, int amount, int retract, int callDepth)
 {
-	int foundEnd = 0, foundParts = 0;
+	int foundParts = 0;
 	int posX, posY, r, spaces = 0, currentPos = 0;
+	int c;
 	r = pmap[stackY][stackX];
 	if(!callDepth && (r&0xFF) == PT_FRME) {
 		int biggestMove = amount;
 		int newY = !!directionX, newX = !!directionY;
-		int c;
 		//If the piston is pushing frame, iterate out from the centre to the edge and push everything resting on frame
+		int c;
 		for(c = 0; c < MAX_FRAME; c++) {
 			posY = stackY + (c*newY);
 			posX = stackX + (c*newX);
@@ -62,6 +65,7 @@ int MoveStack(int stackX, int stackY, int directionX, int directionY, int size, 
 		return biggestMove;
 	}
 	if(retract){
+		int foundEnd = 0;
 		//Warning: retraction does not scan to see if it has space
 		for(posX = stackX, posY = stackY; currentPos < size; posX += directionX, posY += directionY) {
 			if (!(posX < XRES && posY < YRES && posX >= 0 && posY >= 0)) {
@@ -76,8 +80,8 @@ int MoveStack(int stackX, int stackY, int directionX, int directionY, int size, 
 			}
 		}
 		if(foundParts) {
-			int j;
 			//Move particles
+			int j;
 			for(j = 0; j < currentPos; j++) {
 				int jP = tempParts[j];
 				pmap[(int)(parts[jP].y + 0.5f)][(int)(parts[jP].x + 0.5f)] = 0;
@@ -90,37 +94,45 @@ int MoveStack(int stackX, int stackY, int directionX, int directionY, int size, 
 		if(!foundParts && foundEnd)
 			return amount;		
 	} else {
-		for(posX = stackX, posY = stackY; currentPos < size; posX += directionX, posY += directionY) {
+		for(posX = stackX, posY = stackY; currentPos < size + amount; posX += directionX, posY += directionY) {
 			if (!(posX < XRES && posY < YRES && posX >= 0 && posY >= 0)) {
 				break;
 			}
 			r = pmap[posY][posX];
 			if(!r) {
 				spaces++;
-				foundEnd = 1;
+				tempParts[currentPos++] = -1;
 				if(spaces >= amount)
 					break;
 			} else {
 				foundParts = 1;
-				tempParts[currentPos++] = r>>8;
+				if(currentPos < size)
+					tempParts[currentPos++] = r>>8;
+				else 
+					break;
 			}
 		}
-		if(amount > spaces)
-			amount = spaces;
-		if(foundParts && foundEnd) {
-			int j;
+		if(foundParts && spaces){
 			//Move particles
-			for(j = 0; j < currentPos; j++) {
+			int possibleMovement = 0;
+			int j;
+			for(j = currentPos-1; j >= 0; j--) {
 				int jP = tempParts[j];
+				if(jP == -1) {
+					possibleMovement++;
+					continue;
+				}
+				if(!possibleMovement)
+					continue;
 				pmap[(int)(parts[jP].y + 0.5f)][(int)(parts[jP].x + 0.5f)] = 0;
-				parts[jP].x += (float)(directionX*amount);
-				parts[jP].y += (float)(directionY*amount);
+				parts[jP].x += (float)(directionX*possibleMovement);
+				parts[jP].y += (float)(directionY*possibleMovement);
 				pmap[(int)(parts[jP].y + 0.5f)][(int)(parts[jP].x + 0.5f)] = parts[jP].type|(jP<<8);
 			}
-			return amount;
+			return possibleMovement;
 		}
-		if(!foundParts && foundEnd)
-			return amount;
+		if(!foundParts && spaces)
+			return spaces;
 	}
 	return 0;
 }
@@ -128,7 +140,8 @@ int MoveStack(int stackX, int stackY, int directionX, int directionY, int size, 
 int update_PSTN(UPDATE_FUNC_ARGS)
 {
  	int maxSize = parts[i].tmp ? parts[i].tmp : DEFAULT_LIMIT;
- 	int state = parts[i].tmp2;
+ 	int armLimit = parts[i].tmp2 ? parts[i].tmp2 : DEFAULT_ARM_LIMIT;
+ 	int state = 0;
 	int r, nxx, nyy, nxi, nyi, rx, ry;
 	int directionX = 0, directionY = 0;
 	if(parts[i].ctype)
@@ -157,7 +170,7 @@ int update_PSTN(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if ((r&0xFF) == PT_PSTN && parts[r>>8].tmp2 == PISTON_INACTIVE) {
+					if ((r&0xFF) == PT_PSTN) {
 						directionX = rx;
 						directionY = ry;
 						{
@@ -185,14 +198,18 @@ int update_PSTN(UPDATE_FUNC_ARGS)
 							}
 							if(foundEnd) {
 								if(state == PISTON_EXTEND) {
-									newSpace = MoveStack(pistonEndX, pistonEndY, directionX, directionY, maxSize, pistonCount, 0, 0);
-									if(newSpace) {
-										int j;
-										//Create new piston section
-										for(j = 0; j < newSpace; j++) {
-											int nr = create_part(-3, pistonEndX+(nxi*j), pistonEndY+(nyi*j), PT_PSTN);
-											if (nr!=-1) {
-												parts[nr].ctype = 1;
+									if(armCount+pistonCount > armLimit)
+										pistonCount = armLimit-armCount;
+									if(pistonCount > 0) {
+										newSpace = MoveStack(pistonEndX, pistonEndY, directionX, directionY, maxSize, pistonCount, 0, 0);
+										if(newSpace) {
+											//Create new piston section
+											int j;
+											for(j = 0; j < newSpace; j++) {
+												int nr = create_part(-3, pistonEndX+(nxi*j), pistonEndY+(nyi*j), PT_PSTN);
+												if (nr!=-1) {
+													parts[nr].ctype = 1;
+												}
 											}
 										}
 									}
@@ -208,7 +225,7 @@ int update_PSTN(UPDATE_FUNC_ARGS)
 											delete_part(lastPistonX+(nxi*-j), lastPistonY+(nyi*-j), 0);
 										}
 										MoveStack(pistonEndX, pistonEndY, directionX, directionY, maxSize, pistonCount, 1, 0);
-										//newSpace = MoveStack(sim, pistonEndX, pistonEndY, directionX, directionY, maxSize, pistonCount, true);
+										//newSpace = MoveStack(pistonEndX, pistonEndY, directionX, directionY, maxSize, pistonCount, 1, 0);
 									}
 								}
 							}

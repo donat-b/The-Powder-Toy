@@ -181,6 +181,11 @@ void init_can_move()
 				can_move[t][rt] = 0;
 		}
 	}
+	can_move[PT_DEST][PT_DMND] = 0;
+	can_move[PT_DEST][PT_CLNE] = 0;
+	can_move[PT_DEST][PT_PCLN] = 0;
+	can_move[PT_DEST][PT_BCLN] = 0;
+	can_move[PT_DEST][PT_PBCN] = 0;
 	can_move[PT_BIZR][PT_FILT] = 2;
 	can_move[PT_BIZRG][PT_FILT] = 2;
 	for (t=0;t<PT_NUM;t++)
@@ -553,7 +558,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 			return 1;
 		}
 
-		if (!OutOfBounds(x-nx, y-ny))
+		if (!OutOfBounds(nx, ny))
 		{
 			if ((pmap[ny][nx]>>8)==e) pmap[ny][nx] = 0;
 			parts[e].x += x-nx;
@@ -2644,14 +2649,16 @@ void update_particles_i(pixel *vid, int start, int inc)
 				}
 				else//add the hotair variable to the pressure map, like black hole, or white hole.
 				{
-					pv[y/CELL][x/CELL] += ptypes[t].hotair;
+					float value = ptypes[t].hotair;
+					value = restrict_flt(value, -256.0f, 256.0f);
+					pv[y/CELL][x/CELL] += value;
 					if (y+CELL<YRES)
-						pv[y/CELL+1][x/CELL] += ptypes[t].hotair;
+						pv[y/CELL+1][x/CELL] += value;
 					if (x+CELL<XRES)
 					{
-						pv[y/CELL][x/CELL+1] += ptypes[t].hotair;
+						pv[y/CELL][x/CELL+1] += value;
 						if (y+CELL<YRES)
-							pv[y/CELL+1][x/CELL+1] += ptypes[t].hotair;
+							pv[y/CELL+1][x/CELL+1] += value;
 					}
 				}
 

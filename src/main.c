@@ -1513,7 +1513,10 @@ int main(int argc, char *argv[])
 					if (load_img)
 						load_mode = 1;
 					else
+					{
 						free(load_data);
+						load_data = NULL;
+					}
 				}
 			}
 			if (sdl_key=='s' && (((sdl_mod & (KMOD_CTRL)) || !player2.spwn) || ((sdl_mod & (KMOD_LCTRL)) && player2.spwn)))
@@ -1900,16 +1903,21 @@ int main(int argc, char *argv[])
 			{
 				if (clipboard_ready==1 && clipboard_data)
 				{
+					if (load_data)
+						free(load_data);
 					load_data = malloc(clipboard_length);
-					memcpy(load_data, clipboard_data, clipboard_length);
-					load_size = clipboard_length;
 					if (load_data)
 					{
+						memcpy(load_data, clipboard_data, clipboard_length);
+						load_size = clipboard_length;
 						load_img = prerender_save(load_data, load_size, &load_w, &load_h);
 						if (load_img)
 							load_mode = 1;
 						else
+						{
 							free(load_data);
+							load_data = NULL;
+						}
 					}
 				}
 			}
@@ -2204,7 +2212,7 @@ int main(int argc, char *argv[])
 			{
 				free(changelog);
 				if (doUpdates == 2)
-					tmp = download_ui(vid_buf, "http://mniip.com/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU, &i);
+					tmp = download_ui(vid_buf, "http://mniip.com/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU, &i);
 				else
 					tmp = download_ui(vid_buf, update_uri, &i);
 
@@ -2344,13 +2352,17 @@ int main(int argc, char *argv[])
 			{
 				parse_save(load_data, load_size, 0, load_x, load_y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 				free(load_data);
+				load_data = NULL;
 				free(load_img);
+				load_img = NULL;
 				load_mode = 0;
 			}
 			else if (bq==4 && !b)
 			{
 				free(load_data);
+				load_data = NULL;
 				free(load_img);
+				load_img = NULL;
 				load_mode = 0;
 			}
 		}
@@ -2400,6 +2412,8 @@ int main(int argc, char *argv[])
 					{
 						int oldsave_as = save_as;
 						save_as = 3;
+						if (clipboard_data)
+							free(clipboard_data);
 						clipboard_data=build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts, (sdl_mod & KMOD_SHIFT));
 						if (clipboard_data)
 							clipboard_ready = 1;
@@ -2409,6 +2423,8 @@ int main(int argc, char *argv[])
 					{
 						int oldsave_as = save_as;
 						save_as = 3;
+						if (clipboard_data)
+							free(clipboard_data);
 						clipboard_data=build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts, (sdl_mod & KMOD_SHIFT));
 						if (clipboard_data)
 						{

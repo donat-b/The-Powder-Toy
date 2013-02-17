@@ -104,7 +104,7 @@ int fix_type(int type, int version, int modver)
 
 int invalid_element(int save_as, int el)
 {
-	if (save_as > 0 && (el >= PT_NORMAL_NUM-3 || el < 0 || ptypes[el].enabled == 0)) //Check for mod/disabled elements
+	if (save_as > 0 && (el >= PT_NORMAL_NUM || el < 0 || ptypes[el].enabled == 0)) //Check for mod/disabled elements
 		return 1;
 #ifdef BETA
 	//if (save_as > 1 && (el == PT_EXOT))
@@ -1165,12 +1165,24 @@ fin:
 		free(wallData);
 	if(fanData)
 		free(fanData);
+	if (pressData)
+		free(pressData);
 	if (elementCount)
 		free(elementCount);
 	if (partsSaveIndex)
 		free(partsSaveIndex);
 	if (soapLinkData)
 		free(soapLinkData);
+	if (partsPosData)
+		free(partsPosData);
+	if (partsPosLink)
+		free(partsPosLink);
+	if (partsPosCount)
+		free(partsPosCount);
+	if (partsPosFirstMap)
+		free(partsPosFirstMap);
+	if (partsPosLastMap)
+		free(partsPosLastMap);
 	
 	return outputData;
 }
@@ -1590,7 +1602,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if(strcmp(bson_iterator_key(&iter), "edgeMode")==0 && replace)
+		/*else if(strcmp(bson_iterator_key(&iter), "edgeMode")==0 && replace)
 		{
 			if(bson_iterator_type(&iter)==BSON_INT)
 			{
@@ -1600,7 +1612,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			{
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
-		}
+		}*/
 	}
 	
 	//Read wall and fan data
