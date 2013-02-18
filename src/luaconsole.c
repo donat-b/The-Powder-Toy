@@ -1392,7 +1392,7 @@ int luatpt_set_property(lua_State* l)
 		if(format==2){
 			f = luaL_optnumber(l, 2, 0);
 		} else if(format==5) {
-			u = luaL_optnumber(l, 2, 0);
+			u = (unsigned int)luaL_optnumber(l, 2, 0);
 		} else {
 			t = luaL_optint(l, 2, 0);
 		}
@@ -1458,6 +1458,7 @@ int luatpt_set_property(lua_State* l)
 			*((float*)(((char*)&parts[i])+offset)) = f;
 		} else if (format == 5) {
 			*((unsigned int*)(((char*)&parts[i])+offset)) = u;
+			*((int*)(((char*)&parts[i])+offsetof(particle, flags))) = 0x20;
 		} else {
 			*((int*)(((char*)&parts[i])+offset)) = t;
 		}

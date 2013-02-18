@@ -1057,6 +1057,40 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	}
 	
 	bson_init(&b);
+	bson_append_start_object(&b, "origin");
+	bson_append_int(&b, "majorVersion", SAVE_VERSION);
+	bson_append_int(&b, "minorVersion", MINOR_VERSION);
+	bson_append_int(&b, "buildNum", MINOR_VERSION);
+	bson_append_int(&b, "snapshotId", MINOR_VERSION);
+#ifdef BETA
+	bson_append_string(&b, "releaseType", "B");
+#else
+	bson_append_string(&b, "releaseType", "S");
+#endif
+#ifdef WIN32
+	bson_append_string(&b, "platform", "WIN32");
+#elif defined WIN64
+	bson_append_string(&b, "platform", "WIN64");
+#elif defined MACOSX
+	bson_append_string(&b, "platform", "MACOSX");
+#elif defined LIN32
+	bson_append_string(&b, "platform", "LIN32");
+#elif defined LIN64
+	bson_append_string(&b, "platform", "LIN64");
+#else
+	bson_append_string(&b, "platform", "UNKNOWN");
+#endif
+#if defined X86_SSE3
+	bson_append_string(&b, "builtType", "SSE3");
+#elif defined X86_SSE2
+		bson_append_string(&b, "builtType", "SSE2");
+#elif defined X86_SSE
+	bson_append_string(&b, "builtType", "SSE");
+#else
+	bson_append_string(&b, "builtType", "NO");
+#endif
+	bson_append_finish_object(&b);
+
 	bson_append_bool(&b, "waterEEnabled", water_equal_test);
 	bson_append_bool(&b, "legacyEnable", legacy_enable);
 	bson_append_bool(&b, "gravityEnable", ngrav_enable);

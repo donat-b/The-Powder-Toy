@@ -465,7 +465,8 @@ Fix setting deco color with tpt.set_property. DEST won't move clone elements
 anymore. Don't load edge mode in saves anymore. Memory leak fixes. Allow 
 saving of new elements, since official version 86 is out now.
 
-
+Version 21.4 2/18/13
+A small CRAY fix from version 86.1.
 
 
 
