@@ -142,6 +142,28 @@ static void photoelectric_effect(int nx, int ny)//create sparks from PHOT when h
 	}
 }
 
+
+int IsWallBlocking(int x, int y, int type)
+{
+	if (bmap[y/CELL][x/CELL])
+	{
+		int wall = bmap[y/CELL][x/CELL];
+		if (wall == WL_ALLOWGAS && !(ptypes[type].properties&TYPE_GAS))
+			return 1;
+		else if (wall == WL_ALLOWENERGY && !(ptypes[type].properties&TYPE_ENERGY))
+			return 1;
+		else if (wall == WL_ALLOWLIQUID && ptypes[type].falldown!=2)
+			return 1;
+		else if (wall == WL_ALLOWSOLID && ptypes[type].falldown!=1)
+			return 1;
+		else if (wall == WL_ALLOWAIR || wall == WL_WALL || wall == WL_WALLELEC)
+			return 1;
+		else if (wall == WL_EWALL && !emap[y/CELL][x/CELL])
+			return 1;
+	}
+	return 0;
+}
+
 unsigned char can_move[PT_NUM][PT_NUM];
 
 void init_can_move()
