@@ -267,6 +267,7 @@ void hud_text_left(float FPSB2, int it)
 		converttotime(time,&timestr,hud_current[36],hud_current[38],hud_current[37]);
 		strappend(uitext,timestr);
 		strappend(uitext,", ");
+		free(timestr);
 	}
 	if (hud_current[2])
 	{

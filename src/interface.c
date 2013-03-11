@@ -5804,6 +5804,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	free(info);
 	free(old_vid);
 	if (data) free(data);
+	if (thumb_data) free(thumb_data);
 	return retval;
 }
 
@@ -5823,6 +5824,7 @@ int info_parse(char *info_data, save_info *info)
 		if (info->commentauthors[i]) free(info->commentauthors[i]);
 		if (info->commentauthorsunformatted[i]) free(info->commentauthorsunformatted[i]);
 		if (info->commentauthorIDs[i]) free(info->commentauthorIDs[i]);
+		if (info->commenttimestamps[i]) free(info->commenttimestamps[i]);
 	}
 	memset(info, 0, sizeof(save_info));
 	for (i = 0; i < NUM_COMMENTS; i++)
@@ -6823,6 +6825,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 	ui_edit ed;
 	ed.x = 15;
 	ed.y = 207;
+	ed.h = 14;
 	ed.w = XRES;
 	ed.nx = 1;
 	ed.def = "";
