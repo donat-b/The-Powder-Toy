@@ -17,6 +17,16 @@
 
 int update_ACEL(UPDATE_FUNC_ARGS) {
 	int r, rx, ry;
+	float multiplier;
+	if (parts[i].life!=0)
+	{
+		float change = parts[i].life > 1000 ? 1000 : (parts[i].life < 0 ? 0 : parts[i].life);
+		multiplier = 1.0f+(change/100.0f);
+	}
+	else
+	{
+		multiplier = 1.1f;
+	}
 	parts[i].tmp = 0;
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)
@@ -29,8 +39,8 @@ int update_ACEL(UPDATE_FUNC_ARGS) {
 					continue;
 				if(ptypes[r&0xFF].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY))
 				{
-					parts[r>>8].vx *= 1.1f;
-					parts[r>>8].vy *= 1.1f;
+					parts[r>>8].vx *= multiplier;
+					parts[r>>8].vy *= multiplier;
 					parts[i].tmp = 1;
 				}
 			}
@@ -45,6 +55,16 @@ int graphics_ACEL(GRAPHICS_FUNC_ARGS)
 }
 int update_DCEL(UPDATE_FUNC_ARGS) {
 	int r, rx, ry;
+	float multiplier;
+	if (parts[i].life!=0)
+	{
+		float change = parts[i].life > 100 ? 100 : (parts[i].life < 0 ? 0 : parts[i].life);
+		multiplier = 1.0f-(change/100.0f);
+	}
+	else
+	{
+		multiplier = 1.0f/1.1f;
+	}
 	parts[i].tmp = 0;
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)
@@ -57,12 +77,12 @@ int update_DCEL(UPDATE_FUNC_ARGS) {
 					continue;
 				if(ptypes[r&0xFF].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY))
 				{
-					parts[r>>8].vx *= 0.9f;
-					parts[r>>8].vy *= 0.9f;
+					parts[r>>8].vx *= multiplier;
+					parts[r>>8].vy *= multiplier;
 					parts[i].tmp = 1;
 				}
 			}
-	return 0;
+			return 0;
 }
 
 int graphics_DCEL(GRAPHICS_FUNC_ARGS)
