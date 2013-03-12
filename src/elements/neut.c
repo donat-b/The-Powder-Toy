@@ -132,7 +132,7 @@ int update_NEUT(UPDATE_FUNC_ARGS) {
 					part_change_type(r>>8,x+rx,y+ry,PT_DESL);
 				else if ((r&0xFF)==PT_PLNT && 5>(rand()%100))
 					create_part(r>>8, x+rx, y+ry, PT_WOOD);
-				else if ((r&0xFF)==PT_DESL && 15>(rand()%1000))
+				else if (((r&0xFF)==PT_DESL || (r&0xFF)==PT_OIL) && 15>(rand()%1000))
 					part_change_type(r>>8,x+rx,y+ry,PT_GAS);
 				else if ((r&0xFF)==PT_COAL && 5>(rand()%100))
 					create_part(r>>8, x+rx, y+ry, PT_WOOD);

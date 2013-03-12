@@ -20,7 +20,7 @@ int update_ACEL(UPDATE_FUNC_ARGS) {
 	float multiplier;
 	if (parts[i].life!=0)
 	{
-		float change = parts[i].life > 1000 ? 1000 : (parts[i].life < 0 ? 0 : parts[i].life);
+		float change = (float)(parts[i].life > 1000 ? 1000 : (parts[i].life < 0 ? 0 : parts[i].life));
 		multiplier = 1.0f+(change/100.0f);
 	}
 	else
@@ -58,7 +58,7 @@ int update_DCEL(UPDATE_FUNC_ARGS) {
 	float multiplier;
 	if (parts[i].life!=0)
 	{
-		float change = parts[i].life > 100 ? 100 : (parts[i].life < 0 ? 0 : parts[i].life);
+		float change = (float)(parts[i].life > 100 ? 100 : (parts[i].life < 0 ? 0 : parts[i].life));
 		multiplier = 1.0f-(change/100.0f);
 	}
 	else
@@ -82,7 +82,7 @@ int update_DCEL(UPDATE_FUNC_ARGS) {
 					parts[i].tmp = 1;
 				}
 			}
-			return 0;
+	return 0;
 }
 
 int graphics_DCEL(GRAPHICS_FUNC_ARGS)
