@@ -25,6 +25,9 @@ void initSimulationAPI(lua_State * l)
 		{"partNeighbours", simulation_partNeighbours},
 		{"partChangeType", simulation_partChangeType},
 		{"partCreate", simulation_partCreate},
+		{"partID", simulation_partID},
+		{"partProperty", simulation_partProperty},
+		{"partPosition", simulation_partPosition},
 		{"partKill", simulation_partKill},
 		{"pressure", simulation_pressure},
 		{"ambientHeat", simulation_ambientHeat},
@@ -107,6 +110,60 @@ int simulation_partCreate(lua_State * l)
 	}
 	lua_pushinteger(l, create_part(newID, lua_tointeger(l, 2), lua_tointeger(l, 3), lua_tointeger(l, 4)));
 	return 1;
+}
+
+int simulation_partID(lua_State * l)
+{
+	int x = lua_tointeger(l, 1);
+	int y = lua_tointeger(l, 2);
+	int amalgam; // "an alloy of mercury with another metal that is solid or liquid at room temperature" What?
+
+	if(x < 0 || x >= XRES || y < 0 || y >= YRES)
+	{
+		lua_pushnil(l);
+		return 1;
+	}
+
+	amalgam = pmap[y][x];
+	if(!amalgam)
+		amalgam = photons[y][x];
+	lua_pushinteger(l, amalgam >> 8);
+	return 1;
+}
+
+int simulation_partPosition(lua_State * l)
+{
+	int particleID = lua_tointeger(l, 1);
+	int argCount = lua_gettop(l);
+	if(particleID < 0 || particleID >= NPART || !parts[particleID].type)
+	{
+		if(argCount == 1)
+		{
+			lua_pushnil(l);
+			lua_pushnil(l);
+			return 2;
+		} else {
+			return 0;
+		}
+	}
+	
+	if(argCount == 3)
+	{
+		parts[particleID].x = lua_tonumber(l, 2);
+		parts[particleID].y = lua_tonumber(l, 3);
+		return 0;
+	}
+	else
+	{
+		lua_pushnumber(l, parts[particleID].x);
+		lua_pushnumber(l, parts[particleID].y);
+		return 2;
+	}
+}
+
+int simulation_partProperty(lua_State * l)
+{
+	return luaL_error(l, "Not implemented, bug jacob1 to put this in");
 }
 
 int simulation_partKill(lua_State * l)
