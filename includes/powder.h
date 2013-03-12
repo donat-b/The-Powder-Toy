@@ -402,6 +402,7 @@ int graphics_DTEC(GRAPHICS_FUNC_ARGS);
 int graphics_DMG(GRAPHICS_FUNC_ARGS);
 int graphics_VIBR(GRAPHICS_FUNC_ARGS);
 int graphics_PSTN(GRAPHICS_FUNC_ARGS);
+int graphics_FRME(GRAPHICS_FUNC_ARGS);
 
 void TRON_init_graphics();
 

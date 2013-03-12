@@ -478,8 +478,10 @@ None (at least that I know of)
 
 
 Future Ideas/TODO: '>' means currently being worked on/added next
->make zoom window bigger by default
+make motd change for every other, not just random
 >Add things from tpt++ that look cool, and any new simulation changes it gets
+
+
 ---
 C++ version todo:
 done - [compile tpt++ with visual studio]
@@ -492,9 +494,10 @@ Start adding in the other features, like the search ui improvements (may start e
 Finish adding in other minor things (will look at github logs and changelogs in order probably
 Done! continue work on my mod like normal
 
-0% complete, haven't started yet. With school, it will be slow, but since it's mostly copying it might be easier
+1% complete, haven't really done much or actually started anything on the list because I still want to improve tpt++ first
 
 maybe in c++ version:
+customizable settings menu completely, ability to add and read options. (also HUD option settings)
 Don't save lua code inside of INDI, since this isn't a lua script anymore
 RAND - deco tool - Uberness - 10/1 #powder at end
 FRME
