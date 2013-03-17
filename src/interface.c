@@ -348,7 +348,7 @@ void ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 	if (ed->str[0])
 	{
 		if (ed->multiline) {
-			drawtextwrap(vid_buf, ed->x, ed->y, ed->w-14, str, 255, 255, 255, 255);
+			drawtextwrap(vid_buf, ed->x, ed->y, ed->w-14, 0, str, 255, 255, 255, 255);
 			if (ed->highlightlength)
 			{
 				
@@ -655,8 +655,15 @@ int ui_label_draw(pixel *vid_buf, ui_label *ed)
 	if (ed->str[0])
 	{
 		if (ed->multiline) {
-			ret = drawtextwrap(vid_buf, ed->x, ed->y, ed->w-14, str, 255, 255, 255, 185);
-			ed->h = ret;
+			if (!ed->h)
+			{
+				ret = drawtextwrap(vid_buf, ed->x, ed->y, ed->w-14, 0, str, 255, 255, 255, 185);
+				ed->h = ret;
+			}
+			else
+			{
+				ret = drawtextwrap(vid_buf, ed->x, ed->y, ed->w-14, ed->h, str, 255, 255, 255, 185);
+			}
 			if (ed->highlightlength)
 			{
 				
@@ -1210,7 +1217,7 @@ void error_ui(pixel *vid_buf, int err, char *txt)
 			drawtext(vid_buf, x0+8, y0+8, "HTTP error:", 255, 64, 32, 255);
 		else
 			drawtext(vid_buf, x0+8, y0+8, "Error:", 255, 64, 32, 255);
-		drawtextwrap(vid_buf, x0+8, y0+26, 224, msg, 255, 255, 255, 255);
+		drawtextwrap(vid_buf, x0+8, y0+26, 224, 0, msg, 255, 255, 255, 255);
 		drawtext(vid_buf, x0+5, y0+textheight+37, "Dismiss", 255, 255, 255, 255);
 		drawrect(vid_buf, x0, y0+textheight+32, 240, 16, 192, 192, 192, 255);
 #ifdef OGLR
@@ -1954,7 +1961,7 @@ int confirm_ui(pixel *vid_buf, char *top, char *msg, char *btn)
 		clearrect(vid_buf, x0-2, y0-2, 244, 52+textheight);
 		drawrect(vid_buf, x0, y0, 240, 48+textheight, 192, 192, 192, 255);
 		drawtext(vid_buf, x0+8, y0+8, top, 255, 216, 32, 255);
-		drawtextwrap(vid_buf, x0+8, y0+26, 224, msg, 255, 255, 255, 255);
+		drawtextwrap(vid_buf, x0+8, y0+26, 224, 0, msg, 255, 255, 255, 255);
 		drawtext(vid_buf, x0+5, y0+textheight+37, "Cancel", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+165, y0+textheight+37, btn, 255, 216, 32, 255);
 		drawrect(vid_buf, x0, y0+textheight+32, 160, 16, 192, 192, 192, 255);
@@ -5351,7 +5358,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					drawtext(vid_buf, 48+(XRES/2)-textwidth(viewcountbuffer)-textwidth("Views:")-4, (YRES/2)+72, "Views:", 255, 255, 255, 155);
 					drawtext(vid_buf, 48+(XRES/2)-textwidth(viewcountbuffer), (YRES/2)+72, viewcountbuffer, 255, 255, 255, 255);
 				}
-				drawtextwrap(vid_buf, 62, (YRES/2)+86, (XRES/2)-24, info->description, 255, 255, 255, 200);
+				drawtextwrap(vid_buf, 62, (YRES/2)+86, (XRES/2)-24, 0, info->description, 255, 255, 255, 200);
 
 				//Draw the score bars
 				if (info->voteup>0||info->votedown>0)
@@ -5393,7 +5400,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 			}
 			if (svf_login)
-				commentheight = drawtextwrap(vid_buf, ed.x, ed.y, ed.w-14, ed.str, 0, 0, 0, 0);
+				commentheight = drawtextwrap(vid_buf, ed.x, ed.y, ed.w-14, 0, ed.str, 0, 0, 0, 0);
 			if (info_ready)// && redraw_comments) // draw the comments
 			{
 				ccy = 0;
@@ -5404,11 +5411,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						if (ccy+comment_scroll >= 0 && info->commentauthors[cc]) //Don't draw above the screen either
 						{
 							int r = 255, g = 255, bl = 255;
-							/*if (!strcmp(author,"jacob1") || !strcmp(author,"Simon") || !strcmp(author,"Lockheedmartin") || !strcmp(author,"lolzy") || !strcmp(author,"ief015") || !strcmp(author,"Catelite") || !strcmp(author,"doxin") || !strcmp(author,"FrankBro")  || !strcmp(author,"cracker64")|| !strcmp(author,"Xenocide") || !strcmp(author,"devast8a") || !strcmp(author,"triclops200") || !strcmp(author,"jacksonmj"))
-							{ // The way my mod gets comments doesn't have the /t for moderator colors, so they need to be recreated here (now fixed server side for tpt++)
-								g = 170;
-								r = 32;
-							}*/
 							if (!strcmp(info->commentauthors[cc], svf_user))
 							{
 								bl = 100;
@@ -5460,29 +5462,37 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						}
 
 						ccy += 12;
-						if (ccy+comment_scroll>=0) //draw the comment
+						if (ccy + 72 + comment_scroll<YRES+MENUSIZE-56) // Check again if the comment is off the screen, incase the author line made it too long
 						{
-							int change;
-							if ((ccy + 72 + comment_scroll + ((textwidth(info->comments[cc].str)/(XRES+BARSIZE-100-((XRES/2)+1)-20)))*12)>=YRES+MENUSIZE-56)
-								break;
-							change = ui_label_draw(vid_buf, &info->comments[cc]);
-							ui_label_process(mx, my, b, bq, &info->comments[cc]);
-							//ccy += drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, XRES+BARSIZE-100-((XRES/2)+1)-20, info->comments[cc].str, 255, 255, 255, 185);
-							ccy += change + 10;
-							if (cc < NUM_COMMENTS-1)
-								info->comments[cc+1].y = info->comments[cc].y + change + 22;
-						}
-						else
-						{
-							int change = drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, XRES+BARSIZE-100-((XRES/2)+1)-20, info->comments[cc].str, 0, 0, 0, 0);
-							ccy += change + 10;
-							if (cc < NUM_COMMENTS-1)
-								info->comments[cc+1].y = info->comments[cc].y + change + 22;
-							if (cc == info->comment_count-1 && !active_4)
-								comment_scroll = 0;
-						}
-						if (ccy+52+comment_scroll<YRES+MENUSIZE-50 && ccy+comment_scroll>-3) { //draw the line that separates comments
-							draw_line(vid_buf, 50+(XRES/2)+2, ccy+52+comment_scroll, XRES+BARSIZE-51, ccy+52+comment_scroll, 100, 100, 100, XRES+BARSIZE);
+							if (1)//ccy+comment_scroll>=0) //draw the comment
+							{
+								int change;
+								if (ccy+comment_scroll < 0)
+									info->comments[cc].h = ccy+comment_scroll-10;
+								else
+									info->comments[cc].h = YRES+MENUSIZE-56 - (ccy + 72 + comment_scroll);
+								if (info->comments[cc].h != 0)
+								{
+									change = ui_label_draw(vid_buf, &info->comments[cc]);
+									ui_label_process(mx, my, b, bq, &info->comments[cc]);
+									//ccy += drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, XRES+BARSIZE-100-((XRES/2)+1)-20, 0, info->comments[cc].str, 255, 255, 255, 185);
+									ccy += change + 10;
+									if (cc < NUM_COMMENTS-1)
+										info->comments[cc+1].y = info->comments[cc].y + change + 22;
+								}
+							}
+							else
+							{
+								int change = drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, XRES+BARSIZE-100-((XRES/2)+1)-20, 0, info->comments[cc].str, 0, 0, 0, 0);
+								ccy += change + 10;
+								if (cc < NUM_COMMENTS-1)
+									info->comments[cc+1].y = info->comments[cc].y + change + 22;
+								if (cc == info->comment_count-1 && !active_4)
+									comment_scroll = 0;
+							}
+							if (ccy+52+comment_scroll<YRES+MENUSIZE-50 && ccy+comment_scroll>-3) { //draw the line that separates comments
+								draw_line(vid_buf, 50+(XRES/2)+2, ccy+52+comment_scroll, XRES+BARSIZE-51, ccy+52+comment_scroll, 100, 100, 100, XRES+BARSIZE);
+							}
 						}
 					}
 					else

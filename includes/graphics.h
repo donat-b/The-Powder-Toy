@@ -149,7 +149,7 @@ int drawhighlight(pixel *vid, int x, int y, const char *s);
 
 int drawtext_outline(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a, int outr, int outg, int outb, int outa);
 
-int drawtextwrap(pixel *vid, int x, int y, int w, const char *s, int r, int g, int b, int a);
+int drawtextwrap(pixel *vid, int x, int y, int w, int h, const char *s, int r, int g, int b, int a);
 
 int drawhighlightwrap(pixel *vid, int x, int y, int w, const char *s, int highlightstart, int highlightlength);
 

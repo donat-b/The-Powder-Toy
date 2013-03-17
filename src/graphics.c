@@ -1265,7 +1265,7 @@ int drawtext_outline(pixel *vid, int x, int y, const char *s, int r, int g, int 
 	
 	return drawtext(vid, x, y, s, r, g, b, a);
 }
-int drawtextwrap(pixel *vid, int x, int y, int w, const char *s, int r, int g, int b, int a)
+int drawtextwrap(pixel *vid, int x, int y, int w, int h, const char *s, int r, int g, int b, int a)
 {
 	int sx = x;
 	int rh = 12;
@@ -1286,6 +1286,8 @@ int drawtextwrap(pixel *vid, int x, int y, int w, const char *s, int r, int g, i
 			y+=FONT_H+2;
 			rh+=FONT_H+2;
 		}
+		if ((h > 0 && rh > h) || (h < 0 && rh > YRES+MENUSIZE-100))
+			break;
 		for (; *s && --wordlen>=-1; s++)
 		{
 			if (*s == '\n')
@@ -1372,7 +1374,10 @@ int drawtextwrap(pixel *vid, int x, int y, int w, const char *s, int r, int g, i
 					if (*s==' ')
 						continue;
 				}
-				x = drawchar(vid, x, y, *(unsigned char *)s, r, g, b, a);
+				if (rh + h < 0)
+					x = drawchar(vid, x, y, *(unsigned char *)s, 0, 0, 0, 0);
+				else
+					x = drawchar(vid, x, y, *(unsigned char *)s, r, g, b, a);
 			}
 		}
 	}
