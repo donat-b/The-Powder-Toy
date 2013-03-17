@@ -176,6 +176,12 @@ void luacon_open(){
 	lua_setfield(l, tptPropertiesVersion, "build");
 	lua_pushinteger(l, MOD_VERSION);
 	lua_setfield(l, tptPropertiesVersion, "jacob1s_mod");
+	lua_pushinteger(l, MOD_MINOR_VERSION);
+	lua_setfield(l, tptPropertiesVersion, "jacob1s_mod_minor");
+	lua_pushinteger(l, MOD_SAVE_VERSION);
+	lua_setfield(l, tptPropertiesVersion, "jacob1s_mod_save");
+	lua_pushinteger(l, MOD_BUILD_VERSION);
+	lua_setfield(l, tptPropertiesVersion, "jacob1s_mod_build");
 	lua_setfield(l, tptProperties, "version");
 	
 #ifdef FFI
