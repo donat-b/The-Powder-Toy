@@ -151,7 +151,7 @@ int drawtext_outline(pixel *vid, int x, int y, const char *s, int r, int g, int 
 
 int drawtextwrap(pixel *vid, int x, int y, int w, int h, const char *s, int r, int g, int b, int a);
 
-int drawhighlightwrap(pixel *vid, int x, int y, int w, const char *s, int highlightstart, int highlightlength);
+int drawhighlightwrap(pixel *vid, int x, int y, int w, int h, const char *s, int highlightstart, int highlightlength);
 
 void drawrect(pixel *vid, int x, int y, int w, int h, int r, int g, int b, int a);
 

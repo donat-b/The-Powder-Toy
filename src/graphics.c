@@ -1286,7 +1286,7 @@ int drawtextwrap(pixel *vid, int x, int y, int w, int h, const char *s, int r, i
 			y+=FONT_H+2;
 			rh+=FONT_H+2;
 		}
-		if ((h > 0 && rh > h) || (h < 0 && rh > YRES+MENUSIZE-100))
+		if ((h > 0 && rh > h) || (h < 0 && rh > YRES+MENUSIZE-110)) // the second part is hacky, since this will only be used for comments anyway
 			break;
 		for (; *s && --wordlen>=-1; s++)
 		{
@@ -1385,7 +1385,7 @@ int drawtextwrap(pixel *vid, int x, int y, int w, int h, const char *s, int r, i
 	return rh;
 }
 
-int drawhighlightwrap(pixel *vid, int x, int y, int w, const char *s, int highlightstart, int highlightlength)
+int drawhighlightwrap(pixel *vid, int x, int y, int w, int h, const char *s, int highlightstart, int highlightlength)
 {
 	int sx = x;
 	int rh = 12;
@@ -1405,6 +1405,8 @@ int drawhighlightwrap(pixel *vid, int x, int y, int w, const char *s, int highli
 			y+=FONT_H+2;
 			rh+=FONT_H+2;
 		}
+		if ((h > 0 && rh > h) || (h < 0 && rh > YRES+MENUSIZE-110)) // the second part is hacky, since this will only be used for comments anyway
+			break;
 		for (; *s && --wordlen>=-1; s++)
 		{
 			if (*s == '\n')
@@ -1446,7 +1448,7 @@ int drawhighlightwrap(pixel *vid, int x, int y, int w, const char *s, int highli
 						continue;
 					}
 				}
-				if (num >= highlightstart && num < highlightstart + highlightlength)
+				if (num >= highlightstart && num < highlightstart + highlightlength && rh + h >= 0)
 					fillrect(vid, x-1, y-3, width+1, FONT_H+3, 0, 0, 255, 127);
 				x += width;
 				num++;

@@ -354,7 +354,7 @@ void ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 				
 				strncpy(highlightstr, &str[ed->highlightstart], ed->highlightlength);
 				highlightstr[ed->highlightlength] = 0;
-				drawhighlightwrap(vid_buf, ed->x, ed->y, ed->w-14, ed->str, ed->highlightstart, ed->highlightlength);
+				drawhighlightwrap(vid_buf, ed->x, ed->y, ed->w-14, 0, ed->str, ed->highlightstart, ed->highlightlength);
 			}
 			drawtext(vid_buf, ed->x+ed->w-11, ed->y-1, "\xAA", 128, 128, 128, 255);
 		} else {
@@ -639,7 +639,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 int ui_label_draw(pixel *vid_buf, ui_label *ed)
 {
 	char *str = ed->str, highlightstr[1024];
-	int ret = 0;
+	int ret = 0, heightlimit = ed->h;
 
 	if (ed->cursor>ed->cursorstart)
 	{
@@ -655,21 +655,14 @@ int ui_label_draw(pixel *vid_buf, ui_label *ed)
 	if (ed->str[0])
 	{
 		if (ed->multiline) {
-			if (!ed->h)
-			{
-				ret = drawtextwrap(vid_buf, ed->x, ed->y, ed->w-14, 0, str, 255, 255, 255, 185);
-				ed->h = ret;
-			}
-			else
-			{
-				ret = drawtextwrap(vid_buf, ed->x, ed->y, ed->w-14, ed->h, str, 255, 255, 255, 185);
-			}
+			ret = drawtextwrap(vid_buf, ed->x, ed->y, ed->w-14, heightlimit, str, 255, 255, 255, 185);
+			ed->h = ret;
 			if (ed->highlightlength)
 			{
 				
 				strncpy(highlightstr, &str[ed->highlightstart], ed->highlightlength);
 				highlightstr[ed->highlightlength] = 0;
-				drawhighlightwrap(vid_buf, ed->x, ed->y, ed->w-14, ed->str, ed->highlightstart, ed->highlightlength);
+				drawhighlightwrap(vid_buf, ed->x, ed->y, ed->w-14, heightlimit, ed->str, ed->highlightstart, ed->highlightlength);
 			}
 		} else {
 			ret = drawtext(vid_buf, ed->x, ed->y, str, 255, 255, 255, 255);
@@ -5034,7 +5027,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 {
 	int b=1,bq,mx,my,ca=0,thumb_w,thumb_h,active=0,active_2=0,active_3=0,active_4=0,cc=0,ccy=0,cix=0;
 	int hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1;
-	int comment_scroll = 0, comment_page = 0, redraw_comments = 1, commentheight = 0;
+	int comment_scroll = 0, comment_page = 0, redraw_comments = 1, commentheight = 0, dofocus = 0, disable_scrolling = 0;
 	int nyd,nyu,ry,lv;
 	float ryf;
 
@@ -5330,6 +5323,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			active_4 = 0;
 			free(http_4);
 			http_4 = NULL;
+			disable_scrolling = 0;
 		}
 		if (!instant_open)
 		{
@@ -5457,6 +5451,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 									{
 										strappend(ed.str, info->commentauthorsunformatted[cc]);
 										strappend(ed.str, ": ");
+										dofocus = 1;
 									}
 								}
 						}
@@ -5464,32 +5459,27 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						ccy += 12;
 						if (ccy + 72 + comment_scroll<YRES+MENUSIZE-56) // Check again if the comment is off the screen, incase the author line made it too long
 						{
-							if (1)//ccy+comment_scroll>=0) //draw the comment
-							{
-								int change;
-								if (ccy+comment_scroll < 0)
-									info->comments[cc].h = ccy+comment_scroll-10;
-								else
-									info->comments[cc].h = YRES+MENUSIZE-56 - (ccy + 72 + comment_scroll);
-								if (info->comments[cc].h != 0)
-								{
-									change = ui_label_draw(vid_buf, &info->comments[cc]);
-									ui_label_process(mx, my, b, bq, &info->comments[cc]);
-									//ccy += drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, XRES+BARSIZE-100-((XRES/2)+1)-20, 0, info->comments[cc].str, 255, 255, 255, 185);
-									ccy += change + 10;
-									if (cc < NUM_COMMENTS-1)
-										info->comments[cc+1].y = info->comments[cc].y + change + 22;
-								}
-							}
-							else
-							{
-								int change = drawtextwrap(vid_buf, 60+(XRES/2)+1, ccy+60+comment_scroll, XRES+BARSIZE-100-((XRES/2)+1)-20, 0, info->comments[cc].str, 0, 0, 0, 0);
-								ccy += change + 10;
-								if (cc < NUM_COMMENTS-1)
-									info->comments[cc+1].y = info->comments[cc].y + change + 22;
-								if (cc == info->comment_count-1 && !active_4)
-									comment_scroll = 0;
-							}
+							int change, commentboxy = YRES+MENUSIZE-70-commentheight-5;
+							if (ccy+comment_scroll < 0) // if above screen set height to negative, how long until it can start being drawn
+								info->comments[cc].h = ccy+comment_scroll-10;
+							else                        // else set how much can be drawn until it goes off the screen
+								info->comments[cc].h = YRES+MENUSIZE-56 - (ccy + 72 + comment_scroll);
+
+							change = ui_label_draw(vid_buf, &info->comments[cc]); // draw the comment
+							ui_label_process(mx, my, b, bq, &info->comments[cc]); // process copying
+
+							if (b && mx > 50+(XRES/2)+1 && mx < 50 + XRES+BARSIZE-100 && my > commentboxy - 2 && my < commentboxy + 29) // defocus comments that are under textbox
+								info->comments[cc].focus = 0;
+
+							ccy += change + 10;
+							if (cc < NUM_COMMENTS-1)
+								info->comments[cc+1].y = info->comments[cc].y + change + 22;
+
+							if (ccy+comment_scroll < 100 && cc == info->comment_count-1 && active_4) // disable scrolling until more comments have loaded
+								disable_scrolling = 1;
+							if (ccy+comment_scroll < 0 && cc == info->comment_count-1 && !active_4) // reset to top of comments
+								comment_scroll = 0;
+
 							if (ccy+52+comment_scroll<YRES+MENUSIZE-50 && ccy+comment_scroll>-3) { //draw the line that separates comments
 								draw_line(vid_buf, 50+(XRES/2)+2, ccy+52+comment_scroll, XRES+BARSIZE-51, ccy+52+comment_scroll, 100, 100, 100, XRES+BARSIZE);
 							}
@@ -5677,10 +5667,13 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			if (sdl_wheel && (!ed.focus || (sdl_key != '-' && sdl_key != '+')))
 			{
-				comment_scroll += 6*sdl_wheel;
-				if (comment_scroll > 0)
-					comment_scroll = 0;
-				redraw_comments = 1;
+				if (!disable_scrolling || sdl_wheel > 0)
+				{
+					comment_scroll += 6*sdl_wheel;
+					if (comment_scroll > 0)
+						comment_scroll = 0;
+					redraw_comments = 1;
+				}
 			}
 			if (sdl_key=='[' && !ed.focus)
 			{
@@ -5689,7 +5682,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					comment_scroll = 0;
 				redraw_comments = 1;
 			}
-			if (sdl_key==']' && !ed.focus)
+			if (sdl_key==']' && !ed.focus && !disable_scrolling)
 			{
 				comment_scroll -= 10;
 				redraw_comments = 1;
@@ -5779,6 +5772,12 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		memcpy(vid_buf, old_vid, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 		if (info_ready && svf_login) {
 			ui_edit_process(mx, my, b, bq, &ed);
+		}
+		if (dofocus)
+		{
+			ed.focus = 1;
+			ed.cursor = ed.cursorstart = strlen(ed.str);
+			dofocus = 0;
 		}
 
 		if (sdl_key==SDLK_ESCAPE) {
