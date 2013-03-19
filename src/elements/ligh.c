@@ -46,7 +46,7 @@ int contact_part(int i, int tp)
 	int r,rx,ry;
 	for (rx=-2; rx<3; rx++)
 		for (ry=-2; ry<3; ry++)
-			if (x+rx>=0 && y+ry>=0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+			if (BOUNDS_CHECK && (rx || ry))
 			{
 				r = pmap[y+ry][x+rx];
 				if (!r)
@@ -172,7 +172,7 @@ int update_LIGH(UPDATE_FUNC_ARGS)
 
 	for (rx=-2; rx<3; rx++)
 		for (ry=-2; ry<3; ry++)
-			if (x+rx>=0 && y+ry>=0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+			if (BOUNDS_CHECK && (rx || ry))
 			{
 				r = ((pmap[y+ry][x+rx]&0xFF)==PT_PINV&&parts[pmap[y+ry][x+rx]>>8].life==10)?0:pmap[y+ry][x+rx];
 				if (!r)
@@ -299,7 +299,7 @@ int update_LIGH(UPDATE_FUNC_ARGS)
 	ry=(int)(-sin(angle*M_PI/180)*multipler);
 	create_line_par(x, y, x+rx, y+ry, PT_LIGH, (int)parts[i].temp, parts[i].life, (int)angle, 0);
 
-	if (x+rx>=0 && y+ry>=0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+	if (BOUNDS_CHECK && (rx || ry))
 	{
 		r = pmap[y+ry][x+rx];
 		if ((r&0xFF)==PT_LIGH)
@@ -318,7 +318,7 @@ int update_LIGH(UPDATE_FUNC_ARGS)
 		ry=(int)(-sin(angle2*M_PI/180)*multipler);
 		create_line_par(x, y, x+rx, y+ry, PT_LIGH, (int)parts[i].temp, parts[i].life, (int)angle2, 0);
 
-		if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+		if (BOUNDS_CHECK && (rx || ry))
 		{
 			r = pmap[y+ry][x+rx];
 			if ((r&0xFF)==PT_LIGH)

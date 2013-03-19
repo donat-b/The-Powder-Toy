@@ -24,4 +24,6 @@
 #include "math.h"
 #include "powdergraphics.h"
 
+#define BOUNDS_CHECK 1
+
 #endif

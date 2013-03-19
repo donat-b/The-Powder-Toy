@@ -26,7 +26,7 @@ int update_ELEC(UPDATE_FUNC_ARGS) {
 	}
 	for (rx=-2; rx<=2; rx++)
 		for (ry=-2; ry<=2; ry++)
-			if (x+rx>=0 && y+ry>=0 && x+rx<XRES && y+ry<YRES) {
+			if (BOUNDS_CHECK) {
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					r = photons[y+ry][x+rx];

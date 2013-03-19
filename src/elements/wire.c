@@ -39,7 +39,7 @@ int update_WIRE(UPDATE_FUNC_ARGS) {
     for(rx=-1; rx<2; rx++)
         for(ry=-1; ry<2; ry++)
         {
-            if(x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+            if(BOUNDS_CHECK && (rx || ry))
             {
                 r = pmap[y+ry][x+rx];
 				if (!r)

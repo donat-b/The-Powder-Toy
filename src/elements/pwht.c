@@ -62,7 +62,7 @@ int update_PWHT(UPDATE_FUNC_ARGS) {
 		int rx, ry;
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
-				if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES)
+				if (BOUNDS_CHECK)
 				{
 					r = pmap[y+ry][x+rx];
 					if(!r)

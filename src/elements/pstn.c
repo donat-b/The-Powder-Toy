@@ -179,7 +179,7 @@ int update_PSTN(UPDATE_FUNC_ARGS)
 	if (state == PISTON_INACTIVE) {
 		for (rx=-2; rx<3; rx++)
 			for (ry=-2; ry<3; ry++)
-				if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry) && (!rx || !ry))
+				if (BOUNDS_CHECK && (rx || ry) && (!rx || !ry))
 				{
 					r = pmap[y+ry][x+rx];
 					if (!r)
@@ -195,7 +195,7 @@ int update_PSTN(UPDATE_FUNC_ARGS)
 	if(state == PISTON_EXTEND || state == PISTON_RETRACT) {
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
-				if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry) && (!rx || !ry))
+				if (BOUNDS_CHECK && (rx || ry) && (!rx || !ry))
 				{
 					r = pmap[y+ry][x+rx];
 					if (!r)

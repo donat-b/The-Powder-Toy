@@ -23,7 +23,7 @@ int update_SPNG(UPDATE_FUNC_ARGS) {
 		int absorbChanceDenom = parts[i].life*10000/limit + 500;
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
-				if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+				if (BOUNDS_CHECK && (rx || ry))
 				{
 					r = pmap[y+ry][x+rx];
 					if (!r)
@@ -56,7 +56,7 @@ int update_SPNG(UPDATE_FUNC_ARGS) {
 	else
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
-				if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+				if (BOUNDS_CHECK && (rx || ry))
 				{
 					r = pmap[y+ry][x+rx];
 					if ((!r)&&parts[i].life>=1)//if nothing then create water
@@ -69,7 +69,7 @@ int update_SPNG(UPDATE_FUNC_ARGS) {
 	{
 		rx = rand()%5-2;
 		ry = rand()%5-2;
-		if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+		if (BOUNDS_CHECK && (rx || ry))
 		{
 			r = pmap[y+ry][x+rx];
 			if (!r)
@@ -97,7 +97,7 @@ int update_SPNG(UPDATE_FUNC_ARGS) {
 	{
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
-				if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+				if (BOUNDS_CHECK && (rx || ry))
 				{
 					r = pmap[y+ry][x+rx];
 					if (!r)
@@ -119,7 +119,7 @@ int update_SPNG(UPDATE_FUNC_ARGS) {
 	if (tmp || parts[i].temp>=374)
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
-				if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+				if (BOUNDS_CHECK && (rx || ry))
 				{
 					r = pmap[y+ry][x+rx];
 					if ((!r)&&parts[i].life>=1)//if nothing then create steam

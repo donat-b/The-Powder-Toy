@@ -21,7 +21,7 @@ int update_REPL(UPDATE_FUNC_ARGS) {
 	{
 		rx = (rand()%20)-10;
 		ry = (rand()%20)-10;
-		if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+		if (BOUNDS_CHECK && (rx || ry))
 		{
 			r = pmap[y+ry][x+rx];
 			if (!r)

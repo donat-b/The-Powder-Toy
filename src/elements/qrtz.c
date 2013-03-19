@@ -31,7 +31,7 @@ int update_QRTZ(UPDATE_FUNC_ARGS) {
 	if (parts[i].ctype!=-1)
 		for (rx=-2; rx<3; rx++)
 			for (ry=-2; ry<3; ry++)
-				if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+				if (BOUNDS_CHECK && (rx || ry))
 				{
 					r = pmap[y+ry][x+rx];
 					if (!r)
@@ -49,7 +49,7 @@ int update_QRTZ(UPDATE_FUNC_ARGS) {
 		{
 			rx = rand()%3-1;
 			ry = rand()%3-1;
-			if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+			if (BOUNDS_CHECK && (rx || ry))
 			{
 				r = pmap[y+ry][x+rx];
 				if (!r && parts[i].ctype!=0)
@@ -81,7 +81,7 @@ int update_QRTZ(UPDATE_FUNC_ARGS) {
 		{
 			rx = rand()%5-2;
 			ry = rand()%5-2;
-			if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+			if (BOUNDS_CHECK && (rx || ry))
 			{
 				r = pmap[y+ry][x+rx];
 				if (!r)

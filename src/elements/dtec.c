@@ -23,7 +23,7 @@ int update_DTEC(UPDATE_FUNC_ARGS) {
 		parts[i].life = 0;
 		for (rx=-2; rx<3; rx++)
 			for (ry=-2; ry<3; ry++)
-				if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+				if (BOUNDS_CHECK && (rx || ry))
 				{
 					r = pmap[y+ry][x+rx];
 					if (!r)
@@ -42,7 +42,7 @@ int update_DTEC(UPDATE_FUNC_ARGS) {
 	}
 	for (rx=-rd; rx<rd+1; rx++)
 		for (ry=-rd; ry<rd+1; ry++)
-			if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+			if (x+rx>=0 && y+ry>=0 && x+rx<XRES && y+ry<YRES && (rx || ry))
 			{
 				r = pmap[y+ry][x+rx];
 				if (!r)

@@ -80,7 +80,7 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 			parts[i].tmp=300;
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
-				if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+				if (BOUNDS_CHECK && (rx || ry))
 				{
 					r = pmap[y+ry][x+rx];
 					if (r)
@@ -111,7 +111,7 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 	else if (ct==PT_IRON) {
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
-				if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+				if (BOUNDS_CHECK && (rx || ry))
 				{
 					r = pmap[y+ry][x+rx];
 					if (!r)
@@ -131,7 +131,7 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 		rd = parts[i].tmp2>MAX_DISTANCE?(int)MAX_DISTANCE:parts[i].tmp2;
 	for (rx=-rd; rx<=rd; rx++)
 		for (ry=-rd; ry<=rd; ry++)
-			if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+			if (BOUNDS_CHECK && (rx || ry))
 			{
 				r = pmap[y+ry][x+rx];
 				if (!r)

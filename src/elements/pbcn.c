@@ -33,7 +33,7 @@ int update_PBCN(UPDATE_FUNC_ARGS) {
 	if (parts[i].ctype<=0 || parts[i].ctype>=PT_NUM || !ptypes[parts[i].ctype].enabled || (parts[i].ctype==PT_LIFE && (parts[i].tmp<0 || parts[i].tmp>=NGOLALT)))
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
-				if (x+rx>=0 && y+ry>=0 && x+rx<XRES && y+ry<YRES)
+				if (BOUNDS_CHECK)
 				{
 					r = photons[y+ry][x+rx];
 					if (!r)

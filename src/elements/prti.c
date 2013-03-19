@@ -38,7 +38,7 @@ int update_PRTI(UPDATE_FUNC_ARGS) {
 	{
 		rx = portal_rx[count];
 		ry = portal_ry[count];
-			if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+			if (BOUNDS_CHECK && (rx || ry))
 			{
 				r = pmap[y+ry][x+rx];
 				if (!(r&0xFF))

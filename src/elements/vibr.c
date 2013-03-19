@@ -74,7 +74,7 @@ int update_VIBR(UPDATE_FUNC_ARGS) {
 			int random = rand();
 			rx = random%7-3;
 			ry = (random>>3)%7-3;
-			if(x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES)
+			if(BOUNDS_CHECK)
 			{
 				r = pmap[y+ry][x+rx];
 				if ((r&0xFF) && (r&0xFF) != PT_VIBR && (r&0xFF) != PT_BVBR && ptypes[r&0xFF].hconduct && ((r&0xFF)!=PT_HSWC||parts[r>>8].life==10))
@@ -108,7 +108,7 @@ int update_VIBR(UPDATE_FUNC_ARGS) {
 	//Neighbor check loop
 	for (rx=-2; rx<3; rx++)
 		for (ry=-2; ry<3; ry++)
-			if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+			if (BOUNDS_CHECK && (rx || ry))
 			{
 				r = pmap[y+ry][x+rx];
 				if (!r)
@@ -141,7 +141,7 @@ int update_VIBR(UPDATE_FUNC_ARGS) {
 		int random = rand();
 		rx = random%7-3;
 		ry = (random>>3)%7-3;
-		if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+		if (BOUNDS_CHECK && (rx || ry))
 		{
 			r = pmap[y+ry][x+rx];
 			if ((r&0xFF) != PT_VIBR && (r&0xFF) != PT_BVBR)
