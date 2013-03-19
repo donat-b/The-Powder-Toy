@@ -934,13 +934,15 @@ char * getIdentifier(int i)
 	else if (i == PT_NBHL)
 		sprintf(identifier,"DEFAULT_PT_NBHL");
 	else if (i == PT_NWHL)
-		sprintf(identifier,"DEFAULT_PT_NBWL");
+		sprintf(identifier,"DEFAULT_PT_NWHL");
 	else if (i == PT_BREL)
 		sprintf(identifier,"DEFAULT_PT_BREC");
 	else if (i == PT_CBNW)
 		sprintf(identifier,"DEFAULT_PT_CBNW");
 	else if (i == PT_H2)
 		sprintf(identifier,"DEFAULT_PT_H2");
+	else if (i == PT_HFLM)
+		sprintf(identifier,"DEFAULT_PT_HFLM");
 	else if (i == PT_ICEI)
 		sprintf(identifier,"DEFAULT_PT_ICEI");
 	else if (i == PT_INVIS)
@@ -1068,8 +1070,15 @@ void initElementsAPI(lua_State * l)
 	{
 		if(ptypes[i].enabled)
 		{
+			char realidentifier[24];
 			lua_pushinteger(l, i);
 			lua_setfield(l, elementsAPI, pidentifiers[i]);
+			sprintf(realidentifier,"DEFAULT_PT_%s",ptypes[i].name);
+			if (i != 0 && i != PT_NBHL && i != PT_NWHL && strcmp(pidentifiers[i], realidentifier))
+			{
+				lua_pushinteger(l, i);
+				lua_setfield(l, elementsAPI, realidentifier);
+			}
 		}
 	}
 }
