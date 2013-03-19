@@ -4130,7 +4130,7 @@ corrupt:
 int search_ui(pixel *vid_buf)
 {
 	int nmp=-1,uih=0,nyu,nyd,b=1,bq,mx=0,my=0,mxq=0,myq=0,mmt=0,gi,gj,gx,gy,pos,i,mp,dp,dap,own,last_own=search_own,last_fav=search_fav,page_count=0,last_page=0,last_date=0,j,w,h,st=0,lv;
-	int is_p1=0, exp_res=GRID_X*GRID_Y, tp, view_own=0, last_p1_extra=0;
+	int is_p1=0, exp_res=GRID_X*GRID_Y, tp, view_own=0, last_p1_extra=0, motdswap = rand()%2;
 	int thumb_drawn[GRID_X*GRID_Y];
 	pixel *v_buf = (pixel *)malloc(((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 	pixel *bthumb_rsdata = NULL;
@@ -4734,19 +4734,23 @@ int search_ui(pixel *vid_buf)
 			http_last_use = time(NULL);
 			results = http_async_req_stop(http, &status, NULL);
 			view_own = last_own;
+			is_p1 = (exp_res < GRID_X*GRID_Y);
 			if (status == 200)
 			{
 				page_count = search_results(results, last_own||svf_admin||svf_mod||(unlockedstuff&0x08));
 				memset(thumb_drawn, 0, sizeof(thumb_drawn));
 				memset(v_buf, 0, ((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 				nmp = -1;
-			
-				if (rand()%2)
-					sprintf(server_motd,"Links: \bt{a:http://powdertoy.co.uk|Powder Toy main page}\bg, \bt{a:http://powdertoy.co.uk/Discussions/Categories/Index.html|Forums}\bg, \bt{a:https://github.com/FacialTurd/The-Powder-Toy|TPT github}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy/tree/jacob1's_mod|Jacob1's Mod github}");
+				
+				if (is_p1)
+				{
+					if (motdswap)
+						sprintf(server_motd,"Links: \bt{a:http://powdertoy.co.uk|Powder Toy main page}\bg, \bt{a:http://powdertoy.co.uk/Discussions/Categories/Index.html|Forums}\bg, \bt{a:https://github.com/FacialTurd/The-Powder-Toy|TPT github}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy/tree/jacob1's_mod|Jacob1's Mod github}");
+					motdswap = !motdswap;
+				}
 				ui_richtext_settext(server_motd, &motd);
 				motd.x = (XRES-textwidth(motd.printstr))/2;
 			}
-			is_p1 = (exp_res < GRID_X*GRID_Y);
 			if (results)
 				free(results);
 			active = 0;
