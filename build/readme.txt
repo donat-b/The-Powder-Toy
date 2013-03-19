@@ -468,6 +468,15 @@ saving of new elements, since official version 86 is out now.
 Version 21.4 2/18/13
 A small CRAY fix from version 86.1.
 
+Version 22.0 3/18/13
+Fix some remaining memory leaks tpt had. Update PSTN and CRAY to the latest 
+changes (PSTN's ctype sets stopper elememt, FRME tmp 1 is non sticky). tpt++ 
+changes to ACEL, DCEL, and NEUTPASS changes too. tpt++ sim.partPosition and 
+sim.partID lua api methods. More constants for mod version info. Fix large 
+comments not being drawn at all. motd swaps between mine and real every time 
+it is shown. remove bounds check in all elements since it isn't needed.
+
+
 
 
 Bugs:

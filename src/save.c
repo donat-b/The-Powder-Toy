@@ -267,7 +267,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 	*height = fullH;
 	
 	//From newer version
-	if (saved_version > SAVE_VERSION && saved_version != 222)
+	if (saved_version > SAVE_VERSION && saved_version != 87 && saved_version != 222)
 	{
 		fprintf(stderr, "Save from newer version\n");
 		//goto fail;
@@ -906,14 +906,25 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 				//Ctype (optional), 1 or 4 bytes
 				if(partsptr[i].ctype)
 				{
-					fieldDesc |= 1 << 5;
-					partsData[partsDataLen++] = partsptr[i].ctype;
-					if(partsptr[i].ctype > 255)
+					if (partsptr[i].type == PT_PSTN) // temporary, will be removed when ver. 87 is out
 					{
-						fieldDesc |= 1 << 9;
-						partsData[partsDataLen++] = (partsptr[i].ctype&0xFF000000)>>24;
-						partsData[partsDataLen++] = (partsptr[i].ctype&0x00FF0000)>>16;
-						partsData[partsDataLen++] = (partsptr[i].ctype&0x0000FF00)>>8;
+						if (partsptr[i].life)
+						{
+							fieldDesc |= 1 << 5;
+							partsData[partsDataLen++] = 1;
+						}
+					}
+					else
+					{
+						fieldDesc |= 1 << 5;
+						partsData[partsDataLen++] = partsptr[i].ctype;
+						if(partsptr[i].ctype > 255)
+						{
+							fieldDesc |= 1 << 9;
+							partsData[partsDataLen++] = (partsptr[i].ctype&0xFF000000)>>24;
+							partsData[partsDataLen++] = (partsptr[i].ctype&0x00FF0000)>>16;
+							partsData[partsDataLen++] = (partsptr[i].ctype&0x0000FF00)>>8;
+						}
 					}
 				}
 				
@@ -1247,7 +1258,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	fullH = blockH*CELL;
 	
 	//From newer version
-	if (saved_version > SAVE_VERSION && saved_version != 222)
+	if (saved_version > SAVE_VERSION && saved_version != 87 && saved_version != 222)
 	{
 		info_ui(vid_buf,"Save is from a newer version","Attempting to load it anyway, this may cause a crash");
 	}
