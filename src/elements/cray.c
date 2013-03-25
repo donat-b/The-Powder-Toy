@@ -67,7 +67,7 @@ int update_CRAY(UPDATE_FUNC_ARGS)
 				if (BOUNDS_CHECK && (rx || ry))
 				{
 					r = pmap[y+ry][x+rx];
-					if (!r)
+					if (!(r&0xFF))
 						continue;
 					if ((r&0xFF)==PT_SPRK && parts[r>>8].life==3) { //spark found, start creating
 						unsigned int colored = 0;
@@ -98,7 +98,7 @@ int update_CRAY(UPDATE_FUNC_ARGS)
 								colored = wavelengthToDecoColour(parts[r>>8].ctype);
 							} else if ((r&0xFF) == PT_CRAY || nostop) {
 								docontinue = 1;
-							} else if(destroy && ((r&0xFF) != PT_DMND)) {
+							} else if(destroy && r && ((r&0xFF) != PT_DMND)) {
 								kill_part(r>>8);
 								if(!--partsRemaining)
 									docontinue = 0;
