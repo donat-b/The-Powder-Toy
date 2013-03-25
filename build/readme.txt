@@ -480,9 +480,8 @@ it is shown. remove bounds check in all elements since it isn't needed.
 
 
 Bugs:
-PBCN+BOMB
 press caps lock when not in tpt, doesn't register as pressed
-None (at least that I know of)
+//None (at least that I know of)
 
 
 
