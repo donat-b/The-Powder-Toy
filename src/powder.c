@@ -268,6 +268,7 @@ void init_can_move()
 	can_move[PT_PHOT][PT_BIZRS] = 2;
 	can_move[PT_ELEC][PT_BIZRS] = 2;
 	
+	can_move[PT_NEUT][PT_INVIS] = 2; 
 	can_move[PT_ELEC][PT_PINV] = 2;
 	//whol eats anar
 	can_move[PT_ANAR][PT_WHOL] = 1;
