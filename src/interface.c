@@ -5467,7 +5467,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							if (ccy+comment_scroll < 0) // if above screen set height to negative, how long until it can start being drawn
 								info->comments[cc].h = ccy+comment_scroll-10;
 							else                        // else set how much can be drawn until it goes off the screen
-								info->comments[cc].h = YRES+MENUSIZE-56 - (ccy + 72 + comment_scroll);
+								info->comments[cc].h = YRES+MENUSIZE-41 - (ccy + 72 + comment_scroll);
 
 							change = ui_label_draw(vid_buf, &info->comments[cc]); // draw the comment
 							ui_label_process(mx, my, b, bq, &info->comments[cc]); // process copying

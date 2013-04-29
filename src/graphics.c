@@ -1374,6 +1374,8 @@ int drawtextwrap(pixel *vid, int x, int y, int w, int h, const char *s, int r, i
 					if (*s==' ')
 						continue;
 				}
+				if ((h > 0 && rh > h) || (h < 0 && rh > YRES+MENUSIZE-110)) // the second part is hacky, since this will only be used for comments anyway
+					goto textwrapend;
 				if (rh + h < 0)
 					x = drawchar(vid, x, y, *(unsigned char *)s, 0, 0, 0, 0);
 				else
@@ -1382,6 +1384,7 @@ int drawtextwrap(pixel *vid, int x, int y, int w, int h, const char *s, int r, i
 		}
 	}
 
+textwrapend:
 	return rh;
 }
 
@@ -1448,6 +1451,8 @@ int drawhighlightwrap(pixel *vid, int x, int y, int w, int h, const char *s, int
 						continue;
 					}
 				}
+				if ((h > 0 && rh > h) || (h < 0 && rh > YRES+MENUSIZE-110)) // the second part is hacky, since this will only be used for comments anyway
+					goto highlightwrapend;
 				if (num >= highlightstart && num < highlightstart + highlightlength && rh + h >= 0)
 					fillrect(vid, x-1, y-3, width+1, FONT_H+3, 0, 0, 255, 127);
 				x += width;
@@ -1456,6 +1461,7 @@ int drawhighlightwrap(pixel *vid, int x, int y, int w, int h, const char *s, int
 		}
 	}
 
+highlightwrapend:
 	return rh;
 }
 
