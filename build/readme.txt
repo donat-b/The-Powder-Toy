@@ -480,14 +480,14 @@ it is shown. remove bounds check in all elements since it isn't needed.
 
 
 Bugs:
-press caps lock when not in tpt, doesn't register as pressed
-//None (at least that I know of)
+None (at least that I know of)
 
 
 
 
 Future Ideas/TODO: '>' means currently being worked on/added next
 changes from tpt++: SPRK, LIGH, LCRY, VIBR, all others
+change default to showing time on comments
 >Add things from tpt++ that look cool, and any new simulation changes it gets
 
 
@@ -503,7 +503,7 @@ Start adding in the other features, like the search ui improvements (may start e
 Finish adding in other minor things (will look at github logs and changelogs in order probably
 Done! continue work on my mod like normal
 
-1% complete, haven't really done much or actually started anything on the list because I still want to improve tpt++ first
+1% complete, haven't really done much or actually started anything on the list because I still want to improve tpt++ first. Also don't plan on starting soon
 
 maybe in c++ version:
 customizable settings menu completely, ability to add and read options. (also HUD option settings)
