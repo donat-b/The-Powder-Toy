@@ -2652,7 +2652,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 			vx[y/CELL][x/CELL] = vx[y/CELL][x/CELL]*ptypes[t].airloss + ptypes[t].airdrag*parts[i].vx;
 			vy[y/CELL][x/CELL] = vy[y/CELL][x/CELL]*ptypes[t].airloss + ptypes[t].airdrag*parts[i].vy;
 
-			if (!(ptypes[t].properties & TYPE_SOLID) || (ptypes[t].properties & PROP_MOVS) || ptypes[t].hotair)
+			if (ptypes[t].hotair)
 			{
 				if (t==PT_GAS||t==PT_NBLE)
 				{
@@ -2682,6 +2682,9 @@ void update_particles_i(pixel *vid, int start, int inc)
 							pv[y/CELL+1][x/CELL+1] += value;
 					}
 				}
+			}
+			if (ptypes[t].gravity || !(ptypes[t].properties & TYPE_SOLID) || (ptypes[t].properties & PROP_MOVS))
+			{
 
 				//Gravity mode by Moach
 				switch (gravityMode)
