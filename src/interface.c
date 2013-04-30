@@ -127,7 +127,7 @@ int h = 0;
 int over_el = 0;
 int SC_TOTAL = SC_DECO+1;
 int dateformat = 7;
-int show_ids = 1;
+int show_ids = 0;
 
 int drawgrav_enable = 0;
 int SLALT = 0;
