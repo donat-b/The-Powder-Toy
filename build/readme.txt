@@ -476,6 +476,12 @@ sim.partID lua api methods. More constants for mod version info. Fix large
 comments not being drawn at all. motd swaps between mine and real every time 
 it is shown. remove bounds check in all elements since it isn't needed.
 
+Version 22.1 5/5/13
+Fix NEUT not going through INVS. A few updates to CRAY and PSTN from tpt++. 
+Fix bomb not destroying PBCN. Fix middle click in the deco editor. More fixes 
+to comment scrolling. Fix setting falldown property with lua. Add the 3 new 
+tpt++ elements and some more changes made to elements in tpt++.
+
 
 
 
