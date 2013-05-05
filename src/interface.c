@@ -2799,8 +2799,8 @@ int scrollbar(int fwidth, int mx, int y)
 		mx = XRES;
 	if (mx < 15)
 		mx = 15;
-	scrollSize = (int)(((float)(XRES-15))/((float)fwidth) * ((float)XRES-15));
-	scrollbarx = (int)(((float)mx/((float)XRES-15))*(float)(XRES-scrollSize));
+	scrollSize = (int)(((float)(XRES-BARSIZE))/((float)fwidth) * ((float)XRES-BARSIZE));
+	scrollbarx = (int)(((float)mx/((float)XRES))*(float)(XRES-scrollSize));
 	if (scrollSize+scrollbarx>XRES)
 		scrollbarx = XRES-scrollSize;
 	fillrect(vid_buf, scrollbarx, y+19, scrollSize, 3, 200, 200, 200, 255);

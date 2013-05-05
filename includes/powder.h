@@ -249,7 +249,10 @@
 #define PT_CRAY 167
 #define PT_PSTN 168
 #define PT_FRME 169
-#define PT_NORMAL_NUM 170
+#define PT_GOLD 170
+#define PT_TUGN 171
+#define PT_PSNS 172
+#define PT_NORMAL_NUM 173
 
 #define PT_MOVS PT_NORMAL_NUM
 #define PT_ANIM PT_NORMAL_NUM+1
@@ -267,7 +270,7 @@
 #define PT_COND PT_NORMAL_NUM+13
 #define PT_PWHT PT_NORMAL_NUM+14
 #define PT_EXPL PT_NORMAL_NUM+15
-#define PT_NUM 221
+#define PT_NUM 224
 
 #define R_TEMP 22
 #define MAX_TEMP 9999
@@ -403,6 +406,8 @@ int graphics_DMG(GRAPHICS_FUNC_ARGS);
 int graphics_VIBR(GRAPHICS_FUNC_ARGS);
 int graphics_PSTN(GRAPHICS_FUNC_ARGS);
 int graphics_FRME(GRAPHICS_FUNC_ARGS);
+int graphics_GOLD(GRAPHICS_FUNC_ARGS);
+int graphics_TUGN(GRAPHICS_FUNC_ARGS);
 
 void TRON_init_graphics();
 
@@ -472,6 +477,7 @@ int update_GBMB(UPDATE_FUNC_ARGS);
 int update_GEL(UPDATE_FUNC_ARGS);
 int update_GLAS(UPDATE_FUNC_ARGS);
 int update_GLOW(UPDATE_FUNC_ARGS);
+int update_GOLD(UPDATE_FUNC_ARGS);
 int update_GOO(UPDATE_FUNC_ARGS);
 int update_GPMP(UPDATE_FUNC_ARGS);
 int update_H2(UPDATE_FUNC_ARGS);
@@ -498,6 +504,7 @@ int update_PLNT(UPDATE_FUNC_ARGS);
 int update_PLUT(UPDATE_FUNC_ARGS);
 int update_PRTI(UPDATE_FUNC_ARGS);
 int update_PRTO(UPDATE_FUNC_ARGS);
+int update_PSNS(UPDATE_FUNC_ARGS);
 int update_PSTN(UPDATE_FUNC_ARGS);
 int update_PWHT(UPDATE_FUNC_ARGS);
 int update_PYRO(UPDATE_FUNC_ARGS);
@@ -525,6 +532,7 @@ int update_THRM(UPDATE_FUNC_ARGS);
 int update_TSNS(UPDATE_FUNC_ARGS);
 int update_TRON(UPDATE_FUNC_ARGS);
 int update_TTAN(UPDATE_FUNC_ARGS);
+int update_TUGN(UPDATE_FUNC_ARGS);
 int update_URAN(UPDATE_FUNC_ARGS);
 int update_VIBR(UPDATE_FUNC_ARGS);
 int update_VINE(UPDATE_FUNC_ARGS);

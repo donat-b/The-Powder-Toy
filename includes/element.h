@@ -25,5 +25,8 @@
 #include "powdergraphics.h"
 
 #define BOUNDS_CHECK 1
+#define bool char
+#define true 1
+#define false 0
 
 #endif

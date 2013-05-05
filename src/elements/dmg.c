@@ -64,6 +64,8 @@ int update_DMG(UPDATE_FUNC_ARGS)
 											part_change_type(rr>>8, x+nxi, y+nxj, PT_BCOL);
 										else if(t == PT_QRTZ)
 											part_change_type(rr>>8, x+nxi, y+nxj, PT_PQRT);
+										else if(t == PT_TUGN)
+											part_change_type(rr>>8, x+nxi, y+nxj, PT_BRMT); 
 									}
 								}
 							}

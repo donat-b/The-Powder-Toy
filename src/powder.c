@@ -1189,11 +1189,7 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 
 	parts[i].dcolour = 0;
 	parts[i].flags = 0;
-	if (t==PT_GLAS)
-	{
-		parts[i].pavg[1] = pv[y/CELL][x/CELL];
-	}
-	else if (t==PT_QRTZ)
+	if (t == PT_GLAS || t == PT_QRTZ || t == PT_TUGN)
 	{
 		parts[i].pavg[1] = pv[y/CELL][x/CELL];
 	}
@@ -1326,8 +1322,6 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 			parts[i].life = rand()%50+60;
 			break;
 		case PT_QRTZ:
-			parts[i].tmp = (rand()%11);
-			break;
 		case PT_PQRT:
 			parts[i].tmp = (rand()%11);
 			break;
@@ -2440,6 +2434,9 @@ int transfer_heat(int i, int surround[8])
 					if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && parts[i].ctype!=PT_LAVA) {
 						if (parts[i].ctype==PT_THRM&&pt>=ptransitions[PT_BMTL].thv) s = 0;
 						else if ((parts[i].ctype==PT_VIBR || parts[i].ctype==PT_BVBR) && pt>=273.15f) s = 0;
+						else if (parts[i].ctype==PT_TUGN) {
+							if (pt>3695.0) s = 0;
+						}
 						else if (ptransitions[parts[i].ctype].tht==PT_LAVA) {
 							if (pt>=ptransitions[parts[i].ctype].thv) s = 0;
 						}

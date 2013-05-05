@@ -127,6 +127,11 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 					}
 				}
 	}
+	else if (ct == PT_TUGN)
+	{
+		if(parts[i].temp < 3595.0)
+			parts[i].temp += (rand()%20)-4;
+	}
 	if (ct == PT_COND)
 		rd = parts[i].tmp2>MAX_DISTANCE?(int)MAX_DISTANCE:parts[i].tmp2;
 	for (rx=-rd; rx<=rd; rx++)

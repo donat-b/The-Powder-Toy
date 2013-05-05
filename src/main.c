@@ -1813,7 +1813,7 @@ int main(int argc, char *argv[])
 							vy[ny][nx] = 0;
 						}
 					for (i=0; i < NPART; i++)
-						if (parts[i].type == PT_QRTZ || parts[i].type == PT_GLAS)
+						if (parts[i].type == PT_QRTZ || parts[i].type == PT_GLAS || parts[i].type == PT_TUGN)
 						{
 							parts[i].pavg[0] = parts[i].pavg[1] = 0;
 						}
@@ -2920,22 +2920,22 @@ int main(int argc, char *argv[])
 			switch (db)//various mouseover messages, da is the alpha
 			{
 			case 256:
-				drawtext(vid_buf, 16, YRES-24, "Add simulation tags.", 255, 255, 255, da*5);
+				drawtext(vid_buf, 16, YRES-24, "Add simulation tags", 255, 255, 255, da*5);
 				break;
 			case 257:
-				drawtext(vid_buf, 16, YRES-24, "Add and remove simulation tags.", 255, 255, 255, da*5);
+				drawtext(vid_buf, 16, YRES-24, "Add and remove simulation tags", 255, 255, 255, da*5);
 				break;
 			case 258:
-				drawtext(vid_buf, 16, YRES-24, "Save the simulation under the current name.", 255, 255, 255, da*5);
+				drawtext(vid_buf, 16, YRES-24, "Save the simulation under the current name", 255, 255, 255, da*5);
 				break;
 			case 259:
-				drawtext(vid_buf, 16, YRES-24, "Save the simulation under a new name.", 255, 255, 255, da*5);
+				drawtext(vid_buf, 16, YRES-24, "Save the simulation under a new name", 255, 255, 255, da*5);
 				break;
 			case 260:
-				drawtext(vid_buf, 16, YRES-24, "Sign into the Simulation Server.", 255, 255, 255, da*5);
+				drawtext(vid_buf, 16, YRES-24, "Sign into the Simulation Server", 255, 255, 255, da*5);
 				break;
 			case 261:
-				drawtext(vid_buf, 16, YRES-24, "Sign into the Simulation Server under a new name.", 255, 255, 255, da*5);
+				drawtext(vid_buf, 16, YRES-24, "Sign into the Simulation Server under a new name", 255, 255, 255, da*5);
 				break;
 			case 262:
 				drawtext(vid_buf, 16, YRES-24, "Find & open a simulation", 255, 255, 255, da*5);
@@ -2959,7 +2959,7 @@ int main(int argc, char *argv[])
 				drawtext(vid_buf, 16, YRES-24, "Annuit C\245ptis", 255, 255, 255, da*5);
 				break;
 			case 269:
-				drawtext(vid_buf, 16, YRES-24, "Click-and-drag to specify a rectangle to copy (right click = cancel).", 255, 216, 32, da*5);
+				drawtext(vid_buf, 16, YRES-24, "Click-and-drag to specify a rectangle to copy (right click = cancel)", 255, 216, 32, da*5);
 				break;
 			case 270:
 				drawtext(vid_buf, 16, YRES-24, "Simulation options", 255, 255, 255, da*5);
@@ -2968,25 +2968,25 @@ int main(int argc, char *argv[])
 				drawtext(vid_buf, 16, YRES-24, "You're a moderator", 255, 255, 255, da*5);
 				break;
 			case 272:
-				drawtext(vid_buf, 16, YRES-24, "Like/Dislike this save.", 255, 255, 255, da*5);
+				drawtext(vid_buf, 16, YRES-24, "Like/Dislike this save", 255, 255, 255, da*5);
 				break;
 			case 273:
-				drawtext(vid_buf, 16, YRES-24, "You like this.", 255, 255, 255, da*5);
+				drawtext(vid_buf, 16, YRES-24, "You like this", 255, 255, 255, da*5);
 				break;
 			case 274:
-				drawtext(vid_buf, 16, YRES-24, "You dislike this.", 255, 255, 255, da*5);
+				drawtext(vid_buf, 16, YRES-24, "You dislike this", 255, 255, 255, da*5);
 				break;
 			case 275:
-				drawtext(vid_buf, 16, YRES-24, "You cannot vote on your own save.", 255, 255, 255, da*5);
+				drawtext(vid_buf, 16, YRES-24, "You cannot vote on your own save", 255, 255, 255, da*5);
 				break;
 			case 276:
-				drawtext(vid_buf, 16, YRES-24, "Open a simulation from your hard drive.", 255, 255, 255, da*5);
+				drawtext(vid_buf, 16, YRES-24, "Open a simulation from your hard drive", 255, 255, 255, da*5);
 				break;
 			case 277:
-				drawtext(vid_buf, 16, YRES-24, "Save the simulation to your hard drive.", 255, 255, 255, da*5);
+				drawtext(vid_buf, 16, YRES-24, "Save the simulation to your hard drive", 255, 255, 255, da*5);
 				break;
 			case 278: //Fix for Ctrl + X showing copy message
-				drawtext(vid_buf, 16, YRES-24, "Click-and-drag to specify a rectangle to copy and then cut (right click = cancel).", 255, 216, 32, da*5);
+				drawtext(vid_buf, 16, YRES-24, "Click-and-drag to specify a rectangle to copy and then cut (right click = cancel)", 255, 216, 32, da*5);
 				break;
 			default:
 				drawtext(vid_buf, 16, YRES-24, (char *)ptypes[db].descs, 255, 255, 255, da*5);

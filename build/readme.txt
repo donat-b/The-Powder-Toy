@@ -487,7 +487,12 @@ None (at least that I know of)
 
 Future Ideas/TODO: '>' means currently being worked on/added next
 changes from tpt++: SPRK, LIGH, LCRY, VIBR, all others
-change default to showing time on comments
+make console look like tpt++
+make console errors copyable, fix being cut off
+tpt++ lua changes
+maybe have errors / print() log to console/main screen AND stdout.txt
+make open ui more colorful like tpt++?
+make buttons look clicked when pressed, oving mouse away will not do clicks, like tpt++?
 >Add things from tpt++ that look cool, and any new simulation changes it gets
 
 
