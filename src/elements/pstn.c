@@ -42,7 +42,7 @@ int CanMoveStack(int stackX, int stackY, int directionX, int directionY, int max
 			if(spaces >= amount)
 				break;
 		} else {
-			if(currentPos < maxSize && !retract)
+			if(spaces < maxSize && !retract)
 				tempParts[currentPos++] = r>>8;
 			else
 				return spaces;

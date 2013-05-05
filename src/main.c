@@ -143,18 +143,18 @@ static const char *it_msg =
     "Shift+drag will create straight lines of particles.\n"
     "Ctrl+drag will result in filled rectangles.\n"
     "Ctrl+Shift+click will flood-fill a closed area.\n"
-    "Ctrl+Z will act as Undo.\n"
+    "Use the mouse scroll wheel, or '[' and ']', to change the tool size for particles.\n"
     "Middle click or Alt+Click to \"sample\" the particles.\n"
+	"Ctrl+Z will act as Undo.\n"
     "\n\boUse 'Z' for a zoom tool. Click to make the drawable zoom window stay around. Use the wheel to change the zoom strength\n"
+	"The spacebar can be used to pause and unpause physics.\n"
     "Use 'S' to save parts of the window as 'stamps'.\n"
     "'L' will load the most recent stamp, 'K' shows a library of stamps you saved.\n"
     "The numbers on the keyboard will change the display mode\n"
-    "Use the mouse scroll wheel or '[' and ']' to change the tool size for particles.\n"
-    "The spacebar can be used to pause and unpause physics.\n"
     "\n"
-    "Contributors: \bgStanislaw K Skowronek (\brhttp://powder.unaligned.org\bg, \bbirc.unaligned.org #wtf\bg),\n"
+    "Contributors: \bgStanislaw K Skowronek (Designed the original Powder Toy),\n"
     "\bgSimon Robertshaw, Skresanov Savely, cracker64, Catelite, Bryan Hoyle, Nathan Cousins, jacksonmj,\n"
-    "\bgLieuwe Mosch, Anthony Boot, Matthew \"me4502\", MaksProg, jacob1\n"
+    "\bgFelix Wallin, Lieuwe Mosch, Anthony Boot, Matthew \"me4502\", MaksProg, jacob1, mniip\n"
 	"Thanks to mniip for the update server for my mod\n"
     "\n"
     "\bgTo use online features such as saving, you need to register at: \brhttp://powdertoy.co.uk/Register.html\n"
@@ -1529,13 +1529,23 @@ int main(int argc, char *argv[])
 			{
 				tab_save(tab_num);
 			}
-			if (sdl_key=='r' && (sdl_mod & (KMOD_SHIFT)))
+			if (sdl_key=='r') 
 			{
-				void *load_data=NULL;
-				int load_size;
-				load_data = (void*)tab_load(tab_num, &load_size);
-				if (load_data)
-					parse_save(load_data, load_size, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+				if ((sdl_mod & (KMOD_SHIFT)) && load_mode != 1)
+				{
+					void *load_data=NULL;
+					int load_size;
+					load_data = (void*)tab_load(tab_num, &load_size);
+					if (load_data)
+						parse_save(load_data, load_size, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+				}
+				else if ((sdl_mod & (KMOD_CTRL)) && load_mode != 1)
+				{
+					if (strncmp(svf_id,"",8))
+						parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+				}
+				else if (!(sdl_mod & (KMOD_CTRL|KMOD_SHIFT)))
+					GENERATION = 0;
 			}
 			if (sdl_key=='o')
 			{
@@ -1955,8 +1965,6 @@ int main(int argc, char *argv[])
 					load_img = prerender_save(load_data, load_size, &load_w, &load_h);
 				}
 			}
-			if (sdl_key=='r'&&!(sdl_mod & (KMOD_CTRL|KMOD_SHIFT)))
-				GENERATION = 0;
 			if (sdl_key=='x'&&(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)))
 			{
 				save_mode = 1;
