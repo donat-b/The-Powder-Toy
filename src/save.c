@@ -85,7 +85,9 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 int fix_type(int type, int version, int modver)
 {
 	int max = 161;
-	if (version >= 86 || modver == 14)
+	if (version >= 87)
+		max = 173;
+	else if (version >= 86 || modver == 14)
 		max = 170;
 	else if (version >= 84 || modver == 13)
 		max = 167;
@@ -140,7 +142,7 @@ int check_save(int save_as, int orig_x0, int orig_y0, int orig_w, int orig_h, in
 				}
 				return 1;
 			}
-			if ((parts[i].type == PT_CLNE || parts[i].type == PT_PCLN || parts[i].type == PT_BCLN || parts[i].type == PT_PBCN || parts[i].type == PT_STOR || parts[i].type == PT_CONV || parts[i].type == PT_STKM || parts[i].type == PT_STKM2 || parts[i].type == PT_FIGH || parts[i].type == PT_LAVA || parts[i].type == PT_SPRK) && invalid_element(save_as,parts[i].ctype))
+			if ((parts[i].type == PT_CLNE || parts[i].type == PT_PCLN || parts[i].type == PT_BCLN || parts[i].type == PT_PBCN || parts[i].type == PT_STOR || parts[i].type == PT_CONV || parts[i].type == PT_STKM || parts[i].type == PT_STKM2 || parts[i].type == PT_FIGH || parts[i].type == PT_LAVA || parts[i].type == PT_SPRK || parts[i].type == PT_PSTN || parts[i].type == PT_CRAY) && invalid_element(save_as,parts[i].ctype))
 			{
 				if (give_warning)
 				{
