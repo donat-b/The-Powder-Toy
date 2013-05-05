@@ -49,7 +49,7 @@ int console_parse_type(const char *txt, int *element, char *err)
 			return 1;
 		}
 	}
-	if (err) strcpy(err, "Particle type not recognised");
+	if (err) strcpy(err, "Particle type not recognized");
 	return 0;
 }
 //takes a string and compares it to wall names, and puts it's value into *wall.
@@ -381,7 +381,7 @@ int process_command_old(pixel *vid_buf, char *console, char *console_error)
 									parts[i].type = j;
 							}
 					}
-					else if (console_parse_type(console4, &j, console_error)
+					else if (console_parse_type(console4, &j, console_error) && j != 0
 							 && console_parse_type(console5, &k, console_error))
 					{
 						for (i=0; i<NPART; i++)
@@ -392,7 +392,7 @@ int process_command_old(pixel *vid_buf, char *console, char *console_error)
 					}
 					else
 					{
-						if (console_parse_partref(console4, &i, console_error)
+						if (console_parse_partref(console4, &i, console_error) && j != 0
 					        && console_parse_type(console5, &j, console_error))
 						{
 							parts[i].type = j;
