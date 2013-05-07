@@ -1261,7 +1261,13 @@ int luatpt_log(lua_State* l)
 	//	(*luacon_lastError) = text;
 	//else
 	//	luacon_ci->Log(CommandInterface::LogNotice, text.c_str());
-	strncpy(console_error, buffer, 254);
+	if(strlen(console_error))
+	{
+		sprintf(buffer2, "%s; %s", console_error, buffer);
+		strncpy(console_error, buffer2, 255);
+	}
+	else
+		strncpy(console_error, buffer, 254);
 	return 0;
 }
 
