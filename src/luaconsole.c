@@ -835,6 +835,27 @@ int luacon_step(int mx, int my, int selectl, int selectr, int bsx, int bsy){
 	}
 	return 0;
 }
+int luaL_tostring (lua_State *L, int n) {
+	luaL_checkany(L, n);
+	switch (lua_type(L, n)) {
+		case LUA_TNUMBER:
+			lua_pushstring(L, lua_tostring(L, n));
+			break;
+		case LUA_TSTRING:
+			lua_pushvalue(L, n);
+			break;
+		case LUA_TBOOLEAN:
+			lua_pushstring(L, (lua_toboolean(L, n) ? "true" : "false"));
+			break;
+		case LUA_TNIL:
+			lua_pushliteral(L, "nil");
+			break;
+		default:
+			lua_pushfstring(L, "%s: %p", luaL_typename(L, n), lua_topointer(L, n));
+			break;
+	}
+	return 1;
+}
 int luacon_eval(char *command){
 	loop_time = SDL_GetTicks();
 	return luaL_dostring (l, command);
@@ -1147,8 +1168,24 @@ int luatpt_setconsole(lua_State* l)
 
 int luatpt_log(lua_State* l)
 {
-	const char *buffer;
-	buffer = luaL_optstring(l, 1, "");
+	char buffer[256] = "", buffer2[256] = "";
+	int args = lua_gettop(l), i;
+	for(i = 1; i <= args; i++)
+	{
+		luaL_tostring(l, lua_gettop(l));
+		if(strlen(buffer))
+		{
+			sprintf(buffer2, "%s, %s", luaL_optstring(l, lua_gettop(l), ""), buffer);
+			strncpy(buffer, buffer2, 255);
+		}
+		else
+			strncpy(buffer, luaL_optstring(l, lua_gettop(l), ""), 254);
+		lua_pop(l, 2);
+	}
+	//if((*luacon_currentCommand))
+	//	(*luacon_lastError) = text;
+	//else
+	//	luacon_ci->Log(CommandInterface::LogNotice, text.c_str());
 	strncpy(console_error, buffer, 254);
 	return 0;
 }
