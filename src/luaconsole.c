@@ -993,12 +993,13 @@ int luacon_graphics_update(int t, int i, int *pixel_mode, int *cola, int *colr, 
 	}
 	return cache;
 }
-const char *luacon_geterror(){
-	const char *error = (char*)lua_tostring(l, -1);
-	if(error==NULL || !error[0]){
-		return "failed to execute";
-	}
-	return error;
+const char *luacon_geterror()
+{
+	char* err;
+	luaL_tostring(l, -1);
+	err = (char*)luaL_optstring(l, -1, "failed to execute");
+	lua_pop(l, 1);
+	return err;
 }
 void luacon_close(){
 	lua_close(l);
