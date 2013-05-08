@@ -773,7 +773,7 @@ int luacon_keyevent(int key, int modifier, int event)
 		callret = lua_pcall(l, 4, 1, 0);
 		if (callret)
 		{
-			if (!strcmp(luaL_optstring(l, -1, ""), "Error: Script not responding"))
+			if (!strcmp(luacon_geterror(), "Error: Script not responding"))
 			{
 				for(j=i;j<=c-1;j++)
 				{
@@ -825,7 +825,7 @@ int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
 		callret = lua_pcall(l, 5, 1, 0);
 		if (callret)
 		{
-			if (!strcmp(luaL_optstring(l, -1, ""), "Error: Script not responding"))
+			if (!strcmp(luacon_geterror(), "Error: Script not responding"))
 			{
 				for(j=i;j<=c-1;j++)
 				{
@@ -886,7 +886,7 @@ int luacon_step(int mx, int my, int selectl, int selectr, int bsx, int bsy)
 		callret = lua_pcall(l, 0, 0, 0);
 		if (callret)
 		{
-			if (!strcmp(luaL_optstring(l, -1, ""), "Error: Script not responding"))
+			if (!strcmp(luacon_geterror(), "Error: Script not responding"))
 			{
 				for(j=i;j<=c-1;j++)
 				{
@@ -1050,7 +1050,7 @@ int luacon_graphics_update(int t, int i, int *pixel_mode, int *cola, int *colr, 
 	if (callret)
 	{
 		printf("In graphics function: %s\n",luacon_geterror());
-		//luacon_ci->Log(CommandInterface::LogError, luaL_optstring(luacon_ci->l, -1, ""));
+		//luacon_ci->Log(CommandInterface::LogError, luacon_geterror());
 		lua_pop(l, 1);
 	}
 	else
