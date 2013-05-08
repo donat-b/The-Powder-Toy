@@ -928,24 +928,50 @@ int luaL_tostring (lua_State *L, int n) {
 	return 1;
 }
 
+char *lastCode = NULL;
 int luacon_eval(char *command)
 {
 	int level = lua_gettop(l), ret = -1;
 	char text[255] = "", *tmp;
 	tmp = (char*)calloc(strlen(command) + 8, sizeof(char));
 	sprintf(tmp, "return %s", command);
+	if (lastCode)
+	{
+		char *tmplastCode = (char*)calloc(strlen(lastCode)+strlen(command)+3, sizeof(char));
+		sprintf(tmplastCode, "%s\n%s", lastCode, command);
+		free(lastCode);
+		lastCode = tmplastCode;
+	}
+	else
+	{
+		lastCode = (char*)calloc(strlen(command)+1, sizeof(char));
+		sprintf(lastCode, "%s", command);
+	}
 	loop_time = SDL_GetTicks();
 	luaL_loadbuffer(l, tmp, strlen(tmp), "@console");
 	if(lua_type(l, -1) != LUA_TFUNCTION)
 	{
 		lua_pop(l, 1);
-		luaL_loadbuffer(l, command, strlen(command), "@console");
+		luaL_loadbuffer(l, lastCode, strlen(lastCode), "@console");
 	}
 	if(lua_type(l, -1) != LUA_TFUNCTION)
-		return ret;
-		//strncpy(lastError, luacon_geterror(), 254);
+	{
+		strncpy(console_error, luacon_geterror(), 254);
+		if (strstr(console_error, "near '<eof>'"))
+		{
+			strcpy(console_error, "...");
+		}
+		else
+		{
+			free(lastCode);
+			lastCode = NULL;
+		}
+		return 0;
+	}
 	else
 	{
+		free(lastCode);
+		lastCode = NULL;
 		ret = lua_pcall(l, 0, LUA_MULTRET, 0);
 		if(ret)
 			return ret;
