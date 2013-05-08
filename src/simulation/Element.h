@@ -18,6 +18,7 @@
 
 #include "graphics/ARGBColour.h"
 #include "simulation/Particle.h"
+#include <string>
 
 // TODO: remove these undefs, once the defines have been removed from powder.h
 #undef UPDATE_FUNC_ARGS
@@ -39,8 +40,8 @@ class Simulation;
 class Element
 {
 public:
-	char *Identifier;
-	char *Name;
+	std::string Identifier;
+	std::string Name;
 	ARGBColour Colour;
 	int MenuVisible;
 	int MenuSection;
@@ -75,7 +76,7 @@ public:
 	unsigned char HeatConduct;
 	// Latent value is in TPT imaginary units - 750/226*enthalpy value of the material
 	unsigned int Latent;
-	char *Description;
+	std::string Description;
 
 	char State;
 	unsigned int Properties;
