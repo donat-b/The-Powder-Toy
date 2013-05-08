@@ -927,9 +927,59 @@ int luaL_tostring (lua_State *L, int n) {
 	}
 	return 1;
 }
-int luacon_eval(char *command){
+
+int luacon_eval(char *command)
+{
+	int level = lua_gettop(l), ret = -1;
+	char text[255] = "", *tmp;
+	tmp = (char*)calloc(strlen(command) + 8, sizeof(char));
+	sprintf(tmp, "return %s", command);
 	loop_time = SDL_GetTicks();
-	return luaL_dostring (l, command);
+	luaL_loadbuffer(l, tmp, strlen(tmp), "@console");
+	if(lua_type(l, -1) != LUA_TFUNCTION)
+	{
+		lua_pop(l, 1);
+		luaL_loadbuffer(l, command, strlen(command), "@console");
+	}
+	if(lua_type(l, -1) != LUA_TFUNCTION)
+		return ret;
+		//strncpy(lastError, luacon_geterror(), 254);
+	else
+	{
+		ret = lua_pcall(l, 0, LUA_MULTRET, 0);
+		if(ret)
+			return ret;
+			//strncpy(lastError, luacon_geterror(), 254);
+		else
+		{
+			for(level++;level<=lua_gettop(l);level++)
+			{
+				luaL_tostring(l, level);
+				if(strlen(text))
+				{
+					char tmptext[255];
+					strncpy(tmptext, text, 254);
+					snprintf(text, 254, "%s, %s", tmptext, luaL_optstring(l, -1, ""));
+				}
+				else
+					strncpy(text, luaL_optstring(l, -1, ""), 254);
+				lua_pop(l, 1);
+			}
+			if(strlen(text))
+				if(strlen(console_error))
+				{
+					char *tmp2 = (char*)calloc(strlen(console_error)+strlen(text)+3, sizeof(char));
+					snprintf(tmp2, 254, "%s; %s", console_error, text);
+					strncpy(console_error, tmp2, 254);
+				}
+				else
+					strncpy(console_error, text, 254);
+
+		}
+	}
+	return ret;
+	//loop_time = SDL_GetTicks();
+	//return luaL_dostring (l, command);
 }
 void lua_hook(lua_State *L, lua_Debug *ar)
 {
@@ -1244,14 +1294,14 @@ int luatpt_setconsole(lua_State* l)
 
 int luatpt_log(lua_State* l)
 {
-	char buffer[256] = "", buffer2[256] = "";
+	char buffer[255] = "", buffer2[255] = "";
 	int args = lua_gettop(l), i;
 	for(i = 1; i <= args; i++)
 	{
 		luaL_tostring(l, -1);
 		if(strlen(buffer))
 		{
-			sprintf(buffer2, "%s, %s", luaL_optstring(l, -1, ""), buffer);
+			snprintf(buffer2, 254, "%s, %s", luaL_optstring(l, -1, ""), buffer);
 			strncpy(buffer, buffer2, 255);
 		}
 		else
@@ -1264,8 +1314,8 @@ int luatpt_log(lua_State* l)
 	//	luacon_ci->Log(CommandInterface::LogNotice, text.c_str());
 	if(strlen(console_error))
 	{
-		sprintf(buffer2, "%s; %s", console_error, buffer);
-		strncpy(console_error, buffer2, 255);
+		snprintf(buffer2, 255, "%s; %s", console_error, buffer);
+		strncpy(console_error, buffer2, 254);
 	}
 	else
 		strncpy(console_error, buffer, 254);
