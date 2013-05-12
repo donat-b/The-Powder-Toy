@@ -1539,7 +1539,7 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 	ed.w = xsize - 16;
 	ed.h = 16;
 	ed.def = "[property]";
-	ed.selected = -1;
+	ed.selected = 0;
 	ed.items = listitems;
 	ed.count = listitemscount;
 	
@@ -1555,7 +1555,7 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 	ed2.limit = 255;
 	ed2.str[0] = 0;
 	strncpy(ed2.str, "0", 254);
-	strncpy(ed.str, "ctype", 254);
+	strncpy(ed.str, "type", 254);
 
 	if (x >= 0 && y >= 0 && x < XRES && y < YRES && (pmap[y][x]&0xFF) == PT_PWHT)
 		flood = 0;
@@ -1601,10 +1601,20 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 		if (b && !bq && mx>=x0 && mx<x0+xsize && my>=y0+ysize-16 && my<=y0+ysize)
 			break;
 
-		if (sdl_key==SDLK_RETURN)
+		if (sdl_key == SDLK_RETURN)
 			break;
-		if (sdl_key==SDLK_ESCAPE)
+		else if (sdl_key == SDLK_ESCAPE)
 			goto exit;
+		else if (sdl_key == SDLK_UP && ed.selected > 0)
+		{
+			ed.selected--;
+			strcpy(ed.str, ed.items[ed.selected]);
+		}
+		else if (sdl_key == SDLK_DOWN && ed.selected < ed.count-1)
+		{
+			ed.selected++;
+			strcpy(ed.str, ed.items[ed.selected]);
+		}
 	}
 
 	if(ed.selected!=-1)
@@ -1690,6 +1700,11 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 				error_ui(vid_buf, 0, "Invalid element name");
 				goto exit;
 			}
+		}
+		if (pwht_property == 0 && (valuei < 0 || valuei > PT_NUM || !ptypes[valuei].enabled))
+		{
+			error_ui(vid_buf, 0, "Invalid element number");
+			goto exit;
 		}
 		valuec = (unsigned char)valuei;
 		if (flood)
