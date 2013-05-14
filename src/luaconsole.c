@@ -1872,8 +1872,8 @@ int luatpt_drawcircle(lua_State* l)
 	b = luaL_optint(l, 7, 255);
 	a = luaL_optint(l, 8, 255);
 
-	if (x<0 || y<0 || x>=XRES+BARSIZE || y>=YRES+MENUSIZE)
-		return luaL_error(l, "Screen coordinates out of range (%d,%d)", x, y);
+	//if (x<0 || y<0 || x>=XRES+BARSIZE || y>=YRES+MENUSIZE)
+	//	return luaL_error(l, "Screen coordinates out of range (%d,%d)", x, y);
 	if (r<0) r = 0;
 	if (r>255) r = 255;
 	if (g<0) g = 0;
@@ -1902,8 +1902,8 @@ int luatpt_fillcircle(lua_State* l)
 	b = luaL_optint(l, 7, 255);
 	a = luaL_optint(l, 8, 255);
 
-	if (x<0 || y<0 || x>=XRES+BARSIZE || y>=YRES+MENUSIZE)
-		return luaL_error(l, "Screen coordinates out of range (%d,%d)", x, y);
+	//if (x<0 || y<0 || x>=XRES+BARSIZE || y>=YRES+MENUSIZE)
+	//	return luaL_error(l, "Screen coordinates out of range (%d,%d)", x, y);
 	if (r<0) r = 0;
 	if (r>255) r = 255;
 	if (g<0) g = 0;
@@ -2800,7 +2800,7 @@ int luatpt_create_parts(lua_State* l)
 	int ret, oldbrush = CURRENT_BRUSH;
 	if (x < 0 || x > XRES || y < 0 || y > YRES)
 		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
-	if ((c>=0 && c < PT_NUM && !ptypes[c].enabled) || c < 0)
+	if (c < 0 || c >= PT_NUM && !ptypes[c].enabled)
 		return luaL_error(l, "Unrecognised element number '%d'", c);
 	CURRENT_BRUSH = brush;
 	ret = create_parts(x, y, rx, ry, c, flags, fill);
@@ -2825,7 +2825,7 @@ int luatpt_create_line(lua_State* l)
 		return luaL_error(l, "Starting coordinates out of range (%d,%d)", x1, y1);
 	if (x2 < 0 || x2 > XRES || y2 < 0 || y2 > YRES)
 		return luaL_error(l, "Ending coordinates out of range (%d,%d)", x2, y2);
-	if ((c>=0 && c < PT_NUM && !ptypes[c].enabled) || c < 0)
+	if (c < 0 || c >= PT_NUM && !ptypes[c].enabled)
 		return luaL_error(l, "Unrecognised element number '%d'", c);
 	CURRENT_BRUSH = brush;
 	create_line(x1, y1, x2, y2, rx, ry, c, flags);
@@ -2844,7 +2844,7 @@ int luatpt_floodfill(lua_State* l)
 	int ret;
 	if (x < 0 || x > XRES || y < 0 || y > YRES)
 		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
-	if ((c>=0 && c < PT_NUM && !ptypes[c].enabled) || c < 0)
+	if (c < 0 || c >= PT_NUM && !ptypes[c].enabled)
 		return luaL_error(l, "Unrecognised element number '%d'", c);
 	ret = flood_parts(x, y, c, cm, bm, flags);
 	lua_pushinteger(l, ret);

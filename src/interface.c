@@ -6701,10 +6701,11 @@ struct command_history;
 typedef struct command_history command_history;
 struct command_history {
 	command_history *prev_command;
+	//ui_label command;
 	char *command;
 };
 command_history *last_command = NULL;
-command_history *last_command2 = NULL;
+command_history *last_command_result = NULL;
 
 struct command_match {
 	const char *command;
@@ -6849,7 +6850,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 	char *match = 0, *str, laststr[256] = "";
 	pixel *old_buf=(pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	command_history *currentcommand;
-	command_history *currentcommand2;
+	command_history *currentcommand_result;
 	ui_edit ed;
 	ed.x = 15;
 	ed.y = 207;
@@ -6870,11 +6871,11 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 
 	fillrect(old_buf, -1, -1, XRES+BARSIZE, 220, 0, 0, 0, 190);
 
-	currentcommand2 = (command_history*)malloc(sizeof(command_history));
-	memset(currentcommand2, 0, sizeof(command_history));
-	currentcommand2->prev_command = last_command2;
-	currentcommand2->command = mystrdup(error);
-	last_command2 = currentcommand2;
+	currentcommand_result = (command_history*)malloc(sizeof(command_history));
+	memset(currentcommand_result, 0, sizeof(command_history));
+	currentcommand_result->prev_command = last_command_result;
+	currentcommand_result->command = mystrdup(error);
+	last_command_result = currentcommand_result;
 
 	cc = 0;
 	while (cc < 80) {
@@ -6918,19 +6919,19 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 			}
 		}
 		cc = 0;
-		currentcommand2 = last_command2;
+		currentcommand_result = last_command_result;
 		while (cc < 10)
 		{
-			if (currentcommand2==NULL)
+			if (currentcommand_result == NULL)
 				break;
-			drawtext(vid_buf, 180, 175-(cc*12), currentcommand2->command, 255, 225, 225, 255);
-			if (currentcommand2->prev_command!=NULL)
+			drawtext(vid_buf, 180, 175-(cc*12), currentcommand_result->command, 255, 225, 225, 255);
+			if (currentcommand_result->prev_command!=NULL)
 			{
 				if (cc<9) {
-					currentcommand2 = currentcommand2->prev_command;
-				} else if (currentcommand2->prev_command!=NULL) {
-					free(currentcommand2->prev_command);
-					currentcommand2->prev_command = NULL;
+					currentcommand_result = currentcommand_result->prev_command;
+				} else if (currentcommand_result->prev_command!=NULL) {
+					free(currentcommand_result->prev_command);
+					currentcommand_result->prev_command = NULL;
 				}
 				cc++;
 			}
@@ -7010,7 +7011,8 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 			}
 			else
 			{
-				if (last_command!=NULL) {
+				if (last_command != NULL)
+				{
 					currentcommand = last_command;
 					for (cc = 0; cc<ci; cc++) {
 						if (currentcommand->prev_command==NULL)
