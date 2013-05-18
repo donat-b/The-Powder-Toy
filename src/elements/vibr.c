@@ -33,7 +33,7 @@ int update_VIBR(UPDATE_FUNC_ARGS) {
 			parts[i].tmp++;
 			parts[i].temp -= 3;
 		}
-		if (parts[i].temp < 271.65f)
+		else if (parts[i].temp < 271.65f)
 		{
 			parts[i].tmp--;
 			parts[i].temp += 3;
@@ -44,7 +44,7 @@ int update_VIBR(UPDATE_FUNC_ARGS) {
 			parts[i].tmp += 7;
 			pv[y/CELL][x/CELL]--;
 		}
-		if (pv[y/CELL][x/CELL] < -2.5)
+		else if (pv[y/CELL][x/CELL] < -2.5)
 		{
 			parts[i].tmp -= 2;
 			pv[y/CELL][x/CELL]++;
@@ -58,8 +58,9 @@ int update_VIBR(UPDATE_FUNC_ARGS) {
 		//Release sparks before explode
 		if (parts[i].life < 300)
 		{
-			rx = rand()%3-1;
-			ry = rand()%3-1;
+			int randstore = rand();
+			rx = randstore%3-1;
+			ry = (randstore>>2)%3-1;
 			r = pmap[y+ry][x+rx];
 			if ((r&0xFF) && (r&0xFF) != PT_BREL && (ptypes[r&0xFF].properties&PROP_CONDUCTS) && !parts[r>>8].life)
 			{
@@ -87,27 +88,36 @@ int update_VIBR(UPDATE_FUNC_ARGS) {
 		//Explosion code
 		if (parts[i].life == 1)
 		{
-			int random = rand(), index;
-			create_part(i, x, y, PT_EXOT);
-			parts[i].tmp2 = rand()%1000;
-			index = create_part(-3,x+((random>>4)&3)-1,y+((random>>6)&3)-1,PT_ELEC);
-			if (index != -1)
-				parts[index].temp = 7000;
-			index = create_part(-3,x+((random>>8)&3)-1,y+((random>>10)&3)-1,PT_PHOT);
-			if (index != -1)
-				parts[index].temp = 7000;
-			index = create_part(-1,x+((random>>12)&3)-1,y+rand()%3-1,PT_BREL);
-			if (index != -1)
-				parts[index].temp = 7000;
-			parts[i].temp=9000;
-			pv[y/CELL][x/CELL] += 50;
+			if (!parts[i].tmp2)
+			{
+				int random = rand(), index;
+				create_part(i, x, y, PT_EXOT);
+				parts[i].tmp2 = rand()%1000;
+				index = create_part(-3,x+((random>>4)&3)-1,y+((random>>6)&3)-1,PT_ELEC);
+				if (index != -1)
+					parts[index].temp = 7000;
+				index = create_part(-3,x+((random>>8)&3)-1,y+((random>>10)&3)-1,PT_PHOT);
+				if (index != -1)
+					parts[index].temp = 7000;
+				index = create_part(-1,x+((random>>12)&3)-1,y+rand()%3-1,PT_BREL);
+				if (index != -1)
+					parts[index].temp = 7000;
+				parts[i].temp=9000;
+				pv[y/CELL][x/CELL] += 50;
 
-			return 1;
+				return 1;
+			}
+			else
+			{
+				parts[i].tmp2 = 0;
+				parts[i].temp = 273.15f;
+				parts[i].tmp = 0;
+			}
 		}
 	}
 	//Neighbor check loop
-	for (rx=-2; rx<3; rx++)
-		for (ry=-2; ry<3; ry++)
+	for (rx=-1; rx<2; rx++)
+		for (ry=-1; ry<2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
 				r = pmap[y+ry][x+rx];
@@ -115,25 +125,45 @@ int update_VIBR(UPDATE_FUNC_ARGS) {
 					r = photons[y+ry][x+rx];
 				if (!r)
 					continue;
-				//Melts into EXOT
-				if ((r&0xFF) == PT_EXOT && !(rand()%250) && !parts[i].life)
+				if (parts[i].life)
 				{
-					create_part(i, x, y, PT_EXOT);
+					//Makes VIBR/BVBR around it get tmp to start exploding too
+					if (((r&0xFF)==PT_VIBR  || (r&0xFF)==PT_BVBR))
+					{
+						if (!parts[r>>8].life)
+							parts[r>>8].tmp += 45;
+						else if (parts[i].tmp2 && rand()%2)
+						{
+							parts[r>>8].tmp2 = 1;
+							parts[i].tmp = 0;
+						}
+					}
+					//CFLM defuses it
+					else if ((r&0xFF)==PT_HFLM)
+					{
+						parts[i].tmp2 = 1;
+						parts[i].tmp = 0;
+					}
 				}
-				else if ((r&0xFF) == PT_ANAR)
+				else
+				{
+					//Melts into EXOT
+					if ((r&0xFF) == PT_EXOT && !(rand()%25))
+					{
+						create_part(i, x, y, PT_EXOT);
+					}
+					//Absorbs energy particles
+					else if ((ptypes[r&0xFF].properties & TYPE_ENERGY))
+					{
+						parts[i].tmp += 20;
+						kill_part(r>>8);
+					}
+				}
+				//VIBR+ANAR=BVBR
+				if (parts[i].type != PT_BVBR && (r&0xFF) == PT_ANAR)
 				{
 					part_change_type(i,x,y,PT_BVBR);
 					pv[y/CELL][x/CELL] -= 1;
-				}
-				else if (parts[i].life && ((r&0xFF) == PT_VIBR || (r&0xFF) == PT_BVBR) && !parts[r>>8].life)
-				{
-					parts[r>>8].tmp += 10;
-				}
-				//Absorbs energy particles
-				if ((ptypes[r&0xFF].properties & TYPE_ENERGY) && !parts[i].life)
-				{
-					parts[i].tmp += 20;
-					kill_part(r>>8);
 				}
 			}
 	for (trade = 0; trade < 9; trade++)
@@ -149,18 +179,9 @@ int update_VIBR(UPDATE_FUNC_ARGS) {
 			if (parts[i].tmp > parts[r>>8].tmp)
 			{
 				transfer = parts[i].tmp - parts[r>>8].tmp;
-				if (transfer == 1)
-				{
-					parts[r>>8].tmp += 1;
-					parts[i].tmp -= 1;
-					trade = 9;
-				}
-				else if (transfer > 0)
-				{
-					parts[r>>8].tmp += transfer/2;
-					parts[i].tmp -= transfer/2;
-					trade = 9;
-				}
+				parts[r>>8].tmp += transfer/2;
+				parts[i].tmp -= transfer/2;
+				break;
 			}
 		}
 	}
@@ -175,8 +196,14 @@ int graphics_VIBR(GRAPHICS_FUNC_ARGS)
 	if (gradient >= 100 || cpart->life)
 	{
 		*colr = (int)(fabs(sin(exp((750.0f-cpart->life)/170)))*200.0f);
-		*colg = 255;
-		*colb = (int)(fabs(sin(exp((750.0f-cpart->life)/170)))*200.0f);
+		if (cpart->tmp2)
+			*colg = (int)(fabs(sin(exp((750.0f-cpart->life)/170)))*200.0f);
+		else
+			*colg = 255;
+		if (cpart->tmp2)
+			*colb = 255;
+		else
+			*colb = (int)(fabs(sin(exp((750.0f-cpart->life)/170)))*200.0f);
 		*firea = 90;
 		*firer = *colr;
 		*fireg = *colg;
