@@ -486,7 +486,8 @@ tpt++ elements and some more changes made to elements in tpt++.
 
 
 Bugs:
-None (at least that I know of)
+broken descriptions on first 2 walls
+//None (at least that I know of)
 
 
 

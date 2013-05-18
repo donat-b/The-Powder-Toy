@@ -160,6 +160,9 @@ typedef unsigned int pixel;
 #define fmax max
 #define fmaxf max
 #endif
+#if _MSC_VER
+#define snprintf _snprintf
+#endif
 
 #ifdef __cplusplus
 #define TPT_INLINE

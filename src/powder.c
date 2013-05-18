@@ -4214,7 +4214,7 @@ int InCurrentBrush(int i, int j, int rx, int ry)
 	switch(CURRENT_BRUSH)
 	{
 		case CIRCLE_BRUSH:
-			return (pow((double)i,2)*pow((double)ry,2)+pow((double)j,2)*pow((double)rx,2)<=pow((double)rx,2)*pow((double)ry,2));
+			return (pow(i,2.0)*pow(ry,2.0)+pow(j,2.0)*pow(rx,2.0)<=pow(rx,2.0)*pow(ry,2.0));
 			break;
 		case SQUARE_BRUSH:
 			return (abs(i) <= rx && abs(j) <= ry);

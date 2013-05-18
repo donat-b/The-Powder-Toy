@@ -24,6 +24,8 @@
 #include <console.h>
 #include <luaconsole.h>
 #include <luascriptinterface.h>
+#include "socket/luasocket.h"
+#include "socket/socket.lua.h"
 #include <save.h>
 #include <math.h>
 
@@ -38,11 +40,6 @@
 int *lua_el_func, *lua_el_mode, *lua_gr_func;
 int getPartIndex_curIdx;
 lua_State *l;
-int step_functions[6] = {0, 0, 0, 0, 0, 0};
-int keypress_function_count = 0;
-int *keypress_functions = NULL;
-int mouseclick_function_count = 0;
-int *mouseclick_functions = NULL;
 int tptProperties; //Table for some TPT properties
 int tptPropertiesVersion;
 int tptElements; //Table for TPT element names
@@ -146,6 +143,17 @@ void luacon_open(){
 	l = lua_open();
 	luaL_openlibs(l);
 	luaopen_bit(l);
+	luaopen_socket_core(l);
+	lua_getglobal(l, "package");
+	lua_pushstring(l, "loaded");
+	lua_rawget(l, -2);
+	lua_pushstring(l, "socket");
+	lua_rawget(l, -2);
+	lua_pushstring(l, "socket.core");
+	lua_pushvalue(l, -2);
+	lua_rawset(l, -4);
+	lua_pop(l, 3);
+	luaopen_socket(l);
 	luaL_register(l, "tpt", tptluaapi);
 	
 	initSimulationAPI(l);
@@ -753,57 +761,115 @@ int luacon_elementwrite(lua_State* l){
 	free(key);
 	return 0;
 }
-int luacon_keyevent(int key, int modifier, int event){
-	int i = 0, kpcontinue = 1, callret;
-	char tempkey[] = {key, 0};
-	if(keypress_function_count){
-		for(i = 0; i < keypress_function_count && kpcontinue; i++){
-			lua_rawgeti(l, LUA_REGISTRYINDEX, keypress_functions[i]);
-			lua_pushstring(l, tempkey);
-			lua_pushinteger(l, key);
-			lua_pushinteger(l, modifier);
-			lua_pushinteger(l, event);
-			callret = lua_pcall(l, 4, 1, 0);
-			if (callret)
+int luacon_keyevent(int key, int modifier, int event)
+{
+	int kycontinue = 1, i, j, c, callret;
+	lua_pushstring(l, "keyfunctions");
+	lua_rawget(l, LUA_REGISTRYINDEX);
+	if(!lua_istable(l, -1))
+	{
+		lua_pop(l, 1);
+		lua_newtable(l);
+		lua_pushstring(l, "keyfunctions");
+		lua_pushvalue(l, -2);
+		lua_rawset(l, LUA_REGISTRYINDEX);
+	}
+	c = lua_objlen(l, -1);
+	for(i=1;i<=c && kycontinue;i++)
+	{
+		loop_time = SDL_GetTicks();
+		lua_rawgeti(l, -1, i);
+		lua_pushlstring(l, (const char*)&key, 1);
+		lua_pushinteger(l, key);
+		lua_pushinteger(l, modifier);
+		lua_pushinteger(l, event);
+		callret = lua_pcall(l, 4, 1, 0);
+		if (callret)
+		{
+			if (!strcmp(luacon_geterror(), "Error: Script not responding"))
 			{
-				printf("In key event: %s\n",luacon_geterror());
+				for(j=i;j<=c-1;j++)
+				{
+					lua_rawgeti(l, -2, j+1);
+					lua_rawseti(l, -3, j);
+				}
+				lua_pushnil(l);
+				lua_rawseti(l, -3, c);
+				c--;
+				i--;
 			}
-			if(lua_isboolean(l, -1)){
-				kpcontinue = lua_toboolean(l, -1);
-			}
+			lua_pop(l, 1);
+			printf("%s\n",luacon_geterror()); // todo, logging like tpt++ This way isn't good ...
+			//luacon_ci->Log(CommandInterface::LogError, luacon_geterror());
+		}
+		else
+		{
+			if(!lua_isnoneornil(l, -1))
+				kycontinue = lua_toboolean(l, -1);
 			lua_pop(l, 1);
 		}
 	}
-	return kpcontinue;
+	lua_pop(l, 1);
+	return kycontinue;
 }
-int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel){
-	int i = 0, mpcontinue = 1, callret;
-	if(mouseclick_function_count){
-		for(i = 0; i < mouseclick_function_count && mpcontinue; i++){
-			lua_rawgeti(l, LUA_REGISTRYINDEX, mouseclick_functions[i]);
-			lua_pushinteger(l, mx);
-			lua_pushinteger(l, my);
-			lua_pushinteger(l, mb);
-			lua_pushinteger(l, event);
-			lua_pushinteger(l, mouse_wheel);
-			callret = lua_pcall(l, 5, 1, 0);
-			if (callret)
+int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
+{
+	int mpcontinue = 1, i, j, c, callret;
+	lua_pushstring(l, "mousefunctions");
+	lua_rawget(l, LUA_REGISTRYINDEX);
+	if(!lua_istable(l, -1))
+	{
+		lua_pop(l, 1);
+		lua_newtable(l);
+		lua_pushstring(l, "mousefunctions");
+		lua_pushvalue(l, -2);
+		lua_rawset(l, LUA_REGISTRYINDEX);
+	}
+	c = lua_objlen(l, -1);
+	for(i=1;i<=c && mpcontinue;i++)
+	{
+		loop_time = SDL_GetTicks();
+		lua_rawgeti(l, -1, i);
+		lua_pushinteger(l, mx);
+		lua_pushinteger(l, my);
+		lua_pushinteger(l, mb);
+		lua_pushinteger(l, event);
+		lua_pushinteger(l, mouse_wheel);
+		callret = lua_pcall(l, 5, 1, 0);
+		if (callret)
+		{
+			if (!strcmp(luacon_geterror(), "Error: Script not responding"))
 			{
-				printf("In mouse event: %s\n",luacon_geterror());
+				for(j=i;j<=c-1;j++)
+				{
+					lua_rawgeti(l, -2, j+1);
+					lua_rawseti(l, -3, j);
+				}
+				lua_pushnil(l);
+				lua_rawseti(l, -3, c);
+				c--;
+				i--;
 			}
-			if(lua_isboolean(l, -1)){
+			printf("%s\n",luacon_geterror()); // todo, logging like tpt++ This way isn't good ...
+			//luacon_ci->Log(CommandInterface::LogError, luacon_geterror());
+			lua_pop(l, 1);
+		}
+		else
+		{
+			if(!lua_isnoneornil(l, -1))
 				mpcontinue = lua_toboolean(l, -1);
-			}
 			lua_pop(l, 1);
 		}
 	}
+	lua_pop(l, 1);
 	return mpcontinue;
 }
-int luacon_step(int mx, int my, int selectl, int selectr, int bsx, int bsy){
-	int tempret = 0, tempb, i, callret;
+int luacon_step(int mx, int my, int selectl, int selectr, int bsx, int bsy)
+{
+	int i, j, c, callret;
 	lua_pushinteger(l, bsy);
 	lua_pushinteger(l, bsx);
-	lua_pushinteger(l, SLALT);
+	lua_pushinteger(l, SLALT); //TODO: maybe use identifiers like tpt++
 	lua_pushinteger(l, selectr);
 	lua_pushinteger(l, selectl);
 	lua_pushinteger(l, my);
@@ -815,29 +881,144 @@ int luacon_step(int mx, int my, int selectl, int selectr, int bsx, int bsy){
 	lua_setfield(l, tptProperties, "selecteda");
 	lua_setfield(l, tptProperties, "brushx");
 	lua_setfield(l, tptProperties, "brushy");
-	for(i = 0; i<6; i++){
-		if(step_functions[i]){
-			loop_time = SDL_GetTicks();
-			lua_rawgeti(l, LUA_REGISTRYINDEX, step_functions[i]);
-			callret = lua_pcall(l, 0, 0, 0);
-			if (callret)
+	lua_pushstring(l, "stepfunctions");
+	lua_rawget(l, LUA_REGISTRYINDEX);
+	if(!lua_istable(l, -1))
+	{
+		lua_pop(l, 1);
+		lua_newtable(l);
+		lua_pushstring(l, "stepfunctions");
+		lua_pushvalue(l, -2);
+		lua_rawset(l, LUA_REGISTRYINDEX);
+	}
+	c = lua_objlen(l, -1);
+	for(i=1;i<=c;i++)
+	{
+		loop_time = SDL_GetTicks();
+		lua_rawgeti(l, -1, i);
+		callret = lua_pcall(l, 0, 0, 0);
+		if (callret)
+		{
+			if (!strcmp(luacon_geterror(), "Error: Script not responding"))
 			{
-				// failed, TODO: better error reporting
-				printf("%s\n",luacon_geterror());
-				if (!strcmp(luacon_geterror(),"Error: Infinite loop"))
+				for(j=i;j<=c-1;j++)
 				{
-					lua_pushcfunction(l,&luatpt_unregister_step);
-					lua_rawgeti(l, LUA_REGISTRYINDEX, step_functions[i]);
-					lua_pcall(l, 1, 0, 0);
+					lua_rawgeti(l, -2, j+1);
+					lua_rawseti(l, -3, j);
 				}
+				lua_pushnil(l);
+				lua_rawseti(l, -3, c);
+				c--;
+				i--;
 			}
+			printf("%s\n",luacon_geterror()); // todo, logging like tpt++ This way isn't good ...
+			//luacon_ci->Log(CommandInterface::LogError, luaL_optstring(l, -1, ""));
+			lua_pop(l, 1);
 		}
 	}
+	lua_pop(l, 1);
 	return 0;
 }
-int luacon_eval(char *command){
+int luaL_tostring (lua_State *L, int n) {
+	luaL_checkany(L, n);
+	switch (lua_type(L, n)) {
+		case LUA_TNUMBER:
+			lua_pushstring(L, lua_tostring(L, n));
+			break;
+		case LUA_TSTRING:
+			lua_pushvalue(L, n);
+			break;
+		case LUA_TBOOLEAN:
+			lua_pushstring(L, (lua_toboolean(L, n) ? "true" : "false"));
+			break;
+		case LUA_TNIL:
+			lua_pushliteral(L, "nil");
+			break;
+		default:
+			lua_pushfstring(L, "%s: %p", luaL_typename(L, n), lua_topointer(L, n));
+			break;
+	}
+	return 1;
+}
+
+char *lastCode = NULL;
+int luacon_eval(char *command)
+{
+	int level = lua_gettop(l), ret = -1;
+	char text[255] = "", *tmp;
+	tmp = (char*)calloc(strlen(command) + 8, sizeof(char));
+	sprintf(tmp, "return %s", command);
+	if (lastCode)
+	{
+		char *tmplastCode = (char*)calloc(strlen(lastCode)+strlen(command)+3, sizeof(char));
+		sprintf(tmplastCode, "%s\n%s", lastCode, command);
+		free(lastCode);
+		lastCode = tmplastCode;
+	}
+	else
+	{
+		lastCode = (char*)calloc(strlen(command)+1, sizeof(char));
+		sprintf(lastCode, "%s", command);
+	}
 	loop_time = SDL_GetTicks();
-	return luaL_dostring (l, command);
+	luaL_loadbuffer(l, tmp, strlen(tmp), "@console");
+	if(lua_type(l, -1) != LUA_TFUNCTION)
+	{
+		lua_pop(l, 1);
+		luaL_loadbuffer(l, lastCode, strlen(lastCode), "@console");
+	}
+	if(lua_type(l, -1) != LUA_TFUNCTION)
+	{
+		strncpy(console_error, luacon_geterror(), 254);
+		if (strstr(console_error, "near '<eof>'"))
+		{
+			strcpy(console_error, "...");
+		}
+		else
+		{
+			free(lastCode);
+			lastCode = NULL;
+		}
+		return 0;
+	}
+	else
+	{
+		free(lastCode);
+		lastCode = NULL;
+		ret = lua_pcall(l, 0, LUA_MULTRET, 0);
+		if(ret)
+			return ret;
+			//strncpy(lastError, luacon_geterror(), 254);
+		else
+		{
+			for(level++;level<=lua_gettop(l);level++)
+			{
+				luaL_tostring(l, level);
+				if(strlen(text))
+				{
+					char tmptext[255];
+					strncpy(tmptext, text, 254);
+					snprintf(text, 254, "%s, %s", tmptext, luaL_optstring(l, -1, ""));
+				}
+				else
+					strncpy(text, luaL_optstring(l, -1, ""), 254);
+				lua_pop(l, 1);
+			}
+			if(strlen(text))
+				if(strlen(console_error))
+				{
+					char *tmp2 = (char*)calloc(strlen(console_error)+strlen(text)+3, sizeof(char));
+					snprintf(tmp2, 254, "%s; %s", console_error, text);
+					strncpy(console_error, tmp2, 254);
+				}
+				else
+					strncpy(console_error, text, 254);
+
+		}
+	}
+	return ret;
+	//loop_time = SDL_GetTicks();
+	//return luaL_dostring (l, command);
 }
 void lua_hook(lua_State *L, lua_Debug *ar)
 {
@@ -882,27 +1063,32 @@ int luacon_graphics_update(int t, int i, int *pixel_mode, int *cola, int *colr, 
 	if (callret)
 	{
 		printf("In graphics function: %s\n",luacon_geterror());
+		//luacon_ci->Log(CommandInterface::LogError, luacon_geterror());
+		lua_pop(l, 1);
 	}
-
-	cache = luaL_optint(l, -10, 0);
-	*pixel_mode = luaL_optint(l, -9, *pixel_mode);
-	*cola = luaL_optint(l, -8, *cola);
-	*colr = luaL_optint(l, -7, *colr);
-	*colg = luaL_optint(l, -6, *colg);
-	*colb = luaL_optint(l, -5, *colb);
-	*firea = luaL_optint(l, -4, *firea);
-	*firer = luaL_optint(l, -3, *firer);
-	*fireg = luaL_optint(l, -2, *fireg);
-	*fireb = luaL_optint(l, -1, *fireb);
-	lua_pop(l, 10);
+	else
+	{
+		cache = luaL_optint(l, -10, 0);
+		*pixel_mode = luaL_optint(l, -9, *pixel_mode);
+		*cola = luaL_optint(l, -8, *cola);
+		*colr = luaL_optint(l, -7, *colr);
+		*colg = luaL_optint(l, -6, *colg);
+		*colb = luaL_optint(l, -5, *colb);
+		*firea = luaL_optint(l, -4, *firea);
+		*firer = luaL_optint(l, -3, *firer);
+		*fireg = luaL_optint(l, -2, *fireg);
+		*fireb = luaL_optint(l, -1, *fireb);
+		lua_pop(l, 10);
+	}
 	return cache;
 }
-const char *luacon_geterror(){
-	const char *error = (char*)lua_tostring(l, -1);
-	if(error==NULL || !error[0]){
-		return "failed to execute";
-	}
-	return error;
+const char *luacon_geterror()
+{
+	char* err;
+	luaL_tostring(l, -1);
+	err = (char*)luaL_optstring(l, -1, "failed to execute");
+	lua_pop(l, 1);
+	return err;
 }
 void luacon_close(){
 	lua_close(l);
@@ -1147,9 +1333,31 @@ int luatpt_setconsole(lua_State* l)
 
 int luatpt_log(lua_State* l)
 {
-	const char *buffer;
-	buffer = luaL_optstring(l, 1, "");
-	strncpy(console_error, buffer, 254);
+	char buffer[255] = "", buffer2[255] = "";
+	int args = lua_gettop(l), i;
+	for(i = 1; i <= args; i++)
+	{
+		luaL_tostring(l, -1);
+		if(strlen(buffer))
+		{
+			snprintf(buffer2, 254, "%s, %s", luaL_optstring(l, -1, ""), buffer);
+			strncpy(buffer, buffer2, 255);
+		}
+		else
+			strncpy(buffer, luaL_optstring(l, -1, ""), 254);
+		lua_pop(l, 2);
+	}
+	//if((*luacon_currentCommand))
+	//	(*luacon_lastError) = text;
+	//else
+	//	luacon_ci->Log(CommandInterface::LogNotice, text.c_str());
+	if(strlen(console_error))
+	{
+		snprintf(buffer2, 255, "%s; %s", console_error, buffer);
+		strncpy(console_error, buffer2, 254);
+	}
+	else
+		strncpy(console_error, buffer, 254);
 	return 0;
 }
 
@@ -1664,8 +1872,8 @@ int luatpt_drawcircle(lua_State* l)
 	b = luaL_optint(l, 7, 255);
 	a = luaL_optint(l, 8, 255);
 
-	if (x<0 || y<0 || x>=XRES+BARSIZE || y>=YRES+MENUSIZE)
-		return luaL_error(l, "Screen coordinates out of range (%d,%d)", x, y);
+	//if (x<0 || y<0 || x>=XRES+BARSIZE || y>=YRES+MENUSIZE)
+	//	return luaL_error(l, "Screen coordinates out of range (%d,%d)", x, y);
 	if (r<0) r = 0;
 	if (r>255) r = 255;
 	if (g<0) g = 0;
@@ -1694,8 +1902,8 @@ int luatpt_fillcircle(lua_State* l)
 	b = luaL_optint(l, 7, 255);
 	a = luaL_optint(l, 8, 255);
 
-	if (x<0 || y<0 || x>=XRES+BARSIZE || y>=YRES+MENUSIZE)
-		return luaL_error(l, "Screen coordinates out of range (%d,%d)", x, y);
+	//if (x<0 || y<0 || x>=XRES+BARSIZE || y>=YRES+MENUSIZE)
+	//	return luaL_error(l, "Screen coordinates out of range (%d,%d)", x, y);
 	if (r<0) r = 0;
 	if (r>255) r = 255;
 	if (g<0) g = 0;
@@ -1793,155 +2001,157 @@ int luatpt_delete(lua_State* l)
 
 int luatpt_register_step(lua_State* l)
 {
-	int ref, i, ifree = -1;
-	if(lua_isfunction(l, 1)){
-		for(i = 0; i<6; i++){
-			if(!step_functions[i]){
-				if (ifree<0) ifree = i;
-			} else {
-				lua_rawgeti(l, LUA_REGISTRYINDEX, step_functions[i]);
-				if(lua_equal(l, 1, lua_gettop(l))){
-					lua_pop(l, 1);
-					return luaL_error(l, "Function already registered");
-				}
-				lua_pop(l, 1);
-			}
-		}
-		if (ifree>=0)
+	if(lua_isfunction(l, 1))
+	{
+		int c;
+		lua_pushstring(l, "stepfunctions");
+		lua_rawget(l, LUA_REGISTRYINDEX);
+		if(!lua_istable(l, -1))
 		{
-			ref = luaL_ref(l, LUA_REGISTRYINDEX);
-			step_functions[ifree] = ref;
-			return 0;
+			lua_pop(l, 1);
+			lua_newtable(l);
+			lua_pushstring(l, "stepfunctions");
+			lua_pushvalue(l, -2);
+			lua_rawset(l, LUA_REGISTRYINDEX);
 		}
-		else return luaL_error(l, "Step function limit reached");
+		c = lua_objlen(l, -1);
+		lua_pushvalue(l, 1);
+		lua_rawseti(l, -2, c+1);
 	}
 	return 0;
 }
 int luatpt_unregister_step(lua_State* l)
 {
-	int i;
-	if(lua_isfunction(l, 1)){
-		for(i = 0; i<6; i++){
-			if (step_functions[i]){
-				lua_rawgeti(l, LUA_REGISTRYINDEX, step_functions[i]);
-				if(lua_equal(l, 1, lua_gettop(l))){
-					lua_pop(l, 1);
-					luaL_unref(l, LUA_REGISTRYINDEX, step_functions[i]);
-					step_functions[i] = 0;
-				}
-				else lua_pop(l, 1);
+	if(lua_isfunction(l, 1))
+	{
+		int c, d = 0, i;
+		lua_pushstring(l, "stepfunctions");
+		lua_rawget(l, LUA_REGISTRYINDEX);
+		if(!lua_istable(l, -1))
+		{
+			lua_pop(l, -1);
+			lua_newtable(l);
+			lua_pushstring(l, "stepfunctions");
+			lua_pushvalue(l, -2);
+			lua_rawset(l, LUA_REGISTRYINDEX);
+		}
+		c = lua_objlen(l, -1);
+		for(i=1;i<=c;i++)
+		{
+			lua_rawgeti(l, -1, i+d);
+			if(lua_equal(l, 1, -1))
+			{
+				lua_pop(l, 1);
+				d++;
+				i--;
 			}
+			else
+				lua_rawseti(l, -2, i);
 		}
 	}
 	return 0;
 }
 int luatpt_register_keypress(lua_State* l)
 {
-	int *newfunctions, i;
-	if(lua_isfunction(l, 1)){
-		for(i = 0; i<keypress_function_count; i++){
-			lua_rawgeti(l, LUA_REGISTRYINDEX, keypress_functions[i]);
-			if(lua_equal(l, 1, lua_gettop(l))){
-				lua_pop(l, 1);
-				return luaL_error(l, "Function already registered");
-			}
+	if(lua_isfunction(l, 1))
+	{
+		int c;
+		lua_pushstring(l, "keyfunctions");
+		lua_rawget(l, LUA_REGISTRYINDEX);
+		if(!lua_istable(l, -1))
+		{
 			lua_pop(l, 1);
+			lua_newtable(l);
+			lua_pushstring(l, "keyfunctions");
+			lua_pushvalue(l, -2);
+			lua_rawset(l, LUA_REGISTRYINDEX);
 		}
-		newfunctions = (int*)calloc(keypress_function_count+1, sizeof(int));
-		if(keypress_functions){
-			memcpy(newfunctions, keypress_functions, keypress_function_count*sizeof(int));
-			free(keypress_functions);
-		}
-		newfunctions[keypress_function_count] = luaL_ref(l, LUA_REGISTRYINDEX);
-		keypress_function_count++;
-		keypress_functions = newfunctions;
+		c = lua_objlen(l, -1);
+		lua_pushvalue(l, 1);
+		lua_rawseti(l, -2, c+1);
 	}
 	return 0;
 }
 int luatpt_unregister_keypress(lua_State* l)
 {
-	int *newfunctions, i, functionindex = -1;
-	if(lua_isfunction(l, 1)){
-		for(i = 0; i<keypress_function_count; i++){
-			lua_rawgeti(l, LUA_REGISTRYINDEX, keypress_functions[i]);
-			if(lua_equal(l, 1, lua_gettop(l))){
-				functionindex = i;
-			}
+	if(lua_isfunction(l, 1))
+	{
+		int c, d= 0, i;
+		lua_pushstring(l, "keyfunctions");
+		lua_rawget(l, LUA_REGISTRYINDEX);
+		if(!lua_istable(l, -1))
+		{
 			lua_pop(l, 1);
+			lua_newtable(l);
+			lua_pushstring(l, "keyfunctions");
+			lua_pushvalue(l, -2);
+			lua_rawset(l, LUA_REGISTRYINDEX);
 		}
-	}
-	if(functionindex != -1){
-		luaL_unref(l, LUA_REGISTRYINDEX, keypress_functions[functionindex]);
-		if(functionindex != keypress_function_count-1){
-			memmove(keypress_functions+functionindex+1, keypress_functions+functionindex+1, (keypress_function_count-functionindex-1)*sizeof(int));
+		c = lua_objlen(l, -1);
+		for(i=1;i<=c;i++)
+		{
+			lua_rawgeti(l, -1, i+d);
+			if(lua_equal(l, 1, -1))
+			{
+				lua_pop(l, 1);
+				d++;
+				i--;
+			}
+			else
+				lua_rawseti(l, -2, i);
 		}
-		if(keypress_function_count-1 > 0){
-			newfunctions = (int*)calloc(keypress_function_count-1, sizeof(int));
-			memcpy(newfunctions, keypress_functions, (keypress_function_count-1)*sizeof(int));
-			free(keypress_functions);
-			keypress_functions = newfunctions;
-		} else {
-			free(keypress_functions);
-			keypress_functions = NULL;
-		}
-		keypress_function_count--;
-	} else {
-		return luaL_error(l, "Function not registered");
 	}
 	return 0;
 }
 int luatpt_register_mouseclick(lua_State* l)
 {
-	int *newfunctions, i;
-	if(lua_isfunction(l, 1)){
-		for(i = 0; i<mouseclick_function_count; i++){
-			lua_rawgeti(l, LUA_REGISTRYINDEX, mouseclick_functions[i]);
-			if(lua_equal(l, 1, lua_gettop(l))){
-				lua_pop(l, 1);
-				return luaL_error(l, "Function already registered");
-			}
+	if(lua_isfunction(l, 1))
+	{
+		int c;
+		lua_pushstring(l, "mousefunctions");
+		lua_rawget(l, LUA_REGISTRYINDEX);
+		if(!lua_istable(l, -1))
+		{
 			lua_pop(l, 1);
+			lua_newtable(l);
+			lua_pushstring(l, "mousefunctions");
+			lua_pushvalue(l, -2);
+			lua_rawset(l, LUA_REGISTRYINDEX);
 		}
-		newfunctions = (int*)calloc(mouseclick_function_count+1, sizeof(int));
-		if(mouseclick_functions){
-			memcpy(newfunctions, mouseclick_functions, mouseclick_function_count*sizeof(int));
-			free(mouseclick_functions);
-		}
-		newfunctions[mouseclick_function_count] = luaL_ref(l, LUA_REGISTRYINDEX);
-		mouseclick_function_count++;
-		mouseclick_functions = newfunctions;
+		c = lua_objlen(l, -1);
+		lua_pushvalue(l, 1);
+		lua_rawseti(l, -2, c+1);
 	}
 	return 0;
 }
 int luatpt_unregister_mouseclick(lua_State* l)
 {
-	int *newfunctions, i, functionindex = -1;
-	if(lua_isfunction(l, 1)){
-		for(i = 0; i<mouseclick_function_count; i++){
-			lua_rawgeti(l, LUA_REGISTRYINDEX, mouseclick_functions[i]);
-			if(lua_equal(l, 1, lua_gettop(l))){
-				functionindex = i;
-			}
+	if(lua_isfunction(l, 1))
+	{
+		int c, d = 0, i;
+		lua_pushstring(l, "mousefunctions");
+		lua_rawget(l, LUA_REGISTRYINDEX);
+		if(!lua_istable(l, -1))
+		{
 			lua_pop(l, 1);
+			lua_newtable(l);
+			lua_pushstring(l, "mousefunctions");
+			lua_pushvalue(l, -2);
+			lua_rawset(l, LUA_REGISTRYINDEX);
 		}
-	}
-	if(functionindex != -1){
-		luaL_unref(l, LUA_REGISTRYINDEX, mouseclick_functions[functionindex]);
-		if(functionindex != mouseclick_function_count-1){
-			memmove(mouseclick_functions+functionindex+1, mouseclick_functions+functionindex+1, (mouseclick_function_count-functionindex-1)*sizeof(int));
+		c = lua_objlen(l, -1);
+		for(i=1;i<=c;i++)
+		{
+			lua_rawgeti(l, -1, i+d);
+			if(lua_equal(l, 1, -1))
+			{
+				lua_pop(l, 1);
+				d++;
+				i--;
+			}
+			else
+				lua_rawseti(l, -2, i);
 		}
-		if(mouseclick_function_count-1 > 0){
-			newfunctions = (int*)calloc(mouseclick_function_count-1, sizeof(int));
-			memcpy(newfunctions, mouseclick_functions, (mouseclick_function_count-1)*sizeof(int));
-			free(mouseclick_functions);
-			mouseclick_functions = newfunctions;
-		} else {
-			free(mouseclick_functions);
-			mouseclick_functions = NULL;
-		}
-		mouseclick_function_count--;
-	} else {
-		return luaL_error(l, "Function not registered");
 	}
 	return 0;
 }
@@ -2590,7 +2800,7 @@ int luatpt_create_parts(lua_State* l)
 	int ret, oldbrush = CURRENT_BRUSH;
 	if (x < 0 || x > XRES || y < 0 || y > YRES)
 		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
-	if ((c>=0 && c < PT_NUM && !ptypes[c].enabled) || c < 0)
+	if (c < 0 || c >= PT_NUM && !ptypes[c].enabled)
 		return luaL_error(l, "Unrecognised element number '%d'", c);
 	CURRENT_BRUSH = brush;
 	ret = create_parts(x, y, rx, ry, c, flags, fill);
@@ -2615,7 +2825,7 @@ int luatpt_create_line(lua_State* l)
 		return luaL_error(l, "Starting coordinates out of range (%d,%d)", x1, y1);
 	if (x2 < 0 || x2 > XRES || y2 < 0 || y2 > YRES)
 		return luaL_error(l, "Ending coordinates out of range (%d,%d)", x2, y2);
-	if ((c>=0 && c < PT_NUM && !ptypes[c].enabled) || c < 0)
+	if (c < 0 || c >= PT_NUM && !ptypes[c].enabled)
 		return luaL_error(l, "Unrecognised element number '%d'", c);
 	CURRENT_BRUSH = brush;
 	create_line(x1, y1, x2, y2, rx, ry, c, flags);
@@ -2634,7 +2844,7 @@ int luatpt_floodfill(lua_State* l)
 	int ret;
 	if (x < 0 || x > XRES || y < 0 || y > YRES)
 		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
-	if ((c>=0 && c < PT_NUM && !ptypes[c].enabled) || c < 0)
+	if (c < 0 || c >= PT_NUM && !ptypes[c].enabled)
 		return luaL_error(l, "Unrecognised element number '%d'", c);
 	ret = flood_parts(x, y, c, cm, bm, flags);
 	lua_pushinteger(l, ret);
