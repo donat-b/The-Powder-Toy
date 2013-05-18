@@ -4198,6 +4198,7 @@ int search_ui(pixel *vid_buf)
 	motd.x = 20;
 	motd.y = 33;
 	motd.str[0] = 0;
+	motd.printstr[0] = 0;
 
 	sdl_wheel = 0;
 
