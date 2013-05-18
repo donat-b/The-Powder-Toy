@@ -1,5 +1,5 @@
-SOURCES := $(wildcard src/*.c src/elements/*.c)
-HEADERS := $(wildcard includes/*.h)
+SOURCES := $(wildcard src/*.c src/elements/*.c src/socket/*.c)
+HEADERS := $(wildcard includes/*.h src/socket/*.h)
 OBJS := $(patsubst src/%.c,build/obj/%.o,$(SOURCES))
 
 CFLAGS := -w -std=c99 -D_POSIX_C_SOURCE=200112L -DLUACONSOLE -DGRAVFFT -Iincludes/ -D_GNU_SOURCE
@@ -164,6 +164,7 @@ build/obj/gravity.powder-sse.exe.o: src/gravity.c $(HEADERS)
 clean:
 	rm -f build/obj/*.o
 	rm -f build/obj/elements/*.o
+	rm -f build/obj/socket/*.o
 
 
 
