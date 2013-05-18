@@ -57,6 +57,42 @@ int update_PYRO(UPDATE_FUNC_ARGS) {
 				if (bmap[(y+ry)/CELL][(x+rx)/CELL] && bmap[(y+ry)/CELL][(x+rx)/CELL]!=WL_STREAM)
 					continue;
 				rt = parts[r>>8].type;
+				//THRM burning
+				if (rt==PT_THRM && (t==PT_FIRE || t==PT_PLSM || t==PT_LAVA))
+				{
+					if (!(rand()%500)) {
+						part_change_type(r>>8,x+rx,y+ry,PT_LAVA);
+						parts[r>>8].ctype = PT_BMTL;
+						parts[r>>8].temp = 3500.0f;
+						pv[(y+ry)/CELL][(x+rx)/CELL] += 50.0f;
+					} else {
+						part_change_type(r>>8,x+rx,y+ry,PT_LAVA);
+						parts[r>>8].life = 400;
+						parts[r>>8].ctype = PT_THRM;
+						parts[r>>8].temp = 3500.0f;
+						parts[r>>8].tmp = 20;
+					}
+					continue;
+				}
+
+				if ((rt==PT_COAL) || (rt==PT_BCOL))
+				{
+					if ((t==PT_FIRE || t==PT_PLSM))
+					{
+						if (parts[r>>8].life>100 && !(rand()%500))
+						{
+							parts[r>>8].life = 99;
+						}
+					}
+					else if (t==PT_LAVA)
+					{
+						if (parts[i].ctype == PT_IRON && !(rand()%500))
+						{
+							parts[i].ctype = PT_METL;
+							kill_part(r>>8);
+						}
+					}
+				}
 				if ((surround_space || ptypes[rt].explosive) &&
 					(t!=PT_SPRK || (rt!=PT_RBDM && rt!=PT_LRBD && rt!=PT_INSL)) &&
 					(t!=PT_PHOT || rt!=PT_INSL) &&

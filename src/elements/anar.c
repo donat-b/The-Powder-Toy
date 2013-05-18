@@ -20,8 +20,8 @@ int update_ANAR(UPDATE_FUNC_ARGS) {
        
         //if (parts[i].temp >= 0.23)
                // parts[i].temp --;
-        for (rx=-2; rx<3; rx++)
-                for (ry=-2; ry<3; ry++)
+		for (rx=-1; rx<2; rx++)
+				for (ry=-1; ry<2; ry++)
                         if (BOUNDS_CHECK && (rx || ry))
                         {
                                 r = pmap[y+ry][x+rx];
@@ -29,7 +29,7 @@ int update_ANAR(UPDATE_FUNC_ARGS) {
                                         continue;
                                 if ((r&0xFF)==PT_HFLM)
                                 {
-                                        if (1>rand()%22)
+										if (!(rand()%4))
                                         {
                                                 part_change_type(i,x,y,PT_HFLM);
                                                 parts[i].life = rand()%150+50;

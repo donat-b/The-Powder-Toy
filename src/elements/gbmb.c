@@ -18,8 +18,8 @@ int update_GBMB(UPDATE_FUNC_ARGS) {
 	int rx,ry,r;
 	if (parts[i].life<=0)
 	{
-		for (rx=-2; rx<3; rx++)
-			for (ry=-2; ry<3; ry++)
+		for (rx=-1; rx<2; rx++)
+			for (ry=-1; ry<2; ry++)
 			{
 				r = ((pmap[y+ry][x+rx]&0xFF)==PT_PINV&&parts[pmap[y+ry][x+rx]>>8].life==10)?0:pmap[y+ry][x+rx];
 				if(!r)
