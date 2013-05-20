@@ -69,6 +69,8 @@ extern unsigned int display_mode;
 
 extern SDL_Surface *sdl_scrn;
 extern int sdl_scale;
+extern int savedWindowX;
+extern int savedWindowY;
 
 extern int sandcolour_r;
 extern int sandcolour_g;
@@ -240,6 +242,10 @@ void render_zoom(pixel *img);
 int render_thumb(void *thumb, int size, int bzip2, pixel *vid_buf, int px, int py, int scl);
 
 void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry);
+
+int LoadWindowPosition();
+
+int SaveWindowPosition();
 
 int sdl_open(void);
 

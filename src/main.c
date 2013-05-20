@@ -847,6 +847,58 @@ int main(int argc, char *argv[])
 	return 0;
 }
 #else
+
+void BlueScreen(char * detailMessage)
+{
+	//std::string errorDetails = "Details: " + std::string(detailMessage);
+	SDL_Event event;
+	char * errorHelp = "An unrecoverable fault has occurred, please report this to jacob1:\n"
+		" http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11117\n"
+		" OR either my 'post bugs here' save / my 'Jacob1s Mod detector' save\n\n"
+		"Note: TPT will now restart and reload your work";
+	int positionX = (XRES+BARSIZE)/2-textwidth("OR either my 'post bugs here' save / my 'Jacob1's Mod detector' save")/2-50, positionY = (YRES+MENUSIZE)/2-100;
+
+	fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 17, 114, 169, 210);
+	
+	drawtext(vid_buf, positionX, positionY, "ERROR", 255, 255, 255, 255);
+	drawtext(vid_buf, positionX, positionY + 14, detailMessage, 255, 255, 255, 255);
+	drawtext(vid_buf, positionX, positionY  + 28, errorHelp, 255, 255, 255, 255);
+	
+	//Death loop
+	while(1)
+	{
+		while (SDL_PollEvent(&event))
+			if(event.type == SDL_QUIT)
+			{
+				char *exename;
+				tab_save(1);
+				exename = exe_name();
+				if (exename)
+					ShellExecute(NULL, "open", exename, NULL, NULL, SW_SHOWNORMAL);
+				exit(-1);
+			}
+		sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf, XRES+BARSIZE);
+	}
+}
+
+void SigHandler(int signal)
+{
+	switch(signal){
+	case SIGSEGV:
+		BlueScreen("Memory read/write error");
+		break;
+	case SIGFPE:
+		BlueScreen("Floating point exception");
+		break;
+	case SIGILL:
+		BlueScreen("Program execution exception");
+		break;
+	case SIGABRT:
+		BlueScreen("Unexpected program abort");
+		break;
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	pixel *part_vbuf; //Extra video buffer
@@ -898,6 +950,11 @@ int main(int argc, char *argv[])
 	fmt.samples = 512;
 	fmt.callback = mixaudio;
 	fmt.userdata = NULL;
+
+	signal(SIGSEGV, SigHandler);
+	signal(SIGFPE, SigHandler);
+	signal(SIGILL, SigHandler);
+	signal(SIGABRT, SigHandler);
 
 #ifdef MT
 	numCores = core_count();
@@ -3128,6 +3185,7 @@ int main(int argc, char *argv[])
 #endif
     if (part_vbuf_store)
     	free(part_vbuf_store);
+	SaveWindowPosition();
 	save_presets(0);
 	for (i = 1; i < 10; i++)
 	{

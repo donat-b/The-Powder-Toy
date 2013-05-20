@@ -4726,6 +4726,90 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 #endif
 }
 
+int savedWindowX = 0;
+int savedWindowY = 0;
+#ifdef WIN32
+
+// Returns true if the loaded position was set
+// Returns false if something went wrong: SDL_GetWMInfo failed or the loaded position was invalid
+int LoadWindowPosition(int scale)
+{
+	SDL_SysWMinfo sysInfo;
+	SDL_VERSION(&sysInfo.version);
+	if (SDL_GetWMInfo(&sysInfo) > 0)
+	{
+		const SDL_VideoInfo * vidInfo = SDL_GetVideoInfo();
+		int desktopWidth = vidInfo->current_w;
+		int desktopHeight = vidInfo->current_h;
+
+		int windowW = (XRES + BARSIZE) * scale;
+		int windowH = (YRES + MENUSIZE) * scale;
+		
+		// Center the window on the primary desktop by default
+		int newWindowX = (desktopWidth - windowW) / 2;
+		int newWindowY = (desktopHeight - windowH) / 2;
+
+		int success = 0;
+
+		if (savedWindowX != INT_MAX && savedWindowY != INT_MAX)
+		{
+			POINT windowPoints[] = {
+				{savedWindowX, savedWindowY},                       // Top-left
+				{savedWindowX + windowW, savedWindowY + windowH}    // Bottom-right
+			};
+
+			MONITORINFO monitor;
+			monitor.cbSize = sizeof(monitor);
+			if (GetMonitorInfo(MonitorFromPoint(windowPoints[0], MONITOR_DEFAULTTONEAREST), &monitor) != 0)
+			{
+				// Only use the saved window position if it lies inside the visible screen
+				if (PtInRect(&monitor.rcMonitor, windowPoints[0]) && PtInRect(&monitor.rcMonitor, windowPoints[1]))
+				{
+					newWindowX = savedWindowX;
+					newWindowY = savedWindowY;
+
+					success = 1;
+				}
+				else
+				{
+					// Center the window on the nearest monitor
+					newWindowX = monitor.rcMonitor.left + (monitor.rcMonitor.right - monitor.rcMonitor.left - windowW) / 2;
+					newWindowY = monitor.rcMonitor.top + (monitor.rcMonitor.bottom - monitor.rcMonitor.top - windowH) / 2;
+				}
+			}
+		}
+		
+		SetWindowPos(sysInfo.window, 0, newWindowX, newWindowY, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
+
+		// True if we didn't use the default, i.e. the position was valid
+		return success;
+	}
+
+	return 0;
+}
+
+// Returns true if the window position was saved
+int SaveWindowPosition()
+{
+	SDL_SysWMinfo sysInfo;
+	SDL_VERSION(&sysInfo.version);
+	if (SDL_GetWMInfo(&sysInfo) > 0)
+	{
+		WINDOWPLACEMENT placement;
+		placement.length = sizeof(placement);
+		GetWindowPlacement(sysInfo.window, &placement);
+
+		savedWindowX = (int)placement.rcNormalPosition.left;
+		savedWindowY = (int)placement.rcNormalPosition.top;
+
+		return 1;
+	}
+
+	return 0;
+}
+
+#endif
+
 SDL_VideoInfo info;
 int sdl_opened = 0, size_error = 0;
 int sdl_open(void)
@@ -4771,6 +4855,7 @@ int sdl_open(void)
 
 	if (info.current_w<((XRES+BARSIZE)*sdl_scale) || info.current_h<((YRES+MENUSIZE)*sdl_scale))
 		size_error = 1;
+	LoadWindowPosition(sdl_scale);
 #if defined(OGLR)
 	sdl_scrn=SDL_SetVideoMode(XRES*sdl_scale + BARSIZE*sdl_scale,YRES*sdl_scale + MENUSIZE*sdl_scale,32,SDL_OPENGL);
 	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
