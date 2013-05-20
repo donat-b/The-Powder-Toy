@@ -48,7 +48,7 @@ int update_TUGN(UPDATE_FUNC_ARGS)
 		else
 		{
 			part_change_type(i, x, y, PT_LAVA);
-			parts[i].ctype = PT_TUGN;
+			parts[i].ctype = PT_TUNG;
 			return 1;
 		}
 		if(splode)
@@ -64,6 +64,7 @@ int update_TUGN(UPDATE_FUNC_ARGS)
 	if (parts[i].pavg[1]-parts[i].pavg[0] > 0.50f || parts[i].pavg[1]-parts[i].pavg[0] < -0.50f)
 	{
 		part_change_type(i,x,y,PT_BRMT);
+		parts[i].ctype = PT_TUNG;
 	}
 	return 0;
 }

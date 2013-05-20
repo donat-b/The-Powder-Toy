@@ -2872,7 +2872,7 @@ void render_parts(pixel *vid)
 						int leg;
 						for (leg=0; leg<2; leg++)
 						{
-							int nx = (float)cplayer->legs[leg*8+4], ny = (float)cplayer->legs[leg*8+5];
+							int nx = (int)cplayer->legs[leg*8+4], ny = (int)cplayer->legs[leg*8+5];
 							int colr = 255, colg = 0, colb = 255;
 							if (((int)(cplayer->comm)&0x04) == 0x04 || (((int)(cplayer->comm)&0x01) == 0x01 && leg==0) || (((int)(cplayer->comm)&0x02) == 0x02 && leg==1))
 								blendpixel(vid, nx, ny, 0, 255, 0, 255);

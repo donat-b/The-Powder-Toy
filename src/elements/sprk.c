@@ -127,7 +127,7 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 					}
 				}
 	}
-	else if (ct == PT_TUGN)
+	else if (ct == PT_TUNG)
 	{
 		if(parts[i].temp < 3595.0)
 			parts[i].temp += (rand()%20)-4;

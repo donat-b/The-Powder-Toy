@@ -1189,7 +1189,7 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 
 	parts[i].dcolour = 0;
 	parts[i].flags = 0;
-	if (t == PT_GLAS || t == PT_QRTZ || t == PT_TUGN)
+	if (t == PT_GLAS || t == PT_QRTZ || t == PT_TUNG)
 	{
 		parts[i].pavg[1] = pv[y/CELL][x/CELL];
 	}
@@ -2340,10 +2340,11 @@ int transfer_heat(int i, int surround[8])
 			//A fix for ice with ctype = 0
 			if ((t==PT_ICEI || t==PT_SNOW) && (parts[i].ctype==0 || parts[i].ctype>=PT_NUM || parts[i].ctype==PT_ICEI || parts[i].ctype==PT_SNOW))
 				parts[i].ctype = PT_WATR;
-			if (ctemph>ptransitions[t].thv&&ptransitions[t].tht>-1) {
+			if (ctemph>ptransitions[t].thv&&ptransitions[t].tht>-1)
+			{
 				// particle type change due to high temperature
 				float dbt = ctempl - pt;
-				if (ptransitions[t].tht!=PT_NUM)
+				if (ptransitions[t].tht != PT_NUM)
 				{
 					if (realistic)
 					{
@@ -2385,20 +2386,24 @@ int transfer_heat(int i, int surround[8])
 								}
 							}
 						}
-						else s = 0;
+						else
+							s = 0;
 					}
 					else
 					{
 						if (parts[i].ctype>0&&parts[i].ctype<PT_NUM&&parts[i].ctype!=t) 
 						{
-							if (ptransitions[parts[i].ctype].tlt==t&&pt<=ptransitions[parts[i].ctype].tlv) s = 0;
-							else {
+							if (ptransitions[parts[i].ctype].tlt==t&&pt<=ptransitions[parts[i].ctype].tlv)
+								s = 0;
+							else
+							{
 								t = parts[i].ctype;
 								parts[i].ctype = PT_NONE;
 								parts[i].life = 0;
 							}
 						}
-						else s = 0;
+						else
+							s = 0;
 					}
 				}
 				else if (t==PT_SLTW)
@@ -2420,11 +2425,27 @@ int transfer_heat(int i, int surround[8])
 					}
 					else
 					{
-						if (1>rand()%6) t = PT_SALT;
-						else t = PT_WTRV;
+						if (1>rand()%6)
+							t = PT_SALT;
+						else
+							t = PT_WTRV;
 					}
 				}
-			} else if (ctempl<ptransitions[t].tlv&&ptransitions[t].tlt>-1) {
+				else if (t == PT_BRMT)
+				{
+					if (parts[i].ctype == PT_TUNG && ctemph <= 3695.0)
+						s = 0;
+					else
+					{
+						t = PT_LAVA;
+						parts[i].type = PT_TUNG;
+					}
+				}
+				else
+					s = 0;
+			}
+			else if (ctempl<ptransitions[t].tlv&&ptransitions[t].tlt>-1)
+			{
 				// particle type change due to low temperature
 				float dbt = ctempl - pt;
 				if (ptransitions[t].tlt!=PT_NUM)
@@ -2447,41 +2468,59 @@ int transfer_heat(int i, int surround[8])
 						t = ptransitions[t].tlt;
 					}
 				}
-				else if (t==PT_WTRV) {
-					if (pt<273.0f) t = PT_RIME;
-					else t = PT_DSTW;
+				else if (t==PT_WTRV)
+				{
+					if (pt<273.0f)
+						t = PT_RIME;
+					else
+						t = PT_DSTW;
 				}
-				else if (t==PT_LAVA) {
-					if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && parts[i].ctype!=PT_LAVA) {
-						if (parts[i].ctype==PT_THRM&&pt>=ptransitions[PT_BMTL].thv) s = 0;
-						else if ((parts[i].ctype==PT_VIBR || parts[i].ctype==PT_BVBR) && pt>=273.15f) s = 0;
-						else if (parts[i].ctype==PT_TUGN) {
-							if (pt>3695.0) s = 0;
+				else if (t==PT_LAVA)
+				{
+					if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && parts[i].ctype!=PT_LAVA)
+					{
+						if (parts[i].ctype==PT_THRM&&pt>=ptransitions[PT_BMTL].thv)
+							s = 0;
+						else if ((parts[i].ctype==PT_VIBR || parts[i].ctype==PT_BVBR) && pt>=273.15f)
+							s = 0;
+						else if (parts[i].ctype==PT_TUNG)
+						{
+							if (pt>3695.0)
+								s = 0;
 						}
-						else if (ptransitions[parts[i].ctype].tht==PT_LAVA) {
-							if (pt>=ptransitions[parts[i].ctype].thv) s = 0;
+						else if (ptransitions[parts[i].ctype].tht==PT_LAVA)
+						{
+							if (pt>=ptransitions[parts[i].ctype].thv)
+								s = 0;
 						}
-						else if (pt>=973.0f) s = 0; // freezing point for lava with any other (not listed in ptransitions as turning into lava) ctype
-						if (s) {
+						else if (pt>=973.0f)
+							s = 0; // freezing point for lava with any other (not listed in ptransitions as turning into lava) ctype
+						if (s)
+						{
 							t = parts[i].ctype;
 							parts[i].ctype = PT_NONE;
-							if (t==PT_THRM) {
+							if (t == PT_THRM)
+							{
 								parts[i].tmp = 0;
 								t = PT_BMTL;
 							}
-							if (t==PT_PLUT)
+							if (t == PT_PLUT)
 							{
 								parts[i].tmp = 0;
 								t = PT_LAVA;
 							}
 						}
 					}
-					else if (pt<973.0f) t = PT_STNE;
-					else s = 0;
+					else if (pt<973.0f)
+						t = PT_STNE;
+					else
+						s = 0;
 				}
-				else s = 0;
+				else
+					s = 0;
 			}
-			else s = 0;
+			else
+				s = 0;
 
 			if (realistic)
 			{
@@ -2492,23 +2531,27 @@ int transfer_heat(int i, int surround[8])
 				}
 			}
 
-			if (s) { // particle type change occurred
-				if (t==PT_ICEI||t==PT_LAVA||t==PT_SNOW)
+			if (s)
+			{ // particle type change occurred
+				if (t==PT_ICEI || t==PT_LAVA || t==PT_SNOW)
 					parts[i].ctype = parts[i].type;
-				if (!(t==PT_ICEI&&parts[i].ctype==PT_FRZW)) parts[i].life = 0;
-				if (ptypes[t].state==ST_GAS&&ptypes[parts[i].type].state!=ST_GAS)
+				if (!(t==PT_ICEI && parts[i].ctype==PT_FRZW))
+					parts[i].life = 0;
+				if (ptypes[t].state==ST_GAS && ptypes[parts[i].type].state!=ST_GAS)
 					pv[y/CELL][x/CELL] += 0.50f;
 				part_change_type(i,x,y,t);
-				if (t==PT_FIRE||t==PT_PLSM||t==PT_HFLM)
+				if (t==PT_FIRE || t==PT_PLSM || t==PT_HFLM)
 					parts[i].life = rand()%50+120;
-				if (t==PT_LAVA) {
+				if (t==PT_LAVA)
+				{
 					if (parts[i].ctype==PT_BRMT) parts[i].ctype = PT_BMTL;
 					else if (parts[i].ctype==PT_SAND) parts[i].ctype = PT_GLAS;
 					else if (parts[i].ctype==PT_BGLA) parts[i].ctype = PT_GLAS;
 					else if (parts[i].ctype==PT_PQRT) parts[i].ctype = PT_QRTZ;
 					parts[i].life = rand()%120+240;
 				}
-				if (t==PT_NONE) {
+				if (t==PT_NONE)
+				{
 					kill_part(i);
 					return t;
 				}
@@ -2516,7 +2559,8 @@ int transfer_heat(int i, int surround[8])
 		}
 
 		pt = parts[i].temp = restrict_flt(parts[i].temp, MIN_TEMP, MAX_TEMP);
-		if (t==PT_LAVA) {
+		if (t==PT_LAVA)
+		{
 			parts[i].life = (int)restrict_flt((parts[i].temp-700)/7, 0.0f, 400.0f);
 			if (parts[i].ctype==PT_THRM&&parts[i].tmp>0)
 			{
@@ -2530,7 +2574,8 @@ int transfer_heat(int i, int surround[8])
 			}
 		}
 	}
-	else parts[i].temp = restrict_flt(parts[i].temp, MIN_TEMP, MAX_TEMP);
+	else
+		parts[i].temp = restrict_flt(parts[i].temp, MIN_TEMP, MAX_TEMP);
 	return t;
 }
 
@@ -2748,7 +2793,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 			{
 				if (realistic)
 				{
-					//The magic number controlls diffusion speed
+					//The magic number controls diffusion speed
 					parts[i].vx += 0.05f*sqrtf(parts[i].temp)*ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
 					parts[i].vy += 0.05f*sqrtf(parts[i].temp)*ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
 				}

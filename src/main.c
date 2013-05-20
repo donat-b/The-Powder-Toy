@@ -1881,7 +1881,7 @@ int main(int argc, char *argv[])
 							vy[ny][nx] = 0;
 						}
 					for (i=0; i < NPART; i++)
-						if (parts[i].type == PT_QRTZ || parts[i].type == PT_GLAS || parts[i].type == PT_TUGN)
+						if (parts[i].type == PT_QRTZ || parts[i].type == PT_GLAS || parts[i].type == PT_TUNG)
 						{
 							parts[i].pavg[0] = parts[i].pavg[1] = 0;
 						}

@@ -198,7 +198,7 @@ part_type ptypes[PT_NUM] =
 	{"PSTN",	PIXPACK(0xAA9999),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_FORCE,		R_TEMP+0.0f +273.15f,	0,		"Piston, extends and pushes particles.", ST_SOLID, TYPE_SOLID, &update_PSTN, &graphics_PSTN},
 	{"FRME",	PIXPACK(0x999988),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_FORCE,		R_TEMP+0.0f +273.15f,	0,		"Frame, can be used with pistons to push many particles.", ST_SOLID, TYPE_SOLID|PROP_LIFE_DEC, NULL, &graphics_FRME},
 	{"GOLD",	PIXPACK(0xDCAD2C),	0.0f,	0.00f * CFDS,	0.90f,  0.00f,  0.0f,	0.0f,	0.00f,  0.000f	* CFDS, 0,	0,		0,	1,	0,	1,	1,	100,	SC_SOLIDS,		R_TEMP+273.15f,			251,	"Corrosion resistant metal, will reverse corrosion of iron.", ST_SOLID, TYPE_SOLID|PROP_CONDUCTS|PROP_HOT_GLOW|PROP_LIFE_DEC|PROP_NEUTPASS, &update_GOLD, &graphics_GOLD},
-	{"TUGN",	PIXPACK(0x505050),	0.0f,	0.00f * CFDS,	0.90f,  0.00f,  0.0f,	0.0f,	0.00f,  0.000f	* CFDS, 0,	0,		0,	1,	1,	1,	1,	100,	SC_ELEC,		R_TEMP+273.15f,			251,	"Brittle metal with a very high melting point.", ST_SOLID, TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC, &update_TUGN, &graphics_TUGN},
+	{"TUGN",	PIXPACK(0x505050),	0.0f,	0.00f * CFDS,	0.90f,  0.00f,  0.0f,	0.0f,	0.00f,  0.000f	* CFDS, 0,	0,		0,	1,	1,	1,	1,	100,	SC_ELEC,		R_TEMP+273.15f,			251,	"Tungsten. Brittle metal with a very high melting point.", ST_SOLID, TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC, &update_TUGN, &graphics_TUGN},
 	{"PSNS",	PIXPACK(0xDB2020),	0.0f,	0.00f * CFDS,	0.96f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	1,	1,	1,	100,	SC_SENSOR,		277.15f,				0,		"Pressure sensor, creates a spark when the pressure is greater than its temperature.", ST_SOLID, TYPE_SOLID, &update_PSNS, NULL},
 	//Mod elements past this point
 	{"BALL",	PIXPACK(0x0010A0),	0.4f,	0.004f * CFDS,	0.92f,	0.80f,	0.00f,	0.1f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	30,	1,	1,	85,		SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	70,		"Moving solid. Acts like a bouncy ball.", ST_NONE, TYPE_PART|PROP_MOVS, NULL, NULL},
@@ -309,7 +309,7 @@ part_transition ptransitions[PT_NUM] =
 	/* SLTW */ {IPL,	NT,			IPH,	NT,			252.05f,	PT_ICEI,	383.0f,	ST},
 	/* DMND */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* BMTL */ {IPL,	NT,			1.0f,	ST,			ITL,	NT,			1273.0f,PT_LAVA},
-	/* BRMT */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			1273.0f,PT_LAVA},
+	/* BRMT */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			1273.0f,ST},
 	/* PHOT */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* URAN */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* WAX  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			319.0f,	PT_MWAX},

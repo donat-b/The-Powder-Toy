@@ -250,7 +250,7 @@
 #define PT_PSTN 168
 #define PT_FRME 169
 #define PT_GOLD 170
-#define PT_TUGN 171
+#define PT_TUNG 171
 #define PT_PSNS 172
 #define PT_NORMAL_NUM 173
 
