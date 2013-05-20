@@ -132,7 +132,7 @@ int update_VIBR(UPDATE_FUNC_ARGS) {
 					{
 						if (!parts[r>>8].life)
 							parts[r>>8].tmp += 45;
-						else if (parts[i].tmp2 && rand()%2)
+						else if (parts[i].tmp2 && parts[i].life > 75 && rand()%2)
 						{
 							parts[r>>8].tmp2 = 1;
 							parts[i].tmp = 0;
