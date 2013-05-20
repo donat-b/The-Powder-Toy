@@ -36,7 +36,7 @@ int update_SLTW(UPDATE_FUNC_ARGS) {
 				}
 				if ((r&0xFF) == PT_FIRE && parts[r>>8].ctype != PT_WATR){
 					kill_part(r>>8);
-					if(1>(rand()%150)){
+					if(1>(rand()%30)){
 						kill_part(i);
 						return 1;
 					}

@@ -16,8 +16,7 @@
 #include <element.h>
 
 int update_QRTZ(UPDATE_FUNC_ARGS) {
-	int r, tmp, trade, rx, ry, np, t;
-	t = parts[i].type;
+	int r, tmp, trade, rx, ry, np, t = parts[i].type;
 	if (t == PT_QRTZ)
 	{
 		parts[i].pavg[0] = parts[i].pavg[1];

@@ -6993,7 +6993,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 			free(old_buf);
 			return currentcommand->command;
 		}
-		if (sdl_key==SDLK_ESCAPE || sdl_key==SDLK_BACKQUOTE)
+		if (sdl_key==SDLK_ESCAPE || (sdl_key==SDLK_BACKQUOTE && !(sdl_mod & (KMOD_SHIFT))))
 		{
 			console_mode = 0;
 			free(old_buf);

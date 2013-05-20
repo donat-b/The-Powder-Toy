@@ -1128,7 +1128,7 @@ int process_command_lua(pixel *vid_buf, char *console, char *console_error)
 //Being TPT interface methods:
 int luatpt_test(lua_State* l)
 {
-    int testint = 0;
+	int testint = 0;
 	testint = luaL_optint(l, 1, 0);
 	printf("Test successful, got %d\n", testint);
 	return 0;
@@ -1241,7 +1241,7 @@ int luatpt_error(lua_State* l)
 }
 int luatpt_drawtext(lua_State* l)
 {
-    const char *string;
+	const char *string;
 	int textx, texty, textred, textgreen, textblue, textalpha;
 	textx = luaL_optint(l, 1, 0);
 	texty = luaL_optint(l, 2, 0);
@@ -2198,109 +2198,109 @@ int luatpt_message_box(lua_State* l)
 }
 int luatpt_get_numOfParts(lua_State* l)
 {
-    lua_pushinteger(l, NUM_PARTS);
-    return 1;
+	lua_pushinteger(l, NUM_PARTS);
+	return 1;
 }
 int luatpt_start_getPartIndex(lua_State* l)
 {
-    getPartIndex_curIdx = -1;
-    return 1;
+	getPartIndex_curIdx = -1;
+	return 1;
 }
 int luatpt_next_getPartIndex(lua_State* l)
 {
-    while(1)
-    {
-        getPartIndex_curIdx++;
-        if(getPartIndex_curIdx >= NPART)
-        {
-            getPartIndex_curIdx = 0;
-            lua_pushboolean(l, 0);
-            return 1;
-        }
-        if(parts[getPartIndex_curIdx].type)
-            break;
+	while(1)
+	{
+		getPartIndex_curIdx++;
+		if(getPartIndex_curIdx >= NPART)
+		{
+			getPartIndex_curIdx = 0;
+			lua_pushboolean(l, 0);
+			return 1;
+		}
+		if(parts[getPartIndex_curIdx].type)
+			break;
 
-    }
+	}
 
-    lua_pushboolean(l, 1);
-    return 1;
+	lua_pushboolean(l, 1);
+	return 1;
 }
 int luatpt_getPartIndex(lua_State* l)
 {
-    if(getPartIndex_curIdx < 0)
-    {
-        lua_pushinteger(l, 0);
-        return 1;
-    }
-    lua_pushinteger(l, getPartIndex_curIdx);
-    return 1;
+	if(getPartIndex_curIdx < 0)
+	{
+		lua_pushinteger(l, 0);
+		return 1;
+	}
+	lua_pushinteger(l, getPartIndex_curIdx);
+	return 1;
 }
 int luatpt_hud(lua_State* l)
 {
-    int hudstate;
-    hudstate = luaL_optint(l, 1, -1);
+	int hudstate;
+	hudstate = luaL_optint(l, 1, -1);
 	if (hudstate == -1)
 	{
 		lua_pushnumber(l, hud_enable);
 		return 1;
 	}
-    hud_enable = (hudstate==0?0:1);
-    return 0;
+	hud_enable = (hudstate==0?0:1);
+	return 0;
 }
 int luatpt_gravity(lua_State* l)
 {
-    int gravstate;
-    gravstate = luaL_optint(l, 1, -1);
+	int gravstate;
+	gravstate = luaL_optint(l, 1, -1);
 	if (gravstate == -1)
 	{
 		lua_pushnumber(l, ngrav_enable);
 		return 1;
 	}
-    if(gravstate)
-        start_grav_async();
-    else
-        stop_grav_async();
-    ngrav_enable = (gravstate==0?0:1);
-    return 0;
+	if(gravstate)
+		start_grav_async();
+	else
+		stop_grav_async();
+	ngrav_enable = (gravstate==0?0:1);
+	return 0;
 }
 int luatpt_airheat(lua_State* l)
 {
-    int aheatstate;
-    aheatstate = luaL_optint(l, 1, -1);
+	int aheatstate;
+	aheatstate = luaL_optint(l, 1, -1);
 	if (aheatstate == -1)
 	{
 		lua_pushnumber(l, aheat_enable);
 		return 1;
 	}
-    aheat_enable = (aheatstate==0?0:1);
-    return 0;
+	aheat_enable = (aheatstate==0?0:1);
+	return 0;
 }
 int luatpt_active_menu(lua_State* l)
 {
-    int menuid;
-    menuid = luaL_optint(l, 1, -1);
+	int menuid;
+	menuid = luaL_optint(l, 1, -1);
 	if (menuid == -1)
 	{
 		lua_pushnumber(l, active_menu);
 		return 1;
 	}
-    if (menuid < SC_TOTAL && menuid >= 0)
-        active_menu = menuid;
-    else
-        return luaL_error(l, "Invalid menu");
-    return 0;
+	if (menuid < SC_TOTAL && menuid >= 0)
+		active_menu = menuid;
+	else
+		return luaL_error(l, "Invalid menu");
+	return 0;
 }
 int luatpt_decorations_enable(lua_State* l)
 {
-    int decostate;
-    decostate = luaL_optint(l, 1, -1);
+	int decostate;
+	decostate = luaL_optint(l, 1, -1);
 	if (decostate == -1)
 	{
 		lua_pushnumber(l, decorations_enable);
 		return 1;
 	}
-    decorations_enable = (decostate==0?0:1);
-    return 0;
+	decorations_enable = (decostate==0?0:1);
+	return 0;
 }
 
 int luatpt_heat(lua_State* l)
@@ -2427,11 +2427,11 @@ int luatpt_getscript(lua_State* l)
 	outputfile = NULL;
 	if(run_script)
 	{
-    luacommand = (char*)malloc(strlen(filename)+20);
-    sprintf(luacommand,"dofile(\"%s\")",filename);
-    luacon_eval(luacommand);
-    }
-    
+		luacommand = (char*)malloc(strlen(filename)+20);
+		sprintf(luacommand,"dofile(\"%s\")",filename);
+		luacon_eval(luacommand);
+	}
+	
 fin:
 	if(fileid) free(fileid);
 	if(filedata) free(filedata);
@@ -2857,9 +2857,10 @@ int luatpt_save_stamp(lua_State* l)
 	int y = luaL_optint(l,2,0);
 	int w = luaL_optint(l,3,XRES);
 	int h = luaL_optint(l,4,YRES);
+	int saveas = luaL_optint(l,5,5);
 	int oldsave_as = save_as;
 	char *name;
-	save_as = 3;
+	save_as = saveas;
 	name = stamp_save(x, y, w, h);
 	save_as = oldsave_as;
 	lua_pushstring(l, name);
@@ -2891,17 +2892,19 @@ int luatpt_load_stamp(lua_State* l)
 		{
 			load_data = file_load(filename, &stamp_size);
 			if (!load_data)
-				return luaL_error(l, "Invavlid stamp: %s", filename);
+				return luaL_error(l, "Invalid stamp: %s", filename);
 		}
 		else
-			return luaL_error(l, "Invavlid stamp ID: %d", i);
+			return luaL_error(l, "Invalid stamp ID: %d", i);
 	}
 	else
 	{
 		load_data = stamp_load(i, &stamp_size, 0);
 	}
-	ret = parse_save(load_data, stamp_size, 0, x, y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-	lua_pushinteger(l, ret);
+	if (parse_save(load_data, stamp_size, 0, x, y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap))
+		lua_pushinteger(l, 1);
+	else
+		lua_pushnil(l);
 	return 1;
 }
 
