@@ -36,17 +36,23 @@ int update_EXOT(UPDATE_FUNC_ARGS) {
 					parts[i].life = 1500;
 				else if ((r&0xFF) == PT_LAVA)
 				{
-					if (parts[r>>8].ctype == PT_TTAN && 1>rand()%10)
+					if (parts[r>>8].ctype == PT_TTAN || parts[r>>8].ctype == PT_TTAN)
 					{
-						parts[r>>8].ctype = PT_VIBR;
-						kill_part(i);
-						return 1;
+						if (!(rand()%10))
+						{
+							parts[r>>8].ctype = PT_VIBR;
+							kill_part(i);
+							return 1;
+						}
 					}
-					/*else if (parts[r>>8].ctype == PT_VIBR && 1>rand()%1000)
+					else if (parts[r>>8].ctype == PT_VIBR)
 					{
-						kill_part(i);
-						return 1;
-					}*/
+						if (!(rand()%1000))
+						{
+							kill_part(i);
+							return 1;
+						}
+					}
 				}
 				if ((parts[i].tmp>245) && (parts[i].life>1000))
 					if ((r&0xFF)!=PT_EXOT && (r&0xFF)!=PT_BREL && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && (r&0xFF)!=PT_PRTI && (r&0xFF)!=PT_PRTO && (r&0xFF)!=PT_PHOT && (r&0xFF)!=PT_VOID && (r&0xFF)!=PT_NBHL && (r&0xFF)!=PT_WARP && (r&0xFF)!=PT_NEUT)
