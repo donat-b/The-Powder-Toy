@@ -68,26 +68,36 @@ int update_FIGH(UPDATE_FUNC_ARGS)
 			else
 				if (tarx<x)
 				{
-					if(!(eval_move(PT_FIGH, (int)figh->legs[4]-10, (int)figh->legs[5]+6, NULL) 
+					if(figh->rocketBoots || !(eval_move(PT_FIGH, (int)figh->legs[4]-10, (int)figh->legs[5]+6, NULL) 
 					  && eval_move(PT_FIGH, (int)figh->legs[4]-10, (int)figh->legs[5]+3, NULL)))
 						figh->comm = 0x01;
 					else
 						figh->comm = 0x02;
 
-					if (!eval_move(PT_FIGH, (int)figh->legs[4]-4, (int)figh->legs[5]-1, NULL) 
+					if (figh->rocketBoots)
+					{
+						if (tary<y)
+							figh->comm = (int)figh->comm | 0x04;
+					}
+					else if (!eval_move(PT_FIGH, (int)figh->legs[4]-4, (int)figh->legs[5]-1, NULL) 
 							|| !eval_move(PT_FIGH, (int)figh->legs[12]-4, (int)figh->legs[13]-1, NULL)
 							|| eval_move(PT_FIGH, (int)(2*figh->legs[4]-figh->legs[6]), (int)figh->legs[5]+5, NULL))
 						figh->comm = (int)figh->comm | 0x04;
 				}
 				else
 				{
-					if (!(eval_move(PT_FIGH, (int)figh->legs[12]+10, (int)figh->legs[13]+6, NULL)
+					if (figh->rocketBoots || !(eval_move(PT_FIGH, (int)figh->legs[12]+10, (int)figh->legs[13]+6, NULL)
 					   && eval_move(PT_FIGH, (int)figh->legs[12]+10, (int)figh->legs[13]+3, NULL)))
 						figh->comm = 0x02;
 					else
 						figh->comm = 0x01;
 
-					if (!eval_move(PT_FIGH, (int)figh->legs[4]+4, (int)figh->legs[5]-1, NULL) 
+					if (figh->rocketBoots)
+					{
+						if (tary<y)
+							figh->comm = (int)figh->comm | 0x04;
+					}
+					else if (!eval_move(PT_FIGH, (int)figh->legs[4]+4, (int)figh->legs[5]-1, NULL) 
 							|| !eval_move(PT_FIGH, (int)figh->legs[4]+4, (int)figh->legs[5]-1, NULL)
 							|| eval_move(PT_FIGH, (int)(2*figh->legs[12]-figh->legs[14]), (int)figh->legs[13]+5, NULL))
 						figh->comm = (int)figh->comm | 0x04;

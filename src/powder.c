@@ -1393,6 +1393,7 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 				parts[i].temp = ptypes[t].heat;
 				STKM_init_legs(&player, i);
 				player.spwn = 1;
+				player2.rocketBoots = 0;
 			}
 			else
 			{
@@ -1418,6 +1419,7 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 				parts[i].temp = ptypes[t].heat;
 				STKM_init_legs(&player2, i);
 				player2.spwn = 1;
+				player2.rocketBoots = 0;
 			}
 			else
 			{
@@ -1458,6 +1460,7 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 					STKM_init_legs(&fighters[fcount], i);
 					fighters[fcount].spwn = 1;
 					fighters[fcount].elem = PT_DUST;
+					fighters[fcount].rocketBoots = 0;
 					fighcount++;
 
 					return i;

@@ -2867,6 +2867,28 @@ void render_parts(pixel *vid)
 					draw_line(vid , (int)cplayer->legs[0], (int)cplayer->legs[1], (int)cplayer->legs[4], (int)cplayer->legs[5], legr, legg, legb, s);
 					draw_line(vid , nx, ny+3, (int)cplayer->legs[8], (int)cplayer->legs[9], legr, legg, legb, s);
 					draw_line(vid , (int)cplayer->legs[8], (int)cplayer->legs[9], (int)cplayer->legs[12], (int)cplayer->legs[13], legr, legg, legb, s);
+					if (cplayer->rocketBoots)
+					{
+						int leg;
+						for (leg=0; leg<2; leg++)
+						{
+							int nx = (float)cplayer->legs[leg*8+4], ny = (float)cplayer->legs[leg*8+5];
+							int colr = 255, colg = 0, colb = 255;
+							if (((int)(cplayer->comm)&0x04) == 0x04 || (((int)(cplayer->comm)&0x01) == 0x01 && leg==0) || (((int)(cplayer->comm)&0x02) == 0x02 && leg==1))
+								blendpixel(vid, nx, ny, 0, 255, 0, 255);
+							else
+								blendpixel(vid, nx, ny, 255, 0, 0, 255);
+							blendpixel(vid, nx+1, ny, colr, colg, colb, 223);
+							blendpixel(vid, nx-1, ny, colr, colg, colb, 223);
+							blendpixel(vid, nx, ny+1, colr, colg, colb, 223);
+							blendpixel(vid, nx, ny-1, colr, colg, colb, 223);
+
+							blendpixel(vid, nx+1, ny-1, colr, colg, colb, 112);
+							blendpixel(vid, nx-1, ny-1, colr, colg, colb, 112);
+							blendpixel(vid, nx+1, ny+1, colr, colg, colb, 112);
+							blendpixel(vid, nx-1, ny+1, colr, colg, colb, 112);
+						}
+					}
 #endif
 				}
 #ifdef OGLR

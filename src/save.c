@@ -2011,12 +2011,14 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						STKM_init_legs(&player, newIndex);
 						player.spwn = 1;
 						player.elem = PT_DUST;
+						player.rocketBoots = 0;
 					}
 					else if (partsptr[newIndex].type == PT_STKM2)
 					{
 						STKM_init_legs(&player2, newIndex);
 						player2.spwn = 1;
 						player2.elem = PT_DUST;
+						player2.rocketBoots = 0;
 					}
 					else if (partsptr[newIndex].type == PT_FIGH)
 					{
@@ -2027,6 +2029,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							partsptr[newIndex].tmp = fcount;
 							fighters[fcount].spwn = 1;
 							fighters[fcount].elem = PT_DUST;
+							fighters[fcount].rocketBoots = 0;
 							fighcount++;
 							STKM_init_legs(&(fighters[fcount]), newIndex);
 						}
@@ -2933,12 +2936,14 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 				STKM_init_legs(&player, i-1);
 				player.spwn = 1;
 				player.elem = PT_DUST;
+				player.rocketBoots = 0;
 			}
 			else if (parts[i-1].type == PT_STKM2)
 			{
 				STKM_init_legs(&player2, i-1);
 				player2.spwn = 1;
 				player2.elem = PT_DUST;
+				player2.rocketBoots = 0;
 			}
 			else if (parts[i-1].type == PT_FIGH)
 			{
@@ -2949,6 +2954,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					parts[i-1].tmp = fcount;
 					fighters[fcount].spwn = 1;
 					fighters[fcount].elem = PT_DUST;
+					fighters[fcount].rocketBoots = 0;
 					fighcount++;
 					STKM_init_legs(&(fighters[fcount]), i-1);
 				}

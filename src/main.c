@@ -778,6 +778,7 @@ int main(int argc, char *argv[])
 	
 	player.elem = player2.elem = PT_DUST;
 	player.frames = player2.frames = 0;
+	player.rocketBoots = 0;
 
 	sprintf(ppmfilename, "%s.ppm", argv[2]);
 	sprintf(ptifilename, "%s.pti", argv[2]);
