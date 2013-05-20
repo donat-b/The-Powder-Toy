@@ -51,19 +51,19 @@ int update_CBNW(UPDATE_FUNC_ARGS) {
         	pv[y/CELL][x/CELL] += 0.2f;
 		}
 	}
-	for (rx=-2; rx<3; rx++)
-		for (ry=-2; ry<3; ry++)
+	for (rx=-1; rx<2; rx++)
+		for (ry=-1; ry<2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
 				r = ((pmap[y+ry][x+rx]&0xFF)==PT_PINV&&parts[pmap[y+ry][x+rx]>>8].life==10)?0:pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if (ptypes[r&0xFF].properties&TYPE_PART && parts[i].tmp == 0 && 1>(rand()%250))
+				if (ptypes[r&0xFF].properties&TYPE_PART && parts[i].tmp == 0 && !(rand()%83))
 				{
 					//Start explode
 					parts[i].tmp = rand()%25;//(rand()%100)+50;
 				}
-				else if(ptypes[r&0xFF].properties&TYPE_SOLID && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && (r&0xFF)!=PT_GLAS && parts[i].tmp == 0 && (2-pv[y/CELL][x/CELL])>(rand()%20000))
+				else if(ptypes[r&0xFF].properties&TYPE_SOLID && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && (r&0xFF)!=PT_GLAS && parts[i].tmp == 0 && (2-pv[y/CELL][x/CELL])>(rand()%6667))
 				{
 					if(rand()%2)
 					{
@@ -87,7 +87,7 @@ int update_CBNW(UPDATE_FUNC_ARGS) {
 							parts[r>>8].tmp++;
 					}
 				}
-				if (((r&0xFF)==PT_RBDM||(r&0xFF)==PT_LRBD) && (legacy_enable||parts[i].temp>(273.15f+12.0f)) && 1>(rand()%500))
+				if (((r&0xFF)==PT_RBDM||(r&0xFF)==PT_LRBD) && (legacy_enable||parts[i].temp>(273.15f+12.0f)) && !(rand()%166))
 				{
 					part_change_type(i,x,y,PT_FIRE);
 					parts[i].life = 4;
@@ -95,7 +95,7 @@ int update_CBNW(UPDATE_FUNC_ARGS) {
 				}
 				if ((r&0xFF)==PT_FIRE && parts[r>>8].ctype!=PT_WATR){
 					kill_part(r>>8);
-						if(1>(rand()%150)){
+						if(!(rand()%50)){
 							kill_part(i);
 							return 1;
 						}

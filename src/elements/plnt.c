@@ -17,30 +17,30 @@
 
 int update_PLNT(UPDATE_FUNC_ARGS) {
 	int r, rx, ry, np;
-	for (rx=-2; rx<3; rx++)
-		for (ry=-2; ry<3; ry++)
+	for (rx=-1; rx<2; rx++)
+		for (ry=-1; ry<2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)==PT_WATR && 1>(rand()%250))
+				if ((r&0xFF)==PT_WATR && !(rand()%50))
 				{
 					np = create_part(r>>8,x+rx,y+ry,PT_PLNT);
 					if (np<0) continue;
 					parts[np].life = 0;
 				}
-				else if ((r&0xFF)==PT_LAVA && 1>(rand()%250))
+				else if ((r&0xFF)==PT_LAVA && !(rand()%50))
 				{
 					part_change_type(i,x,y,PT_FIRE);
 					parts[i].life = 4;
 				}
-				else if (((r&0xFF)==PT_SMKE || (r&0xFF)==PT_CO2) && (1>rand()%250))
+				else if (((r&0xFF)==PT_SMKE || (r&0xFF)==PT_CO2) && !(rand()%50))
 				{
 					kill_part(r>>8);
 					parts[i].life = rand()%60 + 60;
 				}
-				else if (surround_space && ((r&0xFF)==PT_WOOD) && (1>rand()%20) && (abs(rx+ry)<=2) && (VINE_MODE || parts[i].tmp==1) )				
+				else if (surround_space && ((r&0xFF)==PT_WOOD) && !(rand()%4) && (abs(rx+ry)<=2) && (VINE_MODE || parts[i].tmp==1) )
 				{
 					int nnx = rand()%3 -1;
 					int nny = rand()%3 -1;

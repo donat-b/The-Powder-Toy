@@ -4762,7 +4762,7 @@ int sdl_open(void)
 	icon = SDL_CreateRGBSurfaceFrom(app_icon, 16, 16, 32, 64, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
 	SDL_WM_SetIcon(icon, NULL);
 #endif
-	SDL_WM_SetCaption("Jacob1's Mod", "Powder Toy");
+	SDL_WM_SetCaption("Jacob1's Mod", "Jacob1's Mod");
 	
 	atexit(SDL_Quit);
 
