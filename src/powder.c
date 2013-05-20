@@ -81,7 +81,7 @@ int ISSPAWN2 = 0;
 int love[XRES/9][YRES/9];
 int lolz[XRES/9][YRES/9];
 unsigned char gol[YRES][XRES];
-unsigned char gol2[YRES][XRES][NGOL+1];
+short gol2[YRES][XRES][9];
 
 float msvx[256], msvy[256], msrotation[256], newmsrotation[256];
 int msindex[256], msnum[256], numballs = 0, creatingsolid = 1, ms_rotation = 0;
@@ -2065,15 +2065,13 @@ void PPIP_update()
 			parts[i].tmp &= ~0xE0000000;
 		}
 	}
-		ppip_changed = 0;
+	ppip_changed = 0;
 }
 
 void LIFE_update()
 {
-	int nx, nnx, ny, nny, r, rt, golnum, neighbors, goldelete, z;
-	int createdsomething = 0;
-	CGOL=0;
-	ISGOL=0;
+	int i, nx, ny, nnx, nny, r, rt, z, golnum, neighbors, createdsomething = 0;
+	CGOL=0, ISGOL = 0;
 	for (ny=CELL; ny<YRES-CELL; ny++)
 	{//go through every particle and set neighbor map
 		for (nx=CELL; nx<XRES-CELL; nx++)
@@ -2084,38 +2082,46 @@ void LIFE_update()
 				gol[ny][nx] = 0;
 				continue;
 			}
-			else
+			if ((r&0xFF)==PT_LIFE)
 			{
-				//for ( golnum=1; golnum<=NGOL; golnum++) //This shouldn't be necessary any more.
-				//{
-					if (parts[r>>8].type==PT_LIFE/* && parts[r>>8].ctype==golnum-1*/)
+				golnum = parts[r>>8].ctype+1;
+				if (golnum<=0 || golnum>NGOL) {
+					kill_part(r>>8);
+					continue;
+				}
+				gol[ny][nx] = golnum;
+				if (parts[r>>8].tmp == grule[golnum][9]-1) {
+					for ( nnx=-1; nnx<2; nnx++)
 					{
-						golnum = parts[r>>8].ctype+1;
-						if (golnum<=0 || golnum>NGOLALT) {
-							parts[r>>8].type = PT_NONE;
-							continue;
-						}
-						if (parts[r>>8].tmp == grule[golnum][9]-1) {
-							gol[ny][nx] = golnum;
-							for ( nnx=-1; nnx<2; nnx++)
+						for ( nny=-1; nny<2; nny++)//it will count itself as its own neighbor, which is needed, but will have 1 extra for delete check
+						{
+							int adx = ((nx+nnx+XRES-3*CELL)%(XRES-2*CELL))+CELL;
+							int ady = ((ny+nny+YRES-3*CELL)%(YRES-2*CELL))+CELL;
+							rt = pmap[ady][adx];
+							if (!rt || (rt&0xFF)==PT_LIFE)
 							{
-								for ( nny=-1; nny<2; nny++)//it will count itself as its own neighbor, which is needed, but will have 1 extra for delete check
+								//the total neighbor count is in 0
+								gol2[ady][adx][0] ++;
+								//insert golnum into neighbor table
+								for (i=1; i<9; i++)
 								{
-									rt = pmap[((ny+nny+YRES-3*CELL)%(YRES-2*CELL))+CELL][((nx+nnx+XRES-3*CELL)%(XRES-2*CELL))+CELL];
-									if (!rt || (rt&0xFF)==PT_LIFE)
+									if (!gol2[ady][adx][i])
 									{
-										gol2[((ny+nny+YRES-3*CELL)%(YRES-2*CELL))+CELL][((nx+nnx+XRES-3*CELL)%(XRES-2*CELL))+CELL][golnum] ++;
-										gol2[((ny+nny+YRES-3*CELL)%(YRES-2*CELL))+CELL][((nx+nnx+XRES-3*CELL)%(XRES-2*CELL))+CELL][0] ++;
+										gol2[ady][adx][i] = (golnum<<4)+1;
+										break;
+									}
+									else if((gol2[ady][adx][i]>>4)==golnum)
+									{
+										gol2[ady][adx][i]++;
+										break;
 									}
 								}
 							}
-						} else {
-							parts[r>>8].tmp --;
-							if (parts[r>>8].tmp<=0)
-								parts[r>>8].type = PT_NONE;//using kill_part makes it not work
 						}
 					}
-				//}
+				} else {
+					parts[r>>8].tmp --;
+				}
 			}
 		}
 	}
@@ -2124,32 +2130,44 @@ void LIFE_update()
 		for (nx=CELL; nx<XRES-CELL; nx++)
 		{
 			r = pmap[ny][nx];
-			neighbors = gol2[ny][nx][0];
-			if (neighbors==0 || !((r&0xFF)==PT_LIFE || !(r&0xFF)))
+			if (r && (r&0xFF)!=PT_LIFE)
 				continue;
-			for (golnum = 1; golnum<=NGOL; golnum++)
+			neighbors = gol2[ny][nx][0];
+			if (neighbors)
 			{
-				goldelete = neighbors;
-				if (gol[ny][nx]==0&&grule[golnum][goldelete]>=2&&gol2[ny][nx][golnum]>=(goldelete%2)+goldelete/2)
+				golnum = gol[ny][nx];
+				if (!r)
 				{
-					if (create_part(-1, nx, ny, PT_LIFE|((golnum-1)<<8)))
-						createdsomething = 1;
+					//Find which type we can try and create
+					int creategol = 0xFF;
+					for ( i=1; i<9; i++)
+					{
+						if (!gol2[ny][nx][i]) break;
+						golnum = (gol2[ny][nx][i]>>4);
+						if (grule[golnum][neighbors]>=2 && (gol2[ny][nx][i]&0xF)>=(neighbors%2)+neighbors/2)
+						{
+							if (golnum<creategol) creategol=golnum;
+						}
+					}
+					if (creategol<0xFF)
+						if (create_part(-1, nx, ny, PT_LIFE|((creategol-1)<<8)) > -1)
+							createdsomething = 1;
 				}
-				else if (gol[ny][nx]==golnum&&(grule[golnum][goldelete-1]==0||grule[golnum][goldelete-1]==2))//subtract 1 because it counted itself
+				else if (grule[golnum][neighbors-1]==0 || grule[golnum][neighbors-1]==2)//subtract 1 because it counted itself
 				{
 					if (parts[r>>8].tmp==grule[golnum][9]-1)
 						parts[r>>8].tmp --;
 				}
-				if (r && parts[r>>8].tmp<=0)
-					parts[r>>8].type = PT_NONE;//using kill_part makes it not work
+				for (z = 0; z<9; z++)
+					gol2[ny][nx][z] = 0;//this improves performance A LOT compared to the memset, i was getting ~23 more fps with this.
 			}
-			for (z = 0; z<=NGOL; z++)
-				gol2[ny][nx][z] = 0;//this improves performance A LOT compared to the memset, i was getting ~23 more fps with this.
+			//we still need to kill things with 0 neighbors (higher state life)
+			if (r && parts[r>>8].tmp<=0)
+					kill_part(r>>8);
 		}
 	}
 	if (createdsomething)
 		GENERATION ++;
-	//memset(gol2, 0, sizeof(gol2));
 }
 
 void WIFI_update()

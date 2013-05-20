@@ -4726,12 +4726,12 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 #endif
 }
 
-int savedWindowX = 0;
-int savedWindowY = 0;
+int savedWindowX = INT_MAX;
+int savedWindowY = INT_MAX;
 #ifdef WIN32
 
-// Returns true if the loaded position was set
-// Returns false if something went wrong: SDL_GetWMInfo failed or the loaded position was invalid
+// Returns 1 if the loaded position was set
+// Returns 0 if something went wrong: SDL_GetWMInfo failed or the loaded position was invalid
 int LoadWindowPosition(int scale)
 {
 	SDL_SysWMinfo sysInfo;
@@ -4781,14 +4781,14 @@ int LoadWindowPosition(int scale)
 		
 		SetWindowPos(sysInfo.window, 0, newWindowX, newWindowY, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
 
-		// True if we didn't use the default, i.e. the position was valid
+		// 1 if we didn't use the default, i.e. the position was valid
 		return success;
 	}
 
 	return 0;
 }
 
-// Returns true if the window position was saved
+// Returns 1 if the window position was saved
 int SaveWindowPosition()
 {
 	SDL_SysWMinfo sysInfo;
