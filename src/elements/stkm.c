@@ -335,7 +335,7 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS) {
 	//Searching for particles near head
 	for (rx=-2; rx<3; rx++)
 		for (ry=-2; ry<3; ry++)
-			if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+			if (BOUNDS_CHECK && (rx || ry))
 			{
 				r = pmap[y+ry][x+rx];
 				if (!r)
@@ -375,7 +375,7 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS) {
 					playerp->rocketBoots = false;
 				else if (bmap[(ry+y)/CELL][(rx+x)/CELL]==WL_GRAV /* && parts[i].type!=PT_FIGH */)
 					playerp->rocketBoots = true;
-				if ((r&0xFF)==PT_PRTI)
+				if ((r&0xFF)==PT_PRTI || (r&0xFF)==PT_PPTI)
 					STKM_interact(playerp, i, rx, ry);
 				if (!parts[i].type)//STKM_interact may kill STKM
 					return 1;
