@@ -270,7 +270,7 @@
 #define PT_COND PT_NORMAL_NUM+13
 #define PT_PWHT PT_NORMAL_NUM+14
 #define PT_EXPL PT_NORMAL_NUM+15
-#define PT_NUM 224
+#define PT_NUM 222
 
 #define R_TEMP 22
 #define MAX_TEMP 9999

@@ -486,7 +486,6 @@ tpt++ elements and some more changes made to elements in tpt++.
 
 
 Bugs:
-broken descriptions on first 2 walls
 wall id's don't match with tpt++ in lua
 clear sim can be clicked too high, y=404
 //None (at least that I know of)
