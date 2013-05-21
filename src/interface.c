@@ -6846,7 +6846,46 @@ const static struct command_match matches [] = {
 	{"type", "typ"},
 };
 
-char *console_ui(pixel *vid_buf,char error[255],char console_more) {
+void console_limit_history(int limit, command_history *commandList)
+{
+	int cc;
+	for (cc = 0; cc <= limit; cc++)
+	{
+		if (commandList==NULL)
+			break;
+		if (commandList->prev_command != NULL)
+		{
+			if (cc<limit-1)
+				commandList = commandList->prev_command;
+			else if (commandList->prev_command != NULL)
+			{
+				free(commandList->prev_command);
+				commandList->prev_command = NULL;
+			}
+			
+		}
+		else
+			break;
+	}
+}
+
+void console_draw_history(int limit, int x, command_history *commandList)
+{
+	int cc;
+	for (cc = 0; cc < limit; cc++)
+	{
+		if (commandList == NULL)
+			break;
+		drawtext(vid_buf, x, 175-(cc*12), commandList->command, 255, 255, 255, 255);
+		if (commandList->prev_command == NULL)
+			break;
+		else
+			commandList = commandList->prev_command;
+	}
+}
+
+int console_ui(pixel *vid_buf)
+{
 	int mx,my,b=0,bq,cc,ci = -1,i,j;
 	char *match = 0, *str, laststr[256] = "";
 	pixel *old_buf=(pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
@@ -6865,24 +6904,22 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 	ed.multiline = 0;
 	ed.limit = 255;
 	ed.cursor = ed.cursorstart = 0;
-	//fillrect(vid_buf, -1, -1, XRES, 220, 0, 0, 0, 190);
 	if (!old_buf)
-		return NULL;
+		return 0;
 	memcpy(old_buf,vid_buf,(XRES+BARSIZE)*YRES*PIXELSIZE);
 
 	fillrect(old_buf, -1, -1, XRES+BARSIZE, 220, 0, 0, 0, 190);
 
-	currentcommand_result = (command_history*)malloc(sizeof(command_history));
-	memset(currentcommand_result, 0, sizeof(command_history));
-	currentcommand_result->prev_command = last_command_result;
-	currentcommand_result->command = mystrdup(error);
-	last_command_result = currentcommand_result;
+	currentcommand = last_command;
+	currentcommand_result = last_command_result;
+	console_limit_history(20, currentcommand);
+	console_limit_history(20, currentcommand_result);
 
-	cc = 0;
-	while (cc < 80) {
+	/*while (cc < 80)
+	{
 		fillrect(old_buf, -1, -1+cc, XRES+BARSIZE, 2, 0, 0, 0, 160-(cc*2));
 		cc++;
-	}
+	}*/
 	while (!sdl_poll())
 	{
 		bq = b;
@@ -6897,50 +6934,11 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 		drawtext(vid_buf, 15, 15, "Welcome to The Powder Toy console v.3 (by cracker64)", 255, 255, 255, 255);
 #endif
 
-		cc = 0;
 		currentcommand = last_command;
-		while (cc < 10)
-		{
-			if (currentcommand==NULL)
-				break;
-			drawtext(vid_buf, 15, 175-(cc*12), currentcommand->command, 255, 255, 255, 255);
-			if (currentcommand->prev_command!=NULL)
-			{
-				if (cc<9) {
-					currentcommand = currentcommand->prev_command;
-				} else if (currentcommand->prev_command!=NULL) {
-					free(currentcommand->prev_command);
-					currentcommand->prev_command = NULL;
-				}
-				cc++;
-			}
-			else
-			{
-				break;
-			}
-		}
-		cc = 0;
 		currentcommand_result = last_command_result;
-		while (cc < 10)
-		{
-			if (currentcommand_result == NULL)
-				break;
-			drawtext(vid_buf, 180, 175-(cc*12), currentcommand_result->command, 255, 225, 225, 255);
-			if (currentcommand_result->prev_command!=NULL)
-			{
-				if (cc<9) {
-					currentcommand_result = currentcommand_result->prev_command;
-				} else if (currentcommand_result->prev_command!=NULL) {
-					free(currentcommand_result->prev_command);
-					currentcommand_result->prev_command = NULL;
-				}
-				cc++;
-			}
-			else
-			{
-				break;
-			}
-		}
+		console_draw_history(12, 15, currentcommand);
+		console_draw_history(12, 180, currentcommand_result);
+
 		if (strcmp(laststr,ed.str))
 		{
 			str = ed.str;
@@ -6963,12 +6961,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 		if (match)
 			drawtext(vid_buf,ed.x+textwidth(ed.str)-textwidth(match),ed.y,matches[j].command,255,255,255,127);
 
-		//if(error && ed.str[0]=='\0')
-		//drawtext(vid_buf, 20, 207, error, 255, 127, 127, 200);
-		if (console_more==0)
-			drawtext(vid_buf, 5, 207, ">", 255, 255, 255, 240);
-		else
-			drawtext(vid_buf, 5, 207, "...", 255, 255, 255, 240);
+		drawtext(vid_buf, 5, 207, ">", 255, 255, 255, 240);
 
 		strncpy(laststr, ed.str, 256);
 		ui_edit_draw(vid_buf, &ed);
@@ -6986,19 +6979,43 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 		}
 		if (sdl_key==SDLK_RETURN)
 		{
+			char *command = mystrdup(ed.str);
+			char *result = NULL;
+			if (process_command_lua(vid_buf, command, &result) == -1)
+			{
+				free(old_buf);
+				return -1;
+			}
+
 			currentcommand = (command_history*)malloc(sizeof(command_history));
 			memset(currentcommand, 0, sizeof(command_history));
 			currentcommand->prev_command = last_command;
-			currentcommand->command = mystrdup(ed.str);
+			if (command)
+				currentcommand->command = mystrdup(command);
+			else
+				currentcommand->command = mystrdup("");
 			last_command = currentcommand;
-			free(old_buf);
-			return currentcommand->command;
+
+			currentcommand_result = (command_history*)malloc(sizeof(command_history));
+			memset(currentcommand_result, 0, sizeof(command_history));
+			currentcommand_result->prev_command = last_command_result;
+			if (result)
+				currentcommand_result->command = mystrdup(result);
+			else
+				currentcommand_result->command = mystrdup("");
+			last_command_result = currentcommand_result;
+
+			console_limit_history(20, currentcommand);
+			console_limit_history(20, currentcommand_result);
+
+			strcpy(ed.str, "");
+			ed.cursor = ed.cursorstart = 0;
 		}
 		if (sdl_key==SDLK_ESCAPE || (sdl_key==SDLK_BACKQUOTE && !(sdl_mod & (KMOD_SHIFT))))
 		{
 			console_mode = 0;
 			free(old_buf);
-			return NULL;
+			return 1;
 		}
 		if (sdl_key==SDLK_UP || sdl_key==SDLK_DOWN)
 		{
@@ -7038,7 +7055,7 @@ char *console_ui(pixel *vid_buf,char error[255],char console_more) {
 	}
 	console_mode = 0;
 	free(old_buf);
-	return NULL;
+	return 1;
 }
 
 ui_edit box_R;

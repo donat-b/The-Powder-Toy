@@ -942,7 +942,7 @@ int luaL_tostring (lua_State *L, int n) {
 }
 
 char *lastCode = NULL;
-int luacon_eval(char *command)
+int luacon_eval(char *command, char **result)
 {
 	int level = lua_gettop(l), ret = -1;
 	char text[255] = "", *tmp;
@@ -969,10 +969,10 @@ int luacon_eval(char *command)
 	}
 	if(lua_type(l, -1) != LUA_TFUNCTION)
 	{
-		strncpy(console_error, luacon_geterror(), 254);
-		if (strstr(console_error, "near '<eof>'"))
+		*result = mystrdup(luacon_geterror());
+		if (strstr(*result, "near '<eof>'"))
 		{
-			strcpy(console_error, "...");
+			*result = mystrdup("...");
 		}
 		else
 		{
@@ -1005,14 +1005,14 @@ int luacon_eval(char *command)
 				lua_pop(l, 1);
 			}
 			if(strlen(text))
-				if(strlen(console_error))
+				if(*result && strlen(*result))
 				{
-					char *tmp2 = (char*)calloc(strlen(console_error)+strlen(text)+3, sizeof(char));
-					snprintf(tmp2, 254, "%s; %s", console_error, text);
-					strncpy(console_error, tmp2, 254);
+					char *tmp2 = (char*)calloc(strlen(*result)+strlen(text)+3, sizeof(char));
+					snprintf(tmp2, 254, "%s; %s", result, text);
+					*result = tmp2;
 				}
 				else
-					strncpy(console_error, text, 254);
+					*result = mystrdup(text);
 
 		}
 	}
@@ -1093,33 +1093,21 @@ const char *luacon_geterror()
 void luacon_close(){
 	lua_close(l);
 }
-int process_command_lua(pixel *vid_buf, char *console, char *console_error)
+int process_command_lua(pixel *vid_buf, char *command, char **result)
 {
-	int commandret;
-	const char * tmp_error;
-	char console2[15];
-	char console3[15];
-	char console4[15];
-	char console5[15];
-	//sprintf(console_error, "%s", console);
-	if (console && strcmp(console, "")!=0 && strncmp(console, " ", 1)!=0)
+	if (command && strlen(command))
 	{
-		sscanf(console,"%14s %14s %14s %14s", console2, console3, console4, console5);
-		if (strcmp(console2, "quit")==0)
+		if(strncmp(command, "!", 1)==0)
 		{
-			return -1;
-		}
-		else if(strncmp(console, "!", 1)==0)
-		{
-			return process_command_old(vid_buf, console+1, console_error);
+			return process_command_old(vid_buf, command+1, result);
 		}
 		else
 		{
-			commandret = luacon_eval(console);
-			if (commandret){
-				tmp_error = luacon_geterror();
-				strncpy(console_error, tmp_error, 254);
-				printf("%s\n", tmp_error);
+			int commandret = luacon_eval(command, result);
+			if (commandret)
+			{
+				*result = mystrdup(luacon_geterror());
+				printf("%s\n", *result);
 			}
 		}
 	}
@@ -1351,14 +1339,15 @@ int luatpt_log(lua_State* l)
 	//	(*luacon_lastError) = text;
 	//else
 	//	luacon_ci->Log(CommandInterface::LogNotice, text.c_str());
-	if(strlen(console_error))
+	/*if(strlen(console_error))
 	{
 		snprintf(buffer2, 255, "%s; %s", console_error, buffer);
 		strncpy(console_error, buffer2, 254);
 	}
 	else
-		strncpy(console_error, buffer, 254);
-	return 0;
+		strncpy(console_error, buffer, 254);*/
+	lua_pushstring(l, buffer);
+	return 1;
 }
 
 void set_map(int x, int y, int width, int height, float value, int map)
@@ -2427,9 +2416,12 @@ int luatpt_getscript(lua_State* l)
 	outputfile = NULL;
 	if(run_script)
 	{
+		char *result = NULL;
 		luacommand = (char*)malloc(strlen(filename)+20);
 		sprintf(luacommand,"dofile(\"%s\")",filename);
-		luacon_eval(luacommand);
+		luacon_eval(luacommand, &result);
+		if (result)
+			free(result);
 	}
 	
 fin:

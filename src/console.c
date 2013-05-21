@@ -24,7 +24,6 @@
 #endif
 
 char console_more=0;
-char console_error[255] = "";
 int file_script = 0;
 
 //takes a a string and compares it to element names, and puts it value into element.
@@ -110,21 +109,21 @@ int console_parse_partref(const char *txt, int *which, char *err)
 	return 0;
 }
 
-int process_command_old(pixel *vid_buf, char *console, char *console_error)
+int process_command_old(pixel *vid_buf, char *command, char **result)
 {
 	int y,x,nx,ny,i,j,k,m;
 	float f;
 	int do_next = 1;
 	char xcoord[10] = "";
 	char ycoord[10] = "";
+	char console_error[255] = "";
 	char console2[15] = "";
 	char console3[15] = "";
 	char console4[15] = "";
 	char console5[15] = "";
-	//sprintf(console_error, "%s", console);
-	if (console && strcmp(console, "")!=0 && strncmp(console, " ", 1)!=0)
+	if (command && strcmp(command, "")!=0 && strncmp(command, " ", 1)!=0)
 	{
-		sscanf(console,"%14s %14s %14s %14s", console2, console3, console4, console5);//why didn't i know about this function?!
+		sscanf(command,"%14s %14s %14s %14s", console2, console3, console4, console5);//why didn't i know about this function?!
 		if (strcmp(console2, "quit")==0)
 		{
 			return -1;
@@ -198,7 +197,11 @@ int process_command_old(pixel *vid_buf, char *console, char *console_error)
 								if (strcmp(pch,"else")==0)
 									do_next = 0;
 								else
-									do_next = process_command_old(vid_buf, pch, console_error);
+								{
+									do_next = process_command_old(vid_buf, pch, result);
+									if (result)
+										free(result);
+								}
 							}
 							else if (strcmp(pch,"endif")==0 || strcmp(pch,"else")==0)
 								do_next = 1;
@@ -647,5 +650,6 @@ int process_command_old(pixel *vid_buf, char *console, char *console_error)
 			else
 				strcpy(console_error, "Invalid Command");
 	}
+	*result = mystrdup(console_error);
 	return 1;
 }

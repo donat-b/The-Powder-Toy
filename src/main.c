@@ -905,8 +905,7 @@ int main(int argc, char *argv[])
 	pixel *part_vbuf; //Extra video buffer
 	pixel *part_vbuf_store;
 	void *http_ver_check, *http_session_check = NULL;
-	char *ver_data=NULL, *check_data=NULL, *tmp, *changelog;
-	//char console_error[255] = "";
+	char *ver_data=NULL, *check_data=NULL, *tmp, *changelog, *autorun_result = NULL;
 	int result, i, j, bq, bc = 0, do_check=0, do_s_check=0, old_version=0, http_ret=0,http_s_ret=0, old_ver_len = 0, new_message_len=0, afk = 0, afkstart = 0;
 	int x, y, line_x, line_y, b = 0, c, lb = 0, lx = 0, ly = 0, lm = 0;//, tx, ty;
 	int da = 0, db = 0, it = 2047, mx, my, bsx = 2, bsy = 2;
@@ -952,10 +951,12 @@ int main(int argc, char *argv[])
 	fmt.callback = mixaudio;
 	fmt.userdata = NULL;
 
+#ifndef _DEBUG
 	signal(SIGSEGV, SigHandler);
 	signal(SIGFPE, SigHandler);
 	signal(SIGILL, SigHandler);
 	signal(SIGABRT, SigHandler);
+#endif
 
 #ifdef MT
 	numCores = core_count();
@@ -1175,7 +1176,9 @@ int main(int argc, char *argv[])
 			http_auth_headers(http_session_check, svf_user_id, NULL, svf_session_id);
 	}
 #ifdef LUACONSOLE
-	luacon_eval("dofile(\"autorun.lua\")"); //Autorun lua script
+	luacon_eval("dofile(\"autorun.lua\")", &autorun_result); //Autorun lua script
+	if (autorun_result)
+		free(autorun_result); // something should be done with this instead ...
 #endif
 	load_data = (void*)tab_load(1, &load_size);
 	if (load_data)
@@ -3129,21 +3132,21 @@ int main(int argc, char *argv[])
 		if (console_mode)
 		{
 #ifdef LUACONSOLE
-			char *console;
-			sys_pause = 1;
-			console = console_ui(vid_buf, console_error, console_more);
-			console = mystrdup(console);
+			//sys_pause = 1;
+			if (console_ui(vid_buf) == -1)
+				break;
+			/*console = mystrdup(console);
 			strcpy(console_error,"");
-			if (process_command_lua(vid_buf, console, console_error)==-1)
+			if (process_command_lua(vid_buf, console, console_error) == -1)
 			{
 				free(console);
 				break;
 			}
-			free(console);
+			free(console);*/
 #else
 			char *console;
 			sys_pause = 1;
-			console = console_ui(vid_buf, console_error, console_more);
+			console = console_ui(vid_buf, console_error);
 			console = mystrdup(console);
 			strcpy(console_error,"");
 			if (process_command_old(vid_buf, console, console_error)==-1)
