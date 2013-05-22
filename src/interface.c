@@ -320,9 +320,25 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 	signs[i].ju = ju;
 }
 
-void ui_edit_draw(pixel *vid_buf, ui_edit *ed)
+void ui_edit_init(ui_edit *ed, int x, int y, int h, int w)
 {
-	int cx, i, cy;
+	ed->x = x;
+	ed->y = y;
+	ed->w = w;
+	ed->h = h;
+	ed->nx = 1;
+	ed->def = "";
+	strcpy(ed->str, "");
+	ed->focus = 1;
+	ed->hide = 0;
+	ed->multiline = 0;
+	ed->limit = 255;
+	ed->cursor = ed->cursorstart = 0;
+}
+
+int ui_edit_draw(pixel *vid_buf, ui_edit *ed)
+{
+	int cx, i, cy, ret = -1;
 	char echo[1024], *str, highlightstr[1024];
 
 	if (ed->cursor>ed->cursorstart)
@@ -348,17 +364,16 @@ void ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 	if (ed->str[0])
 	{
 		if (ed->multiline) {
-			drawtextwrap(vid_buf, ed->x, ed->y, ed->w-14, 0, str, 255, 255, 255, 255);
+			ret = drawtextwrap(vid_buf, ed->x, ed->y, ed->w-14, 0, str, 255, 255, 255, 255);
 			if (ed->highlightlength)
 			{
-				
 				strncpy(highlightstr, &str[ed->highlightstart], ed->highlightlength);
 				highlightstr[ed->highlightlength] = 0;
 				drawhighlightwrap(vid_buf, ed->x, ed->y, ed->w-14, 0, ed->str, ed->highlightstart, ed->highlightlength);
 			}
 			drawtext(vid_buf, ed->x+ed->w-11, ed->y-1, "\xAA", 128, 128, 128, 255);
 		} else {
-			drawtext(vid_buf, ed->x, ed->y, str, 255, 255, 255, 255);
+			ret = drawtext(vid_buf, ed->x, ed->y, str, 255, 255, 255, 255);
 			if (ed->highlightlength)
 			{
 				strncpy(highlightstr, &str[ed->highlightstart], ed->highlightlength);
@@ -382,6 +397,7 @@ void ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 		for (i=-3; i<9; i++)
 			drawpixel(vid_buf, ed->x+cx, ed->y+i+cy, 255, 255, 255, 255);
 	}
+	return ret;
 }
 
 void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
@@ -6869,49 +6885,52 @@ void console_limit_history(int limit, command_history *commandList)
 	}
 }
 
-void console_draw_history(int limit, int x, command_history *commandList)
+void console_draw_history(int limit, int divideX, command_history *commandList, command_history *commandresultList)
 {
 	int cc;
 	for (cc = 0; cc < limit; cc++)
 	{
+		int commandHeight, resultHeight;
 		if (commandList == NULL)
 			break;
-		drawtext(vid_buf, x, 175-(cc*12), commandList->command, 255, 255, 255, 255);
+
+		commandHeight = drawtextwrap(vid_buf, 15, 175-(cc*12), divideX-30, 0, commandList->command, 0, 0, 0, 0);
+		resultHeight = drawtextwrap(vid_buf, divideX+15, 175-(cc*12), XRES-divideX-30, 0, commandresultList->command, 0, 0, 0, 0);
+		if (resultHeight > commandHeight)
+			commandHeight = resultHeight;
+		cc += (commandHeight/12)-1;
+		if (cc >= limit)
+			break;
+		drawtextwrap(vid_buf, 15, 175-(cc*12), divideX-30, 0, commandList->command, 255, 255, 255, 255);
+		drawtextwrap(vid_buf, divideX+15, 175-(cc*12), XRES-divideX-30, 0, commandresultList->command, 255, 255, 255, 255);
+
 		if (commandList->prev_command == NULL)
 			break;
 		else
+		{
 			commandList = commandList->prev_command;
+			commandresultList = commandresultList->prev_command;
+		}
 	}
 }
 
 int console_ui(pixel *vid_buf)
 {
-	int mx,my,b=0,bq,cc,ci = -1,i,j;
-	char *match = 0, *str, laststr[256] = "";
-	pixel *old_buf=(pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
-	command_history *currentcommand;
-	command_history *currentcommand_result;
+	int i, mx, my, b=0, bq, selectedCommand = -1, divideX = XRES/2-50, commandHeight = -1;
+	char *match = 0, laststr[1024] = "", draggingDivindingLine = 0;
+	pixel *old_buf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
+	command_history *currentcommand = last_command;
+	command_history *currentcommand_result = last_command_result;
 	ui_edit ed;
-	ed.x = 15;
-	ed.y = 207;
-	ed.h = 14;
-	ed.w = XRES;
-	ed.nx = 1;
-	ed.def = "";
-	strcpy(ed.str, "");
-	ed.focus = 1;
-	ed.hide = 0;
-	ed.multiline = 0;
-	ed.limit = 255;
-	ed.cursor = ed.cursorstart = 0;
+	ui_edit_init(&ed, 15, 207, 14, divideX-15);
+	ed.multiline = 1;
+	ed.limit = 1023;
+
 	if (!old_buf)
 		return 0;
-	memcpy(old_buf,vid_buf,(XRES+BARSIZE)*YRES*PIXELSIZE);
-
+	memcpy(old_buf,vid_buf,(XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
 	fillrect(old_buf, -1, -1, XRES+BARSIZE, 220, 0, 0, 0, 190);
 
-	currentcommand = last_command;
-	currentcommand_result = last_command_result;
 	console_limit_history(20, currentcommand);
 	console_limit_history(20, currentcommand_result);
 
@@ -6924,10 +6943,34 @@ int console_ui(pixel *vid_buf)
 	{
 		bq = b;
 		b = mouse_get_state(&mx, &my);
-		ed.focus = 1;
+		if (mx > divideX - 10 && mx < divideX + 10 && b)
+		{
+			draggingDivindingLine = 1;
+		}
+		else if (!b)
+			draggingDivindingLine = 0;
+		if (draggingDivindingLine)
+		{
+			int newLine = mx;
+			if (newLine < 100)
+				newLine = 100;
+			if (newLine > XRES-100)
+				newLine = XRES-100;
+			divideX = newLine;
+			ed.w = divideX - 15;
+		}
 
-		memcpy(vid_buf,old_buf,(XRES+BARSIZE)*YRES*PIXELSIZE);
-		draw_line(vid_buf, 0, 219, XRES+BARSIZE-1, 219, 228, 228, 228, XRES+BARSIZE);
+		memcpy(vid_buf,old_buf,(XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
+		if (commandHeight == -1)
+		{
+			draw_line(vid_buf, 0, 219, XRES+BARSIZE-1, 219, 228, 228, 228, XRES+BARSIZE);
+			draw_line(vid_buf, divideX, 0, divideX, 219, 255, 255, 255-draggingDivindingLine*50, XRES+BARSIZE);
+		}
+		else
+		{
+			draw_line(vid_buf, 0, 207+commandHeight, XRES+BARSIZE-1, 207+commandHeight, 228, 228, 228, XRES+BARSIZE);
+			draw_line(vid_buf, divideX, 0, divideX, 207+commandHeight, 255, 255, 255-draggingDivindingLine*50, XRES+BARSIZE);
+		}
 #if defined(LUACONSOLE)
 		drawtext(vid_buf, 15, 15, "Welcome to The Powder Toy console v.4 (by cracker64, Lua enabled)", 255, 255, 255, 255);
 #else
@@ -6936,21 +6979,20 @@ int console_ui(pixel *vid_buf)
 
 		currentcommand = last_command;
 		currentcommand_result = last_command_result;
-		console_draw_history(12, 15, currentcommand);
-		console_draw_history(12, 180, currentcommand_result);
+		console_draw_history(12, divideX, currentcommand, currentcommand_result);
 
 		if (strcmp(laststr,ed.str))
 		{
-			str = ed.str;
-			for (j = 0; j < sizeof(matches)/sizeof(*matches); j++)
+			char *str = ed.str;
+			for (i = 0; i < sizeof(matches)/sizeof(*matches); i++)
 			{
 				match = 0;
-				while (strstr(str,matches[j].min_match)) //find last match
+				while (strstr(str,matches[i].min_match)) //find last match
 				{
-					match = strstr(str,matches[j].min_match);
+					match = strstr(str,matches[i].min_match);
 					str = match + 1;
 				}
-				if (match && !strstr(str-1,matches[j].command) && strstr(matches[j].command,match) && strlen(ed.str)-strlen(match)+strlen(matches[j].command) < 256) //if match found
+				if (match && !strstr(str-1,matches[i].command) && strstr(matches[i].command,match) && strlen(ed.str)-strlen(match)+strlen(matches[i].command) < 256) //if match found
 				{
 					break;
 				}
@@ -6959,12 +7001,13 @@ int console_ui(pixel *vid_buf)
 			}
 		}
 		if (match)
-			drawtext(vid_buf,ed.x+textwidth(ed.str)-textwidth(match),ed.y,matches[j].command,255,255,255,127);
+			drawtext(vid_buf,ed.x+textwidth(ed.str)-textwidth(match),ed.y,matches[i].command,255,255,255,127);
 
 		drawtext(vid_buf, 5, 207, ">", 255, 255, 255, 240);
 
 		strncpy(laststr, ed.str, 256);
-		ui_edit_draw(vid_buf, &ed);
+		ed.focus = 1;
+		commandHeight = ui_edit_draw(vid_buf, &ed);
 		ui_edit_process(mx, my, b, bq, &ed);
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 #ifdef OGLR
@@ -6973,8 +7016,8 @@ int console_ui(pixel *vid_buf)
 #endif
 		if (sdl_key==SDLK_TAB && match)
 		{
-			strncpy(match,matches[j].command,strlen(matches[j].command));
-			match[strlen(matches[j].command)] = '\0';
+			strncpy(match,matches[i].command,strlen(matches[i].command));
+			match[strlen(matches[i].command)] = '\0';
 			ed.cursor = ed.cursorstart = strlen(ed.str);
 		}
 		if (sdl_key==SDLK_RETURN)
@@ -6991,7 +7034,7 @@ int console_ui(pixel *vid_buf)
 			memset(currentcommand, 0, sizeof(command_history));
 			currentcommand->prev_command = last_command;
 			if (command)
-				currentcommand->command = mystrdup(command);
+				currentcommand->command = command;
 			else
 				currentcommand->command = mystrdup("");
 			last_command = currentcommand;
@@ -7000,7 +7043,7 @@ int console_ui(pixel *vid_buf)
 			memset(currentcommand_result, 0, sizeof(command_history));
 			currentcommand_result->prev_command = last_command_result;
 			if (result)
-				currentcommand_result->command = mystrdup(result);
+				currentcommand_result->command = result;
 			else
 				currentcommand_result->command = mystrdup("");
 			last_command_result = currentcommand_result;
@@ -7011,7 +7054,7 @@ int console_ui(pixel *vid_buf)
 			strcpy(ed.str, "");
 			ed.cursor = ed.cursorstart = 0;
 		}
-		if (sdl_key==SDLK_ESCAPE || (sdl_key==SDLK_BACKQUOTE && !(sdl_mod & (KMOD_SHIFT))))
+		if (sdl_key==SDLK_ESCAPE || (sdl_key==SDLK_BACKQUOTE && !(sdl_mod & (KMOD_SHIFT))) || !console_mode)
 		{
 			console_mode = 0;
 			free(old_buf);
@@ -7019,10 +7062,10 @@ int console_ui(pixel *vid_buf)
 		}
 		if (sdl_key==SDLK_UP || sdl_key==SDLK_DOWN)
 		{
-			ci += sdl_key==SDLK_UP?1:-1;
-			if (ci<-1)
-				ci = -1;
-			if (ci==-1)
+			selectedCommand += sdl_key==SDLK_UP?1:-1;
+			if (selectedCommand<-1)
+				selectedCommand = -1;
+			if (selectedCommand==-1)
 			{
 				strcpy(ed.str, "");
 				ed.cursor = ed.cursorstart = strlen(ed.str);
@@ -7031,10 +7074,11 @@ int console_ui(pixel *vid_buf)
 			{
 				if (last_command != NULL)
 				{
+					int commandLoop;
 					currentcommand = last_command;
-					for (cc = 0; cc<ci; cc++) {
+					for (commandLoop = 0; commandLoop < selectedCommand; commandLoop++) {
 						if (currentcommand->prev_command==NULL)
-							ci = cc;
+							selectedCommand = commandLoop;
 						else
 							currentcommand = currentcommand->prev_command;
 					}

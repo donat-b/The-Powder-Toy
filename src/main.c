@@ -857,7 +857,7 @@ void BlueScreen(char * detailMessage)
 		" http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11117\n"
 		" OR either my 'post bugs here' save / my 'Jacob1s Mod detector' save\n\n"
 		"Note: TPT will now restart and reload your work";
-	int positionX = (XRES+BARSIZE)/2-textwidth("OR either my 'post bugs here' save / my 'Jacob1's Mod detector' save")/2-50, positionY = (YRES+MENUSIZE)/2-100;
+	int positionX = (XRES+BARSIZE)/2-textwidth(errorHelp)/2-50, positionY = (YRES+MENUSIZE)/2-100;
 
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 17, 114, 169, 210);
 	

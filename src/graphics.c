@@ -1631,10 +1631,11 @@ void drawdots(pixel *vid, int x, int y, int h, int r, int g, int b, int a)
 
 int textwidth(const char *s)
 {
-	int x = 0;
+	int x = 0, maxX = 0;
 	for (; *s; s++)
 		if (*s == '\n')
 		{
+			x = 0;
 		}
 		else if (*s == '\x0F')
 		{
@@ -1651,8 +1652,12 @@ int textwidth(const char *s)
 			s++;
 		}
 		else
+		{
 			x += font_data[font_ptrs[(int)(*(unsigned char *)s)]];
-	return x-1;
+			if (x > maxX)
+				maxX = x;
+		}
+	return maxX-1;
 }
 
 int drawtextmax(pixel *vid, int x, int y, int w, char *s, int r, int g, int b, int a)

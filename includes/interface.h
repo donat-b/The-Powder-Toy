@@ -296,7 +296,9 @@ void get_sign_pos(int i, int *x0, int *y0, int *w, int *h);
 
 void add_sign_ui(pixel *vid_buf, int mx, int my);
 
-void ui_edit_draw(pixel *vid_buf, ui_edit *ed);
+void ui_edit_init(ui_edit *ed, int x, int y, int h, int w);
+
+int ui_edit_draw(pixel *vid_buf, ui_edit *ed);
 
 void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed);
 

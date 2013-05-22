@@ -945,7 +945,7 @@ char *lastCode = NULL;
 int luacon_eval(char *command, char **result)
 {
 	int level = lua_gettop(l), ret = -1;
-	char text[255] = "", *tmp;
+	char *text = NULL, *tmp;
 	tmp = (char*)calloc(strlen(command) + 8, sizeof(char));
 	sprintf(tmp, "return %s", command);
 	if (lastCode)
@@ -972,6 +972,7 @@ int luacon_eval(char *command, char **result)
 		*result = mystrdup(luacon_geterror());
 		if (strstr(*result, "near '<eof>'"))
 		{
+			free(result);
 			*result = mystrdup("...");
 		}
 		else
@@ -994,21 +995,25 @@ int luacon_eval(char *command, char **result)
 			for(level++;level<=lua_gettop(l);level++)
 			{
 				luaL_tostring(l, level);
-				if(strlen(text))
+				if(text && strlen(text))
 				{
-					char tmptext[255];
-					strncpy(tmptext, text, 254);
-					snprintf(text, 254, "%s, %s", tmptext, luaL_optstring(l, -1, ""));
+					char *text2 = (char*)malloc(strlen(luaL_optstring(l, -1, "")) + strlen(text) + 3);
+					sprintf(text2, "%s, %s", luaL_optstring(l, -1, ""), text);
+					free(text);
+					text = mystrdup(text2);
+					free(text2);
 				}
 				else
-					strncpy(text, luaL_optstring(l, -1, ""), 254);
+				{
+					text = mystrdup(luaL_optstring(l, -1, ""));
+				}
 				lua_pop(l, 1);
 			}
-			if(strlen(text))
+			if(text && strlen(text))
 				if(*result && strlen(*result))
 				{
 					char *tmp2 = (char*)calloc(strlen(*result)+strlen(text)+3, sizeof(char));
-					snprintf(tmp2, 254, "%s; %s", result, text);
+					sprintf(tmp2, "%s; %s", result, text);
 					*result = tmp2;
 				}
 				else
@@ -1321,18 +1326,23 @@ int luatpt_setconsole(lua_State* l)
 
 int luatpt_log(lua_State* l)
 {
-	char buffer[255] = "", buffer2[255] = "";
+	char *buffer = NULL, *buffer2 = NULL;
 	int args = lua_gettop(l), i;
 	for(i = 1; i <= args; i++)
 	{
 		luaL_tostring(l, -1);
-		if(strlen(buffer))
+		if(buffer && strlen(buffer))
 		{
-			snprintf(buffer2, 254, "%s, %s", luaL_optstring(l, -1, ""), buffer);
-			strncpy(buffer, buffer2, 255);
+			buffer2 = (char*)malloc(strlen(luaL_optstring(l, -1, "")) + strlen(buffer) + 3);
+			sprintf(buffer2, "%s, %s", luaL_optstring(l, -1, ""), buffer);
+			free(buffer);
+			buffer = mystrdup(buffer2);
+			free(buffer2);
 		}
 		else
-			strncpy(buffer, luaL_optstring(l, -1, ""), 254);
+		{
+			buffer = mystrdup(luaL_optstring(l, -1, ""));
+		}
 		lua_pop(l, 2);
 	}
 	//if((*luacon_currentCommand))
