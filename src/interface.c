@@ -229,16 +229,9 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 			break;
 	}
 
-	ed.x = x0+25;
-	ed.y = y0+25;
-	ed.w = 183;
-	ed.nx = 1;
+	ui_edit_init(&ed, x0+25, y0+25, 183, 14);
 	ed.def = "[message]";
-	ed.focus = 1;
-	ed.hide = 0;
 	ed.cursor = ed.cursorstart = strlen(signs[i].text);
-	ed.multiline = 0;
-	ed.limit = 255;
 	strcpy(ed.str, signs[i].text);
 	ju = signs[i].ju;
 
@@ -320,7 +313,7 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 	signs[i].ju = ju;
 }
 
-void ui_edit_init(ui_edit *ed, int x, int y, int h, int w)
+void ui_edit_init(ui_edit *ed, int x, int y, int w, int h)
 {
 	ed->x = x;
 	ed->y = y;
@@ -334,11 +327,13 @@ void ui_edit_init(ui_edit *ed, int x, int y, int h, int w)
 	ed->multiline = 0;
 	ed->limit = 255;
 	ed->cursor = ed->cursorstart = 0;
+	ed->highlightstart = ed->highlightlength = 0;
+	ed->resizable = ed->resizespeed = 0;
 }
 
 int ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 {
-	int cx, i, cy, ret = -1;
+	int cx, i, cy, ret = 12;
 	char echo[1024], *str, highlightstr[1024];
 
 	if (ed->cursor>ed->cursorstart)
@@ -396,6 +391,15 @@ int ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 
 		for (i=-3; i<9; i++)
 			drawpixel(vid_buf, ed->x+cx, ed->y+i+cy, 255, 255, 255, 255);
+	}
+	if (ed->resizable && ed->multiline)
+	{
+		int diff = ((ret+2)-ed->h)/5;
+		if (diff == 0)
+			ed->h = ret+2;
+		else
+			ed->h += diff;
+		ret = ed->h-2;
 	}
 	return ret;
 }
@@ -1273,22 +1277,13 @@ void element_search_ui(pixel *vid_buf, int * slp, int * srp)
 	char tempCompare[512];
 	char tempString[512];
 	int_pair tempInts[PT_NUM];
-	ui_edit ed;
 	int selectedl = -1;
 	int selectedr = -1;
 	int firstResult = -1, hover = -1;
 
-	ed.x = x0+12;
-	ed.y = y0+30;
-	ed.w = windowWidth - 20;
-	ed.nx = 1;
+	ui_edit ed;
+	ui_edit_init(&ed, x0+12, y0+30, windowWidth - 20, 14);
 	ed.def = "[element name]";
-	ed.focus = 1;
-	ed.hide = 0;
-	ed.cursor = ed.cursorstart = 0;
-	ed.multiline = 0;
-	ed.limit = 255;
-	ed.str[0] = 0;
 
 
 	while (!sdl_poll())
@@ -1459,23 +1454,12 @@ char *input_ui(pixel *vid_buf, char *title, char *prompt, char *text, char *shad
 {
 	int xsize = 244;
 	int ysize = 90;
-	int edity, editx;
 	int x0=(XRES-xsize)/2,y0=(YRES-MENUSIZE-ysize)/2,b=1,bq,mx,my;
+
 	ui_edit ed;
-
-	edity = y0+50;
-	editx = x0+12;
-
-	ed.x = editx;
-	ed.y = edity;
-	ed.w = xsize - 20;
-	ed.nx = 1;
+	ui_edit_init(&ed, x0+12, y0+50, xsize-20, 14);
 	ed.def = shadow;
 	ed.focus = 0;
-	ed.hide = 0;
-	ed.cursor = ed.cursorstart = 0;
-	ed.multiline = 0;
-	ed.limit = 255;
 	strncpy(ed.str, text, 254);
 
 	while (!sdl_poll())
@@ -1539,19 +1523,12 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 	int listitemscount = 12;
 	int xsize = 244;
 	int ysize = 87;
-	int edity, editx, edit2y, edit2x;
 	int x0=(XRES-xsize)/2,y0=(YRES-MENUSIZE-ysize)/2,b=1,bq,mx,my;
 	ui_list ed;
 	ui_edit ed2;
 
-	edity = y0+25;
-	editx = x0+8;
-	
-	edit2y = y0+50;
-	edit2x = x0+12;
-
-	ed.x = editx;
-	ed.y = edity;
+	ed.x = x0+8;
+	ed.y = y0+25;
 	ed.w = xsize - 16;
 	ed.h = 16;
 	ed.def = "[property]";
@@ -1559,17 +1536,9 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 	ed.items = listitems;
 	ed.count = listitemscount;
 	
-	ed2.x = edit2x;
-	ed2.y = edit2y;
-	ed2.w = xsize - 20;
-	ed2.nx = 1;
+	ui_edit_init(&ed2, x0+12, y0+50, xsize-20, 14);
 	ed2.def = "[value]";
 	ed2.focus = 0;
-	ed2.hide = 0;
-	ed2.cursor = ed2.cursorstart = 0;
-	ed2.multiline = 0;
-	ed2.limit = 255;
-	ed2.str[0] = 0;
 	strncpy(ed2.str, "0", 254);
 	strncpy(ed.str, "type", 254);
 
@@ -2031,7 +2000,7 @@ void login_ui(pixel *vid_buf)
 	char *res;
 	char passwordHash[33];
 	char totalHash[33];
-	char hashStream[65]; //not really a stream ...
+	char hashStream[99]; //not really a stream ...
 
 	while (!sdl_poll())
 	{
@@ -2040,28 +2009,12 @@ void login_ui(pixel *vid_buf)
 			break;
 	}
 
-	ed1.x = x0+25;
-	ed1.y = y0+25;
-	ed1.w = 158;
-	ed1.nx = 1;
+	ui_edit_init(&ed1, x0+25, y0+25, 158, 14);
 	ed1.def = "[user name]";
-	ed1.focus = 1;
-	ed1.hide = 0;
-	ed1.multiline = 0;
-	ed1.limit = 255;
 	ed1.cursor = ed1.cursorstart = strlen(svf_user);
 	strcpy(ed1.str, svf_user);
-	ed2.x = x0+25;
-	ed2.y = y0+45;
-	ed2.w = 158;
-	ed2.nx = 1;
+	ui_edit_init(&ed2, x0+25, y0+45, 158, 14);
 	ed2.def = "[password]";
-	ed2.focus = 0;
-	ed2.hide = 1;
-	ed2.cursor = ed2.cursorstart = 0;
-	ed2.multiline = 0;
-	ed2.limit = 255;
-	strcpy(ed2.str, "");
 
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
 	while (!sdl_poll())
@@ -2408,20 +2361,12 @@ void tag_list_ui(pixel *vid_buf)
 	int y,d,x0=(XRES-192)/2,y0=(YRES-256)/2,b=1,bq,mx,my,vp,vn;
 	char *p,*q,s;
 	char *tag=NULL, *op=NULL;
-	ui_edit ed;
 	struct strlist *vote=NULL,*down=NULL;
 
-	ed.x = x0+25;
-	ed.y = y0+221;
-	ed.w = 158;
-	ed.nx = 1;
+	ui_edit ed;
+	ui_edit_init(&ed, x0+25, y0+221, 158, 14);
 	ed.def = "[new tag]";
 	ed.focus = 0;
-	ed.hide = 0;
-	ed.cursor = ed.cursorstart = 0;
-	ed.multiline = 0;
-	ed.limit = 255;
-	strcpy(ed.str, "");
 
 	fillrect(vid_buf, -1, -1, XRES, YRES+MENUSIZE, 0, 0, 0, 192);
 	while (!sdl_poll())
@@ -2576,29 +2521,16 @@ int save_name_ui(pixel *vid_buf)
 			break;
 	}
 
-	ed.x = x0+25;
-	ed.y = y0+25;
-	ed.w = 158;
-	ed.nx = 1;
+	ui_edit_init(&ed, x0+25, y0+25, 158, 14);
 	ed.def = "[simulation name]";
-	ed.focus = 1;
-	ed.hide = 0;
 	ed.cursor = ed.cursorstart = strlen(svf_name);
-	ed.multiline = 0;
-	ed.limit = 255;
 	strcpy(ed.str, svf_name);
 
-	ed2.x = x0+13;
-	ed2.y = y0+45;
-	ed2.w = 166;
-	ed2.h = 85;
-	ed2.nx = 1;
+	ui_edit_init(&ed2, x0+13, y0+45, 170, 85);
 	ed2.def = "[simulation description]";
 	ed2.focus = 0;
-	ed2.hide = 0;
 	ed2.cursor = ed2.cursorstart = strlen(svf_description);
 	ed2.multiline = 1;
-	ed2.limit = 255;
 	strcpy(ed2.str, svf_description);
 
 	ctb.x = 0;
@@ -2634,18 +2566,18 @@ int save_name_ui(pixel *vid_buf)
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 
-		drawrect(vid_buf, x0, y0, 420, 110+YRES/4, 192, 192, 192, 255);
+		drawrect(vid_buf, x0, y0, 420, 110+YRES/4, 192, 192, 192, 255); // rectangle around entire thing
 		clearrect(vid_buf, x0, y0, 420, 110+YRES/4);
 		drawtext(vid_buf, x0+8, y0+8, "New simulation name:", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+10, y0+23, "\x82", 192, 192, 192, 255);
-		drawrect(vid_buf, x0+8, y0+20, 176, 16, 192, 192, 192, 255);
+		drawrect(vid_buf, x0+8, y0+20, 176, 16, 192, 192, 192, 255); //rectangle around title box
 
-		drawrect(vid_buf, x0+8, y0+40, 176, 95, 192, 192, 192, 255);
+		drawrect(vid_buf, x0+8, y0+40, 176, 100, 192, 192, 192, 255); //rectangle around description box
 
 		ui_edit_draw(vid_buf, &ed);
 		ui_edit_draw(vid_buf, &ed2);
 
-		drawrect(vid_buf, x0+(205-XRES/3)/2-2+205, y0+40, XRES/3+3, YRES/3+3, 128, 128, 128, 255);
+		drawrect(vid_buf, x0+(205-XRES/3)/2-2+205, y0+40, XRES/3+3, YRES/3+3, 128, 128, 128, 255); //rectangle around thumbnail
 		render_thumb(th, ths, 0, vid_buf, x0+(205-XRES/3)/2+205, y0+42, 3);
 
 		if (can_publish)
@@ -4214,16 +4146,9 @@ int search_ui(pixel *vid_buf)
 			break;
 	}
 
-	ed.x = 65;
-	ed.y = 13;
-	ed.w = XRES-200;
-	ed.nx = 1;
+	ui_edit_init(&ed, 65, 13, XRES-200, 14);
 	ed.def = "[search terms]";
-	ed.focus = 1;
-	ed.hide = 0;
 	ed.cursor = ed.cursorstart = strlen(search_expr);
-	ed.multiline = 0;
-	ed.limit = 255;
 	strcpy(ed.str, search_expr);
 
 	motd.x = 20;
@@ -4932,18 +4857,10 @@ int report_ui(pixel* vid_buf, char *save_id)
 {
 	int b=1,bq,mx,my;
 	ui_edit ed;
-	ed.x = 209;
-	ed.y = 159;
-	ed.w = (XRES+BARSIZE-400)-18;
-	ed.h = (YRES+MENUSIZE-300)-36;
-	ed.nx = 1;
+	ui_edit_init(&ed, 209, 159, (XRES+BARSIZE-400)-18, (YRES+MENUSIZE-300)-36);
 	ed.def = "Report details";
 	ed.focus = 0;
-	ed.hide = 0;
 	ed.multiline = 1;
-	ed.limit = 255;
-	ed.cursor = ed.cursorstart = 0;
-	strcpy(ed.str, "");
 
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
 	while (!sdl_poll())
@@ -5063,7 +4980,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 {
 	int b=1,bq,mx,my,ca=0,thumb_w,thumb_h,active=0,active_2=0,active_3=0,active_4=0,cc=0,ccy=0,cix=0;
 	int hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1;
-	int comment_scroll = 0, comment_page = 0, redraw_comments = 1, commentheight = 0, dofocus = 0, disable_scrolling = 0;
+	int comment_scroll = 0, comment_page = 0, redraw_comments = 1, dofocus = 0, disable_scrolling = 0;
 	int nyd,nyu,ry,lv;
 	float ryf;
 
@@ -5094,18 +5011,12 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	drawrect(vid_buf, 50+(XRES/2)+1, 50, XRES+BARSIZE-100-((XRES/2)+1), YRES+MENUSIZE-100, 155, 155, 155, 255);
 	drawtext(vid_buf, 50+(XRES/4)-textwidth("Loading...")/2, 50+(YRES/4), "Loading...", 255, 255, 255, 128);
 
-	ed.x = 57+(XRES/2)+1;
-	ed.y = YRES+MENUSIZE-118;
-	ed.w = XRES+BARSIZE-114-((XRES/2)+1);
-	ed.h = 48;
-	ed.nx = 1;
+	ui_edit_init(&ed, 57+(XRES/2)+1, YRES+MENUSIZE-118, XRES+BARSIZE-114-((XRES/2)+1), 14);
 	ed.def = "Add comment";
 	ed.focus = svf_login?1:0;
-	ed.hide = 0;
 	ed.multiline = 1;
+	ed.resizable = 1;
 	ed.limit = 1023;
-	ed.cursor = ed.cursorstart = 0;
-	strcpy(ed.str, "");
 
 	ctb.x = 100;
 	ctb.y = YRES+MENUSIZE-20;
@@ -5429,8 +5340,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				authoritah = svf_login && (!strcmp(info->author, svf_user) || svf_admin || svf_mod);
 				memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 			}
-			if (svf_login)
-				commentheight = drawtextwrap(vid_buf, ed.x, ed.y, ed.w-14, 0, ed.str, 0, 0, 0, 0);
 			if (info_ready)// && redraw_comments) // draw the comments
 			{
 				ccy = 0;
@@ -5454,18 +5363,18 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							if (show_ids && info->commentauthorIDs[cc]) //Draw author id
 							{
 								drawtext(vid_buf, 265+(XRES/2)-textwidth(info->commentauthorIDs[cc]), ccy+60+comment_scroll, info->commentauthorIDs[cc], 255, 255, 0, 255);
-								if (b && !bq && mx > 265+(XRES/2)-textwidth(info->commentauthorIDs[cc]) && mx < 265+(XRES/2) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll && my < YRES+MENUSIZE-76-commentheight)
+								if (b && !bq && mx > 265+(XRES/2)-textwidth(info->commentauthorIDs[cc]) && mx < 265+(XRES/2) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll && my < YRES+MENUSIZE-76-ed.h+2)
 									show_ids = 0;
 							}
 							else if (info->commenttimestamps[cc]) //, or draw timestamp
 							{
 								drawtext(vid_buf, 265+(XRES/2)-textwidth(info->commenttimestamps[cc]), ccy+60+comment_scroll, info->commenttimestamps[cc], 255, 255, 0, 255);
-								if (b && !bq && mx > 265+(XRES/2)-textwidth(info->commenttimestamps[cc]) && mx < 265+(XRES/2) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll && my < YRES+MENUSIZE-76-commentheight)
+								if (b && !bq && mx > 265+(XRES/2)-textwidth(info->commenttimestamps[cc]) && mx < 265+(XRES/2) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll && my < YRES+MENUSIZE-76-ed.h+2)
 									show_ids = 1;
 							}
 							drawtext(vid_buf, 61+(XRES/2), ccy+60+comment_scroll, info->commentauthors[cc], r, g, bl, 255); //Draw author
 
-							if (b && !bq && mx > 61+(XRES/2) && mx < 61+(XRES/2)+textwidth(info->commentauthors[cc]) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll && my < YRES+MENUSIZE-76-commentheight)
+							if (b && !bq && mx > 61+(XRES/2) && mx < 61+(XRES/2)+textwidth(info->commentauthors[cc]) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll && my < YRES+MENUSIZE-76-ed.h+2)
 								if (sdl_mod & KMOD_CTRL) //open profile
 								{
 									char link[128];
@@ -5495,7 +5404,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						ccy += 12;
 						if (ccy + 72 + comment_scroll<YRES+MENUSIZE-56) // Check again if the comment is off the screen, incase the author line made it too long
 						{
-							int change, commentboxy = YRES+MENUSIZE-70-commentheight-5;
+							int change, commentboxy = YRES+MENUSIZE-70-ed.h+2-5;
 							if (ccy+comment_scroll < 0) // if above screen set height to negative, how long until it can start being drawn
 								info->comments[cc].h = ccy+comment_scroll-10;
 							else                        // else set how much can be drawn until it goes off the screen
@@ -5539,14 +5448,12 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			if (info_ready && svf_login) {
 				//Render the comment box.
-				ed.h = commentheight+2;
-				ed.y = YRES+MENUSIZE-70-commentheight-1;
 				fillrect(vid_buf, 50+(XRES/2)+1, ed.y-6, XRES+BARSIZE-100-((XRES/2)+1), ed.h+25, 0, 0, 0, 255);
 				drawrect(vid_buf, 50+(XRES/2)+1, ed.y-6, XRES+BARSIZE-100-((XRES/2)+1), ed.h+25, 200, 200, 200, 255);
 
 				drawrect(vid_buf, 54+(XRES/2)+1, ed.y-3, XRES+BARSIZE-108-((XRES/2)+1), ed.h, 255, 255, 255, 200);
 
-				ui_edit_draw(vid_buf, &ed);
+				ed.y = YRES+MENUSIZE-70-1-ui_edit_draw(vid_buf, &ed);
 
 				drawrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 255);
 				drawtext(vid_buf, XRES+BARSIZE-90, YRES+MENUSIZE-63, "Submit", 255, 255, 255, 255);
@@ -6914,17 +6821,19 @@ void console_draw_history(int limit, int divideX, command_history *commandList, 
 	}
 }
 
+int divideX = XRES/2-50;
 int console_ui(pixel *vid_buf)
 {
-	int i, mx, my, b=0, bq, selectedCommand = -1, divideX = XRES/2-50, commandHeight = -1;
+	int i, mx, my, b = 0, bq, selectedCommand = -1, commandHeight = -1;
 	char *match = 0, laststr[1024] = "", draggingDivindingLine = 0;
 	pixel *old_buf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	command_history *currentcommand = last_command;
 	command_history *currentcommand_result = last_command_result;
 	ui_edit ed;
-	ui_edit_init(&ed, 15, 207, 14, divideX-15);
+	ui_edit_init(&ed, 15, 207, divideX-15, 14);
 	ed.multiline = 1;
 	ed.limit = 1023;
+	ed.resizable = 1;
 
 	if (!old_buf)
 		return 0;
@@ -6943,7 +6852,7 @@ int console_ui(pixel *vid_buf)
 	{
 		bq = b;
 		b = mouse_get_state(&mx, &my);
-		if (mx > divideX - 10 && mx < divideX + 10 && b)
+		if (mx > divideX - 10 && mx < divideX + 10 && b && !bq)
 		{
 			draggingDivindingLine = 1;
 		}
@@ -6961,16 +6870,8 @@ int console_ui(pixel *vid_buf)
 		}
 
 		memcpy(vid_buf,old_buf,(XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
-		if (commandHeight == -1)
-		{
-			draw_line(vid_buf, 0, 219, XRES+BARSIZE-1, 219, 228, 228, 228, XRES+BARSIZE);
-			draw_line(vid_buf, divideX, 0, divideX, 219, 255, 255, 255-draggingDivindingLine*50, XRES+BARSIZE);
-		}
-		else
-		{
-			draw_line(vid_buf, 0, 207+commandHeight, XRES+BARSIZE-1, 207+commandHeight, 228, 228, 228, XRES+BARSIZE);
-			draw_line(vid_buf, divideX, 0, divideX, 207+commandHeight, 255, 255, 255-draggingDivindingLine*50, XRES+BARSIZE);
-		}
+		blend_line(vid_buf, 0, 207+commandHeight, XRES+BARSIZE-1, 207+commandHeight, 228, 228, 228, 255);
+		blend_line(vid_buf, divideX, 0, divideX, 207+commandHeight, 255, 255, 255, draggingDivindingLine?255:170);
 #if defined(LUACONSOLE)
 		drawtext(vid_buf, 15, 15, "Welcome to The Powder Toy console v.4 (by cracker64, Lua enabled)", 255, 255, 255, 255);
 #else
@@ -7109,53 +7010,21 @@ ui_edit box_A;
 
 void init_color_boxes()
 {
-	box_R.x = 5;
-	box_R.y = 5+255+4;
-	box_R.w = 30;
-	box_R.nx = 1;
-	box_R.def = "";
+	ui_edit_init(&box_R, 5, 264, 30, 14);
 	strcpy(box_R.str, "255");
 	box_R.focus = 0;
-	box_R.hide = 0;
-	box_R.multiline = 0;
-	box_R.limit = 255;
-	box_R.cursor = box_R.cursorstart = 0;
 
-	box_G.x = 40;
-	box_G.y = 5+255+4;
-	box_G.w = 30;
-	box_G.nx = 1;
-	box_G.def = "";
-	strcpy(box_G.str, "");
-	box_G.focus = 0;
-	box_G.hide = 0;
-	box_G.multiline = 0;
-	box_G.limit = 255;
-	box_G.cursor = box_G.cursorstart = 0;
+	ui_edit_init(&box_G, 40, 264, 30, 14);
+	strcpy(box_G.str, "255");
+	box_R.focus = 0;
 
-	box_B.x = 75;
-	box_B.y = 5+255+4;
-	box_B.w = 30;
-	box_B.nx = 1;
-	box_B.def = "";
-	strcpy(box_B.str, "");
-	box_B.focus = 0;
-	box_B.hide = 0;
-	box_B.multiline = 0;
-	box_B.limit = 255;
-	box_B.cursor = box_B.cursorstart = 0;
+	ui_edit_init(&box_B, 75, 264, 30, 14);
+	strcpy(box_B.str, "255");
+	box_R.focus = 0;
 
-	box_A.x = 110;
-	box_A.y = 5+255+4;
-	box_A.w = 30;
-	box_A.nx = 1;
-	box_A.def = "";
+	ui_edit_init(&box_A, 110, 264, 30, 14);
 	strcpy(box_A.str, "255");
-	box_A.focus = 0;
-	box_A.hide = 0;
-	box_A.multiline = 0;
-	box_A.limit = 255;
-	box_A.cursor = box_A.cursorstart = 0;
+	box_R.focus = 0;
 }
 
 int currR = 255, currG = 0, currB = 0, currA = 255;

@@ -193,7 +193,7 @@ void draw_grav_zones(pixel *vid);
 
 void draw_grav(pixel *vid);
 
-void draw_line(pixel *vid, int x1, int y1, int x2, int y2, int r, int g, int b, int a);
+void draw_line(pixel *vid, int x1, int y1, int x2, int y2, int r, int g, int b, int screenwidth);
 
 void addpixel(pixel *vid, int x, int y, int r, int g, int b, int a);
 

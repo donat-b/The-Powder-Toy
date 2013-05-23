@@ -946,8 +946,6 @@ int luacon_eval(char *command, char **result)
 {
 	int level = lua_gettop(l), ret = -1;
 	char *text = NULL, *tmp;
-	tmp = (char*)calloc(strlen(command) + 8, sizeof(char));
-	sprintf(tmp, "return %s", command);
 	if (lastCode)
 	{
 		char *tmplastCode = (char*)calloc(strlen(lastCode)+strlen(command)+3, sizeof(char));
@@ -960,6 +958,8 @@ int luacon_eval(char *command, char **result)
 		lastCode = (char*)calloc(strlen(command)+1, sizeof(char));
 		sprintf(lastCode, "%s", command);
 	}
+	tmp = (char*)calloc(strlen(lastCode) + 8, sizeof(char));
+	sprintf(tmp, "return %s", lastCode);
 	loop_time = SDL_GetTicks();
 	luaL_loadbuffer(l, tmp, strlen(tmp), "@console");
 	if(lua_type(l, -1) != LUA_TFUNCTION)
@@ -972,7 +972,7 @@ int luacon_eval(char *command, char **result)
 		*result = mystrdup(luacon_geterror());
 		if (strstr(*result, "near '<eof>'"))
 		{
-			free(result);
+			free(*result);
 			*result = mystrdup("...");
 		}
 		else

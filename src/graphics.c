@@ -2150,7 +2150,7 @@ void draw_grav(pixel *vid)
 	}
 }
 
-void draw_line(pixel *vid, int x1, int y1, int x2, int y2, int r, int g, int b, int a)  //Draws a line
+void draw_line(pixel *vid, int x1, int y1, int x2, int y2, int r, int g, int b, int screenwidth)  //Draws a line
 {
 	int dx, dy, i, sx, sy, check, e, x, y;
 
@@ -2162,32 +2162,32 @@ void draw_line(pixel *vid, int x1, int y1, int x2, int y2, int r, int g, int b, 
 	y = y1;
 	check = 0;
 
-	if (dy>dx)
+	if (dy > dx)
 	{
-		dx = dx+dy;
-		dy = dx-dy;
-		dx = dx-dy;
+		dx = dx + dy;
+		dy = dx - dy;
+		dx = dx - dy;
 		check = 1;
 	}
 
-	e = (dy<<2)-dx;
-	for (i=0; i<=dx; i++)
+	e = (dy<<2) - dx;
+	for (i = 0; i <= dx; i++)
 	{
-		if (x>=0 && y>=0 && x<a && y<YRES+MENUSIZE)
-			vid[x+y*a] =PIXRGB(r, g, b);
-		if (e>=0)
+		if (x>=0 && y>=0 && x<screenwidth && y<YRES+MENUSIZE)
+			vid[x + y*screenwidth] = PIXRGB(r, g, b);
+		if (e >= 0)
 		{
-			if (check==1)
-				x = x+sx;
+			if (check == 1)
+				x = x + sx;
 			else
-				y = y+sy;
-			e = e-(dx<<2);
+				y = y + sy;
+			e = e - (dx<<2);
 		}
-		if (check==1)
-			y = y+sy;
+		if (check == 1)
+			y = y + sy;
 		else
-			x = x+sx;
-		e = e+(dy<<2);
+			x = x + sx;
+		e = e + (dy<<2);
 	}
 }
 

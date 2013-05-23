@@ -856,7 +856,7 @@ int graphics_drawLine(lua_State * l)
 	if (b>255) b = 255;
 	if (a<0) a = 0;
 	if (a>255) a = 255;
-	draw_line(vid_buf, x1, y1, x2, y2, r, g, b, a);
+	blend_line(vid_buf, x1, y1, x2, y2, r, g, b, a);
 	return 0;
 }
 

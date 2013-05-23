@@ -495,28 +495,17 @@ clear sim can be clicked too high, y=404
 
 Future Ideas/TODO: '>' means currently being worked on/added next
 changes from tpt++: SPRK, LIGH, LCRY, VIBR, all others
-make console look like tpt++
 make console errors copyable, fix being cut off
 tpt++ lua changes
 maybe have errors / print() log to console/main screen AND stdout.txt
-make open ui more colorful like tpt++?
-make buttons look clicked when pressed, oving mouse away will not do clicks, like tpt++?
+make open ui more colorful like tpt++, also fix cut off description in save uploading ui
+make buttons look clicked when pressed, moving mouse away will not do clicks, like tpt++?
 >Add things from tpt++ that look cool, and any new simulation changes it gets
 
 
 ---
 C++ version todo:
-done - [compile tpt++ with visual studio]
->>fix tpt++ bugs before I start my mod
-Start with version 1 changes like Fav elements menu, Find tool, better HUD; but add in the complete versions of those how they act in version 19
-Add back everything in the Fav2 menu, including custom HUD
-Make improvements to tpt++ to fix, add, or change some things I don't like
-Add in all elements except INDI, OTWR, and powered portals (use powered pipe now)
-Start adding in the other features, like the search ui improvements (may start earlier, like some save preview ui improvements)
-Finish adding in other minor things (will look at github logs and changelogs in order probably
-Done! continue work on my mod like normal
-
-1% complete, haven't really done much or actually started anything on the list because I still want to improve tpt++ first. Also don't plan on starting soon
+probably cancelled, I see no reason to switch when I'm happy with the c version and it's fun to convert things back and see the c version become better and more bug-free
 
 maybe in c++ version:
 customizable settings menu completely, ability to add and read options. (also HUD option settings)

@@ -132,7 +132,8 @@ struct ui_edit
 {
 	int x, y, w, nx, h, limit;
 	char str[1024],*def;
-	int focus, cursor, hide, multiline;
+	int focus, cursor, hide;
+	int multiline, resizable, resizespeed;
 	int cursorstart, highlightstart, highlightlength;
 };
 typedef struct ui_edit ui_edit;
@@ -296,7 +297,7 @@ void get_sign_pos(int i, int *x0, int *y0, int *w, int *h);
 
 void add_sign_ui(pixel *vid_buf, int mx, int my);
 
-void ui_edit_init(ui_edit *ed, int x, int y, int h, int w);
+void ui_edit_init(ui_edit *ed, int x, int y, int w, int h);
 
 int ui_edit_draw(pixel *vid_buf, ui_edit *ed);
 
