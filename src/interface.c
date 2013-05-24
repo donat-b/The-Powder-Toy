@@ -5025,7 +5025,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	drawrect(vid_buf, 50+(XRES/2)+1, 50, XRES+BARSIZE-100-((XRES/2)+1), YRES+MENUSIZE-100, 155, 155, 155, 255);
 	drawtext(vid_buf, 50+(XRES/4)-textwidth("Loading...")/2, 50+(YRES/4), "Loading...", 255, 255, 255, 128);
 
-	ui_edit_init(&ed, 57+(XRES/2)+1, YRES+MENUSIZE-118, XRES+BARSIZE-114-((XRES/2)+1), 14);
+	ui_edit_init(&ed, 57+(XRES/2)+1, YRES+MENUSIZE-83, XRES+BARSIZE-114-((XRES/2)+1), 14);
 	ed.def = "Add comment";
 	ed.focus = svf_login?1:0;
 	ed.multiline = 1;
@@ -5462,12 +5462,12 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			if (info_ready && svf_login) {
 				//Render the comment box.
-				fillrect(vid_buf, 50+(XRES/2)+1, ed.y-6, XRES+BARSIZE-100-((XRES/2)+1), ed.h+25, 0, 0, 0, 255);
-				drawrect(vid_buf, 50+(XRES/2)+1, ed.y-6, XRES+BARSIZE-100-((XRES/2)+1), ed.h+25, 200, 200, 200, 255);
+				fillrect(vid_buf, 51+(XRES/2), ed.y-6, XRES+BARSIZE-100-((XRES/2)+1), ed.h+25, 0, 0, 0, 255);
+				drawrect(vid_buf, 51+(XRES/2), ed.y-6, XRES+BARSIZE-100-((XRES/2)+1), ed.h+25, 200, 200, 200, 255);
 
-				drawrect(vid_buf, 54+(XRES/2)+1, ed.y-3, XRES+BARSIZE-108-((XRES/2)+1), ed.h, 255, 255, 255, 200);
+				drawrect(vid_buf, 55+(XRES/2), ed.y-3, XRES+BARSIZE-108-((XRES/2)+1), ed.h, 255, 255, 255, 200);
 
-				ed.y = YRES+MENUSIZE-70-1-ui_edit_draw(vid_buf, &ed);
+				ed.y = YRES+MENUSIZE-71-ui_edit_draw(vid_buf, &ed);
 
 				drawrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 255);
 				drawtext(vid_buf, XRES+BARSIZE-90, YRES+MENUSIZE-63, "Submit", 255, 255, 255, 255);
@@ -6779,29 +6779,20 @@ const static struct command_match matches [] = {
 // limits console to only have 20 (limit) previous commands stored
 void console_limit_history(int limit, command_history *commandList)
 {
-	int cc;
-	for (cc = 0; cc <= limit; cc++)
+	if (commandList==NULL)
+		return;
+	console_limit_history(limit-1, commandList->prev_command);
+	if (limit <= 0)
 	{
-		if (commandList==NULL)
-			break;
-		if (commandList->prev_command != NULL)
-		{
-			if (cc<limit-1)
-				commandList = commandList->prev_command;
-			else if (commandList->prev_command != NULL)
-			{
-				free(commandList->prev_command);
-				commandList->prev_command = NULL;
-			}
-			
-		}
-		else
-			break;
+		free(commandList);
+		commandList = NULL;
 	}
+	else if (limit == 1)
+		commandList->prev_command = NULL;
 }
 
 // draws and processes all the history, which are in ui_labels (which aren't very nice looking, but get the job done).
-// returns if one of them is focused, to fix copying (since the 
+// returns if one of them is focused, to fix copying (since the textbox is usually always focused and would overwrite the copy after)
 int console_draw_history(command_history *commandList, command_history *commandresultList, int limit, int divideX, int mx, int my, int b, int bq)
 {
 	int cc, focused = 0;
@@ -6830,6 +6821,12 @@ int console_draw_history(command_history *commandList, command_history *commandr
 		}
 	}
 	return focused;
+}
+
+void console_clear_history()
+{
+	console_limit_history(0, last_command);
+	console_limit_history(0, last_command_result);
 }
 
 // reset the locations of all the history labels when the divider is dragged or a new command added
@@ -6869,7 +6866,7 @@ void console_set_history_X(command_history *commandList, command_history *comman
 int divideX = XRES/2-50;
 int console_ui(pixel *vid_buf)
 {
-	int i, mx, my, b = 0, bq, selectedCommand = -1, commandHeight = -1;
+	int i, mx, my, b = 0, bq, selectedCommand = -1, commandHeight = 12;
 	char *match = 0, laststr[1024] = "", draggingDivindingLine = 0, focusTextbox = 1;
 	pixel *old_buf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	command_history *currentcommand = last_command;
@@ -6896,13 +6893,16 @@ int console_ui(pixel *vid_buf)
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 		//everything for dragging the line in the center
-		if (mx > divideX - 10 && mx < divideX + 10 && b && !bq)
+		if (mx > divideX - 10 && mx < divideX + 10 && my < 207 && !bq)
 		{
-			draggingDivindingLine = 1;
+			if (b)
+				draggingDivindingLine = 2;
+			else if (!draggingDivindingLine)
+				draggingDivindingLine = 1;
 		}
 		else if (!b)
 			draggingDivindingLine = 0;
-		if (draggingDivindingLine)
+		if (draggingDivindingLine == 2)
 		{
 			int newLine = mx;
 			if (newLine < 100)
@@ -6912,12 +6912,14 @@ int console_ui(pixel *vid_buf)
 			divideX = newLine;
 			ed.w = divideX - 15;
 			console_set_history_X(currentcommand, currentcommand_result, divideX);
+			if (!b)
+				draggingDivindingLine = 1;
 		}
 
 		//draw most of the things to the screen
 		memcpy(vid_buf,old_buf,(XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
 		blend_line(vid_buf, 0, 207+commandHeight, XRES+BARSIZE-1, 207+commandHeight, 228, 228, 228, 255);
-		blend_line(vid_buf, divideX, 0, divideX, 207+commandHeight, 255, 255, 255, draggingDivindingLine?255:170);
+		blend_line(vid_buf, divideX, 0, divideX, 207+commandHeight, 255, 255, 255, 155+50*draggingDivindingLine);
 #if defined(LUACONSOLE)
 		drawtext(vid_buf, 15, 15, "Welcome to The Powder Toy console v.5 (by cracker64/jacob1, Lua enabled)", 255, 255, 255, 255);
 #else
@@ -7012,6 +7014,7 @@ int console_ui(pixel *vid_buf)
 
 			strcpy(ed.str, "");
 			ed.cursor = ed.cursorstart = 0;
+			selectedCommand = -1;
 		}
 		if (sdl_key==SDLK_ESCAPE || (sdl_key==SDLK_BACKQUOTE && !(sdl_mod & (KMOD_SHIFT))) || !console_mode) // exit the console
 		{
@@ -7048,12 +7051,6 @@ int console_ui(pixel *vid_buf)
 				{
 					strcpy(ed.str, "tpt.load(644543)");
 					ed.cursor = ed.cursorstart = strlen(ed.str);
-					/*currentcommand = (command_history*)malloc(sizeof(command_history));
-					memset(currentcommand, 0, sizeof(command_history));
-					currentcommand->prev_command = last_command;
-					currentcommand->command = "tpt.load(644543)";
-					strcpy(ed.str, currentcommand->command);
-					ed.cursor = ed.cursorstart = strlen(ed.str);*/
 				}
 			}
 		}

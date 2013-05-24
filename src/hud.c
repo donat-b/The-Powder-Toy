@@ -1,5 +1,6 @@
 #include <hud.h>
 #include <defines.h>
+#include <luaconsole.h>
 #include <powder.h>
 #include <gravity.h>
 #include <time.h>
@@ -472,6 +473,25 @@ void draw_info()
 			fillrect(vid_buf, 12, ytop+122, textwidth(infotext)+8, 15, 0, 0, 0, 140);
 			drawtext(vid_buf, 16, ytop+126, infotext, 255, 255, 255, 200);
 		}
+}
+
+void draw_lua_logs()
+{
+	int i;
+	for (i = 0; i < 20; i++)
+	{
+		if (log_history[i])
+		{
+			int alpha = log_history_times[i]*5>255?255:log_history_times[i]*5;
+			drawtext_outline(vid_buf, 16, (YRES-16)-i*12, log_history[i], 255, 255, 255, alpha, 0, 0, 0, alpha);
+			log_history_times[i]--;
+			if (log_history_times[i] < 0)
+			{
+				free(log_history[i]);
+				log_history[i] = NULL;
+			}
+		}
+	}
 }
 
 void time_string(int currtime, char *string, int length)

@@ -38,6 +38,8 @@
 #endif
 
 int *lua_el_func, *lua_el_mode, *lua_gr_func;
+char* log_history[20];
+int log_history_times[20];
 int getPartIndex_curIdx;
 lua_State *l;
 int tptProperties; //Table for some TPT properties
@@ -292,6 +294,14 @@ tpt.partsdata = nil");
 	{
 		lua_el_mode[i] = 0;
 		lua_gr_func[i] = 0;
+	}
+	for (i = 0; i < 20; i++)
+	{
+		log_history[i] = NULL;
+		log_history_times[i] = 0;
+		/*log_history[i] = (char*)malloc(3);
+		sprintf(log_history[i], "%i", i);
+		log_history_times[i] = 100+10*i;*/
 	}
 	lua_sethook(l, &lua_hook, LUA_MASKCOUNT, 4000000);
 }
@@ -799,8 +809,7 @@ int luacon_keyevent(int key, int modifier, int event)
 				i--;
 			}
 			lua_pop(l, 1);
-			printf("%s\n",luacon_geterror()); // todo, logging like tpt++ This way isn't good ...
-			//luacon_ci->Log(CommandInterface::LogError, luacon_geterror());
+			luacon_log(mystrdup(luacon_geterror()));
 		}
 		else
 		{
@@ -850,8 +859,7 @@ int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
 				c--;
 				i--;
 			}
-			printf("%s\n",luacon_geterror()); // todo, logging like tpt++ This way isn't good ...
-			//luacon_ci->Log(CommandInterface::LogError, luacon_geterror());
+			luacon_log(mystrdup(luacon_geterror()));
 			lua_pop(l, 1);
 		}
 		else
@@ -911,8 +919,7 @@ int luacon_step(int mx, int my, int selectl, int selectr, int bsx, int bsy)
 				c--;
 				i--;
 			}
-			printf("%s\n",luacon_geterror()); // todo, logging like tpt++ This way isn't good ...
-			//luacon_ci->Log(CommandInterface::LogError, luaL_optstring(l, -1, ""));
+			luacon_log(mystrdup(luacon_geterror()));
 			lua_pop(l, 1);
 		}
 	}
@@ -941,24 +948,45 @@ int luaL_tostring (lua_State *L, int n) {
 	return 1;
 }
 
+void luacon_log(char *log)
+{
+	int i;
+	if (log_history[19])
+		free(log_history[19]);
+	for (i = 19; i > 0; i--)
+	{
+		log_history[i] = log_history[i-1];
+		log_history_times[i] = log_history_times[i-1];
+	}
+	log_history[0] = log;
+	log_history_times[0] = 150;
+	printf("%s\n",log);
+}
+
 char *lastCode = NULL;
+char *logs = NULL; //logs from tpt.log are temporarily stored here
 int luacon_eval(char *command, char **result)
 {
 	int level = lua_gettop(l), ret = -1;
 	char *text = NULL, *tmp;
+	if (logs)
+	{
+		free(logs);
+		logs = NULL;
+	}
 	if (lastCode)
 	{
-		char *tmplastCode = (char*)calloc(strlen(lastCode)+strlen(command)+3, sizeof(char));
+		char *tmplastCode = (char*)malloc(strlen(lastCode)+strlen(command)+3);
 		sprintf(tmplastCode, "%s\n%s", lastCode, command);
 		free(lastCode);
 		lastCode = tmplastCode;
 	}
 	else
 	{
-		lastCode = (char*)calloc(strlen(command)+1, sizeof(char));
+		lastCode = (char*)malloc(strlen(command)+1);
 		sprintf(lastCode, "%s", command);
 	}
-	tmp = (char*)calloc(strlen(lastCode) + 8, sizeof(char));
+	tmp = (char*)malloc(strlen(lastCode) + 8);
 	sprintf(tmp, "return %s", lastCode);
 	loop_time = SDL_GetTicks();
 	luaL_loadbuffer(l, tmp, strlen(tmp), "@console");
@@ -989,16 +1017,15 @@ int luacon_eval(char *command, char **result)
 		ret = lua_pcall(l, 0, LUA_MULTRET, 0);
 		if(ret)
 			return ret;
-			//strncpy(lastError, luacon_geterror(), 254);
 		else
 		{
 			for(level++;level<=lua_gettop(l);level++)
 			{
 				luaL_tostring(l, level);
-				if(text && strlen(text))
+				if(text)
 				{
 					char *text2 = (char*)malloc(strlen(luaL_optstring(l, -1, "")) + strlen(text) + 3);
-					sprintf(text2, "%s, %s", luaL_optstring(l, -1, ""), text);
+					sprintf(text2, "%s, %s", text, luaL_optstring(l, -1, ""));
 					free(text);
 					text = mystrdup(text2);
 					free(text2);
@@ -1009,10 +1036,24 @@ int luacon_eval(char *command, char **result)
 				}
 				lua_pop(l, 1);
 			}
-			if(text && strlen(text))
-				if(*result && strlen(*result))
+			if (logs)
+			{
+				if (!text)
+					text = mystrdup(logs);
+				else
 				{
-					char *tmp2 = (char*)calloc(strlen(*result)+strlen(text)+3, sizeof(char));
+					char *tmp2 = (char*)malloc(strlen(logs)+strlen(text)+3);
+					sprintf(tmp2, "%s; %s", logs, text);
+					free(text);
+					text = tmp2;
+				}
+				free(logs);
+				logs = NULL;
+			}
+			if(text)
+				if(*result)
+				{
+					char *tmp2 = (char*)malloc(strlen(*result)+strlen(text)+3);
 					sprintf(tmp2, "%s; %s", result, text);
 					*result = tmp2;
 				}
@@ -1022,8 +1063,6 @@ int luacon_eval(char *command, char **result)
 		}
 	}
 	return ret;
-	//loop_time = SDL_GetTicks();
-	//return luaL_dostring (l, command);
 }
 void lua_hook(lua_State *L, lua_Debug *ar)
 {
@@ -1047,7 +1086,10 @@ int luacon_part_update(int t, int i, int x, int y, int surround_space, int nt)
 		callret = lua_pcall(l, 5, 1, 0);
 		if (callret)
 		{
-			printf("In particle update: %s\n",luacon_geterror());
+			char *error = (char*)luacon_geterror();
+			char *tolog = (char*)malloc(strlen(error) + 21);
+			sprintf(tolog, "In particle update: %s", error);
+			luacon_log(tolog);
 		}
 		if(lua_isboolean(l, -1)){
 			retval = lua_toboolean(l, -1);
@@ -1067,8 +1109,10 @@ int luacon_graphics_update(int t, int i, int *pixel_mode, int *cola, int *colr, 
 	callret = lua_pcall(l, 4, 10, 0);
 	if (callret)
 	{
-		printf("In graphics function: %s\n",luacon_geterror());
-		//luacon_ci->Log(CommandInterface::LogError, luacon_geterror());
+		char *error = (char*)luacon_geterror();
+		char *tolog = (char*)malloc(strlen(error) + 23);
+		sprintf(tolog, "In graphics function: %s", error);
+		luacon_log(tolog);
 		lua_pop(l, 1);
 	}
 	else
@@ -1095,8 +1139,20 @@ const char *luacon_geterror()
 	lua_pop(l, 1);
 	return err;
 }
-void luacon_close(){
+void luacon_close()
+{
+	int i;
 	lua_close(l);
+	if (lastCode)
+		free(lastCode);
+	if (logs)
+		free(logs);
+	for (i = 0; i < 20; i++)
+	{
+		if (log_history[i])
+			free(log_history[i]);
+	}
+	console_clear_history();
 }
 int process_command_lua(pixel *vid_buf, char *command, char **result)
 {
@@ -1112,7 +1168,8 @@ int process_command_lua(pixel *vid_buf, char *command, char **result)
 			if (commandret)
 			{
 				*result = mystrdup(luacon_geterror());
-				printf("%s\n", *result);
+				if (!console_mode)
+					luacon_log(mystrdup(*result));
 			}
 		}
 	}
@@ -1331,13 +1388,12 @@ int luatpt_log(lua_State* l)
 	for(i = 1; i <= args; i++)
 	{
 		luaL_tostring(l, -1);
-		if(buffer && strlen(buffer))
+		if(buffer)
 		{
 			buffer2 = (char*)malloc(strlen(luaL_optstring(l, -1, "")) + strlen(buffer) + 3);
 			sprintf(buffer2, "%s, %s", luaL_optstring(l, -1, ""), buffer);
 			free(buffer);
-			buffer = mystrdup(buffer2);
-			free(buffer2);
+			buffer = buffer2;
 		}
 		else
 		{
@@ -1345,19 +1401,26 @@ int luatpt_log(lua_State* l)
 		}
 		lua_pop(l, 2);
 	}
-	//if((*luacon_currentCommand))
-	//	(*luacon_lastError) = text;
-	//else
-	//	luacon_ci->Log(CommandInterface::LogNotice, text.c_str());
-	/*if(strlen(console_error))
+	if (console_mode)
 	{
-		snprintf(buffer2, 255, "%s; %s", console_error, buffer);
-		strncpy(console_error, buffer2, 254);
+		if(logs)
+		{
+			buffer2 = (char*)malloc(strlen(logs)+strlen(buffer)+3);
+			sprintf(buffer2, "%s; %s", logs, buffer);
+			free(logs);
+			logs = buffer2;
+		}
+		else
+		{
+			logs = buffer;
+		}
+		return 0;
 	}
 	else
-		strncpy(console_error, buffer, 254);*/
-	lua_pushstring(l, buffer);
-	return 1;
+	{
+		luacon_log(buffer);
+		return 0;
+	}
 }
 
 void set_map(int x, int y, int width, int height, float value, int map)

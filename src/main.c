@@ -1176,9 +1176,14 @@ int main(int argc, char *argv[])
 			http_auth_headers(http_session_check, svf_user_id, NULL, svf_session_id);
 	}
 #ifdef LUACONSOLE
-	luacon_eval("dofile(\"autorun.lua\")", &autorun_result); //Autorun lua script
+	if (luacon_eval("dofile(\"autorun.lua\")", &autorun_result)) //Autorun lua script
+	{
+		luacon_log(mystrdup(luacon_geterror()));
+	}
 	if (autorun_result)
-		free(autorun_result); // something should be done with this instead ...
+	{
+		luacon_log(autorun_result);
+	}
 #endif
 	load_data = (void*)tab_load(1, &load_size);
 	if (load_data)
@@ -3127,6 +3132,8 @@ int main(int argc, char *argv[])
 
 			if (drawinfo)
 				draw_info();
+
+			draw_lua_logs();
 		}
 
 		if (console_mode)

@@ -49,11 +49,14 @@ extern "C" {
 #define LUACON_EL_MODIFIED_MENUS 0x4
 
 extern int *lua_el_func, *lua_el_mode, *lua_gr_func;
+extern char* log_history[20];
+extern int log_history_times[20];
 
 void luacon_open();
 int luaopen_bit(lua_State *L);
 int luacon_step(int mx, int my, int selectl, int selectr, int bsx, int bsy);
 int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel);
+void luacon_log(char *log);
 int luacon_keyevent(int key, int modifier, int event);
 int luacon_eval(char *command, char **result);
 int luacon_part_update(int t, int i, int x, int y, int surround_space, int nt);

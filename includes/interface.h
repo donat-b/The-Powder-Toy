@@ -298,33 +298,24 @@ void get_sign_pos(int i, int *x0, int *y0, int *w, int *h);
 void add_sign_ui(pixel *vid_buf, int mx, int my);
 
 void ui_edit_init(ui_edit *ed, int x, int y, int w, int h);
-
 int ui_edit_draw(pixel *vid_buf, ui_edit *ed);
-
 void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed);
 
 void ui_label_init(ui_label *ed, int x, int y, int w, int h);
-
 int ui_label_draw(pixel *vid_buf, ui_label *ed);
-
 void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed);
 
 void ui_list_draw(pixel *vid_buf, ui_list *ed);
-
 void ui_list_process(pixel * vid_buf, int mx, int my, int mb, ui_list *ed);
 
 void ui_checkbox_draw(pixel *vid_buf, ui_checkbox *ed);
-
 void ui_checkbox_process(int mx, int my, int mb, int mbq, ui_checkbox *ed);
 
 void ui_copytext_draw(pixel *vid_buf, ui_copytext *ed);
-
 void ui_copytext_process(int mx, int my, int mb, int mbq, ui_copytext *ed);
 
 void ui_richtext_draw(pixel *vid_buf, ui_richtext *ed);
-
 void ui_richtext_settext(char *text, ui_richtext *ed);
-
 void ui_richtext_process(int mx, int my, int mb, int mbq, ui_richtext *ed);
 
 void draw_svf_ui(pixel *vid_buf, int alternate);
@@ -405,6 +396,7 @@ void open_link(char *uri);
 
 int report_ui(pixel *vid_buf, char *save_id);
 
+void console_clear_history();
 int console_ui(pixel *vid_buf);
 
 void init_color_boxes();

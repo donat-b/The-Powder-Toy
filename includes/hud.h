@@ -16,6 +16,8 @@ void draw_hud(int it);
 
 void draw_info();
 
+void draw_lua_logs();
+
 void time_string(int currtime, char *string, int length);
 
 struct hud
@@ -52,8 +54,8 @@ static hud hud_menu[] =
 	{"CTP2", PIXPACK(0x000000), 2, "Display invalid ctypes as numbers instead of showing no ctype"},
 	{"MOLT", PIXPACK(0x000000), 2, "Molten [NAME] instead of name & ctype"},
 	{"PIPE", PIXPACK(0x000000), 2, "PIPE ([NAME]) instead of name & not useful ctype"},
-	{"CELC", PIXPACK(0x000000), 2, "Show temperatures in Celcius"},
-	{"FARH", PIXPACK(0x000000), 2, "Show temperatures in Farenheit"},
+	{"CELC", PIXPACK(0x000000), 2, "Show temperatures in Celsius"},
+	{"FARH", PIXPACK(0x000000), 2, "Show temperatures in Fahrenheit"},
 	{"KELV", PIXPACK(0x000000), 2, "Show temperatures in Kelvin"},
 	{"TEM#", PIXPACK(0x000000), 2, "Show all temperatures to"},
 	{"LIFE", PIXPACK(0x000000), 2, "Show a particle's life value"},
@@ -69,7 +71,7 @@ static hud hud_menu[] =
 	//28
 	{"INDX", PIXPACK(0x000000), 3, "The index of a particle"},
 	{"MCRD", PIXPACK(0x000000), 3, "Shows the mouse coordinates"},
-	{"GRAV", PIXPACK(0x000000), 3, "Shows the gravity at a spot if newtonian gravity is enabled"},
+	{"GRAV", PIXPACK(0x000000), 3, "Shows the gravity at a spot if Newtonian gravity is enabled"},
 	{"GRV#", PIXPACK(0x000000), 3, "Show gravity to"},
 	{"PRES", PIXPACK(0x000000), 3, "Show the pressure"},
 	{"PRS#", PIXPACK(0x000000), 3, "Show pressure to"},
