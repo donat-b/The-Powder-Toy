@@ -140,7 +140,7 @@ typedef struct ui_edit ui_edit;
 
 struct ui_label
 {
-	int x, y, w, h, focus, multiline;
+	int x, y, w, h, focus, multiline, maxHeight;
 	char str[1024];
 	int cursor, cursorstart, highlightstart, highlightlength;
 };
@@ -302,6 +302,8 @@ void ui_edit_init(ui_edit *ed, int x, int y, int w, int h);
 int ui_edit_draw(pixel *vid_buf, ui_edit *ed);
 
 void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed);
+
+void ui_label_init(ui_label *ed, int x, int y, int w, int h);
 
 int ui_label_draw(pixel *vid_buf, ui_label *ed);
 

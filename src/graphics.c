@@ -1725,7 +1725,13 @@ void textnpos(char *s, int n, int w, int *cx, int *cy)
 			if (!n) {
 				break;
 			}
-			if (*s == '\x0F')
+			if (*s == '\n')
+			{
+				x = 0;
+				y += FONT_H+2;
+				continue;
+			}
+			else if (*s == '\x0F')
 			{
 				s += 3;
 				n = (int)fmin(1,n-3);
@@ -1763,7 +1769,7 @@ int textwidthx(char *s, int w)
 	int x=0,n=0,cw;
 	for (; *s; s++)
 	{
-		if (*s == '\x0F') //i'm not sure if these are right ... but they won't be used for this anyway
+		if (*s == '\x0F')
 		{
 			s += 4;
 			n += 4;
@@ -1842,7 +1848,13 @@ int textposxy(char *s, int width, int w, int h)
 		}
 		for (; *s && --wordlen>=-1; s++)
 		{
-			if (*s == '\x0F') //i'm not sure if these are right ... but they won't be used for this anyway
+			if (*s == '\n')
+			{
+				x = 0;
+				y += FONT_H+2;
+				continue;
+			}
+			else if (*s == '\x0F')
 			{
 				s += 4;
 				n += 4;

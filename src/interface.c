@@ -656,10 +656,24 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			ed->cursorstart = ed->cursor;
 }
 
+void ui_label_init(ui_label *label, int x, int y, int w, int h)
+{
+	label->x = x;
+	label->y = y;
+	label->w = w;
+	label->h = h;
+	label->maxHeight = 0;
+	strcpy(label->str, "");
+	label->focus = 0;
+	label->multiline = 1;
+	label->cursor = label->cursorstart = 0;
+	label->highlightstart = label->highlightlength = 0;
+}
+
 int ui_label_draw(pixel *vid_buf, ui_label *ed)
 {
 	char *str = ed->str, highlightstr[1024];
-	int ret = 0, heightlimit = ed->h;
+	int ret = 0, heightlimit = ed->maxHeight;
 
 	if (ed->cursor>ed->cursorstart)
 	{
@@ -676,7 +690,8 @@ int ui_label_draw(pixel *vid_buf, ui_label *ed)
 	{
 		if (ed->multiline) {
 			ret = drawtextwrap(vid_buf, ed->x, ed->y, ed->w-14, heightlimit, str, 255, 255, 255, 185);
-			ed->h = ret;
+			if (ed->maxHeight)
+				ed->h = ret;
 			if (ed->highlightlength)
 			{
 				
@@ -686,7 +701,6 @@ int ui_label_draw(pixel *vid_buf, ui_label *ed)
 			}
 		} else {
 			ret = drawtext(vid_buf, ed->x, ed->y, str, 255, 255, 255, 255);
-			ed->h = 12;
 			if (ed->highlightlength)
 			{
 				strncpy(highlightstr, &str[ed->highlightstart], ed->highlightlength);
@@ -5406,9 +5420,9 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						{
 							int change, commentboxy = YRES+MENUSIZE-70-ed.h+2-5;
 							if (ccy+comment_scroll < 0) // if above screen set height to negative, how long until it can start being drawn
-								info->comments[cc].h = ccy+comment_scroll-10;
+								info->comments[cc].maxHeight = ccy+comment_scroll-10;
 							else                        // else set how much can be drawn until it goes off the screen
-								info->comments[cc].h = YRES+MENUSIZE-41 - (ccy + 72 + comment_scroll);
+								info->comments[cc].maxHeight = YRES+MENUSIZE-41 - (ccy + 72 + comment_scroll);
 
 							change = ui_label_draw(vid_buf, &info->comments[cc]); // draw the comment
 							ui_label_process(mx, my, b, bq, &info->comments[cc]); // process copying
@@ -5781,13 +5795,7 @@ int info_parse(char *info_data, save_info *info)
 	memset(info, 0, sizeof(save_info));
 	for (i = 0; i < NUM_COMMENTS; i++)
 	{
-		info->comments[i].x = 61+(XRES/2);
-		info->comments[i].y = 0;
-		info->comments[i].w = XRES+BARSIZE-107-(XRES/2);
-		info->comments[i].h = 0;
-		info->comments[i].focus = 0;
-		info->comments[i].multiline = 1;
-		info->comments[i].cursor = info->comments[i].cursorstart = 0;
+		ui_label_init(&info->comments[i], 61+(XRES/2), 0, XRES+BARSIZE-107-(XRES/2), 0);
 	}
 
 	if (!info_data || !*info_data)
@@ -6625,8 +6633,7 @@ struct command_history;
 typedef struct command_history command_history;
 struct command_history {
 	command_history *prev_command;
-	//ui_label command;
-	char *command;
+	ui_label command;
 };
 command_history *last_command = NULL;
 command_history *last_command_result = NULL;
@@ -6769,6 +6776,7 @@ const static struct command_match matches [] = {
 	{"type", "typ"},
 };
 
+// limits console to only have 20 (limit) previous commands stored
 void console_limit_history(int limit, command_history *commandList)
 {
 	int cc;
@@ -6792,24 +6800,61 @@ void console_limit_history(int limit, command_history *commandList)
 	}
 }
 
-void console_draw_history(int limit, int divideX, command_history *commandList, command_history *commandresultList)
+// draws and processes all the history, which are in ui_labels (which aren't very nice looking, but get the job done).
+// returns if one of them is focused, to fix copying (since the 
+int console_draw_history(command_history *commandList, command_history *commandresultList, int limit, int divideX, int mx, int my, int b, int bq)
+{
+	int cc, focused = 0;
+	for (cc = 0; cc < limit; cc++)
+	{
+		if (commandList == NULL)
+			break;
+
+		cc += (commandList->command.h/12)-1;
+		if (cc >= limit)
+			break;
+
+		ui_label_draw(vid_buf, &commandList->command);
+		ui_label_process(mx, my, b, bq, &commandList->command);
+		ui_label_draw(vid_buf, &commandresultList->command);
+		ui_label_process(mx, my, b, bq, &commandresultList->command);
+		if (commandList->command.focus || commandresultList->command.focus)
+			focused = 1;
+
+		if (commandList->prev_command == NULL)
+			break;
+		else
+		{
+			commandList = commandList->prev_command;
+			commandresultList = commandresultList->prev_command;
+		}
+	}
+	return focused;
+}
+
+// reset the locations of all the history labels when the divider is dragged or a new command added
+void console_set_history_X(command_history *commandList, command_history *commandresultList, int divideX)
 {
 	int cc;
-	for (cc = 0; cc < limit; cc++)
+	for (cc = 0; ; cc++)
 	{
 		int commandHeight, resultHeight;
 		if (commandList == NULL)
 			break;
 
-		commandHeight = drawtextwrap(vid_buf, 15, 175-(cc*12), divideX-30, 0, commandList->command, 0, 0, 0, 0);
-		resultHeight = drawtextwrap(vid_buf, divideX+15, 175-(cc*12), XRES-divideX-30, 0, commandresultList->command, 0, 0, 0, 0);
+		commandHeight = drawtextwrap(vid_buf, 15, 175-(cc*12), divideX-30, 0, commandList->command.str, 0, 0, 0, 0);
+		resultHeight = drawtextwrap(vid_buf, divideX+15, 175-(cc*12), XRES-divideX-30, 0, commandresultList->command.str, 0, 0, 0, 0);
 		if (resultHeight > commandHeight)
 			commandHeight = resultHeight;
 		cc += (commandHeight/12)-1;
-		if (cc >= limit)
-			break;
-		drawtextwrap(vid_buf, 15, 175-(cc*12), divideX-30, 0, commandList->command, 255, 255, 255, 255);
-		drawtextwrap(vid_buf, divideX+15, 175-(cc*12), XRES-divideX-30, 0, commandresultList->command, 255, 255, 255, 255);
+
+		commandList->command.y = 175-(cc*12);
+		commandList->command.w = divideX-30+14;
+		commandList->command.h = commandHeight;
+		commandresultList->command.x = divideX+15;
+		commandresultList->command.y = 175-(cc*12);
+		commandresultList->command.w = XRES-divideX-30+14;
+		commandresultList->command.h = commandHeight;
 
 		if (commandList->prev_command == NULL)
 			break;
@@ -6825,7 +6870,7 @@ int divideX = XRES/2-50;
 int console_ui(pixel *vid_buf)
 {
 	int i, mx, my, b = 0, bq, selectedCommand = -1, commandHeight = -1;
-	char *match = 0, laststr[1024] = "", draggingDivindingLine = 0;
+	char *match = 0, laststr[1024] = "", draggingDivindingLine = 0, focusTextbox = 1;
 	pixel *old_buf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	command_history *currentcommand = last_command;
 	command_history *currentcommand_result = last_command_result;
@@ -6843,15 +6888,14 @@ int console_ui(pixel *vid_buf)
 	console_limit_history(20, currentcommand);
 	console_limit_history(20, currentcommand_result);
 
-	/*while (cc < 80)
-	{
-		fillrect(old_buf, -1, -1+cc, XRES+BARSIZE, 2, 0, 0, 0, 160-(cc*2));
-		cc++;
-	}*/
+	for (i = 0; i < 80; i++) //make background at top slightly darker
+		fillrect(old_buf, -1, -1+i, XRES+BARSIZE, 2, 0, 0, 0, 160-(i*2));
+
 	while (!sdl_poll())
 	{
 		bq = b;
 		b = mouse_get_state(&mx, &my);
+		//everything for dragging the line in the center
 		if (mx > divideX - 10 && mx < divideX + 10 && b && !bq)
 		{
 			draggingDivindingLine = 1;
@@ -6867,21 +6911,25 @@ int console_ui(pixel *vid_buf)
 				newLine = XRES-100;
 			divideX = newLine;
 			ed.w = divideX - 15;
+			console_set_history_X(currentcommand, currentcommand_result, divideX);
 		}
 
+		//draw most of the things to the screen
 		memcpy(vid_buf,old_buf,(XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
 		blend_line(vid_buf, 0, 207+commandHeight, XRES+BARSIZE-1, 207+commandHeight, 228, 228, 228, 255);
 		blend_line(vid_buf, divideX, 0, divideX, 207+commandHeight, 255, 255, 255, draggingDivindingLine?255:170);
 #if defined(LUACONSOLE)
-		drawtext(vid_buf, 15, 15, "Welcome to The Powder Toy console v.4 (by cracker64, Lua enabled)", 255, 255, 255, 255);
+		drawtext(vid_buf, 15, 15, "Welcome to The Powder Toy console v.5 (by cracker64/jacob1, Lua enabled)", 255, 255, 255, 255);
 #else
 		drawtext(vid_buf, 15, 15, "Welcome to The Powder Toy console v.3 (by cracker64)", 255, 255, 255, 255);
 #endif
 
+		//draw the visible console history
 		currentcommand = last_command;
 		currentcommand_result = last_command_result;
-		console_draw_history(12, divideX, currentcommand, currentcommand_result);
+		focusTextbox = !console_draw_history(currentcommand, currentcommand_result, 12, divideX, mx, my, b, bq);
 
+		//find matches, for tab autocomplete
 		if (strcmp(laststr,ed.str))
 		{
 			char *str = ed.str;
@@ -6907,7 +6955,8 @@ int console_ui(pixel *vid_buf)
 		drawtext(vid_buf, 5, 207, ">", 255, 255, 255, 240);
 
 		strncpy(laststr, ed.str, 256);
-		ed.focus = 1;
+		if (focusTextbox)
+			ed.focus = 1;
 		commandHeight = ui_edit_draw(vid_buf, &ed);
 		ui_edit_process(mx, my, b, bq, &ed);
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
@@ -6921,7 +6970,7 @@ int console_ui(pixel *vid_buf)
 			match[strlen(matches[i].command)] = '\0';
 			ed.cursor = ed.cursorstart = strlen(ed.str);
 		}
-		if (sdl_key==SDLK_RETURN)
+		if (sdl_key==SDLK_RETURN) //execute the command, create a new history item
 		{
 			char *command = mystrdup(ed.str);
 			char *result = NULL;
@@ -6934,34 +6983,43 @@ int console_ui(pixel *vid_buf)
 			currentcommand = (command_history*)malloc(sizeof(command_history));
 			memset(currentcommand, 0, sizeof(command_history));
 			currentcommand->prev_command = last_command;
+			ui_label_init(&currentcommand->command, 15, 0, 0, 0);
 			if (command)
-				currentcommand->command = command;
+			{
+				strncpy(currentcommand->command.str, command, 1023);
+				free(command);
+			}
 			else
-				currentcommand->command = mystrdup("");
+				strcpy(currentcommand->command.str, "");
 			last_command = currentcommand;
 
 			currentcommand_result = (command_history*)malloc(sizeof(command_history));
 			memset(currentcommand_result, 0, sizeof(command_history));
 			currentcommand_result->prev_command = last_command_result;
+			ui_label_init(&currentcommand_result->command, 0, 0, 0, 0);
 			if (result)
-				currentcommand_result->command = result;
+			{
+				strncpy(currentcommand_result->command.str, result, 1023);
+				free(result);
+			}
 			else
-				currentcommand_result->command = mystrdup("");
+				strcpy(currentcommand_result->command.str, "");
 			last_command_result = currentcommand_result;
 
 			console_limit_history(20, currentcommand);
 			console_limit_history(20, currentcommand_result);
+			console_set_history_X(currentcommand, currentcommand_result, divideX); // initialize the ui_label locations here, so they can all be changed
 
 			strcpy(ed.str, "");
 			ed.cursor = ed.cursorstart = 0;
 		}
-		if (sdl_key==SDLK_ESCAPE || (sdl_key==SDLK_BACKQUOTE && !(sdl_mod & (KMOD_SHIFT))) || !console_mode)
+		if (sdl_key==SDLK_ESCAPE || (sdl_key==SDLK_BACKQUOTE && !(sdl_mod & (KMOD_SHIFT))) || !console_mode) // exit the console
 		{
 			console_mode = 0;
 			free(old_buf);
 			return 1;
 		}
-		if (sdl_key==SDLK_UP || sdl_key==SDLK_DOWN)
+		if (sdl_key==SDLK_UP || sdl_key==SDLK_DOWN) //up / down to scroll through history
 		{
 			selectedCommand += sdl_key==SDLK_UP?1:-1;
 			if (selectedCommand<-1)
@@ -6983,17 +7041,19 @@ int console_ui(pixel *vid_buf)
 						else
 							currentcommand = currentcommand->prev_command;
 					}
-					strcpy(ed.str, currentcommand->command);
+					strncpy(ed.str, currentcommand->command.str, 1023);
 					ed.cursor = ed.cursorstart = strlen(ed.str);
 				}
 				else
 				{
-					currentcommand = (command_history*)malloc(sizeof(command_history));
+					strcpy(ed.str, "tpt.load(644543)");
+					ed.cursor = ed.cursorstart = strlen(ed.str);
+					/*currentcommand = (command_history*)malloc(sizeof(command_history));
 					memset(currentcommand, 0, sizeof(command_history));
 					currentcommand->prev_command = last_command;
 					currentcommand->command = "tpt.load(644543)";
 					strcpy(ed.str, currentcommand->command);
-					ed.cursor = ed.cursorstart = strlen(ed.str);
+					ed.cursor = ed.cursorstart = strlen(ed.str);*/
 				}
 			}
 		}
