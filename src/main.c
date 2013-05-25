@@ -3185,8 +3185,10 @@ int main(int argc, char *argv[])
 	}
 	
 	SDL_CloseAudio();
+	SaveWindowPosition();
 	http_done();
 	gravity_cleanup();
+	save_presets(0);
 #ifdef LUACONSOLE
 	luacon_close();
 #endif
@@ -3196,8 +3198,6 @@ int main(int argc, char *argv[])
 #endif
     if (part_vbuf_store)
     	free(part_vbuf_store);
-	SaveWindowPosition();
-	save_presets(0);
 	for (i = 1; i < 10; i++)
 	{
 		char name[30] = {0};

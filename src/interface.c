@@ -6629,14 +6629,6 @@ void open_link(char *uri) {
 	printf("Cannot open browser\n");
 #endif
 }
-struct command_history;
-typedef struct command_history command_history;
-struct command_history {
-	command_history *prev_command;
-	ui_label command;
-};
-command_history *last_command = NULL;
-command_history *last_command_result = NULL;
 
 struct command_match {
 	const char *command;
@@ -6823,12 +6815,6 @@ int console_draw_history(command_history *commandList, command_history *commandr
 	return focused;
 }
 
-void console_clear_history()
-{
-	console_limit_history(0, last_command);
-	console_limit_history(0, last_command_result);
-}
-
 // reset the locations of all the history labels when the divider is dragged or a new command added
 void console_set_history_X(command_history *commandList, command_history *commandresultList, int divideX)
 {
@@ -6863,6 +6849,8 @@ void console_set_history_X(command_history *commandList, command_history *comman
 	}
 }
 
+command_history *last_command = NULL;
+command_history *last_command_result = NULL;
 int divideX = XRES/2-50;
 int console_ui(pixel *vid_buf)
 {
@@ -6884,6 +6872,7 @@ int console_ui(pixel *vid_buf)
 
 	console_limit_history(20, currentcommand);
 	console_limit_history(20, currentcommand_result);
+	console_set_history_X(currentcommand, currentcommand_result, divideX);
 
 	for (i = 0; i < 80; i++) //make background at top slightly darker
 		fillrect(old_buf, -1, -1+i, XRES+BARSIZE, 2, 0, 0, 0, 160-(i*2));

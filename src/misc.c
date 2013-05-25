@@ -157,13 +157,20 @@ void erase_bframe()
 	}
 }
 
+void save_console_history(int limit, cJSON **historyArray, command_history *commandList)
+{
+	if (!commandList)
+		return;
+	save_console_history(limit-1, historyArray, commandList->prev_command);
+	cJSON_AddItemToArray(*historyArray, cJSON_CreateString(commandList->command.str));
+}
+
 void save_presets(int do_update)
 {
-	//*/
 	int i = 0, count;
 	char * outputdata;
 	char mode[32];
-	cJSON *root, *userobj, *userobj2, *versionobj, *recobj, *graphicsobj, *graphicsobj2, *hudobj, *simulationobj, *tmpobj;
+	cJSON *root, *userobj, *userobj2, *versionobj, *recobj, *graphicsobj, *graphicsobj2, *hudobj, *simulationobj, *consoleobj, *tmpobj;
 	FILE *f = fopen("powder.pref", "wb");
 	if(!f)
 		return;
@@ -224,6 +231,15 @@ void save_presets(int do_update)
 
 	//Tpt++ install check, prevents annoyingness
 	cJSON_AddTrueToObject(root, "InstallCheck");
+
+	//Tpt++ console history
+	cJSON_AddItemToObject(root, "Console", consoleobj=cJSON_CreateObject());
+	tmpobj = cJSON_CreateStringArray(NULL, 0);
+	save_console_history(20, &tmpobj, last_command);
+	cJSON_AddItemToObject(consoleobj, "History", tmpobj);
+	tmpobj = cJSON_CreateStringArray(NULL, 0);
+	save_console_history(20, &tmpobj, last_command_result);
+	cJSON_AddItemToObject(consoleobj, "HistoryResults", tmpobj);
 
 	//Tpt User info
 	if (svf_login)
@@ -292,11 +308,7 @@ void save_presets(int do_update)
 	cJSON_AddNumberToObject(root, "scale", sdl_scale);
 	cJSON_AddNumberToObject(root, "Debug mode", DEBUG_MODE);
 	cJSON_AddNumberToObject(root, "heatmode", heatmode);
-	//cJSON_AddNumberToObject(root, "save_as", save_as);
 	cJSON_AddNumberToObject(root, "autosave", autosave);
-	//cJSON_AddNumberToObject(root, "sl", sl);
-	//cJSON_AddNumberToObject(root, "sr", sr);
-	//cJSON_AddNumberToObject(root, "active_menu", active_menu);
 	cJSON_AddNumberToObject(root, "aheat_enable", aheat_enable);
 	cJSON_AddNumberToObject(root, "decorations_enable", decorations_enable);
 	cJSON_AddNumberToObject(root, "ngrav_enable", ngrav_enable);
@@ -329,46 +341,21 @@ void save_presets(int do_update)
 	fwrite(outputdata, 1, strlen(outputdata), f);
 	fclose(f);
 	free(outputdata);
-	//Old format, here for reference only
-	/*/FILE *f=fopen("powder.def", "wb");
-	unsigned char sig[4] = {0x50, 0x44, 0x65, 0x68};
-	unsigned char tmp = sdl_scale;
-	if (!f)
-		return;
-	fwrite(sig, 1, 4, f);
-	save_string(f, svf_user);
-	//save_string(f, svf_pass);
-	save_string(f, svf_user_id);
-	save_string(f, svf_session_id);
-	fwrite(&tmp, 1, 1, f);
-	tmp = cmode;
-	fwrite(&tmp, 1, 1, f);
-	tmp = svf_admin;
-	fwrite(&tmp, 1, 1, f);
-	tmp = svf_mod;
-	fwrite(&tmp, 1, 1, f);
-	save_string(f, http_proxy_string);
-	tmp = SAVE_VERSION;
-	fwrite(&tmp, 1, 1, f);
-	tmp = MINOR_VERSION;
-	fwrite(&tmp, 1, 1, f);
-	tmp = BUILD_NUM;
-	fwrite(&tmp, 1, 1, f);
-	tmp = do_update;
-	fwrite(&tmp, 1, 1, f);
-	fclose(f);
-	/*/
 }
 
-int sregexp(const char *str, char *pattern)
+void load_console_history(cJSON *tmpobj, command_history **last_command, int count)
 {
-	int result;
-	regex_t patternc;
-	if (regcomp(&patternc, pattern,  0)!=0)
-		return 1;
-	result = regexec(&patternc, str, 0, NULL, 0);
-	regfree(&patternc);
-	return result;
+	int i;
+	command_history *currentcommand = *last_command;
+	for(i = 0; i < count; i++)
+	{
+		currentcommand = (command_history*)malloc(sizeof(command_history));
+		memset(currentcommand, 0, sizeof(command_history));
+		currentcommand->prev_command = *last_command;
+		ui_label_init(&currentcommand->command, 15, 0, 0, 0);
+		strncpy(currentcommand->command.str, cJSON_GetArrayItem(tmpobj, i)->valuestring, 1023);
+		*last_command = currentcommand;
+	}
 }
 
 void load_presets(void)
@@ -378,7 +365,7 @@ void load_presets(void)
 	cJSON *root;
 	if(prefdata && (root = cJSON_Parse(prefdata)))
 	{
-		cJSON *userobj, *versionobj, *recobj, *tmpobj, *graphicsobj, *hudobj, *simulationobj, *tmparray;
+		cJSON *userobj, *versionobj, *recobj, *tmpobj, *graphicsobj, *hudobj, *simulationobj, *consoleobj, *tmparray;
 		
 		//Read user data
 		userobj = cJSON_GetObjectItem(root, "User");
@@ -502,7 +489,7 @@ void load_presets(void)
 				if(tmpobj = cJSON_GetObjectItem(graphicsobj, "ColourMode")) colour_mode = atoi(tmpobj->valuestring);
 				if(tmpobj = cJSON_GetObjectItem(graphicsobj, "DisplayModes"))
 				{
-					char *temp = (char*)malloc(32*sizeof(char));
+					char temp[32];
 					count = cJSON_GetArraySize(tmpobj);
 					free(display_modes);
 					display_mode = 0;
@@ -516,7 +503,7 @@ void load_presets(void)
 				}
 				if(tmpobj = cJSON_GetObjectItem(graphicsobj, "RenderModes"))
 				{
-					char *temp = (char*)malloc(32*sizeof(char));
+					char temp[32];
 					count = cJSON_GetArraySize(tmpobj);
 					free(render_modes);
 					render_mode = 0;
@@ -541,6 +528,25 @@ void load_presets(void)
 			if(tmpobj = cJSON_GetObjectItem(simulationobj, "EdgeMode"))
 			{
 				edgeMode = tmpobj->valueint;
+			}
+		}
+
+		consoleobj = cJSON_GetObjectItem(root, "Console");
+		if (consoleobj)
+		{
+			int max = 0;
+			if(tmpobj = cJSON_GetObjectItem(consoleobj, "History"))
+			{
+				max = cJSON_GetArraySize(tmpobj);
+				if(tmpobj = cJSON_GetObjectItem(consoleobj, "HistoryResults"))
+					max = cJSON_GetArraySize(tmpobj)>max?cJSON_GetArraySize(tmpobj):max;
+				else
+					max = 0;
+			}
+			if (max)
+			{
+				load_console_history(cJSON_GetObjectItem(consoleobj, "History"), &last_command, max);
+				load_console_history(cJSON_GetObjectItem(consoleobj, "HistoryResults"), &last_command_result, max);
 			}
 		}
 
@@ -693,14 +699,15 @@ void load_presets(void)
 	}
 }
 
-void save_string(FILE *f, char *str)
+int sregexp(const char *str, char *pattern)
 {
-	int li = strlen(str);
-	unsigned char lb[2];
-	lb[0] = li;
-	lb[1] = li >> 8;
-	fwrite(lb, 2, 1, f);
-	fwrite(str, li, 1, f);
+	int result;
+	regex_t patternc;
+	if (regcomp(&patternc, pattern,  0)!=0)
+		return 1;
+	result = regexec(&patternc, str, 0, NULL, 0);
+	regfree(&patternc);
+	return result;
 }
 
 int load_string(FILE *f, char *str, int max)

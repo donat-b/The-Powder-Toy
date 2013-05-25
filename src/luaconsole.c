@@ -299,9 +299,6 @@ tpt.partsdata = nil");
 	{
 		log_history[i] = NULL;
 		log_history_times[i] = 0;
-		/*log_history[i] = (char*)malloc(3);
-		sprintf(log_history[i], "%i", i);
-		log_history_times[i] = 100+10*i;*/
 	}
 	lua_sethook(l, &lua_hook, LUA_MASKCOUNT, 4000000);
 }
@@ -796,6 +793,7 @@ int luacon_keyevent(int key, int modifier, int event)
 		callret = lua_pcall(l, 4, 1, 0);
 		if (callret)
 		{
+			char *error, *tolog;
 			if (!strcmp(luacon_geterror(), "Error: Script not responding"))
 			{
 				for(j=i;j<=c-1;j++)
@@ -809,7 +807,10 @@ int luacon_keyevent(int key, int modifier, int event)
 				i--;
 			}
 			lua_pop(l, 1);
-			luacon_log(mystrdup(luacon_geterror()));
+			error = (char*)luacon_geterror();
+			tolog = (char*)malloc(strlen(error) + 15);
+			sprintf(tolog, "In key event: %s", error);
+			luacon_log(tolog);
 		}
 		else
 		{
@@ -847,6 +848,7 @@ int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
 		callret = lua_pcall(l, 5, 1, 0);
 		if (callret)
 		{
+			char *error, *tolog;
 			if (!strcmp(luacon_geterror(), "Error: Script not responding"))
 			{
 				for(j=i;j<=c-1;j++)
@@ -859,7 +861,9 @@ int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
 				c--;
 				i--;
 			}
-			luacon_log(mystrdup(luacon_geterror()));
+			error = (char*)luacon_geterror();
+			tolog = (char*)malloc(strlen(error) + 17);
+			sprintf(tolog, "In mouse event: %s", error);
 			lua_pop(l, 1);
 		}
 		else
@@ -1152,7 +1156,8 @@ void luacon_close()
 		if (log_history[i])
 			free(log_history[i]);
 	}
-	console_clear_history();
+	console_limit_history(0, last_command);
+	console_limit_history(0, last_command_result);
 }
 int process_command_lua(pixel *vid_buf, char *command, char **result)
 {

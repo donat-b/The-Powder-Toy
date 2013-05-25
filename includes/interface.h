@@ -208,6 +208,16 @@ struct ui_richtext
 };
 typedef struct ui_richtext ui_richtext;
 
+typedef struct command_history command_history;
+struct command_history {
+	command_history *prev_command;
+	ui_label command;
+};
+typedef struct command_history command_history;
+
+extern command_history *last_command;
+extern command_history *last_command_result;
+
 extern int SLALT;
 extern SDLMod sdl_mod;
 extern int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii, sdl_zoom_trig;
@@ -396,7 +406,7 @@ void open_link(char *uri);
 
 int report_ui(pixel *vid_buf, char *save_id);
 
-void console_clear_history();
+void console_limit_history(int limit, command_history *commandList);
 int console_ui(pixel *vid_buf);
 
 void init_color_boxes();
