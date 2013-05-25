@@ -157,11 +157,11 @@ void erase_bframe()
 	}
 }
 
-void save_console_history(int limit, cJSON **historyArray, command_history *commandList)
+void save_console_history(cJSON **historyArray, command_history *commandList)
 {
 	if (!commandList)
 		return;
-	save_console_history(limit-1, historyArray, commandList->prev_command);
+	save_console_history(historyArray, commandList->prev_command);
 	cJSON_AddItemToArray(*historyArray, cJSON_CreateString(commandList->command.str));
 }
 
@@ -235,10 +235,10 @@ void save_presets(int do_update)
 	//Tpt++ console history
 	cJSON_AddItemToObject(root, "Console", consoleobj=cJSON_CreateObject());
 	tmpobj = cJSON_CreateStringArray(NULL, 0);
-	save_console_history(20, &tmpobj, last_command);
+	save_console_history(&tmpobj, last_command);
 	cJSON_AddItemToObject(consoleobj, "History", tmpobj);
 	tmpobj = cJSON_CreateStringArray(NULL, 0);
-	save_console_history(20, &tmpobj, last_command_result);
+	save_console_history(&tmpobj, last_command_result);
 	cJSON_AddItemToObject(consoleobj, "HistoryResults", tmpobj);
 
 	//Tpt User info

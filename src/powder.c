@@ -1108,13 +1108,13 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 			)
 			{
 				parts[pmap[y][x]>>8].ctype = t;
-				if (t == PT_LIFE && v < NGOLALT && drawOn != PT_STOR)
+				if (t == PT_LIFE && v < NGOL && drawOn != PT_STOR)
 					parts[pmap[y][x]>>8].tmp = v;
 			}
 			else if ((drawOn == PT_DTEC || (drawOn == PT_PSTN && t != PT_FRME)) && drawOn != t)
 			{
 				parts[pmap[y][x]>>8].ctype = t;
-				if (drawOn == PT_DTEC && t==PT_LIFE && v<NGOLALT)
+				if (drawOn == PT_DTEC && t==PT_LIFE && v<NGOL)
 					parts[pmap[y][x]>>8].tmp = v;
 			}
 			return -1;
@@ -1300,7 +1300,7 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 			parts[i].tmp = 50;
 			break;
 		case PT_LIFE:
-			if (v<NGOLALT)
+			if (v<NGOL)
 			{
 				parts[i].tmp = grule[v+1][9] - 1;
 				parts[i].ctype = v;

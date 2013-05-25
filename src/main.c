@@ -912,7 +912,7 @@ int main(int argc, char *argv[])
 	float nfvx, nfvy;
 	int load_mode=0, load_w=0, load_h=0, load_x=0, load_y=0, load_size=0;
 	void *load_data=NULL;
-	pixel *load_img=NULL;//, *fbi_img=NULL;
+	pixel *load_img=NULL;
 	int save_mode=0, save_x=0, save_y=0, save_w=0, save_h=0, copy_mode=0;
 	SDL_AudioSpec fmt;
 	int username_flash = 0, username_flash_t = 1;
@@ -961,7 +961,6 @@ int main(int argc, char *argv[])
 #ifdef MT
 	numCores = core_count();
 #endif
-//TODO: Move out version stuff
 	menu_count();
 	parts = (particle*)calloc(sizeof(particle), NPART);
 	cb_parts = (particle*)calloc(sizeof(particle), NPART);
@@ -975,8 +974,6 @@ int main(int argc, char *argv[])
 	init_display_modes();
 	TRON_init_graphics();
 	init_color_boxes();
-
-	//fbi_img = render_packed_rgb(fbi, FBI_W, FBI_H, FBI_CMP);
 
 	for (i=1; i<argc; i++)
 	{
@@ -3138,31 +3135,8 @@ int main(int argc, char *argv[])
 
 		if (console_mode)
 		{
-#ifdef LUACONSOLE
-			//sys_pause = 1;
 			if (console_ui(vid_buf) == -1)
 				break;
-			/*console = mystrdup(console);
-			strcpy(console_error,"");
-			if (process_command_lua(vid_buf, console, console_error) == -1)
-			{
-				free(console);
-				break;
-			}
-			free(console);*/
-#else
-			char *console;
-			sys_pause = 1;
-			console = console_ui(vid_buf, console_error);
-			console = mystrdup(console);
-			strcpy(console_error,"");
-			if (process_command_old(vid_buf, console, console_error)==-1)
-			{
-				free(console);
-				break;
-			}
-			free(console);
-#endif
 		}
 
 		sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf, XRES+BARSIZE);
@@ -3184,7 +3158,8 @@ int main(int argc, char *argv[])
 		}
 	}
 	
-	SDL_CloseAudio();
+	if (sound_enable)
+		SDL_CloseAudio();
 	SaveWindowPosition();
 	http_done();
 	gravity_cleanup();

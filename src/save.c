@@ -2699,7 +2699,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					ttv |= (d[p++]);
 					parts[i-1].tmp = ttv;
 					if (ver<53 && !parts[i-1].tmp)
-						for (q = 1; q<=NGOLALT; q++) {
+						for (q = 1; q<=NGOL; q++) {
 							if (parts[i-1].type==goltype[q-1] && grule[q][9]==2)
 								parts[i-1].tmp = grule[q][9]-1;
 						}
@@ -2978,7 +2978,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 			if(ver<51 && ((ty>=78 && ty<=89) || (ty>=134 && ty<=146 && ty!=141))){
 				//Replace old GOL
 				parts[i-1].type = PT_LIFE;
-				for (gnum = 0; gnum<NGOLALT; gnum++){
+				for (gnum = 0; gnum<NGOL; gnum++){
 					if (ty==goltype[gnum])
 						parts[i-1].ctype = gnum;
 				}
@@ -2986,7 +2986,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 			}
 			if(ver<52 && (ty==PT_CLNE || ty==PT_PCLN || ty==PT_BCLN)){
 				//Replace old GOL ctypes in clone
-				for (gnum = 0; gnum<NGOLALT; gnum++){
+				for (gnum = 0; gnum<NGOL; gnum++){
 					if (parts[i-1].ctype==goltype[gnum])
 					{
 						parts[i-1].ctype = PT_LIFE;

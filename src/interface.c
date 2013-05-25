@@ -139,7 +139,7 @@ void menu_count(void)//puts the number of elements in each section into .itemcou
 	{
 		msections[i].itemcount = 0;
 	}
-	msections[SC_LIFE].itemcount = NGOLALT;
+	msections[SC_LIFE].itemcount = NGOL;
 	msections[SC_WALL].itemcount = UI_WALLCOUNT-4;
 	msections[SC_TOOL].itemcount = 8;
 	msections[SC_FAV].itemcount = 18;
@@ -2964,7 +2964,7 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 		if (!old_menu && fwidth > XRES-BARSIZE) { //fancy scrolling
 			xoff = scrollbar(fwidth, mx, y);
 		}
-		for (n2 = 0; n2<NGOLALT; n2++)
+		for (n2 = 0; n2<NGOL; n2++)
 		{
 			if (x-xoff > XRES-26 || x-xoff < 0)
 			{
@@ -6965,7 +6965,11 @@ int console_ui(pixel *vid_buf)
 		{
 			char *command = mystrdup(ed.str);
 			char *result = NULL;
+#ifdef LUACONSOLE
 			if (process_command_lua(vid_buf, command, &result) == -1)
+#else
+			if (process_command_old(vid_buf, command, &result) == -1)
+#endif
 			{
 				free(old_buf);
 				return -1;

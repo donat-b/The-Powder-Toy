@@ -54,8 +54,6 @@
 
 #define LOCAL_SAVE_DIR "Saves"
 
-#define APPDATA_SUBDIR "\\HardWIRED"
-
 #define THUMB_CACHE_SIZE 256
 
 #ifndef M_PI
@@ -116,13 +114,12 @@ extern unsigned char ZSIZE;
 #define CATALOGUE_S 6
 #define CATALOGUE_Z 3
 
-#define STAMP_MAX 240
+#define STAMP_MAX 500
 
 //#define SAVE_OPS
 //#define REALISTIC
 
-#define NGOL 25
-#define NGOLALT 24 //NGOL should be 24, but use this var until I find out why
+#define NGOL 24
 
 #define CIRCLE_BRUSH 0
 #define SQUARE_BRUSH 1
@@ -178,7 +175,6 @@ typedef unsigned int pixel;
 #endif
 
 #define SDEUT
-//#define REALHEAT
 
 #define DEBUG_PARTS		0x0001
 #define DEBUG_PARTCOUNT	0x0002

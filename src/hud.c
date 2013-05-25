@@ -73,7 +73,7 @@ void hud_text_right(int x, int y)
 		{
 			if (hud_current[10])
 			{
-				if ((cr&0xFF)==PT_LIFE && parts[cr>>8].ctype>=0 && parts[cr>>8].ctype<NGOLALT)
+				if ((cr&0xFF)==PT_LIFE && parts[cr>>8].ctype>=0 && parts[cr>>8].ctype<NGOL)
 				{
 					if (hud_current[49] || !hud_current[11])
 						sprintf(nametext, "%s, ", gmenu[parts[cr>>8].ctype].name);
