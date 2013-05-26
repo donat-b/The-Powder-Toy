@@ -329,6 +329,8 @@ void ui_edit_init(ui_edit *ed, int x, int y, int w, int h)
 	ed->cursor = ed->cursorstart = 0;
 	ed->highlightstart = ed->highlightlength = 0;
 	ed->resizable = ed->resizespeed = 0;
+	ed->lastClick = ed->numClicks = 0;
+	ed->overDelete = 0;
 }
 
 int ui_edit_draw(pixel *vid_buf, ui_edit *ed)
@@ -358,6 +360,7 @@ int ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 
 	if (ed->str[0])
 	{
+		int deletecolor = 127+ed->overDelete*64;
 		if (ed->multiline) {
 			ret = drawtextwrap(vid_buf, ed->x, ed->y, ed->w-14, 0, str, 255, 255, 255, 255);
 			if (ed->highlightlength)
@@ -366,7 +369,7 @@ int ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 				highlightstr[ed->highlightlength] = 0;
 				drawhighlightwrap(vid_buf, ed->x, ed->y, ed->w-14, 0, ed->str, ed->highlightstart, ed->highlightlength);
 			}
-			drawtext(vid_buf, ed->x+ed->w-11, ed->y-1, "\xAA", 128, 128, 128, 255);
+			drawtext(vid_buf, ed->x+ed->w-11, ed->y-1, "\xAA", deletecolor, deletecolor, deletecolor, 255);
 		} else {
 			ret = drawtext(vid_buf, ed->x, ed->y, str, 255, 255, 255, 255);
 			if (ed->highlightlength)
@@ -375,12 +378,12 @@ int ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 				highlightstr[ed->highlightlength] = 0;
 				drawhighlight(vid_buf, ed->x+textwidth(str)-textwidth(&str[ed->highlightstart]), ed->y, highlightstr);
 			}
-			drawtext(vid_buf, ed->x+ed->w-11, ed->y-1, "\xAA", 128, 128, 128, 255);
+			drawtext(vid_buf, ed->x+ed->w-11, ed->y-1, "\xAA", deletecolor, deletecolor, deletecolor, 255);
 		}
 	}
 	else if (!ed->focus)
 		drawtext(vid_buf, ed->x, ed->y, ed->def, 128, 128, 128, 255);
-	if (ed->focus)
+	if (ed->focus && !ed->numClicks)
 	{
 		if (ed->multiline) {
 			textnpos(str, ed->cursor, ed->w-14, &cx, &cy);
@@ -404,9 +407,28 @@ int ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 	return ret;
 }
 
+void findWordPosition(const char *s, int position, int *cursorStart, int *cursorEnd, char *spaces)
+{
+	int wordLength = 0, totalLength = 0, strLength = strlen(s);
+	while (totalLength < strLength)
+	{
+		wordLength = strcspn(s, spaces);
+		if (totalLength + wordLength >= position)
+		{
+			*cursorStart = totalLength;
+			*cursorEnd = totalLength+wordLength;
+			return;
+		}
+		s += wordLength+1;
+		totalLength += wordLength+1;
+	}
+	*cursorStart = totalLength;
+	*cursorEnd = totalLength+wordLength;
+}
+
 void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 {
-	char ch, ts[2], echo[1024], *str;
+	char ch, ts[2], echo[1024], *str = ed->str;
 	int l, i;
 #ifdef RAWINPUT
 	char *p;
@@ -422,60 +444,50 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 		ed->highlightstart = ed->cursor;
 		ed->highlightlength = ed->cursorstart-ed->cursor;
 	}
-	if (mb)
+	if (ed->hide)
 	{
-		if (ed->hide)
+		for (i=0; ed->str[i]; i++)
+			echo[i] = 0x8D;
+		echo[i] = 0;
+		str = echo;
+	}
+	if (mx>=ed->x+ed->w-11 && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+11) //on top of the delete button
+	{
+		if (!ed->overDelete && !mb)
+			ed->overDelete = 1;
+		else if (mb && !mbq)
+			ed->overDelete = 2;
+		if (!mb && mbq && ed->overDelete == 2)
 		{
-			for (i=0; ed->str[i]; i++)
-				echo[i] = 0x8D;
-			echo[i] = 0;
-			str = echo;
+			ed->focus = 1;
+			ed->cursor = 0;
+			ed->str[0] = 0;
 		}
-		else
-			str = ed->str;
-
-		if (ed->multiline) {
-			if (!mbq && mx>=ed->x+ed->w-11 && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+11)
-			{
-				ed->focus = 1;
+	}
+	else if (mb && (ed->focus || !mbq) && mx>=ed->x-ed->nx && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+(ed->multiline?ed->h:11)) //clicking / dragging over textbox
+	{
+		ed->focus = 1;
+		ed->overDelete = 0;
+		ed->cursor = textposxy(str, ed->w-14, mx-ed->x, my-ed->y);
+	}
+	else if (mb && !mbq) //a first click anywhere outside
+	{
+		ed->focus = 0;
+		ed->cursor = ed->cursorstart = 0;
+	}
+	else //when a click has moved outside the textbox
+	{
+		if (mb && (ed->focus || !mbq))
+		{
+			if (my <= ed->y-5)
 				ed->cursor = 0;
-				ed->str[0] = 0;
-			}
-			else if ((ed->focus || !mbq) && mx>=ed->x-ed->nx && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+ed->h)
-			{
-				ed->focus = 1;
-				ed->cursor = textposxy(str, ed->w-14, mx-ed->x, my-ed->y);
-			}
-			else if (!mbq)
-				ed->focus = 0;
-		} else {
-			if (!mbq && mx>=ed->x+ed->w-11 && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+11)
-			{
-				ed->focus = 1;
-				ed->cursor = 0;
-				ed->str[0] = 0;
-			}
-			else if ((ed->focus || !mbq) && mx>=ed->x-ed->nx && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+11)
-			{
-				ed->focus = 1;
-				ed->cursor = textwidthx(str, mx-ed->x);
-			}
-			else if (!mbq)
-				ed->focus = 0;
+			else if (my >= ed->y+ed->h)
+				ed->cursor = strlen(ed->str);
 		}
+		ed->overDelete = 0;
 	}
 	if (ed->focus && sdl_key)
 	{
-		if (ed->hide)
-		{
-			for (i=0; ed->str[i]; i++)
-				echo[i] = 0x8D;
-			echo[i] = 0;
-			str = echo;
-		}
-		else
-			str = ed->str;
-
 		l = strlen(ed->str);
 		switch (sdl_key)
 		{
@@ -651,9 +663,42 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			break;
 		}
 	}
-	if (!mb || !mbq)
-		if (ed->cursorstart == ed->cursor || (mb && !mbq))
-			ed->cursorstart = ed->cursor;
+	if (mb && !mbq && ed->focus)
+	{
+		int clickTime = SDL_GetTicks()-ed->lastClick;
+		ed->lastClick = SDL_GetTicks();
+		if (clickTime < 300)
+		{
+			ed->clickPosition = ed->cursor;
+			if (ed->numClicks == 2)
+				ed->numClicks = 3;
+			else
+				ed->numClicks = 2;
+		}
+		ed->cursorstart = ed->cursor;
+	}
+	else if (!mb && SDL_GetTicks()-ed->lastClick > 300)
+		ed->numClicks = 0;
+	if (ed->numClicks)
+	{
+		int start = 0, end = strlen(ed->str);
+		char *spaces = " .,!?\n";
+		if (ed->numClicks == 3)
+			spaces = "\n";
+		findWordPosition(ed->str, ed->cursor, &start, &end, spaces);
+		if (start < ed->clickPosition)
+		{
+			ed->cursorstart = start;
+			findWordPosition(ed->str, ed->clickPosition, &start, &end, spaces);
+			ed->cursor = end;
+		}
+		else
+		{
+			ed->cursorstart = end;
+			findWordPosition(ed->str, ed->clickPosition, &start, &end, spaces);
+			ed->cursor = start;
+		}
+	}
 }
 
 void ui_label_init(ui_label *label, int x, int y, int w, int h)
@@ -668,11 +713,12 @@ void ui_label_init(ui_label *label, int x, int y, int w, int h)
 	label->multiline = 1;
 	label->cursor = label->cursorstart = 0;
 	label->highlightstart = label->highlightlength = 0;
+	label->lastClick = label->numClicks = 0;
 }
 
 int ui_label_draw(pixel *vid_buf, ui_label *ed)
 {
-	char *str = ed->str, highlightstr[1024];
+	char highlightstr[1024];
 	int ret = 0, heightlimit = ed->maxHeight;
 
 	if (ed->cursor>ed->cursorstart)
@@ -689,23 +735,20 @@ int ui_label_draw(pixel *vid_buf, ui_label *ed)
 	if (ed->str[0])
 	{
 		if (ed->multiline) {
-			ret = drawtextwrap(vid_buf, ed->x, ed->y, ed->w-14, heightlimit, str, 255, 255, 255, 185);
+			ret = drawtextwrap(vid_buf, ed->x, ed->y, ed->w-14, heightlimit, ed->str, 255, 255, 255, 185);
 			if (ed->maxHeight)
 				ed->h = ret;
 			if (ed->highlightlength)
 			{
-				
-				strncpy(highlightstr, &str[ed->highlightstart], ed->highlightlength);
-				highlightstr[ed->highlightlength] = 0;
 				drawhighlightwrap(vid_buf, ed->x, ed->y, ed->w-14, heightlimit, ed->str, ed->highlightstart, ed->highlightlength);
 			}
 		} else {
-			ret = drawtext(vid_buf, ed->x, ed->y, str, 255, 255, 255, 255);
+			ret = drawtext(vid_buf, ed->x, ed->y, ed->str, 255, 255, 255, 255);
 			if (ed->highlightlength)
 			{
-				strncpy(highlightstr, &str[ed->highlightstart], ed->highlightlength);
+				strncpy(highlightstr, &ed->str[ed->highlightstart], ed->highlightlength);
 				highlightstr[ed->highlightlength] = 0;
-				drawhighlight(vid_buf, ed->x+textwidth(str)-textwidth(&str[ed->highlightstart]), ed->y, highlightstr);
+				drawhighlight(vid_buf, ed->x+textwidth(ed->str)-textwidth(&ed->str[ed->highlightstart]), ed->y, highlightstr);
 			}
 		}
 	}
@@ -714,12 +757,6 @@ int ui_label_draw(pixel *vid_buf, ui_label *ed)
 
 void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 {
-	char *str = ed->str;
-	int l;
-#ifdef RAWINPUT
-	char *p;
-#endif
-
 	if (ed->cursor>ed->cursorstart)
 	{
 		ed->highlightstart = ed->cursorstart;
@@ -730,35 +767,30 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 		ed->highlightstart = ed->cursor;
 		ed->highlightlength = ed->cursorstart-ed->cursor;
 	}
-	if (mb)
+	
+	if (mb && (ed->focus || !mbq) && mx>=ed->x && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+(ed->multiline?ed->h:11))
 	{
-		if (ed->multiline) {
-			if ((ed->focus || !mbq) && mx>=ed->x && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+ed->h)
-			{
-				ed->focus = 1;
-				ed->cursor = textposxy(str, ed->w-14, mx-ed->x, my-ed->y);
-			}
-			else if (!mbq)
-				ed->focus = 0;
-		} else {
-			if ((ed->focus || !mbq) && mx>=ed->x && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+11)
-			{
-				ed->focus = 1;
-				ed->cursor = textwidthx(str, mx-ed->x);
-			}
-			else if (!mbq)
-				ed->focus = 0;
-		}
+		ed->focus = 1;
+		ed->cursor = textposxy(ed->str, ed->w-14, mx-ed->x, my-ed->y);
 	}
+	else if (mb && !mbq)
+		ed->focus = 0;
+	else if (mb && (ed->focus || !mbq))
+	{
+		if (my <= ed->y-5)
+			ed->cursor = 0;
+		else if (my >= ed->y+ed->h)
+			ed->cursor = strlen(ed->str);
+	}
+
 	if (ed->focus && sdl_key)
 	{
-		l = strlen(ed->str);
 		if(sdl_mod & (KMOD_CTRL) && sdl_key=='c')//copy
 		{
 			if (ed->highlightlength)
 			{
 				char highlightstr[1024];
-				strncpy(highlightstr, &str[ed->highlightstart], ed->highlightlength);
+				strncpy(highlightstr, &ed->str[ed->highlightstart], ed->highlightlength);
 				highlightstr[ed->highlightlength] = 0;
 				clipboard_push_text(highlightstr);
 			}
@@ -768,12 +800,45 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 		else if(sdl_mod & (KMOD_CTRL) && sdl_key=='a')//highlight all
 		{
 			ed->cursorstart = 0;
-			ed->cursor = l;
+			ed->cursor = strlen(ed->str);
 		}
 	}
-	if (!mb || !mbq)
-		if (ed->cursorstart == ed->cursor || (mb && !mbq))
-			ed->cursorstart = ed->cursor;
+	if (mb && !mbq && ed->focus)
+	{
+		int clickTime = SDL_GetTicks()-ed->lastClick;
+		ed->lastClick = SDL_GetTicks();
+		if (clickTime < 300)
+		{
+			ed->clickPosition = ed->cursor;
+			if (ed->numClicks == 2)
+				ed->numClicks = 3;
+			else
+				ed->numClicks = 2;
+		}
+		ed->cursorstart = ed->cursor;
+	}
+	else if (!mb && SDL_GetTicks()-ed->lastClick > 300)
+		ed->numClicks = 0;
+	if (ed->numClicks)
+	{
+		int start = 0, end = strlen(ed->str);
+		char *spaces = " .,!?\n";
+		if (ed->numClicks == 3)
+			spaces = "\n";
+		findWordPosition(ed->str, ed->cursor, &start, &end, spaces);
+		if (start < ed->clickPosition)
+		{
+			ed->cursorstart = start;
+			findWordPosition(ed->str, ed->clickPosition, &start, &end, spaces);
+			ed->cursor = end;
+		}
+		else
+		{
+			ed->cursorstart = end;
+			findWordPosition(ed->str, ed->clickPosition, &start, &end, spaces);
+			ed->cursor = start;
+		}
+	}
 }
 
 void ui_list_process(pixel * vid_buf, int mx, int my, int mb, ui_list *ed)
@@ -2027,8 +2092,14 @@ void login_ui(pixel *vid_buf)
 	ed1.def = "[user name]";
 	ed1.cursor = ed1.cursorstart = strlen(svf_user);
 	strcpy(ed1.str, svf_user);
+	if (ed1.cursor)
+		ed1.focus = 0;
+
 	ui_edit_init(&ed2, x0+25, y0+45, 158, 14);
 	ed2.def = "[password]";
+	ed2.hide = 1;
+	if (!ed1.cursor)
+		ed2.focus = 0;
 
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
 	while (!sdl_poll())
@@ -6882,7 +6953,7 @@ int console_ui(pixel *vid_buf)
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 		//everything for dragging the line in the center
-		if (mx > divideX - 10 && mx < divideX + 10 && my < 207 && !bq)
+		if (mx > divideX - 10 && mx < divideX + 10 && my < 202 && !bq)
 		{
 			if (b)
 				draggingDivindingLine = 2;
@@ -6946,9 +7017,9 @@ int console_ui(pixel *vid_buf)
 		drawtext(vid_buf, 5, 207, ">", 255, 255, 255, 240);
 
 		strncpy(laststr, ed.str, 256);
+		commandHeight = ui_edit_draw(vid_buf, &ed);
 		if (focusTextbox)
 			ed.focus = 1;
-		commandHeight = ui_edit_draw(vid_buf, &ed);
 		ui_edit_process(mx, my, b, bq, &ed);
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 #ifdef OGLR

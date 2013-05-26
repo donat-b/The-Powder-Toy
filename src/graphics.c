@@ -1283,8 +1283,8 @@ int drawtextwrap(pixel *vid, int x, int y, int w, int h, const char *s, int r, i
 		{
 			x = sx;
 			rw = 0;
-			y+=FONT_H+2;
-			rh+=FONT_H+2;
+			y += FONT_H+2;
+			rh += FONT_H+2;
 		}
 		if ((h > 0 && rh > h) || (h < 0 && rh > YRES+MENUSIZE-110)) // the second part is hacky, since this will only be used for comments anyway
 			break;
@@ -1295,7 +1295,7 @@ int drawtextwrap(pixel *vid, int x, int y, int w, int h, const char *s, int r, i
 				x = sx;
 				rw = 0;
 				y += FONT_H+2;
-				rh+=FONT_H+2;
+				rh += FONT_H+2;
 			}
 			else if (*s == '\x0F')
 			{
@@ -1405,8 +1405,8 @@ int drawhighlightwrap(pixel *vid, int x, int y, int w, int h, const char *s, int
 		{
 			x = sx;
 			rw = 0;
-			y+=FONT_H+2;
-			rh+=FONT_H+2;
+			y += FONT_H+2;
+			rh += FONT_H+2;
 		}
 		if ((h > 0 && rh > h) || (h < 0 && rh > YRES+MENUSIZE-110)) // the second part is hacky, since this will only be used for comments anyway
 			break;
