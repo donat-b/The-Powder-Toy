@@ -31,6 +31,7 @@
 #include "hud.h"
 #include "images.h"
 #include <update.h>
+#include <dirent.h>
 #if defined WIN32
 #include <shlobj.h>
 #include <shlwapi.h>
@@ -782,6 +783,37 @@ void *file_load(char *fn, int *size)
 	fread(s, *size, 1, f);
 	fclose(f);
 	return s;
+}
+
+int file_exists(char *filename)
+{
+	int exists = 0;
+#ifdef WIN
+	struct _stat s;
+	if(_stat(filename, &s) == 0)
+#else
+	struct stat s;
+	if(stat(filename, &s) == 0)
+#endif
+	{
+		if(s.st_mode & S_IFDIR)
+		{
+			exists = 1;
+		}
+		else if(s.st_mode & S_IFREG)
+		{
+			exists = 1;
+		}
+		else
+		{
+			exists = 1;
+		}
+	}
+	else
+	{
+		exists = 0;
+	}
+	return exists;
 }
 
 int cpu_check(void)

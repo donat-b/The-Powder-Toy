@@ -1173,7 +1173,7 @@ int main(int argc, char *argv[])
 			http_auth_headers(http_session_check, svf_user_id, NULL, svf_session_id);
 	}
 #ifdef LUACONSOLE
-	if (luacon_eval("dofile(\"autorun.lua\")", &autorun_result)) //Autorun lua script
+	if (file_exists("autorun.lua") && luacon_eval("dofile(\"autorun.lua\")", &autorun_result)) //Autorun lua script
 	{
 		luacon_log(mystrdup(luacon_geterror()));
 	}

@@ -591,36 +591,9 @@ int fileSystem_list(lua_State * l)
 
 int fileSystem_exists(lua_State * l)
 {
-	const char * filename = lua_tostring(l, 1);
+	char * filename = (char*)lua_tostring(l, 1);
 
-	int exists = 0;
-#ifdef WIN
-	struct _stat s;
-	if(_stat(filename, &s) == 0)
-#else
-	struct stat s;
-	if(stat(filename, &s) == 0)
-#endif
-	{
-		if(s.st_mode & S_IFDIR)
-		{
-			exists = 1;
-		}
-		else if(s.st_mode & S_IFREG)
-		{
-			exists = 1;
-		}
-		else
-		{
-			exists = 1;
-		}
-	}
-	else
-	{
-		exists = 0;
-	}
-
-	lua_pushboolean(l, exists);
+	lua_pushboolean(l, file_exists(filename));
 	return 1;
 }
 

@@ -482,6 +482,24 @@ Fix bomb not destroying PBCN. Fix middle click in the deco editor. More fixes
 to comment scrolling. Fix setting falldown property with lua. Add the 3 new 
 tpt++ elements and some more changes made to elements in tpt++.
 
+Version 23.0 5/25/13
+A ton of improvements to the console / lua, including all the fixes made in 
+the last tpt++ version (implicit returns / tostrings, rewrite of event 
+registration, multiline input, etc.). Better tpt.log, can log to the main 
+screen now. Fix a PROP crash and allow up/down arrow to scroll properties. 
+Fix broken motd with no internet. Many simulation updates from tpt++ (CFLM 
+changes, loop narrow changes, faster GOL, stickmen rocket boots), also all 
+the recent description changes and menusection changes. Remove OTWR and COND 
+from the menu. Some other things from tpt++ like bluescreens and saving 
+window position. Way better console, there is a dragable dividing line 
+between them and results will never overlap with the commands. Textboxes can 
+also be resizable, and console commands / output is highlightable now. Also 
+command history is saved / loaded to powder.pref, and a few other fixes to 
+some other interfaces. Increase maximum stamp pages to 25. A lot of fixes 
+and changes to textboxes, you can double / triple click them like text in 
+other programs.
+
+
 
 
 
@@ -495,9 +513,6 @@ clear sim can be clicked too high, y=404
 
 Future Ideas/TODO: '>' means currently being worked on/added next
 changes from tpt++: SPRK, LIGH, LCRY, VIBR, all others
-make console errors copyable, fix being cut off
-tpt++ lua changes
-maybe have errors / print() log to console/main screen AND stdout.txt
 make open ui more colorful like tpt++, also fix cut off description in save uploading ui
 make buttons look clicked when pressed, moving mouse away will not do clicks, like tpt++?
 >Add things from tpt++ that look cool, and any new simulation changes it gets
