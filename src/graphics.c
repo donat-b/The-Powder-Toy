@@ -4767,12 +4767,12 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 
 int savedWindowX = INT_MAX;
 int savedWindowY = INT_MAX;
-#ifdef WIN32
 
 // Returns 1 if the loaded position was set
 // Returns 0 if something went wrong: SDL_GetWMInfo failed or the loaded position was invalid
 int LoadWindowPosition(int scale)
 {
+#ifdef WIN32
 	SDL_SysWMinfo sysInfo;
 	SDL_VERSION(&sysInfo.version);
 	if (SDL_GetWMInfo(&sysInfo) > 0)
@@ -4823,6 +4823,7 @@ int LoadWindowPosition(int scale)
 		// 1 if we didn't use the default, i.e. the position was valid
 		return success;
 	}
+	#endif
 
 	return 0;
 }
@@ -4830,6 +4831,7 @@ int LoadWindowPosition(int scale)
 // Returns 1 if the window position was saved
 int SaveWindowPosition()
 {
+#ifdef WIN32
 	SDL_SysWMinfo sysInfo;
 	SDL_VERSION(&sysInfo.version);
 	if (SDL_GetWMInfo(&sysInfo) > 0)
@@ -4843,11 +4845,10 @@ int SaveWindowPosition()
 
 		return 1;
 	}
+	#endif
 
 	return 0;
 }
-
-#endif
 
 SDL_VideoInfo info;
 int sdl_opened = 0, size_error = 0;

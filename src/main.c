@@ -34,6 +34,7 @@
 #include <bzlib.h>
 #include <time.h>
 #include <pthread.h>
+#include <signal.h>
 
 #ifdef WIN32
 #include <direct.h>
@@ -875,7 +876,14 @@ void BlueScreen(char * detailMessage)
 				tab_save(1);
 				exename = exe_name();
 				if (exename)
+				{
+#ifdef WIN32
 					ShellExecute(NULL, "open", exename, NULL, NULL, SW_SHOWNORMAL);
+#else
+					execl(exename, exename, NULL);
+#endif
+					free(exename);
+				}
 				exit(-1);
 			}
 		sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf, XRES+BARSIZE);

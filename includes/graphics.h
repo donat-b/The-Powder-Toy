@@ -243,7 +243,7 @@ int render_thumb(void *thumb, int size, int bzip2, pixel *vid_buf, int px, int p
 
 void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry);
 
-int LoadWindowPosition();
+int LoadWindowPosition(int scale);
 
 int SaveWindowPosition();
 

@@ -32,6 +32,7 @@
 #include "images.h"
 #include <update.h>
 #include <dirent.h>
+#include <sys/stat.h>
 #if defined WIN32
 #include <shlobj.h>
 #include <shlwapi.h>
