@@ -4891,7 +4891,7 @@ int sdl_open(void)
 	atexit(SDL_Quit);
 
 	if(!sdl_opened)
-		info = *SDL_GetVideoInfo(); 
+		info = *SDL_GetVideoInfo();
 
 	if (info.current_w<((XRES+BARSIZE)*sdl_scale) || info.current_h<((YRES+MENUSIZE)*sdl_scale))
 		size_error = 1;

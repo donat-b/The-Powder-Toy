@@ -21,15 +21,15 @@ WIN32_TARG := powder-sse.exe powder-sse2.exe
 #WIN_RES := windres.exe
 
 # windows c++
-CC := g++
-CC_WIN := g++.exe
-WIN_RES := windres.exe
+#CC := g++
+#CC_WIN := g++.exe
+#WIN_RES := windres.exe
 
 #others (Linux) c
-#COMPILER := gcc
-#CC := gcc
-#CC_WIN := i686-w64-mingw32-gcc
-#WIN_RES := i686-w64-mingw32-windres
+COMPILER := gcc
+CC := gcc
+CC_WIN := i686-w64-mingw32-gcc
+WIN_RES := i686-w64-mingw32-windres
 
 powder: build/powder
 powder-debug: build/powder-debug

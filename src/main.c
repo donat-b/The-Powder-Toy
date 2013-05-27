@@ -880,7 +880,7 @@ void BlueScreen(char * detailMessage)
 #ifdef WIN32
 					ShellExecute(NULL, "open", exename, NULL, NULL, SW_SHOWNORMAL);
 #else
-					execl(exename, exename, NULL);
+					execl(exename, "powder", NULL);
 #endif
 					free(exename);
 				}

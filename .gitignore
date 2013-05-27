@@ -9,6 +9,7 @@ powder.pref
 *.txt
 *.gz
 *.out
+*.sh
 *The-Powder-Toy*
 *jacob1smod*
 /stamps/
@@ -16,7 +17,7 @@ powder.pref
 /tabs/
 /ipch/
 /font/
-/build/obj/
+/build/
 /build2/
 /updatepackager/
 /Debug/
@@ -25,8 +26,7 @@ powder.pref
 /Normal/
 /official/
 /OpenGL/
-tpt-libs/*
-/build/stamps/*
+/tpt-libs/
 /includes/SDL/*
 /includes/lua5.1/*
 /includes/bzlib.h
