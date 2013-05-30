@@ -4159,7 +4159,7 @@ char *download_ui(pixel *vid_buf, char *uri, int *len)
 	dstate = BZ2_bzBuffToBuffDecompress((char *)res, (unsigned *)&ulen, (char *)(tmp+8), zlen-8, 0, 0);
 	if (dstate)
 	{
-		printf("Decompression failure: %d!\n", dstate);
+		printf("Decompression failure: %d, %d, %d!\n", dstate, ulen, zlen);
 		free(res);
 		goto corrupt;
 	}
@@ -4800,6 +4800,7 @@ int search_ui(pixel *vid_buf)
 
 		if (http && !active && (time(NULL)>http_last_use+HTTP_TIMEOUT))
 		{
+			http_hackyclosefreezefix(http);
 			http_async_req_close(http);
 			http = NULL;
 		}
@@ -4908,6 +4909,7 @@ int search_ui(pixel *vid_buf)
 			}
 			if (!img_id[i] && img_http[i])
 			{
+				http_hackyclosefreezefix(img_http[i]);
 				http_async_req_close(img_http[i]);
 				img_http[i] = NULL;
 			}
@@ -4922,10 +4924,16 @@ finish:
 	if (last)
 		free(last);
 	if (http)
+	{
+		http_hackyclosefreezefix(http);
 		http_async_req_close(http);
+	}
 	for (i=0; i<IMGCONNS; i++)
 		if (img_http[i])
+		{
+			http_hackyclosefreezefix(img_http[i]);
 			http_async_req_close(img_http[i]);
+		}
 			
 	if(bthumb_rsdata){
 		free(bthumb_rsdata);
@@ -5827,15 +5835,27 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	finish:
 	//Close open connections
 	if (http)
+	{
+		http_hackyclosefreezefix(http);
 		http_async_req_close(http);
+	}
 	if (http_2)
+	{
+		http_hackyclosefreezefix(http_2);
 		http_async_req_close(http_2);
+	}
 	if (!instant_open)
 	{
 		if (http_3)
+		{
+			http_hackyclosefreezefix(http_3);
 			http_async_req_close(http_3);
+		}
 		if (http_4)
+		{
+			http_hackyclosefreezefix(http_4);
 			http_async_req_close(http_4);
+		}
 	}
 	info_parse("", info);
 	free(info);

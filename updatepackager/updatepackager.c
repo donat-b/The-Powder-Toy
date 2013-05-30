@@ -35,8 +35,8 @@ int file_save(char *filename, void *file, int len)
 
 int main(int argc, char *argv[])
 {
-	int exe_size, outputDataLen;
-	unsigned char *outputData = NULL;
+	int exe_size, test_size, outputDataLen, dstate, ulen;
+	unsigned char *outputData = NULL, *test_data = NULL, *decompress_data = NULL;
 	void *exe_data = NULL;
 	if (!argv[1] || !argv[2])
 	{
@@ -73,18 +73,41 @@ int main(int argc, char *argv[])
 		goto end;
 	}
 	
-	printf("compressed data: %d\n", outputDataLen);
+	printf("compressed data: %d to %d\n", exe_size, outputDataLen);
 
 	if (file_save(argv[2], outputData, outputDataLen+12))
 		printf("Error when writing file\n", outputDataLen);
 	else
 		printf("Successfully packaged file\n");
+	
+	
+	//test to see if was compressed right
+	test_data = file_load("updatetest", &test_size);
+	if (!test_data || test_size < 16)
+	{
+		printf("Load Error\n");
+		goto end;
+	}
+	ulen  = (unsigned char)test_data[4];
+	ulen |= ((unsigned char)test_data[5])<<8;
+	ulen |= ((unsigned char)test_data[6])<<16;
+	ulen |= ((unsigned char)test_data[7])<<24;
+	decompress_data = (char *)malloc(ulen);
+	dstate = BZ2_bzBuffToBuffDecompress((char *)decompress_data, (unsigned *)&ulen, (char *)(test_data+8), test_size-8, 0, 0);
+	if (dstate)
+	{
+		printf("Decompression failure: %d, %d, %d!\n", dstate, ulen, test_size);
+		goto end;
+	}
 
 end:
-	system("pause");
 	if (exe_data)
 		free(exe_data);
 	if (outputData)
 		free(outputData);
+	if (test_data)
+		free(test_data);
+	if (decompress_data)
+		free(decompress_data);
 	return 0;
 }

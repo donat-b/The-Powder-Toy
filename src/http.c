@@ -660,6 +660,14 @@ void http_async_get_length(void *ctx, int *total, int *done)
 		*total = cx->contlen;
 }
 
+void http_hackyclosefreezefix(void *ctx)
+{
+#ifdef LIN64
+	struct http_ctx *cx = (struct http_ctx*)ctx;
+	cx->state = HTS_DONE;
+#endif
+}
+
 void http_async_req_close(void *ctx)
 {
 	struct http_ctx *cx = (struct http_ctx*)ctx;
