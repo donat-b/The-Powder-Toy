@@ -7,6 +7,7 @@ OFLAGS := -O3 -ffast-math -ftree-vectorize -funsafe-math-optimizations
 LFLAGS := -lpthread -lSDL -lfftw3f -lm -lbz2 -lX11 -llua5.1 -lrt
 LFLAGS_X := -lm -lbz2 -lSDLmain
 LFLAGS_WIN := -lmingw32 -lgnurx -lws2_32 -lSDLmain -lpthread -lSDL -lfftw3f -lm -lbz2 -llua5.1
+LFLAGS_WINCROSSCOMPILE := -lmingw32 -Wl,-Bstatic -lgnurx -lSDLmain -lSDL -lpthread -lfftw3f -lm -lbz2 -llua5.1 -Wl,-Bdynamic -lws2_32 -lwinmm -ldxguid
 MFLAGS_SSE3 := -march=native -DX86 -DX86_SSE3 -msse3
 MFLAGS_SSE2 := -march=native -DX86 -DX86_SSE2 -msse2
 MFLAGS_SSE := -march=native -DX86 -DX86_SSE
@@ -25,11 +26,11 @@ WIN32_TARG := powder-sse.exe powder-sse2.exe
 #CC_WIN := g++.exe
 #WIN_RES := windres.exe
 
-#others (Linux) c
+#others (Linux) c. Change the CC_WIN and WIN_RES to match your mingw installation
 COMPILER := gcc
 CC := gcc
-CC_WIN := i686-w64-mingw32-gcc
-WIN_RES := i686-w64-mingw32-windres
+CC_WIN := i586-mingw32msvc-gcc
+WIN_RES := i586-mingw32msvc-windres
 
 #32bit linux
 powder: build/powder
@@ -46,6 +47,9 @@ powder-64-debug: build/powder-64-debug
 powder-sse.exe: build/powder-sse.exe
 powder-sse2.exe: build/powder-sse2.exe
 powder-sse3.exe: build/powder-sse3.exe
+#cross compiling to windows from linux
+powder-crosscompile.exe: build/powdercrosscompile.exe
+powder-crosscompile-sse2.exe: build/powdercrosscompile-sse2.exe
 #opengl
 powder-sse3-opengl: build/powder-sse3-opengl
 powder-sse3-opengl: build/powder-sse3-opengl
@@ -56,24 +60,26 @@ build/powder-debug: CFLAGS += -m32 -DLIN32 $(FLAGS_DBUG)
 build/powder-64: CFLAGS += -DINTERNAL -DLIN64 $(OFLAGS)
 build/powder-64-sse2 build/powder-64-sse3 build/powder-64-sse3-opengl: CFLAGS += -m64 -DLIN64 $(OFLAGS)
 build/powder-64-debug: CFLAGS += -m64 -DLIN64 $(FLAGS_DBUG)
-build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe: CFLAGS += -mwindows -DWIN32 $(OFLAGS)
+build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe build/powdercrosscompile.exe build/powdercrosscompile-sse2.exe: CFLAGS += -mwindows -DWIN32 $(OFLAGS)
 build/powder-sse3-opengl build/powder-64-sse3-opengl: CFLAGS += -DOGLR -DPIX32OGL -DPIXALPHA
+build/powdercrosscompile.exe build/powdercrosscompile-sse2.exe: CFLAGS += -DPTW32_STATIC_LIB
 
 # SSE flags:
 build/powder-sse3 build/powder-sse3-opengl build/powder-64-sse3 build/powder-64-sse3-opengl build/powder-sse3.exe: CFLAGS += -march=native -DX86 -DX86_SSE3 -msse3
-build/powder-sse2 build/powder-64-sse2 build/powder-sse2.exe: CFLAGS += -march=native -DX86 -DX86_SSE2 -msse2
+build/powder-sse2 build/powder-64-sse2 build/powder-sse2.exe build/powdercrosscompile-sse2.exe: CFLAGS += -march=native -DX86 -DX86_SSE2 -msse2
 build/powder-sse build/powder-sse.exe: CFLAGS += -march=native -DX86 -DX86_SSE
-build/powder build/powder-64 build/powder-debug build/powder-64-debug: CFLAGS += -march=native -DX86
+build/powder build/powder-64 build/powder-debug build/powder-64-debug build/powdercrosscompile.exe: CFLAGS += -march=native -DX86
 
 # libs:
 build/powder build/powder-sse build/powder-sse2 build/powder-sse3 build/powder-debug build/powder-sse3-opengl build/powder-64 build/powder-64-sse2 build/powder-64-sse3 build/powder-64-debug build/powder-64-sse3-opengl: LIBS += $(LFLAGS)
 build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe: LIBS += $(LFLAGS_WIN)
+build/powdercrosscompile.exe build/powdercrosscompile-sse2.exe: LIBS += $(LFLAGS_WINCROSSCOMPILE)
 build/powder-64-sse3-opengl build/powder-sse3-opengl: LIBS += -lGL
 
 # extra windows stuff
-build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe: EXTRA_OBJS += build/obj/powder-res.o
-build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe: CC := $(CC_WIN)
-build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe: build/obj/powder-res.o
+build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe build/powdercrosscompile.exe build/powdercrosscompile-sse2.exe: EXTRA_OBJS += build/obj/powder-res.o
+build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe build/powdercrosscompile.exe build/powdercrosscompile-sse2.exe: CC := $(CC_WIN)
+build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe build/powdercrosscompile.exe build/powdercrosscompile-sse2.exe: build/obj/powder-res.o
 
 
 
@@ -170,6 +176,25 @@ build/obj/%.powder-sse3.exe.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
 build/obj/gravity.powder-sse3.exe.o: src/gravity.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -mincoming-stack-boundary=2 -o $@ $<
+
+build/powdercrosscompile.exe: $(patsubst build/obj/%.o,build/obj/%.powdercrosscompile.exe.o,$(OBJS))
+	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powdercrosscompile.exe.o,$(OBJS)) $(LIBS) -o $@
+	strip $@
+	chmod 0644 $@
+build/obj/%.powdercrosscompile.exe.o: src/%.c $(HEADERS)
+	$(CC) -c $(CFLAGS) -o $@ $<
+#build/obj/gravity.powdercrosscompile.exe.o: src/gravity.c $(HEADERS)
+#	$(CC) -c $(CFLAGS) -mincoming-stack-boundary=2 -o $@ $<
+
+build/powdercrosscompile-sse2.exe: $(patsubst build/obj/%.o,build/obj/%.powdercrosscompile-sse2.exe.o,$(OBJS))
+	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powdercrosscompile-sse2.exe.o,$(OBJS)) $(LIBS) -o $@
+	strip $@
+	chmod 0644 $@
+build/obj/%.powdercrosscompile-sse2.exe.o: src/%.c $(HEADERS)
+	$(CC) -c $(CFLAGS) -o $@ $<
+#build/obj/gravity.powdercrosscompile-sse2.exe.o: src/gravity.c $(HEADERS)
+#	$(CC) -c $(CFLAGS) -mincoming-stack-boundary=2 -o $@ $<
+
 
 
 

@@ -167,6 +167,10 @@ void luacon_open(){
 
 	tptProperties = lua_gettop(l);
 	
+	//Replace print function with our screen/console logging function
+	lua_pushcfunction(l, luatpt_log);
+	lua_setglobal(l, "print");
+
 	lua_pushinteger(l, 0);
 	lua_setfield(l, tptProperties, "mousex");
 	lua_pushinteger(l, 0);

@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
 	
 	
 	//test to see if was compressed right
-	test_data = file_load("updatetest", &test_size);
+	test_data = file_load(argv[2], &test_size);
 	if (!test_data || test_size < 16)
 	{
 		printf("Load Error\n");

@@ -212,7 +212,7 @@ struct command_history {
 	command_history *prev_command;
 	ui_label command;
 };
-typedef struct command_history command_history;
+//typedef struct command_history command_history;
 
 extern command_history *last_command;
 extern command_history *last_command_result;

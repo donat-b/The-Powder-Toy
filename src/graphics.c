@@ -4799,7 +4799,7 @@ int LoadWindowPosition(int scale)
 
 			MONITORINFO monitor;
 			monitor.cbSize = sizeof(monitor);
-			if (GetMonitorInfo(MonitorFromPoint(windowPoints[0], MONITOR_DEFAULTTONEAREST), &monitor) != 0)
+			if (GetMonitorInfo(MonitorFromPoint(windowPoints[0], 2), &monitor) != 0) // 2 should be MONITOR_DEFAULTTONEAREST
 			{
 				// Only use the saved window position if it lies inside the visible screen
 				if (PtInRect(&monitor.rcMonitor, windowPoints[0]) && PtInRect(&monitor.rcMonitor, windowPoints[1]))

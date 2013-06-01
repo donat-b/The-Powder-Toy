@@ -411,7 +411,7 @@ void clear_sim(void)
 	gravity_cleared = 1;
 	for(x = 0; x < XRES/CELL; x++){
 		for(y = 0; y < YRES/CELL; y++){
-			hv[y][x] = 273.15f+22.0f; //Set to room temperature
+			hv[y][x] = outside_temp; //Set to room temperature (or whatever the default air temp was changed to)
 		}
 	}
 	numballs = 0;
@@ -927,8 +927,8 @@ int main(int argc, char *argv[])
 	int saveOpenError = 0;
 	int benchmark_enable = 0;
 #ifdef PTW32_STATIC_LIB
-    pthread_win32_process_attach_np();
-    pthread_win32_thread_attach_np();
+	pthread_win32_process_attach_np();
+	pthread_win32_thread_attach_np();
 #endif
 	limitFPS = 60;
 	vid_buf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
@@ -973,7 +973,7 @@ int main(int argc, char *argv[])
 	parts = (particle*)calloc(sizeof(particle), NPART);
 	cb_parts = (particle*)calloc(sizeof(particle), NPART);
 	init_can_move();
-	
+
 #ifdef LUACONSOLE
 	luacon_open();
 #endif
