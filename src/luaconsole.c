@@ -1197,7 +1197,7 @@ int luatpt_getelement(lua_State *l)
 	int t;
 	char* name;
 	if(lua_isnumber(l, 1)){
-		t = luaL_optint(l, 1, 0);
+		t = luaL_optint(l, 1, 1);
 		if (t<0 || t>=PT_NUM)
 			return luaL_error(l, "Unrecognised element number '%d'", t);
 		name = ptypes[t&0xFF].name;
