@@ -913,7 +913,7 @@ int main(int argc, char *argv[])
 	pixel *part_vbuf; //Extra video buffer
 	pixel *part_vbuf_store;
 	void *http_ver_check, *http_session_check = NULL;
-	char *ver_data=NULL, *check_data=NULL, *tmp, *changelog, *autorun_result = NULL;
+	char *ver_data=NULL, *check_data=NULL, *tmp, *changelog, *autorun_result = NULL, signal_hooks = 0;
 	int i, j, bq, bc = 0, do_check=0, do_s_check=0, old_version=0, http_ret=0,http_s_ret=0, old_ver_len = 0, new_message_len=0, afk = 0, afkstart = 0;
 	int x, y, line_x, line_y, b = 0, c, lb = 0, lx = 0, ly = 0, lm = 0;//, tx, ty;
 	int da = 0, db = 0, it = 2047, mx, my, bsx = 2, bsy = 2;
@@ -958,13 +958,6 @@ int main(int argc, char *argv[])
 	fmt.samples = 512;
 	fmt.callback = mixaudio;
 	fmt.userdata = NULL;
-
-#ifndef _DEBUG
-	signal(SIGSEGV, SigHandler);
-	signal(SIGFPE, SigHandler);
-	signal(SIGILL, SigHandler);
-	signal(SIGABRT, SigHandler);
-#endif
 
 #ifdef MT
 	numCores = core_count();
@@ -1193,6 +1186,9 @@ int main(int argc, char *argv[])
 	load_data = (void*)tab_load(1, &load_size);
 	if (load_data)
 	{
+		char name[30];
+		sprintf(name,"tabs%s1.stm",PATH_SEP);
+		remove(name);
 		parse_save(load_data, load_size, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 		for (i = 2; i <= 9 && tab_load(i, &load_size); i++)
 		{
@@ -3164,6 +3160,17 @@ int main(int argc, char *argv[])
 			else
 				player2.elem = PT_DUST;
 		}
+
+#ifndef _DEBUG
+	if (!signal_hooks)
+	{
+		signal(SIGSEGV, SigHandler);
+		signal(SIGFPE, SigHandler);
+		signal(SIGILL, SigHandler);
+		signal(SIGABRT, SigHandler);
+		signal_hooks = 1;
+	}
+#endif
 	}
 	
 	if (sound_enable)

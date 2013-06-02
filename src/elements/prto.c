@@ -102,8 +102,8 @@ int update_PRTO(UPDATE_FUNC_ARGS) {
 							{
 								parts[np] = portalp[parts[i].tmp][randomness][nnx];
 							}
-							parts[np].x = x+rx;
-							parts[np].y = y+ry;
+							parts[np].x = (float)(x+rx);
+							parts[np].y = (float)(y+ry);
 							portalp[parts[i].tmp][randomness][nnx] = emptyparticle;
 							break;
 						}
