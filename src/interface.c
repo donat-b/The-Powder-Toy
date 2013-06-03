@@ -323,6 +323,7 @@ void ui_edit_init(ui_edit *ed, int x, int y, int w, int h)
 	ed->def = "";
 	strcpy(ed->str, "");
 	ed->focus = 1;
+	ed->alwaysFocus = 0;
 	ed->hide = 0;
 	ed->multiline = 0;
 	ed->limit = 255;
@@ -383,7 +384,7 @@ int ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 	}
 	else if (!ed->focus)
 		drawtext(vid_buf, ed->x, ed->y, ed->def, 128, 128, 128, 255);
-	if (ed->focus && !ed->numClicks)
+	if (ed->focus && ed->numClicks < 2)
 	{
 		if (ed->multiline) {
 			textnpos(str, ed->cursor, ed->w-14, &cx, &cy);
@@ -434,6 +435,8 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 	char *p;
 #endif
 
+	if (ed->alwaysFocus)
+		ed->focus = 1;
 	if (ed->cursor>ed->cursorstart)
 	{
 		ed->highlightstart = ed->cursorstart;
@@ -462,6 +465,8 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			ed->focus = 1;
 			ed->cursor = 0;
 			ed->str[0] = 0;
+			if (!ed->numClicks)
+				ed->numClicks = 1;
 		}
 	}
 	else if (mb && (ed->focus || !mbq) && mx>=ed->x-ed->nx && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+(ed->multiline?ed->h:11)) //clicking / dragging over textbox
@@ -469,15 +474,20 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 		ed->focus = 1;
 		ed->overDelete = 0;
 		ed->cursor = textposxy(str, ed->w-14, mx-ed->x, my-ed->y);
+		if (!ed->numClicks)
+			ed->numClicks = 1;
 	}
 	else if (mb && !mbq) //a first click anywhere outside
 	{
-		ed->focus = 0;
-		ed->cursor = ed->cursorstart = 0;
+		if (!ed->alwaysFocus)
+		{
+			ed->focus = 0;
+			ed->cursor = ed->cursorstart = 0;
+		}
 	}
 	else //when a click has moved outside the textbox
 	{
-		if (mb && (ed->focus || !mbq))
+		if (ed->numClicks && mb && (ed->focus || !mbq))
 		{
 			if (my <= ed->y-5)
 				ed->cursor = 0;
@@ -663,7 +673,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			break;
 		}
 	}
-	if (mb && !mbq && ed->focus)
+	if (mb && !mbq && ed->focus && mx>=ed->x-ed->nx && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+(ed->multiline?ed->h:11))
 	{
 		int clickTime = SDL_GetTicks()-ed->lastClick;
 		ed->lastClick = SDL_GetTicks();
@@ -679,7 +689,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 	}
 	else if (!mb && SDL_GetTicks()-ed->lastClick > 300)
 		ed->numClicks = 0;
-	if (ed->numClicks)
+	if (ed->numClicks >= 2)
 	{
 		int start = 0, end = strlen(ed->str);
 		char *spaces = " .,!?\n";
@@ -772,9 +782,14 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 	{
 		ed->focus = 1;
 		ed->cursor = textposxy(ed->str, ed->w-14, mx-ed->x, my-ed->y);
+		if (!ed->numClicks)
+			ed->numClicks = 1;
 	}
 	else if (mb && !mbq)
+	{
 		ed->focus = 0;
+		ed->cursor = ed->cursorstart = 0;
+	}
 	else if (mb && (ed->focus || !mbq))
 	{
 		if (my <= ed->y-5)
@@ -819,7 +834,7 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 	}
 	else if (!mb && SDL_GetTicks()-ed->lastClick > 300)
 		ed->numClicks = 0;
-	if (ed->numClicks)
+	if (ed->numClicks >= 2)
 	{
 		int start = 0, end = strlen(ed->str);
 		char *spaces = " .,!?\n";
@@ -5506,7 +5521,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							change = ui_label_draw(vid_buf, &info->comments[cc]); // draw the comment
 							ui_label_process(mx, my, b, bq, &info->comments[cc]); // process copying
 
-							if (b && mx > 50+(XRES/2)+1 && mx < 50 + XRES+BARSIZE-100 && my > commentboxy - 2 && my < commentboxy + 29) // defocus comments that are under textbox
+							if (b && !bq && mx > 50+(XRES/2)+1 && mx < 50 + XRES+BARSIZE-100 && my > commentboxy - 2 && my < commentboxy + 29) // defocus comments that are under textbox
 								info->comments[cc].focus = 0;
 
 							ccy += change + 10;
@@ -6955,6 +6970,7 @@ int console_ui(pixel *vid_buf)
 	ed.multiline = 1;
 	ed.limit = 1023;
 	ed.resizable = 1;
+	ed.alwaysFocus = 1;
 
 	if (!old_buf)
 		return 0;
@@ -7039,7 +7055,9 @@ int console_ui(pixel *vid_buf)
 		strncpy(laststr, ed.str, 256);
 		commandHeight = ui_edit_draw(vid_buf, &ed);
 		if (focusTextbox)
-			ed.focus = 1;
+			ed.alwaysFocus = 1;
+		else
+			ed.alwaysFocus = 0;
 		ui_edit_process(mx, my, b, bq, &ed);
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 #ifdef OGLR

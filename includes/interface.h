@@ -130,7 +130,7 @@ static menu_wall colorlist[] =
 
 struct ui_edit
 {
-	int x, y, w, nx, h, limit, focus, hide, overDelete;
+	int x, y, w, nx, h, limit, focus, alwaysFocus, hide, overDelete;
 	char str[1024],*def;
 	int multiline, resizable, resizespeed;
 	int cursor, cursorstart, highlightstart, highlightlength, lastClick, numClicks, clickPosition;
