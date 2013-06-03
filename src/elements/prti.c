@@ -38,36 +38,36 @@ int update_PRTI(UPDATE_FUNC_ARGS) {
 	{
 		rx = portal_rx[count];
 		ry = portal_ry[count];
-			if (BOUNDS_CHECK && (rx || ry))
+		if (BOUNDS_CHECK && (rx || ry))
+		{
+			r = pmap[y+ry][x+rx];
+			if (!r)
+				fe = 1;
+			if (!r || (r&0xFF)==PT_PRTI || (r&0xFF)==PT_PRTO || (r&0xFF)==PT_PPTI || (r&0xFF)==PT_PPTO || (!(ptypes[r&0xFF].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY)) && (r&0xFF)!=PT_SPRK))
 			{
-				r = pmap[y+ry][x+rx];
-				if (!(r&0xFF))
-					fe = 1;
-				if (!(r&0xFF) || (r&0xFF)==PT_PRTI || (r&0xFF)==PT_PRTO || (r&0xFF)==PT_PPTI || (r&0xFF)==PT_PPTO || (!(ptypes[r&0xFF].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY)) && (r&0xFF)!=PT_SPRK))
-				{
-					r = photons[y+ry][x+rx];
-					if (!(r&0xFF))
-						continue;
-				}
-
-				if ((r&0xFF)==PT_STKM || (r&0xFF)==PT_STKM2 || (r&0xFF)==PT_FIGH)
-					continue;// Handling these is a bit more complicated, and is done in STKM_interact()
-
-				if ((r&0xFF) == PT_SOAP)
-					detach(r>>8);
-
-				for ( nnx=0; nnx<80; nnx++)
-					if (!portalp[parts[i].tmp][count][nnx].type)
-					{
-						portalp[parts[i].tmp][count][nnx] = parts[r>>8];
-						if ((r&0xFF)==PT_SPRK)
-							part_change_type(r>>8,x+rx,y+ry,parts[r>>8].ctype);
-						else
-							kill_part(r>>8);
-						fe = 1;
-						break;
-					}
+				r = photons[y+ry][x+rx];
+				if (!r)
+					continue;
 			}
+
+			if ((r&0xFF)==PT_STKM || (r&0xFF)==PT_STKM2 || (r&0xFF)==PT_FIGH)
+				continue;// Handling these is a bit more complicated, and is done in STKM_interact()
+
+			if ((r&0xFF) == PT_SOAP)
+				detach(r>>8);
+
+			for ( nnx=0; nnx<80; nnx++)
+				if (!portalp[parts[i].tmp][count][nnx].type)
+				{
+					portalp[parts[i].tmp][count][nnx] = parts[r>>8];
+					if ((r&0xFF)==PT_SPRK)
+						part_change_type(r>>8,x+rx,y+ry,parts[r>>8].ctype);
+					else
+						kill_part(r>>8);
+					fe = 1;
+					break;
+				}
+		}
 	}
 
 

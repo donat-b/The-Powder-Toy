@@ -503,8 +503,8 @@ Version 23.1 6/2/13
 Fix almost irreversible infinite crashing loop with the new bluescreens. They 
 would try to nicely reload your work after the crash, but when it was the save 
 that crashed it, it would constantly restart and keep crashing, and be very 
-hard to stop. Fix crash with LIGH :P. Fix a bunch of bugs with textboxes and 
-labels from the last update, including multiple comments being selected at 
+hard to stop. Fix crash with LIGH :P. Fix a bunch of small bugs with textboxes 
+and labels from the last update, including multiple comments being selected at 
 once, highlighting errors when clicking a name to reply, and bugs when trying 
 to defocus the auto-focused textbox in the console.
 

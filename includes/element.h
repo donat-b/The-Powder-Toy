@@ -24,6 +24,7 @@
 #include "math.h"
 #include "powdergraphics.h"
 
+//#define BOUNDS_CHECK x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES
 #define BOUNDS_CHECK 1
 #define bool char
 #define true 1
