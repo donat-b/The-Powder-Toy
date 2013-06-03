@@ -6975,7 +6975,6 @@ int console_ui(pixel *vid_buf)
 	if (!old_buf)
 		return 0;
 	memcpy(old_buf,vid_buf,(XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
-	fillrect(old_buf, -1, -1, XRES+BARSIZE, 220, 0, 0, 0, 190);
 
 	console_limit_history(20, currentcommand);
 	console_limit_history(20, currentcommand_result);
@@ -7014,6 +7013,7 @@ int console_ui(pixel *vid_buf)
 
 		//draw most of the things to the screen
 		memcpy(vid_buf,old_buf,(XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
+		fillrect(vid_buf, -1, -1, XRES+BARSIZE, 208+commandHeight, 0, 0, 0, 190);
 		blend_line(vid_buf, 0, 207+commandHeight, XRES+BARSIZE-1, 207+commandHeight, 228, 228, 228, 255);
 		blend_line(vid_buf, divideX, 0, divideX, 207+commandHeight, 255, 255, 255, 155+50*draggingDivindingLine);
 #if defined(LUACONSOLE)
