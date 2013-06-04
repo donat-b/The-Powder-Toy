@@ -2888,7 +2888,6 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 		y = (((YRES/SC_TOTAL)*i2)+((YRES/SC_TOTAL)/2))-(height/2)+(FONT_H/2)+6;
 	}
 	el = -1;
-	deco_showing = 0;
 
 	if (i==SC_WALL)//wall menu
 	{
@@ -2974,7 +2973,6 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 	}
 	else if (i==SC_DECO)//deco menu
 	{
-		deco_showing = 1;
 		decoration_editor(vid_buf, b, bq, mx, my);
 		for (n = UI_WALLSTART; n<UI_WALLSTART+UI_WALLCOUNT; n++)
 		{
@@ -7175,15 +7173,15 @@ void init_color_boxes()
 
 	ui_edit_init(&box_G, 40, 264, 30, 14);
 	strcpy(box_G.str, "255");
-	box_R.focus = 0;
+	box_G.focus = 0;
 
 	ui_edit_init(&box_B, 75, 264, 30, 14);
 	strcpy(box_B.str, "255");
-	box_R.focus = 0;
+	box_B.focus = 0;
 
 	ui_edit_init(&box_A, 110, 264, 30, 14);
 	strcpy(box_A.str, "255");
-	box_R.focus = 0;
+	box_A.focus = 0;
 }
 
 int currR = 255, currG = 0, currB = 0, currA = 255;
@@ -7191,7 +7189,6 @@ int currH = 0, currS = 255, currV = 255;
 int on_left = 1, decobox_hidden = 0;
 
 int deco_disablestuff;
-int deco_showing;
 void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 {
 	int i, t, hh, ss, vv, can_select_color = 1;

@@ -2248,6 +2248,7 @@ int main(int argc, char *argv[])
 		else if (active_menu != SC_DECO && sl >= DECO_DRAW && sl <= DECO_SMDG)
 		{
 			sl = su = last_sl;
+			deco_disablestuff = 0;
 		}
 		if (deco_disablestuff)
 			b = 0;
