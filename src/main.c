@@ -2245,9 +2245,10 @@ int main(int argc, char *argv[])
 			last_sl = sl;
 			sl = su = DECO_DRAW;
 		}
-		else if (active_menu != SC_DECO && sl >= DECO_DRAW && sl <= DECO_SMDG)
+		else if (active_menu != SC_DECO)
 		{
-			sl = su = last_sl;
+			if (sl >= DECO_DRAW && sl <= DECO_SMDG)
+				sl = su = last_sl;
 			deco_disablestuff = 0;
 		}
 		if (deco_disablestuff)

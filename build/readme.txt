@@ -510,12 +510,13 @@ once, highlighting errors when clicking a name to reply, and bugs when trying
 to defocus the auto-focused textbox in the console.
 
 Version 23.1 (build 17) 6/3/13
-Fix weird PRTO crash on save 1214884. Fix glitch where BOMB was set off but 
+Fix weird PRTO crash on save 1214884. Fix glitch where BOMB was set off by but 
 wouldn't destroy CLNE.
 
 Version 23.1 (build 18) 6/3/13
-Fix all the textboxes in the deco editor being highlighted by default, 
-breaking a bunch of stuff.
+Fix all the textboxes in the deco editor being focused by default. Fix bug where 
+if you left the deco editor in certain ways, you couldn't click or use the 
+keyboard
 
 
 
