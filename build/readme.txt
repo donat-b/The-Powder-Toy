@@ -1,13 +1,13 @@
 ------------------------------------------------------------------------------
-Use the legacy version of my mod if using an older computer that doesn't 
-support sse2 (yours probably does), or if it just runs faster
+Note: Use the legacy version of my mod if using an older computer that doesn't 
+support sse2 (yours probably does), or if it just runs faster.
 
 Scroll to the bottom for recent changes and a todo list.
-I am going to port this to c++, so it won't be updated except to add any 
-elements made in tpt++.
+
+
 
 This is a mod that basically does the same thing as the Lua script I made. 
-It has a favorites menu under the Tools menu, that has all of the elements 
+It has a favorites menu below the Tools menu, that has all of the elements 
 you selected recently, including walls and tools. Ctrl+Shift+left clicking 
 an element in any menu will pin it permanently to the menu, even after you 
 exit the Powder Toy. Ctrl+Shift+right clicking an element will unpin it from 
@@ -16,10 +16,11 @@ the menu.
 If you click the more button, a new menu will appear with more options. The 
 HUD button activates a better HUD that fixes some problems, has less useless 
 info, and has more decimal places in debug mode. HUD's are customizable using 
-the HUD2 button. The FIND button colors whatever element you have selected 
-red, and dims everything else. Ctrl + F also activates it. The INFO button 
-displays statistics about how long and how many times you have played powder 
-toy, your average and highest FPS, and info about the current save.
+the HUD2 button. This HUD should now be on by default though. The FIND button 
+colors whatever element you have selected red, and dims everything else. 
+Ctrl + F also activates it. The INFO button displays statistics about how long 
+and how many times you have played powder toy, your average and highest FPS, 
+and info about the current save.
 
 I will take any suggestions for new elements or other features, no matter 
 how hard they are to code, and if I like it, I will try to add it in.
@@ -508,6 +509,8 @@ and labels from the last update, including multiple comments being selected at
 once, highlighting errors when clicking a name to reply, and bugs when trying 
 to defocus the auto-focused textbox in the console.
 
+Version 23.1 (build 17) 6/3/13
+Fix weird PRTO crash on save 1214884.
 
 
 
@@ -529,7 +532,9 @@ make buttons look clicked when pressed, moving mouse away will not do clicks, li
 
 ---
 C++ version todo:
-probably cancelled, I see no reason to switch when I'm happy with the c version and it's fun to convert things back and see the c version become better and more bug-free
+probably cancelled, I see no reason to switch when I'm happy with the c 
+ version and it's fun to convert things back and see the c version become 
+ better and more bug-free
 
 maybe in c++ version:
 customizable settings menu completely, ability to add and read options. (also HUD option settings)

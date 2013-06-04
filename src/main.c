@@ -873,6 +873,7 @@ void BlueScreen(char * detailMessage)
 			if(event.type == SDL_QUIT)
 			{
 				char *exename;
+				sys_pause = 1;
 				tab_save(1);
 				exename = exe_name();
 				if (exename)
