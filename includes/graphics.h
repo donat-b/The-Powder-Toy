@@ -223,8 +223,6 @@ void draw_find();
 
 void create_decoration(int x, int y, int r, int g, int b, int a, int click, int tool);
 
-void draw_wavelengths(pixel *vid, int x, int y, int h, int wl);
-
 void render_signs(pixel *vid_buf);
 
 void render_fire(pixel *dst);

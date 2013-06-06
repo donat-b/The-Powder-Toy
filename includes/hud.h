@@ -5,14 +5,12 @@
 #include "graphics.h"
 
 void hud_defaults();
-
 void set_current_hud();
 
 void hud_text_right(int x, int y);
-
 void hud_text_left(float FPSB2, int it);
-
 void draw_hud(int it);
+void draw_wavelengths(pixel *vid, int x, int y, int h, int wl);
 
 void draw_info();
 

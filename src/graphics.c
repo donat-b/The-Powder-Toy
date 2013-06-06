@@ -4079,37 +4079,6 @@ void create_decoration(int x, int y, int r, int g, int b, int a, int click, int 
 	}
 }
 
-//draws the photon colors in the HUD
-void draw_wavelengths(pixel *vid, int x, int y, int h, int wl)
-{
-	int i,cr,cg,cb,j;
-	int tmp;
-	fillrect(vid,x-1,y-1,30+1,h+1,64,64,64,255); // coords -1 size +1 to work around bug in fillrect - TODO: fix fillrect
-	for (i=0; i<30; i++)
-	{
-		if ((wl>>i)&1)
-		{
-			// Need a spread of wavelengths to get a smooth spectrum, 5 bits seems to work reasonably well
-			if (i>2) tmp = 0x1F << (i-2);
-			else tmp = 0x1F >> (2-i);
-			cg = 0;
-			cb = 0;
-			cr = 0;
-			for (j=0; j<12; j++) {
-				cr += (tmp >> (j+18)) & 1;
-				cb += (tmp >>  j)     & 1;
-			}
-			for (j=0; j<13; j++)
-				cg += (tmp >> (j+9))  & 1;
-			tmp = 624/(cr+cg+cb+1);
-			cr *= tmp;
-			cg *= tmp;
-			cb *= tmp;
-			for (j=0; j<h; j++) blendpixel(vid,x+29-i,y+j,cr>255?255:cr,cg>255?255:cg,cb>255?255:cb,255);
-		}
-	}
-}
-
 void render_signs(pixel *vid_buf)
 {
 	int i, j, x, y, w, h, dx, dy,mx,my,b=1,bq;
