@@ -2750,6 +2750,7 @@ int main(int argc, char *argv[])
 				//for the click functions, lx and ly, are the positions of where the FIRST click happened.  x,y are current mouse position.
 				else if (lb)//lb means you are holding mouse down
 				{
+					toolStrength = 1.0f;
 					if (lm == 1)//line tool
 					{
 						if (sdl_mod & KMOD_ALT)
