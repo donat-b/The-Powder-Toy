@@ -63,13 +63,14 @@
 #define WL_ALLOWENERGY 145
 #define WL_ERASEALL 147
 
-#define SPC_AIR 236
-#define SPC_HEAT 237
-#define SPC_COOL 238
+#define OLD_SPC_AIR 236
+#define SPC_HEAT 236
+#define SPC_COOL 237
+#define SPC_AIR 238
 #define SPC_VACUUM 239
-#define SPC_WIND 241
-#define SPC_PGRV 243
-#define SPC_NGRV 244
+#define SPC_PGRV 241
+#define SPC_NGRV 243
+#define SPC_WIND 244
 #define SPC_PROP 246
 
 #define DECO_DRAW 248
@@ -804,17 +805,17 @@ static wall_type wtypes[] =
 	{"POWDERWALL",	PIXPACK(0x575757), PIXPACK(0x000000), 1,  "Wall. Indestructible. Blocks liquids and gases, allows powders"},
 	{"ELECWALL2",	PIXPACK(0xFFFF22), PIXPACK(0x101010), 2,  "Conductor, allows particles, conducts electricity"},
 	{"EHOLE",		PIXPACK(0x242424), PIXPACK(0x101010), 0,  "E-Hole, absorbs particles, release them when powered"},
-	{"AIR",			PIXPACK(0xFFFFFF), PIXPACK(0x000000), -1, "Air, creates airflow and pressure"},
 	{"HEAT",		PIXPACK(0xFFBB00), PIXPACK(0x000000), -1, "Heats the targeted element."},
 	{"COOL",		PIXPACK(0x00BBFF), PIXPACK(0x000000), -1, "Cools the targeted element."},
+	{"AIR",			PIXPACK(0xFFFFFF), PIXPACK(0x000000), -1, "Air, creates airflow and pressure"},
 	{"VAC",			PIXPACK(0x303030), PIXPACK(0x000000), -1, "Vacuum, reduces air pressure."},
 	{"GASWALL",		PIXPACK(0x579777), PIXPACK(0x000000), 1,  "Wall. Indestructible. Blocks liquids and solids, allows gases"},
-	{"WIND",		PIXPACK(0x000000), PIXPACK(0x000000), -1, "Drag tool"},
+	{"PGRV",		PIXPACK(0xCCCCFF), PIXPACK(0x000000), -1, "Creates a short-lasting gravity well."},
 	{"GRAVWALL",	PIXPACK(0xFFEE00), PIXPACK(0xAA9900), 4,  "Gravity wall"},
-	{"PGRV",		PIXPACK(0x0000BB), PIXPACK(0x000000), -1, "Positive gravity tool."},
-	{"NGRV",		PIXPACK(0x000099), PIXPACK(0x000000), -1, "Negative gravity tool."},
+	{"NGRV",		PIXPACK(0xAACCFF), PIXPACK(0x000000), -1, "Creates a short-lasting negative gravity well."},
+	{"WIND",		PIXPACK(0x000000), PIXPACK(0x000000), -1, "Drag tool."},
 	{"ENERGYWALL",	PIXPACK(0xFFAA00), PIXPACK(0xAA5500), 4,  "Energy wall, allows only energy type particles to pass"},
-	{"PROP",		PIXPACK(0xFFAA00), PIXPACK(0x000000), -1, "Property drawing tool"},
+	{"PROP",		PIXPACK(0xFFAA00), PIXPACK(0x000000), -1, "Property drawing tool."},
 	{"ERASEALL",	PIXPACK(0x808080), PIXPACK(0x000000), -1, "Erases walls, particles, and signs"},
 	{"DRAW",		PIXPACK(0xFF0000), PIXPACK(0x000000), -1, "Draw"},
 	{"ERASE",		PIXPACK(0x000000), PIXPACK(0x000000), -1, "Erase"},

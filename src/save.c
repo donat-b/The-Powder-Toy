@@ -142,7 +142,7 @@ int check_save(int save_as, int orig_x0, int orig_y0, int orig_w, int orig_h, in
 				}
 				return 1;
 			}
-			if ((parts[i].type == PT_CLNE || parts[i].type == PT_PCLN || parts[i].type == PT_BCLN || parts[i].type == PT_PBCN || parts[i].type == PT_STOR || parts[i].type == PT_CONV || parts[i].type == PT_STKM || parts[i].type == PT_STKM2 || parts[i].type == PT_FIGH || parts[i].type == PT_LAVA || parts[i].type == PT_SPRK || parts[i].type == PT_PSTN || parts[i].type == PT_CRAY) && invalid_element(save_as,parts[i].ctype))
+			if ((parts[i].type == PT_CLNE || parts[i].type == PT_PCLN || parts[i].type == PT_BCLN || parts[i].type == PT_PBCN || parts[i].type == PT_STOR || parts[i].type == PT_CONV || ((parts[i].type == PT_STKM || parts[i].type == PT_STKM2 || parts[i].type == PT_FIGH) && parts[i].ctype != SPC_AIR) || parts[i].type == PT_LAVA || parts[i].type == PT_SPRK || parts[i].type == PT_PSTN || parts[i].type == PT_CRAY) && invalid_element(save_as,parts[i].ctype))
 			{
 				if (give_warning)
 				{
@@ -908,25 +908,14 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 				//Ctype (optional), 1 or 4 bytes
 				if(partsptr[i].ctype)
 				{
-					if (partsptr[i].type == PT_PSTN) // temporary, will be removed when ver. 87 is out
+					fieldDesc |= 1 << 5;
+					partsData[partsDataLen++] = partsptr[i].ctype;
+					if(partsptr[i].ctype > 255)
 					{
-						if (partsptr[i].life)
-						{
-							fieldDesc |= 1 << 5;
-							partsData[partsDataLen++] = 1;
-						}
-					}
-					else
-					{
-						fieldDesc |= 1 << 5;
-						partsData[partsDataLen++] = partsptr[i].ctype;
-						if(partsptr[i].ctype > 255)
-						{
-							fieldDesc |= 1 << 9;
-							partsData[partsDataLen++] = (partsptr[i].ctype&0xFF000000)>>24;
-							partsData[partsDataLen++] = (partsptr[i].ctype&0x00FF0000)>>16;
-							partsData[partsDataLen++] = (partsptr[i].ctype&0x0000FF00)>>8;
-						}
+						fieldDesc |= 1 << 9;
+						partsData[partsDataLen++] = (partsptr[i].ctype&0xFF000000)>>24;
+						partsData[partsDataLen++] = (partsptr[i].ctype&0x00FF0000)>>16;
+						partsData[partsDataLen++] = (partsptr[i].ctype&0x0000FF00)>>8;
 					}
 				}
 				
@@ -1871,7 +1860,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							partsptr[newIndex].ctype |= (((unsigned)partsData[i++]) << 16);
 							partsptr[newIndex].ctype |= (((unsigned)partsData[i++]) << 8);
 						}
-						if (modsave && partsptr[newIndex].type == PT_CLNE || partsptr[newIndex].type == PT_PCLN || partsptr[newIndex].type == PT_BCLN || partsptr[newIndex].type == PT_PBCN || partsptr[newIndex].type == PT_STOR || partsptr[newIndex].type == PT_CONV || partsptr[newIndex].type == PT_STKM || partsptr[newIndex].type == PT_STKM2 || partsptr[newIndex].type == PT_FIGH || partsptr[newIndex].type == PT_LAVA || partsptr[newIndex].type == PT_SPRK || partsptr[newIndex].type == PT_VIRS || partsptr[newIndex].type == PT_VRSS || partsptr[newIndex].type == PT_VRSG)
+						if (modsave && (partsptr[newIndex].type == PT_CLNE || partsptr[newIndex].type == PT_PCLN || partsptr[newIndex].type == PT_BCLN || partsptr[newIndex].type == PT_PBCN || partsptr[newIndex].type == PT_STOR || partsptr[newIndex].type == PT_CONV || ((partsptr[newIndex].type == PT_STKM || partsptr[newIndex].type == PT_STKM2 || partsptr[newIndex].type == PT_FIGH) && partsptr[newIndex].ctype != SPC_AIR) || partsptr[newIndex].type == PT_LAVA || partsptr[newIndex].type == PT_SPRK || partsptr[newIndex].type == PT_VIRS || partsptr[newIndex].type == PT_VRSS || partsptr[newIndex].type == PT_VRSG))
 							partsptr[newIndex].ctype = fix_type(partsptr[newIndex].ctype, saved_version, modsave);
 					}
 					
@@ -2012,6 +2001,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						player.spwn = 1;
 						player.elem = PT_DUST;
 						player.rocketBoots = 0;
+						if (parts[newIndex].ctype == 256 || parts[newIndex].ctype == OLD_SPC_AIR)
+							parts[newIndex].ctype = SPC_AIR;
 					}
 					else if (partsptr[newIndex].type == PT_STKM2)
 					{
@@ -2019,6 +2010,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						player2.spwn = 1;
 						player2.elem = PT_DUST;
 						player2.rocketBoots = 0;
+						if (parts[newIndex].ctype == 256 || parts[newIndex].ctype == OLD_SPC_AIR)
+							parts[newIndex].ctype = SPC_AIR;
 					}
 					else if (partsptr[newIndex].type == PT_FIGH)
 					{
@@ -2032,6 +2025,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							fighters[fcount].rocketBoots = 0;
 							fighcount++;
 							STKM_init_legs(&(fighters[fcount]), newIndex);
+							if (parts[newIndex].ctype == 256 || parts[newIndex].ctype == OLD_SPC_AIR)
+								parts[newIndex].ctype = SPC_AIR;
 						}
 					}
 					else if (partsptr[newIndex].type == PT_SPAWN)
@@ -2937,6 +2932,8 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 				player.spwn = 1;
 				player.elem = PT_DUST;
 				player.rocketBoots = 0;
+				if (parts[i-1].ctype == OLD_SPC_AIR)
+					parts[i-1].ctype = SPC_AIR;
 			}
 			else if (parts[i-1].type == PT_STKM2)
 			{
@@ -2944,6 +2941,8 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 				player2.spwn = 1;
 				player2.elem = PT_DUST;
 				player2.rocketBoots = 0;
+				if (parts[i-1].ctype == OLD_SPC_AIR)
+					parts[i-1].ctype = SPC_AIR;
 			}
 			else if (parts[i-1].type == PT_FIGH)
 			{
@@ -2957,6 +2956,8 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					fighters[fcount].rocketBoots = 0;
 					fighcount++;
 					STKM_init_legs(&(fighters[fcount]), i-1);
+					if (parts[i-1].ctype == OLD_SPC_AIR)
+						parts[i-1].ctype = SPC_AIR;
 				}
 			}
 			if (parts[i-1].type == PT_MOVS)
