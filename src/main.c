@@ -249,6 +249,7 @@ int sl = 1;
 int last_sl = 1;
 int sr = 0;
 int su = 0;
+float toolStrength = 1.0f;
 int autosave = 0;
 int realistic = 0;
 int unlockedstuff = 0x08;
@@ -2810,6 +2811,14 @@ int main(int argc, char *argv[])
 						}
 						else if (c > PT_NUM || !(ptypes[c].properties&PROP_MOVS))
 						{
+							//printf("From (%d, %d) To (%d, %d)\n", lx, ly, x, y);
+
+							//get tool strength, shift (or ctrl+shift) makes it faster and ctrl makes it slower
+							if (sdl_mod & KMOD_SHIFT)
+								toolStrength = 10.0f;
+							else if (sdl_mod & KMOD_CTRL)
+								toolStrength = .1f;
+
 							create_line(lx, ly, x, y, bsx, bsy, c, get_brush_flags());
 						}
 						lx = x;
@@ -2818,6 +2827,7 @@ int main(int argc, char *argv[])
 				}
 				else //it is the first click
 				{
+					toolStrength = 1.0f;
 					//start line tool
 					if ((sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_CTRL)))
 					{
@@ -2835,19 +2845,17 @@ int main(int argc, char *argv[])
 						lm = 2;//box
 					}
 					//flood fill
-					else if ((sdl_mod & (KMOD_CTRL)) && (sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_ALT)))
+					else if ((sdl_mod & (KMOD_CTRL)) && (sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_ALT)) && (!is_TOOL(c) || c==SPC_PROP))
 					{
 						if (sdl_mod & (KMOD_CAPS))
 							c = 0;
-						if (c!=WL_STREAM+100&&(!is_TOOL(c)||c==SPC_PROP)&&c!=DECO_DRAW&&c!=DECO_ERASE)
-							flood_parts(x, y, c, -1, -1, get_brush_flags());
-						else if (c==SPC_HEAT || c==SPC_COOL)
-							create_parts(x, y, bsx, bsy, c, get_brush_flags(), 1);
-						else if (c == DECO_DRAW || c == DECO_ERASE)
+						if (c == DECO_DRAW || c == DECO_ERASE)
 						{
 							unsigned int col = (b != 4 && c != DECO_ERASE) ? decocolor : PIXRGB(0,0,0);
 							flood_prop(x, y, offsetof(particle,dcolour), &col, 0);
 						}
+						else if (c != WL_STREAM+100 && c != DECO_DRAW && c != DECO_ERASE)
+							flood_parts(x, y, c, -1, -1, get_brush_flags());
 						lx = x;
 						ly = y;
 						lb = 0;
@@ -2886,10 +2894,6 @@ int main(int argc, char *argv[])
 									if (c==PT_LIFE)
 										c = sl = (parts[cr>>8].ctype << 8) | c;
 								}
-								else
-								{
-									//Something
-								}
 							}
 						}
 						lx = x;
@@ -2899,7 +2903,7 @@ int main(int argc, char *argv[])
 					}
 					else //normal click, spawn element
 					{
-						//Copy state before drawing any particles (for undo)7
+						//Copy state before drawing any particles (for undo)
 						int cbx, cby, cbi;
 
 						for (cbi=0; cbi<NPART; cbi++)
@@ -2919,10 +2923,18 @@ int main(int argc, char *argv[])
 								cb_bmap[cby][cbx] = bmap[cby][cbx];
 								cb_emap[cby][cbx] = emap[cby][cbx];
 							}
+
+						//get tool strength, shift (or ctrl+shift) makes it faster and ctrl makes it slower
+						if (sdl_mod & KMOD_SHIFT)
+							toolStrength = 10.0f;
+						else if (sdl_mod & KMOD_CTRL)
+							toolStrength = .1f;
+
 						if (c < PT_NUM && (ptypes[c].properties&PROP_MOVS))
 							create_moving_solid(x,y,bsx,bsy,c);
 						else
 							create_parts(x, y, bsx, bsy, c, get_brush_flags(), 1);
+						//printf("(%d, %d)\n", x, y);
 						lx = x;
 						ly = y;
 						lb = b;

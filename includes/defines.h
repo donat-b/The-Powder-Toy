@@ -234,6 +234,7 @@ extern int sl;
 extern int last_sl;
 extern int sr;
 extern int su;
+extern float toolStrength;
 extern int autosave;
 extern int realistic;
 extern int loop_time;

@@ -965,67 +965,66 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 		return create_property(x, y, prop_offset, prop_value, prop_format);
 	}
 
-	if (t==SPC_HEAT||t==SPC_COOL)
+	if (is_TOOL(t))
 	{
-		int r = pmap[y][x];
-		if (!(r&0xFF))
-			r = photons[y][x];
-		if ((r&0xFF)!=PT_NONE&&(r&0xFF)<PT_NUM)
+		if (t == SPC_HEAT || t == SPC_COOL)
 		{
-			if (t==SPC_HEAT&&parts[r>>8].temp<MAX_TEMP)
+			int r = pmap[y][x];
+			if (!(r&0xFF))
+				r = photons[y][x];
+			if ((r&0xFF) != PT_NONE && (r&0xFF) < PT_NUM)
 			{
-				float heatchange;
-				int fast = ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL)));
-				if ((r&0xFF)==PT_PUMP || (r&0xFF)==PT_GPMP)
-					heatchange = fast?1.0f:.1f;
-				else if ((r&0xFF)==PT_ANIM)
-					heatchange = fast?25.0f:1.0f;
-				else
-					heatchange = fast?50.0f:4.0f;
+				if (t == SPC_HEAT && parts[r>>8].temp < MAX_TEMP)
+				{
+					float heatchange;
+					if ((r&0xFF) == PT_PUMP || (r&0xFF) == PT_GPMP)
+						heatchange = toolStrength*.1f;
+					else if ((r&0xFF) == PT_ANIM)
+						heatchange = toolStrength;
+					else
+						heatchange = toolStrength*2.0f;
 				
-				parts[r>>8].temp = restrict_flt(parts[r>>8].temp + heatchange, MIN_TEMP, MAX_TEMP);
+					parts[r>>8].temp = restrict_flt(parts[r>>8].temp + heatchange, MIN_TEMP, MAX_TEMP);
+				}
+				if (t == SPC_COOL && parts[r>>8].temp > MIN_TEMP)
+				{
+					float heatchange;
+					if ((r&0xFF) == PT_PUMP || (r&0xFF) == PT_GPMP)
+						heatchange = toolStrength*.1f;
+					else if ((r&0xFF) == PT_ANIM)
+						heatchange = toolStrength;
+					else
+						heatchange = toolStrength*4.0f;
+				
+					parts[r>>8].temp = restrict_flt(parts[r>>8].temp - heatchange, MIN_TEMP, MAX_TEMP);
+				}
+				return r>>8;
 			}
-			if (t==SPC_COOL&&parts[r>>8].temp>MIN_TEMP)
+			else
 			{
-				float heatchange;
-				int fast = ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL)));
-				if ((r&0xFF)==PT_PUMP || (r&0xFF)==PT_GPMP)
-					heatchange = fast?1.0f:.1f;
-				else if ((r&0xFF)==PT_ANIM)
-					heatchange = fast?25.0f:1.0f;
-				else
-					heatchange = fast?50.0f:4.0f;
-				
-				parts[r>>8].temp = restrict_flt(parts[r>>8].temp - heatchange, MIN_TEMP, MAX_TEMP);
+				return -1;
 			}
-			return r>>8;
 		}
-		else
+		else if (t==SPC_AIR)
 		{
+			pv[y/CELL][x/CELL] += toolStrength*.05f;
 			return -1;
 		}
-	}
-	else if (t==SPC_AIR)
-	{
-		float pchange = ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL)))?1.0f:.1f;
-		pv[y/CELL][x/CELL] += pchange;
-		return -1;
-	}
-	else if (t==SPC_VACUUM)
-	{
-		float pchange = ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL)))?1.0f:.1f;
-		pv[y/CELL][x/CELL] -= pchange;
-		return -1;
-	}
-	else if (t==SPC_PGRV)
-	{
-		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = 5;
-		return -1;
-	}
-	else if (t==SPC_NGRV)
-	{
-		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = -5;
-		return -1;
+		else if (t==SPC_VACUUM)
+		{
+			pv[y/CELL][x/CELL] -= toolStrength*.05f;
+			return -1;
+		}
+		else if (t==SPC_PGRV)
+		{
+			gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = toolStrength*5.0f;
+			return -1;
+		}
+		else if (t==SPC_NGRV)
+		{
+			gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = toolStrength*-5.0f;
+			return -1;
+		}
 	}
 	else if (is_DECOTOOL(t))
 	{
