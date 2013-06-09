@@ -16,7 +16,7 @@
 #include <element.h>
 
 
-int create_n_parts(int n, int x, int y, float vx, float vy, float temp, int t)//testing a new deut create part
+int DeutExplosion(int n, int x, int y, float temp, int t)
 {
 	int i, c;
 	n = (n/50);
@@ -74,7 +74,7 @@ int update_NEUT(UPDATE_FUNC_ARGS) {
 #ifdef SDEUT
 				else if ((r&0xFF)==PT_DEUT && (pressureFactor+1+(parts[r>>8].life/100))>(rand()%1000))
 				{
-					create_n_parts(parts[r>>8].life, x+rx, y+ry, parts[i].vx, parts[i].vy, restrict_flt(parts[r>>8].temp + parts[r>>8].life*500, MIN_TEMP, MAX_TEMP), PT_NEUT);
+					DeutExplosion(parts[r>>8].life, x+rx, y+ry, restrict_flt(parts[r>>8].temp + parts[r>>8].life*500, MIN_TEMP, MAX_TEMP), PT_NEUT);
 					kill_part(r>>8);
 				}
 #else
