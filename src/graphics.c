@@ -4021,6 +4021,8 @@ void create_decoration(int x, int y, int r, int g, int b, int a, int click, int 
 	int rp, tr = 0, tg = 0, tb = 0;
 	rp = pmap[y][x];
 	if (!rp)
+		rp = photons[y][x];
+	if (!rp)
 		return;
 	if (tool == DECO_DRAW)
 	{

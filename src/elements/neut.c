@@ -26,36 +26,11 @@ int create_n_parts(int n, int x, int y, float vx, float vy, float temp, int t)//
 	if (n>340) {
 		n = 340;
 	}
-	if (x<0 || y<0 || x>=XRES || y>=YRES || t<0 || t>=PT_NUM || !ptypes[t].enabled)
-		return -1;
-
-	for (c=0; c<n; c++) {
-		float r = (rand()%128+128)/127.0f;
-		float a = (rand()%360)*M_PI/180.0f;
-		if (pfree == -1)
-			return -1;
-		i = pfree;
-		pfree = parts[i].life;
-		if (i>parts_lastActiveIndex) parts_lastActiveIndex = i;
-
-		parts[i].x = (float)x;
-		parts[i].y = (float)y;
-#ifdef OGLR
-		parts[i].lastX = (float)x;
-		parts[i].lastY = (float)y;
-#endif
-		parts[i].type = t;
-		parts[i].life = rand()%480+480;
-		parts[i].vx = r*cosf(a);
-		parts[i].vy = r*sinf(a);
-		parts[i].ctype = 0;
-		parts[i].temp = temp;
-		parts[i].tmp = 0;
-		if (t!=PT_STKM&&t!=PT_STKM2 && t!=PT_PHOT && t!=PT_NEUT && !pmap[y][x])
-			pmap[y][x] = t|(i<<8);
-		else if ((t==PT_PHOT||t==PT_NEUT) && !photons[y][x])
-			photons[y][x] = t|(i<<8);
-
+	for (c=0; c<n; c++)
+	{
+		i = create_part(-3, x, y, t);
+		if (i > -1)
+			parts[i].temp = temp;
 		pv[y/CELL][x/CELL] += 6.0f * CFDS;
 	}
 	return 0;
