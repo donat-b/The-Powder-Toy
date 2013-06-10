@@ -49,7 +49,7 @@
 char *clipboard_text = NULL;
 
 //Signum function
-TPT_NO_INLINE int isign(float i)
+TPT_GNU_INLINE int isign(float i)
 {
 	if (i<0)
 		return -1;
@@ -58,7 +58,7 @@ TPT_NO_INLINE int isign(float i)
 	return 0;
 }
 
-TPT_NO_INLINE unsigned clamp_flt(float f, float min, float max)
+TPT_GNU_INLINE unsigned clamp_flt(float f, float min, float max)
 {
 	if (f<min)
 		return 0;
@@ -67,7 +67,7 @@ TPT_NO_INLINE unsigned clamp_flt(float f, float min, float max)
 	return (int)(255.0f*(f-min)/(max-min));
 }
 
-TPT_NO_INLINE float restrict_flt(float f, float min, float max)
+TPT_GNU_INLINE float restrict_flt(float f, float min, float max)
 {
 	if (f<min)
 		return min;
