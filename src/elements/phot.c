@@ -28,7 +28,7 @@ int update_PHOT(UPDATE_FUNC_ARGS) {
 		if (1>rand()%10) update_PYRO(UPDATE_FUNC_SUBCALL_ARGS);
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)
-			if (BOUNDS_CHECK && (rx || ry)) {
+			if (BOUNDS_CHECK) {
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;

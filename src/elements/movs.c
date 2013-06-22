@@ -41,7 +41,7 @@ int update_MOVS(UPDATE_FUNC_ARGS) {
 		else
 			tmp2 = -1*parts[i].pavg[1]*sin(angle+msrotation[bn]);
 	}
-	//kill moving solid control particle with a lot of pressure (other ones dissapear at 30 pressure)
+	//kill moving solid control particle with a lot of pressure (other ones disappear at 30 pressure)
 	if (!tmp && !tmp2 && pv[y/CELL][x/CELL] > 10 || pv[y/CELL][x/CELL] < -10)
 	{
 		kill_part(i);
