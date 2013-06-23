@@ -19,7 +19,6 @@ SIMULATION API
 
 void initSimulationAPI(lua_State * l)
 {
-	int simulationAPI;
 	//Methods
 	struct luaL_reg simulationAPIMethods [] = {
 		{"partNeighbours", simulation_partNeighbours},
@@ -37,7 +36,6 @@ void initSimulationAPI(lua_State * l)
 		{NULL, NULL}
 	};
 	luaL_register(l, "simulation", simulationAPIMethods);
-	simulationAPI = lua_gettop(l);
 
 	//Sim shortcut
 	lua_getglobal(l, "simulation");
@@ -359,7 +357,6 @@ RENDERER API
 
 void initRendererAPI(lua_State * l)
 {
-	int rendererAPI;
 	//Methods
 	struct luaL_reg rendererAPIMethods [] = {
 		{"renderModes", renderer_renderModes},
@@ -374,8 +371,6 @@ void initRendererAPI(lua_State * l)
 	//Ren shortcut
 	lua_getglobal(l, "renderer");
 	lua_setglobal(l, "ren");
-
-	rendererAPI = lua_gettop(l);
 
 	//Static values
 	//Particle pixel modes/fire mode/effects
@@ -747,7 +742,6 @@ GRAPHICS API
 
 void initGraphicsAPI(lua_State * l)
 {
-	int graphicsAPI;
 	//Methods
 	struct luaL_reg graphicsAPIMethods [] = {
 		{"textSize", graphics_textSize},
@@ -763,10 +757,8 @@ void initGraphicsAPI(lua_State * l)
 	lua_getglobal(l, "graphics");
 	lua_setglobal(l, "gfx");
 
-	graphicsAPI = lua_gettop(l);
-
-	lua_pushinteger(l, XRES+BARSIZE);	lua_setfield(l, graphicsAPI, "WIDTH");
-	lua_pushinteger(l, YRES+MENUSIZE);	lua_setfield(l, graphicsAPI, "HEIGHT");
+	lua_pushinteger(l, XRES+BARSIZE);	lua_setfield(l, -2, "WIDTH");
+	lua_pushinteger(l, YRES+MENUSIZE);	lua_setfield(l, -2, "HEIGHT");
 }
 
 int graphics_textSize(lua_State * l)
@@ -961,7 +953,7 @@ void initIdentifiers()
 
 void initElementsAPI(lua_State * l)
 {
-	int elementsAPI, i;
+	int i;
 	//Methods
 	struct luaL_reg elementsAPIMethods [] = {
 		{"allocate", elements_allocate},
@@ -976,8 +968,6 @@ void initElementsAPI(lua_State * l)
 	//elem shortcut
 	lua_getglobal(l, "elements");
 	lua_setglobal(l, "elem");
-
-	elementsAPI = lua_gettop(l);
 
 	//Static values
 	//Element types/properties/states
@@ -1006,7 +996,7 @@ void initElementsAPI(lua_State * l)
 	SETCONST(l, PROP_MOVS);
 	SETCONST(l, FLAG_STAGNANT);
 	SETCONST(l, FLAG_SKIPMOVE);
-	lua_pushinteger(l, 0); lua_setfield(l, elementsAPI, "FLAG_MOVABLE"); //removed this constant, sponge moves again and no reason for other elements to be allowed to
+	lua_pushinteger(l, 0); lua_setfield(l, -2, "FLAG_MOVABLE"); //removed this constant, sponge moves again and no reason for other elements to be allowed to
 	SETCONST(l, FLAG_EXPLODE);
 	SETCONST(l, FLAG_INSTACTV);
 	SETCONST(l, FLAG_WATEREQUAL);
@@ -1042,12 +1032,12 @@ void initElementsAPI(lua_State * l)
 		{
 			char realidentifier[24];
 			lua_pushinteger(l, i);
-			lua_setfield(l, elementsAPI, pidentifiers[i]);
+			lua_setfield(l, -2, pidentifiers[i]);
 			sprintf(realidentifier,"DEFAULT_PT_%s",ptypes[i].name);
 			if (i != 0 && i != PT_NBHL && i != PT_NWHL && strcmp(pidentifiers[i], realidentifier))
 			{
 				lua_pushinteger(l, i);
-				lua_setfield(l, elementsAPI, realidentifier);
+				lua_setfield(l, -2, realidentifier);
 			}
 		}
 	}

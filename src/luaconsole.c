@@ -897,6 +897,10 @@ int luacon_step(int mx, int my, int selectl, int selectr, int bsx, int bsy)
 	lua_setfield(l, tptProperties, "selecteda");
 	lua_setfield(l, tptProperties, "brushx");
 	lua_setfield(l, tptProperties, "brushy");
+	lua_getglobal(l, "simulation");
+	lua_pushinteger(l, NUM_PARTS); lua_setfield(l, -2, "NUM_PARTS");
+	lua_pop(l, 1);
+
 	lua_pushstring(l, "stepfunctions");
 	lua_rawget(l, LUA_REGISTRYINDEX);
 	if(!lua_istable(l, -1))
