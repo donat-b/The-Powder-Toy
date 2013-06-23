@@ -44,13 +44,13 @@ void initSimulationAPI(lua_State * l)
 	lua_setglobal(l, "sim");
 
 	//Static values
-	lua_pushinteger(l, XRES); lua_setfield(l, simulationAPI, "XRES");
-	lua_pushinteger(l, YRES); lua_setfield(l, simulationAPI, "YRES");
-	lua_pushinteger(l, PT_NUM); lua_setfield(l, simulationAPI, "PT_NUM");
-	lua_pushinteger(l, NUM_PARTS); lua_setfield(l, simulationAPI, "NUM_PARTS");
-	lua_pushinteger(l, R_TEMP); lua_setfield(l, simulationAPI, "R_TEMP");
-	lua_pushinteger(l, MAX_TEMP); lua_setfield(l, simulationAPI, "MAX_TEMP");
-	lua_pushinteger(l, MIN_TEMP); lua_setfield(l, simulationAPI, "MIN_TEMP");
+	SETCONST(l, XRES);
+	SETCONST(l, YRES);
+	SETCONST(l, PT_NUM);
+	lua_pushinteger(l, 0); lua_setfield(l, -2, "NUM_PARTS");
+	SETCONST(l, R_TEMP);
+	SETCONST(l, MAX_TEMP);
+	SETCONST(l, MIN_TEMP);
 
 }
 
@@ -379,51 +379,51 @@ void initRendererAPI(lua_State * l)
 
 	//Static values
 	//Particle pixel modes/fire mode/effects
-	lua_pushinteger(l, PMODE); lua_setfield(l, rendererAPI, "PMODE");
-	lua_pushinteger(l, PMODE_NONE); lua_setfield(l, rendererAPI, "PMODE_NONE");
-	lua_pushinteger(l, PMODE_FLAT); lua_setfield(l, rendererAPI, "PMODE_FLAT");
-	lua_pushinteger(l, PMODE_BLOB); lua_setfield(l, rendererAPI, "PMODE_BLOB");
-	lua_pushinteger(l, PMODE_BLUR); lua_setfield(l, rendererAPI, "PMODE_BLUR");
-	lua_pushinteger(l, PMODE_GLOW); lua_setfield(l, rendererAPI, "PMODE_GLOW");
-	lua_pushinteger(l, PMODE_SPARK); lua_setfield(l, rendererAPI, "PMODE_SPARK");
-	lua_pushinteger(l, PMODE_FLARE); lua_setfield(l, rendererAPI, "PMODE_FLARE");
-	lua_pushinteger(l, PMODE_LFLARE); lua_setfield(l, rendererAPI, "PMODE_LFLARE");
-	lua_pushinteger(l, PMODE_ADD); lua_setfield(l, rendererAPI, "PMODE_ADD");
-	lua_pushinteger(l, PMODE_BLEND); lua_setfield(l, rendererAPI, "PMODE_BLEND");
-	lua_pushinteger(l, PSPEC_STICKMAN); lua_setfield(l, rendererAPI, "PSPEC_STICKMAN");
-	lua_pushinteger(l, OPTIONS); lua_setfield(l, rendererAPI, "OPTIONS");
-	lua_pushinteger(l, NO_DECO); lua_setfield(l, rendererAPI, "NO_DECO");
-	lua_pushinteger(l, DECO_FIRE); lua_setfield(l, rendererAPI, "DECO_FIRE");
-	lua_pushinteger(l, FIREMODE); lua_setfield(l, rendererAPI, "FIREMODE");
-	lua_pushinteger(l, FIRE_ADD); lua_setfield(l, rendererAPI, "FIRE_ADD");
-	lua_pushinteger(l, FIRE_BLEND); lua_setfield(l, rendererAPI, "FIRE_BLEND");
-	lua_pushinteger(l, EFFECT); lua_setfield(l, rendererAPI, "EFFECT");
-	lua_pushinteger(l, EFFECT_GRAVIN); lua_setfield(l, rendererAPI, "EFFECT_GRAVIN");
-	lua_pushinteger(l, EFFECT_GRAVOUT); lua_setfield(l, rendererAPI, "EFFECT_GRAVOUT");
-	lua_pushinteger(l, EFFECT_LINES); lua_setfield(l, rendererAPI, "EFFECT_LINES");
-	lua_pushinteger(l, EFFECT_DBGLINES); lua_setfield(l, rendererAPI, "EFFECT_DBGLINES");
+	SETCONST(l, PMODE);
+	SETCONST(l, PMODE_NONE);
+	SETCONST(l, PMODE_FLAT);
+	SETCONST(l, PMODE_BLOB);
+	SETCONST(l, PMODE_BLUR);
+	SETCONST(l, PMODE_GLOW);
+	SETCONST(l, PMODE_SPARK);
+	SETCONST(l, PMODE_FLARE);
+	SETCONST(l, PMODE_LFLARE);
+	SETCONST(l, PMODE_ADD);
+	SETCONST(l, PMODE_BLEND);
+	SETCONST(l, PSPEC_STICKMAN);
+	SETCONST(l, OPTIONS);
+	SETCONST(l, NO_DECO);
+	SETCONST(l, DECO_FIRE);
+	SETCONST(l, FIREMODE);
+	SETCONST(l, FIRE_ADD);
+	SETCONST(l, FIRE_BLEND);
+	SETCONST(l, EFFECT);
+	SETCONST(l, EFFECT_GRAVIN);
+	SETCONST(l, EFFECT_GRAVOUT);
+	SETCONST(l, EFFECT_LINES);
+	SETCONST(l, EFFECT_DBGLINES);
 
 	//Display/Render/Colour modes
-	lua_pushinteger(l, RENDER_EFFE); lua_setfield(l, rendererAPI, "RENDER_EFFE");
-	lua_pushinteger(l, RENDER_FIRE); lua_setfield(l, rendererAPI, "RENDER_FIRE");
-	lua_pushinteger(l, RENDER_GLOW); lua_setfield(l, rendererAPI, "RENDER_GLOW");
-	lua_pushinteger(l, RENDER_BLUR); lua_setfield(l, rendererAPI, "RENDER_BLUR");
-	lua_pushinteger(l, RENDER_BLOB); lua_setfield(l, rendererAPI, "RENDER_BLOB");
-	lua_pushinteger(l, RENDER_BASC); lua_setfield(l, rendererAPI, "RENDER_BASC");
-	lua_pushinteger(l, RENDER_NONE); lua_setfield(l, rendererAPI, "RENDER_NONE");
-	lua_pushinteger(l, COLOUR_HEAT); lua_setfield(l, rendererAPI, "COLOUR_HEAT");
-	lua_pushinteger(l, COLOUR_LIFE); lua_setfield(l, rendererAPI, "COLOUR_LIFE");
-	lua_pushinteger(l, COLOUR_GRAD); lua_setfield(l, rendererAPI, "COLOUR_GRAD");
-	lua_pushinteger(l, COLOUR_BASC); lua_setfield(l, rendererAPI, "COLOUR_BASC");
-	lua_pushinteger(l, COLOUR_DEFAULT); lua_setfield(l, rendererAPI, "COLOUR_DEFAULT");
-	lua_pushinteger(l, DISPLAY_AIRC); lua_setfield(l, rendererAPI, "DISPLAY_AIRC");
-	lua_pushinteger(l, DISPLAY_AIRP); lua_setfield(l, rendererAPI, "DISPLAY_AIRP");
-	lua_pushinteger(l, DISPLAY_AIRV); lua_setfield(l, rendererAPI, "DISPLAY_AIRV");
-	lua_pushinteger(l, DISPLAY_AIRH); lua_setfield(l, rendererAPI, "DISPLAY_AIRH");
-	lua_pushinteger(l, DISPLAY_AIR); lua_setfield(l, rendererAPI, "DISPLAY_AIR");
-	lua_pushinteger(l, DISPLAY_WARP); lua_setfield(l, rendererAPI, "DISPLAY_WARP");
-	lua_pushinteger(l, DISPLAY_PERS); lua_setfield(l, rendererAPI, "DISPLAY_PERS");
-	lua_pushinteger(l, DISPLAY_EFFE); lua_setfield(l, rendererAPI, "DISPLAY_EFFE");
+	SETCONST(l, RENDER_EFFE);
+	SETCONST(l, RENDER_FIRE);
+	SETCONST(l, RENDER_GLOW);
+	SETCONST(l, RENDER_BLUR);
+	SETCONST(l, RENDER_BLOB);
+	SETCONST(l, RENDER_BASC);
+	SETCONST(l, RENDER_NONE);
+	SETCONST(l, COLOUR_HEAT);
+	SETCONST(l, COLOUR_LIFE);
+	SETCONST(l, COLOUR_GRAD);
+	SETCONST(l, COLOUR_BASC);
+	SETCONST(l, COLOUR_DEFAULT);
+	SETCONST(l, DISPLAY_AIRC);
+	SETCONST(l, DISPLAY_AIRP);
+	SETCONST(l, DISPLAY_AIRV);
+	SETCONST(l, DISPLAY_AIRH);
+	SETCONST(l, DISPLAY_AIR);
+	SETCONST(l, DISPLAY_WARP);
+	SETCONST(l, DISPLAY_PERS);
+	SETCONST(l, DISPLAY_EFFE);
 }
 
 //get/set render modes list
@@ -536,7 +536,6 @@ FILESYSTEM API
 
 void initFileSystemAPI(lua_State * l)
 {
-	int fileSystemAPI;
 	//Methods
 	struct luaL_reg fileSystemAPIMethods [] = {
 		{"list", fileSystem_list},
@@ -555,8 +554,6 @@ void initFileSystemAPI(lua_State * l)
 	//elem shortcut
 	lua_getglobal(l, "fileSystem");
 	lua_setglobal(l, "fs");
-
-	fileSystemAPI = lua_gettop(l);
 }
 
 int fileSystem_list(lua_State * l)
@@ -984,59 +981,59 @@ void initElementsAPI(lua_State * l)
 
 	//Static values
 	//Element types/properties/states
-	lua_pushinteger(l, TYPE_PART); 			lua_setfield(l, elementsAPI, "TYPE_PART");
-	lua_pushinteger(l, TYPE_LIQUID); 		lua_setfield(l, elementsAPI, "TYPE_LIQUID");
-	lua_pushinteger(l, TYPE_SOLID); 		lua_setfield(l, elementsAPI, "TYPE_SOLID");
-	lua_pushinteger(l, TYPE_GAS); 			lua_setfield(l, elementsAPI, "TYPE_GAS");
-	lua_pushinteger(l, TYPE_ENERGY); 		lua_setfield(l, elementsAPI, "TYPE_ENERGY");
-	lua_pushinteger(l, PROP_CONDUCTS); 		lua_setfield(l, elementsAPI, "PROP_CONDUCTS");
-	lua_pushinteger(l, PROP_BLACK); 		lua_setfield(l, elementsAPI, "PROP_BLACK");
-	lua_pushinteger(l, PROP_NEUTPENETRATE); lua_setfield(l, elementsAPI, "PROP_NEUTPENETRATE");
-	lua_pushinteger(l, PROP_NEUTABSORB); 	lua_setfield(l, elementsAPI, "PROP_NEUTABSORB");
-	lua_pushinteger(l, PROP_NEUTPASS); 		lua_setfield(l, elementsAPI, "PROP_NEUTPASS");
-	lua_pushinteger(l, PROP_DEADLY); 		lua_setfield(l, elementsAPI, "PROP_DEADLY");
-	lua_pushinteger(l, PROP_HOT_GLOW); 		lua_setfield(l, elementsAPI, "PROP_HOT_GLOW");
-	lua_pushinteger(l, PROP_LIFE); 			lua_setfield(l, elementsAPI, "PROP_LIFE");
-	lua_pushinteger(l, PROP_RADIOACTIVE); 	lua_setfield(l, elementsAPI, "PROP_RADIOACTIVE");
-	lua_pushinteger(l, PROP_LIFE_DEC); 		lua_setfield(l, elementsAPI, "PROP_LIFE_DEC");
-	lua_pushinteger(l, PROP_LIFE_KILL); 	lua_setfield(l, elementsAPI, "PROP_LIFE_KILL");
-	lua_pushinteger(l, PROP_LIFE_KILL_DEC); lua_setfield(l, elementsAPI, "PROP_LIFE_KILL_DEC");
-	lua_pushinteger(l, PROP_INDESTRUCTIBLE); lua_setfield(l, elementsAPI, "PROP_INDESTRUCTIBLE");
-	lua_pushinteger(l, PROP_CLONE);			lua_setfield(l, elementsAPI, "PROP_CLONE");
-	lua_pushinteger(l, PROP_BREAKABLECLONE); lua_setfield(l, elementsAPI, "PROP_BREAKABLECLONE");
-	lua_pushinteger(l, PROP_POWERED);		lua_setfield(l, elementsAPI, "PROP_POWERED");
-	lua_pushinteger(l, PROP_SPARKSETTLE); 	lua_setfield(l, elementsAPI, "PROP_SPARKSETTLE");
-	lua_pushinteger(l, PROP_NOAMBHEAT); 	lua_setfield(l, elementsAPI, "PROP_NOAMBHEAT");
-	lua_pushinteger(l, PROP_MOVS); 			lua_setfield(l, elementsAPI, "PROP_MOVS");
-	lua_pushinteger(l, FLAG_STAGNANT); 		lua_setfield(l, elementsAPI, "FLAG_STAGNANT");
-	lua_pushinteger(l, FLAG_SKIPMOVE); 		lua_setfield(l, elementsAPI, "FLAG_SKIPMOVE");
-	lua_pushinteger(l, 0); 					lua_setfield(l, elementsAPI, "FLAG_MOVABLE");
-	lua_pushinteger(l, FLAG_EXPLODE); 		lua_setfield(l, elementsAPI, "FLAG_EXPLODE");
-	lua_pushinteger(l, FLAG_INSTACTV); 		lua_setfield(l, elementsAPI, "FLAG_INSTACTV");
-	lua_pushinteger(l, FLAG_WATEREQUAL); 	lua_setfield(l, elementsAPI, "FLAG_WATEREQUAL");
-	lua_pushinteger(l, ST_NONE); 			lua_setfield(l, elementsAPI, "ST_NONE");
-	lua_pushinteger(l, ST_SOLID); 			lua_setfield(l, elementsAPI, "ST_SOLID");
-	lua_pushinteger(l, ST_LIQUID); 			lua_setfield(l, elementsAPI, "ST_LIQUID");
-	lua_pushinteger(l, ST_GAS); 			lua_setfield(l, elementsAPI, "ST_GAS");
+	SETCONST(l, TYPE_PART);
+	SETCONST(l, TYPE_LIQUID);
+	SETCONST(l, TYPE_SOLID);
+	SETCONST(l, TYPE_GAS);
+	SETCONST(l, TYPE_ENERGY);
+	SETCONST(l, PROP_CONDUCTS);
+	SETCONST(l, PROP_BLACK);
+	SETCONST(l, PROP_NEUTPENETRATE);
+	SETCONST(l, PROP_NEUTABSORB);
+	SETCONST(l, PROP_NEUTPASS);
+	SETCONST(l, PROP_DEADLY);
+	SETCONST(l, PROP_HOT_GLOW);
+	SETCONST(l, PROP_LIFE);
+	SETCONST(l, PROP_RADIOACTIVE);
+	SETCONST(l, PROP_LIFE_DEC);
+	SETCONST(l, PROP_LIFE_KILL);
+	SETCONST(l, PROP_INDESTRUCTIBLE);
+	SETCONST(l, PROP_CLONE);
+	SETCONST(l, PROP_BREAKABLECLONE);
+	SETCONST(l, PROP_POWERED);
+	SETCONST(l, PROP_SPARKSETTLE);
+	SETCONST(l, PROP_NOAMBHEAT);
+	SETCONST(l, PROP_MOVS);
+	SETCONST(l, FLAG_STAGNANT);
+	SETCONST(l, FLAG_SKIPMOVE);
+	lua_pushinteger(l, 0); lua_setfield(l, elementsAPI, "FLAG_MOVABLE"); //removed this constant, sponge moves again and no reason for other elements to be allowed to
+	SETCONST(l, FLAG_EXPLODE);
+	SETCONST(l, FLAG_INSTACTV);
+	SETCONST(l, FLAG_WATEREQUAL);
+	SETCONST(l, ST_NONE);
+	SETCONST(l, ST_SOLID);
+	SETCONST(l, ST_LIQUID);
+	SETCONST(l, ST_GAS);
 
-	lua_pushinteger(l, SC_WALL);		lua_setfield(l, elementsAPI, "SC_WALL");
-	lua_pushinteger(l, SC_ELEC);		lua_setfield(l, elementsAPI, "SC_ELEC");
-	lua_pushinteger(l, SC_POWERED);		lua_setfield(l, elementsAPI, "SC_POWERED");
-	lua_pushinteger(l, SC_FORCE);		lua_setfield(l, elementsAPI, "SC_FORCE");
-	lua_pushinteger(l, SC_EXPLOSIVE);	lua_setfield(l, elementsAPI, "SC_EXPLOSIVE");
-	lua_pushinteger(l, SC_GAS);			lua_setfield(l, elementsAPI, "SC_GAS");
-	lua_pushinteger(l, SC_LIQUID);		lua_setfield(l, elementsAPI, "SC_LIQUID");
-	lua_pushinteger(l, SC_POWDERS);		lua_setfield(l, elementsAPI, "SC_POWDERS");
-	lua_pushinteger(l, SC_SOLIDS);		lua_setfield(l, elementsAPI, "SC_SOLIDS");
-	lua_pushinteger(l, SC_NUCLEAR);		lua_setfield(l, elementsAPI, "SC_NUCLEAR");
-	lua_pushinteger(l, SC_SPECIAL);		lua_setfield(l, elementsAPI, "SC_SPECIAL");
-	lua_pushinteger(l, SC_LIFE);		lua_setfield(l, elementsAPI, "SC_LIFE");
-	lua_pushinteger(l, SC_TOOL);		lua_setfield(l, elementsAPI, "SC_TOOL");
-	lua_pushinteger(l, SC_DECO);		lua_setfield(l, elementsAPI, "SC_DECO");
-	lua_pushinteger(l, SC_FAV);			lua_setfield(l, elementsAPI, "SC_FAV");
-	lua_pushinteger(l, SC_FAV2);		lua_setfield(l, elementsAPI, "SC_FAV2");
-	lua_pushinteger(l, SC_HUD);			lua_setfield(l, elementsAPI, "SC_HUD");
-	lua_pushinteger(l, SC_CRACKER);		lua_setfield(l, elementsAPI, "SC_CRACKER");
+	SETCONST(l, SC_WALL);
+	SETCONST(l, SC_ELEC);
+	SETCONST(l, SC_POWERED);
+	SETCONST(l, SC_SENSOR);
+	SETCONST(l, SC_FORCE);
+	SETCONST(l, SC_EXPLOSIVE);
+	SETCONST(l, SC_GAS);
+	SETCONST(l, SC_LIQUID);
+	SETCONST(l, SC_POWDERS);
+	SETCONST(l, SC_SOLIDS);
+	SETCONST(l, SC_NUCLEAR);
+	SETCONST(l, SC_SPECIAL);
+	SETCONST(l, SC_LIFE);
+	SETCONST(l, SC_TOOL);
+	SETCONST(l, SC_DECO);
+	SETCONST(l, SC_FAV);
+	SETCONST(l, SC_FAV2);
+	SETCONST(l, SC_HUD);
+	SETCONST(l, SC_CRACKER);
 
 	//Element identifiers
 	for(i = 0; i < PT_NUM; i++)

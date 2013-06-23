@@ -3,6 +3,11 @@
 
 #include <luaconsole.h>
 
+// idea from mniip, makes things much simpler 
+#define SETCONST(L, NAME)\
+	lua_pushinteger(L, NAME);\
+	lua_setfield(L, -2, #NAME);
+
 void initSimulationAPI(lua_State * l);
 int simulation_partNeighbours(lua_State * l);
 int simulation_partChangeType(lua_State * l);
