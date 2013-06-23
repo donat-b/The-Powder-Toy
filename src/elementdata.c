@@ -27,7 +27,7 @@
 part_type ptypes[PT_NUM] =
 {
 	//Name		Colour				Advec	Airdrag			Airloss	Loss	Collid	Grav	Diffus	Hotair			Fal	Burn	Exp	Mel	Hrd M	Use	Weight	Section			H						Ins		Description
-	{"",		PIXPACK(0x000000),	0.0f,	0.00f * CFDS,	1.00f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	1,	1,	1,	100,	SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	251,	"Erases particles.", ST_NONE, 0, NULL, NULL},
+	{"",		PIXPACK(0x000000),	0.0f,	0.00f * CFDS,	1.00f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	1,	1,	1,	100,	SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	0,		"Erases particles.", ST_NONE, 0, NULL, NULL},
 	{"DUST",	PIXPACK(0xFFE0A0),	0.7f,	0.02f * CFDS,	0.96f,	0.80f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	1,	10,		0,	0,	30,	1,	1,	85,		SC_POWDERS,		R_TEMP+0.0f	+273.15f,	70,		"Very light dust. Flammable.", ST_SOLID, TYPE_PART, NULL, NULL},
 	{"WATR",	PIXPACK(0x2030D0),	0.6f,	0.01f * CFDS,	0.98f,	0.95f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	2,	0,		0,	0,	20,	1,	1,	30,		SC_LIQUID,		R_TEMP-2.0f	+273.15f,	29,		"Conducts electricity, freezes, and extinguishes fires.", ST_LIQUID, TYPE_LIQUID|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_NEUTPASS, &update_WATR, NULL},
 	{"OIL",		PIXPACK(0x404010),	0.6f,	0.01f * CFDS,	0.98f,	0.95f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	2,	20,		0,	0,	5,	1,	1,	20,		SC_LIQUID,		R_TEMP+0.0f	+273.15f,	42,		"Flammable, turns into GAS at low pressure or high temperature. Can be formed with NEUT and NITR.", ST_LIQUID, TYPE_LIQUID|PROP_NEUTPASS, NULL, NULL},
@@ -198,7 +198,7 @@ part_type ptypes[PT_NUM] =
 	{"PSTN",	PIXPACK(0xAA9999),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_FORCE,		R_TEMP+0.0f +273.15f,	0,		"Piston, extends and pushes particles.", ST_SOLID, TYPE_SOLID, &update_PSTN, &graphics_PSTN},
 	{"FRME",	PIXPACK(0x999988),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	0,	1,	1,	100,	SC_FORCE,		R_TEMP+0.0f +273.15f,	0,		"Frame, can be used with pistons to push many particles.", ST_SOLID, TYPE_SOLID|PROP_LIFE_DEC, NULL, &graphics_FRME},
 	{"GOLD",	PIXPACK(0xDCAD2C),	0.0f,	0.00f * CFDS,	0.90f,  0.00f,  0.0f,	0.0f,	0.00f,  0.000f	* CFDS, 0,	0,		0,	1,	0,	1,	1,	100,	SC_SOLIDS,		R_TEMP+273.15f,			251,	"Corrosion resistant metal, will reverse corrosion of iron.", ST_SOLID, TYPE_SOLID|PROP_CONDUCTS|PROP_HOT_GLOW|PROP_LIFE_DEC|PROP_NEUTPASS, &update_GOLD, &graphics_GOLD},
-	{"TUGN",	PIXPACK(0x505050),	0.0f,	0.00f * CFDS,	0.90f,  0.00f,  0.0f,	0.0f,	0.00f,  0.000f	* CFDS, 0,	0,		0,	1,	1,	1,	1,	100,	SC_ELEC,		R_TEMP+273.15f,			251,	"Tungsten. Brittle metal with a very high melting point.", ST_SOLID, TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC, &update_TUGN, &graphics_TUGN},
+	{"TUNG",	PIXPACK(0x505050),	0.0f,	0.00f * CFDS,	0.90f,  0.00f,  0.0f,	0.0f,	0.00f,  0.000f	* CFDS, 0,	0,		0,	1,	1,	1,	1,	100,	SC_ELEC,		R_TEMP+273.15f,			251,	"Tungsten. Brittle metal with a very high melting point.", ST_SOLID, TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC, &update_TUNG, &graphics_TUNG},
 	{"PSNS",	PIXPACK(0xDB2020),	0.0f,	0.00f * CFDS,	0.96f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	1,	1,	1,	100,	SC_SENSOR,		277.15f,				0,		"Pressure sensor, creates a spark when the pressure is greater than its temperature.", ST_SOLID, TYPE_SOLID, &update_PSNS, NULL},
 	//Mod elements past this point
 	{"BALL",	PIXPACK(0x0010A0),	0.4f,	0.004f * CFDS,	0.92f,	0.80f,	0.00f,	0.1f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	30,	1,	1,	85,		SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	70,		"Moving solid. Acts like a bouncy ball.", ST_NONE, TYPE_PART|PROP_MOVS, NULL, NULL},
@@ -450,7 +450,7 @@ part_transition ptransitions[PT_NUM] =
 	/* PSTN */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* FRME */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* GOLD */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			1337.0f,PT_LAVA},
-	/* TUGN */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+	/* TUNG */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* PSNS */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	// Mod elements past this point
 	/* BALL */ {-25.0f,	PT_NONE,	25.0f,	PT_NONE,	ITL,	NT,			ITH,	NT},
@@ -649,7 +649,7 @@ unsigned int platent[PT_NUM] =
 	/* PSTN */ 0,
 	/* FRME */ 0,
 	/* GOLD */ 0,
-	/* TUGN */ 0,
+	/* TUNG */ 0,
 	/* PSNS */ 0,
 	// Mod elements past this point
 	/* BALL */ 0,

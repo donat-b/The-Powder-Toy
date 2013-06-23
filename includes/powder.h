@@ -408,7 +408,7 @@ int graphics_VIBR(GRAPHICS_FUNC_ARGS);
 int graphics_PSTN(GRAPHICS_FUNC_ARGS);
 int graphics_FRME(GRAPHICS_FUNC_ARGS);
 int graphics_GOLD(GRAPHICS_FUNC_ARGS);
-int graphics_TUGN(GRAPHICS_FUNC_ARGS);
+int graphics_TUNG(GRAPHICS_FUNC_ARGS);
 
 void TRON_init_graphics();
 
@@ -534,7 +534,7 @@ int update_THRM(UPDATE_FUNC_ARGS);
 int update_TSNS(UPDATE_FUNC_ARGS);
 int update_TRON(UPDATE_FUNC_ARGS);
 int update_TTAN(UPDATE_FUNC_ARGS);
-int update_TUGN(UPDATE_FUNC_ARGS);
+int update_TUNG(UPDATE_FUNC_ARGS);
 int update_URAN(UPDATE_FUNC_ARGS);
 int update_VIBR(UPDATE_FUNC_ARGS);
 int update_VINE(UPDATE_FUNC_ARGS);

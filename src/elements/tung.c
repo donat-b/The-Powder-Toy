@@ -16,7 +16,7 @@
 #include <element.h>
 #define MELTING_POINT	3695.0
 
-int update_TUGN(UPDATE_FUNC_ARGS)
+int update_TUNG(UPDATE_FUNC_ARGS)
 {
 	bool splode = false;
 	if(parts[i].temp > 2400.0)
@@ -69,7 +69,7 @@ int update_TUGN(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-int graphics_TUGN(GRAPHICS_FUNC_ARGS)
+int graphics_TUNG(GRAPHICS_FUNC_ARGS)
 {
 	double startTemp = (MELTING_POINT - 1500.0);
 	double tempOver = (((cpart->temp - startTemp)/1500.0)*M_PI) - (M_PI/2.0);
