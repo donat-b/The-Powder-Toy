@@ -6525,14 +6525,15 @@ int execute_submit(pixel *vid_buf, char *id, char *message)
 	int status;
 	char *result;
 
-	if (strlen(svf_session_key))
+	if (1)//strlen(svf_session_key))
 	{
 		char * postNames[] = { "Comment", NULL };
 		char * postDatas[] = { message };
 		int postLengths[] = { strlen(message) };
 		int dataLength;
 		char *url = (char*)malloc(sizeof(message)+sizeof(id) + 128);
-		sprintf(url, "http://%s/Browse/Comments.json?ID=%s&Key=%s", SERVER, id, svf_session_key);
+		//sprintf(url, "http://%s/Browse/Comments.json?ID=%s&Key=%s", SERVER, id, svf_session_key);
+		sprintf(url, "http://%s/Browse/Comments.json?ID=%s", SERVER, id);
 		result = http_multipart_post(url, postNames, postDatas, postLengths, svf_user_id, NULL, svf_session_id, &status, &dataLength);
 
 		if (status!=200)
