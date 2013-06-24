@@ -3729,7 +3729,10 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 						tab_save(tab_num);
 						load_data = (void*)tab_load(i, &load_size);
 						if (load_data)
+						{
 							parse_save(load_data, load_size, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+							ctrlzSnapshot();
+						}
 						tab_num = i;
 					}
 					else
@@ -5796,6 +5799,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					svf_filename[0] = 0;
 					svf_fileopen = 0;
 					retval = 1;
+					ctrlzSnapshot();
 					break;
 				} else {
 					queue_open = 0;
@@ -7930,6 +7934,7 @@ void catalogue_ui(pixel * vid_buf)
 								svf_last = data;
 								data = NULL;
 								svf_lsize = size;
+								ctrlzSnapshot();
 								goto openfin;
 							} else {
 								error_ui(vid_buf, 0, "Save data corrupt");

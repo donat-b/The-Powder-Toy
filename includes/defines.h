@@ -349,4 +349,5 @@ void sdl_seticon(void);
 void play_sound(char *file);
 int set_scale(int scale, int kiosk);
 void dump_frame(pixel *src, int w, int h, int pitch);
+void ctrlzSnapshot();
 #endif

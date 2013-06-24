@@ -912,6 +912,28 @@ void SigHandler(int signal)
 	}
 }
 
+void ctrlzSnapshot()
+{
+	int cbx, cby, cbi;
+
+	for (cbi=0; cbi<NPART; cbi++)
+		cb_parts[cbi] = parts[cbi];
+
+	for (cby = 0; cby<YRES; cby++)
+		for (cbx = 0; cbx<XRES; cbx++)
+			cb_pmap[cby][cbx] = pmap[cby][cbx];
+
+	for (cby = 0; cby<(YRES/CELL); cby++)
+		for (cbx = 0; cbx<(XRES/CELL); cbx++)
+		{
+			cb_vx[cby][cbx] = vx[cby][cbx];
+			cb_vy[cby][cbx] = vy[cby][cbx];
+			cb_pv[cby][cbx] = pv[cby][cbx];
+			cb_hv[cby][cbx] = hv[cby][cbx];
+			cb_bmap[cby][cbx] = bmap[cby][cbx];
+			cb_emap[cby][cbx] = emap[cby][cbx];
+		}
+}
 int main(int argc, char *argv[])
 {
 	pixel *part_vbuf; //Extra video buffer
@@ -2432,6 +2454,7 @@ int main(int argc, char *argv[])
 			if (bq==1 && !b)
 			{
 				parse_save(load_data, load_size, 0, load_x, load_y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+				ctrlzSnapshot();
 				free(load_data);
 				load_data = NULL;
 				free(load_img);
@@ -2675,7 +2698,10 @@ int main(int argc, char *argv[])
 					if (x>=19 && x<=35 && svf_last && !bq) {
 						//int tpval = sys_pause;
 						if (b == 1 || !strncmp(svf_id,"",8))
+						{
 							parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+							ctrlzSnapshot();
+						}
 						else
 							open_ui(vid_buf, svf_id, NULL, 0);
 						//sys_pause = tpval;
@@ -2909,25 +2935,7 @@ int main(int argc, char *argv[])
 					else //normal click, spawn element
 					{
 						//Copy state before drawing any particles (for undo)
-						int cbx, cby, cbi;
-
-						for (cbi=0; cbi<NPART; cbi++)
-							cb_parts[cbi] = parts[cbi];
-
-						for (cby = 0; cby<YRES; cby++)
-							for (cbx = 0; cbx<XRES; cbx++)
-								cb_pmap[cby][cbx] = pmap[cby][cbx];
-
-						for (cby = 0; cby<(YRES/CELL); cby++)
-							for (cbx = 0; cbx<(XRES/CELL); cbx++)
-							{
-								cb_vx[cby][cbx] = vx[cby][cbx];
-								cb_vy[cby][cbx] = vy[cby][cbx];
-								cb_pv[cby][cbx] = pv[cby][cbx];
-								cb_hv[cby][cbx] = hv[cby][cbx];
-								cb_bmap[cby][cbx] = bmap[cby][cbx];
-								cb_emap[cby][cbx] = emap[cby][cbx];
-							}
+						ctrlzSnapshot();
 
 						//get tool strength, shift (or ctrl+shift) makes it faster and ctrl makes it slower
 						if (sdl_mod & KMOD_SHIFT)
