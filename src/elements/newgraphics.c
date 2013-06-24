@@ -234,16 +234,16 @@ int graphics_BIZR(GRAPHICS_FUNC_ARGS) //BIZR, BIZRG, BIZRS
 	}
 	for (x=0; x<12; x++)
 		*colg += (cpart->ctype >> (x+9))  & 1;
-	x = 624/(*colr+*colg+*colb+1);
-	*colr *= x;
-	*colg *= x;
-	*colb *= x;
+	x = *colr+*colg+*colb+1;
+	*colr = *colr*624/x;
+	*colg = *colg*624/x;
+	*colb = *colb*624/x;
 	if(fabs(cpart->vx)+fabs(cpart->vy)>0)
 	{
 		*firea = 255;
-		*fireg = (int)(*colg/5 * fabs(cpart->vx)+fabs(cpart->vy));
-		*fireb = (int)(*colb/5 * fabs(cpart->vx)+fabs(cpart->vy));
-		*firer = (int)(*colr/5 * fabs(cpart->vx)+fabs(cpart->vy));
+		*firer = (int)(*colr/5 * (fabs(cpart->vx)+fabs(cpart->vy)));
+		*fireg = (int)(*colg/5 * (fabs(cpart->vx)+fabs(cpart->vy)));
+		*fireb = (int)(*colb/5 * (fabs(cpart->vx)+fabs(cpart->vy)));
 		*pixel_mode |= FIRE_ADD;
 	}
 	return 0;
