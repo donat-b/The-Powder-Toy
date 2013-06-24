@@ -1062,8 +1062,8 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	bson_append_start_object(&b, "origin");
 	bson_append_int(&b, "majorVersion", SAVE_VERSION);
 	bson_append_int(&b, "minorVersion", MINOR_VERSION);
-	bson_append_int(&b, "buildNum", MINOR_VERSION);
-	bson_append_int(&b, "snapshotId", MINOR_VERSION);
+	bson_append_int(&b, "buildNum", BUILD_NUM);
+	bson_append_int(&b, "snapshotId", 0);
 #ifdef BETA
 	bson_append_string(&b, "releaseType", "B");
 #else
