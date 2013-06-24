@@ -2255,7 +2255,17 @@ void login_ui(pixel *vid_buf)
 				{
 					tmpobj = cJSON_GetObjectItem(root, "Error");
 					if (tmpobj && tmpobj->type == cJSON_String)
-						error_ui(vid_buf, 0, tmpobj->valuestring);
+					{
+						char * banstring = strstr(tmpobj->valuestring, ". Ban expire in");
+						if (banstring) //TODO: temporary, remove this when the ban message is fixed
+						{
+							char banreason[256] = "Account banned. Login at http://powdertoy.co.uk in order to see the full ban reason. Ban expires";
+							strappend(banreason, strstr(tmpobj->valuestring, " in"));
+							error_ui(vid_buf, 0, banreason);
+						}
+						else
+							error_ui(vid_buf, 0, tmpobj->valuestring);
+					}
 					else
 						error_ui(vid_buf, 0, "Could not read Error response");
 					if (data)
