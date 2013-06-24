@@ -325,7 +325,7 @@ part_transition ptransitions[PT_NUM] =
 	/* NTCT */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			1687.0f,PT_LAVA},
 	/* SAND */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			1973.0f,PT_LAVA},
 	/* GLAS */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			1973.0f,PT_LAVA},
-	/* PTCT */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			1414.0f,PT_LAVA},
+	/* PTCT */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			1687.0f,PT_LAVA},
 	/* BGLA */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			1973.0f,PT_LAVA},
 	/* THDR */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* PLSM */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
