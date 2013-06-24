@@ -1111,16 +1111,12 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 		if (pmap[y][x])
 		{
 			int drawOn = pmap[y][x]&0xFF;
-			if ((
-				(drawOn == PT_STOR && !(ptypes[t].properties&TYPE_SOLID)) ||
-				drawOn == PT_CONV ||
-				drawOn == PT_CRAY ||
-				((ptypes[pmap[y][x]&0xFF].properties&PROP_CLONE || (ptypes[pmap[y][x]&0xFF].properties&PROP_BREAKABLECLONE)) && (!(ptypes[pmap[y][x]&0xFF].properties&PROP_POWERED) || (t!=PT_PSCN && t!=PT_NSCN)))
-			)&&(
-				!(ptypes[t].properties&PROP_CLONE) &&
-				!(ptypes[t].properties&PROP_BREAKABLECLONE) &&
-				t != PT_STKM && t != PT_STKM2 && t != PT_STOR && t != PT_FIGH && t != PT_CRAY)
-			)
+			//If an element has the PROP_DRAWONCTYPE property, and the element being drawn to it does not have PROP_NOCTYPEDRAW (Also some special cases), set the element's ctype
+			if (((ptypes[drawOn].properties & PROP_DRAWONCTYPE) ||
+				 (drawOn == PT_STOR && !(ptypes[t].properties & TYPE_SOLID)) ||
+				 (drawOn == PT_PCLN && t != PT_PSCN && t != PT_NSCN) ||
+				 (drawOn == PT_PBCN && t != PT_PSCN && t != PT_NSCN))
+				&& (!(ptypes[t].properties & PROP_NOCTYPEDRAW)))
 			{
 				parts[pmap[y][x]>>8].ctype = t;
 				if (t == PT_LIFE && v < NGOL && drawOn != PT_STOR)

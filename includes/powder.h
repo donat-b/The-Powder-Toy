@@ -284,30 +284,32 @@
 #define ST_LIQUID 2
 #define ST_GAS 3
 
-#define TYPE_PART			0x00001 //1 Powders
-#define TYPE_LIQUID			0x00002 //2 Liquids
-#define TYPE_SOLID			0x00004 //4 Solids
-#define TYPE_GAS			0x00008 //8 Gases (Includes plasma)
-#define TYPE_ENERGY			0x00010 //16 Energy (Thunder, Light, Neutrons etc.)
-#define PROP_CONDUCTS		0x00020 //32 Conducts electricity
-#define PROP_BLACK			0x00040 //64 Absorbs Photons (not currently implemented or used, a photwl attribute might be better)
-#define PROP_NEUTPENETRATE	0x00080 //128 Penetrated by neutrons
-#define PROP_NEUTABSORB		0x00100 //256 Absorbs neutrons, reflect is default
-#define PROP_NEUTPASS		0x00200 //512 Neutrons pass through, such as with glass
-#define PROP_DEADLY			0x00400 //1024 Is deadly for stickman
-#define PROP_HOT_GLOW		0x00800 //2048 Hot Metal Glow
-#define PROP_LIFE			0x01000 //4096 Is a GoL type
-#define PROP_RADIOACTIVE	0x02000 //8192 Radioactive
-#define PROP_LIFE_DEC		0x04000 //2^14 Life decreases by one every frame if > zero
-#define PROP_LIFE_KILL		0x08000 //2^15 Kill when life value is <= zero
-#define PROP_LIFE_KILL_DEC	0x10000 //2^16 Kill when life value is decremented to <= zero
-#define PROP_INDESTRUCTIBLE	0x20000//2^17 Makes elements invincible, even to bomb/dest
-#define PROP_CLONE			0x40000//2^18 Makes elements clone things that touch it
-#define PROP_BREAKABLECLONE	0x80000//2^19 Makes breakable elements clone things that touch it
-#define PROP_POWERED		0x100000//2^20 Makes an element turn on/off with PSCN/NSCN
-#define PROP_SPARKSETTLE	0x200000//2^21 Allow Sparks/Embers to settle
-#define PROP_NOAMBHEAT      0x400000 //2^23 Don't transfer or receive heat from ambient heat.
-#define PROP_MOVS			0x800000 //2^24 Moving solids!
+#define TYPE_PART			0x0000001 //1 Powders
+#define TYPE_LIQUID			0x0000002 //2 Liquids
+#define TYPE_SOLID			0x0000004 //4 Solids
+#define TYPE_GAS			0x0000008 //8 Gases (Includes plasma)
+#define TYPE_ENERGY			0x0000010 //16 Energy (Thunder, Light, Neutrons etc.)
+#define PROP_CONDUCTS		0x0000020 //32 Conducts electricity
+#define PROP_BLACK			0x0000040 //64 Absorbs Photons (not currently implemented or used, a photwl attribute might be better)
+#define PROP_NEUTPENETRATE	0x0000080 //128 Penetrated by neutrons
+#define PROP_NEUTABSORB		0x0000100 //256 Absorbs neutrons, reflect is default
+#define PROP_NEUTPASS		0x0000200 //512 Neutrons pass through, such as with glass
+#define PROP_DEADLY			0x0000400 //1024 Is deadly for stickman
+#define PROP_HOT_GLOW		0x0000800 //2048 Hot Metal Glow
+#define PROP_LIFE			0x0001000 //4096 Is a GoL type
+#define PROP_RADIOACTIVE	0x0002000 //8192 Radioactive
+#define PROP_LIFE_DEC		0x0004000 //2^14 Life decreases by one every frame if > zero
+#define PROP_LIFE_KILL		0x0008000 //2^15 Kill when life value is <= zero
+#define PROP_LIFE_KILL_DEC	0x0010000 //2^16 Kill when life value is decremented to <= zero
+#define PROP_INDESTRUCTIBLE	0x0020000 //2^17 Makes elements invincible, even to bomb/dest
+#define PROP_CLONE			0x0040000 //2^18 Makes elements clone things that touch it
+#define PROP_BREAKABLECLONE	0x0080000 //2^19 Makes breakable elements clone things that touch it
+#define PROP_POWERED		0x0100000 //2^20 Makes an element turn on/off with PSCN/NSCN
+#define PROP_SPARKSETTLE	0x0200000 //2^21 Allow Sparks/Embers to settle
+#define PROP_NOAMBHEAT      0x0400000 //2^23 Don't transfer or receive heat from ambient heat.
+#define PROP_MOVS			0x0800000 //2^24 Moving solids!
+#define PROP_DRAWONCTYPE	0x1000000 //2^25 Set its ctype to another element if the element is drawn upon it (like what CLNE does)
+#define PROP_NOCTYPEDRAW	0x2000000 // 2^26 When this element is drawn upon with, do not set ctype (like BCLN for CLNE) 
 
 #define FLAG_STAGNANT	0x1
 #define FLAG_SKIPMOVE	0x2 // Skip movement for one frame
