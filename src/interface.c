@@ -1045,18 +1045,23 @@ void ui_radio_process(int mx, int my, int mb, int mbq, ui_checkbox *ed)
 void ui_copytext_draw(pixel *vid_buf, ui_copytext *ed)
 {
 	int g = 180, i = 0;
-	if (!ed->state) {
-		if (ed->hover) {
+	if (!ed->state)
+	{
+		if (ed->hover)
 			i = 0;
-		} else {
+		else
 			i = 100;
-		}
 		g = 255;
-		drawtext(vid_buf, (ed->x+(ed->width/2))-(textwidth("Click the box to copy the text")/2), ed->y-12, "Click the box to copy the text", 255, 255, 255, 255-i);
-	} else {
+		drawtext(vid_buf, (ed->x+(ed->width/2))-(textwidth("Click the box below to copy the save ID")/2), ed->y-12, "Click the box below to copy the save ID", 255, 255, 255, 255-i);
+	}
+	else
+	{
 		i = 0;
+		if (ed->state == 2)
+			g = 230;
+		else
+			g = 190;
 		drawtext(vid_buf, (ed->x+(ed->width/2))-(textwidth("Copied!")/2), ed->y-12, "Copied!", 255, 255, 255, 255-i);
-		g = 190;
 	}
 
 	drawrect(vid_buf, ed->x, ed->y, ed->width, ed->height, g, 255, g, 255-i);
@@ -1066,15 +1071,20 @@ void ui_copytext_draw(pixel *vid_buf, ui_copytext *ed)
 
 void ui_copytext_process(int mx, int my, int mb, int mbq, ui_copytext *ed)
 {
-	if (my>=ed->y && my<=ed->y+ed->height && mx>=ed->x && mx<=ed->x+ed->width && !ed->state) {
-		if (mb && !mbq) {
+	if (my>=ed->y && my<=ed->y+ed->height && mx>=ed->x && mx<=ed->x+ed->width)
+	{
+		if (mb && !mbq)
+		{
 			clipboard_push_text(ed->text);
-			ed->state = 1;
+			ed->state = 2;
 		}
 		ed->hover = 1;
-	} else {
-		ed->hover = 0;
 	}
+	else
+		ed->hover = 0;
+
+	if (ed->state == 2 && !(mb && ed->hover))
+		ed->state = 1;
 }
 
 void ui_richtext_draw(pixel *vid_buf, ui_richtext *ed)
