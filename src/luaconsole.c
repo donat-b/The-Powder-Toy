@@ -2983,6 +2983,8 @@ int luatpt_load_stamp(lua_State* l)
 		lua_pushinteger(l, 1);
 	else
 		lua_pushnil(l);
+	if (load_data)
+		free(load_data);
 	return 1;
 }
 

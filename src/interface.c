@@ -85,6 +85,7 @@ int svf_fileopen = 0;
 char svf_id[16] = "";
 char svf_name[64] = "";
 char svf_description[255] = "";
+char svf_author[64] = "";
 char svf_tags[256] = "";
 void *svf_last = NULL;
 int svf_lsize;
@@ -2762,6 +2763,7 @@ int save_name_ui(pixel *vid_buf)
 			strncpy(svf_name, ed.str, 63);
 			svf_name[63] = 0;
 			strncpy(svf_description, ed2.str, 254);
+			strncpy(svf_author, svf_user, 63);
 			svf_description[254] = 0;
 			if (nd)
 			{
@@ -3742,6 +3744,11 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 						{
 							parse_save(load_data, load_size, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 							ctrlzSnapshot();
+							if (!svf_last) //only free if reload button isn't active
+							{
+								free(load_data);
+								load_data = NULL;
+							}
 						}
 						tab_num = i;
 					}
@@ -5798,6 +5805,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					strcpy(svf_id, save_id);
 					strcpy(svf_name, info->name);
 					strcpy(svf_description, info->description);
+					strncpy(svf_author, info->author, 63);
 					if (info->tags)
 					{
 						strncpy(svf_tags, info->tags, 255);
@@ -5824,6 +5832,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					svf_id[0] = 0;
 					svf_name[0] = 0;
 					svf_description[0] = 0;
+					svf_author[0] = 0;
 					svf_tags[0] = 0;
 					if (svf_last)
 						free(svf_last);
@@ -7939,6 +7948,7 @@ void catalogue_ui(pixel * vid_buf)
 								svf_id[0] = 0;
 								svf_name[0] = 0;
 								svf_description[0] = 0;
+								svf_author[0] = 0;
 								svf_tags[0] = 0;
 								if (svf_last)
 									free(svf_last);

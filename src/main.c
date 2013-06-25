@@ -560,7 +560,7 @@ void tab_save(int num)
 	char fn[64];
 	void *s;
 	save_as = 3;
-	s = build_save(&n, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, 1);
+	s = build_save(&n, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, 2);
 	save_as = oldsave_as;
 	if (!s)
 		return;
@@ -1212,13 +1212,22 @@ int main(int argc, char *argv[])
 	load_data = (void*)tab_load(1, &load_size);
 	if (load_data)
 	{
-		char name[30];
+		char name[30], fn[64];
 		sprintf(name,"tabs%s1.stm",PATH_SEP);
 		remove(name);
 		parse_save(load_data, load_size, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-		for (i = 2; i <= 9 && tab_load(i, &load_size); i++)
+		for (i = 2; i <= 9; i++)
 		{
-			num_tabs++;
+			sprintf(fn, "tabs" PATH_SEP "%d.stm", i);
+			if (file_exists(fn))
+				num_tabs++;
+			else
+				break;
+		}
+		if (!svf_last) //only free if reload button isn't active
+		{
+			free(load_data);
+			load_data = NULL;
 		}
 	}
 
@@ -1387,6 +1396,7 @@ int main(int argc, char *argv[])
 			svf_name[0] = 0;
 			svf_tags[0] = 0;
 			svf_description[0] = 0;
+			svf_author[0] = 0;
 			gravityMode = 0;
 			airMode = 0;
 			
@@ -1626,11 +1636,17 @@ int main(int argc, char *argv[])
 			{
 				if ((sdl_mod & (KMOD_SHIFT)) && load_mode != 1)
 				{
-					void *load_data=NULL;
 					int load_size;
-					load_data = (void*)tab_load(tab_num, &load_size);
+					void *load_data = (void*)tab_load(tab_num, &load_size);
 					if (load_data)
+					{
 						parse_save(load_data, load_size, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+						if (!svf_last) //only free if reload button isn't active
+						{
+							free(load_data);
+							load_data = NULL;
+						}
+					}
 				}
 				else if ((sdl_mod & (KMOD_CTRL)) && load_mode != 1)
 				{
@@ -2620,8 +2636,11 @@ int main(int argc, char *argv[])
 						svf_name[0] = 0;
 						svf_tags[0] = 0;
 						svf_description[0] = 0;
+						svf_author[0] = 0;
 						gravityMode = 0;
 						airMode = 0;
+						if (svf_last)
+							free(svf_last);
 						svf_last = NULL;
 						svf_lsize = 0;
 					}

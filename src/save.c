@@ -1151,6 +1151,22 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 		}
 		bson_append_finish_array(&b);
 	}
+	if (tab == 2)
+	{
+		bson_append_start_object(&b, "saveInfo");
+		bson_append_int(&b, "saveOpened", svf_open);
+		bson_append_int(&b, "fileOpened", svf_fileopen);
+		bson_append_string(&b, "saveName", svf_name);
+		bson_append_string(&b, "fileName", svf_filename);
+		bson_append_int(&b, "published", svf_publish);
+		bson_append_int(&b, "modSave", svf_modsave);
+		bson_append_string(&b, "ID", svf_id);
+		bson_append_string(&b, "description", svf_description);
+		bson_append_string(&b, "author", svf_author);
+		bson_append_string_n(&b, "tags", svf_tags, 256);
+		bson_append_int(&b, "myVote", svf_myvote);
+		bson_append_finish_object(&b);
+	}
 	bson_finish(&b);
 	bson_print(&b);
 	
@@ -1505,7 +1521,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		/*else if((strcmp(bson_iterator_key(&iter), "leftSelectedElement")==0 || strcmp(bson_iterator_key(&iter), "rightSelectedElement")==0) && replace)
+		else if((strcmp(bson_iterator_key(&iter), "leftSelectedElement")==0 || strcmp(bson_iterator_key(&iter), "rightSelectedElement")==0) && replace == 2)
 		{
 			if(bson_iterator_type(&iter)==BSON_INT && bson_iterator_int(&iter) > 0 && bson_iterator_int(&iter) < PT_NUM)
 			{
@@ -1522,8 +1538,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			{
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
-		}*/
-		/*else if(strcmp(bson_iterator_key(&iter), "activeMenu")==0 && replace)
+		}
+		else if(strcmp(bson_iterator_key(&iter), "activeMenu")==0 && replace == 2)
 		{
 			if(bson_iterator_type(&iter)==BSON_INT && bson_iterator_int(&iter) >= 0 && ((bson_iterator_int(&iter) < SC_TOTAL && msections[bson_iterator_int(&iter)].doshow) || replace == 2))
 			{
@@ -1533,7 +1549,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			{
 				fprintf(stderr, "Wrong value for %s\n", bson_iterator_key(&iter));
 			}
-		}*/
+		}
 		else if(strcmp(bson_iterator_key(&iter), "numballs")==0)
 		{
 			if(bson_iterator_type(&iter)==BSON_INT)
@@ -1591,7 +1607,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		/*else if(strcmp(bson_iterator_key(&iter), "render_mode")==0 && replace)
+		else if(strcmp(bson_iterator_key(&iter), "render_mode")==0 && replace == 2)
 		{
 			if(bson_iterator_type(&iter)==BSON_INT)
 			{
@@ -1602,7 +1618,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if(strcmp(bson_iterator_key(&iter), "display_mode")==0 && replace)
+		else if(strcmp(bson_iterator_key(&iter), "display_mode")==0 && replace == 2)
 		{
 			if(bson_iterator_type(&iter)==BSON_INT)
 			{
@@ -1613,7 +1629,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if(strcmp(bson_iterator_key(&iter), "color_mode")==0 && replace)
+		else if(strcmp(bson_iterator_key(&iter), "color_mode")==0 && replace == 2)
 		{
 			if(bson_iterator_type(&iter)==BSON_INT)
 			{
@@ -1623,7 +1639,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			{
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
-		}*/
+		}
 		else if(strcmp(bson_iterator_key(&iter), "Jacob1's_Mod")==0)
 		{
 			if(bson_iterator_type(&iter)==BSON_INT)
@@ -1631,7 +1647,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				char modver[32];
 				mod_save = modsave = bson_iterator_int(&iter);
 				sprintf(modver, "Made in jacob1's mod version %d", modsave);
-				if (!strcmp(svf_user,"jacob1") && replace)
+				if (!strcmp(svf_user,"jacob1") && replace == 1)
 					info_ui(vid_buf,"Mod",modver);
 			}
 			else
@@ -1639,7 +1655,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		/*else if(strcmp(bson_iterator_key(&iter), "edgeMode")==0 && replace)
+		else if(strcmp(bson_iterator_key(&iter), "edgeMode")==0 && replace == 2)
 		{
 			if(bson_iterator_type(&iter)==BSON_INT)
 			{
@@ -1649,7 +1665,52 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			{
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
-		}*/
+		}
+		else if(!strcmp(bson_iterator_key(&iter), "saveInfo") && replace == 2)
+		{
+			if(bson_iterator_type(&iter)==BSON_OBJECT)
+			{
+				bson_iterator saveInfoiter;
+				bson_iterator_subiterator(&iter, &saveInfoiter);
+				while(bson_iterator_next(&saveInfoiter))
+				{
+					if(!strcmp(bson_iterator_key(&saveInfoiter), "saveOpened") && bson_iterator_type(&saveInfoiter) == BSON_INT)
+						svf_open = bson_iterator_int(&saveInfoiter);
+					else if(!strcmp(bson_iterator_key(&saveInfoiter), "fileOpened") && bson_iterator_type(&saveInfoiter) == BSON_INT)
+						svf_fileopen = bson_iterator_int(&saveInfoiter);
+					else if(!strcmp(bson_iterator_key(&saveInfoiter), "saveName") && bson_iterator_type(&saveInfoiter) == BSON_STRING)
+						strncpy(svf_name, bson_iterator_string(&saveInfoiter), 63);
+					else if(!strcmp(bson_iterator_key(&saveInfoiter), "fileName") && bson_iterator_type(&saveInfoiter) == BSON_STRING)
+						strncpy(svf_filename, bson_iterator_string(&saveInfoiter), 254);
+					else if(!strcmp(bson_iterator_key(&saveInfoiter), "published") && bson_iterator_type(&saveInfoiter) == BSON_INT)
+						svf_publish = bson_iterator_int(&saveInfoiter);
+					else if(!strcmp(bson_iterator_key(&saveInfoiter), "modSave") && bson_iterator_type(&saveInfoiter) == BSON_INT)
+						svf_modsave = bson_iterator_int(&saveInfoiter);
+					else if(!strcmp(bson_iterator_key(&saveInfoiter), "ID") && bson_iterator_type(&saveInfoiter) == BSON_STRING)
+						strncpy(svf_id, bson_iterator_string(&saveInfoiter), 15);
+					else if(!strcmp(bson_iterator_key(&saveInfoiter), "description") && bson_iterator_type(&saveInfoiter) == BSON_STRING)
+						strncpy(svf_description, bson_iterator_string(&saveInfoiter), 254);
+					else if(!strcmp(bson_iterator_key(&saveInfoiter), "author") && bson_iterator_type(&saveInfoiter) == BSON_STRING)
+						strncpy(svf_author, bson_iterator_string(&saveInfoiter), 254);
+					else if(!strcmp(bson_iterator_key(&saveInfoiter), "tags") && bson_iterator_type(&saveInfoiter) == BSON_STRING)
+						strncpy(svf_tags, bson_iterator_string(&saveInfoiter), 255);
+					else if(!strcmp(bson_iterator_key(&saveInfoiter), "myVote") && bson_iterator_type(&saveInfoiter) == BSON_INT)
+						svf_myvote = bson_iterator_int(&saveInfoiter);
+					else
+						fprintf(stderr, "Unknown save info property %s\n", bson_iterator_key(&saveInfoiter));
+				}
+				svf_own = svf_login && !strcmp(svf_author, svf_user);
+				svf_publish = svf_publish && svf_login && !strcmp(svf_author, svf_user);
+				if (svf_last)
+					free(svf_last);
+				svf_last = save;
+				svf_lsize = size;
+			}
+			else
+			{
+				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
+			}
+		}
 	}
 	
 	//Read wall and fan data

@@ -522,6 +522,7 @@ keyboard
 
 
 Bugs:
+tpt.moving_solid broken (also make moving solids not make bhol)
 wall id's don't match with tpt++ in lua
 clear sim can be clicked too high, y=404
 //None (at least that I know of)
@@ -533,6 +534,7 @@ Future Ideas/TODO: '>' means currently being worked on/added next
 changes from tpt++: SPRK, LIGH, LCRY, VIBR, all others
 make open ui more colorful like tpt++, also fix cut off description in save uploading ui
 make buttons look clicked when pressed, moving mouse away will not do clicks, like tpt++?
+loading circle in save browser?
 >Add things from tpt++ that look cool, and any new simulation changes it gets
 
 
