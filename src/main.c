@@ -559,6 +559,7 @@ void tab_save(int num)
 	int n, oldsave_as = save_as;
 	char fn[64];
 	void *s;
+	pixel *thumb;
 	save_as = 3;
 	s = build_save(&n, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, 2);
 	save_as = oldsave_as;
@@ -580,6 +581,18 @@ void tab_save(int num)
 	fclose(f);
 
 	free(s);
+
+	if (strlen(svf_name))
+		sprintf(tabnames[num-1], "%s", svf_name);
+	else if (strlen(svf_filename))
+		sprintf(tabnames[num-1], "%s", svf_filename);
+	else
+		sprintf(tabnames[num-1], "Untitled Simulation %i", num);
+	
+	if (tabThumbnails[num-1])
+		free(tabThumbnails[num-1]);
+	fillrect(vid_buf, XRES, 0, BARSIZE, YRES/2, 0, 0, 0, 255);
+	tabThumbnails[num-1] = rescale_img(vid_buf, XRES+BARSIZE, YRES, &n, &n, 3);//resample_img_nn(vid_buf, XRES+BARSIZE, YRES, (XRES+BARSIZE)/3, YRES/3);
 }
 
 void *stamp_load(int i, int *size, int reorder)
@@ -1209,6 +1222,11 @@ int main(int argc, char *argv[])
 		luacon_log(autorun_result);
 	}
 #endif
+	for (i = 0; i < 10; i++)
+	{
+		sprintf(tabnames[i], "Untitled Simulation %i", i+1);
+		tabThumbnails[i] = NULL;
+	}
 	load_data = (void*)tab_load(1, &load_size);
 	if (load_data)
 	{

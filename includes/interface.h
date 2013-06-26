@@ -22,26 +22,6 @@
 #endif
 #include "graphics.h"
 
-struct menu_section
-{
-	char *icon;
-	const char *name;
-	int itemcount;
-	int doshow;
-};
-typedef struct menu_section menu_section;
-
-#define QM_TOGGLE	1
-
-struct quick_option
-{
-	char *icon;
-	const char *name;
-	int type;
-	int *variable;
-};
-typedef struct quick_option quick_option;
-
 #define SC_WALL 0
 #define SC_ELEC 1
 #define SC_POWERED 2
@@ -62,6 +42,15 @@ typedef struct quick_option quick_option;
 #define SC_FAV2 17
 #define SC_HUD 18
 extern int SC_TOTAL;
+
+struct menu_section
+{
+	char *icon;
+	const char *name;
+	int itemcount;
+	int doshow;
+};
+typedef struct menu_section menu_section;
 
 static menu_section msections[] = //doshow does not do anything currently.
 {
@@ -86,6 +75,17 @@ static menu_section msections[] = //doshow does not do anything currently.
 	{"\xE2", "HUD", 0, 0}
 };
 
+#define QM_TOGGLE	1
+
+struct quick_option
+{
+	char *icon;
+	const char *name;
+	int type;
+	int *variable;
+};
+typedef struct quick_option quick_option;
+
 static quick_option quickmenu[] =
 {
 	{"T", "Show tabs", QM_TOGGLE, &show_tabs},
@@ -97,6 +97,9 @@ static quick_option quickmenu[] =
 	{"C", "Show Console", QM_TOGGLE, &console_mode},
 	{NULL}
 };
+
+extern char tabnames[10][255];
+extern pixel* tabThumbnails[10];
 
 struct menu_wall
 {

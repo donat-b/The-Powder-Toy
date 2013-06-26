@@ -1523,7 +1523,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		}
 		else if((strcmp(bson_iterator_key(&iter), "leftSelectedElement")==0 || strcmp(bson_iterator_key(&iter), "rightSelectedElement")==0) && replace == 2)
 		{
-			if(bson_iterator_type(&iter)==BSON_INT && bson_iterator_int(&iter) > 0 && bson_iterator_int(&iter) < PT_NUM)
+			if(bson_iterator_type(&iter)==BSON_INT && bson_iterator_int(&iter) > 0)
 			{
 				if(bson_iterator_key(&iter)[0] == 'l')
 				{

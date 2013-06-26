@@ -3640,14 +3640,11 @@ void menu_select_element(int b, int h)
 int quickoptions_tooltip_fade = 0;
 char * quickoptions_tooltip;
 int quickoptions_tooltip_y = 0;
+char tabnames[10][255];
+pixel* tabThumbnails[10];
 void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 {
 	int i = 0;
-	if(quickoptions_tooltip_fade && quickoptions_tooltip)
-	{
-		drawtext_outline(vid_buf, (XRES - 5) - textwidth(quickoptions_tooltip), quickoptions_tooltip_y, quickoptions_tooltip, 255, 255, 255, quickoptions_tooltip_fade*20, 0, 0, 0, quickoptions_tooltip_fade*15);
-		quickoptions_tooltip_fade--;
-	}
 	if (!show_tabs && !(sdl_mod & KMOD_CTRL))
 	{
 		while(quickmenu[i].icon!=NULL)
@@ -3667,7 +3664,9 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 				}
 				if(x >= (XRES+BARSIZE)-16 && x <= (XRES+BARSIZE)-2 && y >= (i*16)+1 && y <= (i*16)+15)
 				{
-					quickoptions_tooltip_fade+=2;
+					quickoptions_tooltip_fade += 2;
+					if(quickoptions_tooltip_fade > 12)
+						quickoptions_tooltip_fade = 12;
 					quickoptions_tooltip = (char*)quickmenu[i].name;
 					quickoptions_tooltip_y = (i*16)+5;
 					if(b && !bq)
@@ -3716,15 +3715,36 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 			}
 			if(x >= (XRES+BARSIZE)-16 && x <= (XRES+BARSIZE)-2 && y >= (i*16)+1 && y <= (i*16)+15)
 			{
-				quickoptions_tooltip_fade+=2;
+				quickoptions_tooltip_fade += 2;
+				if(quickoptions_tooltip_fade > 12)
+					quickoptions_tooltip_fade = 12;
 				if (i == 0)
 					quickoptions_tooltip = (char*)quickmenu[i].name;
 				else if (i == num_tabs + 1)
 					quickoptions_tooltip = "Add tab";
+				else if (tab_num == i)
+				{
+					if (strlen(svf_name))
+						quickoptions_tooltip = svf_name;
+					else if (strlen(svf_filename))
+						quickoptions_tooltip = svf_filename;
+					else
+						quickoptions_tooltip = "Untitled Simulation";
+				}
 				else
-					quickoptions_tooltip = "";
+				{
+					if (!b || bq)
+					{
+						quickoptions_tooltip = tabnames[i-1];
+
+						drawrect(vid_buf, (XRES+BARSIZE)/3-1, YRES/3-1, (XRES+BARSIZE)/3+2, YRES/3+1, 0, 0, 255, quickoptions_tooltip_fade*21);
+						draw_image(vid_buf, tabThumbnails[i-1], (XRES+BARSIZE)/3, YRES/3, (XRES+BARSIZE)/3+1, YRES/3, quickoptions_tooltip_fade*21);
+					}
+					else
+						quickoptions_tooltip = "";
+				}
 				quickoptions_tooltip_y = (i*16)+5;
-				if(b && !bq)
+				if (b && !bq)
 				{
 					if (i == 0)
 						*(quickmenu[i].variable) = !(*(quickmenu[i].variable));
@@ -3760,10 +3780,11 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 			i++;
 		}
 	}
-	if(quickoptions_tooltip_fade > 12)
-		quickoptions_tooltip_fade = 12;
-	if(quickoptions_tooltip_fade < 0)
-		quickoptions_tooltip_fade = 0;
+	if(quickoptions_tooltip_fade && quickoptions_tooltip)
+	{
+		drawtext_outline(vid_buf, (XRES - 5) - textwidth(quickoptions_tooltip), quickoptions_tooltip_y, quickoptions_tooltip, 255, 255, 255, quickoptions_tooltip_fade*20, 0, 0, 0, quickoptions_tooltip_fade*15);
+		quickoptions_tooltip_fade--;
+	}
 }
 
 int FPSwait = 0, fastquit = 0;
