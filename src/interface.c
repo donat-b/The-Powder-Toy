@@ -3731,7 +3731,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 					else if (strlen(svf_filename))
 						quickoptions_tooltip = svf_filename;
 					else
-						quickoptions_tooltip = "Untitled Simulation";
+						quickoptions_tooltip = "Untitled Simulation (current)";
 				}
 				else
 				{
@@ -3740,8 +3740,11 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 					{
 						quickoptions_tooltip = tabnames[i-1];
 
-						drawrect(vid_buf, (XRES+BARSIZE)/3-1, YRES/3-1, (XRES+BARSIZE)/3+2, YRES/3+1, 0, 0, 255, quickoptions_tooltip_fade*21);
-						draw_image(vid_buf, tabThumbnails[i-1], (XRES+BARSIZE)/3, YRES/3, (XRES+BARSIZE)/3+1, YRES/3, quickoptions_tooltip_fade*21);
+						if (tabThumbnails[i-1])
+						{
+							drawrect(vid_buf, (XRES+BARSIZE)/3-1, YRES/3-1, (XRES+BARSIZE)/3+2, YRES/3+1, 0, 0, 255, quickoptions_tooltip_fade*21);
+							draw_image(vid_buf, tabThumbnails[i-1], (XRES+BARSIZE)/3, YRES/3, (XRES+BARSIZE)/3+1, YRES/3, quickoptions_tooltip_fade*21);
+						}
 					}
 					else
 						quickoptions_tooltip = "";
@@ -3815,9 +3818,43 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 				{
 				}
 			}
-			else if (bq == 4)
+			else if (bq == 4 && overQuickoption > 0 && overQuickoption <= num_tabs && num_tabs > 1)
 			{
-
+				char name[30], newname[30];
+				sprintf(name, "tabs%s%d.stm", PATH_SEP, overQuickoption);
+				remove(name);
+				free(tabThumbnails[overQuickoption-1]);
+				tabThumbnails[overQuickoption-1] = NULL;
+				for (i = overQuickoption; i < num_tabs; i++)
+				{
+					sprintf(name, "tabs%s%d.stm", PATH_SEP, i+1);
+					sprintf(newname, "tabs%s%d.stm", PATH_SEP, i);
+					rename(name, newname);
+					strncpy(tabnames[i-1], tabnames[i], 254);
+					tabThumbnails[i-1] = tabThumbnails[i];
+				}
+				num_tabs--;
+				tabThumbnails[num_tabs] = NULL;
+				if (overQuickoption == tab_num) // if you deleted current tab, load the new one.
+				{
+					int load_size;
+					void *load_data;
+					if (tab_num > 1)
+						tab_num--;
+					load_data = (void*)tab_load(tab_num, &load_size);
+					if (load_data)
+					{
+						parse_save(load_data, load_size, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+						ctrlzSnapshot();
+						if (!svf_last) //only free if reload button isn't active
+						{
+							free(load_data);
+							load_data = NULL;
+						}
+					}
+				}
+				else if (tab_num > overQuickoption)
+					tab_num--;
 			}
 		}
 	}
