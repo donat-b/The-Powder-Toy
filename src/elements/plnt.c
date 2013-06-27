@@ -40,7 +40,7 @@ int update_PLNT(UPDATE_FUNC_ARGS) {
 					kill_part(r>>8);
 					parts[i].life = rand()%60 + 60;
 				}
-				else if (surround_space && ((r&0xFF)==PT_WOOD) && !(rand()%4) && (abs(rx+ry)<=2) && (VINE_MODE || parts[i].tmp==1) )
+				else if (surround_space && ((r&0xFF)==PT_WOOD) && !(rand()%4) && (abs(rx+ry)<=2) && parts[i].tmp==1)
 				{
 					int nnx = rand()%3 -1;
 					int nny = rand()%3 -1;

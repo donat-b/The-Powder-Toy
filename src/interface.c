@@ -3642,9 +3642,11 @@ char * quickoptions_tooltip;
 int quickoptions_tooltip_y = 0;
 char tabnames[10][255];
 pixel* tabThumbnails[10];
+int overQuickoption = -1;
 void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 {
 	int i = 0;
+	char isOverQuickoption = 0;
 	if (!show_tabs && !(sdl_mod & KMOD_CTRL))
 	{
 		while(quickmenu[i].icon!=NULL)
@@ -3652,7 +3654,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 			if(quickmenu[i].type == QM_TOGGLE)
 			{
 				drawrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+1, 14, 14, 255, 255, 255, 255);
-				if(*(quickmenu[i].variable))
+				if(*(quickmenu[i].variable) || overQuickoption == i)
 				{
 					fillrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+1, 14, 14, 255, 255, 255, 255);
 					drawtext(vid_buf, (XRES+BARSIZE)-11, (i*16)+5, quickmenu[i].icon, 0, 0, 0, 255);
@@ -3669,17 +3671,16 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 						quickoptions_tooltip_fade = 12;
 					quickoptions_tooltip = (char*)quickmenu[i].name;
 					quickoptions_tooltip_y = (i*16)+5;
-					if(b && !bq)
+					if (b == 1 && !bq)
 					{
-						if (!strcmp(quickmenu[i].name,"Newtonian gravity"))
-						{
-							if(!ngrav_enable)
-								start_grav_async();
-							else
-								stop_grav_async();
-						}
-						else
-							*(quickmenu[i].variable) = !(*(quickmenu[i].variable));
+						if (overQuickoption == -1)
+							overQuickoption = i;
+						isOverQuickoption = 1;
+					}
+					else if (b == 1 || bq == 1)
+					{
+						if (overQuickoption == i)
+							isOverQuickoption = 1;
 					}
 				}
 			}
@@ -3718,6 +3719,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 				quickoptions_tooltip_fade += 2;
 				if(quickoptions_tooltip_fade > 12)
 					quickoptions_tooltip_fade = 12;
+
 				if (i == 0)
 					quickoptions_tooltip = (char*)quickmenu[i].name;
 				else if (i == num_tabs + 1)
@@ -3733,7 +3735,8 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 				}
 				else
 				{
-					if (!b || bq)
+					//don't draw image in middle if a tab preview is about to be saved
+					if (!(i > 0 && i <= num_tabs) || !(overQuickoption >= 0 && !b && bq))
 					{
 						quickoptions_tooltip = tabnames[i-1];
 
@@ -3746,40 +3749,79 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 				quickoptions_tooltip_y = (i*16)+5;
 				if (b && !bq)
 				{
-					if (i == 0)
-						*(quickmenu[i].variable) = !(*(quickmenu[i].variable));
-					else if (i == num_tabs + 1)
-					{
-						tab_save(tab_num);
-						num_tabs++;
-						tab_num = i;
-					}
-					else if (tab_num != i)
-					{
-						void *load_data=NULL;
-						int load_size;
-						tab_save(tab_num);
-						load_data = (void*)tab_load(i, &load_size);
-						if (load_data)
-						{
-							parse_save(load_data, load_size, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-							ctrlzSnapshot();
-							if (!svf_last) //only free if reload button isn't active
-							{
-								free(load_data);
-								load_data = NULL;
-							}
-						}
-						tab_num = i;
-					}
-					else
-					{
-					}
+					if (overQuickoption == -1)
+						overQuickoption = i;
+					isOverQuickoption = 1;
+				}
+				else if (b || bq)
+				{
+					if (overQuickoption == i)
+						isOverQuickoption = 1;
 				}
 			}
 			i++;
 		}
 	}
+	if (!isOverQuickoption)
+		overQuickoption = -1;
+	if (overQuickoption >= 0 && !b && bq)
+	{
+		if (!show_tabs && !(sdl_mod & KMOD_CTRL))
+		{
+			if (bq == 1)
+			{
+				if (!strcmp(quickmenu[overQuickoption].name,"Newtonian gravity"))
+				{
+					if(!ngrav_enable)
+						start_grav_async();
+					else
+						stop_grav_async();
+				}
+				else
+					*(quickmenu[overQuickoption].variable) = !(*(quickmenu[overQuickoption].variable));
+			}
+		}
+		else
+		{
+			if (bq == 1)
+			{
+				if (overQuickoption == 0)
+					*(quickmenu[overQuickoption].variable) = !(*(quickmenu[overQuickoption].variable));
+				else if (overQuickoption == num_tabs + 1)
+				{
+					tab_save(tab_num);
+					num_tabs++;
+					tab_num = overQuickoption;
+				}
+				else if (tab_num != overQuickoption)
+				{
+					void *load_data=NULL;
+					int load_size;
+					tab_save(tab_num);
+					load_data = (void*)tab_load(overQuickoption, &load_size);
+					if (load_data)
+					{
+						parse_save(load_data, load_size, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+						ctrlzSnapshot();
+						if (!svf_last) //only free if reload button isn't active
+						{
+							free(load_data);
+							load_data = NULL;
+						}
+					}
+					tab_num = overQuickoption;
+				}
+				else
+				{
+				}
+			}
+			else if (bq == 4)
+			{
+
+			}
+		}
+	}
+
 	if(quickoptions_tooltip_fade && quickoptions_tooltip)
 	{
 		drawtext_outline(vid_buf, (XRES - 5) - textwidth(quickoptions_tooltip), quickoptions_tooltip_y, quickoptions_tooltip, 255, 255, 255, quickoptions_tooltip_fade*20, 0, 0, 0, quickoptions_tooltip_fade*15);

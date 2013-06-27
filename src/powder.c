@@ -74,7 +74,6 @@ int ISLOLZ = 0;
 int ISGRAV = 0;
 int ISWIRE = 0;
 int ISANIM = 0;
-int VINE_MODE = 0;
 int ISSPAWN1 = 0;
 int ISSPAWN2 = 0;
 
