@@ -88,13 +88,13 @@ typedef struct quick_option quick_option;
 
 static quick_option quickmenu[] =
 {
-	{"T", "Show tabs", QM_TOGGLE, &show_tabs},
+	{"T", "Show tabs \bg(t)", QM_TOGGLE, &show_tabs},
+	{"G", "Draw gravity grid \bg(ctrl+g)", QM_TOGGLE, &drawgrav_enable},
+	{"D", "Show decorations \bg(ctrl+b)", QM_TOGGLE, &decorations_enable},
+	{"N", "Newtonian gravity \bg(n)", QM_TOGGLE, &ngrav_enable},
+	{"A", "Ambient heat \bg(u)", QM_TOGGLE, &aheat_enable},
 	{"P", "Sand effect", QM_TOGGLE, &pretty_powder},
-	{"G", "Draw gravity grid", QM_TOGGLE, &drawgrav_enable},
-	{"D", "Show decorations", QM_TOGGLE, &decorations_enable},
-	{"N", "Newtonian gravity", QM_TOGGLE, &ngrav_enable},
-	{"A", "Ambient heat", QM_TOGGLE, &aheat_enable},
-	{"C", "Show Console", QM_TOGGLE, &console_mode},
+	{"C", "Show Console \bg(~)", QM_TOGGLE, &console_mode},
 	{NULL}
 };
 

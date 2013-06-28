@@ -3725,7 +3725,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 				if (i == 0)
 					quickoptionsToolTip = (char*)quickmenu[i].name;
 				else if (i == num_tabs + 1)
-					quickoptionsToolTip = "Add tab";
+					quickoptionsToolTip = "Add tab \bg(ctrl+n)";
 				else if (tab_num == i)
 				{
 					if (strlen(svf_name))
@@ -3791,8 +3791,10 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 				else if (clickedQuickoption == num_tabs + 1)
 				{
 					tab_save(tab_num, 0);
-					tab_num = clickedQuickoption;
 					num_tabs++;
+					tab_num = num_tabs;
+					if (sdl_mod & KMOD_CTRL)
+						NewSim();
 					tab_save(tab_num, 1);
 				}
 				//load an different tab
@@ -3807,39 +3809,52 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 				{
 				}
 			}
-			else if (bq == 4 && clickedQuickoption > 0 && clickedQuickoption <= num_tabs && num_tabs > 1)
+			else if (bq == 4 && clickedQuickoption > 0 && clickedQuickoption <= num_tabs)
 			{
-				char name[30], newname[30];
-				//delete the tab that was closed, free thumbnail
-				sprintf(name, "tabs%s%d.stm", PATH_SEP, clickedQuickoption);
-				remove(name);
-				free(tabThumbnails[clickedQuickoption-1]);
-				tabThumbnails[clickedQuickoption-1] = NULL;
-
-				//rename all the tabs and move other variables around
-				for (i = clickedQuickoption; i < num_tabs; i++)
+				if (num_tabs > 1)
 				{
-					sprintf(name, "tabs%s%d.stm", PATH_SEP, i+1);
-					sprintf(newname, "tabs%s%d.stm", PATH_SEP, i);
-					rename(name, newname);
-					strncpy(tabNames[i-1], tabNames[i], 254);
-					tabThumbnails[i-1] = tabThumbnails[i];
-				}
+					char name[30], newname[30];
+					//delete the tab that was closed, free thumbnail
+					sprintf(name, "tabs%s%d.stm", PATH_SEP, clickedQuickoption);
+					remove(name);
+					free(tabThumbnails[clickedQuickoption-1]);
+					tabThumbnails[clickedQuickoption-1] = NULL;
 
-				num_tabs--;
-				tabThumbnails[num_tabs] = NULL;
-				if (tab_num >= clickedQuickoption && tab_num > 1)
-					tab_num--;
-				//if you deleted current tab, load the new one
-				if (clickedQuickoption == tab_num)
-					tab_load(tab_num);
+					//rename all the tabs and move other variables around
+					for (i = clickedQuickoption; i < num_tabs; i++)
+					{
+						sprintf(name, "tabs%s%d.stm", PATH_SEP, i+1);
+						sprintf(newname, "tabs%s%d.stm", PATH_SEP, i);
+						rename(name, newname);
+						strncpy(tabNames[i-1], tabNames[i], 254);
+						tabThumbnails[i-1] = tabThumbnails[i];
+					}
+
+					num_tabs--;
+					tabThumbnails[num_tabs] = NULL;
+					if (clickedQuickoption == tab_num)
+					{
+						if (tab_num > 1)
+							tab_num --;
+						//if you deleted current tab, load the new one
+						tab_load(tab_num);
+					}
+					else if (tab_num > clickedQuickoption && tab_num > 1)
+						tab_num--;
+				}
+				else
+				{
+					NewSim();
+					tab_save(tab_num, 1);
+				}
 			}
 		}
 	}
 
 	if (quickoptionsToolTipFade && quickoptionsToolTip)
 	{
-		drawtext_outline(vid_buf, (XRES - 5) - textwidth(quickoptionsToolTip), quickoptionsToolTipY, quickoptionsToolTip, 255, 255, 255, quickoptionsToolTipFade*20, 0, 0, 0, quickoptionsToolTipFade*15);
+		//drawtext_outline(vid_buf, (XRES - 5) - textwidth(quickoptionsToolTip), quickoptionsToolTipY, quickoptionsToolTip, 255, 255, 255, quickoptionsToolTipFade*20, 0, 0, 0, quickoptionsToolTipFade*15);
+		drawtext(vid_buf, (XRES - 5) - textwidth(quickoptionsToolTip), quickoptionsToolTipY, quickoptionsToolTip, 255, 255, 255, quickoptionsToolTipFade*20);
 		quickoptionsToolTipFade--;
 	}
 	if (quickoptionsThumbnailFade && tabThumbnails[hoverQuickoption-1])
@@ -8648,10 +8663,10 @@ void simulation_ui(pixel * vid_buf)
 		drawtext(vid_buf, x0+12+textwidth("Water Equalization Test"), y0+110, "Introduced in version 61.", 255, 255, 255, 180);
 		drawtext(vid_buf, x0+12, y0+124, "May lag with lots of water.", 255, 255, 255, 120);
 		
-		drawtext(vid_buf, x0+8, y0+138, "Air Simulation Mode", 255, 255, 255, 255);
+		drawtext(vid_buf, x0+8, y0+138, "Air Simulation Mode \bg(y)", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12, y0+152, "airMode", 255, 255, 255, 120);
 		
-		drawtext(vid_buf, x0+8, y0+166, "Gravity Simulation Mode", 255, 255, 255, 255);
+		drawtext(vid_buf, x0+8, y0+166, "Gravity Simulation Mode \bg(w)", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12, y0+180, "gravityMode", 255, 255, 255, 120);
 
 		drawtext(vid_buf, x0+8, y0+194, "Edge Mode", 255, 255, 255, 255);

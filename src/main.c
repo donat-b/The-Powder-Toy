@@ -357,7 +357,7 @@ void dump_frame(pixel *src, int w, int h, int pitch)
 	frame_idx++;
 }
 
-void clear_sim(void)
+void clear_sim()
 {
 	int i,x, y;
 	for (i=0; i<NPART; i++)
@@ -426,6 +426,30 @@ void clear_sim(void)
 	mod_save = MOD_SAVE_VERSION;
 	if(edgeMode == 1)
 		draw_bframe();
+}
+
+void NewSim()
+{
+	clear_sim();
+	legacy_enable = 0;
+	svf_filename[0] = 0;
+	svf_fileopen = 0;
+	svf_myvote = 0;
+	svf_open = 0;
+	svf_publish = 0;
+	svf_modsave = 0;
+	svf_own = 0;
+	svf_id[0] = 0;
+	svf_name[0] = 0;
+	svf_tags[0] = 0;
+	svf_description[0] = 0;
+	svf_author[0] = 0;
+	gravityMode = 0;
+	airMode = 0;
+	if (svf_last)
+		free(svf_last);
+	svf_last = NULL;
+	svf_lsize = 0;
 }
 
 // stamps library
@@ -1413,23 +1437,8 @@ int main(int argc, char *argv[])
 		if (saveDataOpen)
 		{
 			//Clear all settings and simulation data
-			clear_sim();
+			NewSim();
 			it=0;
-			legacy_enable = 0;
-			svf_filename[0] = 0;
-			svf_fileopen = 0;
-			svf_myvote = 0;
-			svf_open = 0;
-			svf_publish = 0;
-			svf_modsave = 0;
-			svf_own = 0;
-			svf_id[0] = 0;
-			svf_name[0] = 0;
-			svf_tags[0] = 0;
-			svf_description[0] = 0;
-			svf_author[0] = 0;
-			gravityMode = 0;
-			airMode = 0;
 			
 			svf_last = saveDataOpen;
 			svf_lsize = saveDataOpenSize;
@@ -1916,15 +1925,6 @@ int main(int argc, char *argv[])
 						GRID_MODE = (GRID_MODE+1)%10;
 				}
 			}
-			if (sdl_key=='m')
-			{
-				if(sl!=sr)
-				{
-					sl ^= sr;
-					sr ^= sl;
-					sl ^= sr;
-				}
-			}
 			if (sdl_key=='=')
 			{
 				int nx, ny;
@@ -2035,7 +2035,26 @@ int main(int argc, char *argv[])
 				}
 			}
 			if (sdl_key=='n')
-				pretty_powder = !pretty_powder;
+			{
+				if (sdl_mod & KMOD_CTRL)
+				{
+					if (num_tabs < 24-SC_TOTAL)
+					{
+						tab_save(tab_num, 0);
+						num_tabs++;
+						tab_num = num_tabs;
+						NewSim();
+						tab_save(tab_num, 1);
+					}
+				}
+				else
+				{
+					if(ngrav_enable)
+						stop_grav_async();
+					else
+						start_grav_async();
+				}
+			}
 			if (sdl_key=='p')
 				dump_frame(vid_buf, XRES, YRES, XRES+BARSIZE);
 			if (sdl_key=='v'&&(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)))
@@ -2638,31 +2657,11 @@ int main(int argc, char *argv[])
 					}
 					if (x>=(XRES+BARSIZE-(510-367)) && x<=(XRES+BARSIZE-(510-383)) && !bq)
 					{
-						clear_sim();
+						NewSim();
 						for (i=0; i<NPART-1; i++)
 							parts[i].life = i+1;
 						parts[NPART-1].life = -1;
 						pfree = 0;
-
-						legacy_enable = 0;
-						svf_filename[0] = 0;
-						svf_fileopen = 0;
-						svf_myvote = 0;
-						svf_open = 0;
-						svf_publish = 0;
-						svf_modsave = 0;
-						svf_own = 0;
-						svf_id[0] = 0;
-						svf_name[0] = 0;
-						svf_tags[0] = 0;
-						svf_description[0] = 0;
-						svf_author[0] = 0;
-						gravityMode = 0;
-						airMode = 0;
-						if (svf_last)
-							free(svf_last);
-						svf_last = NULL;
-						svf_lsize = 0;
 					}
 					if (x>=(XRES+BARSIZE-(510-385)) && x<=(XRES+BARSIZE-(510-476)))
 					{
@@ -3083,13 +3082,13 @@ int main(int argc, char *argv[])
 				drawtext(vid_buf, 16, YRES-24, "Find & open a simulation", 255, 255, 255, da*5);
 				break;
 			case 263:
-				drawtext(vid_buf, 16, YRES-24, "Pause the simulation", 255, 255, 255, da*5);
+				drawtext(vid_buf, 16, YRES-24, "Pause the simulation \bg(space)", 255, 255, 255, da*5);
 				break;
 			case 264:
-				drawtext(vid_buf, 16, YRES-24, "Resume the simulation", 255, 255, 255, da*5);
+				drawtext(vid_buf, 16, YRES-24, "Resume the simulation \bg(space)", 255, 255, 255, da*5);
 				break;
 			case 265:
-				drawtext(vid_buf, 16, YRES-24, "Reload the simulation", 255, 255, 255, da*5);
+				drawtext(vid_buf, 16, YRES-24, "Reload the simulation \bg(ctrl+r)", 255, 255, 255, da*5);
 				break;
 			case 266:
 				drawtext(vid_buf, 16, YRES-24, "Erase all particles and walls", 255, 255, 255, da*5);
@@ -3122,7 +3121,7 @@ int main(int argc, char *argv[])
 				drawtext(vid_buf, 16, YRES-24, "You cannot vote on your own save", 255, 255, 255, da*5);
 				break;
 			case 276:
-				drawtext(vid_buf, 16, YRES-24, "Open a simulation from your hard drive", 255, 255, 255, da*5);
+				drawtext(vid_buf, 16, YRES-24, "Open a simulation from your hard drive \bg(ctrl+o)", 255, 255, 255, da*5);
 				break;
 			case 277:
 				drawtext(vid_buf, 16, YRES-24, "Save the simulation to your hard drive", 255, 255, 255, da*5);
