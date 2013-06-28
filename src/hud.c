@@ -12,7 +12,7 @@ char tempstring[256] = "";
 char timeinfotext[512] = "";
 char infotext[512] = "";
 int wavelength_gfx = 0;
-int quickoptions_tooltip_fade_invert, it_invert = 0;
+int quickoptionsToolTipFadeInvert, it_invert = 0;
 
 int hud_modnormal[HUD_OPTIONS];
 int hud_moddebug[HUD_OPTIONS];
@@ -343,7 +343,7 @@ void draw_hud(int it)
 	int heatlength = textwidth(heattext);
 	int coordlength = textwidth(coordtext);
 	int heatx, heaty, alpha;
-	quickoptions_tooltip_fade_invert = 255 - (quickoptions_tooltip_fade*20);
+	quickoptionsToolTipFadeInvert = 255 - (quickoptionsToolTipFade*20);
 	it_invert = 50 - it;
 	if(it_invert < 0)
 		it_invert = 0;
@@ -367,7 +367,7 @@ void draw_hud(int it)
 	{
 		heatx = XRES-16-heatlength;
 		heaty = 16;
-		alpha = (int)(quickoptions_tooltip_fade_invert*0.5);
+		alpha = (int)(quickoptionsToolTipFadeInvert*0.5);
 	}
 	if (strlen(heattext) > 0)
 	{

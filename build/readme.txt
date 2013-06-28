@@ -531,15 +531,15 @@ clear sim can be clicked too high, y=404
 
 
 Future Ideas/TODO: '>' means currently being worked on/added next
-changes from tpt++: SPRK, LIGH, LCRY, VIBR, all others
+changes from tpt++: SPRK, LIGH, LCRY, all others
 make open ui more colorful like tpt++, also fix cut off description in save uploading ui
 make buttons look clicked when pressed, moving mouse away will not do clicks, like tpt++?
 loading circle in save browser?
 tabs save vx, vy
-closing last tab should clear_sim
-ctrl+n should start new save
-holding ctrl when making a tab should start a new save
-info on which keys do things in tooltips
+>>closing last tab should clear_sim
+>>ctrl+n should start new save
+>>holding ctrl when making a tab should start a new save
+>>info on which keys do things in tooltips
 >Add things from tpt++ that look cool, and any new simulation changes it gets
 
 

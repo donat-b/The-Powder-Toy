@@ -3637,16 +3637,16 @@ void menu_select_element(int b, int h)
 	}
 }
 
-int quickoptions_tooltip_fade = 0;
-char * quickoptions_tooltip;
-int quickoptions_tooltip_y = 0;
-char tabnames[10][255];
+char tabNames[10][255];
 pixel* tabThumbnails[10];
-int overQuickoption = -1;
+int quickoptionsToolTipFade = 0, quickoptionsThumbnailFade = 0;
+int clickedQuickoption = -1, hoverQuickoption = -1;
 void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 {
 	int i = 0;
-	char isOverQuickoption = 0;
+	char isQuickoptionClicked = 0, *quickoptionsToolTip = "";
+	int quickoptionsToolTipY = 0;
+	//normal quickoptions
 	if (!show_tabs && !(sdl_mod & KMOD_CTRL))
 	{
 		while(quickmenu[i].icon!=NULL)
@@ -3654,7 +3654,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 			if(quickmenu[i].type == QM_TOGGLE)
 			{
 				drawrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+1, 14, 14, 255, 255, 255, 255);
-				if(*(quickmenu[i].variable) || overQuickoption == i)
+				if(*(quickmenu[i].variable) || clickedQuickoption == i)
 				{
 					fillrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+1, 14, 14, 255, 255, 255, 255);
 					drawtext(vid_buf, (XRES+BARSIZE)-11, (i*16)+5, quickmenu[i].icon, 0, 0, 0, 255);
@@ -3666,27 +3666,29 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 				}
 				if(x >= (XRES+BARSIZE)-16 && x <= (XRES+BARSIZE)-2 && y >= (i*16)+1 && y <= (i*16)+15)
 				{
-					quickoptions_tooltip_fade += 2;
-					if(quickoptions_tooltip_fade > 12)
-						quickoptions_tooltip_fade = 12;
-					quickoptions_tooltip = (char*)quickmenu[i].name;
-					quickoptions_tooltip_y = (i*16)+5;
+					quickoptionsToolTipFade += 2;
+					if(quickoptionsToolTipFade > 12)
+						quickoptionsToolTipFade = 12;
+					quickoptionsToolTip = (char*)quickmenu[i].name;
+					quickoptionsToolTipY = (i*16)+5;
+
 					if (b == 1 && !bq)
 					{
-						if (overQuickoption == -1)
-							overQuickoption = i;
-						isOverQuickoption = 1;
+						if (clickedQuickoption == -1)
+							clickedQuickoption = i;
+						isQuickoptionClicked = 1;
 					}
 					else if (b == 1 || bq == 1)
 					{
-						if (overQuickoption == i)
-							isOverQuickoption = 1;
+						if (clickedQuickoption == i)
+							isQuickoptionClicked = 1;
 					}
 				}
 			}
 			i++;
 		}
 	}
+	//tab menu
 	else
 	{
 		while(i < num_tabs + 2 && i < 25-SC_TOTAL)
@@ -3716,64 +3718,58 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 			}
 			if(x >= (XRES+BARSIZE)-16 && x <= (XRES+BARSIZE)-2 && y >= (i*16)+1 && y <= (i*16)+15)
 			{
-				quickoptions_tooltip_fade += 2;
-				if(quickoptions_tooltip_fade > 12)
-					quickoptions_tooltip_fade = 12;
+				quickoptionsToolTipFade += 2;
+				if(quickoptionsToolTipFade > 12)
+					quickoptionsToolTipFade = 12;
 
 				if (i == 0)
-					quickoptions_tooltip = (char*)quickmenu[i].name;
+					quickoptionsToolTip = (char*)quickmenu[i].name;
 				else if (i == num_tabs + 1)
-					quickoptions_tooltip = "Add tab";
+					quickoptionsToolTip = "Add tab";
 				else if (tab_num == i)
 				{
 					if (strlen(svf_name))
-						quickoptions_tooltip = svf_name;
+						quickoptionsToolTip = svf_name;
 					else if (strlen(svf_filename))
-						quickoptions_tooltip = svf_filename;
+						quickoptionsToolTip = svf_filename;
 					else
-						quickoptions_tooltip = "Untitled Simulation (current)";
+						quickoptionsToolTip = "Untitled Simulation (current)";
 				}
 				else
-				{
-					//don't draw image in middle if a tab preview is about to be saved
-					if (!(i > 0 && i <= num_tabs) || !(overQuickoption >= 0 && !b && bq))
-					{
-						quickoptions_tooltip = tabnames[i-1];
+					quickoptionsToolTip = tabNames[i-1];
+				quickoptionsToolTipY = (i*16)+5;
 
-						if (tabThumbnails[i-1])
-						{
-							drawrect(vid_buf, (XRES+BARSIZE)/3-1, YRES/3-1, (XRES+BARSIZE)/3+2, YRES/3+1, 0, 0, 255, quickoptions_tooltip_fade*21);
-							draw_image(vid_buf, tabThumbnails[i-1], (XRES+BARSIZE)/3, YRES/3, (XRES+BARSIZE)/3+1, YRES/3, quickoptions_tooltip_fade*21);
-						}
-					}
-					else
-						quickoptions_tooltip = "";
+				if (i > 0 && i <= num_tabs && tab_num != i)
+				{
+					quickoptionsThumbnailFade += 2;
+					if (quickoptionsThumbnailFade > 12)
+						quickoptionsThumbnailFade = 12;
+					hoverQuickoption = i;
 				}
-				quickoptions_tooltip_y = (i*16)+5;
 				if (b && !bq)
 				{
-					if (overQuickoption == -1)
-						overQuickoption = i;
-					isOverQuickoption = 1;
+					if (clickedQuickoption == -1)
+						clickedQuickoption = i;
+					isQuickoptionClicked = 1;
 				}
 				else if (b || bq)
 				{
-					if (overQuickoption == i)
-						isOverQuickoption = 1;
+					if (clickedQuickoption == i)
+						isQuickoptionClicked = 1;
 				}
 			}
 			i++;
 		}
 	}
-	if (!isOverQuickoption)
-		overQuickoption = -1;
-	if (overQuickoption >= 0 && !b && bq)
+	if (!isQuickoptionClicked)
+		clickedQuickoption = -1;
+	if (clickedQuickoption >= 0 && !b && bq)
 	{
 		if (!show_tabs && !(sdl_mod & KMOD_CTRL))
 		{
 			if (bq == 1)
 			{
-				if (!strcmp(quickmenu[overQuickoption].name,"Newtonian gravity"))
+				if (!strcmp(quickmenu[clickedQuickoption].name,"Newtonian gravity"))
 				{
 					if(!ngrav_enable)
 						start_grav_async();
@@ -3781,88 +3777,76 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 						stop_grav_async();
 				}
 				else
-					*(quickmenu[overQuickoption].variable) = !(*(quickmenu[overQuickoption].variable));
+					*(quickmenu[clickedQuickoption].variable) = !(*(quickmenu[clickedQuickoption].variable));
 			}
 		}
 		else
 		{
 			if (bq == 1)
 			{
-				if (overQuickoption == 0)
-					*(quickmenu[overQuickoption].variable) = !(*(quickmenu[overQuickoption].variable));
-				else if (overQuickoption == num_tabs + 1)
+				//toggle show_tabs
+				if (clickedQuickoption == 0)
+					*(quickmenu[clickedQuickoption].variable) = !(*(quickmenu[clickedQuickoption].variable));
+				//start a new tab
+				else if (clickedQuickoption == num_tabs + 1)
 				{
-					tab_save(tab_num);
+					tab_save(tab_num, 0);
+					tab_num = clickedQuickoption;
 					num_tabs++;
-					tab_num = overQuickoption;
+					tab_save(tab_num, 1);
 				}
-				else if (tab_num != overQuickoption)
+				//load an different tab
+				else if (tab_num != clickedQuickoption)
 				{
-					void *load_data=NULL;
-					int load_size;
-					tab_save(tab_num);
-					load_data = (void*)tab_load(overQuickoption, &load_size);
-					if (load_data)
-					{
-						parse_save(load_data, load_size, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-						ctrlzSnapshot();
-						if (!svf_last) //only free if reload button isn't active
-						{
-							free(load_data);
-							load_data = NULL;
-						}
-					}
-					tab_num = overQuickoption;
+					tab_save(tab_num, 0);
+					tab_load(clickedQuickoption);
+					tab_num = clickedQuickoption;
 				}
+				//click current tab, do nothing
 				else
 				{
 				}
 			}
-			else if (bq == 4 && overQuickoption > 0 && overQuickoption <= num_tabs && num_tabs > 1)
+			else if (bq == 4 && clickedQuickoption > 0 && clickedQuickoption <= num_tabs && num_tabs > 1)
 			{
 				char name[30], newname[30];
-				sprintf(name, "tabs%s%d.stm", PATH_SEP, overQuickoption);
+				//delete the tab that was closed, free thumbnail
+				sprintf(name, "tabs%s%d.stm", PATH_SEP, clickedQuickoption);
 				remove(name);
-				free(tabThumbnails[overQuickoption-1]);
-				tabThumbnails[overQuickoption-1] = NULL;
-				for (i = overQuickoption; i < num_tabs; i++)
+				free(tabThumbnails[clickedQuickoption-1]);
+				tabThumbnails[clickedQuickoption-1] = NULL;
+
+				//rename all the tabs and move other variables around
+				for (i = clickedQuickoption; i < num_tabs; i++)
 				{
 					sprintf(name, "tabs%s%d.stm", PATH_SEP, i+1);
 					sprintf(newname, "tabs%s%d.stm", PATH_SEP, i);
 					rename(name, newname);
-					strncpy(tabnames[i-1], tabnames[i], 254);
+					strncpy(tabNames[i-1], tabNames[i], 254);
 					tabThumbnails[i-1] = tabThumbnails[i];
 				}
+
 				num_tabs--;
 				tabThumbnails[num_tabs] = NULL;
-				if (overQuickoption == tab_num) // if you deleted current tab, load the new one.
-				{
-					int load_size;
-					void *load_data;
-					if (tab_num > 1)
-						tab_num--;
-					load_data = (void*)tab_load(tab_num, &load_size);
-					if (load_data)
-					{
-						parse_save(load_data, load_size, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-						ctrlzSnapshot();
-						if (!svf_last) //only free if reload button isn't active
-						{
-							free(load_data);
-							load_data = NULL;
-						}
-					}
-				}
-				else if (tab_num > overQuickoption)
+				if (tab_num >= clickedQuickoption && tab_num > 1)
 					tab_num--;
+				//if you deleted current tab, load the new one
+				if (clickedQuickoption == tab_num)
+					tab_load(tab_num);
 			}
 		}
 	}
 
-	if(quickoptions_tooltip_fade && quickoptions_tooltip)
+	if (quickoptionsToolTipFade && quickoptionsToolTip)
 	{
-		drawtext_outline(vid_buf, (XRES - 5) - textwidth(quickoptions_tooltip), quickoptions_tooltip_y, quickoptions_tooltip, 255, 255, 255, quickoptions_tooltip_fade*20, 0, 0, 0, quickoptions_tooltip_fade*15);
-		quickoptions_tooltip_fade--;
+		drawtext_outline(vid_buf, (XRES - 5) - textwidth(quickoptionsToolTip), quickoptionsToolTipY, quickoptionsToolTip, 255, 255, 255, quickoptionsToolTipFade*20, 0, 0, 0, quickoptionsToolTipFade*15);
+		quickoptionsToolTipFade--;
+	}
+	if (quickoptionsThumbnailFade && tabThumbnails[hoverQuickoption-1])
+	{
+		drawrect(vid_buf, (XRES+BARSIZE)/3-1, YRES/3-1, (XRES+BARSIZE)/3+2, YRES/3+1, 0, 0, 255, quickoptionsThumbnailFade*21);
+		draw_image(vid_buf, tabThumbnails[hoverQuickoption-1], (XRES+BARSIZE)/3, YRES/3, (XRES+BARSIZE)/3+1, YRES/3, quickoptionsThumbnailFade*21);
+		quickoptionsThumbnailFade--;
 	}
 }
 

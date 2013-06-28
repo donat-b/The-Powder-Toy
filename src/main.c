@@ -553,17 +553,19 @@ char* stamp_save(int x, int y, int w, int h)
 	return mystrdup(sn);
 }
 
-void tab_save(int num)
+void tab_save(int num, char reloadButton)
 {
 	FILE *f;
-	int n, oldsave_as = save_as;
-	char fn[64];
-	void *s;
+	int fileSize, oldsave_as = save_as;
+	char fileName[64];
+	void *saveData;
 	pixel *thumb;
+
+	//build the tab
 	save_as = 3;
-	s = build_save(&n, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, 2);
+	saveData = build_save(&fileSize, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, 2);
 	save_as = oldsave_as;
-	if (!s)
+	if (!saveData)
 		return;
 
 #ifdef WIN32
@@ -572,27 +574,38 @@ void tab_save(int num)
 	mkdir("tabs", 0755);
 #endif
 
-	sprintf(fn, "tabs" PATH_SEP "%d.stm", num);
-
-	f = fopen(fn, "wb");
+	//save the tab
+	sprintf(fileName, "tabs" PATH_SEP "%d.stm", num);
+	f = fopen(fileName, "wb");
 	if (!f)
 		return;
-	fwrite(s, n, 1, f);
+	fwrite(saveData, fileSize, 1, f);
 	fclose(f);
 
-	free(s);
-
-	if (strlen(svf_name))
-		sprintf(tabnames[num-1], "%s", svf_name);
-	else if (strlen(svf_filename))
-		sprintf(tabnames[num-1], "%s", svf_filename);
+	if (!reloadButton)
+		free(saveData);
 	else
-		sprintf(tabnames[num-1], "Untitled Simulation %i", num);
+	{
+		if (svf_last)
+			free(svf_last);
+		svf_last = saveData;
+		svf_lsize = fileSize;
+	}
+
+	//set the tab's name
+	if (strlen(svf_name))
+		sprintf(tabNames[num-1], "%s", svf_name);
+	else if (strlen(svf_filename))
+		sprintf(tabNames[num-1], "%s", svf_filename);
+	else
+		sprintf(tabNames[num-1], "Untitled Simulation %i", num);
 	
+	//set the tab's thumbnail
 	if (tabThumbnails[num-1])
 		free(tabThumbnails[num-1]);
+	//the fillrect is to cover up the quickoptions so they aren't in the thumbnail. the &filesize is just a dummy int variable that's unused
 	fillrect(vid_buf, XRES, 0, BARSIZE, YRES/2, 0, 0, 0, 255);
-	tabThumbnails[num-1] = rescale_img(vid_buf, XRES+BARSIZE, YRES, &n, &n, 3);//resample_img_nn(vid_buf, XRES+BARSIZE, YRES, (XRES+BARSIZE)/3, YRES/3);
+	tabThumbnails[num-1] = rescale_img(vid_buf, XRES+BARSIZE, YRES, &fileSize, &fileSize, 3);
 }
 
 void *stamp_load(int i, int *size, int reorder)
@@ -621,17 +634,26 @@ void *stamp_load(int i, int *size, int reorder)
 	return data;
 }
 
-void *tab_load(int i, int *size)
+int tab_load(int tabNum)
 {
-	void *data;
-	char fn[64];
+	void *saveData;
+	int saveSize;
+	char fileName[64];
 
-	sprintf(fn, "tabs" PATH_SEP "%d.stm", i);
-	data = file_load(fn, size);
-	if (!data)
-		return NULL;
-
-	return data;
+	sprintf(fileName, "tabs" PATH_SEP "%d.stm", tabNum);
+	saveData = file_load(fileName, &saveSize);
+	if (saveData)
+	{
+		parse_save(saveData, saveSize, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+		ctrlzSnapshot();
+		if (!svf_last) //only free if reload button isn't active
+		{
+			free(saveData);
+			saveData = NULL;
+		}
+		return 1;
+	}
+	return 0;
 }
 
 void stamp_init(void)
@@ -890,7 +912,7 @@ void BlueScreen(char * detailMessage)
 			{
 				char *exename;
 				sys_pause = 1;
-				tab_save(1);
+				tab_save(1, 0);
 				exename = exe_name();
 				if (exename)
 				{
@@ -1224,16 +1246,12 @@ int main(int argc, char *argv[])
 #endif
 	for (i = 0; i < 10; i++)
 	{
-		sprintf(tabnames[i], "Untitled Simulation %i", i+1);
+		sprintf(tabNames[i], "Untitled Simulation %i", i+1);
 		tabThumbnails[i] = NULL;
 	}
-	load_data = (void*)tab_load(1, &load_size);
-	if (load_data)
+	if (tab_load(1))
 	{
-		char name[30], fn[64];
-		sprintf(name,"tabs%s1.stm",PATH_SEP);
-		remove(name);
-		parse_save(load_data, load_size, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+		char fn[64];
 		for (i = 2; i <= 9; i++)
 		{
 			sprintf(fn, "tabs" PATH_SEP "%d.stm", i);
@@ -1241,11 +1259,6 @@ int main(int argc, char *argv[])
 				num_tabs++;
 			else
 				break;
-		}
-		if (!svf_last) //only free if reload button isn't active
-		{
-			free(load_data);
-			load_data = NULL;
 		}
 	}
 
@@ -1640,33 +1653,22 @@ int main(int argc, char *argv[])
 					}
 				}
 			}
-			if (sdl_key=='s' && (((sdl_mod & (KMOD_CTRL)) || !player2.spwn) || ((sdl_mod & (KMOD_LCTRL)) && player2.spwn)))
+			if (sdl_key=='s')
 			{
-				if (it > 50)
-					it = 50;
-				save_mode = 1;
-			}
-			if (sdl_key=='s' && (sdl_mod & (KMOD_CTRL)) && ((sdl_mod & (KMOD_RCTRL)) || !player2.spwn))
-			{
-				tab_save(tab_num);
+				//if stkm2 is out, you must be holding right ctrl, else just either ctrl
+				if ((player2.spwn && (sdl_mod&KMOD_RCTRL)) || (!player2.spwn && (sdl_mod&KMOD_CTRL)))
+					tab_save(tab_num, 1);
+				//if stkm2 is out, you must be holding left ctrl, else not be holding ctrl at all
+				else if ((player2.spwn && (sdl_mod&KMOD_LCTRL)) || (!player2.spwn && !(sdl_mod&KMOD_CTRL)))
+				{
+					if (it > 50)
+						it = 50;
+					save_mode = 1;
+				}
 			}
 			if (sdl_key=='r') 
 			{
-				if ((sdl_mod & (KMOD_SHIFT)) && load_mode != 1)
-				{
-					int load_size;
-					void *load_data = (void*)tab_load(tab_num, &load_size);
-					if (load_data)
-					{
-						parse_save(load_data, load_size, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-						if (!svf_last) //only free if reload button isn't active
-						{
-							free(load_data);
-							load_data = NULL;
-						}
-					}
-				}
-				else if ((sdl_mod & (KMOD_CTRL)) && load_mode != 1)
+				if ((sdl_mod & (KMOD_CTRL)) && load_mode != 1)
 				{
 					if (strncmp(svf_id,"",8))
 						parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
@@ -3187,7 +3189,7 @@ int main(int argc, char *argv[])
 
 		if (autosave > 0 && frames%autosave == 0)
 		{
-			tab_save(1);
+			tab_save(1, 0);
 		}
 		if (hud_enable)
 		{

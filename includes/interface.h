@@ -98,7 +98,7 @@ static quick_option quickmenu[] =
 	{NULL}
 };
 
-extern char tabnames[10][255];
+extern char tabNames[10][255];
 extern pixel* tabThumbnails[10];
 
 struct menu_wall
