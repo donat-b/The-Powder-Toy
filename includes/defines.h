@@ -322,6 +322,8 @@ extern int stamp_count;
 extern int itc;
 extern char itc_msg[128];
 
+extern int ptsaveOpenID;
+extern int saveURIOpen;
 extern int do_open;
 extern int sys_pause;
 extern int sys_shortcuts;

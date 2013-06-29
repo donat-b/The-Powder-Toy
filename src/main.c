@@ -203,6 +203,7 @@ static const char *old_ver_msg = "A new version is available - click here!";
 char new_message_msg[255];
 float mheat = 0.0f;
 
+int ptsaveOpenID = 0;
 int saveURIOpen = 0;
 char * saveDataOpen = NULL;
 int saveDataOpenSize = 0;
@@ -936,7 +937,7 @@ void BlueScreen(char * detailMessage)
 			{
 				char *exename;
 				sys_pause = 1;
-				tab_save(1, 0);
+				tab_save(tab_num, 0);
 				exename = exe_name();
 				if (exename)
 				{
@@ -1011,10 +1012,12 @@ int main(int argc, char *argv[])
 	int username_flash = 0, username_flash_t = 1;
 	int saveOpenError = 0;
 	int benchmark_enable = 0;
+
 #ifdef PTW32_STATIC_LIB
 	pthread_win32_process_attach_np();
 	pthread_win32_thread_attach_np();
 #endif
+
 	limitFPS = 60;
 	vid_buf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	part_vbuf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE); //Extra video buffer
@@ -1148,7 +1151,7 @@ int main(int argc, char *argv[])
 		}
 		else if (!strncmp(argv[i], "ptsave", 7) && i+1<argc)
 		{
-			int ci = 0, ns = 0, okay = 0;
+			int ci = 0, ns = 0, okay = 0, newprocess = 1;
 			char * tempString = argv[i+1];
 			int tempStringLength = strlen(argv[i+1])-7;
 			int tempSaveID = 0;
@@ -1157,7 +1160,9 @@ int main(int argc, char *argv[])
 			i++;
 			tempNumberString[31] = 0;
 			tempNumberString[0] = 0;
-			if(!strncmp(tempString, "ptsave:", 7) && tempStringLength)
+			if (!strncmp(tempString, "noopen:", 7))
+				newprocess = 0;
+			if ((!strncmp(tempString, "ptsave:", 7) && tempStringLength) || !newprocess)
 			{
 				puts("ptsave:// protocol");
 				tempString+=7;
@@ -1191,6 +1196,18 @@ int main(int argc, char *argv[])
 			}
 			if(tempSaveID > 0)
 			{
+#ifdef WIN32
+				if (newprocess)
+				{
+					HWND modWindow = FindWindow(NULL, "Jacob1's Mod");
+					if (modWindow)
+					{
+						//tell the already open window to open the save instead
+						SendMessage(modWindow, WM_USER+614, (WPARAM)NULL, (LPARAM)tempSaveID);
+						exit(0);
+					}
+				}
+#endif
 				puts("Got ptsave:id");
 				saveURIOpen = tempSaveID;
 				it = 0;
@@ -1566,6 +1583,29 @@ int main(int argc, char *argv[])
 			sprintf(saveURIOpenString, "%d", saveURIOpen);
 			open_ui(vid_buf, saveURIOpenString, NULL, 0);
 			saveURIOpen = 0;
+		}
+		if (ptsaveOpenID)
+		{
+			if (num_tabs < 24-SC_TOTAL)
+			{
+				char ptsaveOpenString[512];
+				int oldTabNum = tab_num;
+				tab_save(tab_num, 0);
+				num_tabs++;
+				tab_num = num_tabs;
+				NewSim();
+				sprintf(ptsaveOpenString, "%d", ptsaveOpenID);
+
+				//if they didn't open it, don't make the new tab
+				if (!open_ui(vid_buf, ptsaveOpenString, NULL, 0))
+				{
+					num_tabs--;
+					tab_num = oldTabNum;
+					tab_load(oldTabNum);
+				}
+				tab_save(tab_num, 1);
+			}
+			ptsaveOpenID = 0;
 		}
 #ifdef LUACONSOLE
 		if(sdl_key){
@@ -2333,8 +2373,8 @@ int main(int argc, char *argv[])
 		}
 		if (deco_disablestuff)
 			b = 0;
-		mouse_coords_window_to_sim(&x, &y, x, y);//change mouse position while it is in a zoom window
 
+		mouse_coords_window_to_sim(&x, &y, x, y);//change mouse position while it is in a zoom window
 		mx = x;
 		my = y;
 		if (b && !bq && x>=(XRES-19-new_message_len) &&

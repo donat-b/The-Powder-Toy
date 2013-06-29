@@ -50,10 +50,14 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
+#ifdef WIN32
+#include <SDL/SDL_syswm.h>
+#endif
 #include <powdergraphics.h>
 #include "save.h"
 #include "hud.h"
 #include "cJSON.h"
+#include "update.h"
 
 SDLMod sdl_mod;
 int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii, sdl_zoom_trig=0;
@@ -3964,6 +3968,32 @@ int sdl_poll(void)
 				XSendEvent(sdl_wminfo.info.x11.display, xe.xselectionrequest.requestor, 0, 0, &xr);
 			}
 			sdl_wminfo.info.x11.unlock_func();
+#elif defined(WIN32)
+			switch (event.syswm.msg->msg)
+			{
+			case WM_USER+614:
+				if (!ptsaveOpenID && !saveURIOpen && num_tabs < 24-SC_TOTAL)
+					ptsaveOpenID = event.syswm.msg->lParam;
+				//If we are already opening a save, we can't have it do another one, so just start it in a new process
+				else
+				{
+					char *exename = exe_name(), args[64];
+					sprintf(args, "ptsave noopen:%i", event.syswm.msg->lParam);
+					if (exename)
+					{
+#ifdef WIN32
+						ShellExecute(NULL, "open", exename, args, NULL, SW_SHOWNORMAL);
+#else
+						execl(exename, "powder", args);
+#endif
+						free(exename);
+					}
+					//I doubt this will happen ... but as a last resort just open it in this window anyway
+					else
+						saveURIOpen = event.syswm.msg->lParam;
+				}
+				break;
+			}
 #endif
 			continue;
 		}
@@ -5622,7 +5652,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 									sprintf(search_expr,"user:%s", info->commentauthorsunformatted[cc]);
 									search_own = 0;
 									search_ui(vid_buf);
-									retval = 1;
+									retval = 0;
 									goto finish;
 								}
 								else //copy name to comment box
