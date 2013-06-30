@@ -535,7 +535,6 @@ changes from tpt++: SPRK, LIGH, LCRY, all others
 make open ui more colorful like tpt++, also fix cut off description in save uploading ui
 make buttons look clicked when pressed, moving mouse away will not do clicks, like tpt++?
 loading circle in save browser?
-tabs save vx, vy
 >Add things from tpt++ that look cool, and any new simulation changes it gets
 
 

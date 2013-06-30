@@ -20,23 +20,24 @@ int currentHud[HUD_OPTIONS];
 
 void HudDefaults()
 {
-	int normalHud2[HUD_OPTIONS] = {0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,1,0,0,0,0,2,0,2,1,0,0,1,1};
-	int debugHud2[HUD_OPTIONS] =  {0,0,1,2,1,0,0,0,1,0,1,1,1,0,0,1,0,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,1,0,0,0,0,4,0,4,1,0,0,1,1};
-	memcpy(normalHud,normalHud2,sizeof(normalHud));
-	memcpy(debugHud,debugHud2,sizeof(debugHud));
+	int defaultNormalHud[HUD_OPTIONS] = {0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,1,0,0,0,0,2,0,2,1,0,0,1,1};
+	int defaultDebugHud[HUD_OPTIONS] =  {0,0,1,2,1,0,0,0,1,0,1,1,1,0,0,1,0,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,1,0,0,0,0,4,0,4,1,0,0,1,1};
+	memcpy(normalHud, defaultNormalHud, sizeof(normalHud));
+	memcpy(debugHud, defaultDebugHud, sizeof(debugHud));
 }
 
 void SetCurrentHud()
 {
 	if (!DEBUG_MODE)
-		memcpy(currentHud,normalHud,sizeof(currentHud));
+		memcpy(currentHud, normalHud, sizeof(currentHud));
 	else
-		memcpy(currentHud,debugHud,sizeof(currentHud));
+		memcpy(currentHud, debugHud, sizeof(currentHud));
 }
 
 void SetRightHudText(int x, int y)
 {
-	sprintf(heattext,""); sprintf(coordtext,"");
+	sprintf(heattext,"");
+	sprintf(coordtext,"");
 	if (y>=0 && y<YRES && x>=0 && x<XRES)
 	{
 		int cr,wl = 0; //cr is particle under mouse, for drawing HUD information
