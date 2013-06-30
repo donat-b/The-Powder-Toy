@@ -3322,14 +3322,7 @@ void menu_draw_text(int h, int i)
 	{
 		char favtext[512] = "";
 		sprintf(favtext, fav[h-FAV_START].description);
-		if (h == FAV_HUD)
-		{
-			if (alt_hud)
-				strappend(favtext, "alternate HUD");
-			else
-				strappend(favtext, "original HUD");
-		}
-		else if (h == FAV_ROTATE)
+		if (h == FAV_ROTATE)
 		{
 			if (ms_rotation)
 				strappend(favtext, "on");
@@ -3418,11 +3411,6 @@ void menu_select_element(int b, int h)
 				active_menu = SC_FAV2;
 			else if (h == FAV_BACK)
 				active_menu = SC_FAV;
-			else if (h == FAV_HUD)
-			{
-				alt_hud = !alt_hud;
-				set_current_hud();
-			}
 			else if (h == FAV_FIND)
 			{
 				if (finding & 0x4)
@@ -3516,20 +3504,10 @@ void menu_select_element(int b, int h)
 					hud_current[h-HUD_REALSTART] = atoi(input_ui(vid_buf,(char*)hud_menu[h-HUD_START].name,"Enter number of decimal places",hud_curr,""));
 				else
 					hud_current[h-HUD_REALSTART] = !hud_current[h-HUD_REALSTART];
-				if (alt_hud == 1)
-				{
-					if (DEBUG_MODE)
-						memcpy(hud_moddebug,hud_current,sizeof(hud_moddebug));
-					else
-						memcpy(hud_modnormal,hud_current,sizeof(hud_modnormal));
-				}
+				if (DEBUG_MODE)
+					memcpy(hud_moddebug,hud_current,sizeof(hud_moddebug));
 				else
-				{
-					if (DEBUG_MODE)
-						memcpy(hud_debug,hud_current,sizeof(hud_debug));
-					else
-						memcpy(hud_normal,hud_current,sizeof(hud_normal));
-				}
+					memcpy(hud_modnormal,hud_current,sizeof(hud_modnormal));
 			}
 		}
 		else if (h >= DECO_PRESET_START && h < DECO_PRESET_START+NUM_COLOR_PRESETS)

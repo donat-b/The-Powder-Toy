@@ -231,7 +231,6 @@ int limitFPS = 60;
 int main_loop = 1;
 int sound_enable = 0;
 int favMenu[19] = {300,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17};
-int alt_hud = 1;
 int finding = 0;
 int locked = 0;
 int highesttemp = MAX_TEMP;
@@ -1087,20 +1086,10 @@ int main(int argc, char *argv[])
 	
 	load_presets();
 	timesplayed = timesplayed + 1;
-	if (alt_hud == 1)
-	{
-		if (DEBUG_MODE)
-			memcpy(hud_current,hud_moddebug,sizeof(hud_current));
-		else
-			memcpy(hud_current,hud_modnormal,sizeof(hud_current));
-	}
+	if (DEBUG_MODE)
+		memcpy(hud_current,hud_moddebug,sizeof(hud_current));
 	else
-	{
-		if (DEBUG_MODE)
-			memcpy(hud_current,hud_debug,sizeof(hud_current));
-		else
-			memcpy(hud_current,hud_normal,sizeof(hud_current));
-	}
+		memcpy(hud_current,hud_modnormal,sizeof(hud_current));
 	clear_sim();
 
 	for (i=1; i<argc; i++)

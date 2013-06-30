@@ -282,7 +282,6 @@ void save_presets(int do_update)
 		sprintf(eltext,"element %i",i);
 		cJSON_AddNumberToObject(recobj, eltext, favMenu[18-i]);
 	}
-	cJSON_AddNumberToObject(recobj, "Alternate HUD ON", alt_hud);
 	cJSON_AddNumberToObject(recobj, "Total Time Played", ((double)currentTime/1000)+((double)totaltime/1000)-((double)totalafktime/1000)-((double)afktime/1000));
 	cJSON_AddNumberToObject(recobj, "Average FPS", totalfps/frames);
 	cJSON_AddNumberToObject(recobj, "Number of frames", frames);
@@ -300,10 +299,8 @@ void save_presets(int do_update)
 
 	//HUDs
 	cJSON_AddItemToObject(root, "HUD", hudobj=cJSON_CreateObject());
-	cJSON_AddItemToObject(hudobj, "normal", cJSON_CreateIntArray(hud_normal, HUD_OPTIONS));
-	cJSON_AddItemToObject(hudobj, "debug", cJSON_CreateIntArray(hud_debug, HUD_OPTIONS));
-	cJSON_AddItemToObject(hudobj, "modnormal", cJSON_CreateIntArray(hud_modnormal, HUD_OPTIONS));
-	cJSON_AddItemToObject(hudobj, "moddebug", cJSON_CreateIntArray(hud_moddebug, HUD_OPTIONS));
+	cJSON_AddItemToObject(hudobj, "normal", cJSON_CreateIntArray(hud_modnormal, HUD_OPTIONS));
+	cJSON_AddItemToObject(hudobj, "debug", cJSON_CreateIntArray(hud_moddebug, HUD_OPTIONS));
 
 	//General settings
 	cJSON_AddStringToObject(root, "proxy", http_proxy_string);
@@ -444,7 +441,6 @@ void load_presets(void)
 				sprintf(eltext,"element %i",i);
 				if(tmpobj = cJSON_GetObjectItem(recobj, eltext)) favMenu[18-i] = tmpobj->valueint;
 			}
-			if(tmpobj = cJSON_GetObjectItem(recobj, "Alternate HUD ON")) alt_hud = tmpobj->valueint;
 			if(tmpobj = cJSON_GetObjectItem(recobj, "Total Time Played")) totaltime = (int)((tmpobj->valuedouble)*1000);
 			if(tmpobj = cJSON_GetObjectItem(recobj, "Average FPS")) totalfps = tmpobj->valuedouble;
 			if(tmpobj = cJSON_GetObjectItem(recobj, "Number of frames")) frames = tmpobj->valueint; totalfps = totalfps * frames;
@@ -561,7 +557,7 @@ void load_presets(void)
 				count = fmin(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
 				for(i = 0; i < count; i++)
 				{
-					hud_normal[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
+					hud_modnormal[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
 				}
 			}
 			if(tmpobj = cJSON_GetObjectItem(hudobj, "debug"))
@@ -569,7 +565,7 @@ void load_presets(void)
 				count = fmin(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
 				for(i = 0; i < count; i++)
 				{
-					hud_debug[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
+					hud_moddebug[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
 				}
 			}
 			if(tmpobj = cJSON_GetObjectItem(hudobj, "modnormal"))

@@ -102,7 +102,5 @@ static hud hud_menu[] =
 extern int hud_current[HUD_OPTIONS];
 extern int hud_modnormal[HUD_OPTIONS];
 extern int hud_moddebug[HUD_OPTIONS];
-extern int hud_normal[HUD_OPTIONS];
-extern int hud_debug[HUD_OPTIONS];
 
 #endif

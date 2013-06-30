@@ -829,20 +829,19 @@ static wall_type wtypes[] =
 #define FAV_START 300
 #define FAV_MORE 300
 #define FAV_BACK 301
-#define FAV_HUD 302
-#define FAV_FIND 303
-#define FAV_INFO 304
-#define FAV_ROTATE 305
-#define FAV_HEAT 306
-//#define FAV_SAVE 307
-#define FAV_LUA 307
-#define FAV_CUSTOMHUD 308
-#define FAV_AUTOSAVE 309
-#define FAV_REAL 310
-#define FAV_FIND2 311
-#define FAV_DATE 312
-#define FAV_SECR 313
-#define FAV_END 314
+#define FAV_FIND 302
+#define FAV_INFO 303
+#define FAV_ROTATE 304
+#define FAV_HEAT 305
+//#define FAV_SAVE 306
+#define FAV_LUA 306
+#define FAV_CUSTOMHUD 307
+#define FAV_AUTOSAVE 308
+#define FAV_REAL 309
+#define FAV_FIND2 310
+#define FAV_DATE 311
+#define FAV_SECR 312
+#define FAV_END 313
 
 struct fav_menu
 {
@@ -856,7 +855,7 @@ static fav_menu fav[] =
 {
 	{"MORE", PIXPACK(0xFF7F00), "Display different options"},
 	{"BACK", PIXPACK(0xFF7F00), "Go back to the favorites menu"},
-	{"HUD",  PIXPACK(0x20D8FF), "Left click to toggle a different HUD. Now using the "},
+	//{"HUD",  PIXPACK(0x20D8FF), "Left click to toggle a different HUD. Now using the "},
 	{"FIND", PIXPACK(0xFF0000), "Finds the currently selected element on the screen and temporarily colors it red"},
 	{"INFO", PIXPACK(0x00FF00), "Displays statistics and records about The Powder Toy. Left click to toggle display"},
 	{"SPIN", PIXPACK(0x0010A0), "Makes moving solids rotate. Currently "},

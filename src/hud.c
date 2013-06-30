@@ -16,38 +16,22 @@ int quickoptionsToolTipFadeInvert, it_invert = 0;
 
 int hud_modnormal[HUD_OPTIONS];
 int hud_moddebug[HUD_OPTIONS];
-int hud_normal[HUD_OPTIONS];
-int hud_debug[HUD_OPTIONS];
 int hud_current[HUD_OPTIONS];
 
 void hud_defaults()
 {
-	int hud_modnormal2[HUD_OPTIONS] = {1,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,0,0,0,0,0,2,0,2,1,0,0,1,1};
-	int hud_moddebug2[HUD_OPTIONS] =  {1,1,1,2,1,0,0,0,1,0,1,1,1,0,0,1,0,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,0,0,0,0,0,4,0,4,1,0,0,1,1};
-	int hud_normal2[HUD_OPTIONS] =    {0,0,1,0,0,0,0,0,1,1,1,0,0,1,1,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,0,0,0,0,0,2,0,2,1,0,0,0,0};
-	int hud_debug2[HUD_OPTIONS] =     {0,1,1,0,1,0,1,1,1,1,1,1,0,1,1,1,0,0,2,1,1,0,0,2,0,2,1,2,1,1,1,2,0,2,0,2,0,0,0,0,0,0,2,0,2,1,0,0,0,0};
+	int hud_modnormal2[HUD_OPTIONS] = {0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,1,0,0,0,0,2,0,2,1,0,0,1,1};
+	int hud_moddebug2[HUD_OPTIONS] =  {0,0,1,2,1,0,0,0,1,0,1,1,1,0,0,1,0,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,1,0,0,0,0,4,0,4,1,0,0,1,1};
 	memcpy(hud_modnormal,hud_modnormal2,sizeof(hud_modnormal));
 	memcpy(hud_moddebug,hud_moddebug2,sizeof(hud_moddebug));
-	memcpy(hud_normal,hud_normal2,sizeof(hud_normal));
-	memcpy(hud_debug,hud_debug2,sizeof(hud_debug));
 }
 
 void set_current_hud()
 {
-	if (alt_hud == 1)
-	{
-		if (!DEBUG_MODE)
-			memcpy(hud_current,hud_modnormal,sizeof(hud_current));
-		else
-			memcpy(hud_current,hud_moddebug,sizeof(hud_current));
-	}
+	if (!DEBUG_MODE)
+		memcpy(hud_current,hud_modnormal,sizeof(hud_current));
 	else
-	{
-		if (!DEBUG_MODE)
-			memcpy(hud_current,hud_normal,sizeof(hud_current));
-		else
-			memcpy(hud_current,hud_debug,sizeof(hud_current));
-	}
+		memcpy(hud_current,hud_moddebug,sizeof(hud_current));
 }
 
 void hud_text_right(int x, int y)
@@ -203,7 +187,7 @@ void hud_text_right(int x, int y)
 			sprintf(tempstring,"X:%d Y:%d ",x,y);
 			strappend(coordtext,tempstring);
 		}
-		if (hud_current[30] && ngrav_enable)
+		if (hud_current[30] && ngrav_enable && gravp[((y/CELL)*(XRES/CELL))+(x/CELL)])
 		{
 			sprintf(tempstring,"GX: %0.*f GY: %0.*f ",hud_current[31],gravx[((y/CELL)*(XRES/CELL))+(x/CELL)],hud_current[31],gravy[((y/CELL)*(XRES/CELL))+(x/CELL)]);
 			strappend(coordtext,tempstring);

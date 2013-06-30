@@ -215,7 +215,6 @@ extern int limitFPS;
 extern int water_equal_test;
 extern int quickoptionsToolTipFade;
 extern int favMenu[19];
-extern int alt_hud;
 extern int finding;
 extern int locked;
 extern int highesttemp;
