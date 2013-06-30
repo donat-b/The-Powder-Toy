@@ -1235,7 +1235,7 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 		{
 			if (creatingsolid)
 			{
-				if (numballs-1 >= 0 && numballs-1 < 256 && msindex[numballs-1]-1 >= 0 && msindex[numballs-1]-1 < NPART && parts[msindex[numballs-1]-1].type == PT_MOVS)
+				if (numballs-1 >= 0 && numballs-1 < 256 && msindex[numballs-1]-1 >= 0 && msindex[numballs-1]-1 < NPART && parts[msindex[numballs-1]-1].type == t)
 				{
 					parts[i].tmp2 = numballs-1;
 					parts[i].pavg[0] = x - parts[msindex[parts[i].tmp2]-1].x;
@@ -3515,7 +3515,7 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 						parts[pmap[y][x]>>8].tmp2 = t|(i<<8);
 					// Count number of particles at each location, for excess stacking check
 					// (does not include energy particles or THDR - currently no limit on stacking those)
-					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM && t!=PT_MOVS)
+					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM && !(ptypes[t].properties&PROP_MOVS))
 						pmap_count[y][x]++;
 				}
 			}

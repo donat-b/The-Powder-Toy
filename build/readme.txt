@@ -522,7 +522,6 @@ keyboard
 
 
 Bugs:
-tpt.moving_solid broken (also make moving solids not make bhol)
 wall id's don't match with tpt++ in lua
 clear sim can be clicked too high, y=404
 //None (at least that I know of)
