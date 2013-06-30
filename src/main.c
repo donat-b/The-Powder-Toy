@@ -1032,8 +1032,8 @@ int main(int argc, char *argv[])
 	memcpy(ptypes2,ptypes,sizeof(ptypes));
 	memcpy(ptransitions2,ptransitions,sizeof(ptransitions));
 	initIdentifiers();
-	hud_defaults();
-	memcpy(hud_current,hud_modnormal,sizeof(hud_current));
+	HudDefaults();
+	memcpy(currentHud,normalHud,sizeof(currentHud));
 
 	gravity_init();
 	GSPEED = 1;
@@ -1087,9 +1087,9 @@ int main(int argc, char *argv[])
 	load_presets();
 	timesplayed = timesplayed + 1;
 	if (DEBUG_MODE)
-		memcpy(hud_current,hud_moddebug,sizeof(hud_current));
+		memcpy(currentHud,debugHud,sizeof(currentHud));
 	else
-		memcpy(hud_current,hud_modnormal,sizeof(hud_current));
+		memcpy(currentHud,normalHud,sizeof(currentHud));
 	clear_sim();
 
 	for (i=1; i<argc; i++)
@@ -1895,7 +1895,7 @@ int main(int argc, char *argv[])
 			if (sdl_key=='d' && ((sdl_mod & (KMOD_CTRL)) || !player2.spwn))
 			{
 				DEBUG_MODE = !DEBUG_MODE;
-				set_current_hud();
+				SetCurrentHud();
 			}
 			if (sdl_key=='i')
 			{
@@ -3221,15 +3221,15 @@ int main(int argc, char *argv[])
 		}
 		if (hud_enable)
 		{
-			hud_text_left(FPSB2, it);
-			hud_text_right(x, y);
+			SetLeftHudText(FPSB2, it);
+			SetRightHudText(x, y);
 
-			draw_hud(it);
+			DrawHud(it);
 
 			if (drawinfo)
-				draw_info();
+				DrawRecordsInfo();
 
-			draw_lua_logs();
+			DrawLuaLogs();
 		}
 
 		if (console_mode)

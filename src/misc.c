@@ -299,8 +299,8 @@ void save_presets(int do_update)
 
 	//HUDs
 	cJSON_AddItemToObject(root, "HUD", hudobj=cJSON_CreateObject());
-	cJSON_AddItemToObject(hudobj, "normal", cJSON_CreateIntArray(hud_modnormal, HUD_OPTIONS));
-	cJSON_AddItemToObject(hudobj, "debug", cJSON_CreateIntArray(hud_moddebug, HUD_OPTIONS));
+	cJSON_AddItemToObject(hudobj, "normal", cJSON_CreateIntArray(normalHud, HUD_OPTIONS));
+	cJSON_AddItemToObject(hudobj, "debug", cJSON_CreateIntArray(debugHud, HUD_OPTIONS));
 
 	//General settings
 	cJSON_AddStringToObject(root, "proxy", http_proxy_string);
@@ -557,7 +557,7 @@ void load_presets(void)
 				count = fmin(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
 				for(i = 0; i < count; i++)
 				{
-					hud_modnormal[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
+					normalHud[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
 				}
 			}
 			if(tmpobj = cJSON_GetObjectItem(hudobj, "debug"))
@@ -565,7 +565,7 @@ void load_presets(void)
 				count = fmin(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
 				for(i = 0; i < count; i++)
 				{
-					hud_moddebug[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
+					debugHud[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
 				}
 			}
 			if(tmpobj = cJSON_GetObjectItem(hudobj, "modnormal"))
@@ -573,7 +573,7 @@ void load_presets(void)
 				count = fmin(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
 				for(i = 0; i < count; i++)
 				{
-					hud_modnormal[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
+					normalHud[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
 				}
 			}
 			if(tmpobj = cJSON_GetObjectItem(hudobj, "moddebug"))
@@ -581,7 +581,7 @@ void load_presets(void)
 				count = fmin(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
 				for(i = 0; i < count; i++)
 				{
-					hud_moddebug[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
+					debugHud[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
 				}
 			}
 		}

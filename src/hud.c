@@ -14,27 +14,27 @@ char infotext[512] = "";
 int wavelength_gfx = 0;
 int quickoptionsToolTipFadeInvert, it_invert = 0;
 
-int hud_modnormal[HUD_OPTIONS];
-int hud_moddebug[HUD_OPTIONS];
-int hud_current[HUD_OPTIONS];
+int normalHud[HUD_OPTIONS];
+int debugHud[HUD_OPTIONS];
+int currentHud[HUD_OPTIONS];
 
-void hud_defaults()
+void HudDefaults()
 {
-	int hud_modnormal2[HUD_OPTIONS] = {0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,1,0,0,0,0,2,0,2,1,0,0,1,1};
-	int hud_moddebug2[HUD_OPTIONS] =  {0,0,1,2,1,0,0,0,1,0,1,1,1,0,0,1,0,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,1,0,0,0,0,4,0,4,1,0,0,1,1};
-	memcpy(hud_modnormal,hud_modnormal2,sizeof(hud_modnormal));
-	memcpy(hud_moddebug,hud_moddebug2,sizeof(hud_moddebug));
+	int normalHud2[HUD_OPTIONS] = {0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,1,0,0,0,0,2,0,2,1,0,0,1,1};
+	int debugHud2[HUD_OPTIONS] =  {0,0,1,2,1,0,0,0,1,0,1,1,1,0,0,1,0,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,1,0,0,0,0,4,0,4,1,0,0,1,1};
+	memcpy(normalHud,normalHud2,sizeof(normalHud));
+	memcpy(debugHud,debugHud2,sizeof(debugHud));
 }
 
-void set_current_hud()
+void SetCurrentHud()
 {
 	if (!DEBUG_MODE)
-		memcpy(hud_current,hud_modnormal,sizeof(hud_current));
+		memcpy(currentHud,normalHud,sizeof(currentHud));
 	else
-		memcpy(hud_current,hud_moddebug,sizeof(hud_current));
+		memcpy(currentHud,debugHud,sizeof(currentHud));
 }
 
-void hud_text_right(int x, int y)
+void SetRightHudText(int x, int y)
 {
 	sprintf(heattext,""); sprintf(coordtext,"");
 	if (y>=0 && y<YRES && x>=0 && x<XRES)
@@ -48,38 +48,38 @@ void hud_text_right(int x, int y)
 			if ((cr&0xFF) == PT_PINV && parts[cr>>8].tmp2)
 				cr = parts[cr>>8].tmp2;
 		}
-		if (!cr || !hud_current[10])
+		if (!cr || !currentHud[10])
 		{
 			wl = bmap[y/CELL][x/CELL];
 		}
 		sprintf(heattext,""); sprintf(tempstring,"");
 		if (cr)
 		{
-			if (hud_current[10])
+			if (currentHud[10])
 			{
 				if ((cr&0xFF)==PT_LIFE && parts[cr>>8].ctype>=0 && parts[cr>>8].ctype<NGOL)
 				{
-					if (hud_current[49] || !hud_current[11])
+					if (currentHud[49] || !currentHud[11])
 						sprintf(nametext, "%s, ", gmenu[parts[cr>>8].ctype].name);
 					else
 						sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, gmenu[parts[cr>>8].ctype].name);
 				}
-				else if (hud_current[13] && (cr&0xFF)==PT_LAVA && parts[cr>>8].ctype > 0 && parts[cr>>8].ctype < PT_NUM )
+				else if (currentHud[13] && (cr&0xFF)==PT_LAVA && parts[cr>>8].ctype > 0 && parts[cr>>8].ctype < PT_NUM )
 				{
 					sprintf(nametext, "Molten %s, ", ptypes[parts[cr>>8].ctype].name);
 				}
-				else if (hud_current[14] && hud_current[11] && ((cr&0xFF)==PT_PIPE || (cr&0xFF)==PT_PPIP) && (parts[cr>>8].tmp&0xFF) > 0 && (parts[cr>>8].tmp&0xFF) < PT_NUM )
+				else if (currentHud[14] && currentHud[11] && ((cr&0xFF)==PT_PIPE || (cr&0xFF)==PT_PPIP) && (parts[cr>>8].tmp&0xFF) > 0 && (parts[cr>>8].tmp&0xFF) < PT_NUM )
 				{
 					sprintf(nametext, "PIPE (%s), ", ptypes[parts[cr>>8].tmp&0xFF].name);
 				}
-				else if (hud_current[11])
+				else if (currentHud[11])
 				{
 					int tctype = parts[cr>>8].ctype;
-					if ((cr&0xFF)==PT_PIPE && hud_current[12]) //PIPE Overrides CTP2
+					if ((cr&0xFF)==PT_PIPE && currentHud[12]) //PIPE Overrides CTP2
 					{
 						tctype = parts[cr>>8].tmp&0xFF;
 					}
-					if (!hud_current[12] && (tctype>=PT_NUM || tctype<0 || (cr&0xFF)==PT_PHOT))
+					if (!currentHud[12] && (tctype>=PT_NUM || tctype<0 || (cr&0xFF)==PT_PHOT))
 						tctype = 0;
 					if (tctype >= 0 && tctype < PT_NUM)
 						sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, ptypes[tctype].name);
@@ -91,120 +91,120 @@ void hud_text_right(int x, int y)
 					sprintf(nametext, "%s, ", ptypes[cr&0xFF].name);
 				}
 			}
-			else if (hud_current[11])
+			else if (currentHud[11])
 			{
 				if (parts[cr>>8].ctype > 0 && parts[cr>>8].ctype < PT_NUM)
 					sprintf(nametext,"Ctype: %s ", ptypes[parts[cr>>8].ctype].name);
-				else if (hud_current[12])
+				else if (currentHud[12])
 					sprintf(nametext,"Ctype: %d ", parts[cr>>8].ctype);
 			}
-			else if (wl && hud_current[48])
+			else if (wl && currentHud[48])
 			{
 				sprintf(nametext, "%s, ", wtypes[wl-UI_ACTUALSTART].name);
 			}
 			else
 				sprintf(nametext,"");
 			strncpy(heattext,nametext,50);
-			if (hud_current[15])
+			if (currentHud[15])
 			{
-				sprintf(tempstring,"Temp: %0.*f C, ",hud_current[18],parts[cr>>8].temp-273.15f);
+				sprintf(tempstring,"Temp: %0.*f C, ",currentHud[18],parts[cr>>8].temp-273.15f);
 				strappend(heattext,tempstring);
 			}
-			if (hud_current[16])
+			if (currentHud[16])
 			{
-				sprintf(tempstring,"Temp: %0.*f F, ",hud_current[18],((parts[cr>>8].temp-273.15f)*9/5)+32);
+				sprintf(tempstring,"Temp: %0.*f F, ",currentHud[18],((parts[cr>>8].temp-273.15f)*9/5)+32);
 				strappend(heattext,tempstring);
 			}
-			if (hud_current[17])
+			if (currentHud[17])
 			{
-				sprintf(tempstring,"Temp: %0.*f K, ",hud_current[18],parts[cr>>8].temp);
+				sprintf(tempstring,"Temp: %0.*f K, ",currentHud[18],parts[cr>>8].temp);
 				strappend(heattext,tempstring);
 			}
-			if (hud_current[19])
+			if (currentHud[19])
 			{
 				sprintf(tempstring,"Life: %d, ",parts[cr>>8].life);
 				strappend(heattext,tempstring);
 			}
-			if (hud_current[20])
+			if (currentHud[20])
 			{
 				sprintf(tempstring,"Tmp: %d, ",parts[cr>>8].tmp);
 				strappend(heattext,tempstring);
 			}
-			if (hud_current[21])
+			if (currentHud[21])
 			{
 				sprintf(tempstring,"Tmp2: %d, ",parts[cr>>8].tmp2);
 				strappend(heattext,tempstring);
 			}
-			if (hud_current[46])
+			if (currentHud[46])
 			{
 				sprintf(tempstring,"Dcolor: 0x%.8X, ",parts[cr>>8].dcolour);
 				strappend(heattext,tempstring);
 			}
-			if (hud_current[47])
+			if (currentHud[47])
 			{
 				sprintf(tempstring,"Flags: 0x%.8X, ",parts[cr>>8].flags);
 				strappend(heattext,tempstring);
 			}
-			if (hud_current[22])
+			if (currentHud[22])
 			{
-				sprintf(tempstring,"X: %0.*f, Y: %0.*f, ",hud_current[23],parts[cr>>8].x,hud_current[23],parts[cr>>8].y);
+				sprintf(tempstring,"X: %0.*f, Y: %0.*f, ",currentHud[23],parts[cr>>8].x,currentHud[23],parts[cr>>8].y);
 				strappend(heattext,tempstring);
 			}
-			if (hud_current[24])
+			if (currentHud[24])
 			{
-				sprintf(tempstring,"Vx: %0.*f, Vy: %0.*f, ",hud_current[25],parts[cr>>8].vx,hud_current[25],parts[cr>>8].vy);
+				sprintf(tempstring,"Vx: %0.*f, Vy: %0.*f, ",currentHud[25],parts[cr>>8].vx,currentHud[25],parts[cr>>8].vy);
 				strappend(heattext,tempstring);
 			}
-			if ((cr&0xFF)==PT_PHOT && hud_current[45]) wavelength_gfx = parts[cr>>8].ctype;
+			if ((cr&0xFF)==PT_PHOT && currentHud[45]) wavelength_gfx = parts[cr>>8].ctype;
 		}
-		else if (wl && hud_current[48])
+		else if (wl && currentHud[48])
 		{
 			sprintf(heattext, "%s, ", wtypes[wl-UI_ACTUALSTART].name);
 		}
 		else
 		{
-			if (hud_current[10])
+			if (currentHud[10])
 				sprintf(heattext,"Empty, ");
 		}
-		if (hud_current[26])
+		if (currentHud[26])
 		{
-			sprintf(tempstring,"Pressure: %0.*f, ",hud_current[27],pv[y/CELL][x/CELL]);
+			sprintf(tempstring,"Pressure: %0.*f, ",currentHud[27],pv[y/CELL][x/CELL]);
 			strappend(heattext,tempstring);
 		}
 		if (strlen(heattext) > 1)
 			heattext[strlen(heattext)-2] = '\0'; // delete comma and space at end
 
-		if (hud_current[28] && cr)
+		if (currentHud[28] && cr)
 		{
-			if (hud_current[29] || (ngrav_enable && hud_current[30]))
+			if (currentHud[29] || (ngrav_enable && currentHud[30]))
 				sprintf(tempstring,"#%d, ",cr>>8);
 			else
 				sprintf(tempstring,"#%d ",cr>>8);
 			strappend(coordtext,tempstring);
 		}
-		if (hud_current[29])
+		if (currentHud[29])
 		{
 			sprintf(tempstring,"X:%d Y:%d ",x,y);
 			strappend(coordtext,tempstring);
 		}
-		if (hud_current[30] && ngrav_enable && gravp[((y/CELL)*(XRES/CELL))+(x/CELL)])
+		if (currentHud[30] && ngrav_enable && gravp[((y/CELL)*(XRES/CELL))+(x/CELL)])
 		{
-			sprintf(tempstring,"GX: %0.*f GY: %0.*f ",hud_current[31],gravx[((y/CELL)*(XRES/CELL))+(x/CELL)],hud_current[31],gravy[((y/CELL)*(XRES/CELL))+(x/CELL)]);
+			sprintf(tempstring,"GX: %0.*f GY: %0.*f ",currentHud[31],gravx[((y/CELL)*(XRES/CELL))+(x/CELL)],currentHud[31],gravy[((y/CELL)*(XRES/CELL))+(x/CELL)]);
 			strappend(coordtext,tempstring);
 		}
-		if (hud_current[34] && aheat_enable)
+		if (currentHud[34] && aheat_enable)
 		{
-			sprintf(tempstring,"A.Heat: %0.*f K ",hud_current[35],hv[y/CELL][x/CELL]);
+			sprintf(tempstring,"A.Heat: %0.*f K ",currentHud[35],hv[y/CELL][x/CELL]);
 			strappend(coordtext,tempstring);
 		}
-		if (hud_current[32])
+		if (currentHud[32])
 		{
-			sprintf(tempstring,"Pressure: %0.*f",hud_current[33],pv[y/CELL][x/CELL]);
+			sprintf(tempstring,"Pressure: %0.*f",currentHud[33],pv[y/CELL][x/CELL]);
 			strappend(coordtext,tempstring);
 		}
-		if (hud_current[43])
+		if (currentHud[43])
 		{
-			sprintf(tempstring,"VX: %0.*f VY: %0.*f",hud_current[44],vx[y/CELL][x/CELL],hud_current[44],vy[y/CELL][x/CELL]);
+			sprintf(tempstring,"VX: %0.*f VY: %0.*f",currentHud[44],vx[y/CELL][x/CELL],currentHud[44],vy[y/CELL][x/CELL]);
 			strappend(coordtext,tempstring);
 		}
 		if (strlen(coordtext) > 0 && coordtext[strlen(coordtext)-1] == ' ')
@@ -212,33 +212,33 @@ void hud_text_right(int x, int y)
 	}
 	else
 	{
-		if (hud_current[10])
+		if (currentHud[10])
 			sprintf(heattext, "Empty");
-		if (hud_current[29])
+		if (currentHud[29])
 			sprintf(coordtext, "X:%d Y:%d", x, y);
 	}
 }
 
-void hud_text_left(float FPSB2, int it)
+void SetLeftHudText(float FPSB2, int it)
 {
 #ifdef BETA
-	if (hud_current[0] && hud_current[1])
+	if (currentHud[0] && currentHud[1])
 		sprintf(uitext, "Version %d Beta %d (%d) ", SAVE_VERSION, MINOR_VERSION, BUILD_NUM);
-	else if (hud_current[0] && !hud_current[1])
+	else if (currentHud[0] && !currentHud[1])
 		sprintf(uitext, "Version %d Beta %d ", SAVE_VERSION, MINOR_VERSION);
-	else if (!hud_current[0] && hud_current[1])
+	else if (!currentHud[0] && currentHud[1])
 		sprintf(uitext, "Beta Build %d ", BUILD_NUM);
 #else
-	if (hud_current[0] && hud_current[1])
+	if (currentHud[0] && currentHud[1])
 		sprintf(uitext, "Version %d.%d (%d) ", SAVE_VERSION, MINOR_VERSION, BUILD_NUM);
-	else if (hud_current[0] && !hud_current[1])
+	else if (currentHud[0] && !currentHud[1])
 		sprintf(uitext, "Version %d.%d ", SAVE_VERSION, MINOR_VERSION);
-	else if (!hud_current[0] && hud_current[1])
+	else if (!currentHud[0] && currentHud[1])
 		sprintf(uitext, "Build %d ", BUILD_NUM);
 #endif
 	else
 		sprintf(uitext,"");
-	if (hud_current[36] || hud_current[37] || hud_current[38])
+	if (currentHud[36] || currentHud[37] || currentHud[38])
 	{
 		time_t time2 = time(0);
 		char time[256], *timestr = "";
@@ -249,60 +249,60 @@ void hud_text_left(float FPSB2, int it)
 			uitext[strlen(uitext)-1] = ',';
 			strappend(uitext," ");
 		}
-		converttotime(time,&timestr,hud_current[36],hud_current[38],hud_current[37]);
+		converttotime(time,&timestr,currentHud[36],currentHud[38],currentHud[37]);
 		strappend(uitext,timestr);
 		strappend(uitext,", ");
 		free(timestr);
 	}
-	if (hud_current[2])
+	if (currentHud[2])
 	{
-		sprintf(tempstring,"FPS:%0.*f ",hud_current[3],FPSB2);
+		sprintf(tempstring,"FPS:%0.*f ",currentHud[3],FPSB2);
 		strappend(uitext,tempstring);
 	}
-	if (hud_current[4])
+	if (currentHud[4])
 	{
 		sprintf(tempstring,"Parts:%d ",NUM_PARTS);
 		strappend(uitext,tempstring);
 	}
-	if (hud_current[5])
+	if (currentHud[5])
 	{
 		sprintf(tempstring,"Generation:%d ",GENERATION);
 		strappend(uitext,tempstring);
 	}
-	if (hud_current[6])
+	if (currentHud[6])
 	{
 		sprintf(tempstring,"Gravity:%d ",gravityMode);
 		strappend(uitext,tempstring);
 	}
-	if (hud_current[7])
+	if (currentHud[7])
 	{
 		sprintf(tempstring,"Air:%d ",airMode);
 		strappend(uitext,tempstring);
 	}
-	if (hud_current[39])
+	if (currentHud[39])
 	{
-		time_string(currentTime-totalafktime-afktime, timeinfotext, 2);
+		GetTimeString(currentTime-totalafktime-afktime, timeinfotext, 2);
 		sprintf(tempstring,"Time Played: %s ", timeinfotext);
 		strappend(uitext,tempstring);
 	}
-	if (hud_current[40])
+	if (currentHud[40])
 	{
-		time_string(totaltime+currentTime-totalafktime-afktime, timeinfotext, 1);
+		GetTimeString(totaltime+currentTime-totalafktime-afktime, timeinfotext, 1);
 		sprintf(tempstring,"Total Time Played: %s ", timeinfotext);
 		strappend(uitext,tempstring);
 	}
-	if (hud_current[41] && frames)
+	if (currentHud[41] && frames)
 	{
-		sprintf(tempstring,"Average FPS: %0.*f ", hud_current[42], totalfps/frames);
+		sprintf(tempstring,"Average FPS: %0.*f ", currentHud[42], totalfps/frames);
 		strappend(uitext,tempstring);
 	}
-	if (REPLACE_MODE && hud_current[8])
+	if (REPLACE_MODE && currentHud[8])
 		strappend(uitext, "[REPLACE MODE] ");
-	if (sdl_mod&(KMOD_CAPS) && hud_current[8])
+	if (sdl_mod&(KMOD_CAPS) && currentHud[8])
 		strappend(uitext, "[CAPS LOCK] ");
-	if ((finding && finding != 8) && hud_current[8])
+	if ((finding && finding != 8) && currentHud[8])
 		strappend(uitext, "[FIND] ");
-	if (GRID_MODE && hud_current[9])
+	if (GRID_MODE && currentHud[9])
 	{
 		sprintf(tempstring, "[GRID: %d] ", GRID_MODE);
 		strappend(uitext, tempstring);
@@ -322,7 +322,7 @@ void hud_text_left(float FPSB2, int it)
 		uitext[strlen(uitext)-1] = 0;
 }
 
-void draw_hud(int it)
+void DrawHud(int it)
 {
 	int heatlength = textwidth(heattext);
 	int coordlength = textwidth(coordtext);
@@ -358,7 +358,7 @@ void draw_hud(int it)
 		fillrect(vid_buf, heatx-4, heaty-4, heatlength+8, 15, 0, 0, 0, alpha);
 		drawtext(vid_buf, heatx, heaty, heattext, 255, 255, 255, (int)(alpha*1.5f));
 		if (wavelength_gfx)
-			draw_wavelengths(vid_buf,heatx-4,heaty-5,2,wavelength_gfx);
+			DrawPhotonWavelengths(vid_buf,heatx-4,heaty-5,2,wavelength_gfx);
 	}
 	if (DEBUG_MODE && strlen(coordtext) > 0)
 	{
@@ -389,7 +389,7 @@ void draw_hud(int it)
 }
 
 //draws the photon colors in the HUD
-void draw_wavelengths(pixel *vid, int x, int y, int h, int wl)
+void DrawPhotonWavelengths(pixel *vid, int x, int y, int h, int wl)
 {
 	int i,cr,cg,cb,j;
 	int tmp;
@@ -419,7 +419,7 @@ void draw_wavelengths(pixel *vid, int x, int y, int h, int wl)
 	}
 }
 
-void draw_info()
+void DrawRecordsInfo()
 {
 	int ytop = 230, num_parts = 0, totalselected = 0, i, x, y;
 	float totaltemp = 0, totalpressure = 0;
@@ -439,15 +439,15 @@ void draw_info()
 			totalpressure += pv[y][x];
 		}
 
-		time_string(currentTime-totalafktime-afktime, timeinfotext, 0);
+		GetTimeString(currentTime-totalafktime-afktime, timeinfotext, 0);
 		sprintf(infotext,"Time Played: %s", timeinfotext);
 		fillrect(vid_buf, 12, ytop-4, textwidth(infotext)+8, 15, 0, 0, 0, 140);
 		drawtext(vid_buf, 16, ytop, infotext, 255, 255, 255, 200);
-		time_string(totaltime+currentTime-totalafktime-afktime, timeinfotext, 0);
+		GetTimeString(totaltime+currentTime-totalafktime-afktime, timeinfotext, 0);
 		sprintf(infotext,"Total Time Played: %s", timeinfotext);
 		fillrect(vid_buf, 12, ytop+10, textwidth(infotext)+8, 15, 0, 0, 0, 140);
 		drawtext(vid_buf, 16, ytop+14, infotext, 255, 255, 255, 200);
-		time_string(totalafktime+afktime+prevafktime, timeinfotext, 0);
+		GetTimeString(totalafktime+afktime+prevafktime, timeinfotext, 0);
 		sprintf(infotext,"Total AFK Time: %s", timeinfotext);
 		fillrect(vid_buf, 12, ytop+24, textwidth(infotext)+8, 15, 0, 0, 0, 140);
 		drawtext(vid_buf, 16, ytop+28, infotext, 255, 255, 255, 200);
@@ -465,7 +465,7 @@ void draw_info()
 		drawtext(vid_buf, 16, ytop+70, infotext, 255, 255, 255, 200);
 		if (timesplayed)
 		{
-			time_string((totaltime+currentTime-totalafktime-afktime)/timesplayed, timeinfotext, 0);
+			GetTimeString((totaltime+currentTime-totalafktime-afktime)/timesplayed, timeinfotext, 0);
 			sprintf(infotext,"Average Time Played: %s", timeinfotext);
 			fillrect(vid_buf, 12, ytop+80, textwidth(infotext)+8, 15, 0, 0, 0, 140);
 			drawtext(vid_buf, 16, ytop+84, infotext, 255, 255, 255, 200);
@@ -490,7 +490,7 @@ void draw_info()
 		}
 }
 
-void draw_lua_logs()
+void DrawLuaLogs()
 {
 	int i;
 	for (i = 0; i < 20; i++)
@@ -509,7 +509,7 @@ void draw_lua_logs()
 	}
 }
 
-void time_string(int currtime, char *string, int length)
+void GetTimeString(int currtime, char *string, int length)
 {
 	int years, days, hours, minutes, seconds, milliseconds;
 	if (length == 0)

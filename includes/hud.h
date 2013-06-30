@@ -4,19 +4,19 @@
 
 #include "graphics.h"
 
-void hud_defaults();
-void set_current_hud();
+void HudDefaults();
+void SetCurrentHud();
 
-void hud_text_right(int x, int y);
-void hud_text_left(float FPSB2, int it);
-void draw_hud(int it);
-void draw_wavelengths(pixel *vid, int x, int y, int h, int wl);
+void SetRightHudText(int x, int y);
+void SetLeftHudText(float FPSB2, int it);
+void DrawHud(int it);
+void DrawPhotonWavelengths(pixel *vid, int x, int y, int h, int wl);
 
-void draw_info();
+void DrawRecordsInfo();
 
-void draw_lua_logs();
+void DrawLuaLogs();
 
-void time_string(int currtime, char *string, int length);
+void GetTimeString(int currtime, char *string, int length);
 
 struct hud
 {
@@ -99,8 +99,8 @@ static hud hud_menu[] =
 #define HUD_NUM 55
 #define HUD_OPTIONS 50
 
-extern int hud_current[HUD_OPTIONS];
-extern int hud_modnormal[HUD_OPTIONS];
-extern int hud_moddebug[HUD_OPTIONS];
+extern int currentHud[HUD_OPTIONS];
+extern int normalHud[HUD_OPTIONS];
+extern int debugHud[HUD_OPTIONS];
 
 #endif

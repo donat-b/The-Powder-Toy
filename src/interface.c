@@ -3221,7 +3221,7 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 					el = n+HUD_START;
 				}
-				else if (n >= HUD_REALSTART-HUD_START && hud_current[n-HUD_REALSTART+HUD_START] && !strstr(hud_menu[n].name,"#"))
+				else if (n >= HUD_REALSTART-HUD_START && currentHud[n-HUD_REALSTART+HUD_START] && !strstr(hud_menu[n].name,"#"))
 				{
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
 				}
@@ -3314,7 +3314,7 @@ void menu_draw_text(int h, int i)
 		else
 		{
 			char description[512] = "";
-			sprintf(description,"%s %i decimal places",hud_menu[h-HUD_START].description,hud_current[h-HUD_REALSTART]);
+			sprintf(description,"%s %i decimal places",hud_menu[h-HUD_START].description,currentHud[h-HUD_REALSTART]);
 			drawtext(vid_buf, XRES-textwidth(description)-BARSIZE, sy-10, description, 255, 255, 255, dae*5);
 		}
 	}
@@ -3489,8 +3489,8 @@ void menu_select_element(int b, int h)
 			}
 			else if (h == HUD_START + 4)
 			{
-				hud_defaults();
-				set_current_hud();
+				HudDefaults();
+				SetCurrentHud();
 			}
 			else if (h < HUD_REALSTART)
 			{
@@ -3499,15 +3499,15 @@ void menu_select_element(int b, int h)
 			else
 			{
 				char hud_curr[16];
-				sprintf(hud_curr,"%i",hud_current[h-HUD_REALSTART]);
+				sprintf(hud_curr,"%i",currentHud[h-HUD_REALSTART]);
 				if (strstr(hud_menu[h-HUD_START].name,"#"))
-					hud_current[h-HUD_REALSTART] = atoi(input_ui(vid_buf,(char*)hud_menu[h-HUD_START].name,"Enter number of decimal places",hud_curr,""));
+					currentHud[h-HUD_REALSTART] = atoi(input_ui(vid_buf,(char*)hud_menu[h-HUD_START].name,"Enter number of decimal places",hud_curr,""));
 				else
-					hud_current[h-HUD_REALSTART] = !hud_current[h-HUD_REALSTART];
+					currentHud[h-HUD_REALSTART] = !currentHud[h-HUD_REALSTART];
 				if (DEBUG_MODE)
-					memcpy(hud_moddebug,hud_current,sizeof(hud_moddebug));
+					memcpy(debugHud,currentHud,sizeof(debugHud));
 				else
-					memcpy(hud_modnormal,hud_current,sizeof(hud_modnormal));
+					memcpy(normalHud,currentHud,sizeof(normalHud));
 			}
 		}
 		else if (h >= DECO_PRESET_START && h < DECO_PRESET_START+NUM_COLOR_PRESETS)
