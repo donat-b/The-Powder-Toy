@@ -6,6 +6,7 @@ powder.pref
 *.dmg
 *.zip
 *.dll
+<<<<<<< HEAD
 *.txt
 *.gz
 *.out
@@ -34,3 +35,4 @@ powder.pref
 /includes/pthread.h
 /includes/regex.h
 /includes/sched.h
+utility/convert-elements
