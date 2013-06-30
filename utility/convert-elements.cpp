@@ -228,6 +228,7 @@ int main()
 
 	// Read element identifiers from powder.h
 	std::string dataline;
+	bool modElements = false;
 	while (powderhStream.good())
 	{
 		//Read a line from the file
@@ -248,10 +249,20 @@ int main()
 			continue;
 		if (defineName=="PT_NUM")
 			continue;
+		if (defineName=="PT_NORMAL_NUM")
+		{
+			modElements = true;
+			continue;
+		}
 		std::stringstream(defineValue) >> elementId;
 
 		if (elementId >= elementData.size())
 			elementData.resize(elementId+1);
+		else if (modElements)
+		{
+			elementId = elementData.size();
+			elementData.resize(elementData.size()+1);
+		}
 		elementData[elementId].CodeName = defineName.substr(3);
 	}
 
@@ -369,7 +380,7 @@ int main()
 	//Finished reading element data, now create new element files
 	for (unsigned elementId=0; elementId<elementData.size(); elementId++)
 	{
-		if (elementData[elementId].Enabled=="0" || elementData[elementId].CodeName=="")
+		if (elementData[elementId].CodeName=="")
 			continue;
 
 		std::ofstream elementFile;
@@ -390,7 +401,14 @@ int main()
 
 		elementFile << initPropertyPrefix << "Identifier = \"DEFAULT_PT_" << elementData[elementId].CodeName << "\";" << std::endl;
 		elementFile << initPropertyPrefix << "Name = " << elementData[elementId].Name << ";" << std::endl;
-		elementFile << initPropertyPrefix << "Colour = " << elementData[elementId].Colour << ";" << std::endl;
+		if (elementData[elementId].Colour.compare(0, 8, "PIXPACK(")==0)
+		{
+			elementFile << initPropertyPrefix << "Colour = COL" << elementData[elementId].Colour.substr(std::string("PIX").length(), std::string::npos) << ";" << std::endl;
+		}
+		else
+		{
+			elementFile << initPropertyPrefix << "Colour = " << elementData[elementId].Colour << ";" << std::endl;
+		}
 		elementFile << initPropertyPrefix << "MenuVisible = " << elementData[elementId].MenuVisible << ";" << std::endl;
 		elementFile << initPropertyPrefix << "MenuSection = " << elementData[elementId].MenuSection << ";" << std::endl;
 		elementFile << initPropertyPrefix << "Enabled = " << elementData[elementId].Enabled << ";" << std::endl;
