@@ -997,9 +997,6 @@ void ctrlzSnapshot()
 }
 int main(int argc, char *argv[])
 {
-	Simulation *mainSim = new Simulation();
-	mainSim->InitElements();
-
 	pixel *part_vbuf; //Extra video buffer
 	pixel *part_vbuf_store;
 	void *http_ver_check, *http_session_check = NULL;
@@ -1016,6 +1013,8 @@ int main(int argc, char *argv[])
 	int username_flash = 0, username_flash_t = 1;
 	int saveOpenError = 0;
 	int benchmark_enable = 0;
+	Simulation *mainSim = new Simulation();
+	mainSim->InitElements();
 
 #ifdef PTW32_STATIC_LIB
 	pthread_win32_process_attach_np();
@@ -2857,8 +2856,8 @@ int main(int argc, char *argv[])
 					{
 						if (sdl_mod & KMOD_ALT)
 						{
-							float snap_angle = floor(atan2((float)y-ly, x-lx)/(M_PI*0.25)+0.5)*M_PI*0.25;
-							float line_mag = sqrtf(pow(x-lx,2.0f)+pow(y-ly,2.0f));
+							float snap_angle = floor(atan2((float)y-ly, (float)x-lx)/(M_PI*0.25)+0.5)*M_PI*0.25;
+							float line_mag = sqrtf(pow((float)x-lx,2.0f)+pow((float)y-ly,2.0f));
 							line_x = (int)(line_mag*cos(snap_angle)+lx+0.5f);
 							line_y = (int)(line_mag*sin(snap_angle)+ly+0.5f);
 						}
