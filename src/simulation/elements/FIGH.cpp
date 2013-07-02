@@ -60,7 +60,7 @@ int FIGH_update(UPDATE_FUNC_ARGS)
 	switch (parts[i].tmp2)
 	{
 		case 1:
-			if ((pow(tarx-x, 2) + pow(tary-y, 2))<600)
+			if ((pow((float)tarx-x, 2) + pow((float)tary-y, 2))<600)
 			{
 				if (figh->elem == PT_LIGH || figh->elem == PT_NEUT 
 						|| ptypes[figh->elem].properties&(PROP_DEADLY|PROP_RADIOACTIVE) 
