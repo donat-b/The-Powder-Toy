@@ -6,11 +6,11 @@ powder.pref
 *.dmg
 *.zip
 *.dll
-<<<<<<< HEAD
 *.txt
 *.gz
 *.out
 *.sh
+*.py
 *The-Powder-Toy*
 *jacob1smod*
 /stamps/
@@ -35,4 +35,4 @@ powder.pref
 /includes/pthread.h
 /includes/regex.h
 /includes/sched.h
-/utility/convert-elements
+/includes/dirent.h
