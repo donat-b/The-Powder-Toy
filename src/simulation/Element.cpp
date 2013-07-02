@@ -14,6 +14,7 @@
  */
 
 #include "simulation/Element.h"
+#include "simulation/Simulation.h"
 
 #include "powder.h"
 

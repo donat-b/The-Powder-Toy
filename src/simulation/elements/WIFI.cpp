@@ -15,6 +15,8 @@
 
 #include "simulation/ElementsCommon.h"
 
+int wireless[CHANNELS][2];
+
 int WIFI_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;

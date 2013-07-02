@@ -15,6 +15,11 @@
 
 #include "simulation/ElementsCommon.h"
 
+bool isRedBRAY(UPDATE_FUNC_ARGS, int xc, int yc)
+{
+	return (pmap[yc][xc]&0xFF) == PT_BRAY && parts[pmap[yc][xc]>>8].tmp == 2;
+}
+
 int SWCH_update(UPDATE_FUNC_ARGS)
 {
 	//turn SWCH on/off from two red BRAYS. There must be one either above or below, and one either left or right to work, and it can't come from the side, it must be a diagonal beam

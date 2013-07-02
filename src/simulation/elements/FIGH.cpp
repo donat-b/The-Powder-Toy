@@ -15,6 +15,8 @@
 
 #include "simulation/ElementsCommon.h"
 
+int STKM_graphics(GRAPHICS_FUNC_ARGS);
+
 int FIGH_update(UPDATE_FUNC_ARGS)
 {
 	playerst* figh = &fighters[(unsigned char)parts[i].tmp];
@@ -158,5 +160,5 @@ void FIGH_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionElement = PT_FIRE;
 
 	elem->Update = &FIGH_update;
-	elem->Graphics = &graphics_STKM;
+	elem->Graphics = &STKM_graphics;
 }

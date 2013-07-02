@@ -16,6 +16,7 @@
 #include "simulation/ElementsCommon.h"
 
 #define PFLAG_NORMALSPEED 0x00010000
+#define PFLAG_REVERSE 0x00020000
 
 // parts[].tmp flags
 // trigger flags to be processed this frame (trigger flags for next frame are shifted 3 bits to the left):
@@ -33,8 +34,8 @@
 // 0x00002000 will transfer like a single pixel pipe when in reverse mode
 // 0x0001C000 reverse single pixel pipe direction
 
-const signed char pos_1_rx[] = {-1,-1,-1, 0, 0, 1, 1, 1};
-const signed char pos_1_ry[] = {-1, 0, 1,-1, 1,-1, 0, 1};
+signed char pos_1_rx[] = {-1,-1,-1, 0, 0, 1, 1, 1};
+signed char pos_1_ry[] = {-1, 0, 1,-1, 1,-1, 0, 1};
 
 int ppip_changed = 0;
 
@@ -130,11 +131,11 @@ void PIPE_transfer_pipe_to_part(particle *pipe, particle *part)
 	part->type = (pipe->tmp & 0xFF);
 	part->temp = pipe->temp;
 	part->life = pipe->tmp2;
-	part->tmp = pipe->pavg[0];
-	part->ctype = pipe->pavg[1];
+	part->tmp = (int)pipe->pavg[0];
+	part->ctype = (int)pipe->pavg[1];
 	pipe->tmp &= ~0xFF;
 
-	if (!ptypes[part->type].properties & TYPE_ENERGY)
+	if (!(ptypes[part->type].properties & TYPE_ENERGY))
 	{
 		part->vx = 0.0f;
 		part->vy = 0.0f;
@@ -151,8 +152,8 @@ void PIPE_transfer_part_to_pipe(particle *part, particle *pipe)
 	pipe->tmp = (pipe->tmp&~0xFF) | part->type;
 	pipe->temp = part->temp;
 	pipe->tmp2 = part->life;
-	pipe->pavg[0] = part->tmp;
-	pipe->pavg[1] = part->ctype;
+	pipe->pavg[0] = (float)part->tmp;
+	pipe->pavg[1] = (float)part->ctype;
 }
 
 void PIPE_transfer_pipe_to_pipe(particle *src, particle *dest)
@@ -164,6 +165,7 @@ void PIPE_transfer_pipe_to_pipe(particle *src, particle *dest)
 	dest->pavg[1] = src->pavg[1];
 	src->tmp &= ~0xFF;
 }
+
 
 void pushParticle(int i, int count, int original)
 {
@@ -184,7 +186,7 @@ void pushParticle(int i, int count, int original)
 			rndstore = rndstore>>3;
 			rx = pos_1_rx[rnd];
 			ry = pos_1_ry[rnd];
-			if (x+rx>=0 && y+ry>=0 && x+rx<XRES && y+ry<YRES)
+			if (BOUNDS_CHECK)
 			{
 				r = pmap[y+ry][x+rx];
 				if (!r)

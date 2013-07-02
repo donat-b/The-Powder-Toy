@@ -15,6 +15,31 @@
 
 #include "simulation/ElementsCommon.h"
 
+unsigned int wavelengthToDecoColour(int wavelength)
+{
+	int colr = 0, colg = 0, colb = 0, x;
+	unsigned int dcolour = 0;
+	for (x=0; x<12; x++) {
+		colr += (wavelength >> (x+18)) & 1;
+		colb += (wavelength >>  x)     & 1;
+	}
+	for (x=0; x<12; x++)
+		colg += (wavelength >> (x+9))  & 1;
+	x = 624/(colr+colg+colb+1);
+	colr *= x;
+	colg *= x;
+	colb *= x;
+
+	if(colr > 255) colr = 255;
+	else if(colr < 0) colr = 0;
+	if(colg > 255) colg = 255;
+	else if(colg < 0) colg = 0;
+	if(colb > 255) colb = 255;
+	else if(colb < 0) colb = 0;
+
+	return (255<<24) | (colr<<16) | (colg<<8) | colb;
+}
+
 int CRAY_update(UPDATE_FUNC_ARGS)
 {
 	int r, nxx, nyy, docontinue, nxi, nyi, rx, ry, nr, ry1, rx1;

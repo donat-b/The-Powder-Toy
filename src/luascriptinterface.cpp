@@ -944,6 +944,8 @@ char * getIdentifier(int i)
 	return strdup(identifier);
 }
 
+//TODO: remove this
+char* pidentifiers[PT_NUM];
 void initIdentifiers()
 {
 	int i;
@@ -1188,7 +1190,8 @@ int elements_getProperty(char * key, int * format)
 
 int elements_loadDefault(lua_State * l)
 {
-	int args = lua_gettop(l);
+	return luaL_error(l, "broken / unimplemented");
+	/*int args = lua_gettop(l);
 	if(args)
 	{
 		int id;
@@ -1233,7 +1236,7 @@ int elements_loadDefault(lua_State * l)
 	menu_count();
 	init_can_move();
 	memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
-	return 0;
+	return 0;*/
 }
 
 int elements_allocate(lua_State * l)

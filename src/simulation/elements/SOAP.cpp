@@ -15,6 +15,26 @@
 
 #include "simulation/ElementsCommon.h"
 
+void attach(int i1, int i2)
+{
+	if (!(parts[i2].ctype&4))
+	{
+		parts[i1].ctype |= 2;
+		parts[i1].tmp = i2;
+
+		parts[i2].ctype |= 4;
+		parts[i2].tmp2 = i1;
+	}
+	else if (!(parts[i2].ctype&2))
+	{
+		parts[i1].ctype |= 4;
+		parts[i1].tmp2= i2;
+
+		parts[i2].ctype |= 2;
+		parts[i2].tmp = i1;
+	}
+}
+
 int SOAP_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, nr, ng, nb, na;

@@ -84,7 +84,7 @@ int GEL_update(UPDATE_FUNC_ARGS)
 				dy = parts[i].y - parts[r>>8].y;
 
 				//Stickness
-				if ((dx*dx + dy*dy)>1.5 && (gel || !ptypes[r&0xFF].falldown || (fabs(rx)<2 && fabs(ry)<2)))
+				if ((dx*dx + dy*dy)>1.5 && (gel || !ptypes[r&0xFF].falldown || (fabs((float)rx)<2 && fabs((float)ry)<2)))
 				{
 					float per, nd;
 					nd = dx*dx + dy*dy - 0.5;

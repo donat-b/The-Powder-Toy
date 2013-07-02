@@ -273,7 +273,7 @@ void grav_fft_init()
 		for (x=0; x<xblock2; x++)
 		{
 			if (x==XRES/CELL && y==YRES/CELL) continue;
-			distance = sqrtf(pow(x-(XRES/CELL), 2) + pow(y-(YRES/CELL), 2));
+			distance = sqrtf(pow((float)x-(XRES/CELL), 2.0f) + pow((float)y-(YRES/CELL), 2.0f));
 			th_ptgravx[y*xblock2+x] = scaleFactor*(x-(XRES/CELL)) / pow(distance, 3);
 			th_ptgravy[y*xblock2+x] = scaleFactor*(y-(YRES/CELL)) / pow(distance, 3);
 		}

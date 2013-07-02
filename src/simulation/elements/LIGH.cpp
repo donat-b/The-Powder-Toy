@@ -15,6 +15,134 @@
 
 #include "simulation/ElementsCommon.h"
 
+#define LIGHTING_POWER 0.65
+
+int LIGH_nearest_part(int ci, int max_d)
+{
+	int distance = (int)((max_d!=-1)?max_d:MAX_DISTANCE);
+	int ndistance = 0;
+	int id = -1;
+	int i = 0;
+	int cx = (int)parts[ci].x;
+	int cy = (int)parts[ci].y;
+	for (i=0; i<=parts_lastActiveIndex; i++)
+	{
+		if (parts[i].type && !parts[i].life && i!=ci && parts[i].type!=PT_LIGH && parts[i].type!=PT_THDR && parts[i].type!=PT_NEUT && parts[i].type!=PT_PHOT)
+		{
+			ndistance = abs(cx-(int)parts[i].x)+abs(cy-(int)parts[i].y);// Faster but less accurate  Older: sqrt(pow(cx-parts[i].x, 2)+pow(cy-parts[i].y, 2));
+			if (ndistance<distance)
+			{
+				distance = ndistance;
+				id = i;
+			}
+		}
+	}
+	return id;
+}
+
+int contact_part(int i, int tp)
+{
+	int x=(int)parts[i].x, y=(int)parts[i].y;
+	int r,rx,ry;
+	for (rx=-2; rx<3; rx++)
+		for (ry=-2; ry<3; ry++)
+			if (BOUNDS_CHECK && (rx || ry))
+			{
+				r = pmap[y+ry][x+rx];
+				if (!r)
+					continue;
+				if ((r&0xFF)==tp)
+					return r>>8;
+			}
+	return -1;
+}
+
+int create_LIGH(int x, int y, int c, int temp, int life, int tmp, int tmp2)
+{
+	int p = create_part(-1, x, y,c);
+	if (p != -1)
+	{
+		parts[p].life = life;
+		parts[p].temp = (float)temp;
+		parts[p].tmp = tmp;
+		parts[p].tmp2 = tmp2;
+	}
+	else if (x >= 0 && x < XRES && y >= 0 && y < YRES)
+	{
+		int r = pmap[y][x];
+		if ((((r&0xFF)==PT_VOID || ((r&0xFF)==PT_PVOD && parts[r>>8].life >= 10)) && (!parts[r>>8].ctype || (parts[r>>8].ctype==c)!=(parts[r>>8].tmp&1))) || (r&0xFF)==PT_BHOL || (r&0xFF)==PT_NBHL) // VOID, PVOD, VACU, and BHOL eat LIGH here
+			return 1;
+	}
+	return 0;
+}
+
+void create_line_par(int x1, int y1, int x2, int y2, int c, int temp, int life, int tmp, int tmp2)
+{
+	int reverseXY=abs(y2-y1)>abs(x2-x1), back = 0, x, y, dx, dy, Ystep;
+	float e = 0.0f, de;
+	if (c==WL_EHOLE || c==WL_ALLOWGAS || c==WL_ALLOWALLELEC || c==WL_ALLOWSOLID || c==WL_ALLOWAIR || c==WL_WALL || c==WL_DESTROYALL || c==WL_ALLOWLIQUID || c==WL_FAN || c==WL_STREAM || c==WL_DETECT || c==WL_EWALL || c==WL_WALLELEC)
+		return; // this function only for particles, no walls
+	if (reverseXY)
+	{
+		y = x1;
+		x1 = y1;
+		y1 = y;
+		y = x2;
+		x2 = y2;
+		y2 = y;
+	}
+	if (x1 > x2)
+		back = 1;
+	dx = x2 - x1;
+	dy = abs(y2 - y1);
+	if (dx)
+		de = dy/(float)dx;
+	else
+		de = 0.0f;
+	y = y1;
+	Ystep = (y1<y2) ? 1 : -1;
+	if (!back)
+	{
+		for (x = x1; x <= x2; x++)
+		{
+			int ret;
+			if (reverseXY)
+				ret = create_LIGH(y, x, c, temp, life, tmp, tmp2);
+			else
+				ret = create_LIGH(x, y, c, temp, life, tmp, tmp2);
+			if (ret)
+				return;
+
+			e += de;
+			if (e >= 0.5f)
+			{
+				y += Ystep;
+				e -= 1.0f;
+			}
+		}
+	}
+	else
+	{
+		for (x = x1; x >= x2; x--)
+		{
+			int ret;
+			if (reverseXY)
+				ret = create_LIGH(y, x, c, temp, life, tmp, tmp2);
+			else
+				ret = create_LIGH(x, y, c, temp, life, tmp, tmp2);
+			if (ret)
+				return;
+
+			e += de;
+			if (e <= -0.5f)
+			{
+				y += Ystep;
+				e += 1.0f;
+			}
+		}
+	}
+}
+
 int LIGH_update(UPDATE_FUNC_ARGS)
 {
 	/*
@@ -123,7 +251,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 		rx=(int)parts[near].x-x;
 		ry=(int)parts[near].y-y;
 		if (rx!=0 || ry!=0)
-			n_angle = atan2f(-ry, rx);
+			n_angle = atan2f((float)-ry, (float)rx);
 		else
 			n_angle = 0;
 		if (n_angle<0)

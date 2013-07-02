@@ -21,11 +21,14 @@
 #include <cmath>
 #include "simulation/ElementNumbers.h"
 #include "simulation/Element.h"
+#include "simulation/Simulation.h"
 
 
 
 #include "powder.h"
 #include "gravity.h"
 #include "powdergraphics.h"
+
+#define BOUNDS_CHECK true
 
 #endif

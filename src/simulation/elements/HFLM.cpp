@@ -14,6 +14,7 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "hmap.h"
 
 int HFLM_graphics(GRAPHICS_FUNC_ARGS)
 {

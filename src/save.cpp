@@ -1143,21 +1143,21 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	bson_append_int(&b, "rightSelectedElement", sr);
 	bson_append_int(&b, "activeMenu", active_menu);
 	if(partsData)
-		bson_append_binary(&b, "parts", BSON_BIN_USER, (char*)partsData, partsDataLen);
+		bson_append_binary(&b, "parts", (char)BSON_BIN_USER, (const char*)partsData, partsDataLen);
 	if(partsPosData)
-		bson_append_binary(&b, "partsPos", BSON_BIN_USER, (char*)partsPosData, partsPosDataLen);
+		bson_append_binary(&b, "partsPos", (char)BSON_BIN_USER, (const char*)partsPosData, partsPosDataLen);
 	if(wallData)
-		bson_append_binary(&b, "wallMap", BSON_BIN_USER, (char*)wallData, wallDataLen);
+		bson_append_binary(&b, "wallMap", (char)BSON_BIN_USER, (const char*)wallData, wallDataLen);
 	if(fanData)
-		bson_append_binary(&b, "fanMap", BSON_BIN_USER, (char*)fanData, fanDataLen);
+		bson_append_binary(&b, "fanMap", (char)BSON_BIN_USER, (const char*)fanData, fanDataLen);
 	if(pressData)
-		bson_append_binary(&b, "pressMap", BSON_BIN_USER, (char*)pressData, pressDataLen);
+		bson_append_binary(&b, "pressMap", (char)BSON_BIN_USER, (const char*)pressData, pressDataLen);
 	if(vxData)
-		bson_append_binary(&b, "vxMap", BSON_BIN_USER, (char*)vxData, vxDataLen);
+		bson_append_binary(&b, "vxMap", (char)BSON_BIN_USER, (const char*)vxData, vxDataLen);
 	if(vyData)
-		bson_append_binary(&b, "vyMap", BSON_BIN_USER, (char*)vyData, vyDataLen);
+		bson_append_binary(&b, "vyMap", (char)BSON_BIN_USER, (const char*)vyData, vyDataLen);
 	if(soapLinkData)
-		bson_append_binary(&b, "soapLinks", BSON_BIN_USER, (char*)soapLinkData, soapLinkDataLen);
+		bson_append_binary(&b, "soapLinks", (char)BSON_BIN_USER, (const char*)soapLinkData, soapLinkDataLen);
 	signsCount = 0;
 	for(i = 0; i < MAXSIGNS; i++)
 	{

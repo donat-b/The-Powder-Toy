@@ -15,6 +15,8 @@
 
 #include "simulation/ElementsCommon.h"
 
+int COAL_graphics(GRAPHICS_FUNC_ARGS);
+
 int BCOL_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, trade, temp;
@@ -105,5 +107,5 @@ void BCOL_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionElement = NT;
 
 	elem->Update = &BCOL_update;
-	elem->Graphics = &graphics_COAL;
+	elem->Graphics = &COAL_graphics;
 }

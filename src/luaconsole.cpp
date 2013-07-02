@@ -24,8 +24,11 @@
 #include <console.h>
 #include <luaconsole.h>
 #include <luascriptinterface.h>
+extern "C"
+{
 #include "socket/luasocket.h"
 #include "socket/socket.lua.h"
+}
 #include <save.h>
 #include <math.h>
 
@@ -2798,12 +2801,13 @@ int luatpt_clear_sim(lua_State* l)
 
 int luatpt_reset_elements(lua_State* l)
 {
-	memcpy(ptypes,ptypes2,sizeof(ptypes));
+	return luaL_error(l, "broken / unimplemented");
+	/*memcpy(ptypes,ptypes2,sizeof(ptypes));
 	memcpy(ptransitions,ptransitions2,sizeof(ptransitions));
 	menu_count();
 	init_can_move();
 	memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
-	return 0;
+	return 0;*/
 }
 
 int luatpt_indestructible(lua_State* l)
@@ -2829,7 +2833,8 @@ int luatpt_indestructible(lua_State* l)
 
 int luatpt_moving_solid(lua_State* l)
 {
-	int el = 0, movs;
+	return luaL_error(l, "broken / unimplemented");
+	/*int el = 0, movs;
 	char* name;
 	if(lua_isnumber(l, 1)){
 		el = luaL_optint(l, 1, 0);
@@ -2862,7 +2867,7 @@ int luatpt_moving_solid(lua_State* l)
 		ptypes[el].falldown = ptypes2[el].falldown;
 	}
 	init_can_move();
-	return 0;
+	return 0;*/
 }
 
 int luatpt_create_parts(lua_State* l)

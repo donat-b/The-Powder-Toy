@@ -254,9 +254,9 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 		drawrect(vid_buf, x0+8, y0+20, 201, 16, 192, 192, 192, 255);
 		ui_edit_draw(vid_buf, &ed);
 		drawtext(vid_buf, x0+8, y0+46, "Justify:", 255, 255, 255, 255);
-		draw_icon(vid_buf, x0+50, y0+42, 0x9D, ju == 0);
-		draw_icon(vid_buf, x0+68, y0+42, 0x9E, ju == 1);
-		draw_icon(vid_buf, x0+86, y0+42, 0x9F, ju == 2);
+		draw_icon(vid_buf, x0+50, y0+42, (char)0x9D, ju == 0);
+		draw_icon(vid_buf, x0+68, y0+42, (char)0x9E, ju == 1);
+		draw_icon(vid_buf, x0+86, y0+42, (char)0x9F, ju == 2);
 
 
 
@@ -357,7 +357,7 @@ int ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 	if (ed->hide)
 	{
 		for (i=0; ed->str[i]; i++)
-			echo[i] = 0x8D;
+			echo[i] = (char)0x8D;
 		echo[i] = 0;
 		str = echo;
 	}
@@ -455,7 +455,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 	if (ed->hide)
 	{
 		for (i=0; ed->str[i]; i++)
-			echo[i] = 0x8D;
+			echo[i] = (char)0x8D;
 		echo[i] = 0;
 		str = echo;
 	}
@@ -4664,11 +4664,11 @@ int search_ui(pixel *vid_buf)
 				if (view_own || svf_admin || svf_mod || (unlockedstuff & 0x08))
 				{
 					sprintf(ts+1, "%d", search_votes[pos]);
-					ts[0] = 0xBB;
+					ts[0] = (char)0xBB;
 					for (j=1; ts[j]; j++)
-						ts[j] = 0xBC;
-					ts[j-1] = 0xB9;
-					ts[j] = 0xBA;
+						ts[j] = (char)0xBC;
+					ts[j-1] = (char)0xB9;
+					ts[j] = (char)0xBA;
 					ts[j+1] = 0;
 					w = gx+XRES/GRID_S-2-textwidth(ts);
 					h = gy+YRES/GRID_S-11;

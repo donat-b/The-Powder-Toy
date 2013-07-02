@@ -15,6 +15,8 @@
 
 #include "simulation/ElementsCommon.h"
 
+#define MELTING_POINT	3695.0
+
 int TUNG_update(UPDATE_FUNC_ARGS)
 {
 	bool splode = false;

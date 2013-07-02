@@ -17,6 +17,7 @@
 #define SIMULATION_H
 
 #include "simulation/Element.h"
+#include "powder.h"
 
 
 // Defines for element transitions

@@ -15,6 +15,8 @@
 
 #include "simulation/ElementsCommon.h"
 
+int NPTCT_update(UPDATE_FUNC_ARGS);
+
 int SPRK_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, rt, conduct_sprk, nearp, pavg, ct = parts[i].ctype, rd = 2;
@@ -51,7 +53,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 	}
 	else if (ct==PT_NTCT || ct==PT_PTCT)
 	{
-		update_NPTCT(UPDATE_FUNC_SUBCALL_ARGS);
+		NPTCT_update(UPDATE_FUNC_SUBCALL_ARGS);
 	}
 	else if (ct==PT_ETRD&&parts[i].life==1)
 	{

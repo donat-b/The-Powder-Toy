@@ -14,6 +14,7 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "hmap.h"
 
 int FIRW_update(UPDATE_FUNC_ARGS)
 {

@@ -15,6 +15,27 @@
 
 #include "simulation/ElementsCommon.h"
 
+int DeutExplosion(int n, int x, int y, float temp, int t)
+{
+	int i, c;
+	n = (n/50);
+	if (n<1) {
+		n = 1;
+	}
+	if (n>340) {
+		n = 340;
+	}
+	for (c=0; c<n; c++)
+	{
+		i = create_part(-3, x, y, t);
+		if (i > -1)
+			parts[i].temp = temp;
+		pv[y/CELL][x/CELL] += 6.0f * CFDS;
+	}
+	return 0;
+}
+
+
 int NEUT_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, rt;
