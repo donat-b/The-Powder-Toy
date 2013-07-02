@@ -15,6 +15,8 @@
 
 #include "simulation/ElementsCommon.h"
 
+int ICEI_update(UPDATE_FUNC_ARGS);
+
 void SNOW_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_SNOW";
@@ -58,7 +60,6 @@ void SNOW_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = 273.0f;
 	elem->HighTemperatureTransitionElement = ST;
 
-	elem->Update = &update_ICEI;
+	elem->Update = &ICEI_update;
 	elem->Graphics = NULL;
 }
-

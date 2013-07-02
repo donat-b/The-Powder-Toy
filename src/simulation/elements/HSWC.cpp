@@ -15,6 +15,13 @@
 
 #include "simulation/ElementsCommon.h"
 
+int HSWC_graphics(GRAPHICS_FUNC_ARGS)
+{
+	int lifemod = ((cpart->life>10?10:cpart->life)*19);
+	*colr += lifemod;
+	return 0;
+}
+
 void HSWC_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_HSWC";
@@ -59,6 +66,5 @@ void HSWC_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionElement = NT;
 
 	elem->Update = NULL;
-	elem->Graphics = &graphics_HSWC;
+	elem->Graphics = &HSWC_graphics;
 }
-

@@ -15,6 +15,20 @@
 
 #include "simulation/ElementsCommon.h"
 
+int PINV_graphics(GRAPHICS_FUNC_ARGS)
+{
+	if(cpart->life >= 10)
+	{
+		*cola = 100;
+		*colr = 15;
+		*colg = 0;
+		*colb = 150;
+		*pixel_mode &= PMODE;
+		*pixel_mode |= PMODE_BLEND;
+	} 
+	return 0;
+}
+
 void PINV_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_PINV";
@@ -59,6 +73,5 @@ void PINV_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionElement = NT;
 
 	elem->Update = NULL;
-	elem->Graphics = &graphics_PINV;
+	elem->Graphics = &PINV_graphics;
 }
-

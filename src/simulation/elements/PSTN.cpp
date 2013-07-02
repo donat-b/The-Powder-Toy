@@ -15,6 +15,126 @@
 
 #include "simulation/ElementsCommon.h"
 
+int PSTN_update(UPDATE_FUNC_ARGS)
+{
+	int maxSize = parts[i].tmp ? parts[i].tmp : DEFAULT_LIMIT;
+	int armLimit = parts[i].tmp2 ? parts[i].tmp2 : DEFAULT_ARM_LIMIT;
+	int state = 0;
+	int r, nxx, nyy, nxi, nyi, rx, ry;
+	int directionX = 0, directionY = 0;
+	if(parts[i].life)
+		return 0;
+	if (state == PISTON_INACTIVE) {
+		for (rx=-2; rx<3; rx++)
+			for (ry=-2; ry<3; ry++)
+				if (BOUNDS_CHECK && (rx || ry) && (!rx || !ry))
+				{
+					r = pmap[y+ry][x+rx];
+					if (!r)
+						continue;
+					if ((r&0xFF)==PT_SPRK && parts[r>>8].life==3) {
+						if(parts[r>>8].ctype == PT_PSCN)
+							state = PISTON_EXTEND;
+						else
+							state = PISTON_RETRACT;
+					}
+				}
+	}
+	if(state == PISTON_EXTEND || state == PISTON_RETRACT) {
+		for (rx=-1; rx<2; rx++)
+			for (ry=-1; ry<2; ry++)
+				if (BOUNDS_CHECK && (rx || ry) && (!rx || !ry))
+				{
+					r = pmap[y+ry][x+rx];
+					if (!r)
+						continue;
+					if ((r&0xFF) == PT_PSTN)
+					{
+						int movedPiston = 0;
+						int foundEnd = 0;
+						int pistonEndX, pistonEndY;
+						int pistonCount = 0;
+						int newSpace = 0;
+						int armCount = 0;
+						directionX = rx;
+						directionY = ry;
+						for (nxx = 0, nyy = 0, nxi = directionX, nyi = directionY; ; nyy += nyi, nxx += nxi) {
+							if (!(x+nxi+nxx<XRES && y+nyi+nyy<YRES && x+nxi+nxx >= 0 && y+nyi+nyy >= 0)) {
+								break;
+							}
+							r = pmap[y+nyi+nyy][x+nxi+nxx];
+							if((r&0xFF)==PT_PSTN) {
+								if(parts[r>>8].life)
+									armCount++;
+								else if (armCount)
+								{
+									pistonEndX = x+nxi+nxx;
+									pistonEndY = y+nyi+nyy;
+									foundEnd = 1;
+									break;
+								}
+								else
+									pistonCount++;
+							} else {
+								pistonEndX = x+nxi+nxx;
+								pistonEndY = y+nyi+nyy;
+								foundEnd = 1;
+								break;
+							}
+						}
+						if(foundEnd) {
+							if(state == PISTON_EXTEND) {
+								if(armCount+pistonCount > armLimit)
+									pistonCount = armLimit-armCount;
+								if(pistonCount > 0) {
+									newSpace = MoveStack(pistonEndX, pistonEndY, directionX, directionY, maxSize, pistonCount, 0, parts[i].ctype, 1, 0);
+									if(newSpace) {
+										int j;
+										//Create new piston section
+										for(j = 0; j < newSpace; j++) {
+											int nr = create_part(-3, pistonEndX+(nxi*j), pistonEndY+(nyi*j), PT_PSTN);
+											if (nr > -1) {
+												parts[nr].life = 1;
+												if (parts[i].dcolour)
+												{
+													int red = PIXR(parts[i].dcolour)&0xFF;
+													int green = PIXG(parts[i].dcolour);
+													int blue = PIXB(parts[i].dcolour);
+													parts[nr].dcolour = 255<<24|PIXRGB(red>60?red-60:0, green>60?green-60:0, blue>60?blue-60:0);
+												}
+											}
+										}
+										movedPiston =  1;
+									}
+								}
+							} else if(state == PISTON_RETRACT) {
+								if(pistonCount > armCount)
+									pistonCount = armCount;
+								if(armCount) {
+									MoveStack(pistonEndX, pistonEndY, directionX, directionY, maxSize, pistonCount, 1, parts[i].ctype, 1, 0);
+									movedPiston = 1;
+								}
+							}
+						}
+						if (movedPiston)
+							return 0;
+					}
+				}
+
+	}
+	return 0;
+}
+
+int PSTN_graphics(GRAPHICS_FUNC_ARGS)
+{
+	if(cpart->life)
+	{
+		*colr -= 60;
+		*colg -= 60;
+	}
+	return 0;
+}
+
 void PSTN_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_PSTN";
@@ -58,7 +178,6 @@ void PSTN_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = &update_PSTN;
-	elem->Graphics = &graphics_PSTN;
+	elem->Update = &PSTN_update;
+	elem->Graphics = &PSTN_graphics;
 }
-

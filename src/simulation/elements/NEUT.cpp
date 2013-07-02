@@ -15,6 +15,119 @@
 
 #include "simulation/ElementsCommon.h"
 
+int NEUT_update(UPDATE_FUNC_ARGS)
+{
+	int r, rx, ry, rt;
+	int pressureFactor = 3 + (int)pv[y/CELL][x/CELL];
+	for (rx=-1; rx<2; rx++)
+		for (ry=-1; ry<2; ry++)
+			if (BOUNDS_CHECK)
+			{
+				r = pmap[y+ry][x+rx];
+				if (!r)
+					continue;
+				if ((r&0xFF)==PT_WATR || (r&0xFF)==PT_ICEI || (r&0xFF)==PT_SNOW)
+				{
+					parts[i].vx *= 0.995f;
+					parts[i].vy *= 0.995f;
+				}
+				if ((r&0xFF)==PT_PLUT && pressureFactor>(rand()%1000))
+				{
+					if (33>rand()%100)
+					{
+						create_part(r>>8, x+rx, y+ry, rand()%3 ? PT_LAVA : PT_URAN);
+						parts[r>>8].temp = MAX_TEMP;
+						if (parts[r>>8].type==PT_LAVA) {
+							parts[r>>8].tmp = 100;
+							parts[r>>8].ctype = PT_PLUT;
+						}
+					}
+					else
+					{
+						create_part(r>>8, x+rx, y+ry, PT_NEUT);
+						parts[r>>8].vx = 0.25f*parts[r>>8].vx + parts[i].vx;
+						parts[r>>8].vy = 0.25f*parts[r>>8].vy + parts[i].vy;
+					}
+					pv[y/CELL][x/CELL] += 10.0f * CFDS; //Used to be 2, some people said nukes weren't powerful enough
+					update_PYRO(UPDATE_FUNC_SUBCALL_ARGS);
+				}
+#ifdef SDEUT
+				else if ((r&0xFF)==PT_DEUT && (pressureFactor+1+(parts[r>>8].life/100))>(rand()%1000))
+				{
+					DeutExplosion(parts[r>>8].life, x+rx, y+ry, restrict_flt(parts[r>>8].temp + parts[r>>8].life*500, MIN_TEMP, MAX_TEMP), PT_NEUT);
+					kill_part(r>>8);
+				}
+#else
+				else if ((r&0xFF)==PT_DEUT && (pressureFactor+1)>(rand()%1000))
+				{
+					create_part(r>>8, x+rx, y+ry, PT_NEUT);
+					parts[r>>8].vx = 0.25f*parts[r>>8].vx + parts[i].vx;
+					parts[r>>8].vy = 0.25f*parts[r>>8].vy + parts[i].vy;
+					if (parts[r>>8].life>0)
+					{
+						parts[r>>8].life --;
+						parts[r>>8].temp = restrict_flt(parts[r>>8].temp + parts[r>>8].life*17, MIN_TEMP, MAX_TEMP);
+						pv[y/CELL][x/CELL] += 6.0f * CFDS;
+					}
+					else
+						kill_part(r>>8);
+				}
+#endif
+				else if ((r&0xFF)==PT_GUNP && 15>(rand()%1000))
+					part_change_type(r>>8,x+rx,y+ry,PT_DUST);
+				else if ((r&0xFF)==PT_DYST && 15>(rand()%1000))
+					part_change_type(r>>8,x+rx,y+ry,PT_YEST);
+				else if ((r&0xFF)==PT_YEST)
+					part_change_type(r>>8,x+rx,y+ry,PT_DYST);
+				else if ((r&0xFF)==PT_WATR && 15>(rand()%100))
+					part_change_type(r>>8,x+rx,y+ry,PT_DSTW);
+				else if ((r&0xFF)==PT_PLEX && 15>(rand()%1000))
+					part_change_type(r>>8,x+rx,y+ry,PT_GOO);
+				else if ((r&0xFF)==PT_NITR && 15>(rand()%1000))
+					part_change_type(r>>8,x+rx,y+ry,PT_DESL);
+				else if ((r&0xFF)==PT_PLNT && 5>(rand()%100))
+					create_part(r>>8, x+rx, y+ry, PT_WOOD);
+				else if (((r&0xFF)==PT_DESL || (r&0xFF)==PT_OIL) && 15>(rand()%1000))
+					part_change_type(r>>8,x+rx,y+ry,PT_GAS);
+				else if ((r&0xFF)==PT_COAL && 5>(rand()%100))
+					create_part(r>>8, x+rx, y+ry, PT_WOOD);
+				else if ((r&0xFF)==PT_DUST && 5>(rand()%100))
+					part_change_type(r>>8, x+rx, y+ry, PT_FWRK);
+				else if ((r&0xFF)==PT_EMBR && parts[i].tmp == 1 && 5>(rand()%100))
+					part_change_type(r>>8, x+rx, y+ry, PT_FWRK);
+				else if ((r&0xFF)==PT_FWRK && 5>(rand()%100))
+					parts[r>>8].ctype = PT_DUST;
+				else if ((r&0xFF)==PT_ACID && 5>(rand()%100))
+					create_part(r>>8, x+rx, y+ry, PT_ISOZ);
+				else if ((r&0xFF)==PT_TTAN && 5>(rand()%100))
+				{
+					kill_part(i);
+					return 1;
+				}
+				else if ((r&0xFF)==PT_EXOT && 5>(rand()%100))
+					parts[r>>8].life = 1500;
+				/*if(parts[r>>8].type>1 && parts[r>>8].type!=PT_NEUT && parts[r>>8].type-1!=PT_NEUT && parts[r>>8].type-1!=PT_STKM &&
+				  (ptypes[parts[r>>8].type-1].menusection==SC_LIQUID||
+				  ptypes[parts[r>>8].type-1].menusection==SC_EXPLOSIVE||
+				  ptypes[parts[r>>8].type-1].menusection==SC_GAS||
+				  ptypes[parts[r>>8].type-1].menusection==SC_POWDERS) && 15>(rand()%1000))
+				  parts[r>>8].type--;*/
+			}
+	return 0;
+}
+
+int NEUT_graphics(GRAPHICS_FUNC_ARGS)
+{
+	*firea = 120;
+	*firer = 10;
+	*fireg = 80;
+	*fireb = 120;
+
+	*pixel_mode &= ~PMODE_FLAT;
+	*pixel_mode |= FIRE_ADD | PMODE_ADD;
+	return 1;
+}
+
 void NEUT_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_NEUT";
@@ -58,7 +171,6 @@ void NEUT_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = &update_NEUT;
-	elem->Graphics = &graphics_NEUT;
+	elem->Update = &NEUT_update;
+	elem->Graphics = &NEUT_graphics;
 }
-

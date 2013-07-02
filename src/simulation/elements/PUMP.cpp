@@ -15,6 +15,33 @@
 
 #include "simulation/ElementsCommon.h"
 
+int PUMP_update(UPDATE_FUNC_ARGS)
+{
+	int r, rx, ry;
+	if (parts[i].life==10)
+	{
+		if (parts[i].temp>=256.0+273.15)
+			parts[i].temp=256.0f+273.15f;
+		if (parts[i].temp<= -256.0+273.15)
+			parts[i].temp = -256.0f+273.15f;
+
+		for (rx=-1; rx<2; rx++)
+			for (ry=-1; ry<2; ry++)
+				if ((x+rx)-CELL>=0 && (y+ry)-CELL>0 && (x+rx)+CELL<XRES && (y+ry)+CELL<YRES && !(rx && ry))
+				{
+					pv[(y/CELL)+ry][(x/CELL)+rx] += 0.1f*((parts[i].temp-273.15)-pv[(y/CELL)+ry][(x/CELL)+rx]);
+				}
+	}
+	return 0;
+}
+
+int PUMP_graphics(GRAPHICS_FUNC_ARGS)
+{
+	int lifemod = ((cpart->life>10?10:cpart->life)*19);
+	*colb += lifemod;
+	return 0;
+}
+
 void PUMP_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_PUMP";
@@ -58,7 +85,6 @@ void PUMP_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = &update_PUMP;
-	elem->Graphics = &graphics_PUMP;
+	elem->Update = &PUMP_update;
+	elem->Graphics = &PUMP_graphics;
 }
-

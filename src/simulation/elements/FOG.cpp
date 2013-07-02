@@ -15,6 +15,28 @@
 
 #include "simulation/ElementsCommon.h"
 
+int FOG_update(UPDATE_FUNC_ARGS)
+{
+	int r, rx, ry;
+	for (rx=-1; rx<2; rx++)
+		for (ry=-1; ry<2; ry++)
+			if (BOUNDS_CHECK && (rx || ry))
+			{
+				r = pmap[y+ry][x+rx];
+				if (!r)
+					continue;
+				if (ptypes[r&0xFF].state==ST_SOLID&&5>=rand()%50&&parts[i].life==0&&!(ptypes[r&0xFF].properties&PROP_CLONE))
+				{
+					part_change_type(i,x,y,PT_RIME);
+				}
+				if ((r&0xFF)==PT_SPRK)
+				{
+					parts[i].life += rand()%20;
+				}
+			}
+	return 0;
+}
+
 void FOG_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_FOG";
@@ -58,7 +80,6 @@ void FOG_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = 373.15f;
 	elem->HighTemperatureTransitionElement = PT_WTRV;
 
-	elem->Update = &update_FOG;
+	elem->Update = &FOG_update;
 	elem->Graphics = NULL;
 }
-

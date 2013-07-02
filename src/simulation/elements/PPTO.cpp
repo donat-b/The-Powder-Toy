@@ -15,6 +15,24 @@
 
 #include "simulation/ElementsCommon.h"
 
+int PRTO_update(UPDATE_FUNC_ARGS);
+
+int PPTO_graphics(GRAPHICS_FUNC_ARGS)
+{
+	int lifemod;
+	*firea = 8;
+	*firer = 0;
+	*fireg = 0;
+	*fireb = 255;
+	*pixel_mode |= EFFECT_GRAVOUT;
+	*pixel_mode |= EFFECT_DBGLINES;
+	lifemod = ((cpart->tmp2>10?10:cpart->tmp2)*20);
+	*colb = 55 + lifemod;
+	if (cpart->tmp2 < 10)
+		*pixel_mode &= ~EFFECT_GRAVOUT;
+	return 0;
+}
+
 void PPTO_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_PPTO";
@@ -58,7 +76,6 @@ void PPTO_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = &update_PRTO;
-	elem->Graphics = &graphics_PPTO;
+	elem->Update = &PRTO_update;
+	elem->Graphics = &PPTO_graphics;
 }
-

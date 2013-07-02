@@ -15,6 +15,13 @@
 
 #include "simulation/ElementsCommon.h"
 
+int PVOD_graphics(GRAPHICS_FUNC_ARGS)
+{
+	int lifemod = ((cpart->life>10?10:cpart->life)*16);
+	*colr += lifemod;
+	return 0;
+}
+
 void PVOD_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_PVOD";
@@ -59,6 +66,5 @@ void PVOD_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionElement = NT;
 
 	elem->Update = NULL;
-	elem->Graphics = &graphics_PVOD;
+	elem->Graphics = &PVOD_graphics;
 }
-

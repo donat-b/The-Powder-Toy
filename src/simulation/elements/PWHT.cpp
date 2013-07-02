@@ -15,6 +15,46 @@
 
 #include "simulation/ElementsCommon.h"
 
+int PWHT_update(UPDATE_FUNC_ARGS)
+{
+	int r = pmap[y-1][x];
+	float temp = parts[i].temp;
+	if (parts[i].life < 10)
+		return 0;
+	if ((pmap[y-1][x]&0xFF) == PT_PWHT)
+	{
+		int rx, ry;
+		for (rx=-1; rx<2; rx++)
+			for (ry=-1; ry<2; ry++)
+				if (BOUNDS_CHECK)
+				{
+					r = pmap[y+ry][x+rx];
+					if(!r)
+						r = photons[y+ry][x+rx];
+					if ((r>>8)>=NPART || !r || (r&0xFF) != PT_PWHT)
+						continue;
+					kill_part(r>>8);
+				}
+		return 1;
+	}
+	else if (pmap[y-1][x]&0xFF)
+	{
+		if (!parts[i].ctype && !parts[i].tmp2)
+			flood_prop(x,y-1,offsetof(particle, temp),&parts[i].temp,2);
+		else
+		{
+			PWHT_flood(UPDATE_FUNC_SUBCALL_ARGS);
+		}
+	}
+	return 0;
+}
+
+int PWHT_graphics(GRAPHICS_FUNC_ARGS)
+{
+	int lifemod = ((cpart->life>10?10:cpart->life)*19);
+	*colb += lifemod;
+	return 0;
+}
 void PWHT_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_PWHT";
@@ -58,7 +98,6 @@ void PWHT_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = &update_PWHT;
-	elem->Graphics = &graphics_PWHT;
+	elem->Update = &PWHT_update;
+	elem->Graphics = &PWHT_graphics;
 }
-

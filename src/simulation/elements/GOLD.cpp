@@ -15,6 +15,61 @@
 
 #include "simulation/ElementsCommon.h"
 
+int GOLD_update(UPDATE_FUNC_ARGS)
+{
+	int rx, ry, r, blocking = 0, j;
+	static int checkCoordsX[] = { -4, 4, 0, 0 };
+	static int checkCoordsY[] = { 0, 0, -4, 4 };
+	//Find nearby rusted iron (BMTL with tmp 1+)
+	for(j = 0; j < 8; j++){
+		rx = (rand()%9)-4;
+		ry = (rand()%9)-4;
+		if ((!rx != !ry) && BOUNDS_CHECK) {
+			r = pmap[y+ry][x+rx];
+			if(!r) continue;
+			if((r&0xFF)==PT_BMTL && parts[r>>8].tmp)
+			{
+				parts[r>>8].tmp = 0;
+				part_change_type(r>>8, x+rx, y+ry, PT_IRON);
+			}
+		}
+	}
+	//Find sparks
+	if(!parts[i].life)
+	{
+		for(j = 0; j < 4; j++){
+			rx = checkCoordsX[j];
+			ry = checkCoordsY[j];
+			if ((!rx != !ry) && BOUNDS_CHECK) {
+				r = pmap[y+ry][x+rx];
+				if(!r) continue;
+				if((r&0xFF)==PT_SPRK && parts[r>>8].life && parts[r>>8].life<4)
+				{
+					parts[i].life = 4;
+					parts[i].type = PT_SPRK;
+					parts[i].ctype = PT_GOLD;
+				}
+			}
+		}
+	}
+	if ((photons[y][x]&0xFF) == PT_NEUT)
+	{
+		if (!(rand()%7))
+		{
+			kill_part(photons[y][x]>>8);
+		}
+	}
+	return 0;
+}
+
+int GOLD_graphics(GRAPHICS_FUNC_ARGS)
+{
+	*colr += rand()%10-5;
+	*colg += rand()%10-5;
+	*colb += rand()%10-5;
+	return 0;
+}
+
 void GOLD_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_GOLD";
@@ -58,7 +113,6 @@ void GOLD_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = 1337.0f;
 	elem->HighTemperatureTransitionElement = PT_LAVA;
 
-	elem->Update = &update_GOLD;
-	elem->Graphics = &graphics_GOLD;
+	elem->Update = &GOLD_update;
+	elem->Graphics = &GOLD_graphics;
 }
-

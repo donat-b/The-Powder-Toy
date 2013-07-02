@@ -15,6 +15,8 @@
 
 #include "simulation/ElementsCommon.h"
 
+int VIRS_update(UPDATE_FUNC_ARGS);
+
 void VRSS_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_VRSS";
@@ -58,7 +60,6 @@ void VRSS_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = 305.0f;
 	elem->HighTemperatureTransitionElement = PT_VIRS;
 
-	elem->Update = &update_VIRS;
+	elem->Update = &VIRS_update;
 	elem->Graphics = NULL;
 }
-

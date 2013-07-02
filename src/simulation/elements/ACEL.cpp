@@ -15,6 +15,46 @@
 
 #include "simulation/ElementsCommon.h"
 
+int ACEL_update(UPDATE_FUNC_ARGS)
+{
+	int r, rx, ry;
+	float multiplier;
+	if (parts[i].life!=0)
+	{
+		float change = (float)(parts[i].life > 1000 ? 1000 : (parts[i].life < 0 ? 0 : parts[i].life));
+		multiplier = 1.0f+(change/100.0f);
+	}
+	else
+	{
+		multiplier = 1.1f;
+	}
+	parts[i].tmp = 0;
+	for (rx=-1; rx<2; rx++)
+		for (ry=-1; ry<2; ry++)
+			if (BOUNDS_CHECK && (rx || ry) && !(rx && ry))
+			{
+				r = pmap[y+ry][x+rx];
+				if(!r)
+					r = photons[y+ry][x+rx];
+				if ((r>>8)>=NPART || !r)
+					continue;
+				if(ptypes[r&0xFF].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY))
+				{
+					parts[r>>8].vx *= multiplier;
+					parts[r>>8].vy *= multiplier;
+					parts[i].tmp = 1;
+				}
+			}
+	return 0;
+}
+
+int ACEL_graphics(GRAPHICS_FUNC_ARGS)
+{
+	if(cpart->tmp)
+		*pixel_mode |= PMODE_GLOW;
+	return 0;
+}
+
 void ACEL_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_ACEL";
@@ -58,7 +98,6 @@ void ACEL_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = &update_ACEL;
-	elem->Graphics = &graphics_ACEL;
+	elem->Update = &ACEL_update;
+	elem->Graphics = &ACEL_graphics;
 }
-

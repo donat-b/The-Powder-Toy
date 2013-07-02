@@ -15,6 +15,52 @@
 
 #include "simulation/ElementsCommon.h"
 
+int BCOL_update(UPDATE_FUNC_ARGS)
+{
+	int r, rx, ry, trade, temp;
+	if (parts[i].life<=0) {
+		create_part(i, x, y, PT_FIRE);
+		return 1;
+	} else if (parts[i].life < 100) {
+		parts[i].life--;
+		create_part(-1, x+rand()%3-1, y+rand()%3-1, PT_FIRE);
+	}
+
+	/*if(100-parts[i].life > parts[i].tmp2)
+		parts[i].tmp2 = 100-parts[i].life;
+	if(parts[i].tmp2 < 0) parts[i].tmp2 = 0;
+	for ( trade = 0; trade<4; trade ++)
+	{
+		rx = rand()%5-2;
+		ry = rand()%5-2;
+		if (BOUNDS_CHECK && (rx || ry))
+		{
+			r = pmap[y+ry][x+rx];
+			if (!r)
+				continue;
+			if (((r&0xFF)==PT_COAL || (r&0xFF)==PT_BCOL)&&(parts[i].tmp2>parts[r>>8].tmp2)&&parts[i].tmp2>0)//diffusion
+			{
+				int temp = parts[i].tmp2 - parts[r>>8].tmp2;
+				if(temp < 10)
+					continue;
+				if (temp ==1)
+				{
+					parts[r>>8].tmp2 ++;
+					parts[i].tmp2 --;
+				}
+				else if (temp>0)
+				{
+					parts[r>>8].tmp2 += temp/2;
+					parts[i].tmp2 -= temp/2;
+				}
+			}
+		}
+	}*/
+	if(parts[i].temp > parts[i].tmp2)
+		parts[i].tmp2 = (int)parts[i].temp;
+	return 0;
+}
+
 void BCOL_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_BCOL";
@@ -58,7 +104,6 @@ void BCOL_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = &update_BCOL;
+	elem->Update = &BCOL_update;
 	elem->Graphics = &graphics_COAL;
 }
-

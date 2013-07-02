@@ -15,6 +15,105 @@
 
 #include "simulation/ElementsCommon.h"
 
+int CBNW_update(UPDATE_FUNC_ARGS)
+{
+	int r, rx, ry, oldt;
+	oldt = parts[i].tmp;
+    if (pv[y/CELL][x/CELL]<=3)
+    {
+        if(20>(rand()%80000))
+    	{
+            part_change_type(i,x,y,PT_CO2);
+           	parts[i].ctype = 5;
+        	pv[y/CELL][x/CELL] += 0.5f;
+        }
+        else if(pv[y/CELL][x/CELL]<=-0.5)
+    	{
+            part_change_type(i,x,y,PT_CO2);
+           	parts[i].ctype = 5;
+        	pv[y/CELL][x/CELL] += 0.5f;
+        }
+	}
+	if (parts[i].tmp>0)
+		parts[i].tmp--;
+	if(!(rand()%200))
+	{
+		parts[i].tmp2 = rand()%40;
+	} else if(parts[i].tmp2!=20) {
+		parts[i].tmp2 -= (parts[i].tmp2>20)?1:-1;
+	}
+	if(oldt==1)
+	{
+		//Explode
+		if(rand()%4)
+		{
+            part_change_type(i,x,y,PT_CO2);
+           	parts[i].ctype = 5;
+        	pv[y/CELL][x/CELL] += 0.2f;
+		}
+	}
+	for (rx=-1; rx<2; rx++)
+		for (ry=-1; ry<2; ry++)
+			if (BOUNDS_CHECK && (rx || ry))
+			{
+				r = ((pmap[y+ry][x+rx]&0xFF)==PT_PINV&&parts[pmap[y+ry][x+rx]>>8].life==10)?0:pmap[y+ry][x+rx];
+				if (!r)
+					continue;
+				if (ptypes[r&0xFF].properties&TYPE_PART && parts[i].tmp == 0 && !(rand()%83))
+				{
+					//Start explode
+					parts[i].tmp = rand()%25;//(rand()%100)+50;
+				}
+				else if(ptypes[r&0xFF].properties&TYPE_SOLID && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && (r&0xFF)!=PT_GLAS && parts[i].tmp == 0 && (2-pv[y/CELL][x/CELL])>(rand()%6667))
+				{
+					if(rand()%2)
+					{
+                        part_change_type(i,x,y,PT_CO2);
+                       	parts[i].ctype = 5;
+                    	pv[y/CELL][x/CELL] += 0.2f;
+					}
+				}
+				if ((r&0xFF)==PT_CBNW)
+				{
+					if(!parts[i].tmp && parts[r>>8].tmp)
+					{
+						parts[i].tmp = parts[r>>8].tmp;
+						if((r>>8)>i) //If the other particle hasn't been life updated
+							parts[i].tmp--;
+					}
+					else if(parts[i].tmp && !parts[r>>8].tmp)
+					{
+						parts[r>>8].tmp = parts[i].tmp;
+						if((r>>8)>i) //If the other particle hasn't been life updated
+							parts[r>>8].tmp++;
+					}
+				}
+				if (((r&0xFF)==PT_RBDM||(r&0xFF)==PT_LRBD) && (legacy_enable||parts[i].temp>(273.15f+12.0f)) && !(rand()%166))
+				{
+					part_change_type(i,x,y,PT_FIRE);
+					parts[i].life = 4;
+					parts[i].ctype = PT_WATR;
+				}
+				if ((r&0xFF)==PT_FIRE && parts[r>>8].ctype!=PT_WATR){
+					kill_part(r>>8);
+						if(!(rand()%50)){
+							kill_part(i);
+							return 1;
+						}
+				}
+			}
+	return 0;
+}
+
+int CBNW_graphics(GRAPHICS_FUNC_ARGS)
+{
+	int z = cpart->tmp2 - 20;//speckles!
+	*colr += z * 1;
+	*colg += z * 2;
+	*colb += z * 8;
+	return 0;
+}
+
 void CBNW_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_CBNW";
@@ -58,7 +157,6 @@ void CBNW_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = 373.0f;
 	elem->HighTemperatureTransitionElement = PT_WTRV;
 
-	elem->Update = &update_CBNW;
-	elem->Graphics = &graphics_CBNW;
+	elem->Update = &CBNW_update;
+	elem->Graphics = &CBNW_graphics;
 }
-

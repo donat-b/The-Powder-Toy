@@ -15,6 +15,16 @@
 
 #include "simulation/ElementsCommon.h"
 
+int FRME_graphics(GRAPHICS_FUNC_ARGS)
+{
+	if(cpart->tmp)
+	{
+		*colr += 30;
+		*colg += 30;
+		*colb += 30;
+	}
+	return 0;
+}
 void FRME_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_FRME";
@@ -59,6 +69,5 @@ void FRME_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionElement = NT;
 
 	elem->Update = NULL;
-	elem->Graphics = &graphics_FRME;
+	elem->Graphics = &FRME_graphics;
 }
-

@@ -15,6 +15,24 @@
 
 #include "simulation/ElementsCommon.h"
 
+int PRTI_update(UPDATE_FUNC_ARGS);
+
+int PPTI_graphics(GRAPHICS_FUNC_ARGS)
+{
+	int lifemod;
+	*firea = 8;
+	*firer = 255;
+	*fireg = 0;
+	*fireb = 0;
+	*pixel_mode |= EFFECT_GRAVIN;
+	*pixel_mode |= EFFECT_DBGLINES;
+	lifemod = ((cpart->tmp2>10?10:cpart->tmp2)*10);
+	*colr = 155 + lifemod;
+	if (cpart->tmp2 < 10)
+		*pixel_mode &= ~EFFECT_GRAVIN;
+	return 0;
+}
+
 void PPTI_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_PPTI";
@@ -58,7 +76,6 @@ void PPTI_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = &update_PRTI;
-	elem->Graphics = &graphics_PPTI;
+	elem->Update = &PRTI_update;
+	elem->Graphics = &PPTI_graphics;
 }
-

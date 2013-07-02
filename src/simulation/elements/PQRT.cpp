@@ -61,4 +61,3 @@ void PQRT_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &update_QRTZ;
 	elem->Graphics = &graphics_QRTZ;
 }
-

@@ -15,6 +15,29 @@
 
 #include "simulation/ElementsCommon.h"
 
+int GPMP_update(UPDATE_FUNC_ARGS)
+{
+	int r, rx, ry;
+	if (parts[i].life==10)
+	{
+		if (parts[i].temp>=256.0+273.15)
+			parts[i].temp=256.0f+273.15f;
+		if (parts[i].temp<= -256.0+273.15)
+			parts[i].temp = -256.0f+273.15f;
+
+		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = 0.2f*(parts[i].temp-273.15);
+	}
+	return 0;
+}
+
+int GPMP_graphics(GRAPHICS_FUNC_ARGS)
+{
+	int lifemod = ((cpart->life>10?10:cpart->life)*19);
+	*colg += lifemod;
+	*colb += lifemod;
+	return 0;
+}
+
 void GPMP_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_GPMP";
@@ -58,7 +81,6 @@ void GPMP_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = &update_GPMP;
-	elem->Graphics = &graphics_GPMP;
+	elem->Update = &GPMP_update;
+	elem->Graphics = &GPMP_graphics;
 }
-

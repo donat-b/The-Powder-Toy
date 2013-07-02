@@ -15,6 +15,8 @@
 
 #include "simulation/ElementsCommon.h"
 
+int VIRS_update(UPDATE_FUNC_ARGS);
+
 void VRSG_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_VRSG";
@@ -58,7 +60,6 @@ void VRSG_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = &update_VIRS;
+	elem->Update = &VIRS_update;
 	elem->Graphics = NULL;
 }
-

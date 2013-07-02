@@ -15,6 +15,34 @@
 
 #include "simulation/ElementsCommon.h"
 
+int PSNS_update(UPDATE_FUNC_ARGS)
+{
+	int r, rx, ry, rt;
+	if (pv[y/CELL][x/CELL] > parts[i].temp-273.15f)
+	{
+		parts[i].life = 0;
+		for (rx=-2; rx<3; rx++)
+			for (ry=-2; ry<3; ry++)
+				if (BOUNDS_CHECK && (rx || ry))
+				{
+					r = pmap[y+ry][x+rx];
+					if (!r)
+						continue;
+					rt = r&0xFF;
+					if (parts_avg(i,r>>8,PT_INSL) != PT_INSL)
+					{
+						if ((ptypes[rt].properties&PROP_CONDUCTS) && !(rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR) && parts[r>>8].life==0)
+						{
+							parts[r>>8].life = 4;
+							parts[r>>8].ctype = rt;
+							part_change_type(r>>8,x+rx,y+ry,PT_SPRK);
+						}
+					}
+				}
+	}
+	return 0;
+}
+
 void PSNS_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_PSNS";
@@ -58,7 +86,6 @@ void PSNS_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = &update_PSNS;
+	elem->Update = &PSNS_update;
 	elem->Graphics = NULL;
 }
-

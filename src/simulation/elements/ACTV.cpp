@@ -15,6 +15,18 @@
 
 #include "simulation/ElementsCommon.h"
 
+int ACTV_graphics(GRAPHICS_FUNC_ARGS)
+{
+	if(cpart->life >= 10)
+	{
+		*colr = 19;
+		*colg = 229;
+		*colb = 233;
+		*pixel_mode |= PMODE_GLOW;
+	}
+	return 0;
+}
+
 void ACTV_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_ACTV";
@@ -59,6 +71,5 @@ void ACTV_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionElement = NT;
 
 	elem->Update = NULL;
-	elem->Graphics = &graphics_ACTV;
+	elem->Graphics = &ACTV_graphics;
 }
-

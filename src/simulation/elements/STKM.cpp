@@ -15,6 +15,19 @@
 
 #include "simulation/ElementsCommon.h"
 
+int STKM_update(UPDATE_FUNC_ARGS)
+{
+	run_stickman(&player, UPDATE_FUNC_SUBCALL_ARGS);
+	return 0;
+}
+
+int STKM_graphics(GRAPHICS_FUNC_ARGS)
+{
+	*colr = *colg = *colb = *cola = 0;
+	*pixel_mode = PSPEC_STICKMAN;
+	return 0;
+}
+
 void STKM_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_STKM";
@@ -58,7 +71,6 @@ void STKM_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = 620.0f;
 	elem->HighTemperatureTransitionElement = PT_FIRE;
 
-	elem->Update = &update_STKM;
-	elem->Graphics = &graphics_STKM;
+	elem->Update = &STKM_update;
+	elem->Graphics = &STKM_graphics;
 }
-

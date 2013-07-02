@@ -15,6 +15,28 @@
 
 #include "simulation/ElementsCommon.h"
 
+int WTRV_update(UPDATE_FUNC_ARGS)
+{
+	int r, rx, ry;
+	for (rx=-1; rx<2; rx++)
+		for (ry=-1; ry<2; ry++)
+			if (BOUNDS_CHECK && (rx || ry))
+			{
+				r = pmap[y+ry][x+rx];
+				if (!r)
+					continue;
+				if (((r&0xFF)==PT_RBDM||(r&0xFF)==PT_LRBD) && !legacy_enable && parts[i].temp>(273.15f+12.0f) && !(rand()%100))
+				{
+					part_change_type(i,x,y,PT_FIRE);
+					parts[i].life = 4;
+					parts[i].ctype = PT_WATR;
+				}
+			}
+	if(parts[i].temp>1273&&parts[i].ctype==PT_FIRE)
+		parts[i].temp-=parts[i].temp/1000;
+	return 0;
+}
+
 void WTRV_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_WTRV";
@@ -58,7 +80,6 @@ void WTRV_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = &update_WTRV;
+	elem->Update = &WTRV_update;
 	elem->Graphics = NULL;
 }
-

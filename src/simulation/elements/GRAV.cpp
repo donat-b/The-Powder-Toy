@@ -15,6 +15,40 @@
 
 #include "simulation/ElementsCommon.h"
 
+int GRAV_graphics(GRAPHICS_FUNC_ARGS)
+{
+	*colr = 20;
+	*colg = 20;
+	*colb = 20;
+	if (cpart->vx>0)
+	{
+		*colr += (int)(cpart->vx)*GRAV_R;
+		*colg += (int)(cpart->vx)*GRAV_G;
+		*colb += (int)(cpart->vx)*GRAV_B;
+	}
+	if (cpart->vy>0)
+	{
+		*colr += (int)(cpart->vy)*GRAV_G;
+		*colg += (int)(cpart->vy)*GRAV_B;
+		*colb += (int)(cpart->vy)*GRAV_R;
+
+	}
+	if (cpart->vx<0)
+	{
+		*colr -= (int)(cpart->vx)*GRAV_B;
+		*colg -= (int)(cpart->vx)*GRAV_R;
+		*colb -= (int)(cpart->vx)*GRAV_G;
+
+	}
+	if (cpart->vy<0)
+	{
+		*colr -= (int)(cpart->vy)*GRAV_R2;
+		*colg -= (int)(cpart->vy)*GRAV_G2;
+		*colb -= (int)(cpart->vy)*GRAV_B2;
+	}
+	return 0;
+}
+
 void GRAV_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_GRAV";
@@ -59,6 +93,5 @@ void GRAV_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionElement = NT;
 
 	elem->Update = &update_MISC;
-	elem->Graphics = &graphics_GRAV;
+	elem->Graphics = &GRAV_graphics;
 }
-

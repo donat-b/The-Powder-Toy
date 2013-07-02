@@ -61,4 +61,3 @@ void DRIC_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = NULL;
 	elem->Graphics = NULL;
 }
-
