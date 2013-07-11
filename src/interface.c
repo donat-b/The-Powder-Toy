@@ -783,7 +783,7 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 		ed->highlightlength = ed->cursorstart-ed->cursor;
 	}
 	
-	if (mb && (ed->focus || !mbq) && mx>=ed->x && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+(ed->multiline?ed->h:11))
+	if (mb && (ed->focus || !mbq) && mx>=ed->x && mx<ed->x+ed->w && my>=ed->y-2 && my<ed->y+(ed->multiline?ed->h:11))
 	{
 		ed->focus = 1;
 		ed->cursor = textposxy(ed->str, ed->w-14, mx-ed->x, my-ed->y);
@@ -797,7 +797,7 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 	}
 	else if (mb && (ed->focus || !mbq))
 	{
-		if (my <= ed->y-5)
+		if (my <= ed->y-2)
 			ed->cursor = 0;
 		else if (my >= ed->y+ed->h)
 			ed->cursor = strlen(ed->str);
@@ -5277,7 +5277,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		if (!b)
 			break;
 	}
-
+	
 	//Try to load the thumbnail from the cache
 	if(save_date)
 	{
@@ -5656,7 +5656,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							change = ui_label_draw(vid_buf, &info->comments[cc]); // draw the comment
 							ui_label_process(mx, my, b, bq, &info->comments[cc]); // process copying
 
-							if (b && !bq && mx > 50+(XRES/2)+1 && mx < 50 + XRES+BARSIZE-100 && my > commentboxy - 2 && my < commentboxy + 29) // defocus comments that are under textbox
+							if (svf_login && b && !bq && mx > 50+(XRES/2)+1 && mx < 50 + XRES+BARSIZE-100 && my > commentboxy - 2 && my < commentboxy + ed.h+2) // defocus comments that are under textbox
 								info->comments[cc].focus = 0;
 
 							ccy += change + 10;
@@ -7038,7 +7038,7 @@ int console_draw_history(command_history *commandList, command_history *commandr
 		if (commandList == NULL)
 			break;
 
-		cc += (commandList->command.h/12)-1;
+		cc += (commandList->command.h/14);
 		if (cc >= limit)
 			break;
 
@@ -7070,17 +7070,17 @@ void console_set_history_X(command_history *commandList, command_history *comman
 		if (commandList == NULL)
 			break;
 
-		commandHeight = drawtextwrap(vid_buf, 15, 175-(cc*12), divideX-30, 0, commandList->command.str, 0, 0, 0, 0);
-		resultHeight = drawtextwrap(vid_buf, divideX+15, 175-(cc*12), XRES-divideX-30, 0, commandresultList->command.str, 0, 0, 0, 0);
+		commandHeight = drawtextwrap(vid_buf, 15, 175-(cc*14), divideX-30, 0, commandList->command.str, 0, 0, 0, 0);
+		resultHeight = drawtextwrap(vid_buf, divideX+15, 175-(cc*14), XRES-divideX-30, 0, commandresultList->command.str, 0, 0, 0, 0);
 		if (resultHeight > commandHeight)
 			commandHeight = resultHeight;
-		cc += (commandHeight/12)-1;
+		cc += (commandHeight/14);
 
-		commandList->command.y = 175-(cc*12);
+		commandList->command.y = 175-(cc*14);
 		commandList->command.w = divideX-30+14;
 		commandList->command.h = commandHeight;
 		commandresultList->command.x = divideX+15;
-		commandresultList->command.y = 175-(cc*12);
+		commandresultList->command.y = 175-(cc*14);
 		commandresultList->command.w = XRES-divideX-30+14;
 		commandresultList->command.h = commandHeight;
 
@@ -7164,7 +7164,7 @@ int console_ui(pixel *vid_buf)
 		//draw the visible console history
 		currentcommand = last_command;
 		currentcommand_result = last_command_result;
-		focusTextbox = !console_draw_history(currentcommand, currentcommand_result, 12, divideX, mx, my, b, bq);
+		focusTextbox = !console_draw_history(currentcommand, currentcommand_result, 11, divideX, mx, my, b, bq);
 
 		//find matches, for tab autocomplete
 		if (strcmp(laststr,ed.str))

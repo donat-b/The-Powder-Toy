@@ -10,6 +10,7 @@ powder.pref
 *.gz
 *.out
 *.sh
+*.py
 *The-Powder-Toy*
 *jacob1smod*
 /stamps/
@@ -26,6 +27,7 @@ powder.pref
 /Normal/
 /official/
 /OpenGL/
+/Static/
 /tpt-libs/
 /includes/SDL/*
 /includes/lua5.1/*
@@ -34,3 +36,4 @@ powder.pref
 /includes/pthread.h
 /includes/regex.h
 /includes/sched.h
+/includes/dirent.h
