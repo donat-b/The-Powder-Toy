@@ -2867,7 +2867,7 @@ int main(int argc, char *argv[])
 						{
 							nfvx = (line_x-lx)*0.005f;
 							nfvy = (line_y-ly)*0.005f;
-							flood_parts(lx, ly, WL_FANHELPER, -1, WL_FAN, 0);
+							FloodWalls(lx, ly, WL_FANHELPER, WL_FAN, 0);
 							for (j=0; j<YRES/CELL; j++)
 								for (i=0; i<XRES/CELL; i++)
 									if (bmap[j][i] == WL_FANHELPER)
@@ -2953,8 +2953,13 @@ int main(int argc, char *argv[])
 							unsigned int col = (b != 4 && c != DECO_ERASE) ? decocolor : PIXRGB(0,0,0);
 							flood_prop(x, y, offsetof(particle,dcolour), &col, 0);
 						}
-						else if (c != WL_STREAM+100 && c != DECO_DRAW && c != DECO_ERASE)
-							flood_parts(x, y, c, -1, -1, get_brush_flags());
+						else if (c >= UI_WALLSTART && c < UI_WALLSTART+UI_WALLCOUNT)
+						{
+							if (c != WL_STREAM+100)
+								FloodWalls(x, y, c, -1, get_brush_flags());
+						}
+						else if (c != DECO_DRAW && c != DECO_ERASE)
+							FloodParts(x, y, c, -1, get_brush_flags());
 						lx = x;
 						ly = y;
 						lb = 0;

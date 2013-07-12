@@ -3759,8 +3759,7 @@ int flood_prop(int x, int y, size_t propoffset, void * propvalue, int proptype)
 int flood_INST(int x, int y, int fullc, int cm)
 {
 	int c = fullc&0xFF;
-	int x1, x2, dy = (c<PT_NUM)?1:CELL;
-	int co = c;
+	int x1, x2;
 	int coord_stack_limit = XRES*YRES;
 	unsigned short (*coord_stack)[2];
 	int coord_stack_size = 0;
@@ -3905,8 +3904,7 @@ int flood_INST(int x, int y, int fullc, int cm)
 	return created_something;
 }
 
-
-int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
+int FloodParts(int x, int y, int fullc, int cm, int flags)
 {
 	int c = fullc&0xFF;
 	int x1, x2, dy = (c<PT_NUM)?1:CELL;
@@ -3915,43 +3913,31 @@ int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 	int coord_stack_size = 0;
 	int created_something = 0;
 
-	if (fullc == SPC_PROP)
-		return flood_prop(x, y, prop_offset, prop_value, prop_format);
-
 	if (cm==-1)
 	{
+		//if initial flood point is out of bounds, do nothing
+		if (c != 0 && (x < CELL || x >= XRES-CELL || y < CELL || y >= YRES-CELL))
+			return 1;
 		if (c==0)
 		{
 			cm = pmap[y][x]&0xFF;
 			if (!cm)
 				cm = photons[y][x]&0xFF;
-			if (!cm)
-			{
-				c = fullc = WL_ERASE+100; //Try to erase walls if there is no particle in this spot
-				dy = 4;
-			}
+			if (!cm && bmap[y/CELL][x/CELL])
+				FloodWalls(x, y, WL_ERASE+100, -1, flags);
 			if ((flags&BRUSH_REPLACEMODE) && cm!=SLALT)
 				return 0;
 		}
 		else
 			cm = 0;
 	}
-	if (bm==-1)
-	{
-		if (c-UI_WALLSTART+UI_ACTUALSTART==WL_ERASE || c-UI_WALLSTART+UI_ACTUALSTART==WL_ERASEALL)
-		{
-			bm = bmap[y/CELL][x/CELL];
-			if (!bm)
-				return 0;
-		}
-		else
-			bm = 0;
-	}
-
-	if ((!FloodFillPmapCheck(x, y, cm) || bmap[y/CELL][x/CELL] != bm) || ((flags&BRUSH_SPECIFIC_DELETE) && cm!=SLALT))
+	if (IsWallBlocking(x, y, c))
 		return 1;
 
-	coord_stack = (unsigned short(*)[2])malloc(sizeof(unsigned short)*2*coord_stack_limit);
+	if (!FloodFillPmapCheck(x, y, cm) || ((flags&BRUSH_SPECIFIC_DELETE) && cm!=SLALT))
+		return 1;
+
+	coord_stack = (short unsigned int (*)[2])malloc(sizeof(unsigned short)*2*coord_stack_limit);
 	coord_stack[coord_stack_size][0] = x;
 	coord_stack[coord_stack_size][1] = y;
 	coord_stack_size++;
@@ -3963,18 +3949,18 @@ int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 		y = coord_stack[coord_stack_size][1];
 		x1 = x2 = x;
 		// go left as far as possible
-		while (x1>=CELL)
+		while (c?x1>CELL:x1>0)
 		{
-			if (!FloodFillPmapCheck(x1-1, y, cm) || bmap[y/CELL][(x1-1)/CELL]!=bm)
+			if (!FloodFillPmapCheck(x1-1, y, cm) || (c != 0 && IsWallBlocking(x1-1, y, c)))
 			{
 				break;
 			}
 			x1--;
 		}
 		// go right as far as possible
-		while (x2<XRES-CELL)
+		while (c?x2<XRES-CELL-1:x2<XRES-1)
 		{
-			if (!FloodFillPmapCheck(x2+1, y, cm) || bmap[y/CELL][(x2+1)/CELL]!=bm)
+			if (!FloodFillPmapCheck(x2+1, y, cm) || (c != 0 && IsWallBlocking(x2+1, y, c)))
 			{
 				break;
 			}
@@ -3987,10 +3973,9 @@ int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 				created_something = 1;
 		}
 
-		// add vertically adjacent pixels to stack
-		if (y>=CELL+dy)
+		if (c?y>=CELL+dy:y>=dy)
 			for (x=x1; x<=x2; x++)
-				if (FloodFillPmapCheck(x, y-dy, cm) && bmap[(y-dy)/CELL][x/CELL]==bm)
+				if (FloodFillPmapCheck(x, y-dy, cm) && (c == 0 || !IsWallBlocking(x, y-dy, c)))
 				{
 					coord_stack[coord_stack_size][0] = x;
 					coord_stack[coord_stack_size][1] = y-dy;
@@ -4001,9 +3986,10 @@ int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 						return -1;
 					}
 				}
-		if (y<YRES-CELL-dy)
+
+		if (c?y<YRES-CELL-dy:y<YRES-dy)
 			for (x=x1; x<=x2; x++)
-				if (FloodFillPmapCheck(x, y+dy, cm) && bmap[(y+dy)/CELL][x/CELL]==bm)
+				if (FloodFillPmapCheck(x, y+dy, cm) && (c == 0 || !IsWallBlocking(x, y+dy, c)))
 				{
 					coord_stack[coord_stack_size][0] = x;
 					coord_stack[coord_stack_size][1] = y+dy;
@@ -4017,6 +4003,65 @@ int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 	} while (coord_stack_size>0);
 	free(coord_stack);
 	return created_something;
+}
+
+int FloodWalls(int x, int y, int wall, int bm, int flags)
+{
+	int x1, x2, dy = CELL;
+	if (wall == SPC_PROP)
+		return flood_prop(x, y, prop_offset, prop_value, prop_format);
+	if (bm==-1)
+	{
+		if (wall-UI_WALLSTART+UI_ACTUALSTART==WL_ERASE || wall-UI_WALLSTART+UI_ACTUALSTART==WL_ERASEALL)
+		{
+			bm = bmap[y/CELL][x/CELL];
+			if (!bm)
+				return 0;
+		}
+		else
+			bm = 0;
+	}
+
+	if (bmap[y/CELL][x/CELL] != bm || ((flags&BRUSH_SPECIFIC_DELETE) && bm!=SLALT))
+		return 1;
+
+	// go left as far as possible
+	x1 = x2 = x;
+	while (x1>=CELL)
+	{
+		if (bmap[y/CELL][(x1-1)/CELL]!=bm)
+		{
+			break;
+		}
+		x1--;
+	}
+	while (x2<XRES-CELL)
+	{
+		if (bmap[y/CELL][(x2+1)/CELL]!=bm)
+		{
+			break;
+		}
+		x2++;
+	}
+
+	// fill span
+	for (x=x1; x<=x2; x++)
+	{
+		if (!create_parts(x, y, 0, 0, wall, flags, 1))
+			return 0;
+	}
+	// fill children
+	if (y>=CELL)
+		for (x=x1; x<=x2; x++)
+			if (bmap[(y-dy)/CELL][x/CELL]==bm)
+				if (!FloodWalls(x, y-dy, wall, bm, flags))
+					return 0;
+	if (y<YRES-CELL)
+		for (x=x1; x<=x2; x++)
+			if (bmap[(y+dy)/CELL][x/CELL]==bm)
+				if (!FloodWalls(x, y+dy, wall, bm, flags))
+					return 0;
+	return 1;
 }
 
 int flood_water(int x, int y, int i, int originaly, int check)
