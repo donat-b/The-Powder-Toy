@@ -2945,6 +2945,7 @@ int main(int argc, char *argv[])
 					//flood fill
 					else if ((sdl_mod & (KMOD_CTRL)) && (sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_ALT)) && (!is_TOOL(c) || c==SPC_PROP))
 					{
+						ctrlzSnapshot();
 						if (sdl_mod & (KMOD_CAPS))
 							c = 0;
 						if (c == DECO_DRAW || c == DECO_ERASE)
@@ -3027,6 +3028,7 @@ int main(int argc, char *argv[])
 		{
 			if (lb && lm) //lm is box/line tool
 			{
+				ctrlzSnapshot();
 				c = (lb&1) ? sl : sr;
 				if (is_DECOTOOL(sl) && lb == 4)
 					c = DECO_ERASE;
