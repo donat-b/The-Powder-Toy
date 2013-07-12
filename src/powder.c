@@ -1556,6 +1556,8 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 int create_property(int x, int y, size_t propoffset, void * propvalue, int proptype)
 {
 	int i = pmap[y][x];
+	if (!i)
+		i = photons[y][x];
 	if (!propvalue)
 		return -1;
 	if (i&0xFF)
@@ -3687,13 +3689,23 @@ void create_box(int x1, int y1, int x2, int y2, int c, int flags)
 			create_parts(i, j, 0, 0, c, flags, 1);
 }
 
+int FloodFillPmapCheck(int x, int y, int type)
+{
+	if (type == 0)
+		return !pmap[y][x] && !photons[y][x];
+	if (ptypes[type].properties&TYPE_ENERGY)
+		return (photons[y][x]&0xFF) == type;
+	else
+		return (pmap[y][x]&0xFF) == type;
+}
+
 int flood_prop_2(int x, int y, size_t propoffset, void * propvalue, int proptype, int parttype, char * bitmap)
 {
-	int x1, x2, i, dy = 1;
+	int x1, x2, dy = 1;
 	x1 = x2 = x;
 	while (x1>=CELL)
 	{
-		if ((pmap[y][x1-1]&0xFF)!=parttype || bitmap[(y*XRES)+x1-1])
+		if (!FloodFillPmapCheck(x1-1, y, parttype) || bitmap[(y*XRES)+x1-1])
 		{
 			break;
 		}
@@ -3701,7 +3713,7 @@ int flood_prop_2(int x, int y, size_t propoffset, void * propvalue, int proptype
 	}
 	while (x2<XRES-CELL)
 	{
-		if ((pmap[y][x2+1]&0xFF)!=parttype || bitmap[(y*XRES)+x2+1])
+		if (!FloodFillPmapCheck(x2+1, y, parttype) || bitmap[(y*XRES)+x2+1])
 		{
 			break;
 		}
@@ -3714,12 +3726,12 @@ int flood_prop_2(int x, int y, size_t propoffset, void * propvalue, int proptype
 	}
 	if (y>=CELL+dy)
 		for (x=x1; x<=x2; x++)
-			if ((pmap[y-dy][x]&0xFF)==parttype && !bitmap[((y-dy)*XRES)+x])
+			if (FloodFillPmapCheck(x, y-dy, parttype) && !bitmap[((y-dy)*XRES)+x])
 				if (!flood_prop_2(x, y-dy, propoffset, propvalue, proptype, parttype, bitmap))
 					return 0;
 	if (y<YRES-CELL-dy)
 		for (x=x1; x<=x2; x++)
-			if ((pmap[y+dy][x]&0xFF)==parttype && !bitmap[((y+dy)*XRES)+x])
+			if (FloodFillPmapCheck(x, y+dy, parttype) && !bitmap[((y+dy)*XRES)+x])
 				if (!flood_prop_2(x, y+dy, propoffset, propvalue, proptype, parttype, bitmap))
 					return 0;
 	return 1;
@@ -3733,6 +3745,10 @@ int flood_prop(int x, int y, size_t propoffset, void * propvalue, int proptype)
 		return 0;
 	memset(bitmap, 0, XRES*YRES);
 	r = pmap[y][x];
+	if (!r)
+		r = photons[y][x];
+	if (!r)
+		return 1;
 	flood_prop_2(x, y, propoffset, propvalue, proptype, r&0xFF, bitmap);
 	free(bitmap);
 	return 0;
@@ -3894,7 +3910,6 @@ int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 {
 	int c = fullc&0xFF;
 	int x1, x2, dy = (c<PT_NUM)?1:CELL;
-	int co = c;
 	int coord_stack_limit = XRES*YRES;
 	unsigned short (*coord_stack)[2];
 	int coord_stack_size = 0;
@@ -3908,6 +3923,8 @@ int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 		if (c==0)
 		{
 			cm = pmap[y][x]&0xFF;
+			if (!cm)
+				cm = photons[y][x]&0xFF;
 			if (!cm)
 			{
 				c = fullc = WL_ERASE+100; //Try to erase walls if there is no particle in this spot
@@ -3931,7 +3948,7 @@ int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 			bm = 0;
 	}
 
-	if (((pmap[y][x]&0xFF)!=cm || bmap[y/CELL][x/CELL]!=bm )||( (flags&BRUSH_SPECIFIC_DELETE) && cm!=SLALT))
+	if ((!FloodFillPmapCheck(x, y, cm) || bmap[y/CELL][x/CELL] != bm) || ((flags&BRUSH_SPECIFIC_DELETE) && cm!=SLALT))
 		return 1;
 
 	coord_stack = (unsigned short(*)[2])malloc(sizeof(unsigned short)*2*coord_stack_limit);
@@ -3948,7 +3965,7 @@ int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 		// go left as far as possible
 		while (x1>=CELL)
 		{
-			if ((pmap[y][x1-1]&0xFF)!=cm || bmap[y/CELL][(x1-1)/CELL]!=bm)
+			if (!FloodFillPmapCheck(x1-1, y, cm) || bmap[y/CELL][(x1-1)/CELL]!=bm)
 			{
 				break;
 			}
@@ -3957,7 +3974,7 @@ int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 		// go right as far as possible
 		while (x2<XRES-CELL)
 		{
-			if ((pmap[y][x2+1]&0xFF)!=cm || bmap[y/CELL][(x2+1)/CELL]!=bm)
+			if (!FloodFillPmapCheck(x2+1, y, cm) || bmap[y/CELL][(x2+1)/CELL]!=bm)
 			{
 				break;
 			}
@@ -3973,7 +3990,7 @@ int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 		// add vertically adjacent pixels to stack
 		if (y>=CELL+dy)
 			for (x=x1; x<=x2; x++)
-				if ((pmap[y-dy][x]&0xFF)==cm && bmap[(y-dy)/CELL][x/CELL]==bm)
+				if (FloodFillPmapCheck(x, y-dy, cm) && bmap[(y-dy)/CELL][x/CELL]==bm)
 				{
 					coord_stack[coord_stack_size][0] = x;
 					coord_stack[coord_stack_size][1] = y-dy;
@@ -3986,7 +4003,7 @@ int flood_parts(int x, int y, int fullc, int cm, int bm, int flags)
 				}
 		if (y<YRES-CELL-dy)
 			for (x=x1; x<=x2; x++)
-				if ((pmap[y+dy][x]&0xFF)==cm && bmap[(y+dy)/CELL][x/CELL]==bm)
+				if (FloodFillPmapCheck(x, y+dy, cm) && bmap[(y+dy)/CELL][x/CELL]==bm)
 				{
 					coord_stack[coord_stack_size][0] = x;
 					coord_stack[coord_stack_size][1] = y+dy;
