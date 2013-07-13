@@ -518,6 +518,21 @@ Fix all the textboxes in the deco editor being focused by default. Fix bug where
 if you left the deco editor in certain ways, you couldn't click or use the 
 keyboard
 
+Version 24.0 7/12/13
+Decrease tool strength by half, holding ctrl slows it more and holding shift
+speeds it up. Re-arrange tools menu a little and update the tool and wall
+descriptions. A ton of simulation updates and bugfixes from tpt++. Change
+internal version number to 88.0 (doesn't affect saving). ctrl+z works better
+and goes back to the last time you drew something or opened a save. Overhaul
+of tabs. They now save more info inside them, and they have their own thumbnails
+and names. Right clicking a tab will delete it, and you can use the reload
+button to reload a tab. Ctrl+s to save it and set a new reload point, ctrl+n to
+start a new tab, 't' to open / close the tabs menu. If installed, hitting "open"
+on the website will open the save in a new tab. Fix tpt.moving_solid. Fix
+issue where multiple comments could be highlighted at once in save preview and
+console. A bunch of fixes relating to walls and photons with flood fill. Time
+enabled by default in HUD.
+
 
 
 

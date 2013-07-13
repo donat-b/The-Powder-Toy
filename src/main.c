@@ -2730,10 +2730,17 @@ int main(int argc, char *argv[])
 							else
 							{
 								int oldsave_as = save_as;
-								if (svf_modsave && check_save(2,0,0,XRES,YRES,0))
+								int can_publish = check_save(2,0,0,XRES,YRES,0);
+								if (can_publish)
 								{
 									svf_publish = 0;
+									svf_modsave = 1;
 									save_as = 3;
+								}
+								else
+								{
+									svf_modsave = 0;
+									save_as = 5;
 								}
 								if (execute_save(vid_buf))
 								{
