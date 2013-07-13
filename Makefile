@@ -7,7 +7,7 @@ OFLAGS := -O3 -ffast-math -ftree-vectorize -funsafe-math-optimizations
 LFLAGS := -lpthread -lSDL -lfftw3f -lm -lbz2 -lX11 -llua5.1 -lrt
 LFLAGS_X := -lm -lbz2 -lSDLmain
 LFLAGS_WIN := -lmingw32 -lgnurx -lws2_32 -lSDLmain -lpthread -lSDL -lfftw3f -lm -lbz2 -llua5.1
-LFLAGS_WINCROSSCOMPILE := -lmingw32 -Wl,-Bstatic -lgnurx -lSDLmain -lSDL -lpthread -lm -lbz2 -llua5.1 -Wl,-Bdynamic -lfftw3f -lws2_32 -lwinmm -ldxguid
+LFLAGS_WINCROSSCOMPILE := -lmingw32 -Wl,-Bstatic -lfftw3f -lgnurx -lSDLmain -lSDL -lpthread -lm -lbz2 -llua5.1 -Wl,-Bdynamic -lws2_32 -lwinmm -ldxguid
 MFLAGS_SSE3 := -march=native -DX86 -DX86_SSE3 -msse3
 MFLAGS_SSE2 := -march=native -DX86 -DX86_SSE2 -msse2
 MFLAGS_SSE := -march=native -DX86 -DX86_SSE
