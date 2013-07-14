@@ -470,9 +470,11 @@ void load_presets(void)
 				display_modes = (unsigned int*)calloc(count+1, sizeof(unsigned int));
 				for(i = 0; i < count; i++)
 				{
+					unsigned int mode;
 					strncpy(temp, cJSON_GetArrayItem(tmpobj, i)->valuestring, 31);
-					display_mode |= strtol(temp, NULL, 16);
-					display_modes[i] = strtol(temp, NULL, 16);
+					sscanf(temp, "%x", &mode);
+					display_mode |= mode;
+					display_modes[i] = mode;
 				}
 			}
 			if(tmpobj = cJSON_GetObjectItem(graphicsobj, "RenderModes"))
@@ -484,11 +486,11 @@ void load_presets(void)
 				render_modes = (unsigned int*)calloc(count+1, sizeof(unsigned int));
 				for(i = 0; i < count; i++)
 				{
-					int mode;
+					unsigned int mode;
 					strncpy(temp, cJSON_GetArrayItem(tmpobj, i)->valuestring, 31);
-					mode = strtol(temp, NULL, 16);
-					render_mode |= strtol(temp, NULL, 16);
-					render_modes[i] = strtol(temp, NULL, 16);
+					sscanf(temp, "%x", &mode);
+					render_mode |= mode;
+					render_modes[i] = mode;
 				}
 			}
 			if((tmpobj = cJSON_GetObjectItem(graphicsobj, "Decorations")) && tmpobj->type == cJSON_True)

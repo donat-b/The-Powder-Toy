@@ -4347,7 +4347,7 @@ int create_parts2(int f, int x, int y, int c, int rx, int ry, int flags)
 
 void create_moving_solid(int x, int y, int rx, int ry, int type)
 {
-	int i, j, index;
+	int i, j;
 	creatingsolid = 0;
 	if (numballs >= 255)
 		return;

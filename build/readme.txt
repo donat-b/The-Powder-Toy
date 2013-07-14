@@ -533,6 +533,10 @@ issue where multiple comments could be highlighted at once in save preview and
 console. A bunch of fixes relating to walls and photons with flood fill. Time
 enabled by default in HUD.
 
+Version 24.0 (build 20) 7/14/13
+Windows build to fix the bug where you couldn't hold down and draw condictive
+wall, and blob mode would always be on if you had fire mode on when quitting.
+
 
 
 
