@@ -3023,7 +3023,7 @@ int main(int argc, char *argv[])
 						else if (sdl_mod & KMOD_CTRL)
 							toolStrength = .1f;
 
-						if (c <= PT_NUM && (ptypes[c].properties&PROP_MOVS))
+						if (c < PT_NUM && (ptypes[c].properties&PROP_MOVS))
 							create_moving_solid(x,y,bsx,bsy,c);
 						else
 							create_parts(x, y, bsx, bsy, c, get_brush_flags(), 1);

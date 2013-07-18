@@ -3751,7 +3751,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 		{
 			if (bq == 1)
 			{
-				if (!strcmp(quickmenu[clickedQuickoption].name,"Newtonian gravity"))
+				if (clickedQuickoption == 3)
 				{
 					if(!ngrav_enable)
 						start_grav_async();
