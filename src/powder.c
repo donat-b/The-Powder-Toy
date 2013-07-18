@@ -1403,7 +1403,7 @@ TPT_INLINE int create_part(int p, int x, int y, int tv)//the function for creati
 				parts[i].temp = ptypes[t].heat;
 				STKM_init_legs(&player, i);
 				player.spwn = 1;
-				player2.rocketBoots = 0;
+				player.rocketBoots = 0;
 			}
 			else
 			{
@@ -2653,11 +2653,10 @@ int particle_transitions(int i)
 void update_particles_i(pixel *vid, int start, int inc)
 {
 	int i, j, x, y, t, nx, ny, r, surround_space, s, lt, nt, rt;
-	float mv, dx, dy, ix, iy, lx, ly, nrx, nry, dp;
+	float mv, dx, dy, nrx, nry, dp;
 	int fin_x, fin_y, clear_x, clear_y, stagnant;
 	float fin_xf, fin_yf, clear_xf, clear_yf;
 	float nn, ct1, ct2, swappage;
-	int starti = (start*-1);
 	int surround[8];
 	int lightning_ok=1;
 	float pGravX, pGravY, pGravD;
