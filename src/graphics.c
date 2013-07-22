@@ -2639,7 +2639,7 @@ void render_parts(pixel *vid)
 				{
 					gradv = 0.4f;
 					if (!(parts[i].life<5))
-						q = (int)sqrtf(parts[i].life);
+						q = (int)sqrtf((float)parts[i].life);
 					else
 						q = parts[i].life;
 					colr = colg = colb = (int)(sin(gradv*q) * 100 + 128);

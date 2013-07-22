@@ -251,7 +251,7 @@ int update_LIGH(UPDATE_FUNC_ARGS)
 		rx=(int)parts[near].x-x;
 		ry=(int)parts[near].y-y;
 		if (rx!=0 || ry!=0)
-			n_angle = atan2f(-ry, rx);
+			n_angle = atan2f((float)-ry, (float)rx);
 		else
 			n_angle = 0;
 		if (n_angle<0)

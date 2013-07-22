@@ -98,13 +98,13 @@ void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float
 			break;
 		case 1: //no gravity
 			angle = rand()%360;
-			*pGravX -= cosf(angle);
-			*pGravY -= sinf(angle);
+			*pGravX -= cosf((float)angle);
+			*pGravY -= sinf((float)angle);
 			break;
 		case 2: //radial gravity
 			if (x-XCNTR != 0 || y-YCNTR != 0)
 			{
-				float pGravMult = particleGrav/sqrtf((x-XCNTR)*(x-XCNTR) + (y-YCNTR)*(y-YCNTR));
+				float pGravMult = particleGrav/sqrtf((float)((x-XCNTR)*(x-XCNTR) + (y-YCNTR)*(y-YCNTR)));
 				*pGravX -= pGravMult * (float)(x - XCNTR);
 				*pGravY -= pGravMult * (float)(y - YCNTR);
 			}
