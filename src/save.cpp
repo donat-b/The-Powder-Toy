@@ -1347,9 +1347,12 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		clear_sim();
 		oldnumballs = 0;
 		erase_bframe();
-		svf_modsave = mod_save = 0;
-		if (inputData[2] == 'J')
-			svf_modsave = 1;
+		if (replace == 1)
+		{
+			svf_modsave = mod_save = 0;
+			if (inputData[2] == 'J')
+				svf_modsave = 1;
+		}
 	}
 	
 	bson_init_data(&b, (char*)bsonData);

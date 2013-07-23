@@ -518,6 +518,28 @@ Fix all the textboxes in the deco editor being focused by default. Fix bug where
 if you left the deco editor in certain ways, you couldn't click or use the 
 keyboard
 
+Version 24.0 7/12/13
+Decrease tool strength by half, holding ctrl slows it more and holding shift
+speeds it up. Re-arrange tools menu a little and update the tool and wall
+descriptions. A ton of simulation updates and bugfixes from tpt++. Change
+internal version number to 88.0 (doesn't affect saving). ctrl+z works better
+and goes back to the last time you drew something or opened a save. Overhaul
+of tabs. They now save more info inside them, and they have their own thumbnails
+and names. Right clicking a tab will delete it, and you can use the reload
+button to reload a tab. Ctrl+s to save it and set a new reload point, ctrl+n to
+start a new tab, 't' to open / close the tabs menu. If installed, hitting "open"
+on the website will open the save in a new tab. Fix tpt.moving_solid. Fix
+issue where multiple comments could be highlighted at once in save preview and
+console. A bunch of fixes relating to walls and photons with flood fill. Time
+enabled by default in HUD.
+
+Version 24.0 (build 20) 7/14/13
+Windows build to fix the bug where you couldn't hold down and draw conductive
+wall, and blob mode would always be on if you had fire mode on when quitting.
+
+Version 24.0 (build 21) 7/15/13
+Fix crash when turning on newtonian gravity with the quickoption
+
 
 
 
@@ -534,6 +556,8 @@ changes from tpt++: SPRK, LIGH, LCRY, all others
 make open ui more colorful like tpt++, also fix cut off description in save uploading ui
 make buttons look clicked when pressed, moving mouse away will not do clicks, like tpt++?
 loading circle in save browser?
+https://github.com/FacialTurd/The-Powder-Toy/commit/b8c218c89b59c9280931a1d959df0348f6103b9c -> wait til c++ since it's hard to do in visual studio ...
+https://github.com/FacialTurd/The-Powder-Toy/commit/6e7a5488b561aee4f3b5e3b22ff1b7851c3921ef -> will do later with the elementCount variable
 >Add things from tpt++ that look cool, and any new simulation changes it gets
 
 

@@ -2922,14 +2922,16 @@ int luatpt_floodfill(lua_State* l)
 	int y = luaL_optint(l,2,-1);
 	int c = luaL_optint(l,3,sl);
 	int cm = luaL_optint(l,4,-1);
-	int bm = luaL_optint(l,5,-1);
-	int flags = luaL_optint(l,6,get_brush_flags());
+	int flags = luaL_optint(l,5,get_brush_flags());
 	int ret;
 	if (x < 0 || x > XRES || y < 0 || y > YRES)
 		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
 	if (c < 0 || c >= PT_NUM && !ptypes[c].enabled)
 		return luaL_error(l, "Unrecognised element number '%d'", c);
-	ret = flood_parts(x, y, c, cm, bm, flags);
+	if (c >= UI_WALLSTART && c < UI_WALLSTART+UI_WALLCOUNT)
+		ret = FloodWalls(x, y, c, cm, flags);
+	else
+		ret = FloodParts(x, y, c, cm, flags);
 	lua_pushinteger(l, ret);
 	return 1;
 }

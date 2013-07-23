@@ -2733,10 +2733,17 @@ int main(int argc, char *argv[])
 							else
 							{
 								int oldsave_as = save_as;
-								if (svf_modsave && check_save(2,0,0,XRES,YRES,0))
+								int can_publish = check_save(2,0,0,XRES,YRES,0);
+								if (can_publish)
 								{
 									svf_publish = 0;
+									svf_modsave = 1;
 									save_as = 3;
+								}
+								else
+								{
+									svf_modsave = 0;
+									save_as = 5;
 								}
 								if (execute_save(vid_buf))
 								{
@@ -2870,7 +2877,7 @@ int main(int argc, char *argv[])
 						{
 							nfvx = (line_x-lx)*0.005f;
 							nfvy = (line_y-ly)*0.005f;
-							flood_parts(lx, ly, WL_FANHELPER, -1, WL_FAN, 0);
+							FloodWalls(lx, ly, WL_FANHELPER, WL_FAN, 0);
 							for (j=0; j<YRES/CELL; j++)
 								for (i=0; i<XRES/CELL; i++)
 									if (bmap[j][i] == WL_FANHELPER)
@@ -2910,7 +2917,7 @@ int main(int argc, char *argv[])
 										vy[(y+j)/CELL][(x+i)/CELL] += (y-ly)*0.01f;
 									}
 						}
-						else if (c > PT_NUM || !(ptypes[c].properties&PROP_MOVS))
+						else if (c >= PT_NUM || !(ptypes[c].properties&PROP_MOVS))
 						{
 							//printf("From (%d, %d) To (%d, %d)\n", lx, ly, x, y);
 
@@ -2948,6 +2955,7 @@ int main(int argc, char *argv[])
 					//flood fill
 					else if ((sdl_mod & (KMOD_CTRL)) && (sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_ALT)) && (!is_TOOL(c) || c==SPC_PROP))
 					{
+						ctrlzSnapshot();
 						if (sdl_mod & (KMOD_CAPS))
 							c = 0;
 						if (c == DECO_DRAW || c == DECO_ERASE)
@@ -2955,8 +2963,13 @@ int main(int argc, char *argv[])
 							unsigned int col = (b != 4 && c != DECO_ERASE) ? decocolor : PIXRGB(0,0,0);
 							flood_prop(x, y, offsetof(particle,dcolour), &col, 0);
 						}
-						else if (c != WL_STREAM+100 && c != DECO_DRAW && c != DECO_ERASE)
-							flood_parts(x, y, c, -1, -1, get_brush_flags());
+						else if (c >= UI_WALLSTART && c < UI_WALLSTART+UI_WALLCOUNT)
+						{
+							if (c != WL_STREAM+100)
+								FloodWalls(x, y, c, -1, get_brush_flags());
+						}
+						else if (c != DECO_DRAW && c != DECO_ERASE)
+							FloodParts(x, y, c, -1, get_brush_flags());
 						lx = x;
 						ly = y;
 						lb = 0;
@@ -3030,6 +3043,7 @@ int main(int argc, char *argv[])
 		{
 			if (lb && lm) //lm is box/line tool
 			{
+				ctrlzSnapshot();
 				c = (lb&1) ? sl : sr;
 				if (is_DECOTOOL(sl) && lb == 4)
 					c = DECO_ERASE;

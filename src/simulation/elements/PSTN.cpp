@@ -15,7 +15,7 @@
 
 #include "simulation/ElementsCommon.h"
 
-int tempParts[128];
+int tempParts[XRES];
 
 #define PISTON_INACTIVE	0x00
 #define PISTON_RETRACT	0x01
@@ -27,22 +27,22 @@ int tempParts[128];
 int CanMoveStack(int stackX, int stackY, int directionX, int directionY, int maxSize, int amount, int retract, int block)
 {
 	int posX, posY, r, spaces = 0, currentPos = 0;
-	if (amount == 0)
+	if (amount <= 0)
 		return 0;
-	for(posX = stackX, posY = stackY; currentPos < maxSize + amount; posX += directionX, posY += directionY) {
+	for(posX = stackX, posY = stackY; currentPos < maxSize + amount && currentPos < XRES-1; posX += directionX, posY += directionY) {
 		if (!(posX < XRES && posY < YRES && posX >= 0 && posY >= 0)) {
 			break;
 		}
 		r = pmap[posY][posX];
 		if (IsWallBlocking(posX, posY, 0) || (block && (r&0xFF) == block))
-			break;
+			return spaces;
 		if(!r) {
 			spaces++;
 			tempParts[currentPos++] = -1;
 			if(spaces >= amount)
 				break;
 		} else {
-			if(spaces < maxSize && !retract)
+			if(spaces < maxSize && currentPos < maxSize && (!retract || ((r&0xFF) == PT_FRME) && posX == stackX && posY == stackY))
 				tempParts[currentPos++] = r>>8;
 			else
 				return spaces;
@@ -71,7 +71,7 @@ int MoveStack(int stackX, int stackY, int directionX, int directionY, int maxSiz
 			posY = stackY + (c*newY);
 			posX = stackX + (c*newX);
 			if (posX < XRES && posY < YRES && posX >= 0 && posY >= 0 && (pmap[posY][posX]&0xFF) == PT_FRME) {
-				int val = CanMoveStack(posX+realDirectionX, posY+realDirectionY, realDirectionX, realDirectionY, maxSize, amount, retract, block);
+				int val = CanMoveStack(posX, posY, realDirectionX, realDirectionY, maxSize, amount, retract, block);
 				if(val < amount)
 					amount = val;
 			} else {
@@ -83,7 +83,7 @@ int MoveStack(int stackX, int stackY, int directionX, int directionY, int maxSiz
 			posY = stackY - (c*newY);
 			posX = stackX - (c*newX);
 			if (posX < XRES && posY < YRES && posX >= 0 && posY >= 0 && (pmap[posY][posX]&0xFF) == PT_FRME) {
-				int val = CanMoveStack(posX+realDirectionX, posY+realDirectionY, realDirectionX, realDirectionY, maxSize, amount, retract, block);
+				int val = CanMoveStack(posX, posY, realDirectionX, realDirectionY, maxSize, amount, retract, block);
 				if(val < amount)
 					amount = val;
 			} else {
@@ -116,7 +116,7 @@ int MoveStack(int stackX, int stackY, int directionX, int directionY, int maxSiz
 		if (!callDepth)
 			for(j = 1; j <= amount; j++)
 				kill_part(pmap[stackY+(directionY*-j)][stackX+(directionX*-j)]>>8);
-		for(posX = stackX, posY = stackY; currentPos < maxSize; posX += directionX, posY += directionY) {
+		for(posX = stackX, posY = stackY; currentPos < maxSize && currentPos < XRES-1; posX += directionX, posY += directionY) {
 			if (!(posX < XRES && posY < YRES && posX >= 0 && posY >= 0)) {
 				break;
 			}

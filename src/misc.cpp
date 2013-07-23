@@ -200,6 +200,10 @@ void save_presets(int do_update)
 	cJSON_AddItemToObject(root, "Renderer", graphicsobj2=cJSON_CreateObject());
 	sprintf(mode, "%i", colour_mode);
 	cJSON_AddStringToObject(graphicsobj2, "ColourMode", mode);
+	if (DEBUG_MODE)
+		cJSON_AddTrueToObject(graphicsobj2, "DebugMode");
+	else
+		cJSON_AddFalseToObject(graphicsobj2, "DebugMode");
 	tmpobj = cJSON_CreateStringArray(NULL, 0);
 	while(display_modes[i])
 	{
@@ -230,6 +234,9 @@ void save_presets(int do_update)
 	cJSON_AddItemToObject(root, "Simulation", simulationobj=cJSON_CreateObject());
 	sprintf(mode, "%i", edgeMode);
 	cJSON_AddStringToObject(simulationobj, "EdgeMode", mode);
+	cJSON_AddNumberToObject(simulationobj, "NewtonianGravity", ngrav_enable);
+	cJSON_AddNumberToObject(simulationobj, "AmbientHeat", aheat_enable);
+	cJSON_AddNumberToObject(simulationobj, "PrettyPowder", pretty_powder);
 
 	//Tpt++ install check, prevents annoyingness
 	cJSON_AddTrueToObject(root, "InstallCheck");
@@ -450,73 +457,79 @@ void load_presets(void)
 		}
 
 		//Read display settings
-		graphicsobj = cJSON_GetObjectItem(root, "graphics");
+		graphicsobj = cJSON_GetObjectItem(root, "Renderer");
 		if(graphicsobj)
 		{
-			if(tmpobj = cJSON_GetObjectItem(graphicsobj, "colour")) colour_mode = tmpobj->valueint;
-			if(tmpobj = cJSON_GetObjectItem(graphicsobj, "display"))
+			if(tmpobj = cJSON_GetObjectItem(graphicsobj, "ColourMode")) colour_mode = atoi(tmpobj->valuestring);
+			if(tmpobj = cJSON_GetObjectItem(graphicsobj, "DisplayModes"))
 			{
+				char temp[32];
 				count = cJSON_GetArraySize(tmpobj);
 				free(display_modes);
 				display_mode = 0;
 				display_modes = (unsigned int*)calloc(count+1, sizeof(unsigned int));
 				for(i = 0; i < count; i++)
 				{
-					display_mode |= cJSON_GetArrayItem(tmpobj, i)->valueint;
-					display_modes[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
+					unsigned int mode;
+					strncpy(temp, cJSON_GetArrayItem(tmpobj, i)->valuestring, 31);
+					sscanf(temp, "%x", &mode);
+					display_mode |= mode;
+					display_modes[i] = mode;
 				}
 			}
-			if(tmpobj = cJSON_GetObjectItem(graphicsobj, "render"))
+			if(tmpobj = cJSON_GetObjectItem(graphicsobj, "RenderModes"))
 			{
+				char temp[32];
 				count = cJSON_GetArraySize(tmpobj);
 				free(render_modes);
 				render_mode = 0;
 				render_modes = (unsigned int*)calloc(count+1, sizeof(unsigned int));
 				for(i = 0; i < count; i++)
 				{
-					render_mode |= cJSON_GetArrayItem(tmpobj, i)->valueint;
-					render_modes[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
+					unsigned int mode;
+					strncpy(temp, cJSON_GetArrayItem(tmpobj, i)->valuestring, 31);
+					sscanf(temp, "%x", &mode);
+					render_mode |= mode;
+					render_modes[i] = mode;
 				}
 			}
+			if((tmpobj = cJSON_GetObjectItem(graphicsobj, "Decorations")) && tmpobj->type == cJSON_True)
+				decorations_enable = tmpobj->valueint;
+			if((tmpobj = cJSON_GetObjectItem(graphicsobj, "GravityField")) && tmpobj->type == cJSON_True)
+				drawgrav_enable = tmpobj->valueint;
+			if((tmpobj = cJSON_GetObjectItem(graphicsobj, "DebugMode")) && tmpobj->type == cJSON_True)
+				DEBUG_MODE = tmpobj->valueint;
 		}
 		else
 		{
-			graphicsobj = cJSON_GetObjectItem(root, "Renderer");
+			graphicsobj = cJSON_GetObjectItem(root, "graphics");
 			if (graphicsobj)
 			{
-				if(tmpobj = cJSON_GetObjectItem(graphicsobj, "ColourMode")) colour_mode = atoi(tmpobj->valuestring);
-				if(tmpobj = cJSON_GetObjectItem(graphicsobj, "DisplayModes"))
+				if(tmpobj = cJSON_GetObjectItem(graphicsobj, "colour")) colour_mode = tmpobj->valueint;
+				if(tmpobj = cJSON_GetObjectItem(graphicsobj, "display"))
 				{
-					char temp[32];
 					count = cJSON_GetArraySize(tmpobj);
 					free(display_modes);
 					display_mode = 0;
 					display_modes = (unsigned int*)calloc(count+1, sizeof(unsigned int));
 					for(i = 0; i < count; i++)
 					{
-						strncpy(temp, cJSON_GetArrayItem(tmpobj, i)->valuestring, 31);
-						display_mode |= strtol(temp, NULL, 16);
-						display_modes[i] = strtol(temp, NULL, 16);
+						display_mode |= cJSON_GetArrayItem(tmpobj, i)->valueint;
+						display_modes[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
 					}
 				}
-				if(tmpobj = cJSON_GetObjectItem(graphicsobj, "RenderModes"))
+				if(tmpobj = cJSON_GetObjectItem(graphicsobj, "render"))
 				{
-					char temp[32];
 					count = cJSON_GetArraySize(tmpobj);
 					free(render_modes);
 					render_mode = 0;
 					render_modes = (unsigned int*)calloc(count+1, sizeof(unsigned int));
 					for(i = 0; i < count; i++)
 					{
-						int mode;
-						strncpy(temp, cJSON_GetArrayItem(tmpobj, i)->valuestring, 31);
-						mode = strtol(temp, NULL, 16);
-						render_mode |= strtol(temp, NULL, 16);
-						render_modes[i] = strtol(temp, NULL, 16);
+						render_mode |= cJSON_GetArrayItem(tmpobj, i)->valueint;
+						render_modes[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
 					}
 				}
-				if((tmpobj = cJSON_GetObjectItem(root, "Decorations")) && tmpobj->type == cJSON_True) decorations_enable = tmpobj->valueint;
-				if((tmpobj = cJSON_GetObjectItem(root, "GravityField")) && tmpobj->type == cJSON_True) drawgrav_enable = tmpobj->valueint;
 			}
 		}
 
@@ -524,9 +537,13 @@ void load_presets(void)
 		if (simulationobj)
 		{
 			if(tmpobj = cJSON_GetObjectItem(simulationobj, "EdgeMode"))
-			{
 				edgeMode = tmpobj->valueint;
-			}
+			if((tmpobj = cJSON_GetObjectItem(simulationobj, "NewtonianGravity")) && tmpobj->valueint == 1)
+				start_grav_async();
+			if(tmpobj = cJSON_GetObjectItem(simulationobj, "AmbientHeat"))
+				aheat_enable = tmpobj->valueint;
+			if(tmpobj = cJSON_GetObjectItem(simulationobj, "PrettyPowder"))
+				pretty_powder = tmpobj->valueint;
 		}
 
 		consoleobj = cJSON_GetObjectItem(root, "Console");
