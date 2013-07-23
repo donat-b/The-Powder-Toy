@@ -88,6 +88,7 @@ int Simulation::part_create(int p, int x, int y, int t)
 	{
 		int oldX = (int)(parts[p].x+0.5f);
 		int oldY = (int)(parts[p].y+0.5f);
+		//TODO: this doesn't do stkm checks or free ANIM memory ...
 		pmap_remove(p, oldX, oldY);
 		i = p;
 	}
