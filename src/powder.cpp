@@ -1049,7 +1049,8 @@ int create_part(int p, int x, int y, int tv)//the function for creating a partic
 		return -1;
 	}
 
-	if ((pmap[y][x]&0xFF) == PT_ACTV && parts[pmap[y][x]>>8].life == 10)
+	//activate BUTN here
+	if (p == -2 && (pmap[y][x]&0xFF) == PT_BUTN && parts[pmap[y][x]>>8].life == 10)
 	{
 		parts[pmap[y][x]>>8].type = PT_SPRK;
 		parts[pmap[y][x]>>8].life = 4;

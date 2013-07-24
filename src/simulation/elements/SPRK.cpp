@@ -42,7 +42,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 			parts[i].life = 64;
 		if (ct == PT_SLTW)
 			parts[i].life = 54;
-		if (ct == PT_SWCH || ct == PT_ACTV)
+		if (ct == PT_SWCH || ct == PT_BUTN)
 			parts[i].life = 14;
 		return 0;
 	}
@@ -161,13 +161,13 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 							parts[r>>8].life = 9;
 						}
 					}
-					else if ((rt==PT_ACTV||(rt==PT_SPRK&&parts[r>>8].ctype==PT_ACTV)) && pavg!=PT_INSL) // make sparked ACTV turn off correctly
+					else if ((rt==PT_BUTN||(rt==PT_SPRK&&parts[r>>8].ctype==PT_BUTN)) && pavg!=PT_INSL) // make sparked ACTV turn off correctly
 					{
-						if (rt==PT_ACTV&&ct==PT_PSCN&&parts[r>>8].life<10) {
+						if (rt==PT_BUTN&&ct==PT_PSCN&&parts[r>>8].life<10) {
 							parts[r>>8].life = 10;
 						}
 						if (ct==PT_NSCN) {
-							part_change_type(r>>8,x+rx,y+ry,PT_ACTV);
+							part_change_type(r>>8,x+rx,y+ry,PT_BUTN);
 							parts[r>>8].ctype = PT_NONE;
 							parts[r>>8].life = 9;
 						}
@@ -226,7 +226,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 					conduct_sprk = 0;
 				if (rt==PT_INST&&ct!=PT_PSCN)
 					conduct_sprk = 0;
-				if (ct==PT_ACTV && (rt==PT_PSCN||rt==PT_NSCN||rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR))
+				if (ct==PT_BUTN && (rt==PT_PSCN||rt==PT_NSCN||rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR))
 					conduct_sprk = 0;
 				if (ct==PT_COND && rt == PT_COND && parts[i].tmp != parts[r>>8].tmp)
 					conduct_sprk = 0;

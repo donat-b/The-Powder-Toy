@@ -15,7 +15,7 @@
 
 #include "simulation/ElementsCommon.h"
 
-int ACTV_graphics(GRAPHICS_FUNC_ARGS)
+int BUTN_graphics(GRAPHICS_FUNC_ARGS)
 {
 	if(cpart->life >= 10)
 	{
@@ -27,10 +27,10 @@ int ACTV_graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
-void ACTV_init_element(ELEMENT_INIT_FUNC_ARGS)
+void BUTN_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
-	elem->Identifier = "DEFAULT_PT_ACTV";
-	elem->Name = "ACTV";
+	elem->Identifier = "DEFAULT_PT_BUTN";
+	elem->Name = "BUTN";
 	elem->Colour = COLPACK(0x005254);
 	elem->MenuVisible = 1;
 	elem->MenuSection = SC_POWERED;
@@ -56,7 +56,7 @@ void ACTV_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->DefaultProperties.temp = R_TEMP + 273.15f;
 	elem->HeatConduct = 251;
 	elem->Latent = 0;
-	elem->Description = "Activator. Can be sparked just by clicking on it, but only when turned on.";
+	elem->Description = "Button. Can be sparked just by clicking on it, but only when turned on.";
 
 	elem->State = ST_SOLID;
 	elem->Properties = TYPE_SOLID|PROP_POWERED;
@@ -71,5 +71,5 @@ void ACTV_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionElement = NT;
 
 	elem->Update = NULL;
-	elem->Graphics = &ACTV_graphics;
+	elem->Graphics = &BUTN_graphics;
 }
