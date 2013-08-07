@@ -2422,7 +2422,7 @@ int main(int argc, char *argv[])
 			old_version = 0;
 			b = 0;
 		}
-		if (y>=(YRES+(MENUSIZE-20))) //mouse checks for buttons at the bottom, to draw mouseover texts
+		if (y > YRES+MENUSIZE-BARSIZE) //mouse checks for buttons at the bottom, to draw mouseover texts
 		{
 			if (x>=189 && x<=202 && svf_login && svf_open && svf_myvote==0)
 			{
@@ -2538,23 +2538,26 @@ int main(int argc, char *argv[])
 			if (load_y+load_h>YRES) load_y=YRES-load_h;
 			if (load_x<0) load_x=0;
 			if (load_y<0) load_y=0;
-			if (bq==1 && !b)
+			if (!b && bq)
 			{
-				parse_save(load_data, load_size, 0, load_x, load_y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-				ctrlzSnapshot();
-				free(load_data);
-				load_data = NULL;
-				free(load_img);
-				load_img = NULL;
-				load_mode = 0;
-			}
-			else if (bq==4 && !b)
-			{
-				free(load_data);
-				load_data = NULL;
-				free(load_img);
-				load_img = NULL;
-				load_mode = 0;
+				if (bq != 1 || y > YRES+MENUSIZE-BARSIZE)
+				{
+					free(load_data);
+					load_data = NULL;
+					free(load_img);
+					load_img = NULL;
+					load_mode = 0;
+				}
+				else if (bq == 1)
+				{
+					parse_save(load_data, load_size, 0, load_x, load_y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+					ctrlzSnapshot();
+					free(load_data);
+					load_data = NULL;
+					free(load_img);
+					load_img = NULL;
+					load_mode = 0;
+				}
 			}
 		}
 		else if (save_mode==1)//getting the area you are selecting
@@ -2662,7 +2665,7 @@ int main(int argc, char *argv[])
 		{
 			if (it > 50)
 				it = 50;
-			if (y>=YRES+(MENUSIZE-20))//check if mouse is on menu buttons
+			if (y > YRES+MENUSIZE-BARSIZE)//check if mouse is on menu buttons
 			{
 				if (!lb)//mouse is NOT held down, so it is a first click
 				{
