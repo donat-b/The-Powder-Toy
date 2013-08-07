@@ -1107,6 +1107,8 @@ int create_part(int p, int x, int y, int tv)//the function for creating a partic
 			}
 			return -1;
 		}
+		else if (IsWallBlocking(x, y, t))
+			return -1;
 		if (photons[y][x] && (ptypes[t].properties & TYPE_ENERGY))
 			return -1;
 	}
@@ -3479,7 +3481,7 @@ int FloodParts(int x, int y, int fullc, int cm, int flags)
 		else
 			cm = 0;
 	}
-	if (IsWallBlocking(x, y, c))
+	if (c != 0 && IsWallBlocking(x, y, c))
 		return 1;
 
 	if (!FloodFillPmapCheck(x, y, cm) || ((flags&BRUSH_SPECIFIC_DELETE) && cm!=SLALT))
