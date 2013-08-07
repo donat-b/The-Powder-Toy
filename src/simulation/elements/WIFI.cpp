@@ -56,7 +56,7 @@ int WIFI_update(UPDATE_FUNC_ARGS)
 int WIFI_graphics(GRAPHICS_FUNC_ARGS)
 {
 	float frequency = 0.0628f;
-	int q = cpart->tmp;
+	int q = (int)((cpart->temp-73.15f)/100+1);
 	*colr = (int)(sin(frequency*q + 0) * 127 + 128);
 	*colg = (int)(sin(frequency*q + 2) * 127 + 128);
 	*colb = (int)(sin(frequency*q + 4) * 127 + 128);

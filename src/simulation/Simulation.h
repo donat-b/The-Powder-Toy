@@ -90,7 +90,7 @@ public:
 		if ((photons[y][x]>>8)==i)
 			photons[y][x] = 0;
 
-		// TODO: everything here added temporarily by jacob1
+		// TODO: everything here added temporarily
 		if (parts[i].type)
 		{
 			elementCount[parts[i].type]--;

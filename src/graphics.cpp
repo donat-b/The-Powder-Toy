@@ -3311,7 +3311,6 @@ void render_parts(pixel *vid)
 					int nxo = 0;
 					int nyo = 0;
 					int r;
-					int fire_rv = 0;
 					float drad = 0.0f;
 					float ddist = 0.0f;
 					orbitalparts_get(parts[i].life, parts[i].ctype, orbd, orbl);
@@ -3329,7 +3328,6 @@ void render_parts(pixel *vid)
 					int nxo = 0;
 					int nyo = 0;
 					int r;
-					int fire_bv = 0;
 					float drad = 0.0f;
 					float ddist = 0.0f;
 					orbitalparts_get(parts[i].life, parts[i].ctype, orbd, orbl);
@@ -3342,12 +3340,12 @@ void render_parts(pixel *vid)
 							addpixel(vid, nx+nxo, ny+nyo, colr, colg, colb, 255-orbd[r]);
 					}
 				}
-				if ((pixel_mode & EFFECT_DBGLINES) && DEBUG_MODE)
+				if ((pixel_mode & EFFECT_DBGLINES) && DEBUG_MODE && !(display_mode&DISPLAY_PERS))
 				{
 					if (mousex==(nx) && mousey==(ny))//draw lines connecting wifi/portal channels
 					{
 						int z;
-						int type = parts[i].type;
+						int type = parts[i].type, tmp = (int)((parts[i].temp-73.15f)/100+1), othertmp;
 						int type2 = parts[i].type;
 						if (type == PT_PRTI || type == PT_PPTI)
 							type = PT_PRTO;
@@ -3357,10 +3355,12 @@ void render_parts(pixel *vid)
 							type2 = PT_PPTI;
 						else if (type == PT_PRTO)
 							type2 = PT_PPTO;
-						for (z = 0; z<NPART; z++) {
-							if (parts[z].type)
+						for (z = 0; z<NPART; z++)
+						{
+							if (parts[z].type && (parts[z].type==type||parts[z].type==type2))
 							{
-								if ((parts[z].type==type||parts[z].type==type2)&&parts[z].tmp==parts[i].tmp)
+								othertmp = (int)((parts[z].temp-73.15f)/100+1); 
+								if (tmp == othertmp)
 									xor_line(nx,ny,(int)(parts[z].x+0.5f),(int)(parts[z].y+0.5f),vid);
 							}
 						}
