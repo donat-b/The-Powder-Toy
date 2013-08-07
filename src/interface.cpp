@@ -1244,6 +1244,8 @@ void draw_svf_ui(pixel *vid_buf, int alternate)// all the buttons at the bottom
 	drawtext(vid_buf, 192, YRES+(MENUSIZE-12), "\xCB", 0, 187, 18, c);
 	drawtext(vid_buf, 205, YRES+(MENUSIZE-14), "\xCA", 187, 40, 0, c);
 
+	c = svf_open ? 255 : 128;
+
 	//the tags button
 	drawtext(vid_buf, 222, YRES+(MENUSIZE-15), "\x83", c, c, c, 255);
 	if (svf_tags[0])
@@ -2503,7 +2505,7 @@ void tag_list_ui(pixel *vid_buf)
 
 		drawrect(vid_buf, x0, y0, 192, 256, 192, 192, 192, 255);
 		clearrect(vid_buf, x0, y0, 192, 256);
-		drawtext(vid_buf, x0+8, y0+8, "Current tags:", 255, 255, 255, 255);
+		drawtext(vid_buf, x0+8, y0+8, "Manage tags:    \bgTags are only to \nbe used to improve search results", 255, 255, 255, 255);
 		p = svf_tags;
 		s = svf_tags[0] ? ' ' : 0;
 		y = 36 + y0;
@@ -2527,36 +2529,40 @@ void tag_list_ui(pixel *vid_buf)
 			}
 			else
 				d = 0;
-			vp = strlist_find(&vote, p);
-			vn = strlist_find(&down, p);
-			if ((!vp && !vn && !svf_own) || svf_admin || svf_mod)
+			if (svf_login)
 			{
-				drawtext(vid_buf, x0+d+20, y-1, "\x88", 32, 144, 32, 255);
-				drawtext(vid_buf, x0+d+20, y-1, "\x87", 255, 255, 255, 255);
-				if (b && !bq && mx>=x0+d+18 && mx<x0+d+32 && my>=y-2 && my<y+12)
+				vp = strlist_find(&vote, p);
+				vn = strlist_find(&down, p);
+				if ((!vp && !vn && !svf_own) || svf_admin || svf_mod)
 				{
-					op = "vote";
-					tag = mystrdup(p);
-					strlist_add(&vote, p);
+					drawtext(vid_buf, x0+d+20, y-1, "\x88", 32, 144, 32, 255);
+					drawtext(vid_buf, x0+d+20, y-1, "\x87", 255, 255, 255, 255);
+					if (b && !bq && mx>=x0+d+18 && mx<x0+d+32 && my>=y-2 && my<y+12)
+					{
+						op = "vote";
+						tag = mystrdup(p);
+						strlist_add(&vote, p);
+					}
+					drawtext(vid_buf, x0+d+34, y-1, "\x88", 144, 48, 32, 255);
+					drawtext(vid_buf, x0+d+34, y-1, "\xA2", 255, 255, 255, 255);
+					if (b && !bq && mx>=x0+d+32 && mx<x0+d+46 && my>=y-2 && my<y+12)
+					{
+						op = "down";
+						tag = mystrdup(p);
+						strlist_add(&down, p);
+					}
 				}
-				drawtext(vid_buf, x0+d+34, y-1, "\x88", 144, 48, 32, 255);
-				drawtext(vid_buf, x0+d+34, y-1, "\xA2", 255, 255, 255, 255);
-				if (b && !bq && mx>=x0+d+32 && mx<x0+d+46 && my>=y-2 && my<y+12)
-				{
-					op = "down";
-					tag = mystrdup(p);
-					strlist_add(&down, p);
-				}
+				if (vp)
+					drawtext(vid_buf, x0+d+48+textwidth(p), y, " - voted!", 48, 192, 48, 255);
+				if (vn)
+					drawtext(vid_buf, x0+d+48+textwidth(p), y, " - voted.", 192, 64, 32, 255);
 			}
-			if (vp)
-				drawtext(vid_buf, x0+d+48+textwidth(p), y, " - voted!", 48, 192, 48, 255);
-			if (vn)
-				drawtext(vid_buf, x0+d+48+textwidth(p), y, " - voted.", 192, 64, 32, 255);
 			drawtext(vid_buf, x0+d+48, y, p, 192, 192, 192, 255);
 			*q = s;
 			p = q+1;
 			y += 16;
 		}
+		
 		drawtext(vid_buf, x0+11, y0+219, "\x86", 32, 144, 32, 255);
 		drawtext(vid_buf, x0+11, y0+219, "\x89", 255, 255, 255, 255);
 		drawrect(vid_buf, x0+8, y0+216, 176, 16, 192, 192, 192, 255);
@@ -2591,17 +2597,25 @@ void tag_list_ui(pixel *vid_buf)
 				goto finish;
 		}
 
-		if (sdl_key==SDLK_RETURN)
+		if (sdl_key == SDLK_RETURN)
 		{
-			if (!ed.focus)
-				break;
-			d = execute_tagop(vid_buf, "add", ed.str);
-			strcpy(ed.str, "");
-			ed.cursor = ed.cursorstart = 0;
-			if (d)
+			if (svf_login)
+			{
+				if (!ed.focus)
+					break;
+				d = execute_tagop(vid_buf, "add", ed.str);
+				strcpy(ed.str, "");
+				ed.cursor = ed.cursorstart = 0;
+				if (d)
+					goto finish;
+			}
+			else
+			{
+				error_ui(vid_buf, 0, "Not Authenticated");
 				goto finish;
+			}
 		}
-		if (sdl_key==SDLK_ESCAPE)
+		if (sdl_key == SDLK_ESCAPE)
 		{
 			if (!ed.focus)
 				break;
@@ -6482,6 +6496,8 @@ int execute_tagop(pixel *vid_buf, char *op, char *tag)
 
 	if (result)
 		free(result);
+	else
+		error_ui(vid_buf, 0, "Could not add tag");
 
 	return 0;
 }

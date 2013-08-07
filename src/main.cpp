@@ -2442,7 +2442,7 @@ int main(int argc, char *argv[])
 				if (da < 51)
 					da ++;
 			}
-			else if (x>=219 && x<=((XRES+BARSIZE-(510-349))) && svf_login && svf_open)
+			else if (x>=219 && x<=((XRES+BARSIZE-(510-349))) && svf_open)
 			{
 				db = svf_own ? 257 : 256;
 				if (da < 51)
@@ -2683,7 +2683,7 @@ int main(int argc, char *argv[])
 							svf_myvote = -1;
 						}
 					}
-					if (x>=219 && x<=(XRES+BARSIZE-(510-349)) && svf_login && svf_open)
+					if (x>=219 && x<=(XRES+BARSIZE-(510-349)) && svf_open)
 						tag_list_ui(vid_buf);
 					if (x>=(XRES+BARSIZE-(510-351)) && x<(XRES+BARSIZE-(510-366)) && !bq)
 					{
