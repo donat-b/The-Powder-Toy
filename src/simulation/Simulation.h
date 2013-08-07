@@ -89,6 +89,55 @@ public:
 			pmap[y][x] = 0;
 		if ((photons[y][x]>>8)==i)
 			photons[y][x] = 0;
+
+		// TODO: everything here added temporarily by jacob1
+		if (parts[i].type)
+		{
+			elementCount[parts[i].type]--;
+		}
+
+		// TODO: move these into element functions?
+		if (parts[i].type == PT_STKM)
+		{
+			player.spwn = 0;
+		}
+		else if (parts[i].type == PT_STKM2)
+		{
+			player2.spwn = 0;
+		}
+		else if (parts[i].type == PT_FIGH)
+		{
+			fighters[(unsigned char)parts[i].tmp].spwn = 0;
+			fighcount--;
+		}
+		else if (parts[i].type == PT_SPAWN)
+		{
+			ISSPAWN1 = 0;
+		}
+		else if (parts[i].type == PT_SPAWN2)
+		{
+			ISSPAWN2 = 0;
+		}
+		else if (parts[i].type == PT_SOAP)
+		{
+			detach(i);
+		}
+		else if (parts[i].type == PT_ANIM && parts[i].animations)
+		{
+			free(parts[i].animations);
+			parts[i].animations = NULL;
+		}
+		if (ptypes[parts[i].type].properties&PROP_MOVS)
+		{
+			int bn = parts[i].tmp2;
+			if (bn >= 0 && bn < 256)
+			{
+				msnum[bn]--;
+				if (msindex[bn]-1 == i)
+					msindex[bn] = 0;
+			}
+			parts[i].tmp2 = 0; //TODO: temporary, to prevent this from happening twice in some cases
+		}
 	}
 };
 
