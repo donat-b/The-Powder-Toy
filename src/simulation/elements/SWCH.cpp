@@ -51,7 +51,7 @@ void SWCH_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Name = "SWCH";
 	elem->Colour = COLPACK(0x103B11);
 	elem->MenuVisible = 1;
-	elem->MenuSection = SC_POWERED;
+	elem->MenuSection = SC_ELEC;
 	elem->Enabled = 1;
 
 	elem->Advection = 0.0f;

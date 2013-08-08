@@ -43,7 +43,7 @@ void FOG_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Name = "FOG";
 	elem->Colour = COLPACK(0xAAAAAA);
 	elem->MenuVisible = 1;
-	elem->MenuSection = SC_CRACKER;
+	elem->MenuSection = SC_GAS;
 	elem->Enabled = 1;
 
 	elem->Advection = 0.8f;
