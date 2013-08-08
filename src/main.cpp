@@ -2530,6 +2530,23 @@ int main(int argc, char *argv[])
 		if (sdl_key=='z' && !(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)) && zoom_en==2 && sys_shortcuts==1)
 			zoom_en = 1;
 
+
+		//update coordinates for zoom window before it is placed
+		if (sdl_zoom_trig && zoom_en < 2)
+		{
+			x -= ZSIZE/2;
+			y -= ZSIZE/2;
+			if (x<0) x=0;
+			if (y<0) y=0;
+			if (x>XRES-ZSIZE) x=XRES-ZSIZE;
+			if (y>YRES-ZSIZE) y=YRES-ZSIZE;
+			zoom_x = x;
+			zoom_y = y;
+			zoom_wx = (x<XRES/2) ? XRES-ZSIZE*ZFACTOR : 0;
+			zoom_wy = 0;
+			zoom_en = 1;
+		}
+		//update coordinates for stamp preview before it is placed
 		if (load_mode)
 		{
 			load_x = CELL*((mx-load_w/2+CELL/2)/CELL);
@@ -2538,6 +2555,40 @@ int main(int argc, char *argv[])
 			if (load_y+load_h>YRES) load_y=YRES-load_h;
 			if (load_x<0) load_x=0;
 			if (load_y<0) load_y=0;
+		}
+		//update coordinates for initial copy area before it is decided
+		if (save_mode == 1)
+		{
+			save_x = mx;
+			save_y = my;
+			if (save_x >= XRES) save_x = XRES-1;
+			if (save_y >= YRES) save_y = YRES-1;
+			save_w = 1;
+			save_h = 1;
+		}
+		//update coordinates for copy area before it is selected
+		if (save_mode == 2)
+		{
+			save_w = mx + 1 - save_x;
+			save_h = my + 1 - save_y;
+			if (save_w+save_x>XRES) save_w = XRES-save_x;
+			if (save_h+save_y>YRES) save_h = YRES-save_y;
+			if (save_w+save_x<0) save_w = 0;
+			if (save_h+save_y<0) save_h = 0;
+		}
+
+		//mouse clicks ignored when placing zoom
+		if (sdl_zoom_trig && zoom_en < 2)
+		{
+			if (!b && bq)
+			{
+				zoom_en = 2;
+				sdl_zoom_trig = 0;
+			}
+		}
+		//mouse clicks ignored when placing stamps
+		else if (load_mode)
+		{
 			if (!b && bq)
 			{
 				if (bq != 1 || y > YRES+MENUSIZE-BARSIZE)
@@ -2560,14 +2611,9 @@ int main(int argc, char *argv[])
 				}
 			}
 		}
-		else if (save_mode==1)//getting the area you are selecting
+		//mouse clicks ignored when saving stamps
+		else if (save_mode == 1)
 		{
-			save_x = mx;
-			save_y = my;
-			if (save_x >= XRES) save_x = XRES-1;
-			if (save_y >= YRES) save_y = YRES-1;
-			save_w = 1;
-			save_h = 1;
 			if (b==1)
 			{
 				save_mode = 2;
@@ -2578,16 +2624,9 @@ int main(int argc, char *argv[])
 				copy_mode = 0;
 			}
 		}
-		else if (save_mode==2)
+		//mouse clicks ignored when saving stamps
+		else if (save_mode == 2)
 		{
-			save_w = mx + 1 - save_x;
-			save_h = my + 1 - save_y;
-			if (save_w+save_x>XRES) save_w = XRES-save_x;
-			if (save_h+save_y>YRES) save_h = YRES-save_y;
-			if (save_w+save_x<0) save_w = 0;
-			if (save_h+save_y<0) save_h = 0;
-			//if (save_w<1) save_w = 1;
-			//if (save_h<1) save_h = 1;
 			if (!b)
 			{
 				if (save_w < 0)
@@ -2642,26 +2681,8 @@ int main(int argc, char *argv[])
 				save_mode = 0;
 			}
 		}
-		else if (sdl_zoom_trig && zoom_en<2)
-		{
-			x -= ZSIZE/2;
-			y -= ZSIZE/2;
-			if (x<0) x=0;
-			if (y<0) y=0;
-			if (x>XRES-ZSIZE) x=XRES-ZSIZE;
-			if (y>YRES-ZSIZE) y=YRES-ZSIZE;
-			zoom_x = x;
-			zoom_y = y;
-			zoom_wx = (x<XRES/2) ? XRES-ZSIZE*ZFACTOR : 0;
-			zoom_wy = 0;
-			zoom_en = 1;
-			if (!b && bq)
-			{
-				zoom_en = 2;
-				sdl_zoom_trig = 0;
-			}
-		}
-		else if (b)//there is a click
+		//there is a click
+		else if (b)
 		{
 			if (it > 50)
 				it = 50;

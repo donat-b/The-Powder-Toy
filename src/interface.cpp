@@ -3526,7 +3526,11 @@ void menu_select_element(int b, int h)
 		}
 		else if (h >= DECO_PRESET_START && h < DECO_PRESET_START+NUM_COLOR_PRESETS)
 		{
-			decocolor = (255<<24)|colorlist[h-DECO_PRESET_START].colour;
+			int newDecoColor = (255<<24)|colorlist[h-DECO_PRESET_START].colour;
+			if (newDecoColor != decocolor)
+				decocolor = (255<<24)|colorlist[h-DECO_PRESET_START].colour;
+			else
+				sl = DECO_DRAW;
 			currR = PIXR(decocolor), currG = PIXG(decocolor), currB = PIXB(decocolor), currA = decocolor>>24;
 			RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
 		}
