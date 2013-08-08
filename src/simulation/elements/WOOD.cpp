@@ -24,7 +24,7 @@ int WOOD_update(UPDATE_FUNC_ARGS)
 
 int WOOD_graphics(GRAPHICS_FUNC_ARGS)
 {
-	float maxtemp = fmax(cpart->tmp,cpart->temp);
+	float maxtemp = std::max((float)cpart->tmp, cpart->temp);
 	if (maxtemp > 400)
 	{
 		*colr -= (int)restrict_flt((maxtemp-400)/3,0,172);

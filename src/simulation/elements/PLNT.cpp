@@ -74,7 +74,7 @@ int PLNT_update(UPDATE_FUNC_ARGS)
 
 int PLNT_graphics(GRAPHICS_FUNC_ARGS)
 {
-	float maxtemp = fmax(cpart->tmp2,cpart->temp);
+	float maxtemp = std::max((float)cpart->tmp2, cpart->temp);
 	if (maxtemp > 300)
 	{
 		*colr += (int)restrict_flt((maxtemp-300)/5,0,58);

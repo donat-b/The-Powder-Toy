@@ -152,13 +152,8 @@ typedef unsigned int pixel;
 #define strcasecmp stricmp
 #endif
 
-#ifndef max
-#define max(x,y) x>y?x:y
-#endif
-#ifndef min
-#define min(x,y) x<y?x:y
-#endif
 #if defined(WIN32) && !defined(__GNUC__)
+#include <algorithm>
 #define fmin min
 #define fminf min
 #define fmax max
