@@ -1788,6 +1788,11 @@ void decrease_life(int i)
 			kill_part(i);
 			return;
 		}
+
+		if (parts[i].type == PT_SPAWN && !player.spwn)
+			create_part(-1, parts[i].x, parts[i].y, PT_STKM);
+		else if (parts[i].type == PT_SPAWN2 && !player2.spwn)
+			create_part(-1, parts[i].x, parts[i].y, PT_STKM2);
 	}
 }
 

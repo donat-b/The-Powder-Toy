@@ -3528,7 +3528,7 @@ void menu_select_element(int b, int h)
 		{
 			int newDecoColor = (255<<24)|colorlist[h-DECO_PRESET_START].colour;
 			if (newDecoColor != decocolor)
-				decocolor = (255<<24)|colorlist[h-DECO_PRESET_START].colour;
+				decocolor = newDecoColor;
 			else
 				sl = DECO_DRAW;
 			currR = PIXR(decocolor), currG = PIXG(decocolor), currB = PIXB(decocolor), currA = decocolor>>24;

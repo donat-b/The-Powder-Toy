@@ -15,13 +15,6 @@
 
 #include "simulation/ElementsCommon.h"
 
-int SPAWN_update(UPDATE_FUNC_ARGS)
-{
-	if (!player.spwn)
-		sim->part_create(-1, x, y, PT_STKM);
-	return 0;
-}
-
 int SPAWN_create_override(ELEMENT_CREATE_OVERRIDE_FUNC_ARGS)
 {
 	if (ISSPAWN1)
@@ -61,7 +54,7 @@ void SPAWN_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 100;
 
-	elem->DefaultProperties.temp = R_TEMP+0.0f	+273.15f;
+	elem->DefaultProperties.temp = R_TEMP+273.15f;
 	elem->HeatConduct = 0;
 	elem->Latent = 0;
 	elem->Description = "STKM spawn point.";
@@ -78,7 +71,7 @@ void SPAWN_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = &SPAWN_update;
+	elem->Update = NULL;
 	elem->Graphics = NULL;
 	elem->Func_Create = &SPAWN_create;
 	elem->Func_Create_Override = &SPAWN_create_override;
