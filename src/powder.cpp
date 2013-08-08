@@ -1790,9 +1790,9 @@ void decrease_life(int i)
 		}
 
 		if (parts[i].type == PT_SPAWN && !player.spwn)
-			create_part(-1, parts[i].x, parts[i].y, PT_STKM);
+			create_part(-1, (int)parts[i].x, (int)parts[i].y, PT_STKM);
 		else if (parts[i].type == PT_SPAWN2 && !player2.spwn)
-			create_part(-1, parts[i].x, parts[i].y, PT_STKM2);
+			create_part(-1, (int)parts[i].x, (int)parts[i].y, PT_STKM2); 
 	}
 }
 
@@ -3476,12 +3476,15 @@ int FloodParts(int x, int y, int fullc, int cm, int flags)
 		if (c==0)
 		{
 			cm = pmap[y][x]&0xFF;
-			if (!cm)
-				cm = photons[y][x]&0xFF;
-			if (!cm && bmap[y/CELL][x/CELL])
-				FloodWalls(x, y, WL_ERASE+100, -1, flags);
-			if ((flags&BRUSH_REPLACEMODE) && cm!=SLALT)
-				return 0;
+			if(!cm && !(cm = photons[y][x]&0xFF))
+			{
+				if (bmap[y/CELL][x/CELL])
+					return FloodWalls(x, y, WL_ERASE+100, -1, flags);
+				else
+					return -1;
+				if ((flags&BRUSH_REPLACEMODE) && cm!=SLALT)
+					return 0;
+			}
 		}
 		else
 			cm = 0;
