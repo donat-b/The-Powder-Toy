@@ -203,4 +203,5 @@ void PRTO_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &PRTO_update;
 	elem->Graphics = &PRTO_graphics;
+	elem->Init = &PRTO_init_element;
 }

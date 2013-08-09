@@ -72,4 +72,5 @@ void BUTN_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = NULL;
 	elem->Graphics = &BUTN_graphics;
+	elem->Init = &BUTN_init_element;
 }

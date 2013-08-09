@@ -160,4 +160,5 @@ void CRAY_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &CRAY_update;
 	elem->Graphics = NULL;
+	elem->Init = &CRAY_init_element;
 }

@@ -91,4 +91,5 @@ void AMTR_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &AMTR_update;
 	elem->Graphics = NULL;
+	elem->Init = &AMTR_init_element;
 }

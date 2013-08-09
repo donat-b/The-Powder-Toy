@@ -118,4 +118,5 @@ void STOR_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &STOR_update;
 	elem->Graphics = &STOR_graphics;
+	elem->Init = &STOR_init_element;
 }

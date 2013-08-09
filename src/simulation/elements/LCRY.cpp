@@ -159,4 +159,5 @@ void LCRY_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &LCRY_update;
 	elem->Graphics = &LCRY_graphics;
+	elem->Init = &LCRY_init_element;
 }

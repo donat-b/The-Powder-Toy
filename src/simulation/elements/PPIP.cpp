@@ -65,4 +65,5 @@ void PPIP_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &PIPE_update;
 	elem->Graphics = &PIPE_graphics;
+	elem->Init = &PPIP_init_element;
 }

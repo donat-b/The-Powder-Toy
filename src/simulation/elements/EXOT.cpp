@@ -226,4 +226,5 @@ void EXOT_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &EXOT_update;
 	elem->Graphics = &EXOT_graphics;
+	elem->Init = &EXOT_init_element;
 }

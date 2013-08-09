@@ -610,4 +610,5 @@ void PIPE_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &PIPE_update;
 	elem->Graphics = &PIPE_graphics;
+	elem->Init = &PIPE_init_element;
 }

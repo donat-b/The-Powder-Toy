@@ -60,4 +60,5 @@ void LOLZ_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &update_MISC;
 	elem->Graphics = NULL;
+	elem->Init = &LOLZ_init_element;
 }

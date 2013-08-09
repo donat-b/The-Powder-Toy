@@ -103,4 +103,5 @@ void WATR_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &WATR_update;
 	elem->Graphics = NULL;
+	elem->Init = &WATR_init_element;
 }

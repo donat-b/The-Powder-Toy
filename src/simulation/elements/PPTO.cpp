@@ -78,4 +78,5 @@ void PPTO_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &PRTO_update;
 	elem->Graphics = &PPTO_graphics;
+	elem->Init = &PPTO_init_element;
 }

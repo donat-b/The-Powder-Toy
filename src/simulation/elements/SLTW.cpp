@@ -91,4 +91,5 @@ void SLTW_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &SLTW_update;
 	elem->Graphics = NULL;
+	elem->Init = &SLTW_init_element;
 }

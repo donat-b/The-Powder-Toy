@@ -84,4 +84,5 @@ void FIRE_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &update_PYRO;
 	elem->Graphics = &FIRE_graphics;
 	elem->Func_Create = &FIRE_create;
+	elem->Init = &FIRE_init_element;
 }

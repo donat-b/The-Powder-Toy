@@ -45,6 +45,7 @@ public:
 
 	Simulation();
 	void InitElements();
+	void InitElement(char* name, int id);
 	int part_create(int p, int x, int y, int t);
 	void part_change_type(int i, int x, int y, int t);
 	void part_kill(int i);
@@ -141,7 +142,7 @@ public:
 	}
 };
 
-void Simulation_Compat_CopyData(Simulation *sim);
+void Simulation_Compat_CopyData(Simulation *sim, int el = 0);
 
 extern Simulation *globalSim; // TODO: remove this
 

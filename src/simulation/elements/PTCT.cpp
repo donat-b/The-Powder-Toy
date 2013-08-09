@@ -67,4 +67,5 @@ void PTCT_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &NPTCT_update;
 	elem->Graphics = NULL;
+	elem->Init = &PTCT_init_element;
 }

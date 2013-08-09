@@ -66,4 +66,5 @@ void NWHL_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &NWHL_update;
 	elem->Graphics = NULL;
+	elem->Init = &NWHL_init_element;
 }

@@ -88,4 +88,5 @@ void PSNS_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &PSNS_update;
 	elem->Graphics = NULL;
+	elem->Init = &PSNS_init_element;
 }

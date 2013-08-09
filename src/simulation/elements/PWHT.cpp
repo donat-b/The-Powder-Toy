@@ -152,4 +152,5 @@ void PWHT_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &PWHT_update;
 	elem->Graphics = &PWHT_graphics;
+	elem->Init = &PWHT_init_element;
 }

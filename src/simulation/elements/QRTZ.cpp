@@ -180,4 +180,5 @@ void QRTZ_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &QRTZ_update;
 	elem->Graphics = &QRTZ_graphics;
 	elem->Func_Create = &QRTZ_create;
+	elem->Init = &QRTZ_init_element;
 }

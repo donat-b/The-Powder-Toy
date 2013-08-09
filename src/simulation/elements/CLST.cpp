@@ -113,4 +113,5 @@ void CLST_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &CLST_update;
 	elem->Graphics = &CLST_graphics;
 	elem->Func_Create = &CLST_create;
+	elem->Init = &CLST_init_element;
 }

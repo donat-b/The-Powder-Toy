@@ -115,4 +115,5 @@ void CO2_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &CO2_update;
 	elem->Graphics = NULL;
+	elem->Init = &CO2_init_element;
 }

@@ -136,4 +136,5 @@ void FIRW_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &FIRW_update;
 	elem->Graphics = &FIRW_graphics;
+	elem->Init = &FIRW_init_element;
 }

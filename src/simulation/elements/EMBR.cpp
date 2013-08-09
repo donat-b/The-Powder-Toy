@@ -135,4 +135,5 @@ void EMBR_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &EMBR_update;
 	elem->Graphics = &EMBR_graphics;
+	elem->Init = &EMBR_init_element;
 }

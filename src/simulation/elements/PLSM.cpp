@@ -84,4 +84,5 @@ void PLSM_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &update_PYRO;
 	elem->Graphics = &PLSM_graphics;
 	elem->Func_Create = &PLSM_create;
+	elem->Init = &PLSM_init_element;
 }

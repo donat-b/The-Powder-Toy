@@ -94,4 +94,5 @@ void GRAV_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &update_MISC;
 	elem->Graphics = &GRAV_graphics;
+	elem->Init = &GRAV_init_element;
 }

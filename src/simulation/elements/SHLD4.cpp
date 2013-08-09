@@ -101,4 +101,5 @@ void SHLD4_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &SHLD4_update;
 	elem->Graphics = NULL;
+	elem->Init = &SHLD4_init_element;
 }

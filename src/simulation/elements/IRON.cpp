@@ -85,4 +85,5 @@ void IRON_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &IRON_update;
 	elem->Graphics = NULL;
+	elem->Init = &IRON_init_element;
 }

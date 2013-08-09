@@ -92,4 +92,5 @@ void FRZW_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &FRZW_update;
 	elem->Graphics = NULL;
+	elem->Init = &FRZW_init_element;
 }

@@ -24,6 +24,7 @@
 #include <console.h>
 #include <luaconsole.h>
 #include <luascriptinterface.h>
+#include "simulation\Simulation.h"
 extern "C"
 {
 #include "socket/luasocket.h"
@@ -1203,14 +1204,18 @@ int luatpt_getelement(lua_State *l)
 {
 	int t;
 	char* name;
-	if(lua_isnumber(l, 1)){
+	if(lua_isnumber(l, 1))
+	{
 		t = luaL_optint(l, 1, 1);
 		if (t<0 || t>=PT_NUM)
 			return luaL_error(l, "Unrecognised element number '%d'", t);
 		name = ptypes[t&0xFF].name;
 		lua_pushstring(l, name);
-	} else {
-		name = (char*)luaL_optstring(l, 1, "dust");
+	}
+	else
+	{
+		luaL_checktype(l, 1, LUA_TSTRING);
+		name = (char*)luaL_optstring(l, 1, "");
 		if (!console_parse_type(name, &t, NULL))
 			return luaL_error(l, "Unrecognised element '%s'", name);
 		lua_pushinteger(l, t);
@@ -2801,13 +2806,11 @@ int luatpt_clear_sim(lua_State* l)
 
 int luatpt_reset_elements(lua_State* l)
 {
-	return luaL_error(l, "broken / unimplemented");
-	/*memcpy(ptypes,ptypes2,sizeof(ptypes));
-	memcpy(ptransitions,ptransitions2,sizeof(ptransitions));
+	globalSim->InitElements();
 	menu_count();
 	init_can_move();
 	memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
-	return 0;*/
+	return 0;
 }
 
 int luatpt_indestructible(lua_State* l)
@@ -2833,8 +2836,7 @@ int luatpt_indestructible(lua_State* l)
 
 int luatpt_moving_solid(lua_State* l)
 {
-	return luaL_error(l, "broken / unimplemented");
-	/*int el = 0, movs;
+	int el = 0, movs;
 	char* name;
 	if(lua_isnumber(l, 1)){
 		el = luaL_optint(l, 1, 0);
@@ -2858,16 +2860,11 @@ int luatpt_moving_solid(lua_State* l)
 	}
 	else
 	{
-		ptypes[el].properties &= ~PROP_MOVS;
-		ptypes[el].advection = ptypes2[el].advection;
-		ptypes[el].airdrag = ptypes2[el].airdrag;
-		ptypes[el].airloss = ptypes2[el].airloss;
-		ptypes[el].gravity = ptypes2[el].gravity;
-		ptypes[el].loss = ptypes2[el].loss;
-		ptypes[el].falldown = ptypes2[el].falldown;
+		globalSim->elements[el].Init(&globalSim->elements[el], el);
+		Simulation_Compat_CopyData(globalSim, el);
 	}
 	init_can_move();
-	return 0;*/
+	return 0;
 }
 
 int luatpt_create_parts(lua_State* l)

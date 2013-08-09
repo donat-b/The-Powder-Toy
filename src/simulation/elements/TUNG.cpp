@@ -138,4 +138,5 @@ void TUNG_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &TUNG_update;
 	elem->Graphics = &TUNG_graphics;
+	elem->Init = &TUNG_init_element;
 }

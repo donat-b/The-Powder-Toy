@@ -132,4 +132,5 @@ void WIRE_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &WIRE_update;
 	elem->Graphics = &WIRE_graphics;
+	elem->Init = &WIRE_init_element;
 }

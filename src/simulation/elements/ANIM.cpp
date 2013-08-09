@@ -129,4 +129,5 @@ void ANIM_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &ANIM_update;
 	elem->Graphics = NULL;
 	elem->Func_Create = &ANIM_create;
+	elem->Init = &ANIM_init_element;
 }

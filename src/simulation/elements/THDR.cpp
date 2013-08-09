@@ -108,4 +108,5 @@ void THDR_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &THDR_update;
 	elem->Graphics = &THDR_graphics;
+	elem->Init = &THDR_init_element;
 }

@@ -112,4 +112,5 @@ void GLOW_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &GLOW_update;
 	elem->Graphics = &GLOW_graphics;
+	elem->Init = &GLOW_init_element;
 }

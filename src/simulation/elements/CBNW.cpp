@@ -159,4 +159,5 @@ void CBNW_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &CBNW_update;
 	elem->Graphics = &CBNW_graphics;
+	elem->Init = &CBNW_init_element;
 }

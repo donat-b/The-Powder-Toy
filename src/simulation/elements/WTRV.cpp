@@ -82,4 +82,5 @@ void WTRV_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &WTRV_update;
 	elem->Graphics = NULL;
+	elem->Init = &WTRV_init_element;
 }

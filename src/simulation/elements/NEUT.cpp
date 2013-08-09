@@ -204,4 +204,5 @@ void NEUT_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &NEUT_update;
 	elem->Graphics = &NEUT_graphics;
 	elem->Func_Create = &NEUT_create;
+	elem->Init = &NEUT_init_element;
 }

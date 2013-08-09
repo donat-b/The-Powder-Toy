@@ -164,4 +164,5 @@ void ARAY_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &ARAY_update;
 	elem->Graphics = NULL;
+	elem->Init = &ARAY_init_element;
 }

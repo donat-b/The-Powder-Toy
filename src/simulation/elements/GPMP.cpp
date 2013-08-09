@@ -85,4 +85,5 @@ void GPMP_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &GPMP_update;
 	elem->Graphics = &GPMP_graphics;
+	elem->Init = &GPMP_init_element;
 }

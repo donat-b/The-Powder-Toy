@@ -62,4 +62,5 @@ void NTCT_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &NPTCT_update;
 	elem->Graphics = NULL;
+	elem->Init = &NTCT_init_element;
 }

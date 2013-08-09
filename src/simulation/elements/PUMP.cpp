@@ -89,4 +89,5 @@ void PUMP_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &PUMP_update;
 	elem->Graphics = &PUMP_graphics;
+	elem->Init = &PUMP_init_element;
 }

@@ -82,4 +82,5 @@ void REPL_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &REPL_update;
 	elem->Graphics = NULL;
+	elem->Init = &REPL_init_element;
 }

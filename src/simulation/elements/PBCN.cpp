@@ -148,4 +148,5 @@ void PBCN_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &PBCN_update;
 	elem->Graphics = &PBCN_graphics;
+	elem->Init = &PBCN_init_element;
 }

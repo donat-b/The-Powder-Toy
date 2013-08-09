@@ -223,4 +223,5 @@ void FIGH_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &FIGH_update;
 	elem->Graphics = &STKM_graphics;
 	elem->Func_Create_Override = &FIGH_create_override;
+	elem->Init = &FIGH_init_element;
 }

@@ -115,4 +115,5 @@ void O2_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &O2_update;
 	elem->Graphics = NULL;
+	elem->Init = &O2_init_element;
 }

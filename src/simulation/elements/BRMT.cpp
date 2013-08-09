@@ -94,4 +94,5 @@ void BRMT_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &BRMT_update;
 	elem->Graphics = NULL;
+	elem->Init = &BRMT_init_element;
 }

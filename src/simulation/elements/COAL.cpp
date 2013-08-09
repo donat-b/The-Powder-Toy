@@ -141,4 +141,5 @@ void COAL_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &COAL_update;
 	elem->Graphics = &COAL_graphics;
+	elem->Init = &COAL_init_element;
 }

@@ -75,4 +75,5 @@ void SPAWN_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Graphics = NULL;
 	elem->Func_Create = &SPAWN_create;
 	elem->Func_Create_Override = &SPAWN_create_override;
+	elem->Init = &SPAWN_init_element;
 }

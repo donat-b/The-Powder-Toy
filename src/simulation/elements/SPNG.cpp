@@ -204,4 +204,5 @@ void SPNG_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &SPNG_update;
 	elem->Graphics = &SPNG_graphics;
+	elem->Init = &SPNG_init_element;
 }

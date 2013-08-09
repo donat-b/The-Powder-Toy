@@ -67,4 +67,5 @@ void HSWC_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = NULL;
 	elem->Graphics = &HSWC_graphics;
+	elem->Init = &HSWC_init_element;
 }

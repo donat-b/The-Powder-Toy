@@ -153,4 +153,5 @@ void ACID_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &ACID_update;
 	elem->Graphics = &ACID_graphics;
+	elem->Init = &ACID_init_element;
 }

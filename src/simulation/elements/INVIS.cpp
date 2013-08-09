@@ -73,4 +73,5 @@ void INVIS_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = NULL;
 	elem->Graphics = &INVS_graphics;
+	elem->Init = &INVIS_init_element;
 }

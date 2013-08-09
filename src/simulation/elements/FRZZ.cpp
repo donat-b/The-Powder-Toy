@@ -85,4 +85,5 @@ void FRZZ_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &FRZZ_update;
 	elem->Graphics = NULL;
+	elem->Init = &FRZZ_init_element;
 }

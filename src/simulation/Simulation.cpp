@@ -213,13 +213,13 @@ void Simulation::part_kill(int i)//kills particle number i
 	part_free(i);
 }
 
-void Simulation_Compat_CopyData(Simulation* sim)
+void Simulation_Compat_CopyData(Simulation* sim, int el)
 {
 	// TODO: this can be removed once all the code uses Simulation instead of global variables
 	parts = sim->parts;
 
 
-	for (int t=0; t<PT_NUM; t++)
+	for (int t=el?0:el; t<=(el?el:PT_NUM-1); t++)
 	{
 		ptypes[t].name = mystrdup(sim->elements[t].Name);
 		ptypes[t].pcolors = PIXRGB(COLR(sim->elements[t].Colour), COLG(sim->elements[t].Colour), COLB(sim->elements[t].Colour));

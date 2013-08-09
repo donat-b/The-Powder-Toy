@@ -77,4 +77,5 @@ void GLAS_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &GLAS_update;
 	elem->Graphics = NULL;
 	elem->Func_Create = &GLAS_create;
+	elem->Init = &GLAS_init_element;
 }

@@ -68,4 +68,5 @@ void MORT_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &MORT_update;
 	elem->Graphics = NULL;
+	elem->Init = &MORT_init_element;
 }

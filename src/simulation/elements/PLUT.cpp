@@ -70,4 +70,5 @@ void PLUT_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &PLUT_update;
 	elem->Graphics = NULL;
+	elem->Init = &PLUT_init_element;
 }

@@ -126,4 +126,5 @@ void DMG_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &DMG_update;
 	elem->Graphics = &DMG_graphics;
+	elem->Init = &DMG_init_element;
 }

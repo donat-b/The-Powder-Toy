@@ -280,4 +280,5 @@ void TRON_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &TRON_update;
 	elem->Graphics = &TRON_graphics;
 	elem->Func_Create = &TRON_create;
+	elem->Init = &TRON_init_element;
 }

@@ -129,4 +129,5 @@ void FWRK_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &FWRK_update;
 	elem->Graphics = NULL;
+	elem->Init = &FWRK_init_element;
 }

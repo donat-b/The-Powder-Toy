@@ -84,4 +84,5 @@ void C5_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &C5_update;
 	elem->Graphics = NULL;
+	elem->Init = &C5_init_element;
 }

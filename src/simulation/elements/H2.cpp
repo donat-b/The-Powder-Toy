@@ -135,4 +135,5 @@ void H2_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &H2_update;
 	elem->Graphics = NULL;
+	elem->Init = &H2_init_element;
 }

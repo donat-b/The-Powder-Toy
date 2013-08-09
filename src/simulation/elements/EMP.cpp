@@ -188,4 +188,5 @@ void EMP_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &EMP_update;
 	elem->Graphics = &EMP_graphics;
+	elem->Init = &EMP_init_element;
 }

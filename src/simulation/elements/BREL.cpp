@@ -74,4 +74,5 @@ void BREL_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &BREL_update;
 	elem->Graphics = NULL;
+	elem->Init = &BREL_init_element;
 }

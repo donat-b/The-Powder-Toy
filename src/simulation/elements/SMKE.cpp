@@ -77,4 +77,5 @@ void SMKE_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = NULL;
 	elem->Graphics = &SMKE_graphics;
+	elem->Init = &SMKE_init_element;
 }

@@ -132,4 +132,5 @@ void BIZR_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &BIZR_update;
 	elem->Graphics = &BIZR_graphics;
+	elem->Init = &BIZR_init_element;
 }

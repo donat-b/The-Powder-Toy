@@ -3,6 +3,7 @@
 #include <powder.h>
 #include <gravity.h>
 #include <powdergraphics.h>
+#include "simulation\Simulation.h"
 #include <dirent.h>
 #ifdef WIN32
 #include <direct.h>
@@ -1190,8 +1191,7 @@ int elements_getProperty(char * key, int * format)
 
 int elements_loadDefault(lua_State * l)
 {
-	return luaL_error(l, "broken / unimplemented");
-	/*int args = lua_gettop(l);
+	int args = lua_gettop(l);
 	if(args)
 	{
 		int id;
@@ -1206,8 +1206,8 @@ int elements_loadDefault(lua_State * l)
 
 		if(id < PT_NUM)
 		{
-			ptypes[id] = ptypes2[id];
-			ptransitions[id] = ptransitions2[id];
+			globalSim->elements[id].Init(&globalSim->elements[id], id);
+			Simulation_Compat_CopyData(globalSim, id);
 			pidentifiers[id] = getIdentifier(id);
 		}
 		//else
@@ -1219,7 +1219,9 @@ int elements_loadDefault(lua_State * l)
 	}
 	else
 	{
-		memcpy(ptypes,ptypes2,sizeof(ptypes2));
+		for (int i = 0; i < PT_NUM; i++)
+			globalSim->elements[i].Init(&globalSim->elements[i], i);
+		Simulation_Compat_CopyData(globalSim);
 		lua_pushnil(l);
 		lua_setglobal(l, "elements");
 		lua_pushnil(l);
@@ -1236,7 +1238,7 @@ int elements_loadDefault(lua_State * l)
 	menu_count();
 	init_can_move();
 	memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
-	return 0;*/
+	return 0;
 }
 
 int elements_allocate(lua_State * l)

@@ -545,7 +545,8 @@ Fix crash when turning on newtonian gravity with the quickoption
 
 Bugs:
 wall id's don't match with tpt++ in lua
-clear sim can be clicked too high, y=404
+luacon_elementread and write don't have pixel, unsigned int, or char properties like elements.property does
+fix issues with !set (c)type x 0
 //None (at least that I know of)
 
 
@@ -556,7 +557,6 @@ changes from tpt++: SPRK, LIGH, LCRY, all others
 make open ui more colorful like tpt++, also fix cut off description in save uploading ui
 make buttons look clicked when pressed, moving mouse away will not do clicks, like tpt++?
 loading circle in save browser?
-https://github.com/FacialTurd/The-Powder-Toy/commit/b8c218c89b59c9280931a1d959df0348f6103b9c -> wait til c++ since it's hard to do in visual studio ...
 https://github.com/FacialTurd/The-Powder-Toy/commit/6e7a5488b561aee4f3b5e3b22ff1b7851c3921ef -> will do later with the elementCount variable
 >Add things from tpt++ that look cool, and any new simulation changes it gets
 

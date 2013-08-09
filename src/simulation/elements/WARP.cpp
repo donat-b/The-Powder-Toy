@@ -112,4 +112,5 @@ void WARP_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &WARP_update;
 	elem->Graphics = &WARP_graphics;
 	elem->Func_Create = &WARP_create;
+	elem->Init = &WARP_init_element;
 }

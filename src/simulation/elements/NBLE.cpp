@@ -101,4 +101,5 @@ void NBLE_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &NBLE_update;
 	elem->Graphics = NULL;
+	elem->Init = &NBLE_init_element;
 }

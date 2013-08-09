@@ -34,13 +34,14 @@ int console_parse_type(const char *txt, int *element, char *err)
 	if (strcasecmp(txt,"C4")==0) i = PT_PLEX;
 	else if (strcasecmp(txt,"C5")==0) i = PT_C5;
 	else if (strcasecmp(txt,"NONE")==0) i = PT_NONE;
-	if (i>=0 && i<PT_NUM && ptypes[i].enabled)
+	if ((i > 0 && i < PT_NUM && ptypes[i].enabled) || !strcmp(txt, "0"))
 	{
 		if (element) *element = i;
 		if (err) strcpy(err,"");
 		return 1;
 	}
-	for (i=1; i<PT_NUM; i++) {
+	for (i=1; i<PT_NUM; i++)
+	{
 		if (!strcasecmp(txt,ptypes[i].name) && (ptypes[i].enabled || secret_els))
 		{
 			if (element) *element = i;
@@ -563,7 +564,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 					}
 					else if (console_parse_type(console4, &j, console_error))
 					{
-						if (console_parse_type(console5, &k, console_error) || (k = atoi(console5)) || !strcmp(console5,"0") || !strcasecmp(console5,"NONE"))
+						if (console_parse_type(console5, &k, console_error))
 						{
 							strcpy(console_error, "");
 							for (i=0; i<NPART; i++)
@@ -577,7 +578,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 					{
 						if (console_parse_partref(console4, &i, console_error))
 						{
-							if (console_parse_type(console5, &j, console_error) || (j = atoi(console5)) || !strcmp(console5,"0") || !strcasecmp(console5,"NONE"))
+							if (console_parse_type(console5, &j, console_error))
 							{
 								strcpy(console_error, "");
 								j = atoi(console5);

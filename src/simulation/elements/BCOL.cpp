@@ -111,4 +111,5 @@ void BCOL_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &BCOL_update;
 	elem->Graphics = &COAL_graphics;
+	elem->Init = &BCOL_init_element;
 }

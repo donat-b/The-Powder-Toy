@@ -159,4 +159,5 @@ void PRTI_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &PRTI_update;
 	elem->Graphics = &PRTI_graphics;
+	elem->Init = &PRTI_init_element;
 }

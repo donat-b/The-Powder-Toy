@@ -78,4 +78,5 @@ void PPTI_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &PRTI_update;
 	elem->Graphics = &PPTI_graphics;
+	elem->Init = &PPTI_init_element;
 }

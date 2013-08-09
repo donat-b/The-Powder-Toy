@@ -156,4 +156,5 @@ void DEUT_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &DEUT_update;
 	elem->Graphics = &DEUT_graphics;
+	elem->Init = &DEUT_init_element;
 }

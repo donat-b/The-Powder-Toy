@@ -100,4 +100,5 @@ void DCEL_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &DCEL_update;
 	elem->Graphics = &DCEL_graphics;
+	elem->Init = &DCEL_init_element;
 }

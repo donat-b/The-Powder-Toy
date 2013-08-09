@@ -101,4 +101,5 @@ void DSTW_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &DSTW_update;
 	elem->Graphics = NULL;
+	elem->Init = &DSTW_init_element;
 }

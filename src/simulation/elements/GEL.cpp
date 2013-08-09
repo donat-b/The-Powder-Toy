@@ -161,4 +161,5 @@ void GEL_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &GEL_update;
 	elem->Graphics = &GEL_graphics;
+	elem->Init = &GEL_init_element;
 }

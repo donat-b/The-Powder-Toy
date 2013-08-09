@@ -85,4 +85,5 @@ void HFLM_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = NULL;
 	elem->Graphics = &HFLM_graphics;
 	elem->Func_Create = &HFLM_create;
+	elem->Init = &HFLM_init_element;
 }

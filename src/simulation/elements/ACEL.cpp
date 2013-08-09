@@ -100,4 +100,5 @@ void ACEL_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &ACEL_update;
 	elem->Graphics = &ACEL_graphics;
+	elem->Init = &ACEL_init_element;
 }

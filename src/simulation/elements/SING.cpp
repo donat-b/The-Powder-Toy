@@ -179,4 +179,5 @@ void SING_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &SING_update;
 	elem->Graphics = NULL;
 	elem->Func_Create = &SING_create;
+	elem->Init = &SING_init_element;
 }

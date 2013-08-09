@@ -86,4 +86,5 @@ void RIME_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &RIME_update;
 	elem->Graphics = NULL;
+	elem->Init = &RIME_init_element;
 }

@@ -82,4 +82,5 @@ void FOG_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &FOG_update;
 	elem->Graphics = NULL;
+	elem->Init = &FOG_init_element;
 }

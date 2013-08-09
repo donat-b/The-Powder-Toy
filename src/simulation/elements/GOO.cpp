@@ -74,4 +74,5 @@ void GOO_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &GOO_update;
 	elem->Graphics = NULL;
+	elem->Init = &GOO_init_element;
 }

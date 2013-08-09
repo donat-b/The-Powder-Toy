@@ -90,4 +90,5 @@ void SWCH_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &SWCH_update;
 	elem->Graphics = &SWCH_graphics;
+	elem->Init = &SWCH_init_element;
 }

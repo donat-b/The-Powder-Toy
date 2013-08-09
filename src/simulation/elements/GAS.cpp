@@ -60,4 +60,5 @@ void GAS_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = NULL;
 	elem->Graphics = NULL;
+	elem->Init = &GAS_init_element;
 }

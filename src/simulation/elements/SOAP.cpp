@@ -293,4 +293,5 @@ void SOAP_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &SOAP_update;
 	elem->Graphics = NULL;
+	elem->Init = &SOAP_init_element;
 }

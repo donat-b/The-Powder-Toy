@@ -70,4 +70,5 @@ void FRME_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = NULL;
 	elem->Graphics = &FRME_graphics;
+	elem->Init = &FRME_init_element;
 }

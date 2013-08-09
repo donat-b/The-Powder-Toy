@@ -97,4 +97,5 @@ void FSEP_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &FSEP_update;
 	elem->Graphics = NULL;
+	elem->Init = &FSEP_init_element;
 }

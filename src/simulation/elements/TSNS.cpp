@@ -103,4 +103,5 @@ void TSNS_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &TSNS_update;
 	elem->Graphics = NULL;
+	elem->Init = &TSNS_init_element;
 }

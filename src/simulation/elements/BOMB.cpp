@@ -115,4 +115,5 @@ void BOMB_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &BOMB_update;
 	elem->Graphics = &BOMB_graphics;
+	elem->Init = &BOMB_init_element;
 }

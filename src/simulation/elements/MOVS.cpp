@@ -139,4 +139,5 @@ void MOVS_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &MOVS_update;
 	elem->Graphics = NULL;
+	elem->Init = &MOVS_init_element;
 }

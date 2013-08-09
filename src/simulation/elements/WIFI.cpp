@@ -109,4 +109,5 @@ void WIFI_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &WIFI_update;
 	elem->Graphics = &WIFI_graphics;
+	elem->Init = &WIFI_init_element;
 }

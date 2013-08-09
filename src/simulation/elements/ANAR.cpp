@@ -87,4 +87,5 @@ void ANAR_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &ANAR_update;
 	elem->Graphics = NULL;
+	elem->Init = &ANAR_init_element;
 }

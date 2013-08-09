@@ -127,4 +127,5 @@ void DEST_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &DEST_update;
 	elem->Graphics = &DEST_graphics;
+	elem->Init = &DEST_init_element;
 }

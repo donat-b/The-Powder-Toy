@@ -271,4 +271,5 @@ void VIBR_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &VIBR_update;
 	elem->Graphics = &VIBR_graphics;
+	elem->Init = &VIBR_init_element;
 }

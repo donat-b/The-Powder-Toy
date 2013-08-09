@@ -85,4 +85,5 @@ void FILT_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = NULL;
 	elem->Graphics = &FILT_graphics;
+	elem->Init = &FILT_init_element;
 }

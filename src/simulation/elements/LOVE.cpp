@@ -60,4 +60,5 @@ void LOVE_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &update_MISC;
 	elem->Graphics = NULL;
+	elem->Init = &LOVE_init_element;
 }

@@ -103,4 +103,5 @@ void BOYL_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &BOYL_update;
 	elem->Graphics = NULL;
+	elem->Init = &BOYL_init_element;
 }

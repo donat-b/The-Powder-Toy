@@ -63,4 +63,5 @@ void SNOW_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &ICE_update;
 	elem->Graphics = NULL;
+	elem->Init = &SNOW_init_element;
 }

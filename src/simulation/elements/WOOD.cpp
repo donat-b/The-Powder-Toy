@@ -86,4 +86,5 @@ void WOOD_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &WOOD_update;
 	elem->Graphics = &WOOD_graphics;
+	elem->Init = &WOOD_init_element;
 }

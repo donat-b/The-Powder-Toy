@@ -119,4 +119,5 @@ void BRAY_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = NULL;
 	elem->Graphics = &BRAY_graphics;
+	elem->Init = &BRAY_init_element;
 }

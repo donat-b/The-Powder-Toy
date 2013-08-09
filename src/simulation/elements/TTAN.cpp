@@ -84,4 +84,5 @@ void TTAN_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &TTAN_update;
 	elem->Graphics = NULL;
+	elem->Init = &TTAN_init_element;
 }

@@ -157,4 +157,5 @@ void PHOT_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &PHOT_update;
 	elem->Graphics = &PHOT_graphics;
 	elem->Func_Create = &PHOT_create;
+	elem->Init = &PHOT_init_element;
 }

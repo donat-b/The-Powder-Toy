@@ -64,4 +64,5 @@ void VRSS_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &VIRS_update;
 	elem->Graphics = NULL;
+	elem->Init = &VRSS_init_element;
 }

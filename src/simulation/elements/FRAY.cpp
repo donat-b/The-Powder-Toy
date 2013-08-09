@@ -89,4 +89,5 @@ void FRAY_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &FRAY_update;
 	elem->Graphics = NULL;
+	elem->Init = &FRAY_init_element;
 }

@@ -69,4 +69,5 @@ void NBHL_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &NBHL_update;
 	elem->Graphics = NULL;
+	elem->Init = &NBHL_init_element;
 }

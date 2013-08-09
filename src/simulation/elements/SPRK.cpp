@@ -328,4 +328,5 @@ void SPRK_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &SPRK_update;
 	elem->Graphics = &SPRK_graphics;
+	elem->Init = &SPRK_init_element;
 }

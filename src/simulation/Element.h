@@ -33,6 +33,7 @@ class Simulation;
 #define GRAPHICS_FUNC_SUBCALL_ARGS sim, cpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb
 #define ELEMENT_CREATE_FUNC_ARGS Simulation *sim, int i, int x, int y
 #define ELEMENT_CREATE_OVERRIDE_FUNC_ARGS Simulation *sim, int p, int x, int y, int t
+#define ELEMENT_INIT_FUNC_ARGS Element *elem, int t
 
 
 class Element
@@ -90,6 +91,7 @@ public:
 
 	int (*Update) (UPDATE_FUNC_ARGS);
 	int (*Graphics) (GRAPHICS_FUNC_ARGS);
+
 	// Func_Create can be used to set initial properties that are not constant (e.g. a random life value)
 	// It cannot be used to block creation, to do that use Func_Create_Override and return -1 to block or -4 to allow
 	// Particle type should not be changed in this function
@@ -102,6 +104,7 @@ public:
 
 	particle DefaultProperties;
 
+	void (*Init) (ELEMENT_INIT_FUNC_ARGS);
 	Element();
 	virtual ~Element() {}
 

@@ -132,4 +132,5 @@ void MERC_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &MERC_update;
 	elem->Graphics = NULL;
+	elem->Init = &MERC_init_element;
 }

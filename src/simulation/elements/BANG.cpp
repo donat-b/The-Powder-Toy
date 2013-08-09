@@ -138,4 +138,5 @@ void BANG_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &BANG_update;
 	elem->Graphics = NULL;
+	elem->Init = &BANG_init_element;
 }

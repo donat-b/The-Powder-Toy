@@ -101,4 +101,5 @@ void CLNE_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &CLNE_update;
 	elem->Graphics = NULL;
+	elem->Init = &CLNE_init_element;
 }

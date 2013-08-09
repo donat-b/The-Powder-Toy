@@ -17,8 +17,6 @@
 
 #if (!defined(ElementNumbers_H_Numbers) || (defined(ElementNumbers_Include_Decl) && !defined(ElementNumbers_H_Decl)) || (defined(ElementNumbers_Include_Call) && !defined(ElementNumbers_H_Call)))
 
-#undef ELEMENT_INIT_FUNC_ARGS
-#define ELEMENT_INIT_FUNC_ARGS Element *elem, int t
 #undef ElementNumbers_Include_Numbers
 
 #if (defined(ElementNumbers_Include_Decl) && !defined(ElementNumbers_H_Decl))

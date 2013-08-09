@@ -98,4 +98,5 @@ void VINE_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &VINE_update;
 	elem->Graphics = &VINE_graphics;
+	elem->Init = &VINE_init_element;
 }

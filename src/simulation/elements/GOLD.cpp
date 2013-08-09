@@ -116,4 +116,5 @@ void GOLD_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &GOLD_update;
 	elem->Graphics = &GOLD_graphics;
+	elem->Init = &GOLD_init_element;
 }

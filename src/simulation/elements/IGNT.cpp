@@ -106,4 +106,5 @@ void IGNT_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &IGNT_update;
 	elem->Graphics = NULL;
+	elem->Init = &IGNT_init_element;
 }

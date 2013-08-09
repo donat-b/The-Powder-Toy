@@ -109,4 +109,5 @@ void BCLN_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &BCLN_update;
 	elem->Graphics = NULL;
+	elem->Init = &BCLN_init_element;
 }

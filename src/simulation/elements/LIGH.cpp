@@ -411,4 +411,5 @@ void LIGH_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &LIGH_update;
 	elem->Graphics = &LIGH_graphics;
 	elem->Func_Create = &LIGH_create;
+	elem->Init = &LIGH_init_element;
 }

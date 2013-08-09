@@ -81,4 +81,5 @@ void YEST_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &YEST_update;
 	elem->Graphics = NULL;
+	elem->Init = &YEST_init_element;
 }

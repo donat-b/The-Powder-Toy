@@ -83,4 +83,5 @@ void EXPL_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &EXPL_update;
 	elem->Graphics = &EXPL_graphics;
+	elem->Init = &EXPL_init_element;
 }

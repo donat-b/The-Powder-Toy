@@ -99,4 +99,5 @@ void GBMB_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &GBMB_update;
 	elem->Graphics = &GBMB_graphics;
+	elem->Init = &GBMB_init_element;
 }

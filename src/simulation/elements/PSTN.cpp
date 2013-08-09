@@ -330,4 +330,5 @@ void PSTN_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &PSTN_update;
 	elem->Graphics = &PSTN_graphics;
+	elem->Init = &PSTN_init_element;
 }

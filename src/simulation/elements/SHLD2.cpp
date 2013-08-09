@@ -99,4 +99,5 @@ void SHLD2_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &SHLD2_update;
 	elem->Graphics = NULL;
+	elem->Init = &SHLD2_init_element;
 }

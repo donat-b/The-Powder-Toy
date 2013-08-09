@@ -175,4 +175,5 @@ void ELEC_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &ELEC_update;
 	elem->Graphics = &ELEC_graphics;
 	elem->Func_Create = &ELEC_create;
+	elem->Init = &ELEC_init_element;
 }

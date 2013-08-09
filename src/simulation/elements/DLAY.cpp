@@ -118,4 +118,5 @@ void DLAY_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &DLAY_update;
 	elem->Graphics = &DLAY_graphics;
+	elem->Init = &DLAY_init_element;
 }

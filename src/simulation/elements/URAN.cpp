@@ -71,4 +71,5 @@ void URAN_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &URAN_update;
 	elem->Graphics = NULL;
+	elem->Init = &URAN_init_element;
 }

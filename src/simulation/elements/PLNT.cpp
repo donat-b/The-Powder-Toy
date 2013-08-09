@@ -137,4 +137,5 @@ void PLNT_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &PLNT_update;
 	elem->Graphics = &PLNT_graphics;
+	elem->Init = &PLNT_init_element;
 }

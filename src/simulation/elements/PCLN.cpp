@@ -135,4 +135,5 @@ void PCLN_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &PCLN_update;
 	elem->Graphics = &PCLN_graphics;
+	elem->Init = &PCLN_init_element;
 }

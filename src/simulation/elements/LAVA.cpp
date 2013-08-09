@@ -85,4 +85,5 @@ void LAVA_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &update_PYRO;
 	elem->Graphics = &LAVA_graphics;
 	elem->Func_Create = &LAVA_create;
+	elem->Init = &LAVA_init_element;
 }

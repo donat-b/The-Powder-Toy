@@ -114,4 +114,5 @@ void LIFE_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = NULL;
 	elem->Graphics = &LIFE_graphics;
+	elem->Init = &LIFE_init_element;
 }

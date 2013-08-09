@@ -74,4 +74,5 @@ void PINV_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = NULL;
 	elem->Graphics = &PINV_graphics;
+	elem->Init = &PINV_init_element;
 }
