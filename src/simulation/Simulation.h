@@ -142,7 +142,7 @@ public:
 	}
 };
 
-void Simulation_Compat_CopyData(Simulation *sim, int el = 0);
+void Simulation_Compat_CopyData(Simulation *sim);
 
 extern Simulation *globalSim; // TODO: remove this
 

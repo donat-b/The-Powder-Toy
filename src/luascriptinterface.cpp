@@ -1033,7 +1033,7 @@ void initElementsAPI(lua_State * l)
 	//Element identifiers
 	for(i = 0; i < PT_NUM; i++)
 	{
-		if(ptypes[i].enabled)
+		if(globalSim->elements[i].Enabled)
 		{
 			char realidentifier[24];
 			lua_pushinteger(l, i);
@@ -1048,145 +1048,259 @@ void initElementsAPI(lua_State * l)
 	}
 }
 
-int elements_getProperty(char * key, int * format)
+int elements_getProperty(char * key, int * format, unsigned int * modifiedStuff)
 {
 	int offset;
-	if (strcmp(key, "Name")==0){
-		offset = offsetof(part_type, name);
+	if (!strcmp(key, "Name"))
+	{
+		offset = offsetof(Element, Name);
 		*format = 2;
 	}
-	else if (strcmp(key, "Color")==0){
-		offset = offsetof(part_type, pcolors);
+	else if (!strcmp(key, "Color") || !strcmp(key, "Colour"))
+	{
+		offset = offsetof(Element, Colour);
 		*format = 4;
+		*modifiedStuff |= LUACON_EL_MODIFIED_GRAPHICS;
 	}
-	else if (strcmp(key, "Colour")==0){
-		offset = offsetof(part_type, pcolors);
-		*format = 4;
-	}
-	else if (strcmp(key, "Advection")==0){
-		offset = offsetof(part_type, advection);
+	else if (!strcmp(key, "Advection"))
+	{
+		offset = offsetof(Element, Advection);
 		*format = 1;
 	}
-	else if (strcmp(key, "AirDrag")==0){
-		offset = offsetof(part_type, airdrag);
+	else if (!strcmp(key, "AirDrag"))
+	{
+		offset = offsetof(Element, AirDrag);
 		*format = 1;
 	}
-	else if (strcmp(key, "AirLoss")==0){
-		offset = offsetof(part_type, airloss);
+	else if (!strcmp(key, "AirLoss"))
+	{
+		offset = offsetof(Element, AirLoss);
 		*format = 1;
 	}
-	else if (strcmp(key, "Loss")==0){
-		offset = offsetof(part_type, loss);
+	else if (!strcmp(key, "Loss"))
+	{
+		offset = offsetof(Element, Loss);
 		*format = 1;
 	}
-	else if (strcmp(key, "Collision")==0){
-		offset = offsetof(part_type, collision);
+	else if (!strcmp(key, "Collision"))
+	{
+		offset = offsetof(Element, Collision);
 		*format = 1;
 	}
-	else if (strcmp(key, "Gravity")==0){
-		offset = offsetof(part_type, gravity);
+	else if (!strcmp(key, "Gravity"))
+	{
+		offset = offsetof(Element, Gravity);
 		*format = 1;
 	}
-	else if (strcmp(key, "Diffusion")==0){
-		offset = offsetof(part_type, diffusion);
+	else if (!strcmp(key, "Diffusion"))
+	{
+		offset = offsetof(Element, Diffusion);
 		*format = 1;
 	}
-	else if (strcmp(key, "HotAir")==0){
-		offset = offsetof(part_type, hotair);
+	else if (!strcmp(key, "HotAir"))
+	{
+		offset = offsetof(Element, PressureAdd_NoAmbHeat);
 		*format = 1;
 	}
-	else if (strcmp(key, "Falldown")==0){
-		offset = offsetof(part_type, falldown);
+	else if (!strcmp(key, "Falldown"))
+	{
+		offset = offsetof(Element, Falldown);
 		*format = 0;
 	}
-	else if (strcmp(key, "Flammable")==0){
-		offset = offsetof(part_type, flammable);
+	else if (!strcmp(key, "Flammable"))
+	{
+		offset = offsetof(Element, Flammable);
 		*format = 0;
 	}
-	else if (strcmp(key, "Explosive")==0){
-		offset = offsetof(part_type, explosive);
+	else if (!strcmp(key, "Explosive"))
+	{
+		offset = offsetof(Element, Explosive);
 		*format = 0;
 	}
-	else if (strcmp(key, "Meltable")==0){
-		offset = offsetof(part_type, meltable);
+	else if (!strcmp(key, "Meltable"))
+	{
+		offset = offsetof(Element, Meltable);
 		*format = 0;
 	}
-	else if (strcmp(key, "Hardness")==0){
-		offset = offsetof(part_type, hardness);
+	else if (!strcmp(key, "Hardness"))
+	{
+		offset = offsetof(Element, Hardness);
 		*format = 0;
 	}
-	else if (strcmp(key, "MenuVisible")==0){
-		offset = offsetof(part_type, menu);
-		*format = 0;
-	}
-	else if (strcmp(key, "Enabled")==0){
-		offset = offsetof(part_type, enabled);
-		*format = 0;
-	}
-	else if (strcmp(key, "Weight")==0){
-		offset = offsetof(part_type, weight);
-		*format = 0;
-	}
-	else if (strcmp(key, "MenuSection")==0){
-		offset = offsetof(part_type, menusection);
-		*format = 0;
-	}
-	else if (strcmp(key, "Temperature")==0){
-		offset = offsetof(part_type, heat);
-		*format = 1;
-	}
-	else if (strcmp(key, "HeatConduct")==0){
-		offset = offsetof(part_type, hconduct);
-		*format = 3;
-	}
-	else if (strcmp(key, "State")==0){
-		offset = offsetof(part_type, state);
-		*format = 6;
-	}
-	else if (strcmp(key, "Properties")==0){
-		offset = offsetof(part_type, properties);
+	else if (!strcmp(key, "PhotonReflectWavelengths"))
+	{
+		offset = offsetof(Element, PhotonReflectWavelengths);
 		*format = 5;
 	}
-	else if (strcmp(key, "Description")==0){
-		offset = offsetof(part_type, descs);
+	else if (!strcmp(key, "MenuVisible"))
+	{
+		offset = offsetof(Element, MenuVisible);
+		*format = 0;
+		*modifiedStuff |= LUACON_EL_MODIFIED_MENUS;
+	}
+	else if (!strcmp(key, "MenuSection"))
+	{
+		offset = offsetof(Element, MenuSection);
+		*format = 0;
+		*modifiedStuff |= LUACON_EL_MODIFIED_MENUS;
+	}
+	else if (!strcmp(key, "Enabled"))
+	{
+		offset = offsetof(Element, Enabled);
+		*format = 0;
+		*modifiedStuff |= LUACON_EL_MODIFIED_MENUS;
+	}
+	else if (!strcmp(key, "Weight"))
+	{
+		offset = offsetof(Element, Weight);
+		*format = 0;
+		*modifiedStuff |= LUACON_EL_MODIFIED_CANMOVE;
+	}
+	else if (!strcmp(key, "Temperature"))
+	{
+		offset = offsetof(Element, DefaultProperties.temp);
+		*format = 1;
+	}
+	else if (!strcmp(key, "HeatConduct"))
+	{
+		offset = offsetof(Element, HeatConduct);
+		*format = 3;
+	}
+	else if (!strcmp(key, "Latent"))
+	{
+		offset = offsetof(Element, Latent);
+		*format = 5;
+	}
+	else if (!strcmp(key, "State"))
+	{
+		offset = offsetof(Element, State);
+		*format = 6;
+	}
+	else if (!strcmp(key, "Properties"))
+	{
+		offset = offsetof(Element, Properties);
+		*format = 5;
+		*modifiedStuff |= LUACON_EL_MODIFIED_GRAPHICS | LUACON_EL_MODIFIED_CANMOVE;
+	}
+	else if (!strcmp(key, "Description"))
+	{
+		offset = offsetof(Element, Description);
 		*format = 2;
 	}
-	else if (strcmp(key, "LowPressure")==0){
-		offset = offsetof(part_transition, plv);
-		*format = 8;
+	else if (!strcmp(key, "LowPressure"))
+	{
+		offset = offsetof(Element, LowPressureTransitionThreshold);
+		*format = 1;
 	}
-	else if (strcmp(key, "LowPressureTransition")==0){
-		offset = offsetof(part_transition, plt);
-		*format = 7;
+	else if (!strcmp(key, "LowPressureTransition"))
+	{
+		offset = offsetof(Element, LowPressureTransitionElement);
+		*format = 0;
 	}
-	else if (strcmp(key, "HighPressure")==0){
-		offset = offsetof(part_transition, phv);
-		*format = 8;
+	else if (!strcmp(key, "HighPressure"))
+	{
+		offset = offsetof(Element, HighPressureTransitionThreshold);
+		*format = 1;
 	}
-	else if (strcmp(key, "HighPressureTransition")==0){
-		offset = offsetof(part_transition, pht);
-		*format = 7;
+	else if (!strcmp(key, "HighPressureTransition"))
+	{
+		offset = offsetof(Element, HighPressureTransitionElement);
+		*format = 0;
 	}
-	else if (strcmp(key, "LowTemperature")==0){
-		offset = offsetof(part_transition, tlv);
-		*format = 8;
+	else if (!strcmp(key, "LowTemperature"))
+	{
+		offset = offsetof(Element, LowTemperatureTransitionThreshold);
+		*format = 1;
 	}
-	else if (strcmp(key, "LowTemperatureTransition")==0){
-		offset = offsetof(part_transition, tlt);
-		*format = 7;
+	else if (!strcmp(key, "LowTemperatureTransition"))
+	{
+		offset = offsetof(Element, LowTemperatureTransitionElement);
+		*format = 0;
 	}
-	else if (strcmp(key, "HighTemperature")==0){
-		offset = offsetof(part_transition, thv);
-		*format = 8;
+	else if (!strcmp(key, "HighTemperature"))
+	{
+		offset = offsetof(Element, HighTemperatureTransitionThreshold);
+		*format = 1;
 	}
-	else if (strcmp(key, "HighTemperatureTransition")==0){
-		offset = offsetof(part_transition, tht);
-		*format = 7;
+	else if (!strcmp(key, "HighTemperatureTransition"))
+	{
+		offset = offsetof(Element, HighTemperatureTransitionElement);
+		*format = 0;
 	}
-	else {
+	else
+	{
 		return -1;
 	}
 	return offset;
+}
+
+void elements_setProperty(lua_State * l, int id, int format, int offset)
+{
+	switch(format)
+	{
+		case 0: //Int
+			*((int*)(((unsigned char*)&globalSim->elements[id])+offset)) = lua_tointeger(l, 3);
+			break;
+		case 1: //Float
+			*((float*)(((unsigned char*)&globalSim->elements[id])+offset)) = lua_tonumber(l, 3);
+			break;
+		case 2: //String
+			*((char**)(((unsigned char*)&globalSim->elements[id])+offset)) = strdup(lua_tostring(l, 3));
+			break;
+		case 3: //Unsigned char (HeatConduct)
+			*((unsigned char*)(((unsigned char*)&globalSim->elements[id])+offset)) = lua_tointeger(l, 3);
+			break;
+		case 4: //Color (Color)
+		{
+#if PIXELSIZE == 4
+			unsigned int col = (unsigned int)lua_tonumber(l, 3);
+			*((unsigned int*)(((unsigned char*)&globalSim->elements[id])+offset)) = col;
+#else
+			*((unsigned short*)(((unsigned char*)&globalSim->elements[id])+offset)) = lua_tointeger(l, 3);
+#endif
+			break;
+		}
+		case 5: //Unsigned int (Properties, PhotonReflectWavelength, Latent)
+			*((unsigned int*)(((unsigned char*)&globalSim->elements[id])+offset)) = lua_tointeger(l, 3);
+			break;
+		case 6: //Char (State)
+			*((char*)(((unsigned char*)&globalSim->elements[id])+offset)) = lua_tointeger(l, 3);
+			break;
+	}
+}
+
+void elements_writeProperty(lua_State *l, int id, int format, int offset)
+{
+	switch(format)
+	{
+		case 0: //Int
+			lua_pushinteger(l, *((int*)(((unsigned char*)&globalSim->elements[id])+offset)));
+			break;
+		case 1: //Float
+			lua_pushnumber(l, *((float*)(((unsigned char*)&globalSim->elements[id])+offset)));
+			break;
+		case 2: //String
+			lua_pushstring(l, *((char**)(((unsigned char*)&globalSim->elements[id])+offset)));
+			break;
+		case 3: //Unsigned char (HeatConduct)
+			lua_pushinteger(l, *((unsigned char*)(((unsigned char*)&globalSim->elements[id])+offset)));
+			break;
+		case 4: //Color (Color)
+#if PIXELSIZE == 4
+			lua_pushinteger(l, *((unsigned int*)(((unsigned char*)&globalSim->elements[id])+offset)));
+#else
+			lua_pushinteger(l, *((unsigned short*)(((unsigned char*)&globalSim->elements[id])+offset)));
+#endif
+			break;
+		case 5: //Unsigned int (Properties, PhotonReflectWavelengths, Latent)
+			lua_pushinteger(l, *((unsigned int*)(((unsigned char*)&globalSim->elements[id])+offset)));
+			break;
+		case 6: //Char (State)
+			lua_pushinteger(l, *((char*)(((unsigned char*)&globalSim->elements[id])+offset)));
+			break;
+		default:
+			lua_pushnil(l);
+	}
 }
 
 int elements_loadDefault(lua_State * l)
@@ -1206,12 +1320,13 @@ int elements_loadDefault(lua_State * l)
 
 		if(id < PT_NUM)
 		{
-			globalSim->elements[id].Init(&globalSim->elements[id], id);
-			Simulation_Compat_CopyData(globalSim, id);
+			if (globalSim->elements[id].Init)
+				globalSim->elements[id].Init(&globalSim->elements[id], id);
+			else
+				globalSim->elements[id] = Element();
+			Simulation_Compat_CopyData(globalSim);
 			pidentifiers[id] = getIdentifier(id);
 		}
-		//else
-		//	luacon_sim->elements[id] = Element();
 
 		lua_pushinteger(l, id);
 		lua_setfield(l, -2, pidentifiers[id]);
@@ -1220,7 +1335,8 @@ int elements_loadDefault(lua_State * l)
 	else
 	{
 		for (int i = 0; i < PT_NUM; i++)
-			globalSim->elements[i].Init(&globalSim->elements[i], i);
+			if (globalSim->elements[i].Init)
+				globalSim->elements[i].Init(&globalSim->elements[i], i);
 		Simulation_Compat_CopyData(globalSim);
 		lua_pushnil(l);
 		lua_setglobal(l, "elements");
@@ -1262,31 +1378,18 @@ int elements_allocate(lua_State * l)
 
 	for(i = 0; i < PT_NUM; i++)
 	{
-		if(ptypes[i].enabled && !strcmp(pidentifiers[i],identifier))
+		if(globalSim->elements[i].Enabled && !strcmp(pidentifiers[i],identifier))
 			return luaL_error(l, "Element identifier already in use");
 	}
 
 	for(i = PT_NUM-1; i >= 0; i--)
 	{
-		if(!ptypes[i].enabled)
+		if(!globalSim->elements[i].Enabled)
 		{
 			newID = i;
-			ptypes[i].pcolors = 0xFF00FF;
-			ptypes[i].airloss = 1.0f;
-			ptypes[i].loss = 1.0f;
-			ptypes[i].hardness = 30;
-			ptypes[i].weight = 50;
-			ptypes[i].heat = 273.15f;
-			ptypes[i].hconduct = 128;
-			ptypes[i].descs = "No description";
-			ptypes[i].state = ST_SOLID;
-			ptypes[i].properties = TYPE_SOLID;
-			ptypes[i].enabled = 1;
-			ptransitions[i].pht = ptransitions[i].plt = ptransitions[i].tht = ptransitions[i].tlt = -1;
-			ptransitions[i].phv = 257.0f;
-			ptransitions[i].plv = -257.0f;
-			ptransitions[i].thv = MAX_TEMP+1;
-			ptransitions[i].tlv = MIN_TEMP-1;
+			globalSim->elements[i] = Element();
+			globalSim->elements[i].Enabled = 1;
+			Simulation_Compat_CopyData(globalSim);
 			pidentifiers[i]  = strdup(identifier);
 			break;
 		}
@@ -1306,13 +1409,13 @@ int elements_allocate(lua_State * l)
 
 int elements_element(lua_State * l)
 {
-	int args = lua_gettop(l);
-	int id, i = 0;
-	char *propertyList[] = { "Name", "Colour", "Color", "MenuVisible", "MenuSection", "Advection", "AirDrag", "AirLoss", "Loss", "Collision", "Gravity", "Diffusion", "HotAir", "Falldown", "Flammable", "Explosive", "Meltable", "Hardness", "Weight", "Temperature", "HeatConduct", "Description", "State", "Properties", "LowPressure", "LowPressureTransition", "HighPressure", "HighPressureTransition", "LowTemperature", "LowTemperatureTransition", "HighTemperature", "HighTemperatureTransition", NULL};
+	int args = lua_gettop(l), id, i = 0;
+	unsigned int modifiedStuff = 0;
+	char *propertyList[] = { "Name", "Colour", "Color", "MenuVisible", "MenuSection", "Advection", "AirDrag", "AirLoss", "Loss", "Collision", "Gravity", "Diffusion", "HotAir", "Falldown", "Flammable", "Explosive", "Meltable", "Hardness", "PhotonReflectWavelengths", "Weight", "Temperature", "HeatConduct", "Latent", "Description", "State", "Properties", "LowPressure", "LowPressureTransition", "HighPressure", "HighPressureTransition", "LowTemperature", "LowTemperatureTransition", "HighTemperature", "HighTemperatureTransition", NULL};
 	luaL_checktype(l, 1, LUA_TNUMBER);
 	id = lua_tointeger(l, 1);
 
-	if(id < 0 || id >= PT_NUM || !ptypes[id].enabled)
+	if(id < 0 || id >= PT_NUM || !globalSim->elements[id].Enabled)
 		return luaL_error(l, "Invalid element");
 
 	if(args > 1)
@@ -1325,43 +1428,8 @@ int elements_element(lua_State * l)
 			if(lua_type(l, -1) != LUA_TNIL)
 			{
 				int format;
-				int offset = elements_getProperty(propertyList[i], &format);
-				switch(format)
-				{
-					case 0: //Int
-						*((int*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, -1);
-						break;
-					case 1: //Float
-						*((float*)(((unsigned char*)&ptypes[id])+offset)) = lua_tonumber(l, -1);
-						break;
-					case 2: //String
-						*((char**)(((unsigned char*)&ptypes[id])+offset)) = strdup(lua_tostring(l, -1));
-						break;
-					//Extra things just used for one type ...
-					case 3: //Unsigned char (hconduct)
-						*((unsigned char*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, -1);
-						break;
-					case 4: //Color (color)
-#if PIXELSIZE == 4
-						*((unsigned int*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, -1);
-#else
-						*((unsigned short*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, -1);
-#endif
-						break;
-					case 5: //Unsigned int (properties)
-						*((unsigned int*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, -1);
-						break;
-					case 6: //Char (state)
-						*((char*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, -1);
-						break;
-					//Transitions, in a separate array so done separately
-					case 7: //Int
-						*((int*)(((unsigned char*)&ptransitions[id])+offset)) = lua_tointeger(l, -1);
-						break;
-					case 8: //Float
-						*((float*)(((unsigned char*)&ptransitions[id])+offset)) = lua_tonumber(l, -1);
-						break;
-				}
+				int offset = elements_getProperty(propertyList[i], &format, &modifiedStuff);
+				elements_setProperty(l, id, format, offset);
 				lua_pop(l, 1);
 			}
 			i++;
@@ -1395,6 +1463,7 @@ int elements_element(lua_State * l)
 		else
 			lua_pop(l, 1);
 
+		Simulation_Compat_CopyData(globalSim);
 		menu_count();
 		init_can_move();
 		graphicscache[id].isready = 0;
@@ -1409,45 +1478,8 @@ int elements_element(lua_State * l)
 		while (propertyList[i])
 		{
 			int format;
-			int offset = elements_getProperty(propertyList[i], &format);
-			switch(format)
-			{
-				case 0: //Int
-					lua_pushinteger(l, *((int*)(((unsigned char*)&ptypes[id])+offset)));
-					break;
-				case 1: //Float
-					lua_pushnumber(l, *((float*)(((unsigned char*)&ptypes[id])+offset)));
-					break;
-				case 2: //String
-					lua_pushstring(l, *((char**)(((unsigned char*)&ptypes[id])+offset)));
-					break;
-				//Extra things just used for one type ...
-				case 3: //Unsigned char (hconduct)
-					lua_pushinteger(l, *((unsigned char*)(((unsigned char*)&ptypes[id])+offset)));
-					break;
-				case 4: //Color (color)
-#if PIXELSIZE == 4
-					lua_pushinteger(l, *((unsigned int*)(((unsigned char*)&ptypes[id])+offset)));
-#else
-					lua_pushinteger(l, *((unsigned short*)(((unsigned char*)&ptypes[id])+offset)));
-#endif
-					break;
-				case 5: //Unsigned int (properties)
-					lua_pushinteger(l, *((unsigned int*)(((unsigned char*)&ptypes[id])+offset)));
-					break;
-				case 6: //Char (state)
-					lua_pushinteger(l, *((char*)(((unsigned char*)&ptypes[id])+offset)));
-					break;
-				//Transitions, in a separate array so done separately
-				case 7: //Int
-					lua_pushinteger(l, *((int*)(((unsigned char*)&ptransitions[id])+offset)));
-					break;
-				case 8: //Float
-					lua_pushnumber(l, *((float*)(((unsigned char*)&ptransitions[id])+offset)));
-					break;
-				default:
-					lua_pushnil(l);
-			}
+			int offset = elements_getProperty(propertyList[i], &format, &modifiedStuff);
+			elements_writeProperty(l, id, format, offset);
 			lua_setfield(l, -2, propertyList[i]);
 			i++;
 		}
@@ -1458,69 +1490,38 @@ int elements_element(lua_State * l)
 
 int elements_property(lua_State * l)
 {
-	int args = lua_gettop(l);
-	int id;
+	int args = lua_gettop(l), id;
+	unsigned int modifiedStuff = 0;
 	char *propertyName;
 	luaL_checktype(l, 1, LUA_TNUMBER);
 	id = lua_tointeger(l, 1);
 	luaL_checktype(l, 2, LUA_TSTRING);
 	propertyName = (char*)lua_tostring(l, 2);
 
-	if(id < 0 || id >= PT_NUM || !ptypes[id].enabled)
+	if(id < 0 || id >= PT_NUM || !globalSim->elements[id].Enabled)
 		return luaL_error(l, "Invalid element");
 
 	if(args > 2)
 	{
 		int format;
-		int offset = elements_getProperty(propertyName, &format);
+		int offset = elements_getProperty(propertyName, &format, &modifiedStuff);
 
 		if(offset != -1)
 		{
 			if(lua_type(l, 3) != LUA_TNIL)
 			{
-				unsigned int col;
-				switch(format)
-				{
-					case 0: //Int
-						*((int*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, 3);
-						break;
-					case 1: //Float
-						*((float*)(((unsigned char*)&ptypes[id])+offset)) = lua_tonumber(l, 3);
-						break;
-					case 2: //String
-						*((char**)(((unsigned char*)&ptypes[id])+offset)) = strdup(lua_tostring(l, 3));
-						break;
-					//Extra things just used for one type ...
-					case 3: //Unsigned char (hconduct)
-						*((unsigned char*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, 3);
-						break;
-					case 4: //Color (color)
-#if PIXELSIZE == 4
-						col = (unsigned int)lua_tonumber(l, 3);
-						*((unsigned int*)(((unsigned char*)&ptypes[id])+offset)) = col;
-#else
-						*((unsigned short*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, 3);
-#endif
-						break;
-					case 5: //Unsigned int (properties)
-						*((unsigned int*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, 3);
-						break;
-					case 6: //Char (state)
-						*((char*)(((unsigned char*)&ptypes[id])+offset)) = lua_tointeger(l, 3);
-						break;
-					//Transitions, in a separate array so done separately
-					case 7: //Int
-						*((int*)(((unsigned char*)&ptransitions[id])+offset)) = lua_tointeger(l, 3);
-						break;
-					case 8: //Float
-						*((float*)(((unsigned char*)&ptransitions[id])+offset)) = lua_tonumber(l, 3);
-						break;
-				}
+				elements_setProperty(l, id, format, offset);
 			}
 
-			menu_count();
-			init_can_move();
-			graphicscache[id].isready = 0;
+			if (modifiedStuff)
+			{
+				if (modifiedStuff & LUACON_EL_MODIFIED_MENUS)
+					menu_count();
+				if (modifiedStuff & LUACON_EL_MODIFIED_CANMOVE)
+					init_can_move();
+				if (modifiedStuff & LUACON_EL_MODIFIED_GRAPHICS)
+					graphicscache[id].isready = 0;
+			}
 
 			return 0;
 		}
@@ -1567,52 +1568,16 @@ int elements_property(lua_State * l)
 		}
 		else
 			return luaL_error(l, "Invalid element property");
+		Simulation_Compat_CopyData(globalSim);
 	}
 	else
 	{
 		int format;
-		int offset = elements_getProperty(propertyName, &format);
+		int offset = elements_getProperty(propertyName, &format, &modifiedStuff);
 
 		if(offset != -1)
 		{
-			switch(format)
-			{
-				case 0: //Int
-					lua_pushinteger(l, *((int*)(((unsigned char*)&ptypes[id])+offset)));
-					break;
-				case 1: //Float
-					lua_pushnumber(l, *((float*)(((unsigned char*)&ptypes[id])+offset)));
-					break;
-				case 2: //String
-					lua_pushstring(l, *((char**)(((unsigned char*)&ptypes[id])+offset)));
-					break;
-				//Extra things just used for one type ...
-				case 3: //Unsigned char (hconduct)
-					lua_pushinteger(l, *((unsigned char*)(((unsigned char*)&ptypes[id])+offset)));
-					break;
-				case 4: //Color (color)
-#if PIXELSIZE == 4
-					lua_pushinteger(l, *((unsigned int*)(((unsigned char*)&ptypes[id])+offset)));
-#else
-					lua_pushinteger(l, *((unsigned short*)(((unsigned char*)&ptypes[id])+offset)));
-#endif
-					break;
-				case 5: //Unsigned int (properties)
-					lua_pushinteger(l, *((unsigned int*)(((unsigned char*)&ptypes[id])+offset)));
-					break;
-				case 6: //Char (state)
-					lua_pushinteger(l, *((char*)(((unsigned char*)&ptypes[id])+offset)));
-					break;
-				//Transitions, in a separate array so done separately
-				case 7: //Int
-					lua_pushinteger(l, *((int*)(((unsigned char*)&ptransitions[id])+offset)));
-					break;
-				case 8: //Float
-					lua_pushnumber(l, *((float*)(((unsigned char*)&ptransitions[id])+offset)));
-					break;
-				default:
-					lua_pushnil(l);
-			}
+			elements_writeProperty(l, id, format, offset);
 			return 1;
 		}
 		else
@@ -1628,14 +1593,14 @@ int elements_free(lua_State * l)
 	luaL_checktype(l, 1, LUA_TNUMBER);
 	id = lua_tointeger(l, 1);
 	
-	if(id < 0 || id >= PT_NUM || !ptypes[id].enabled)
+	if(id < 0 || id >= PT_NUM || !globalSim->elements[id].Enabled)
 		return luaL_error(l, "Invalid element");
 
 	identifier = pidentifiers[id];
 	if(strstr(identifier,"DEFAULT") == identifier)
 		return luaL_error(l, "Cannot free default elements");
 
-	ptypes[id].enabled = 0;
+	globalSim->elements[id].Enabled = ptypes[id].enabled = 0;
 
 	lua_getglobal(l, "elements");
 	lua_pushnil(l);

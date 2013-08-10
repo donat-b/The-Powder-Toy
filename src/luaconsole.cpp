@@ -50,7 +50,9 @@ int tptProperties; //Table for some TPT properties
 int tptPropertiesVersion;
 int tptElements; //Table for TPT element names
 int tptParts, tptPartsMeta, tptElementTransitions, tptPartsCData, tptPartMeta, tptPart, cIndex;
-void luacon_open(){
+
+void luacon_open()
+{
 	int i = 0, j;
 	char tmpname[12];
 	int currentElementMeta, currentElement;
@@ -310,8 +312,10 @@ tpt.partsdata = nil");
 	}
 	lua_sethook(l, &lua_hook, LUA_MASKCOUNT, 4000000);
 }
+
 #ifndef FFI
-int luacon_partread(lua_State* l){
+int luacon_partread(lua_State* l)
+{
 	int format, offset, tempinteger;
 	float tempfloat;
 	int i;
@@ -320,16 +324,21 @@ int luacon_partread(lua_State* l){
 
 	i = cIndex;
 	
-	if(i < 0 || i >= NPART || offset==-1)
+	if (i < 0 || i >= NPART || offset==-1)
 	{
-		if(i < 0 || i >= NPART) {
+		if (i < 0 || i >= NPART)
+		{
 			free(key);
 			return luaL_error(l, "Out of range");
-		} else if(strcmp(key, "id")==0) {
+		}
+		else if (!strcmp(key, "id"))
+		{
 			free(key);
 			lua_pushnumber(l, i);
 			return 1;
-		} else {
+		}
+		else
+		{
 			free(key);
 			return luaL_error(l, "Invalid property");
 		}
@@ -348,7 +357,9 @@ int luacon_partread(lua_State* l){
 	}
 	return 1;
 }
-int luacon_partwrite(lua_State* l){
+
+int luacon_partwrite(lua_State* l)
+{
 	int format, offset;
 	int i;
 	char * key = mystrdup((char*)luaL_optstring(l, 2, ""));
@@ -356,12 +367,15 @@ int luacon_partwrite(lua_State* l){
 	
 	i = cIndex;
 	
-	if(i < 0 || i >= NPART || offset==-1)
+	if (i < 0 || i >= NPART || offset==-1)
 	{
-		if(i < 0 || i >= NPART) {
+		if (i < 0 || i >= NPART)
+		{
 			free(key);
 			return luaL_error(l, "array index out of bounds");
-		} else {
+		}
+		else
+		{
 			free(key);
 			return luaL_error(l, "Invalid property");
 		}
@@ -378,7 +392,9 @@ int luacon_partwrite(lua_State* l){
 	}
 	return 1;
 }
-int luacon_partsread(lua_State* l){
+
+int luacon_partsread(lua_State* l)
+{
 	int format, offset;
 	char * tempstring;
 	int tempinteger;
@@ -396,47 +412,50 @@ int luacon_partsread(lua_State* l){
 	cIndex = i;
 	return 1;
 }
-int luacon_partswrite(lua_State* l){
+
+int luacon_partswrite(lua_State* l)
+{
 	return luaL_error(l, "table readonly");
 }
 #endif
+
 int luacon_particle_getproperty(char * key, int * format)
 {
 	int offset;
-	if (strcmp(key, "type")==0){
+	if (!strcmp(key, "type")) {
 		offset = offsetof(particle, type);
 		*format = 0;
-	} else if (strcmp(key, "life")==0){
+	} else if (!strcmp(key, "life")) {
 		offset = offsetof(particle, life);
 		*format = 0;
-	} else if (strcmp(key, "ctype")==0){
+	} else if (!strcmp(key, "ctype")) {
 		offset = offsetof(particle, ctype);
 		*format = 0;
-	} else if (strcmp(key, "temp")==0){
+	} else if (!strcmp(key, "temp")) {
 		offset = offsetof(particle, temp);
 		*format = 1;
-	} else if (strcmp(key, "tmp")==0){
+	} else if (!strcmp(key, "tmp")) {
 		offset = offsetof(particle, tmp);
 		*format = 0;
-	} else if (strcmp(key, "tmp2")==0){
+	} else if (!strcmp(key, "tmp2")) {
 		offset = offsetof(particle, tmp2);
 		*format = 0;
-	} else if (strcmp(key, "vy")==0){
+	} else if (!strcmp(key, "vy")) {
 		offset = offsetof(particle, vy);
 		*format = 1;
-	} else if (strcmp(key, "vx")==0){
+	} else if (!strcmp(key, "vx")) {
 		offset = offsetof(particle, vx);
 		*format = 1;
-	} else if (strcmp(key, "x")==0){
+	} else if (!strcmp(key, "x")) {
 		offset = offsetof(particle, x);
 		*format = 1;
-	} else if (strcmp(key, "y")==0){
+	} else if (!strcmp(key, "y")) {
 		offset = offsetof(particle, y);
 		*format = 1;
-	} else if (strcmp(key, "dcolour")==0){
+	} else if (!strcmp(key, "dcolour")) {
 		offset = offsetof(particle, dcolour);
 		*format = 0;
-	} else if (strcmp(key, "dcolor")==0){
+	} else if (!strcmp(key, "dcolor")) {
 		offset = offsetof(particle, dcolour);
 		*format = 0;
 	} else {
@@ -444,39 +463,42 @@ int luacon_particle_getproperty(char * key, int * format)
 	}
 	return offset;
 }
+
 int luacon_transition_getproperty(char * key, int * format)
 {
 	int offset;
-	if (strcmp(key, "presHighValue")==0){
-		offset = offsetof(part_transition, phv);
+	if (!strcmp(key, "presHighValue")) {
+		offset = offsetof(Element, HighPressureTransitionThreshold);
 		*format = 1;
-	} else if (strcmp(key, "presHighType")==0){
-		offset = offsetof(part_transition, pht);
+	} else if (!strcmp(key, "presHighType")) {
+		offset = offsetof(Element, HighPressureTransitionElement);
 		*format = 0;
-	} else if (strcmp(key, "presLowValue")==0){
-		offset = offsetof(part_transition, plv);
+	} else if (!strcmp(key, "presLowValue")) {
+		offset = offsetof(Element, LowPressureTransitionThreshold);
 		*format = 1;
-	} else if (strcmp(key, "presLowType")==0){
-		offset = offsetof(part_transition, plt);
+	} else if (!strcmp(key, "presLowType")) {
+		offset = offsetof(Element, LowPressureTransitionElement);
 		*format = 0;
-	} else if (strcmp(key, "tempHighValue")==0){
-		offset = offsetof(part_transition, thv);
+	} else if (!strcmp(key, "tempHighValue")) {
+		offset = offsetof(Element, HighTemperatureTransitionThreshold);
 		*format = 1;
-	} else if (strcmp(key, "tempHighType")==0){
-		offset = offsetof(part_transition, tht);
+	} else if (!strcmp(key, "tempHighType")) {
+		offset = offsetof(Element, HighTemperatureTransitionElement);
 		*format = 0;
-	} else if (strcmp(key, "tempLowValue")==0){
-		offset = offsetof(part_transition, tlv);
+	} else if (!strcmp(key, "tempLowValue")) {
+		offset = offsetof(Element, LowTemperatureTransitionThreshold);
 		*format = 1;
-	} else if (strcmp(key, "tempLowType")==0){
-		offset = offsetof(part_transition, tlt);
+	} else if (!strcmp(key, "tempLowType")) {
+		offset = offsetof(Element, LowTemperatureTransitionElement);
 		*format = 0;
 	} else {
 		offset = -1;
 	}
 	return offset;
 }
-int luacon_transitionread(lua_State* l){
+
+int luacon_transitionread(lua_State* l)
+{
 	int format, offset;
 	int tempinteger;
 	float tempfloat;
@@ -497,20 +519,12 @@ int luacon_transitionread(lua_State* l){
 	{
 		return luaL_error(l, "Invalid property");
 	}
-	switch(format)
-	{
-	case 0:
-		tempinteger = *((int*)(((char*)&ptransitions[i])+offset));
-		lua_pushnumber(l, tempinteger);
-		break;
-	case 1:
-		tempfloat = *((float*)(((char*)&ptransitions[i])+offset));
-		lua_pushnumber(l, tempfloat);
-		break;
-	}
+	elements_writeProperty(l, i, format, offset);
 	return 1;
 }
-int luacon_transitionwrite(lua_State* l){
+
+int luacon_transitionwrite(lua_State* l)
+{
 	int format, offset;
 	int tempinteger;
 	float tempfloat;
@@ -531,138 +545,164 @@ int luacon_transitionwrite(lua_State* l){
 	{
 		return luaL_error(l, "Invalid property");
 	}
-	switch(format)
-	{
-	case 0:
-		*((int*)(((char*)&ptransitions[i])+offset)) = luaL_optinteger(l, 3, 0);
-		break;
-	case 1:
-		*((float*)(((char*)&ptransitions[i])+offset)) = luaL_optnumber(l, 3, 0);
-		break;
-	}
+	elements_setProperty(l, i, format, offset);
+	Simulation_Compat_CopyData(globalSim);
 	return 0;
 }
+
 int luacon_element_getproperty(char * key, int * format, unsigned int * modified_stuff)
 {
 	int offset;
-	if (strcmp(key, "name")==0){
-		offset = offsetof(part_type, name);
+	if (!strcmp(key, "name"))
+	{
+		offset = offsetof(Element, Name);
 		*format = 2;
 	}
-	else if (strcmp(key, "color")==0){
-		offset = offsetof(part_type, pcolors);
-		*format = 0;
+	else if (!strcmp(key, "color") || !strcmp(key, "colour"))
+	{
+		offset = offsetof(Element, Colour);
+		*format = 4;
 		if (modified_stuff)
 			*modified_stuff |= LUACON_EL_MODIFIED_GRAPHICS;
 	}
-	else if (strcmp(key, "colour")==0){
-		offset = offsetof(part_type, pcolors);
-		*format = 0;
-		if (modified_stuff)
-			*modified_stuff |= LUACON_EL_MODIFIED_GRAPHICS;
-	}
-	else if (strcmp(key, "advection")==0){
-		offset = offsetof(part_type, advection);
+	else if (!strcmp(key, "advection"))
+	{
+		offset = offsetof(Element, Advection);
 		*format = 1;
 	}
-	else if (strcmp(key, "airdrag")==0){
-		offset = offsetof(part_type, airdrag);
+	else if (!strcmp(key, "airdrag"))
+	{
+		offset = offsetof(Element, AirDrag);
 		*format = 1;
 	}
-	else if (strcmp(key, "airloss")==0){
-		offset = offsetof(part_type, airloss);
+	else if (!strcmp(key, "airloss"))
+	{
+		offset = offsetof(Element, AirLoss);
 		*format = 1;
 	}
-	else if (strcmp(key, "loss")==0){
-		offset = offsetof(part_type, loss);
+	else if (!strcmp(key, "loss"))
+	{
+		offset = offsetof(Element, Loss);
 		*format = 1;
 	}
-	else if (strcmp(key, "collision")==0){
-		offset = offsetof(part_type, collision);
+	else if (!strcmp(key, "collision"))
+	{
+		offset = offsetof(Element, Collision);
 		*format = 1;
 	}
-	else if (strcmp(key, "gravity")==0){
-		offset = offsetof(part_type, gravity);
+	else if (!strcmp(key, "gravity"))
+	{
+		offset = offsetof(Element, Gravity);
 		*format = 1;
 	}
-	else if (strcmp(key, "diffusion")==0){
-		offset = offsetof(part_type, diffusion);
+	else if (!strcmp(key, "diffusion"))
+	{
+		offset = offsetof(Element, Diffusion);
 		*format = 1;
 	}
-	else if (strcmp(key, "hotair")==0){
-		offset = offsetof(part_type, hotair);
+	else if (!strcmp(key, "hotair"))
+	{
+		offset = offsetof(Element, PressureAdd_NoAmbHeat);
 		*format = 1;
 	}
-	else if (strcmp(key, "falldown")==0){
-		offset = offsetof(part_type, falldown);
-		*format = 0;
-	}
-	else if (strcmp(key, "flammable")==0){
-		offset = offsetof(part_type, flammable);
-		*format = 0;
-	}
-	else if (strcmp(key, "explosive")==0){
-		offset = offsetof(part_type, explosive);
+	else if (!strcmp(key, "falldown"))
+	{
+		offset = offsetof(Element, Falldown);
 		*format = 0;
 	}
-	else if (strcmp(key, "meltable")==0){
-		offset = offsetof(part_type, meltable);
+	else if (!strcmp(key, "flammable"))
+	{
+		offset = offsetof(Element, Flammable);
 		*format = 0;
 	}
-	else if (strcmp(key, "hardness")==0){
-		offset = offsetof(part_type, hardness);
+	else if (!strcmp(key, "explosive"))
+	{
+		offset = offsetof(Element, Explosive);
 		*format = 0;
 	}
-	else if (strcmp(key, "menu")==0){
-		offset = offsetof(part_type, menu);
+	else if (!strcmp(key, "meltable"))
+	{
+		offset = offsetof(Element, Meltable);
+		*format = 0;
+	}
+	else if (!strcmp(key, "hardness"))
+	{
+		offset = offsetof(Element, Hardness);
+		*format = 0;
+	}
+	else if (!strcmp(key, "photonwavelength"))
+	{
+		offset = offsetof(Element, PhotonReflectWavelengths);
+		*format = 5;
+	}
+	else if (!strcmp(key, "menu"))
+	{
+		offset = offsetof(Element, MenuVisible);
 		*format = 0;
 		if (modified_stuff)
 			*modified_stuff |= LUACON_EL_MODIFIED_MENUS;
 	}
-	else if (strcmp(key, "enabled")==0){
-		offset = offsetof(part_type, enabled);
+	else if (!strcmp(key, "menusection"))
+	{
+		offset = offsetof(Element, MenuSection);
 		*format = 0;
+		if (modified_stuff)
+			*modified_stuff |= LUACON_EL_MODIFIED_MENUS;
 	}
-	else if (strcmp(key, "weight")==0){
-		offset = offsetof(part_type, weight);
+	else if (!strcmp(key, "enabled"))
+	{
+		offset = offsetof(Element, Enabled);
+		*format = 0;
+		*modified_stuff |= LUACON_EL_MODIFIED_MENUS;
+	}
+	else if (!strcmp(key, "weight"))
+	{
+		offset = offsetof(Element, Weight);
 		*format = 0;
 		if (modified_stuff)
 			*modified_stuff |= LUACON_EL_MODIFIED_CANMOVE;
 	}
-	else if (strcmp(key, "menusection")==0){
-		offset = offsetof(part_type, menusection);
-		*format = 0;
-		if (modified_stuff)
-			*modified_stuff |= LUACON_EL_MODIFIED_MENUS;
-	}
-	else if (strcmp(key, "heat")==0){
-		offset = offsetof(part_type, heat);
+	else if (!strcmp(key, "heat"))
+	{
+		offset = offsetof(Element, DefaultProperties.temp);
 		*format = 1;
 	}
-	else if (strcmp(key, "hconduct")==0){
-		offset = offsetof(part_type, hconduct);
+	else if (!strcmp(key, "hconduct"))
+	{
+		offset = offsetof(Element, HeatConduct);
 		*format = 3;
 	}
-	else if (strcmp(key, "state")==0){
-		offset = offsetof(part_type, state);
-		*format = 3;
+	else if (!strcmp(key, "latent"))
+	{
+		offset = offsetof(Element, Latent);
+		*format = 5;
 	}
-	else if (strcmp(key, "properties")==0){
-		offset = offsetof(part_type, properties);
-		*format = 0;
+	else if (!strcmp(key, "state"))
+	{
+		offset = offsetof(Element, State);
+		*format = 6;
+	}
+	else if (!strcmp(key, "properties"))
+	{
+		offset = offsetof(Element, Properties);
+		*format = 5;
 		if (modified_stuff)
 			*modified_stuff |= LUACON_EL_MODIFIED_GRAPHICS | LUACON_EL_MODIFIED_CANMOVE;
 	}
-	else if (strcmp(key, "description")==0){
-		offset = offsetof(part_type, descs);
+	else if (!strcmp(key, "description"))
+	{
+		offset = offsetof(Element, Description);
 		*format = 2;
 	}
-	else {
+	else
+	{
 		return -1;
 	}
 	return offset;
 }
-int luacon_elementread(lua_State* l){
+
+int luacon_elementread(lua_State* l)
+{
 	int format, offset;
 	char * tempstring;
 	int tempinteger;
@@ -684,30 +724,13 @@ int luacon_elementread(lua_State* l){
 	{
 		return luaL_error(l, "Invalid property");
 	}
-	switch(format)
-	{
-	case 0:
-		tempinteger = *((int*)(((char*)&ptypes[i])+offset));
-		lua_pushnumber(l, tempinteger);
-		break;
-	case 1:
-		tempfloat = *((float*)(((char*)&ptypes[i])+offset));
-		lua_pushnumber(l, tempfloat);
-		break;
-	case 2:
-		tempstring = *((char**)(((char*)&ptypes[i])+offset));
-		lua_pushstring(l, tempstring);
-		break;
-	case 3:
-		tempinteger = *((unsigned char*)(((char*)&ptypes[i])+offset));
-		lua_pushnumber(l, tempinteger);
-		break;
-	}
+	elements_writeProperty(l, i, format, offset);
 	return 1;
 }
-int luacon_elementwrite(lua_State* l){
+
+int luacon_elementwrite(lua_State* l)
+{
 	int format, offset;
-	char * tempstring;
 	int tempinteger;
 	float tempfloat;
 	int i;
@@ -728,42 +751,29 @@ int luacon_elementwrite(lua_State* l){
 		free(key);
 		return luaL_error(l, "Invalid property");
 	}
-	switch(format)
+
+	char * tempstring = strdup((char*)luaL_optstring(l, 3, ""));
+	if (!strcmp(key, "name"))
 	{
-	case 0:
-		*((int*)(((char*)&ptypes[i])+offset)) = luaL_optinteger(l, 3, 0);
-		break;
-	case 1:
-		*((float*)(((char*)&ptypes[i])+offset)) = luaL_optnumber(l, 3, 0);
-		break;
-	case 2:
-		tempstring = mystrdup((char*)luaL_optstring(l, 3, ""));
-		if(strcmp(key, "name")==0)
+		int j = 0;
+		//Convert to upper case
+		for(j = 0; j < strlen(tempstring); j++)
+			tempstring[j] = toupper(tempstring[j]);
+		if(strlen(tempstring) > 4)
 		{
-			int j = 0;
-			//Convert to upper case
-			for(j = 0; j < strlen(tempstring); j++)
-				tempstring[j] = toupper(tempstring[j]);
-			if(strlen(tempstring)>4)
-			{
-				free(tempstring);
-				free(key);
-				return luaL_error(l, "Name too long");
-			}
-			if(console_parse_type(tempstring, NULL, NULL))
-			{
-				free(tempstring);
-				free(key);
-				return luaL_error(l, "Name in use");
-			}
+			free(tempstring);
+			free(key);
+			return luaL_error(l, "Name too long");
 		}
-		*((char**)(((char*)&ptypes[i])+offset)) = tempstring;
-		//Need some way of cleaning up previous values
-		break;
-	case 3:
-		*((unsigned char*)(((char*)&ptypes[i])+offset)) = luaL_optinteger(l, 3, 0);
-		break;
+		if(console_parse_type(tempstring, NULL, NULL))
+		{
+			free(tempstring);
+			free(key);
+			return luaL_error(l, "Name in use");
+		}
 	}
+	elements_setProperty(l, i, format, offset);
+	Simulation_Compat_CopyData(globalSim);
 	if (modified_stuff)
 	{
 		if (modified_stuff & LUACON_EL_MODIFIED_MENUS)
@@ -776,6 +786,7 @@ int luacon_elementwrite(lua_State* l){
 	free(key);
 	return 0;
 }
+
 int luacon_keyevent(int key, int modifier, int event)
 {
 	int kycontinue = 1, i, j, c, callret;
@@ -830,6 +841,7 @@ int luacon_keyevent(int key, int modifier, int event)
 	lua_pop(l, 1);
 	return kycontinue;
 }
+
 int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
 {
 	int mpcontinue = 1, i, j, c, callret;
@@ -884,6 +896,7 @@ int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
 	lua_pop(l, 1);
 	return mpcontinue;
 }
+
 int luacon_step(int mx, int my, int selectl, int selectr, int bsx, int bsy)
 {
 	int i, j, c, callret;
@@ -942,7 +955,9 @@ int luacon_step(int mx, int my, int selectl, int selectr, int bsx, int bsy)
 	lua_pop(l, 1);
 	return 0;
 }
-int luaL_tostring (lua_State *L, int n) {
+
+int luaL_tostring (lua_State *L, int n)
+{
 	luaL_checkany(L, n);
 	switch (lua_type(L, n)) {
 		case LUA_TNUMBER:
@@ -1080,6 +1095,7 @@ int luacon_eval(char *command, char **result)
 	}
 	return ret;
 }
+
 void lua_hook(lua_State *L, lua_Debug *ar)
 {
 	if(ar->event == LUA_HOOKCOUNT && SDL_GetTicks()-loop_time > 3000)
@@ -1089,6 +1105,7 @@ void lua_hook(lua_State *L, lua_Debug *ar)
 		loop_time = SDL_GetTicks();
 	}
 }
+
 int luacon_part_update(int t, int i, int x, int y, int surround_space, int nt)
 {
 	int retval = 0, callret;
@@ -1114,6 +1131,7 @@ int luacon_part_update(int t, int i, int x, int y, int surround_space, int nt)
 	}
 	return retval;
 }
+
 int luacon_graphics_update(int t, int i, int *pixel_mode, int *cola, int *colr, int *colg, int *colb, int *firea, int *firer, int *fireg, int *fireb)
 {
 	int cache = 0, callret;
@@ -1147,6 +1165,7 @@ int luacon_graphics_update(int t, int i, int *pixel_mode, int *cola, int *colr, 
 	}
 	return cache;
 }
+
 const char *luacon_geterror()
 {
 	char* err;
@@ -1155,6 +1174,7 @@ const char *luacon_geterror()
 	lua_pop(l, 1);
 	return err;
 }
+
 void luacon_close()
 {
 	int i;
@@ -1171,6 +1191,7 @@ void luacon_close()
 	console_limit_history(0, last_command);
 	console_limit_history(0, last_command_result);
 }
+
 int process_command_lua(pixel *vid_buf, char *command, char **result)
 {
 	if (command && strlen(command))
@@ -1192,6 +1213,7 @@ int process_command_lua(pixel *vid_buf, char *command, char **result)
 	}
 	return 1;
 }
+
 //Being TPT interface methods:
 int luatpt_test(lua_State* l)
 {
@@ -1200,6 +1222,7 @@ int luatpt_test(lua_State* l)
 	printf("Test successful, got %d\n", testint);
 	return 0;
 }
+
 int luatpt_getelement(lua_State *l)
 {
 	int t;
@@ -1222,6 +1245,7 @@ int luatpt_getelement(lua_State *l)
 	}
 	return 1;
 }
+
 int luatpt_element_func(lua_State *l)
 {
 	if(lua_isfunction(l, 1))
@@ -1262,6 +1286,7 @@ int luatpt_element_func(lua_State *l)
 		return luaL_error(l, "Not a function");
 	return 0;
 }
+
 int luatpt_graphics_func(lua_State *l)
 {
 	if(lua_isfunction(l, 1))
@@ -1298,6 +1323,7 @@ int luatpt_graphics_func(lua_State *l)
 		return luaL_error(l, "Not a function");
 	return 0;
 }
+
 int luatpt_error(lua_State* l)
 {
 	char *error = "";
@@ -1310,6 +1336,7 @@ int luatpt_error(lua_State* l)
 	free(error);
 	return luaL_error(l, "Screen buffer does not exist");
 }
+
 int luatpt_drawtext(lua_State* l)
 {
 	const char *string;
@@ -2828,9 +2855,15 @@ int luatpt_indestructible(lua_State* l)
 	}
 	ind = luaL_optint(l, 2, 1);
 	if (ind)
+	{
 		ptypes[el].properties |= PROP_INDESTRUCTIBLE;
+		globalSim->elements[el].Properties |= PROP_INDESTRUCTIBLE;
+	}
 	else
+	{
 		ptypes[el].properties &= ~PROP_INDESTRUCTIBLE;
+		globalSim->elements[el].Properties &= ~PROP_INDESTRUCTIBLE;
+	}
 	return 0;
 }
 
@@ -2838,11 +2871,14 @@ int luatpt_moving_solid(lua_State* l)
 {
 	int el = 0, movs;
 	char* name;
-	if(lua_isnumber(l, 1)){
+	if(lua_isnumber(l, 1))
+	{
 		el = luaL_optint(l, 1, 0);
 		if (el<0 || el>=PT_NUM)
 			return luaL_error(l, "Unrecognised element number '%d'", el);
-	} else {
+	}
+	else
+	{
 		name = (char*)luaL_optstring(l, 1, "");
 		if (!console_parse_type(name, &el, NULL))
 			return luaL_error(l, "Unrecognised element '%s'", name);
@@ -2851,17 +2887,21 @@ int luatpt_moving_solid(lua_State* l)
 	if (movs)
 	{
 		ptypes[el].properties |= PROP_MOVS;
-		ptypes[el].advection = ptypes[PT_MOVS].advection;
-		ptypes[el].airdrag = ptypes[PT_MOVS].airdrag;
-		ptypes[el].airloss = ptypes[PT_MOVS].airloss;
-		ptypes[el].gravity = ptypes[PT_MOVS].gravity;
-		ptypes[el].loss = ptypes[PT_MOVS].loss;
-		ptypes[el].falldown = ptypes[PT_MOVS].falldown;
+		globalSim->elements[el].Properties |= PROP_MOVS;
+		ptypes[el].advection = globalSim->elements[el].Advection = ptypes[PT_MOVS].advection;
+		ptypes[el].airdrag = globalSim->elements[el].AirDrag = ptypes[PT_MOVS].airdrag;
+		ptypes[el].airloss = globalSim->elements[el].AirLoss = ptypes[PT_MOVS].airloss;
+		ptypes[el].gravity = globalSim->elements[el].Gravity = ptypes[PT_MOVS].gravity;
+		ptypes[el].loss = globalSim->elements[el].Loss = ptypes[PT_MOVS].loss;
+		ptypes[el].falldown = globalSim->elements[el].Falldown = ptypes[PT_MOVS].falldown;
 	}
 	else
 	{
-		globalSim->elements[el].Init(&globalSim->elements[el], el);
-		Simulation_Compat_CopyData(globalSim, el);
+		if (globalSim->elements[el].Init)
+		{
+			globalSim->elements[el].Init(&globalSim->elements[el], el);
+			Simulation_Compat_CopyData(globalSim);
+		}
 	}
 	init_can_move();
 	return 0;

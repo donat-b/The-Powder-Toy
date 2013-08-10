@@ -47,6 +47,9 @@ int graphics_drawRect(lua_State * l);
 int graphics_fillRect(lua_State * l);
 
 void initIdentifiers();
+int elements_getProperty(char * key, int * format, unsigned int * modifiedStuff);
+void elements_setProperty(lua_State * l, int id, int format, int offset);
+void elements_writeProperty(lua_State *l, int id, int format, int offset);
 void initElementsAPI(lua_State * l);
 int elements_allocate(lua_State * l);
 int elements_element(lua_State * l);
