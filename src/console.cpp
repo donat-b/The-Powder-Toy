@@ -31,10 +31,13 @@ int console_parse_type(const char *txt, int *element, char *err)
 {
 	int i = atoi(txt);
 	// alternative names for some elements
-	if (strcasecmp(txt,"C4")==0) i = PT_PLEX;
-	else if (strcasecmp(txt,"C5")==0) i = PT_C5;
-	else if (strcasecmp(txt,"NONE")==0) i = PT_NONE;
-	if ((i > 0 && i < PT_NUM && ptypes[i].enabled) || !strcmp(txt, "0"))
+	if (!strcasecmp(txt, "C4"))
+		i = PT_PLEX;
+	else if (!strcasecmp(txt, "C5"))
+		i = PT_C5;
+	else if (!strcasecmp(txt, "NONE"))
+		i = PT_NONE;
+	if ((i > 0 && i < PT_NUM && ptypes[i].enabled) || !strcasecmp(txt, "NONE") || !strcasecmp(txt, "0"))
 	{
 		if (element) *element = i;
 		if (err) strcpy(err,"");
@@ -552,7 +555,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 				{
 					if (strcmp(console4, "all")==0)
 					{
-						if (console_parse_type(console5, &j, console_error) || (j = atoi(console5)) || !strcmp(console5,"0") || !strcasecmp(console5,"NONE"))
+						if (console_parse_type(console5, &j, console_error))
 						{
 							strcpy(console_error, "");
 							for (i=0; i<NPART; i++)

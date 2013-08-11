@@ -545,8 +545,6 @@ Fix crash when turning on newtonian gravity with the quickoption
 
 Bugs:
 wall id's don't match with tpt++ in lua
-luacon_elementread and write don't have pixel, unsigned int, or char properties like elements.property does
-fix issues with !set (c)type x 0
 //None (at least that I know of)
 
 
