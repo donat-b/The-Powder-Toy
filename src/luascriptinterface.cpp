@@ -5,6 +5,7 @@
 #include <powdergraphics.h>
 #include "simulation\Simulation.h"
 #include <dirent.h>
+#include <string>
 #ifdef WIN32
 #include <direct.h>
 #else
@@ -877,83 +878,6 @@ ELEMENTS API
 
 */
 
-char * getIdentifier(int i)
-{
-	char identifier[24];
-	if (i == PT_EQUALVEL)
-		sprintf(identifier,"DEFAULT_PT_116");//This list is much larger than I expected ...
-	else if (i == 146)
-		sprintf(identifier,"DEFAULT_PT_146");
-	else if (i == PT_BANG)
-		sprintf(identifier,"DEFAULT_PT_BANG");
-	else if (i == PT_BIZRG)
-		sprintf(identifier,"DEFAULT_PT_BIZRG");
-	else if (i == PT_BIZRS)
-		sprintf(identifier,"DEFAULT_PT_BIZRS");
-	else if (i == PT_BHOL)
-		sprintf(identifier,"DEFAULT_PT_BHOL");
-	else if (i == PT_WHOL)
-		sprintf(identifier,"DEFAULT_PT_WHOL");
-	else if (i == PT_NBHL)
-		sprintf(identifier,"DEFAULT_PT_NBHL");
-	else if (i == PT_NWHL)
-		sprintf(identifier,"DEFAULT_PT_NWHL");
-	else if (i == PT_BREL)
-		sprintf(identifier,"DEFAULT_PT_BREC");
-	else if (i == PT_CBNW)
-		sprintf(identifier,"DEFAULT_PT_CBNW");
-	else if (i == PT_H2)
-		sprintf(identifier,"DEFAULT_PT_H2");
-	else if (i == PT_HFLM)
-		sprintf(identifier,"DEFAULT_PT_HFLM");
-	else if (i == PT_ICEI)
-		sprintf(identifier,"DEFAULT_PT_ICEI");
-	else if (i == PT_INVIS)
-		sprintf(identifier,"DEFAULT_PT_INVIS");
-	else if (i == PT_LNTG)
-		sprintf(identifier,"DEFAULT_PT_LNTG");
-	else if (i == PT_LO2)
-		sprintf(identifier,"DEFAULT_PT_LO2");
-	else if (i == PT_NONE)
-		sprintf(identifier,"DEFAULT_PT_NONE");
-	else if (i == PT_O2)
-		sprintf(identifier,"DEFAULT_PT_O2");
-	else if (i == PT_PLEX)
-		sprintf(identifier,"DEFAULT_PT_PLEX");
-	else if (i == PT_SHLD1)
-		sprintf(identifier,"DEFAULT_PT_SHLD1");
-	else if (i == PT_SHLD2)
-		sprintf(identifier,"DEFAULT_PT_SHLD2");
-	else if (i == PT_SHLD3)
-		sprintf(identifier,"DEFAULT_PT_SHLD3");
-	else if (i == PT_SHLD4)
-		sprintf(identifier,"DEFAULT_PT_SHLD4");
-	else if (i == PT_SHLD4)
-		sprintf(identifier,"DEFAULT_PT_SHLD1");
-	else if (i == PT_SPAWN)
-		sprintf(identifier,"DEFAULT_PT_SPAWN");
-	else if (i == PT_SPAWN2)
-		sprintf(identifier,"DEFAULT_PT_SPAWN2");
-	else if (i == PT_STKM2)
-		sprintf(identifier,"DEFAULT_PT_STKM2");
-	else if (i == PT_SHLD4)
-		sprintf(identifier,"DEFAULT_PT_SHLD1");
-	else if (i == PT_SHLD4)
-		sprintf(identifier,"DEFAULT_PT_SHLD1");
-	else
-		sprintf(identifier,"DEFAULT_PT_%s",ptypes[i].name);
-	return strdup(identifier);
-}
-
-//TODO: remove this
-char* pidentifiers[PT_NUM];
-void initIdentifiers()
-{
-	int i;
-	for (i = 0; i < PT_NUM; i++)
-		pidentifiers[i] = getIdentifier(i);
-}
-
 void initElementsAPI(lua_State * l)
 {
 	int i;
@@ -1037,9 +961,9 @@ void initElementsAPI(lua_State * l)
 		{
 			char realidentifier[24];
 			lua_pushinteger(l, i);
-			lua_setfield(l, -2, pidentifiers[i]);
+			lua_setfield(l, -2, globalSim->elements[i].Identifier.c_str());
 			sprintf(realidentifier,"DEFAULT_PT_%s",ptypes[i].name);
-			if (i != 0 && i != PT_NBHL && i != PT_NWHL && strcmp(pidentifiers[i], realidentifier))
+			if (i != 0 && i != PT_NBHL && i != PT_NWHL && strcmp(globalSim->elements[i].Identifier.c_str(), realidentifier))
 			{
 				lua_pushinteger(l, i);
 				lua_setfield(l, -2, realidentifier);
@@ -1245,7 +1169,7 @@ void elements_setProperty(lua_State * l, int id, int format, int offset)
 			*((float*)(((unsigned char*)&globalSim->elements[id])+offset)) = lua_tonumber(l, 3);
 			break;
 		case 2: //String
-			*((char**)(((unsigned char*)&globalSim->elements[id])+offset)) = strdup(lua_tostring(l, 3));
+			*((std::string*)(((unsigned char*)&globalSim->elements[id])+offset)) = std::string(lua_tostring(l, 3));
 			break;
 		case 3: //Unsigned char (HeatConduct)
 			*((unsigned char*)(((unsigned char*)&globalSim->elements[id])+offset)) = lua_tointeger(l, 3);
@@ -1280,7 +1204,7 @@ void elements_writeProperty(lua_State *l, int id, int format, int offset)
 			lua_pushnumber(l, *((float*)(((unsigned char*)&globalSim->elements[id])+offset)));
 			break;
 		case 2: //String
-			lua_pushstring(l, *((char**)(((unsigned char*)&globalSim->elements[id])+offset)));
+			lua_pushstring(l, (*((std::string*)(((unsigned char*)&globalSim->elements[id])+offset))).c_str());
 			break;
 		case 3: //Unsigned char (HeatConduct)
 			lua_pushinteger(l, *((unsigned char*)(((unsigned char*)&globalSim->elements[id])+offset)));
@@ -1316,7 +1240,7 @@ int elements_loadDefault(lua_State * l)
 
 		lua_getglobal(l, "elements");
 		lua_pushnil(l);
-		lua_setfield(l, -2, pidentifiers[id]);
+		lua_setfield(l, -2, globalSim->elements[id].Identifier.c_str());
 
 		if(id < PT_NUM)
 		{
@@ -1325,11 +1249,10 @@ int elements_loadDefault(lua_State * l)
 			else
 				globalSim->elements[id] = Element();
 			Simulation_Compat_CopyData(globalSim);
-			pidentifiers[id] = getIdentifier(id);
 		}
 
 		lua_pushinteger(l, id);
-		lua_setfield(l, -2, pidentifiers[id]);
+		lua_setfield(l, -2, globalSim->elements[id].Identifier.c_str());
 		lua_pop(l, 1);
 	}
 	else
@@ -1378,7 +1301,7 @@ int elements_allocate(lua_State * l)
 
 	for(i = 0; i < PT_NUM; i++)
 	{
-		if(globalSim->elements[i].Enabled && !strcmp(pidentifiers[i],identifier))
+		if(globalSim->elements[i].Enabled && !strcmp(globalSim->elements[i].Identifier.c_str(), identifier))
 			return luaL_error(l, "Element identifier already in use");
 	}
 
@@ -1389,17 +1312,17 @@ int elements_allocate(lua_State * l)
 			newID = i;
 			globalSim->elements[i] = Element();
 			globalSim->elements[i].Enabled = 1;
+			globalSim->elements[i].Identifier = identifier;
 			Simulation_Compat_CopyData(globalSim);
-			pidentifiers[i]  = strdup(identifier);
 			break;
 		}
 	}
 
 	if(newID != -1)
-	{	
+	{
 		lua_getglobal(l, "elements");
 		lua_pushinteger(l, newID);
-		lua_setfield(l, -2, pidentifiers[i]);
+		lua_setfield(l, -2, globalSim->elements[i].Identifier.c_str());
 		lua_pop(l, 1);
 	}
 
@@ -1523,6 +1446,7 @@ int elements_property(lua_State * l)
 					graphicscache[id].isready = 0;
 			}
 
+			Simulation_Compat_CopyData(globalSim);
 			return 0;
 		}
 		else if(!strcmp(propertyName,"Update"))
@@ -1568,7 +1492,6 @@ int elements_property(lua_State * l)
 		}
 		else
 			return luaL_error(l, "Invalid element property");
-		Simulation_Compat_CopyData(globalSim);
 	}
 	else
 	{
@@ -1589,22 +1512,20 @@ int elements_property(lua_State * l)
 int elements_free(lua_State * l)
 {
 	int id;
-	char *identifier;
 	luaL_checktype(l, 1, LUA_TNUMBER);
 	id = lua_tointeger(l, 1);
 	
 	if(id < 0 || id >= PT_NUM || !globalSim->elements[id].Enabled)
 		return luaL_error(l, "Invalid element");
 
-	identifier = pidentifiers[id];
-	if(strstr(identifier,"DEFAULT") == identifier)
+	if (globalSim->elements[id].Identifier.find("DEFAULT") != globalSim->elements[id].Identifier.npos)
 		return luaL_error(l, "Cannot free default elements");
 
 	globalSim->elements[id].Enabled = ptypes[id].enabled = 0;
 
 	lua_getglobal(l, "elements");
 	lua_pushnil(l);
-	lua_setfield(l, -2, identifier);
+	lua_setfield(l, -2, globalSim->elements[id].Identifier.c_str());
 	lua_pop(l, 1);
 
 	return 0;

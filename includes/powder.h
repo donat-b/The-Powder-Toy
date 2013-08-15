@@ -210,7 +210,6 @@ typedef struct part_transition part_transition;
 // TODO: falldown, properties, state - should at least one of these be removed?
 extern part_type ptypes[PT_NUM];
 extern unsigned int platent[PT_NUM];
-extern char* pidentifiers[PT_NUM];
 
 extern part_transition ptransitions[PT_NUM];
 

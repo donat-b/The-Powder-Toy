@@ -1034,7 +1034,6 @@ int main(int argc, char *argv[])
 			ptypes[i].name = "";
 			ptypes[i].descs = "";
 		}
-	initIdentifiers();
 	HudDefaults();
 	memcpy(currentHud,normalHud,sizeof(currentHud));
 
