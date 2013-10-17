@@ -551,6 +551,7 @@ wall id's don't match with tpt++ in lua
 
 
 Immediate TODO: '>' means currently being worked on/added next
+>move menu_count to Menus.h (needs tooltips done first)
 Finish brushes (change all instances of rx and ry to the brush things)
 redo GolTool as MultipleTool, special tools that can draw multiple forms of an element (maybe)
 Redo wall ID's and walls entirely

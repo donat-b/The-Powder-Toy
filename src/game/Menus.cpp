@@ -32,7 +32,16 @@ void InitMenusections()
 	menuSections[16] = new MenuSection('\xC8', "Cracker!", false);
 	menuSections[17] = new MenuSection('\xE2', "Favorite2", false);
 	menuSections[18] = new MenuSection('\xE2', "HUD", false);
-	menuSections[19] = new MenuSection('\xE2', "Other", false);
+	menuSections[19] = new MenuSection('\xE2', "Other", false); //list of elements that are hidden or disabled, not in any menu
+}
+
+void ClearMenusections()
+{
+	for (int i = 0; i < SC_TOTAL; i++)
+	{
+		menuSections[i]->ClearTools();
+		delete menuSections[i];
+	}
 }
 
 int GetNumMenus()

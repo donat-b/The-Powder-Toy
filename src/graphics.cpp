@@ -4611,11 +4611,11 @@ void render_cursor(pixel *vid, int x, int y, Tool* tool, int rx, int ry)
 	if ((sdl_mod & KMOD_CTRL) && (sdl_mod & KMOD_SHIFT) && (tool->GetType() != TOOL_TOOL || tool->GetToolID() == SPC_PROP) && tool->GetWallID() != WL_SIGN+100)
 	{
 		for (i = -5; i < 6; i++)
-		if (i != 0)
-			xor_pixel(x+i, y, vid);
+			if (i != 0)
+				xor_pixel(x+i, y, vid);
 		for (j = -5; j < 6; j++)
-		if (j != 0)
-			xor_pixel(x, y+j, vid);
+			if (j != 0)
+				xor_pixel(x, y+j, vid);
 	}
 	else if (tool->GetType() == ELEMENT_TOOL || tool->GetType() == GOL_TOOL || tool->GetType() == TOOL_TOOL || tool->GetType() == DECO_TOOL || tool->GetWallID() == WL_SIGN+100)
 	{
