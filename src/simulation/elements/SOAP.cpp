@@ -35,6 +35,8 @@ void attach(int i1, int i2)
 	}
 }
 
+#define SOAP_FREEZING 248.15f
+
 int SOAP_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, nr, ng, nb, na;
@@ -47,7 +49,7 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 
 	if (parts[i].ctype&1)
 	{
-		if (parts[i].temp>0)
+		if (parts[i].temp>SOAP_FREEZING)
 		{
 			if (parts[i].life<=0)
 			{
@@ -111,7 +113,7 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 							if (!r && !bmap[(y+ry)/CELL][(x+rx)/CELL])
 								continue;
 
-							if (parts[i].temp>0)
+							if (parts[i].temp>SOAP_FREEZING)
 							{
 								if (bmap[(y+ry)/CELL][(x+rx)/CELL] 
 										|| (r && ptypes[r&0xFF].state != ST_GAS 
