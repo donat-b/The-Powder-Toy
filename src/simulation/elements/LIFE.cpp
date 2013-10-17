@@ -71,7 +71,7 @@ int LIFE_graphics(GRAPHICS_FUNC_ARGS)
 
 void LIFE_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
-	elem->Identifier = "DEFAULT_PT_LIFE";
+	elem->Identifier = "DEFAULT_PT_LIFE_GOL";
 	elem->Name = "LIFE";
 	elem->Colour = COLPACK(0x0CAC00);
 	elem->MenuVisible = 0;

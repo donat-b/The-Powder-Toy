@@ -23,6 +23,10 @@
 #include "gravity.h"
 #include "BSON.h"
 #include "hmap.h"
+#include "interface.h"
+
+#include "game/Menus.h"
+#include "simulation/Tool.h"
 
 int saveversion;
 int mod_save;
@@ -1139,8 +1143,8 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	bson_append_int(&b, "edgeMode", edgeMode);
 	bson_append_int(&b, "compatible_with", 8); //unused?
 	
-	bson_append_int(&b, "leftSelectedElement", sl);
-	bson_append_int(&b, "rightSelectedElement", sr);
+	bson_append_string(&b, "leftSelectedElementIdentifier", activeTools[0]->GetIdentifier().c_str());
+	bson_append_string(&b, "rightSelectedElementIdentifier", activeTools[1]->GetIdentifier().c_str());
 	bson_append_int(&b, "activeMenu", active_menu);
 	if(partsData)
 		bson_append_binary(&b, "parts", (char)BSON_BIN_USER, (const char*)partsData, partsDataLen);
@@ -1582,17 +1586,17 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if((!strcmp(bson_iterator_key(&iter), "leftSelectedElement") || !strcmp(bson_iterator_key(&iter), "rightSelectedElement")) && replace == 2)
+		else if((!strcmp(bson_iterator_key(&iter), "leftSelectedElementIdentifier") || !strcmp(bson_iterator_key(&iter), "rightSelectedElementIdentifier")) && replace == 2)
 		{
-			if(bson_iterator_type(&iter)==BSON_INT && bson_iterator_int(&iter) > 0)
+			if (bson_iterator_type(&iter) == BSON_STRING)
 			{
-				if(bson_iterator_key(&iter)[0] == 'l')
+				if (bson_iterator_key(&iter)[0] == 'l')
 				{
-					sl = bson_iterator_int(&iter);
+					activeTools[0] = GetToolFromIdentifier(bson_iterator_string(&iter));
 				}
 				else
 				{
-					sr = bson_iterator_int(&iter);
+					activeTools[1] = GetToolFromIdentifier(bson_iterator_string(&iter));
 				}
 			}
 			else
@@ -1602,7 +1606,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		}
 		else if (!strcmp(bson_iterator_key(&iter), "activeMenu") && replace == 2)
 		{
-			if(bson_iterator_type(&iter)==BSON_INT && bson_iterator_int(&iter) >= 0 && ((bson_iterator_int(&iter) < SC_TOTAL && msections[bson_iterator_int(&iter)].doshow) || replace == 2))
+			if(bson_iterator_type(&iter)==BSON_INT && bson_iterator_int(&iter) >= 0 && ((bson_iterator_int(&iter) < SC_TOTAL && menuSections[bson_iterator_int(&iter)]->enabled) || replace == 2))
 			{
 				active_menu = bson_iterator_int(&iter);
 			}

@@ -17,15 +17,18 @@
 
 #include <stdint.h>
 #include <math.h>
-#include <defines.h>
-#include <powder.h>
-#include <air.h>
-#include <misc.h>
+#include "defines.h"
+#include "powder.h"
+#include "air.h"
+#include "misc.h"
 #include "gravity.h"
+#include "interface.h"
 #ifdef LUACONSOLE
-#include <luaconsole.h>
+#include "luaconsole.h"
 #endif
 
+#include "game\Brush.h"
+#include "simulation/Tool.h"
 #include "simulation/Simulation.h"
 
 part_type ptypes[PT_NUM];
@@ -1240,7 +1243,7 @@ TPT_INLINE void delete_part(int x, int y, int flags)//calls kill_part with the p
 
 	if (!i)
 		return;
-	if (!(flags&BRUSH_SPECIFIC_DELETE) || parts[i>>8].type==SLALT || SLALT==0)//specific deletion
+	if (!(flags&BRUSH_SPECIFIC_DELETE) || parts[i>>8].type == activeTools[2]->GetElementID() || activeTools[2]->GetElementID() <= 0)//specific deletion
 	{
 		kill_part(i>>8);
 	}
@@ -3478,7 +3481,7 @@ int FloodParts(int x, int y, int fullc, int cm, int flags)
 					return FloodWalls(x, y, WL_ERASE+100, -1, flags);
 				else
 					return -1;
-				if ((flags&BRUSH_REPLACEMODE) && cm!=SLALT)
+				if ((flags&BRUSH_REPLACEMODE) && activeTools[2]->GetElementID() != cm)
 					return 0;
 			}
 		}
@@ -3488,7 +3491,7 @@ int FloodParts(int x, int y, int fullc, int cm, int flags)
 	if (c != 0 && IsWallBlocking(x, y, c))
 		return 1;
 
-	if (!FloodFillPmapCheck(x, y, cm) || ((flags&BRUSH_SPECIFIC_DELETE) && cm!=SLALT))
+	if (!FloodFillPmapCheck(x, y, cm) || ((flags&BRUSH_SPECIFIC_DELETE) && activeTools[2]->GetElementID() != cm))
 		return 1;
 
 	coord_stack = (short unsigned int (*)[2])malloc(sizeof(unsigned short)*2*coord_stack_limit);
@@ -3576,7 +3579,7 @@ int FloodWalls(int x, int y, int wall, int bm, int flags)
 			bm = 0;
 	}
 
-	if (bmap[y/CELL][x/CELL] != bm || ((flags&BRUSH_SPECIFIC_DELETE) && bm!=SLALT))
+	if (bmap[y/CELL][x/CELL] != bm || ((flags&BRUSH_SPECIFIC_DELETE) && activeTools[2]->GetWallID() != bm))
 		return 1;
 
 	// go left as far as possible
@@ -3760,10 +3763,11 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 					j = oy;
 					if ((flags&BRUSH_SPECIFIC_DELETE) && b!=WL_FANHELPER)
 					{
-						if (bmap[j][i]==SLALT-100)
+						if (bmap[j][i] == activeTools[2]->GetWallID())
 						{
 							b = 0;
-							if (SLALT==WL_GRAV) gravwl_timeout = 60;
+							if (activeTools[2]->GetID()+100 == WL_GRAV)
+								gravwl_timeout = 60;
 						}
 						else
 							continue;
@@ -3830,7 +3834,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 		int tempy = y, i, j, jmax, oldy;
 		// tempy is the smallest y value that is still inside the brush
 		// jmax is the largest y value that is still inside the brush
-		if (CURRENT_BRUSH == TRI_BRUSH)
+		if (currentBrush->GetShape() == TRI_BRUSH)
 			tempy = y + ry;
 		for (i = x - rx; i <= x; i++) {
 			oldy = tempy;
@@ -3840,7 +3844,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 			if (fill)
 			{
 				jmax = 2*y - tempy;
-				if (CURRENT_BRUSH == TRI_BRUSH)
+				if (currentBrush->GetShape() == TRI_BRUSH)
 					jmax = y + ry;
 				for (j = tempy; j <= jmax; j++) {
 					if (create_parts2(fn,i,j,c,rx,ry,flags))
@@ -3851,13 +3855,13 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 			}
 			else
 			{
-				if ((oldy != tempy && CURRENT_BRUSH != SQUARE_BRUSH) || i == x-rx)
+				if ((oldy != tempy && currentBrush->GetShape() != SQUARE_BRUSH) || i == x-rx)
 					oldy--;
-				//if (CURRENT_BRUSH == TRI_BRUSH)
+				//if (currentBrush->GetShape() == TRI_BRUSH)
 				//	oldy = tempy;
 				for (j = tempy; j <= oldy+1; j++) {
 					int i2 = 2*x-i, j2 = 2*y-j;
-					if (CURRENT_BRUSH == TRI_BRUSH)
+					if (currentBrush->GetShape() == TRI_BRUSH)
 						j2 = y+ry;
 					if (create_parts2(fn,i,j,c,rx,ry,flags))
 						f = 1;
@@ -3884,7 +3888,7 @@ int create_parts2(int f, int x, int y, int c, int rx, int ry, int flags)
 	{
 		if (x<0 || y<0 || x>=XRES || y>=YRES)
 			return 0;
-		if ((pmap[y][x]&0xFF)!=SLALT&&SLALT!=0)
+		if (activeTools[2]->GetElementID() > 0 && (pmap[y][x]&0xFF) != activeTools[2]->GetElementID())
 			return 0;
 		if ((pmap[y][x]))
 		{
@@ -3936,24 +3940,6 @@ void create_moving_solid(int x, int y, int rx, int ry, int type)
 			}
 }
 
-int InCurrentBrush(int i, int j, int rx, int ry)
-{
-	switch(CURRENT_BRUSH)
-	{
-		case CIRCLE_BRUSH:
-			return (pow(i,2.0)*pow(ry,2.0)+pow(j,2.0)*pow(rx,2.0)<=pow(rx,2.0)*pow(ry,2.0));
-			break;
-		case SQUARE_BRUSH:
-			return (abs(i) <= rx && abs(j) <= ry);
-			break;
-		case TRI_BRUSH:
-			return ((abs((rx+2*i)*ry+rx*j) + abs(2*rx*(j-ry)) + abs((rx-2*i)*ry+rx*j))<=(4*rx*ry));
-			break;
-		default:
-			return 0;
-			break;
-	}
-}
 int get_brush_flags()
 {
 	int flags = 0;
@@ -3965,6 +3951,7 @@ int get_brush_flags()
 		flags |= BRUSH_SPECIFIC_DELETE;
 	return flags;
 }
+
 void create_line(int x1, int y1, int x2, int y2, int rx, int ry, int c, int flags)
 {
 	int cp=abs(y2-y1)>abs(x2-x1), x, y, dx, dy, sy, fill = 1;

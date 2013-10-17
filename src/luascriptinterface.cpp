@@ -1,9 +1,3 @@
-#include <defines.h>
-#include <luascriptinterface.h>
-#include <powder.h>
-#include <gravity.h>
-#include <powdergraphics.h>
-#include "simulation\Simulation.h"
 #include <dirent.h>
 #include <string>
 #ifdef WIN32
@@ -12,6 +6,16 @@
 #include <unistd.h>
 #endif
 #include <sys/stat.h>
+
+#include "defines.h"
+#include "luascriptinterface.h"
+#include "interface.h"
+#include "powder.h"
+#include "gravity.h"
+#include "powdergraphics.h"
+
+#include "game/Menus.h"
+#include "simulation\Simulation.h"
 
 /*
 

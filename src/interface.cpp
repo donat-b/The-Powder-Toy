@@ -24,19 +24,6 @@
 #include <bzlib.h>
 #include <math.h>
 #include <time.h>
-#include <http.h>
-#include <md5.h>
-#include <font.h>
-#include <defines.h>
-#include <powder.h>
-#include <interface.h>
-#include <misc.h>
-#include <console.h>
-#ifdef LUACONSOLE
-#include <luaconsole.h>
-#endif
-#include "gravity.h"
-#include <images.h>
 #if defined(WIN32) && !defined(__GNUC__)
 #include <io.h>
 #else
@@ -53,11 +40,29 @@
 #ifdef WIN32
 #include <SDL/SDL_syswm.h>
 #endif
-#include <powdergraphics.h>
+
+#include "http.h"
+#include "md5.h"
+#include "font.h"
+#include "defines.h"
+#include "powder.h"
+#include "interface.h"
+#include "misc.h"
+#include "console.h"
+#ifdef LUACONSOLE
+#include "luaconsole.h"
+#endif
+#include "gravity.h"
+#include "images.h"
+
+#include "powdergraphics.h"
 #include "save.h"
 #include "hud.h"
 #include "cJSON.h"
 #include "update.h"
+
+#include "game/Menus.h"
+#include "simulation/Tool.h"
 
 SDLMod sdl_mod;
 int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii, sdl_zoom_trig=0;
@@ -128,29 +133,87 @@ int framenum = 0;
 int hud_menunum = 0;
 int has_quit = 0;
 int dae = 0;
-int h = 0;
-int over_el = 0;
-int SC_TOTAL = SC_DECO+1;
 int dateformat = 7;
 int show_ids = 0;
 
 int drawgrav_enable = 0;
-int SLALT = 0;
 
-void menu_count(void)//puts the number of elements in each section into .itemcount
+#include <simulation\Simulation.h>
+#include <sstream>
+
+//TODO: just do tooltips and make things much simpler
+Tool* lastOver = NULL;
+
+//fills all the menus with Tool*s
+void menu_count()
 {
-	int i=0;
-	for (i=0;i<SC_TOTAL+1;i++)
+	std::string tempActiveTools[3], decoActiveTools[3];
+	if (activeTools[0]) //active tools might not have been initialized at the start
 	{
-		msections[i].itemcount = 0;
+		for (int i = 0; i < 3; i++)
+			tempActiveTools[i] = activeTools[i]->GetIdentifier();
+		for (int i = 0; i < 3; i++)
+			decoActiveTools[i] = decoTools[i]->GetIdentifier();
 	}
-	msections[SC_LIFE].itemcount = NGOL;
-	msections[SC_WALL].itemcount = UI_WALLCOUNT-4;
-	msections[SC_TOOL].itemcount = 8;
-	msections[SC_FAV].itemcount = 18;
-	for (i=0; i<PT_NUM; i++)
+	for (int i = 0; i < SC_TOTAL; i++)
 	{
-		msections[ptypes[i].menusection].itemcount+=(ptypes[i].menu || (secret_els && ptypes[i].enabled));
+		menuSections[i]->ClearTools();
+	}
+	lastOver = NULL;
+	for (int i = 0; i < PT_NUM; i++)
+	{
+		if (globalSim->elements[i].Enabled && i != PT_LIFE)
+		{
+			if (globalSim->elements[i].MenuVisible || secret_els)
+			{
+				menuSections[globalSim->elements[i].MenuSection]->AddTool(new Tool(ELEMENT_TOOL, i, globalSim->elements[i].Identifier));
+			}
+			else
+				menuSections[SC_OTHER]->AddTool(new Tool(ELEMENT_TOOL, i, globalSim->elements[i].Identifier));
+		}
+	}
+	for (int i = 0; i < NGOL; i++)
+	{
+		menuSections[SC_LIFE]->AddTool(new Tool(GOL_TOOL, i, "DEFAULT_PT_LIFE_" + std::string(gmenu[i].name)));
+	}
+	for (int i = UI_WALLSTART; i < UI_WALLSTART+UI_WALLCOUNT; i++)
+	{
+		//TODO, deco / tool identifiers are wrong
+		std::stringstream identifier;
+		identifier << "DEFAULT_WL_" << i-UI_WALLSTART;
+		if (!is_TOOL(i) && !is_DECOTOOL(i))
+		{
+			menuSections[SC_WALL]->AddTool(new Tool(WALL_TOOL, i, identifier.str()));
+		}
+		else if (is_DECOTOOL(i))
+		{
+			menuSections[SC_DECO]->AddTool(new Tool(DECO_TOOL, i, identifier.str()));
+		}
+		else
+		{
+			menuSections[SC_TOOL]->AddTool(new Tool(TOOL_TOOL, i, identifier.str()));
+		}
+	}
+	menuSections[SC_FAV]->AddTool(new Tool(INVALID_TOOL, FAV_MORE, "DEFAULT_FAV_MORE"));
+	for (int i = 0; i < 18; i++)
+	{
+		menuSections[SC_FAV]->AddTool(new Tool(INVALID_TOOL, FAV_MORE-1, "DEFAULT_FAV_FAKE"));
+	}
+	for (int i = FAV_START+1; i < FAV_END; i++)
+	{
+		menuSections[SC_FAV2]->AddTool(new Tool(INVALID_TOOL, i, "DEFAULT_FAV_" + std::string(fav[i-FAV_START].name)));
+	}
+	for (int i = HUD_START; i < HUD_START+HUD_NUM; i++)
+	{
+		menuSections[SC_HUD]->AddTool(new Tool(INVALID_TOOL, i, "DEFAULT_FAV_" + std::string(hud_menu[i-HUD_START].name)));
+	}
+
+	if (activeTools[0])
+	{
+		for (int i = 0; i < 3; i++)
+			activeTools[i] = GetToolFromIdentifier(tempActiveTools[i]);
+		for (int i = 0; i < 3; i++)
+			decoTools[i] = GetToolFromIdentifier(decoActiveTools[i]);
 	}
 }
 
@@ -1380,7 +1443,7 @@ int int_pair_cmp (const void * a, const void * b)
 	return ( ap->first - bp->first );
 }
 
-void element_search_ui(pixel *vid_buf, int * slp, int * srp)
+void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRight)
 {
 	int windowHeight = 300, windowWidth = 240;
 	int x0 = (XRES-windowWidth)/2, y0 = (YRES-windowHeight)/2, b = 1, bq, mx, my;
@@ -1435,17 +1498,17 @@ void element_search_ui(pixel *vid_buf, int * slp, int * srp)
 			{
 				if(firstResult==-1)
 					firstResult = i;
-				toolx += draw_tool_xy(vid_buf, toolx+xoff, tooly+yoff, i, ptypes[i].pcolors)+5;
+				toolx += draw_tool_xy(vid_buf, toolx+xoff, tooly+yoff, GetToolFromIdentifier(globalSim->elements[i].Identifier))+5;
 				if (!bq && mx>=xoff+toolx-32 && mx<xoff+toolx && my>=yoff+tooly && my<yoff+tooly+15)
 				{
 					drawrect(vid_buf, xoff+toolx-32, yoff+tooly-1, 29, 17, 255, 55, 55, 255);
 					hover = i;
 				}
-				else if (i==selectedl || i==*slp)
+				else if (i == selectedl || GetToolFromIdentifier(globalSim->elements[i].Identifier) == *selectedLeft)
 				{
 					drawrect(vid_buf, xoff+toolx-32, yoff+tooly-1, 29, 17, 255, 55, 55, 255);
 				}
-				else if (i==selectedr || i==*srp)
+				else if (i==selectedr || GetToolFromIdentifier(globalSim->elements[i].Identifier) == *selectedRight)
 				{
 					drawrect(vid_buf, xoff+toolx-32, yoff+tooly-1, 29, 17, 55, 55, 255, 255);
 				}
@@ -1489,17 +1552,17 @@ void element_search_ui(pixel *vid_buf, int * slp, int * srp)
 			{
 				if(firstResult==-1)
 					firstResult = tempInts[i].second;
-				toolx += draw_tool_xy(vid_buf, toolx+xoff, tooly+yoff, tempInts[i].second, ptypes[tempInts[i].second].pcolors)+5;
+				toolx += draw_tool_xy(vid_buf, toolx+xoff, tooly+yoff, GetToolFromIdentifier(globalSim->elements[tempInts[i].second].Identifier))+5;
 				if (!bq && mx>=xoff+toolx-32 && mx<xoff+toolx && my>=yoff+tooly && my<yoff+tooly+15)
 				{
 					drawrect(vid_buf, xoff+toolx-32, yoff+tooly-1, 29, 17, 255, 55, 55, 255);
 					hover = tempInts[i].second;
 				}
-				else if (tempInts[i].second==selectedl || tempInts[i].second==*slp)
+				else if (tempInts[i].second == selectedl || GetToolFromIdentifier(globalSim->elements[tempInts[i].second].Identifier) == *selectedLeft)
 				{
 					drawrect(vid_buf, xoff+toolx-32, yoff+tooly-1, 29, 17, 255, 55, 55, 255);
 				}
-				else if (tempInts[i].second==selectedr || tempInts[i].second==*srp)
+				else if (tempInts[i].second == selectedr || GetToolFromIdentifier(globalSim->elements[tempInts[i].second].Identifier) == *selectedRight)
 				{
 					drawrect(vid_buf, xoff+toolx-32, yoff+tooly-1, 29, 17, 55, 55, 255, 255);
 				}
@@ -1549,9 +1612,9 @@ void element_search_ui(pixel *vid_buf, int * slp, int * srp)
 	}
 
 	if(selectedl!=-1)
-		*slp = selectedl;
+		*selectedLeft = GetToolFromIdentifier(globalSim->elements[selectedl].Identifier);
 	if(selectedr!=-1)
-		*srp = selectedr;
+		*selectedRight = GetToolFromIdentifier(globalSim->elements[selectedr].Identifier);
 	
 	while (!sdl_poll())
 	{
@@ -2811,20 +2874,50 @@ int save_name_ui(pixel *vid_buf)
 	return 0;
 }
 
-//old menu function, with the elements drawn on the side. Seems like it probably should be menu_ui_v2
-void menu_ui(pixel *vid_buf, int i)
+//calls menu_ui_v2 when needed, draws fav. menu on bottom
+void old_menu_v2(int active_menu, int x, int y, int b, int bq)
 {
-	int b=1,bq,mx,my,y,sy;
-	int rows = (int)ceil((float)msections[i].itemcount/16.0f);
-	int height = (int)(ceil((float)msections[i].itemcount/16.0f)*18);
-	int width = (int)restrict_flt(msections[i].itemcount*31.0f, 0, 16*31);
+	if (active_menu > SC_FAV) {
+		Tool *over = menu_draw(x, y, b, bq, active_menu);
+		if (over)
+			lastOver = over;
+		menu_draw_text(lastOver, active_menu);
+		menu_select_element(b, over);
+	} else {
+		Tool *over = menu_draw(x, y, b, bq, SC_FAV);
+		if (over)
+			lastOver = over;
+		menu_draw_text(lastOver, SC_FAV);
+		menu_select_element(b, over);
+	}
+	int numMenus = GetNumMenus();
+	for (int i = 0; i < numMenus; i++)
+	{
+		if (i < SC_FAV)
+			drawchar(vid_buf, XRES+1, /*(12*i)+2*/((YRES/numMenus)*i)+((YRES/numMenus)/2)+5, menuSections[i]->icon, 255, 255, 255, 255);
+	}
+	//check mouse position to see if it is on a menu section
+	for (int i = 0; i < numMenus; i++)
+	{
+		if (!b && i < SC_FAV && x>= XRES+1 && x< XRES+BARSIZE-1 && y>= ((YRES/numMenus)*i)+((YRES/numMenus)/2)+3 && y<((YRES/numMenus)*i)+((YRES/numMenus)/2)+17)
+			menu_ui_v2(vid_buf, i); //draw the elements in the current menu if mouse inside
+	}
+}
+
+//old menu function, with the elements drawn on the side
+void menu_ui_v2(pixel *vid_buf, int i)
+{
+	int b=1, bq, mx, my, y, sy, numMenus = GetNumMenus(), someStrangeYValue = (((YRES/numMenus)*i)+((YRES/numMenus)/2))+3;
+	int rows = (int)ceil((float)menuSections[i]->tools.size()/16.0f);
+	int height = (int)(ceil((float)menuSections[i]->tools.size()/16.0f)*18);
+	int width = (int)restrict_flt(menuSections[i]->tools.size()*31.0f, 0, 16*31);
 	pixel *old_vid=(pixel *)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	if (!old_vid)
 		return;
-	fillrect(vid_buf, -1, -1, XRES+1, YRES+MENUSIZE, 0, 0, 0, 192);
+	fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
 	memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 	active_menu = i;
-	sy = y = (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))-(height/2)+(FONT_H/2)+1;
+	sy = y = (((YRES/numMenus)*i)+((YRES/numMenus)/2))-(height/2)+(FONT_H/2)+6;
 
 	while (!sdl_poll())
 	{
@@ -2839,27 +2932,29 @@ void menu_ui(pixel *vid_buf, int i)
 		b = mouse_get_state(&mx, &my);
 		fillrect(vid_buf, (XRES-BARSIZE-width)-4, y-5, width+16, height+16+rows, 0, 0, 0, 100);
 		drawrect(vid_buf, (XRES-BARSIZE-width)-4, y-5, width+16, height+16+rows, 255, 255, 255, 255);
-		fillrect(vid_buf, (XRES-BARSIZE)+14, (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))+3, 15, FONT_H+4, 0, 0, 0, 100);
-		drawrect(vid_buf, (XRES-BARSIZE)+13, (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))+3, 16, FONT_H+4, (SEC==i&&SEC!=0)?0:255, 255, 255, 255);
-		drawrect(vid_buf, (XRES-BARSIZE)+12, (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))+4, 1, FONT_H+2, 0, 0, 0, 255);
+		fillrect(vid_buf, (XRES-BARSIZE)+14, someStrangeYValue, 15, FONT_H+4, 0, 0, 0, 100);
+		drawrect(vid_buf, (XRES-BARSIZE)+13, someStrangeYValue, 16, FONT_H+4, (SEC==i&&SEC!=0)?0:255, 255, 255, 255);
+		drawrect(vid_buf, (XRES-BARSIZE)+12, someStrangeYValue+1, 1, FONT_H+2, 0, 0, 0, 255);
+		if (i) //if not in walls
+			drawtext(vid_buf, 12, 12, "\bgPress 'o' to return to the old menu", 255, 255, 255, 255);
 		
-		over_el = menu_draw(mx, my, b, bq, active_menu);
-		if (over_el != -1)
-			h = over_el;
+		Tool *over = menu_draw(mx, my, b, bq, active_menu);
+		if (over)
+			lastOver = over;
 		if (!bq && mx>=((XRES+BARSIZE)-16) ) //highlight menu section
 			if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
-				if (i>0&&i<SC_TOTAL)
+				if (i > 0 && i < SC_TOTAL)
 					SEC = i;
-		menu_draw_text(h, active_menu);
+		menu_draw_text(lastOver, active_menu);
 
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 		memcpy(vid_buf, old_vid, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
-		if (!(mx>=(XRES-BARSIZE-width)-4 && my>=sy-5 && my<sy+height+14))
+		if (!(mx>=(XRES-BARSIZE-width)-4 && my>=sy-5 && my<sy+height+14) || (mx >= XRES-BARSIZE && !(my >= someStrangeYValue && my <= someStrangeYValue+FONT_H+4)))
 		{
 			break;
 		}
 
-		menu_select_element(b, over_el);
+		menu_select_element(b, over);
 
 		if (sdl_key==SDLK_RETURN)
 			break;
@@ -2881,17 +2976,17 @@ void menu_ui_v3(pixel *vid_buf, int i, int b, int bq, int mx, int my)
 {
 	SEC = SEC2;
 
-	over_el = menu_draw(mx, my, b, bq, i);
-	if (over_el != -1)
-		h = over_el;
+	Tool* over = menu_draw(mx, my, b, bq, i);
+	if (over)
+		lastOver = over;
 
 	if (!bq && mx>=((XRES+BARSIZE)-16) ) //highlight menu section
 		if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
-			if (i>0&&i<SC_TOTAL)
+			if (i > 0 && i < SC_TOTAL)
 				SEC = i;
 
-	menu_draw_text(h, i);
-	menu_select_element(b, over_el);
+	menu_draw_text(lastOver, i);
+	menu_select_element(b, over);
 }
 
 int scrollbar(int fwidth, int mx, int y)
@@ -2900,398 +2995,148 @@ int scrollbar(int fwidth, int mx, int y)
 	float overflow, location;
 	if (mx > XRES)
 		mx = XRES;
-	if (mx < 15)
-		mx = 15;
+	//if (mx < 15) //makes scrolling a little nicer at edges but apparently if you put hundreds of elements in a menu it makes the end not show ...
+	//	mx = 15;
 	scrollSize = (int)(((float)(XRES-BARSIZE))/((float)fwidth) * ((float)XRES-BARSIZE));
 	scrollbarx = (int)(((float)mx/((float)XRES))*(float)(XRES-scrollSize));
 	if (scrollSize+scrollbarx>XRES)
 		scrollbarx = XRES-scrollSize;
 	fillrect(vid_buf, scrollbarx, y+19, scrollSize, 3, 200, 200, 200, 255);
 
-	overflow = (float)fwidth-(XRES-BARSIZE);
-	location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
+	overflow = (float)fwidth-XRES+10;
+	location = ((float)XRES)/((float)(mx-(XRES)));
 	return (int)(overflow / location);
 }
 
-int menu_draw(int mx, int my, int b, int bq, int i)
+Tool* menu_draw(int mx, int my, int b, int bq, int i)
 {
-	int el,x,y,n=0,xoff=0,fwidth = msections[i].itemcount*31;
-	if (!old_menu || i >= SC_FAV) {
+	int x, y, n=0, xoff=0, fwidth = menuSections[i]->tools.size()*31;
+	Tool* over = NULL;
+	if (!old_menu || i >= SC_FAV)
+	{
 		x = XRES-BARSIZE-18;
 		y = YRES+1;
-	} else {
+	}
+	else
+	{
 		int i2 = i;
-		int height = (int)(ceil((float)msections[i].itemcount/16.0f)*18);
+		int height = (int)(ceil((float)menuSections[i]->tools.size()/16.0f)*18);
+
 		if (i == SC_FAV2 || i == SC_HUD)
 			i2 = SC_FAV;
 		x = XRES-BARSIZE-23;
-		y = (((YRES/SC_TOTAL)*i2)+((YRES/SC_TOTAL)/2))-(height/2)+(FONT_H/2)+6;
+		y = (((YRES/GetNumMenus())*i2)+((YRES/GetNumMenus())/2))-(height/2)+(FONT_H/2)+11;
 	}
-	el = -1;
 
-	if (i==SC_WALL)//wall menu
-	{
-		for (n = UI_WALLSTART; n<UI_WALLSTART+UI_WALLCOUNT; n++)
-		{
-			if (!is_TOOL(n) && !is_DECOTOOL(n))
-			{
-				if (old_menu && x-26<=60)
-				{
-					x = XRES-BARSIZE-23;
-					y += 19;
-				}
-				x -= draw_tool_xy(vid_buf, x, y, n, wtypes[n-UI_WALLSTART].colour)+5;
-				if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15)
-				{
-					drawrect(vid_buf, x+30, y-1, 29, 17, 255, 55, 55, 255);
-					el = n;
-				}
-				if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
-				{
-					drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
-				}
-				else if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
-				}
-				else if (n==sl)
-				{
-					drawrect(vid_buf, x+30, y-1, 29, 17, 255, 55, 55, 255);
-				}
-				else if (n==sr)
-				{
-					drawrect(vid_buf, x+30, y-1, 29, 17, 55, 55, 255, 255);
-				}
-				else if (n==SLALT)
-				{
-					drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
-				}
-			}
-		}
-	}
-	else if (i==SC_TOOL)//tools menu
-	{
-		for (n = UI_WALLSTART; n<UI_WALLSTART+UI_WALLCOUNT; n++)
-		{
-			if (is_TOOL(n))
-			{
-				if (old_menu && x-26<=60)
-				{
-					x = XRES-BARSIZE-23;
-					y += 19;
-				}
-				x -= draw_tool_xy(vid_buf, x-xoff, y, n, wtypes[n-UI_WALLSTART].colour)+5;
-				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-					el = n;
-					if (b && el==SPC_PROP)
-						prop_edit_ui(vid_buf, -1, -1, 0);
-				}
-				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-				}
-				else if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
-				}
-				else if (n==sl)
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-				}
-				else if (n==sr)
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
-				}
-				else if (n==SLALT)
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-				}
-			}
-		}
-	}
-	else if (i==SC_DECO)//deco menu
+	//draw everything in the decoration editor
+	if (i == SC_DECO)
 	{
 		decoration_editor(vid_buf, b, bq, mx, my);
-		for (n = UI_WALLSTART; n<UI_WALLSTART+UI_WALLCOUNT; n++)
-		{
-			if (is_DECOTOOL(n))
-			{
-				if (old_menu && x-26<=60)
-				{
-					x = XRES-BARSIZE-23;
-					y += 19;
-				}
-				x -= draw_tool_xy(vid_buf, x-xoff, y, n, wtypes[n-UI_WALLSTART].colour)+5;
-				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-					el = n;
-				}
-				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-				}
-				else if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
-				}
-				else if (n==sl)
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-				}
-				else if (n==sr)
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
-				}
-				else if (n==SLALT)
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-				}
-			}
-		}
-		x = 6;
+
+		int presetx = 6;
 		for (n = DECO_PRESET_START; n < DECO_PRESET_START+NUM_COLOR_PRESETS; n++)
 		{
-			if (!bq && mx>=x-1 && mx<x+27 && my>=y && my< y+15)
+			if (!bq && mx>=presetx-1 && mx<presetx+27 && my>=y && my< y+15)
 			{
-				drawrect(vid_buf, x-1, y-1, 29, 17, 255, 55, 55, 255);
-				el = n;
+				drawrect(vid_buf, presetx-1, y-1, 29, 17, 255, 55, 55, 255);
+				std::stringstream identifier;
+				identifier << "DEFAULT_DECOUR_COLOUR_" << colorlist[n-DECO_PRESET_START].descs;
+				over =  new Tool(DECO_TOOL, n, identifier.str());
 			}
-			if (!bq && mx>=x-1 && mx<x+27 && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
-			{
-				drawrect(vid_buf, x-1, y-1, 29, 17, 0, 255, 255, 255);
-			}
-			else if (!bq && mx>=x-1 && mx<x+27 && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
-			{
-				drawrect(vid_buf, x-1, y-1, 29, 17, 0, 255, 0, 255);
-			}
-			else if (n==sl)
-			{
-				drawrect(vid_buf, x-1, y-1, 29, 17, 255, 55, 55, 255);
-			}
-			else if (n==sr)
-			{
-				drawrect(vid_buf, x-1, y-1, 29, 17, 55, 55, 255, 255);
-			}
-			else if (n==SLALT)
-			{
-				drawrect(vid_buf, x-1-xoff, y-1, 29, 17, 0, 255, 255, 255);
-			}
-			x += draw_tool_xy(vid_buf, x, y, n, colorlist[n-DECO_PRESET_START].colour)+5;
+			draw_tool_button(vid_buf, presetx, y, colorlist[n-DECO_PRESET_START].colour, "");
+			presetx += 31;
 		}
 	}
-	else if(i==SC_LIFE)
-	{
-		int n2;
-		if (!old_menu && fwidth > XRES-BARSIZE) { //fancy scrolling
-			xoff = scrollbar(fwidth, mx, y);
-		}
-		for (n2 = 0; n2<NGOL; n2++)
-		{
-			if (x-xoff > XRES-26 || x-xoff < 0)
-			{
-				x -= 31;
-				continue;
-			}
-			n = PT_LIFE | (n2<<8);
-			if (old_menu && x-26<=60)
-			{
-				x = XRES-BARSIZE-23;
-				y += 19;
-			}
-			x -= draw_tool_xy(vid_buf, x-xoff, y, n, gmenu[n2].colour)+5;
-			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my<y+15)
-			{
-				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-				el = n;
-			}
-			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_SHIFT)))
-			{
-				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-			}
-			else if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
-			{
-				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
-			}
-			else if (n==sl)
-			{
-				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-			}
-			else if (n==sr)
-			{
-				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
-			}
-			else if (n==SLALT)
-			{
-				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-			}
-		}
-	}
-	else if (i == SC_FAV) //Favorite
-	{
-		int n2;
-		for (n2 = 0; n2<19; n2++)
-		{
-			n = favMenu[n2];
-			if (n >= HUD_START && n < HUD_START+HUD_NUM)
-			{
-				pixel color = hud_menu[n].color;
-				if (color == 0)
-					color = ptypes[(n*53+7)%(PT_NUM-1)+1].pcolors;
-				x -= draw_tool_xy(vid_buf, x-xoff, y, n, color)+5;
-			}
-			else if (n >= FAV_START && n < FAV_END)
-				x -= draw_tool_xy(vid_buf, x-xoff, y, n, fav[n-FAV_START].colour)+5;
-			else if (n % 256 == PT_LIFE)
-				x -= draw_tool_xy(vid_buf, x-xoff, y, n, gmenu[n/256].colour)+5;
-			else if (n < PT_NUM)
-				x -= draw_tool_xy(vid_buf, x-xoff, y, n, ptypes[n].pcolors)+5;
-			else
-				x -= draw_tool_xy(vid_buf, x-xoff, y, n, wtypes[n-UI_WALLSTART].colour)+5;
-
-			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
-			{
-				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-				el = n;
-			}
-			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
-			{
-				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-			}
-			else if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
-			{
-				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
-			}
-			else if (n==sl)
-			{
-				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-			}
-			else if (n==sr)
-			{
-				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
-			}
-			else if (n==SLALT)
-			{
-				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-			}
-			if (n2 > 18-locked)
-			{
-				fillrect(vid_buf, x+31-xoff, y, 27, 15, 0, 0, 255, 127);
-			}
-		}
-		last_fav_menu = SC_FAV;
-	}
-	else if (i == SC_FAV2) //Favorite
-	{
-		/*fwidth = (FAV_END - FAV_START - 1)*31;
-		if (fwidth > XRES-BARSIZE) { //fancy scrolling
-			float overflow = (float)fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
-			xoff = (int)(overflow / location);
-		}*/
-		for (n = 1; n < FAV_END - FAV_START; n++)
-		{
-			x -= draw_tool_xy(vid_buf, x-xoff, y, FAV_START+n, fav[n].colour)+5;
-
-			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
-			{
-				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-				el = n+FAV_START;
-			}
-		}
-		last_fav_menu = SC_FAV2;
-	}
-	else if (i == SC_HUD) //HUD changer
+	else if (i == SC_HUD)
 	{
 		fwidth = 0;
 		for (n = 0; n < HUD_NUM; n++)
 		{
 			if (hud_menu[n].menunum == hud_menunum || n == 0)
 			{
-				fwidth++;
+				fwidth += 31;
 			}
 		}
-		fwidth *= 31;
-		if (!old_menu && fwidth > XRES-BARSIZE) { //fancy scrolling
-			xoff = scrollbar(fwidth, mx, y);
-		}
-		for (n = 0; n < HUD_NUM; n++)
-		{
-			if (hud_menu[n].menunum == hud_menunum || n == 0)
-			{
-				pixel color = hud_menu[n].color;
-				if (color == PIXPACK(0x000000))
-					color = ptypes[(n*53+7)%(PT_NUM-1)+1].pcolors;
-				if (x-xoff > XRES-26 || x-xoff < 0)
-				{
-					x -= 31;
-					continue;
-				}
-				x -= draw_tool_xy(vid_buf, x-xoff, y, HUD_START+n, color)+5;
+	}
 
-				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-					el = n+HUD_START;
-				}
-				else if (n >= HUD_REALSTART-HUD_START && currentHud[n-HUD_REALSTART+HUD_START] && !strstr(hud_menu[n].name,"#"))
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
-				}
-			}
-		}
-		last_fav_menu = SC_HUD;
-	}
-	else //all other menus
+	//fancy scrolling
+	if ((!old_menu || i >= SC_FAV) && fwidth > XRES-BARSIZE)
 	{
-		if (!old_menu && fwidth > XRES-BARSIZE) { //fancy scrolling
-			xoff = scrollbar(fwidth, mx, y);
-		}
-		for (n = 0; n<PT_NUM; n++)
+		xoff = scrollbar(fwidth, mx, y);
+	}
+
+	//main loop, draws the tools and figures out which tool you are hovering over / selecting
+	for (std::vector<Tool*>::iterator iter = menuSections[i]->tools.begin(), end = menuSections[i]->tools.end(); iter != end; ++iter)
+	{
+		Tool* current = *iter;
+		//special cases for fake menu things in my mod
+		if (i == SC_FAV || i == SC_FAV2 || i == SC_HUD)
 		{
-			if (old_menu && x-26<=60)
+			last_fav_menu = i;
+			if (i == SC_HUD && hud_menu[current->GetID()-HUD_START].menunum != hud_menunum && current->GetID() != HUD_START)
+				continue;
+			else if (i == SC_FAV && iter != menuSections[i]->tools.begin())
 			{
-				x = XRES-BARSIZE-23;
-				y += 19;
-			}
-			if (ptypes[n].menusection==i && (ptypes[n].menu==1 || (secret_els && ptypes[n].enabled == 1)))
-			{
-				if (x-xoff > XRES-26 || x-xoff < 0)
-				{
-					x -= 31;
+				current = GetToolFromIdentifier(favMenu[iter-menuSections[i]->tools.begin()-1]);
+				if (!current)
 					continue;
-				}
-				x -= draw_tool_xy(vid_buf, x-xoff, y, n, ptypes[n].pcolors)+5;
-				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-					el = n;
-				}
-				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL)))
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-				}
-				else if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL)))
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
-				}
-				else if (n==sl)
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-				}
-				else if (n==sr)
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
-				}
-				else if (n==SLALT)
-				{
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-				}
 			}
+		}
+		//if it's offscreen to the right or left, draw nothing
+		if (x-xoff > XRES-26 || x-xoff < 0)
+		{
+			x -= 31;
+			continue;
+		}
+		if (old_menu && x-26<=60 && i < SC_FAV)
+		{
+			x = XRES-BARSIZE-23;
+			y += 19;
+		}
+		x -= draw_tool_xy(vid_buf, x-xoff, y, current)+5;
+
+		if (i == SC_HUD) //HUD menu is special and should hopefully be removed someday ...
+		{
+			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
+			{
+				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
+				over = current;
+			}
+			else if (current->GetID() >= HUD_REALSTART && currentHud[current->GetID()-HUD_REALSTART] && !strstr(hud_menu[current->GetID()-HUD_START].name, "#"))
+			{
+				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
+			}
+		}
+		else
+		{
+			//if mouse inside button
+			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my<y+15)
+			{
+				over = current;
+				//draw rectangles around hovered on tools
+				if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
+				else if (sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL))
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
+				else
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
+
+				if (b && current->GetID() == SPC_PROP) //TODO: compare to identifier once tool identifiers are set up
+					prop_edit_ui(vid_buf, -1, -1, 0);
+			}
+			//draw rectangles around selected tools
+			else if (activeTools[0]->GetIdentifier() == current->GetIdentifier())
+				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
+			else if (activeTools[1]->GetIdentifier() == current->GetIdentifier())
+				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
+			else if (activeTools[2]->GetIdentifier() == current->GetIdentifier())
+				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
+			else if (i == SC_FAV && menuSections[i]->tools.end()-iter <= locked)
+				fillrect(vid_buf, x+31-xoff, y, 27, 15, 0, 0, 255, 127);
 		}
 	}
-	if (el != -1 && dae < 51)
+
+	if (over && dae < 51)
 		dae = dae + 2;
 	else if (dae)
 		dae = dae - 2; //Fade away element descriptions
@@ -3299,60 +3144,60 @@ int menu_draw(int mx, int my, int b, int bq, int i)
 		dae = 51;
 	if (dae < 0)
 		dae = 0;
-	return el;
+	return over;
 }
 
-void menu_draw_text(int h, int i)
+void menu_draw_text(Tool* lastOver, int i)
 {
-	int sy;
-	if (!old_menu || i >= SC_FAV)
-		sy = YRES+1;
-	else
+	int sy = YRES+1, toolID;
+	if (lastOver)
+		toolID = lastOver->GetID();
+	if (old_menu && i < SC_FAV)
 	{
-		int height = (int)(ceil((float)msections[i].itemcount/16.0f)*18);
-		sy = (((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2))-(height/2)+(FONT_H/2)+26+height;
+		int height = (int)(ceil((float)menuSections[i]->tools.size()/16.0f)*18);
+		sy = (((YRES/GetNumMenus())*i)+((YRES/GetNumMenus())/2))-(height/2)+(FONT_H/2)+35+height;
 	}
-	drawtext(vid_buf, XRES-textwidth((char *)msections[i].name)-BARSIZE, sy-10, (char *)msections[i].name, 255, 255, 255, (51-dae)*5);
-	if (h==-1)
+	drawtext(vid_buf, XRES-textwidth(menuSections[i]->name.c_str())-BARSIZE, sy-10, menuSections[i]->name.c_str(), 255, 255, 255, (51-dae)*5);
+	if (!lastOver)
 	{
-		//drawtext(vid_buf, XRES-textwidth((char *)msections[i].name)-BARSIZE, sy-10, (char *)msections[i].name, 255, 255, 255, (51-dae)*5);
+		//drawtext(vid_buf, XRES-textwidth(msections[i].name.c_str())-BARSIZE, sy-10, msections[i].name.c_str(), 255, 255, 255, (51-dae)*5);
 	}
-	else if (h < PT_NUM)
+	else if (lastOver->GetType() == ELEMENT_TOOL)
 	{
-		drawtext(vid_buf, XRES-textwidth((char *)ptypes[h].descs)-BARSIZE, sy-10, (char *)ptypes[h].descs, 255, 255, 255, dae*5);
+		drawtext(vid_buf, XRES-textwidth((char *)ptypes[toolID].descs)-BARSIZE, sy-10, (char *)ptypes[toolID].descs, 255, 255, 255, dae*5);
 	}
-	else if (h >= HUD_START && h < HUD_START+HUD_NUM)
+	else if (toolID >= HUD_START && toolID < HUD_START+HUD_NUM)
 	{
-		if (!strstr(hud_menu[h-HUD_START].name,"#"))
-			drawtext(vid_buf, XRES-textwidth((char *)hud_menu[h-HUD_START].description)-BARSIZE, sy-10, (char *)hud_menu[h-HUD_START].description, 255, 255, 255, dae*5);
+		if (!strstr(hud_menu[toolID-HUD_START].name,"#"))
+			drawtext(vid_buf, XRES-textwidth((char *)hud_menu[toolID-HUD_START].description)-BARSIZE, sy-10, (char *)hud_menu[toolID-HUD_START].description, 255, 255, 255, dae*5);
 		else
 		{
 			char description[512] = "";
-			sprintf(description,"%s %i decimal places",hud_menu[h-HUD_START].description,currentHud[h-HUD_REALSTART]);
+			sprintf(description,"%s %i decimal places",hud_menu[toolID-HUD_START].description,currentHud[toolID-HUD_REALSTART]);
 			drawtext(vid_buf, XRES-textwidth(description)-BARSIZE, sy-10, description, 255, 255, 255, dae*5);
 		}
 	}
-	else if (h >= FAV_START && h < FAV_END)
+	else if (toolID >= FAV_START && toolID < FAV_END)
 	{
 		char favtext[512] = "";
-		sprintf(favtext, fav[h-FAV_START].description);
-		if (h == FAV_ROTATE)
+		sprintf(favtext, fav[toolID-FAV_START].description);
+		if (toolID == FAV_ROTATE)
 		{
 			if (ms_rotation)
 				strappend(favtext, "on");
 			else
 				strappend(favtext, "off");
 		}
-		if (h == FAV_HEAT)
+		if (toolID == FAV_HEAT)
 		{
 			if (!heatmode)
 				strappend(favtext, "normal: -273.15C - 9725.85C");
 			else if (heatmode == 1)
-				sprintf(favtext, "%sautomatic: %iC - %iC",fav[h-FAV_START].description,lowesttemp-273,highesttemp-273);
+				sprintf(favtext, "%sautomatic: %iC - %iC",fav[toolID-FAV_START].description,lowesttemp-273,highesttemp-273);
 			else
-				sprintf(favtext, "%smanual: %iC - %iC",fav[h-FAV_START].description,lowesttemp-273,highesttemp-273);
+				sprintf(favtext, "%smanual: %iC - %iC",fav[toolID-FAV_START].description,lowesttemp-273,highesttemp-273);
 		}
-		/*else if (h == FAV_SAVE)
+		/*else if (toolID == FAV_SAVE)
 		{
 			if (save_as%3 == 0)
 				strappend(favtext, "Jacob's Mod ver. " MTOS(MOD_VERSION));
@@ -3361,28 +3206,28 @@ void menu_draw_text(int h, int i)
 			else
 				strappend(favtext, "Powder Toy release ver. " MTOS(RELEASE_VERSION));
 		}*/
-		else if (h == FAV_AUTOSAVE)
+		else if (toolID == FAV_AUTOSAVE)
 		{
 			if (!autosave)
 				strappend(favtext, "off");
 			else
-				sprintf(favtext, "%severy %d seconds",fav[h-FAV_START].description,autosave);
+				sprintf(favtext, "%severy %d seconds",fav[toolID-FAV_START].description, autosave);
 		}
-		else if (h == FAV_REAL)
+		else if (toolID == FAV_REAL)
 		{
 			if (realistic)
 				strappend(favtext, "on");
 			else
 				strappend(favtext, "off");
 		}
-		else if (h == FAV_FIND2)
+		else if (toolID == FAV_FIND2)
 		{
 			if (finding &0x8)
 				strappend(favtext, "on");
 			else
 				strappend(favtext, "off");
 		}
-		else if (h == FAV_DATE)
+		else if (toolID == FAV_DATE)
 		{
 			char *time;
 			converttotime("1300000000",&time, -1, -1, -1);
@@ -3390,42 +3235,45 @@ void menu_draw_text(int h, int i)
 		}
 		drawtext(vid_buf, XRES-textwidth(favtext)-BARSIZE, sy-10, favtext, 255, 255, 255, dae*5);
 	}
-	else if (h%256 == PT_LIFE)
+	else if (lastOver->GetType() == GOL_TOOL)
 	{
-		drawtext(vid_buf, XRES-textwidth((char *)gmenu[(h>>8)&0xFF].description)-BARSIZE, sy-10, (char *)gmenu[(h>>8)&0xFF].description, 255, 255, 255, dae*5);
+		drawtext(vid_buf, XRES-textwidth((char *)gmenu[toolID].description)-BARSIZE, sy-10, (char *)gmenu[toolID].description, 255, 255, 255, dae*5);
 	}
-	else if (h >= DECO_PRESET_START && h < DECO_PRESET_START + NUM_COLOR_PRESETS)
+	else if (toolID >= DECO_PRESET_START && toolID < DECO_PRESET_START + NUM_COLOR_PRESETS)
 	{
-		drawtext(vid_buf, XRES-textwidth((char *)colorlist[h-DECO_PRESET_START].descs)-BARSIZE, sy-10, (char *)colorlist[h-DECO_PRESET_START].descs, 255, 255, 255, dae*5);
+		drawtext(vid_buf, XRES-textwidth((char *)colorlist[toolID-DECO_PRESET_START].descs)-BARSIZE, sy-10, (char *)colorlist[toolID-DECO_PRESET_START].descs, 255, 255, 255, dae*5);
 	}
-	else //if (h >= UI_WALLSTART)
+	else //if (lastOver->GetType() == WALL_TOOL)
 	{
-		drawtext(vid_buf, XRES-textwidth((char *)wtypes[h-UI_WALLSTART].descs)-BARSIZE, sy-10, (char *)wtypes[h-UI_WALLSTART].descs, 255, 255, 255, dae*5);
+		drawtext(vid_buf, XRES-textwidth((char *)wtypes[toolID-UI_WALLSTART].descs)-BARSIZE, sy-10, (char *)wtypes[toolID-UI_WALLSTART].descs, 255, 255, 255, dae*5);
 	}
 }
 
-void menu_select_element(int b, int h)
+void menu_select_element(int b, Tool* over)
 {
 	//these are click events, b=1 is left click, b=4 is right
 	//h has the value of the element it is over, and -1 if not over an element
-	if (b==1&&h==-1)
+	int toolID;
+	if (over)
+		toolID = over->GetID();
+	if (b==1 && !over)
 	{
 		if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL) && SEC>=0)
 		{
-			SLALT = -1;
+			activeTools[2] = NULL;
 			SEC2 = SEC;
 		}
 	}
-	if (b==1&&h!=-1)
+	if (b==1 && over)
 	{
 		int j;
-		if (h >= FAV_START && h <= FAV_END)
+		if (toolID >= FAV_START && toolID <= FAV_END)
 		{
-			if (h == FAV_MORE)
+			if (toolID == FAV_MORE)
 				active_menu = SC_FAV2;
-			else if (h == FAV_BACK)
+			else if (toolID == FAV_BACK)
 				active_menu = SC_FAV;
-			else if (h == FAV_FIND)
+			else if (toolID == FAV_FIND)
 			{
 				if (finding & 0x4)
 					finding &= 0x8;
@@ -3436,13 +3284,13 @@ void menu_select_element(int b, int h)
 				else
 					finding |= 0x1;
 			}
-			else if (h == FAV_INFO)
+			else if (toolID == FAV_INFO)
 				drawinfo = !drawinfo;
-			else if (h == FAV_ROTATE)
+			else if (toolID == FAV_ROTATE)
 				ms_rotation = !ms_rotation;
-			else if (h == FAV_HEAT)
+			else if (toolID == FAV_HEAT)
 				heatmode = (heatmode + 1)%3;
-			/*else if (h == FAV_SAVE)
+			/*else if (toolID == FAV_SAVE)
 			{
 				save_as = 3+(save_as + 1)%3;
 #ifndef BETA
@@ -3450,21 +3298,21 @@ void menu_select_element(int b, int h)
 					save_as++;
 #endif
 			}*/
-			else if (h == FAV_LUA)
+			else if (toolID == FAV_LUA)
 #ifdef LUACONSOLE
 				addluastuff();
 #else
 				error_ui(vid_buf, 0, "Lua console not enabled");
 #endif
-			else if (h == FAV_CUSTOMHUD)
+			else if (toolID == FAV_CUSTOMHUD)
 				active_menu = SC_HUD;
-			else if (h == FAV_AUTOSAVE)
+			else if (toolID == FAV_AUTOSAVE)
 			{
 				autosave = atoi(input_ui(vid_buf,"Autosave","Input number of seconds between saves, 0 = off","",""));
 				if (autosave < 0)
 					autosave = 0;
 			}
-			else if (h == FAV_REAL)
+			else if (toolID == FAV_REAL)
 			{
 				realistic = !realistic;
 				if (realistic)
@@ -3472,77 +3320,83 @@ void menu_select_element(int b, int h)
 				else
 					ptypes[PT_FIRE].hconduct = 88;
 			}
-			else if (h == FAV_FIND2)
+			else if (toolID == FAV_FIND2)
 			{
 				if (finding & 0x8)
 					finding &= ~0x8;
 				else
 					finding |= 0x8;
 			}
-			else if (h == FAV_DATE)
+			else if (toolID == FAV_DATE)
 			{
 				if (dateformat%6 == 5)
 					dateformat -= 5;
 				else
 					dateformat = dateformat + 1;
 			}
-			else if (h == FAV_SECR)
+			else if (toolID == FAV_SECR)
 			{
 				secret_els = !secret_els;
 				menu_count();
 			}
 		}
-		else if (h >= HUD_START && h < HUD_START+HUD_NUM)
+		else if (toolID >= HUD_START && toolID < HUD_START+HUD_NUM)
 		{
-			if (h == HUD_START)
+			if (toolID == HUD_START)
 			{
 				if (hud_menunum != 0)
 					hud_menunum = 0;
 				else
 					active_menu = SC_FAV2;
 			}
-			else if (h == HUD_START + 4)
+			else if (toolID == HUD_START + 4)
 			{
 				HudDefaults();
 				SetCurrentHud();
 			}
-			else if (h < HUD_REALSTART)
+			else if (toolID < HUD_REALSTART)
 			{
-				hud_menunum = h - HUD_START;
+				hud_menunum = toolID - HUD_START;
 			}
 			else
 			{
 				char hud_curr[16];
-				sprintf(hud_curr,"%i",currentHud[h-HUD_REALSTART]);
-				if (strstr(hud_menu[h-HUD_START].name,"#"))
-					currentHud[h-HUD_REALSTART] = atoi(input_ui(vid_buf,(char*)hud_menu[h-HUD_START].name,"Enter number of decimal places",hud_curr,""));
+				sprintf(hud_curr,"%i",currentHud[toolID-HUD_REALSTART]);
+				if (strstr(hud_menu[toolID-HUD_START].name,"#"))
+					currentHud[toolID-HUD_REALSTART] = atoi(input_ui(vid_buf,(char*)hud_menu[toolID-HUD_START].name,"Enter number of decimal places",hud_curr,""));
 				else
-					currentHud[h-HUD_REALSTART] = !currentHud[h-HUD_REALSTART];
+					currentHud[toolID-HUD_REALSTART] = !currentHud[toolID-HUD_REALSTART];
 				if (DEBUG_MODE)
 					memcpy(debugHud,currentHud,sizeof(debugHud));
 				else
 					memcpy(normalHud,currentHud,sizeof(normalHud));
 			}
 		}
-		else if (h >= DECO_PRESET_START && h < DECO_PRESET_START+NUM_COLOR_PRESETS)
+		else if (toolID >= DECO_PRESET_START && toolID < DECO_PRESET_START+NUM_COLOR_PRESETS)
 		{
-			int newDecoColor = (255<<24)|colorlist[h-DECO_PRESET_START].colour;
+			int newDecoColor = (255<<24)|colorlist[toolID-DECO_PRESET_START].colour;
 			if (newDecoColor != decocolor)
 				decocolor = newDecoColor;
 			else
-				sl = DECO_DRAW;
+			{
+				if (activeTools[0]->GetIdentifier() != "DEFAULT_WL_26")
+				{
+					activeTools[0] = GetToolFromIdentifier("DEFAULT_WL_26");
+				}
+			}
 			currR = PIXR(decocolor), currG = PIXG(decocolor), currB = PIXB(decocolor), currA = decocolor>>24;
 			RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
 		}
 		else if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
 		{
-			SLALT = h;
+			activeTools[2] = over;
 			SEC2 = -1;
 		}
-		else {
-			int j, pos = 1, pos2 = 1, last = 18-locked, lock = 0;
-			for (j = 1; j < 19; j++)
-				if (favMenu[j] == h)
+		else
+		{
+			int j, pos = 0, pos2 = 0, last = 17-locked, lock = 0;
+			for (j = 0; j < 18; j++)
+				if (favMenu[j] == over->GetIdentifier())
 					pos = j; // If el is alredy on list, don't put it there twice
 			pos2 = pos;
 			if (sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL) && locked < 18 && pos < 18-locked)
@@ -3550,14 +3404,14 @@ void menu_select_element(int b, int h)
 				lock = 1;
 			}
 			if (pos > 18-locked && locked != 18) lock = 1;
-			if (lock) last = 18;
+			if (lock) last = 17;
 			while (pos < last)
 			{
 				favMenu[pos] = favMenu[pos+1];
 				pos = pos + 1;
 			}
 			if (last != 0)
-				favMenu[last] = h;
+				favMenu[last] = over->GetIdentifier();
 			if (sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL) && locked < 18 && pos2 <= 18-locked)
 			{
 				locked = locked + 1;
@@ -3565,31 +3419,33 @@ void menu_select_element(int b, int h)
 			}
 			else
 			{
-				sl = su = h;
+
+				activeTools[0] = over;
+				activeToolID = 0;
 				dae = 51;
 			}
 		}
 	}
-	if (b==4&&h==-1)
+	if (b==4 && !over)
 	{
 		if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL) && SEC>=0)
 		{
-			SLALT = -1;
+			activeTools[2] = NULL;
 			SEC2 = SEC;
 		}
 	}
-	if (b==4&&h!=-1)
+	if (b==4 && over)
 	{
 		int j;
-		if (h >= FAV_START && h <= FAV_END)
+		if (toolID >= FAV_START && toolID <= FAV_END)
 		{
-			if (h == FAV_HEAT)
+			if (toolID == FAV_HEAT)
 			{
 				heatmode = 2;
 				lowesttemp = atoi(input_ui(vid_buf,"Manual Heat Display","Enter a Minimum Temperature in Celcius","",""))+273;
 				highesttemp = atoi(input_ui(vid_buf,"Manual Heat Display","Enter a Maximum Temperature in Celcius","",""))+273;
 			}
-			else if (h == FAV_DATE)
+			else if (toolID == FAV_DATE)
 			{
 				if (dateformat < 6)
 					dateformat += 6;
@@ -3597,33 +3453,35 @@ void menu_select_element(int b, int h)
 					dateformat -= 6;
 			}
 		}
-		else if (h >= HUD_START && h < HUD_START+HUD_NUM)
+		else if (toolID >= HUD_START && toolID < HUD_START+HUD_NUM)
 		{
 		}
 		else if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
 		{
-			SLALT = h;
+			activeTools[2] = over;
 			SEC2 = -1;
 		}
-		else {
-			int j, pos = 1, last = 18-locked, lock = 0;
-			for (j = 1; j < 19; j++)
-				if (favMenu[j] == h)
+		else
+		{
+			int j, pos = 0, last = 17-locked, lock = 0;
+			for (j = 0; j < 18; j++)
+				if (favMenu[j] == over->GetIdentifier())
 					pos = j; // If el is alredy on list, don't put it there twice
 			if (pos > 18-locked && locked != 18) lock = 1;
-			if (lock) last = 18;
-			if (pos > 18-locked && sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL) && locked > 0 && active_menu == SC_FAV)
+			if (lock) last = 17;
+			if (pos > 17-locked && sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL) && locked > 0 && active_menu == SC_FAV)
 			{
-				int temp = favMenu[pos];
-				for (j = pos; j > 19-locked; j--)
+				std::string temp = favMenu[pos];
+				for (j = pos; j > 18-locked; j--)
 					favMenu[j] = favMenu[j-1];
-				favMenu[19-locked] = temp;
+				favMenu[18-locked] = temp;
 				locked = locked - 1;
 				save_presets(0);
 			}
 			else
 			{
-				sr = su = h;
+				activeTools[1] = over;
+				activeToolID = 1;
 				dae = 51;
 				while (pos < last)
 				{
@@ -3631,7 +3489,7 @@ void menu_select_element(int b, int h)
 					pos = pos + 1;
 				}
 				if (last != 0)
-					favMenu[last] = h;
+					favMenu[last] = over->GetIdentifier();
 			}
 		}
 	}
@@ -7549,7 +7407,8 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 				currV = my - 5;
 				HSV_to_RGB(currH,currS,tv,&currR,&currG,&currB);
 				deco_disablestuff = 1;
-				sl = DECO_DRAW;
+				if (activeTools[0]->GetIdentifier() != "DEFAULT_WL_26")
+					activeTools[0] = GetToolFromIdentifier("DEFAULT_WL_26");
 			}
 			HSV_to_RGB(currH,currS,tv,&cr,&cg,&cb);
 			//clearrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6,12,12);
@@ -7575,7 +7434,8 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 				currS = ts;
 				HSV_to_RGB(th,ts,currV,&currR,&currG,&currB);
 				deco_disablestuff = 1;
-				sl = DECO_DRAW;
+				if (activeTools[0]->GetIdentifier() != "DEFAULT_WL_26")
+					activeTools[0] = GetToolFromIdentifier("DEFAULT_WL_26");
 			}
 			HSV_to_RGB(th,ts,currV,&cr,&cg,&cb);
 			//clearrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6,12,12);
@@ -8394,16 +8254,13 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 			for (i=0; i<SC_TOTAL; i++)
 			{
 				if (i < SC_FAV)
-					drawtext(vid_buf, XRES+1, /*(12*i)+2*/((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+5, msections[i].icon, 255, 255, 255, 255);
+					drawchar(vid_buf, XRES+1, /*(12*i)+2*/((YRES/GetNumMenus())*i)+((YRES/GetNumMenus())/2)+5, menuSections[i]->icon, 255, 255, 255, 255);
 			}
 		}
 		else
 		{
 			quickoptions_menu(vid_buf, b, bq, mx, my);
-			for (i=0; i<SC_TOTAL; i++)//draw all the menu sections
-			{
-				draw_menu(vid_buf, i, active_menu);
-			}
+			DrawMenus(vid_buf, active_menu, my);
 		}
 		draw_svf_ui(vid_buf, sdl_mod & (KMOD_LCTRL|KMOD_RCTRL));
 		

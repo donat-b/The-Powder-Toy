@@ -1,9 +1,14 @@
-#include <hud.h>
-#include <defines.h>
-#include <luaconsole.h>
-#include <powder.h>
-#include <gravity.h>
 #include <time.h>
+
+#include "defines.h"
+#include "gravity.h"
+#include "hud.h"
+#include "interface.h"
+#include "luaconsole.h"
+#include "powder.h"
+
+#include "game/Menus.h"
+#include "simulation/Tool.h"
 
 char uitext[512] = "";
 char heattext[256] = "";
@@ -422,16 +427,21 @@ void DrawPhotonWavelengths(pixel *vid, int x, int y, int h, int wl)
 
 void DrawRecordsInfo()
 {
-	int ytop = 230, num_parts = 0, totalselected = 0, i, x, y;
+	int ytop = 230, num_parts = 0, totalselected = 0, x, y;
 	float totaltemp = 0, totalpressure = 0;
-	for (i=0; i<NPART; i++)
+	for (int i = 0; i < NPART; i++)
 	{
+		//average temperature of all particles
 		if (parts[i].type)
 		{
 			totaltemp += parts[i].temp;
 			num_parts++;
 		}
-		if (parts[i].type == sl)
+
+		//count total number of left selected element particles
+		if (parts[i].type == activeTools[0]->GetElementID())
+			totalselected++;
+		else if (activeTools[0]->GetType() == GOL_TOOL && parts[i].type == PT_LIFE && parts[i].ctype == activeTools[0]->GetID())
 			totalselected++;
 	}
 	for (y=0; y<YRES/CELL; y++)
@@ -480,10 +490,12 @@ void DrawRecordsInfo()
 		sprintf(infotext,"Average Pressure: %f", totalpressure/(XRES*YRES/CELL/CELL));
 		fillrect(vid_buf, 12, ytop+108, textwidth(infotext)+8, 15, 0, 0, 0, 140);
 		drawtext(vid_buf, 16, ytop+112, infotext, 255, 255, 255, 200);
-		if (num_parts && sl >= 0 && sl < PT_NUM)
+		if (num_parts)
 		{
-			if (sl != 0)
-				sprintf(infotext,"%%%s: %f", ptypes[sl].name,(float)totalselected/num_parts*100);
+			if (activeTools[0]->GetType() == GOL_TOOL)
+				sprintf(infotext,"%%%s: %f", gmenu[activeTools[0]->GetID()].name,(float)totalselected/num_parts*100);
+			else if (activeTools[0]->GetElementID() > 0)
+				sprintf(infotext,"%%%s: %f", ptypes[activeTools[0]->GetID()].name,(float)totalselected/num_parts*100);
 			else
 				sprintf(infotext,"%%Empty: %f", (float)totalselected/XRES/YRES*100);
 			fillrect(vid_buf, 12, ytop+122, textwidth(infotext)+8, 15, 0, 0, 0, 140);

@@ -35,6 +35,7 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+#include <string>
 
 #include <defines.h>
 
@@ -57,7 +58,7 @@ extern int log_history_times[20];
 
 void luacon_open();
 int luaopen_bit(lua_State *L);
-int luacon_step(int mx, int my, int selectl, int selectr, int bsx, int bsy);
+int luacon_step(int mx, int my, std::string selectl, std::string selectr, int bsx, int bsy);
 int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel);
 void luacon_log(char *log);
 int luacon_keyevent(int key, int modifier, int event);

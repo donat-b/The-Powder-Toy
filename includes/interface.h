@@ -16,64 +16,12 @@
  */
 #ifndef INTERFACE_H
 #define INTERFACE_H
+#include <vector>
 #include <SDL/SDL.h>
 #if (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
 #include <SDL/SDL_syswm.h>
 #endif
 #include "graphics.h"
-
-#define SC_WALL 0
-#define SC_ELEC 1
-#define SC_POWERED 2
-#define SC_SENSOR 3
-#define SC_FORCE 4
-#define SC_EXPLOSIVE 5
-#define SC_GAS 6
-#define SC_LIQUID 7
-#define SC_POWDERS 8
-#define SC_SOLIDS 9
-#define SC_NUCLEAR 10
-#define SC_SPECIAL 11
-#define SC_LIFE 12
-#define SC_TOOL 13
-#define SC_FAV 14
-#define SC_DECO 15
-#define SC_CRACKER 16
-#define SC_FAV2 17
-#define SC_HUD 18
-extern int SC_TOTAL;
-
-struct menu_section
-{
-	char *icon;
-	const char *name;
-	int itemcount;
-	int doshow;
-};
-typedef struct menu_section menu_section;
-
-static menu_section msections[] = //doshow does not do anything currently.
-{
-	{"\xC1", "Walls", 0, 1},
-	{"\xC2", "Electronics", 0, 1},
-	{"\xD6", "Powered Materials", 0, 1},
-	{"\x99", "Sensors", 0, 1},
-	{"\xE3", "Force Creating", 0, 1},
-	{"\xC3", "Explosives", 0, 1},
-	{"\xC5", "Gases", 0, 1},
-	{"\xC4", "Liquids", 0, 1},
-	{"\xD0", "Powders", 0, 1},
-	{"\xD1", "Solids", 0, 1},
-	{"\xC6", "Radioactive", 0, 1},
-	{"\xCC", "Special", 0, 1},
-	{"\xD2", "Game Of Life", 0, 1},
-	{"\xD7", "Tools", 0, 1},
-	{"\xE2", "\brF\bla\bov\bgo\btr\bbi\bpt\bwe", 0, 1}, //This says Favorite in rainbow colors
-	{"\xE5", "Deco", 0, 1},
-	{"\xC8", "Cracker!", 0, 0},
-	{"\xE2", "Favorite2", 0, 0},
-	{"\xE2", "HUD", 0, 0}
-};
 
 #define QM_TOGGLE	1
 
@@ -220,7 +168,6 @@ struct command_history {
 extern command_history *last_command;
 extern command_history *last_command_result;
 
-extern int SLALT;
 extern SDLMod sdl_mod;
 extern int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii, sdl_zoom_trig;
 #if (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
@@ -335,7 +282,7 @@ void draw_svf_ui(pixel *vid_buf, int alternate);
 
 void error_ui(pixel *vid_buf, int err, char *txt);
 
-void element_search_ui(pixel *vid_buf, int * sl, int * sr);
+void element_search_ui(pixel *vid_buf, Tool** sl, Tool** sr);
 
 void info_ui(pixel *vid_buf, char *top, char *txt);
 
@@ -359,15 +306,15 @@ int save_name_ui(pixel *vid_buf);
 
 int save_filename_ui(pixel *vid_buf);
 
-void menu_ui(pixel *vid_buf, int i);
-
+void old_menu_v2(int active_menu, int x, int y, int b, int bq);
+void menu_ui_v2(pixel *vid_buf, int i);
 void menu_ui_v3(pixel *vid_buf, int i, int b, int bq, int mx, int my);
 
-int menu_draw(int mx, int my, int b, int bq, int i);
-
-void menu_draw_text(int h, int i);
-
-void menu_select_element(int b, int h);
+class Tool;
+extern std::string favMenu[18];
+Tool* menu_draw(int mx, int my, int b, int bq, int i);
+void menu_draw_text(Tool* over, int i);
+void menu_select_element(int b, Tool* over);
 
 int sdl_poll(void);
 

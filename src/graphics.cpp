@@ -36,27 +36,31 @@
 #endif
 #endif
 
-#include <defines.h>
-#include <air.h>
+#include "defines.h"
+#include "air.h"
 #include "gravity.h"
-#include <powder.h>
+#include "interface.h"
+#include "powder.h"
 #define INCLUDE_SHADERS
-#include <graphics.h>
-#include <powdergraphics.h>
+#include "graphics.h"
+#include "powdergraphics.h"
 #define INCLUDE_FONTDATA
-#include <font.h>
-#include <misc.h>
+#include "font.h"
+#include "misc.h"
 #include "hmap.h"
 #ifdef LUACONSOLE
-#include <luaconsole.h>
+#include "luaconsole.h"
 #endif
-#include <hud.h>
+#include "hud.h"
 
 #if defined(LIN32) || defined(LIN64)
 #include "images.h"
 #endif
 
+#include "game\Brush.h"
+#include "game/Menus.h"
 #include "simulation/Simulation.h"
+#include "simulation/Tool.h"
 
 
 //unsigned cmode = CM_FIRE;
@@ -708,122 +712,87 @@ void drawblob(pixel *vid, int x, int y, unsigned char cr, unsigned char cg, unsi
 	blendpixel(vid, x-1, y+1, cr, cg, cb, 64);
 }
 
-//draws walls and elements for menu
-int draw_tool_xy(pixel *vid_buf, int x, int y, int b, unsigned pc)
+//draws the background and correctly colored text for each button
+void draw_tool_button(pixel *vid_buf, int x, int y, pixel color, std::string name)
 {
-	int i, j, c;
-	pixel gc;
+#ifdef OpenGL
+	fillrect(vid_buf, x, y, 28, 16, PIXR(color), PIXG(color), PIXB(color), 255);
+#else
+	for (int j = 1; j < 15; j++)
+	{
+		for (int i = 1; i < 27; i++)
+		{
+			vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = color;
+		}
+	}
+#endif
+
+	int textColor = 0;
+	if (PIXB(color) + 3*PIXG(color) + 2*PIXR(color) < 544)
+		textColor = 255;
+	drawtext(vid_buf, x+14-textwidth(name.c_str())/2, y+4, name.c_str(), textColor, textColor, textColor, 255);
+}
+
+//draws walls and elements for menu
+int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
+{
+	int i, j, c = 0;
+	pixel pc, gc;
 	if (x > XRES-26 || x < 0)
 		return 26;
-	if ((b&0xFF) == PT_LIFE)
+	if (current->GetType() == ELEMENT_TOOL)
 	{
-		for (j=1; j<15; j++)
+		draw_tool_button(vid_buf, x, y, globalSim->elements[current->GetID()].Colour, globalSim->elements[current->GetID()].Name);
+
+		//special case for erase tool
+		if (!current->GetID())
 		{
-			for (i=1; i<27; i++)
+			for (j=4; j<12; j++)
 			{
-				vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = pc;
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+6)] = PIXPACK(0xFF0000);
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+7)] = PIXPACK(0xFF0000);
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+21)] = PIXPACK(0xFF0000);
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+22)] = PIXPACK(0xFF0000);
 			}
 		}
-		c = PIXB(pc) + 3*PIXG(pc) + 2*PIXR(pc);
-		if (c<544)
-		{
-			c = 255;
-		}
-		else
-		{
-			c = 0;
-		}
-		drawtext(vid_buf, x+14-textwidth((char *)gmenu[(b>>8)&0xFF].name)/2, y+4, (char *)gmenu[(b>>8)&0xFF].name, c, c, c, 255);
 	}
-	else if (b >= HUD_START)
+	else if (current->GetType() == WALL_TOOL)
 	{
-#ifdef OpenGL
-		fillrect(vid_buf, x, y, 28, 16, PIXR(pc), PIXG(pc), PIXB(pc), 255);
-#else
-		for (j=1; j<15; j++)
-		{
-			for (i=1; i<27; i++)
-			{
-				vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = pc;
-			}
-		}
-#endif
-		c = PIXB(pc) + 3*PIXG(pc) + 2*PIXR(pc);
-		if (c<544)
-		{
-			c = 255;
-		}
-		else
-		{
-			c = 0;
-		}
-		drawtext(vid_buf, x+14-textwidth((char *)hud_menu[b-HUD_START].name)/2, y+4, (char *)hud_menu[b-HUD_START].name, c, c, c, 255);
-	}
-	else if (b >= FAV_START)
-	{
-#ifdef OpenGL
-		fillrect(vid_buf, x, y, 28, 16, PIXR(pc), PIXG(pc), PIXB(pc), 255);
-#else
-		for (j=1; j<15; j++)
-		{
-			for (i=1; i<27; i++)
-			{
-				vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = pc;
-			}
-		}
-#endif
-		c = PIXB(pc) + 3*PIXG(pc) + 2*PIXR(pc);
-		if (c<544)
-		{
-			c = 255;
-		}
-		else
-		{
-			c = 0;
-		}
-		drawtext(vid_buf, x+14-textwidth((char *)fav[b-FAV_START].name)/2, y+4, (char *)fav[b-FAV_START].name, c, c, c, 255);
-	}
-	else if (b>=UI_WALLSTART)
-	{
-		int ds = 0;
-		if (b-UI_WALLSTART>=0 && b-UI_WALLSTART<UI_WALLCOUNT)
-		{
-			ds = wtypes[b-UI_WALLSTART].drawstyle;
-			gc = wtypes[b-UI_WALLSTART].eglow;
-		}
-		//x = (2+32*((b-22)/1));
-		//y = YRES+2+40;
+		int ds = wtypes[current->GetID()-UI_WALLSTART].drawstyle;
+		pixel color = wtypes[current->GetID()-UI_WALLSTART].colour;
+		pixel glowColor = wtypes[current->GetID()-UI_WALLSTART].eglow;
+		
 		if (ds==1)
 		{
 			for (j=1; j<15; j+=2)
 				for (i=1+(1&(j>>1)); i<27; i+=2)
-					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = pc;
+					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = color;
 		}
 		else if (ds==2)
 		{
 			for (j=1; j<15; j+=2)
 				for (i=1; i<27; i+=2)
-					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = pc;
+					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = color;
 		}
 		else if (ds==3)
 		{
 			for (j=1; j<15; j++)
 				for (i=1; i<27; i++)
-					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = pc;
+					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = color;
 		}
 		else if (ds==4)
 		{
 			for (j=1; j<15; j++)
 				for (i=1; i<27; i++)
 					if(i%CELL == j%CELL)
-						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = pc;
+						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = color;
 					else if  (i%CELL == (j%CELL)+1 || (i%CELL == 0 && j%CELL == CELL-1))
-						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = gc;
+						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = glowColor;
 					else 
 						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXPACK(0x202020);
 		}
 		else
-		switch (b)
+		switch (current->GetID())
 		{
 		case WL_WALLELEC+100:
 			for (j=1; j<15; j++)
@@ -832,7 +801,7 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, int b, unsigned pc)
 				{
 					if (!(i%2) && !(j%2))
 					{
-						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = pc;
+						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = color;
 					}
 					else
 					{
@@ -848,14 +817,14 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, int b, unsigned pc)
 				{
 					if (!(i&j&1))
 					{
-						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = pc;
+						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = color;
 					}
 				}
 				for (; i<27; i++)
 				{
 					if (i&j&1)
 					{
-						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = pc;
+						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = color;
 					}
 				}
 			}
@@ -890,14 +859,14 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, int b, unsigned pc)
 			{
 				for (i=1+(1&(j>>1)); i<13; i+=2)
 				{
-					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = pc;
+					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = color;
 				}
 			}
 			for (j=1; j<15; j++)
 			{
 				for (i=14; i<27; i++)
 				{
-					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = pc;
+					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = color;
 				}
 			}
 			break;
@@ -922,67 +891,10 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, int b, unsigned pc)
 				}
 			}
 			break;
-		case SPC_AIR:
-		case SPC_HEAT:
-		case SPC_COOL:
-		case SPC_VACUUM:
-		case SPC_WIND:
-		case SPC_PGRV:
-		case SPC_NGRV:
-		case SPC_PROP:
-			for (j=1; j<15; j++)
-				for (i=1; i<27; i++)
-					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = pc;
-			c = PIXR(pc) + 3*PIXG(pc) + 2*PIXB(pc);
-			if (c<544)
-			{
-				c = 255;
-			}
-			else
-			{
-				c = 0;
-			}
-			drawtext(vid_buf, x+14-textwidth((char*)wtypes[b-UI_WALLSTART].name)/2, y+4, (char*)wtypes[b-UI_WALLSTART].name, c, c, c, 255);
-			break;
-		case DECO_DRAW:
-		case DECO_LIGH:
-		case DECO_DARK:
-		case DECO_SMDG:
-		case DECO_ERASE:
-			for (j=1; j<15; j++)
-			{
-				for (i=1; i<27; i++)
-				{
-					if (b == DECO_LIGH)
-						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(pc)-10*j, PIXG(pc)-10*j, PIXB(pc)-10*j);
-					else if (b == DECO_DARK)
-						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(pc)+10*j, PIXG(pc)+10*j, PIXB(pc)+10*j);
-					else if (b == DECO_SMDG)
-						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(pc), PIXG(pc)-5*i, PIXB(pc)+5*i);
-					else if (b == DECO_DRAW || b == DECO_ERASE)
-						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(decocolor),PIXG(decocolor),PIXB(decocolor));
-					else
-						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = pc;
-				}
-			}
-			if (b == DECO_ERASE)
-			{
-				int color = PIXRGB((PIXR((decocolor))+127)%256,(PIXG((decocolor))+127)%256,(PIXB((decocolor))+127)%256);
-				for (j=4; j<12; j++)
-				{
-					vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+6)] = color;
-					vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+7)] = color;
-					vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+21)] = color;
-					vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+22)] = color;
-				}
-			}
-			break;
 		default:
-			for (j=1; j<15; j++)
-				for (i=1; i<27; i++)
-					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = pc;
+			draw_tool_button(vid_buf, x, y, color, "");
 		}
-		if (b==WL_ERASE+100)
+		if (current->GetID()==WL_ERASE+100)
 		{
 			for (j=4; j<12; j++)
 			{
@@ -992,7 +904,7 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, int b, unsigned pc)
 				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+22)] = PIXPACK(0xFF0000);
 			}
 		}
-		if (b==WL_ERASEALL+100)
+		if (current->GetID()==WL_ERASEALL+100)
 		{
 			for (j=4; j<12; j++)
 			{
@@ -1008,56 +920,84 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, int b, unsigned pc)
 			}
 		}
 	}
-	else
+	else if (current->GetType() == TOOL_TOOL)
 	{
-		//x = 2+32*(b/2);
-		//y = YRES+2+20*(b%2);
+		draw_tool_button(vid_buf, x, y, wtypes[current->GetID()-UI_WALLSTART].colour, wtypes[current->GetID()-UI_WALLSTART].name);
+	}
+	else if (current->GetType() == DECO_TOOL)
+	{
+		pixel color = wtypes[current->GetID()-UI_WALLSTART].colour;
 		for (j=1; j<15; j++)
 		{
 			for (i=1; i<27; i++)
 			{
-				vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = pc;
+				if (current->GetID() == DECO_LIGH)
+					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(color)-10*j, PIXG(color)-10*j, PIXB(color)-10*j);
+				else if (current->GetID() == DECO_DARK)
+					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(color)+10*j, PIXG(color)+10*j, PIXB(color)+10*j);
+				else if (current->GetID() == DECO_SMDG)
+					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(color), PIXG(color)-5*i, PIXB(color)+5*i);
+				else if (current->GetID() == DECO_DRAW || current->GetID() == DECO_ERASE)
+					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(decocolor), PIXG(decocolor), PIXB(decocolor));
+				else
+					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = color;
 			}
 		}
-		if (b==0)
+
+		if (current->GetID() == DECO_ERASE)
 		{
+			color = PIXRGB((PIXR((decocolor))+127)%256, (PIXG((decocolor))+127)%256, (PIXB((decocolor))+127)%256);
 			for (j=4; j<12; j++)
 			{
-				vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+6)] = PIXPACK(0xFF0000);
-				vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+7)] = PIXPACK(0xFF0000);
-				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+21)] = PIXPACK(0xFF0000);
-				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+22)] = PIXPACK(0xFF0000);
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+6)] = color;
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+7)] = color;
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+21)] = color;
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+22)] = color;
 			}
 		}
-		c = PIXB(ptypes[b].pcolors) + 3*PIXG(ptypes[b].pcolors) + 2*PIXR(ptypes[b].pcolors);
-		if (c<544)
-		{
-			c = 255;
-		}
-		else
-		{
-			c = 0;
-		}
-		drawtext(vid_buf, x+14-textwidth((char *)ptypes[b].name)/2, y+4, (char *)ptypes[b].name, c, c, c, 255);
+	}
+	else if (current->GetType() == GOL_TOOL)
+	{
+		draw_tool_button(vid_buf, x, y, gmenu[current->GetID()].colour, gmenu[current->GetID()].name);
+	}
+	else if (current->GetType() == INVALID_TOOL)
+	{
+		if (current->GetID() >= FAV_START && current->GetID() < FAV_END)
+			draw_tool_button(vid_buf, x, y, fav[current->GetID()-FAV_START].colour, fav[current->GetID()-FAV_START].name);
+		else if (current->GetID() >= HUD_START && current->GetID() < HUD_START+HUD_NUM)
+			draw_tool_button(vid_buf, x, y, hud_menu[current->GetID()-HUD_START].color?hud_menu[current->GetID()-HUD_START].color:globalSim->elements[((current->GetID()-HUD_START)*53)%(PT_NUM-1)+1].Colour, hud_menu[current->GetID()-HUD_START].name);
 	}
 	return 26;
 }
 
-void draw_menu(pixel *vid_buf, int i, int hover)
+int DrawMenus(pixel *vid_buf, int hover, int mouseY)
 {
-	if (i==SEC&&SEC!=0)
-		drawrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16), 14, 14, 0, 255, 255, 255);
-	else
-		drawrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16), 14, 14, 255, 255, 255, 255);
-	if (hover == i || (i == SC_FAV && (hover == SC_FAV2 || hover == SC_HUD)))
+	int y = YRES+MENUSIZE-32, ret = -1;
+	for (int i = SC_TOTAL-1; i >= 0; i--)
 	{
-		fillrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16), 14, 14, 255, 255, 255, 255);
-		drawtext(vid_buf, (XRES+BARSIZE)-13, (i*16)+YRES+MENUSIZE-14-(SC_TOTAL*16), msections[i].icon, 0, 0, 0, 255);
+		if (menuSections[i]->enabled)
+		{
+			if (SEC && i == SEC)
+				drawrect(vid_buf, (XRES+BARSIZE)-16, y, 14, 14, 0, 255, 255, 255);
+			else
+				drawrect(vid_buf, (XRES+BARSIZE)-16, y, 14, 14, 255, 255, 255, 255);
+
+			if (hover == i || (i == SC_FAV && (hover == SC_FAV2 || hover == SC_HUD)))
+			{
+				fillrect(vid_buf, (XRES+BARSIZE)-16, y, 14, 14, 255, 255, 255, 255);
+				drawchar(vid_buf, (XRES+BARSIZE)-13, y+2, menuSections[i]->icon, 0, 0, 0, 255);
+			}
+			else
+			{
+				drawchar(vid_buf, (XRES+BARSIZE)-13, y+2, menuSections[i]->icon, 255, 255, 255, 255);
+			}
+
+			if (mouseY >= y && mouseY < y+16)
+				ret = i;
+			y -= 16;
+		}
 	}
-	else
-	{
-		drawtext(vid_buf, (XRES+BARSIZE)-13, (i*16)+YRES+MENUSIZE-14-(SC_TOTAL*16), msections[i].icon, 255, 255, 255, 255);
-	}
+	return ret;
 }
 
 //draws a pixel, identical to blendpixel(), except blendpixel has OpenGL support
@@ -2695,21 +2635,21 @@ void render_parts(pixel *vid)
 					}
 				}
 
-				if (finding && !(finding & 0x8)) //When finding original GOL, all LIFE is highlighted. This is now a feature, not a bug.
+				if (finding && !(finding & 0x8))
 				{
-					if ((finding & 0x1) && (parts[i].type == sl || (parts[i].type == PT_LIFE && sl == PT_LIFE+parts[i].ctype*256)))
+					if ((finding & 0x1) && (parts[i].type == activeTools[0]->GetElementID() || (activeTools[0]->GetType() == GOL_TOOL && parts[i].type == PT_LIFE && activeTools[0]->GetID() == parts[i].ctype)))
 					{
 						colr = firer = 255;
 						colg = colb = fireg = fireb = 0;
 						cola = firea = 255;
 					}
-					else if ((finding & 0x2) && (parts[i].type == sr || (parts[i].type == PT_LIFE && sr == PT_LIFE+parts[i].ctype*256)))
+					else if ((finding & 0x2) && (parts[i].type == activeTools[1]->GetElementID() || (activeTools[1]->GetType() == GOL_TOOL && parts[i].type == PT_LIFE && activeTools[1]->GetID() == parts[i].ctype)))
 					{
 						colb = fireb = 255;
 						colr = colg = firer = fireg = 0;
 						cola = firea = 255;
 					}
-					else if ((finding & 0x4) && (parts[i].type == SLALT || (parts[i].type == PT_LIFE && SLALT == PT_LIFE+parts[i].ctype*256)))
+					else if ((finding & 0x4) && (parts[i].type == activeTools[2]->GetElementID() || (activeTools[2]->GetType() == GOL_TOOL && parts[i].type == PT_LIFE && activeTools[0]->GetID() == parts[i].ctype)))
 					{
 						colg = fireg = 255;
 						colr = colb = firer = fireb = 0;
@@ -3722,7 +3662,7 @@ void render_after(pixel *part_vbuf, pixel *vid_buf)
 {
 	render_parts(part_vbuf); //draw particles
 	draw_other(part_vbuf);
-	if(su == WL_GRAV+100)
+	if (activeTools[activeToolID]->GetWallID() == WL_GRAV+100)
 		draw_grav_zones(part_vbuf);
 	if (vid_buf && (display_mode & DISPLAY_PERS))
 	{
@@ -3759,22 +3699,22 @@ void draw_find() //Find just like how my lua script did it, it will find everyth
 	fillrect(vid_buf, -1, -1, XRES+1, YRES+1, 0, 0, 0, 230); //Dim everything
 	for (i = 0; i <= parts_lastActiveIndex; i++) //Color particles
 	{
-		if ((finding & 0x1) && parts[i].type == sl)
+		if ((finding & 0x1) && (parts[i].type == activeTools[0]->GetElementID() || (activeTools[0]->GetType() == GOL_TOOL && parts[i].type == PT_LIFE && activeTools[0]->GetID() == parts[i].ctype)))
 			drawpixel(vid_buf, (int)(parts[i].x+.5f), (int)(parts[i].y+.5f), 255, 0, 0, 255);
-		else if ((finding & 0x2) && parts[i].type == sr)
+		else if ((finding & 0x2) && (parts[i].type == activeTools[1]->GetElementID() || (activeTools[1]->GetType() == GOL_TOOL && parts[i].type == PT_LIFE && activeTools[1]->GetID() == parts[i].ctype)))
 			drawpixel(vid_buf, (int)(parts[i].x+.5f), (int)(parts[i].y+.5f), 0, 0, 255, 255);
-		else if ((finding & 0x4) && parts[i].type == SLALT)
+		else if ((finding & 0x4) && (parts[i].type == activeTools[2]->GetElementID() || (activeTools[2]->GetType() == GOL_TOOL && parts[i].type == PT_LIFE && activeTools[2]->GetID() == parts[i].ctype)))
 			drawpixel(vid_buf, (int)(parts[i].x+.5f), (int)(parts[i].y+.5f), 0, 255, 0, 255);
 	}
 	for (y=0; y<YRES/CELL; y++) //Color walls
 	{
 		for (x=0; x<XRES/CELL; x++)
 		{
-			if ((finding & 0x1) && bmap[y][x] == sl-100)
+			if ((finding & 0x1) && bmap[y][x] == activeTools[0]->GetWallID()-100)
 				fillrect(vid_buf, x*CELL-1, y*CELL-1, CELL+1, CELL+1, 255, 0, 0, 255);
-			else if ((finding & 0x2) && bmap[y][x] == sr-100)
+			else if ((finding & 0x2) && bmap[y][x] == activeTools[1]->GetWallID()-100)
 				fillrect(vid_buf, x*CELL-1, y*CELL-1, CELL+1, CELL+1, 0, 0, 255, 255);
-			else if ((finding & 0x4) && bmap[y][x] == SLALT-100)
+			else if ((finding & 0x4) && bmap[y][x] == activeTools[2]->GetWallID()-100)
 				fillrect(vid_buf, x*CELL-1, y*CELL-1, CELL+1, CELL+1, 0, 255, 0, 255);
 		}
 	}
@@ -3799,17 +3739,17 @@ void draw_walls(pixel *vid)
 
 				if (finding)
 				{
-					if ((finding & 0x1) && wt+UI_ACTUALSTART+100 == sl)
+					if ((finding & 0x1) && wt == activeTools[0]->GetWallID()-UI_WALLSTART)
 					{
 						pc = PIXRGB(255,0,0);
 						gc = PIXRGB(255,0,0);
 					}
-					else if ((finding & 0x2) && wt+UI_ACTUALSTART+100 == sr)
+					else if ((finding & 0x2) && wt == activeTools[1]->GetWallID()-UI_WALLSTART)
 					{
 						pc = PIXRGB(0,0,255);
 						gc = PIXRGB(0,0,255);
 					}
-					else if ((finding & 0x4) && wt+UI_ACTUALSTART+100 == SLALT)
+					else if ((finding & 0x4) && wt == activeTools[2]->GetWallID()-UI_WALLSTART)
 					{
 						pc = PIXRGB(0,255,0);
 						gc = PIXRGB(0,255,0);
@@ -4624,11 +4564,11 @@ corrupt:
 }
 
 //draws the cursor
-void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
+void render_cursor(pixel *vid, int x, int y, Tool* tool, int rx, int ry)
 {
 #ifdef OGLR
 	int i;
-	if (t<PT_NUM||(t&0xFF)==PT_LIFE||is_TOOL(t)||t-100==WL_SIGN||is_DECOTOOL(t))
+	if (tool->GetType() == ELEMENT_TOOL || tool->GetType() == GOL_TOOL || tool->GetType() == TOOL_TOOL || tool->GetType() == DECO_TOOL || tool->GetWallID() == WL_SIGN-UI_ACTUALSTART)
 	{
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, partsFbo);
 		glEnable(GL_COLOR_LOGIC_OP);
@@ -4639,7 +4579,7 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 		x *= sdl_scale;
 		ry *= sdl_scale;
 		rx *= sdl_scale;
-		if (CURRENT_BRUSH==SQUARE_BRUSH)
+		if (currentBrush->GetShape() == SQUARE_BRUSH)
 		{
 			glVertex2f(x-rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)-ry+1);
 			glVertex2f(x+rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)-ry+1);
@@ -4647,7 +4587,7 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 			glVertex2f(x-rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)+ry+1);
 			glVertex2f(x-rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)-ry+1);
 		}
-		else if (CURRENT_BRUSH==CIRCLE_BRUSH)
+		else if (currentBrush->GetShape() == CIRCLE_BRUSH)
 		{
 			for (i = 0; i < 360; i++)
 			{
@@ -4655,7 +4595,7 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 			  glVertex2f((cos(degInRad)*rx)+x, (sin(degInRad)*ry)+/*(YRES+MENUSIZE)*sdl_scale-*/y);
 			}
 		}
-		else if (CURRENT_BRUSH==TRI_BRUSH)
+		else if (currentBrush->GetShape() == TRI_BRUSH)
 		{
 			glVertex2f(x+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)-ry-1);
 			glVertex2f(x+rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)+ry-1);
@@ -4668,16 +4608,16 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 	}
 #else
 	int i,j,c;
-	if ((sdl_mod & KMOD_CTRL) && (sdl_mod & KMOD_SHIFT) && (!is_TOOL(t) || t == SPC_PROP) && t-100!=WL_SIGN)
+	if ((sdl_mod & KMOD_CTRL) && (sdl_mod & KMOD_SHIFT) && (tool->GetType() != TOOL_TOOL || tool->GetToolID() == SPC_PROP) && tool->GetWallID() != WL_SIGN+100)
 	{
 		for (i = -5; i < 6; i++)
-			if (i != 0)
-				xor_pixel(x+i, y, vid);
+		if (i != 0)
+			xor_pixel(x+i, y, vid);
 		for (j = -5; j < 6; j++)
-			if (j != 0)
-				xor_pixel(x, y+j, vid);
+		if (j != 0)
+			xor_pixel(x, y+j, vid);
 	}
-	else if (t<PT_NUM||(t&0xFF)==PT_LIFE||is_TOOL(t)||t-100==WL_SIGN||is_DECOTOOL(t))
+	else if (tool->GetType() == ELEMENT_TOOL || tool->GetType() == GOL_TOOL || tool->GetType() == TOOL_TOOL || tool->GetType() == DECO_TOOL || tool->GetWallID() == WL_SIGN+100)
 	{
 		if (rx<=0)
 			for (j = y - ry; j <= y + ry; j++)
@@ -4685,20 +4625,20 @@ void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry)
 		else
 		{
 			int tempy = y, i, j, oldy;
-			if (CURRENT_BRUSH == TRI_BRUSH)
+			if (currentBrush->GetShape() == TRI_BRUSH)
 				tempy = y + ry;
 			for (i = x - rx; i <= x; i++) {
 				oldy = tempy;
 				while (InCurrentBrush(i-x,tempy-y,rx,ry))
 					tempy = tempy - 1;
 				tempy = tempy + 1;
-				if (oldy != tempy && CURRENT_BRUSH != SQUARE_BRUSH)
+				if (oldy != tempy && currentBrush->GetShape() != SQUARE_BRUSH)
 					oldy--;
-				if (CURRENT_BRUSH == TRI_BRUSH)
+				if (currentBrush->GetShape() == TRI_BRUSH)
 					oldy = tempy;
 				for (j = tempy; j <= oldy; j++) {
 					int i2 = 2*x-i, j2 = 2*y-j;
-					if (CURRENT_BRUSH == TRI_BRUSH)
+					if (currentBrush->GetShape() == TRI_BRUSH)
 						j2 = y+ry;
 					xor_pixel(i, j, vid);
 					if (i2 != i)

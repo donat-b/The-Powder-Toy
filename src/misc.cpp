@@ -20,17 +20,6 @@
 #include <string.h>
 #include <regex.h>
 #include <sys/types.h>
-#include <math.h>
-#include "misc.h"
-#include "defines.h"
-#include "interface.h"
-#include "graphics.h"
-#include "powdergraphics.h"
-#include "powder.h"
-#include "gravity.h"
-#include "hud.h"
-#include "images.h"
-#include <update.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #if defined WIN32
@@ -44,7 +33,21 @@
 #ifdef MACOSX
 #include <ApplicationServices/ApplicationServices.h>
 #endif
+#include <math.h>
+
+#include "misc.h"
+#include "defines.h"
+#include "interface.h"
+#include "graphics.h"
+#include "powdergraphics.h"
+#include "powder.h"
+#include "gravity.h"
+#include "hud.h"
 #include "cJSON.h"
+#include "update.h"
+
+#include "game/Menus.h"
+#include "simulation\Tool.h"
 
 char *clipboard_text = NULL;
 
@@ -282,13 +285,16 @@ void save_presets(int do_update)
 	
 	//Fav Menu/Records
 	cJSON_AddItemToObject(root, "records", recobj=cJSON_CreateObject());
-	cJSON_AddNumberToObject(recobj, "num elements in menu", locked);
-	for (i = 0; i < locked; i++)
+	cJSON_AddNumberToObject(recobj, "Favorited Elements", locked);
+	char* tempFavMenu[18];
+	for (int j = 0; j < 18; j++) //this might be better with JSON and not cJSON
 	{
-		char eltext[128] = "";
-		sprintf(eltext,"element %i",i);
-		cJSON_AddNumberToObject(recobj, eltext, favMenu[18-i]);
+		tempFavMenu[j] = new char[favMenu[j].length()+1];
+		strncpy(tempFavMenu[j], favMenu[j].c_str(), favMenu[j].length()+1);
 	}
+	cJSON_AddItemToObject(recobj, "Recent Elements", cJSON_CreateStringArray((const char**)tempFavMenu, 18));
+	for (int j = 0; j < 18; j++)
+		delete tempFavMenu[j];
 	cJSON_AddNumberToObject(recobj, "Total Time Played", ((double)currentTime/1000)+((double)totaltime/1000)-((double)totalafktime/1000)-((double)afktime/1000));
 	cJSON_AddNumberToObject(recobj, "Average FPS", totalfps/frames);
 	cJSON_AddNumberToObject(recobj, "Number of frames", frames);
@@ -441,12 +447,32 @@ void load_presets(void)
 		//Read FavMenu/Records
 		recobj = cJSON_GetObjectItem(root, "records");
 		if (recobj) {
-			if(tmpobj = cJSON_GetObjectItem(recobj, "num elements in menu")) locked = tmpobj->valueint;
-			for (i = 0; i < locked; i++)
+			if(tmpobj = cJSON_GetObjectItem(recobj, "Favorited Elements")) locked = tmpobj->valueint;
+			if (tmpobj = cJSON_GetObjectItem(recobj, "Recent Elements"))
 			{
-				char eltext[128] = "";
-				sprintf(eltext,"element %i",i);
-				if(tmpobj = cJSON_GetObjectItem(recobj, eltext)) favMenu[18-i] = tmpobj->valueint;
+				for (int i = 0; i < 18; i++)
+				{
+					std::string element = cJSON_GetArrayItem(tmpobj, i)->valuestring;
+					if (!GetToolFromIdentifier(element))
+					{
+						if (i > 18-locked)
+							locked--;
+						continue;
+					}
+					for (int j = 0; j < 18; j++)
+					{
+						if (element == favMenu[j])
+						{
+							while (j < 17-i)
+							{
+								favMenu[j] = favMenu[j+1];
+								j++;
+							}
+							break;
+						}
+					}
+					favMenu[i] = element;
+				}
 			}
 			if(tmpobj = cJSON_GetObjectItem(recobj, "Total Time Played")) totaltime = (int)((tmpobj->valuedouble)*1000);
 			if(tmpobj = cJSON_GetObjectItem(recobj, "Average FPS")) totalfps = tmpobj->valuedouble;
@@ -611,8 +637,8 @@ void load_presets(void)
 		if(tmpobj = cJSON_GetObjectItem(root, "heatmode")) heatmode = tmpobj->valueint;
 		//if(tmpobj = cJSON_GetObjectItem(root, "save_as")) save_as = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "autosave")) autosave = tmpobj->valueint;
-		if(tmpobj = cJSON_GetObjectItem(root, "sl")) sl = su = tmpobj->valueint;
-		if(tmpobj = cJSON_GetObjectItem(root, "sr")) sr = tmpobj->valueint;
+		//if(tmpobj = cJSON_GetObjectItem(root, "sl")) sl = su = tmpobj->valueint;
+		//if(tmpobj = cJSON_GetObjectItem(root, "sr")) sr = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "active_menu")) active_menu = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "autosave")) autosave = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "aheat_enable")) aheat_enable = tmpobj->valueint;
@@ -620,7 +646,7 @@ void load_presets(void)
 		if(tmpobj = cJSON_GetObjectItem(root, "ngrav_enable")) { if (tmpobj->valueint) start_grav_async(); };
 		if(tmpobj = cJSON_GetObjectItem(root, "kiosk_enable")) { kiosk_enable = tmpobj->valueint; if (kiosk_enable) set_scale(sdl_scale, kiosk_enable); }
 		if(tmpobj = cJSON_GetObjectItem(root, "realistic")) { realistic = tmpobj->valueint; if (realistic) ptypes[PT_FIRE].hconduct = 1; }
-		if(tmpobj = cJSON_GetObjectItem(root, "cracker_unlocked")) { unlockedstuff |= 0x01; SC_TOTAL++; }
+		if(tmpobj = cJSON_GetObjectItem(root, "cracker_unlocked")) { unlockedstuff |= 0x01; menuSections[SC_CRACKER]->enabled = true; }
 		if(tmpobj = cJSON_GetObjectItem(root, "show_votes")) unlockedstuff |= 0x08;
 		if(tmpobj = cJSON_GetObjectItem(root, "EXPL_unlocked")) { unlockedstuff |= 0x10; ptypes[PT_EXPL].menu = 1; ptypes[PT_EXPL].enabled = 1; }
 		if(tmpobj = cJSON_GetObjectItem(root, "old_menu")) old_menu = 1;
@@ -1334,6 +1360,19 @@ int is_DECOTOOL(int t)
 	if (t == DECO_DRAW || t == DECO_ERASE || t == DECO_LIGH || t == DECO_DARK || t == DECO_SMDG)
 		return 1;
 	return 0;
+}
+
+Tool* GetToolFromIdentifier(std::string identifier)
+{
+	for (int i = 0; i < SC_TOTAL; i++)
+	{
+		for (int j = 0; j < menuSections[i]->tools.size(); j++)
+		{
+			if  (identifier == menuSections[i]->tools[j]->GetIdentifier())
+				return menuSections[i]->tools[j];
+		}
+	}
+	return NULL;
 }
 
 void membwand(void * destv, void * srcv, size_t destsize, size_t srcsize)

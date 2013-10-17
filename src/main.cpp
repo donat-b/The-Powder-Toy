@@ -23,8 +23,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <defines.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -43,19 +41,19 @@
 #include <unistd.h>
 #endif
 
-#include <misc.h>
-#include <font.h>
-#include <powder.h>
+#include "defines.h"
+#include "misc.h"
+#include "font.h"
+#include "powder.h"
 #include "gravity.h"
-#include <graphics.h>
-#include <powdergraphics.h>
-#include <http.h>
-#include <md5.h>
-#include <update.h>
-#include <hmap.h>
-#include <air.h>
-#include "images.h"
-#include <console.h>
+#include "graphics.h"
+#include "powdergraphics.h"
+#include "http.h"
+#include "interface.h"
+#include "md5.h"
+#include "update.h"
+#include "air.h"
+#include "console.h"
 #ifdef LUACONSOLE
 #include "luaconsole.h"
 #include "luascriptinterface.h"
@@ -64,7 +62,10 @@
 #include "hud.h"
 #include "benchmark.h"
 
+#include "game/Brush.h"
+#include "game/Menus.h"
 #include "simulation/Simulation.h"
+#include "simulation/Tool.h"
 
 pixel *vid_buf;
 
@@ -232,7 +233,7 @@ int frameidx = 0;
 int limitFPS = 60;
 int main_loop = 1;
 int sound_enable = 0;
-int favMenu[19] = {300,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17};
+std::string favMenu[18];
 int finding = 0;
 int locked = 0;
 int highesttemp = MAX_TEMP;
@@ -247,10 +248,10 @@ unsigned int prop_offset = 0;
 int tab_num = 1;
 int num_tabs = 1;
 int show_tabs = 0;
-int sl = 1;
-int last_sl = 1;
-int sr = 0;
-int su = 0;
+Tool* activeTools[3];
+Tool* regularTools[3];
+Tool* decoTools[3];
+int activeToolID = 0;
 float toolStrength = 1.0f;
 int autosave = 0;
 int realistic = 0;
@@ -276,7 +277,6 @@ int SEC;
 int SEC2;
 int console_mode;
 int REPLACE_MODE;
-int CURRENT_BRUSH;
 int GRID_MODE;
 int DEBUG_MODE;
 int debug_flags = 0;
@@ -1002,9 +1002,8 @@ int main(int argc, char *argv[])
 	void *http_ver_check, *http_session_check = NULL;
 	char *ver_data=NULL, *check_data=NULL, *tmp, *changelog, *autorun_result = NULL, signal_hooks = 0;
 	int i, j, bq, bc = 0, do_check=0, do_s_check=0, old_version=0, http_ret=0,http_s_ret=0, old_ver_len = 0, new_message_len=0, afk = 0, afkstart = 0;
-	int x, y, line_x, line_y, b = 0, c, lb = 0, lx = 0, ly = 0, lm = 0;//, tx, ty;
-	int da = 0, db = 0, it = 2047, mx, my, bsx = 2, bsy = 2;
-	float nfvx, nfvy;
+	int x, y, line_x, line_y, b = 0, lb = 0, lx = 0, ly = 0, lm = 0;//, tx, ty;
+	int da = 0, db = 0, it = 2047, mx, my;
 	int load_mode=0, load_w=0, load_h=0, load_x=0, load_y=0, load_size=0;
 	void *load_data=NULL;
 	pixel *load_img=NULL;
@@ -1013,6 +1012,8 @@ int main(int argc, char *argv[])
 	int username_flash = 0, username_flash_t = 1;
 	int saveOpenError = 0;
 	int benchmark_enable = 0;
+
+	//init some new c++ stuff
 	Simulation *mainSim = new Simulation();
 	mainSim->InitElements();
 	globalSim = mainSim;
@@ -1034,6 +1035,9 @@ int main(int argc, char *argv[])
 			ptypes[i].name = "";
 			ptypes[i].descs = "";
 		}
+
+	for (int i = 0; i < 18; i++)
+		favMenu[i] = globalSim->elements[i].Identifier;
 	HudDefaults();
 	memcpy(currentHud,normalHud,sizeof(currentHud));
 
@@ -1051,7 +1055,16 @@ int main(int argc, char *argv[])
 #ifdef MT
 	numCores = core_count();
 #endif
+	InitMenusections();
 	menu_count();
+	activeTools[0] = GetToolFromIdentifier("DEFAULT_PT_DUST");
+	activeTools[1] = GetToolFromIdentifier("DEFAULT_PT_NONE");
+	activeTools[2] = GetToolFromIdentifier("DEFAULT_PT_NONE");
+	decoTools[0] = GetToolFromIdentifier("DEFAULT_WL_26");
+	decoTools[1] = GetToolFromIdentifier("DEFAULT_WL_27");
+	decoTools[2] = GetToolFromIdentifier("DEFAULT_PT_NONE");
+	currentBrush = new Brush(Point(5, 5), CIRCLE_BRUSH);
+
 	cb_parts = (particle*)calloc(sizeof(particle), NPART);
 	init_can_move();
 
@@ -1318,16 +1331,6 @@ int main(int argc, char *argv[])
 				gravity_mask();
 			gravwl_timeout--;
 		}
-
-		//Can't be too sure (Limit the cursor size)
-		if (bsx>1180)
-			bsx = 1180;
-		if (bsx<0)
-			bsx = 0;
-		if (bsy>1180)
-			bsy = 1180;
-		if (bsy<0)
-			bsy = 0;
 			
 		//Pretty powders, colour cycle
 		//sandcolour_r = 0;
@@ -1727,7 +1730,7 @@ int main(int argc, char *argv[])
 			}
 			if(sdl_key=='e')
 			{
-				element_search_ui(vid_buf, &sl, &sr);
+				element_search_ui(vid_buf, &activeTools[0], &activeTools[1]);
 			}
 			if (sdl_key=='1')
 			{
@@ -1812,7 +1815,7 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key==SDLK_TAB)
 			{
-				CURRENT_BRUSH =(CURRENT_BRUSH + 1)%BRUSH_NUM ;
+				currentBrush->SetShape((currentBrush->GetShape()+1)%BRUSH_NUM);
 			}
 			if (sdl_key==SDLK_LEFTBRACKET) {
 				if (sdl_zoom_trig)
@@ -1828,30 +1831,20 @@ int main(int argc, char *argv[])
 				{
 					if (sdl_mod & (KMOD_LALT|KMOD_RALT) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL)))
 					{
-						bsx -= 1;
-						bsy -= 1;
+						currentBrush->ChangeRadius(Point(-1, -1));
 					}
 					else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL)))
 					{
-						bsx -= 1;
+						currentBrush->ChangeRadius(Point(-1, 0));
 					}
 					else if (sdl_mod & (KMOD_CTRL) && !(sdl_mod & (KMOD_SHIFT)))
 					{
-						bsy -= 1;
+						currentBrush->ChangeRadius(Point(0, -1));
 					}
 					else
 					{
-						bsx = bsx - (int)ceil((bsx/5)+0.5f);
-						bsy = bsy - (int)ceil((bsy/5)+0.5f);
+						currentBrush->ChangeRadius(Point(-(int)ceil((currentBrush->GetRadius().X/5)+0.5f), -(int)ceil((currentBrush->GetRadius().Y/5)+0.5f)));
 					}
-					if (bsx>1180)
-						bsx = 1180;
-					if (bsy>1180)
-						bsy = 1180;
-					if (bsx<0)
-						bsx = 0;
-					if (bsy<0)
-						bsy = 0;
 				}
 			}
 			if (sdl_key==SDLK_RIGHTBRACKET) {
@@ -1868,30 +1861,20 @@ int main(int argc, char *argv[])
 				{
 					if (sdl_mod & (KMOD_LALT|KMOD_RALT) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL)))
 					{
-						bsx += 1;
-						bsy += 1;
+						currentBrush->ChangeRadius(Point(1, 1));
 					}
 					else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL)))
 					{
-						bsx += 1;
+						currentBrush->ChangeRadius(Point(1, 0));
 					}
 					else if (sdl_mod & (KMOD_CTRL) && !(sdl_mod & (KMOD_SHIFT)))
 					{
-						bsy += 1;
+						currentBrush->ChangeRadius(Point(0, 1));
 					}
 					else
 					{
-						bsx = bsx + (int)ceil((bsx/5)+0.5f);
-						bsy = bsy + (int)ceil((bsy/5)+0.5f);
+						currentBrush->ChangeRadius(Point((int)ceil((currentBrush->GetRadius().X/5)+0.5f), (int)ceil((currentBrush->GetRadius().Y/5)+0.5f)));
 					}
-					if (bsx>1180)
-						bsx = 1180;
-					if (bsy>1180)
-						bsy = 1180;
-					if (bsx<0)
-						bsx = 0;
-					if (bsy<0)
-						bsy = 0;
 				}
 			}
 			if (sdl_key=='d' && ((sdl_mod & (KMOD_CTRL)) || !player2.spwn))
@@ -1929,7 +1912,8 @@ int main(int argc, char *argv[])
 				else if (active_menu == SC_DECO)
 				{
 					active_menu = last_active_menu;
-					sl = su = last_sl;
+					*decoTools = *activeTools;
+					*activeTools = *regularTools;
 				}
 				else
 				{
@@ -1937,9 +1921,10 @@ int main(int argc, char *argv[])
 					decorations_enable = 1;
 					sys_pause = 1;
 					active_menu = SC_DECO;
-					if (sl < DECO_DRAW || sl > DECO_SMDG)
-						last_sl = sl;
-					sl = su = DECO_DRAW;
+
+					*regularTools = *activeTools;
+					*activeTools = *decoTools;
+					activeTools[0] = GetToolFromIdentifier("DEFAULT_WL_26");
 				}
 			}
 			if (sdl_key=='g')
@@ -2245,32 +2230,16 @@ int main(int argc, char *argv[])
 			{
 				if (!(sdl_mod & (KMOD_SHIFT|KMOD_CTRL)))
 				{
-					bsx += sdl_wheel;
-					bsy += sdl_wheel;
+					currentBrush->ChangeRadius(Point(sdl_wheel, sdl_wheel));
 				}
 				else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL)))
 				{
-					bsx += sdl_wheel;
+					currentBrush->ChangeRadius(Point(sdl_wheel, 0));
 				}
 				else if (sdl_mod & (KMOD_CTRL) && !(sdl_mod & (KMOD_SHIFT)))
 				{
-					bsy += sdl_wheel;
+					currentBrush->ChangeRadius(Point(0, sdl_wheel));
 				}
-				if (bsx>1180)
-					bsx = 1180;
-				if (bsx<0)
-					bsx = 0;
-				if (bsy>1180)
-					bsy = 1180;
-				if (bsy<0)
-					bsy = 0;
-				//sdl_wheel = 0;
-				/*if(su >= PT_NUM) {
-					if(sl < PT_NUM)
-						su = sl;
-					if(sr < PT_NUM)
-						su = sr;
-				}*/
 			}
 		}
 
@@ -2297,7 +2266,7 @@ int main(int argc, char *argv[])
 			luacon_mouseevent(x, y, bq, 0, sdl_wheel);
 		}
 		
-		luacon_step(x, y,sl,sr,bsx,bsy);
+		luacon_step(x, y, activeTools[0]->GetIdentifier(), activeTools[1]->GetIdentifier(), currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
 		readluastuff();
 #endif
 		sdl_wheel = 0;
@@ -2306,60 +2275,36 @@ int main(int argc, char *argv[])
 		{
 			quickoptions_menu(vid_buf, b, bq, x, y);
 
-			for (i=0; i<SC_TOTAL; i++)//draw all the menu sections
-			{
-				draw_menu(vid_buf, i, active_menu);
-			}
+			int hover = DrawMenus(vid_buf, active_menu, y);
 
-			for (i=0; i<SC_TOTAL; i++)//check mouse position to see if it is on a menu section
+			if (hover >= 0 && ((hover != SC_DECO && !b) || (hover == SC_DECO && b && !bq)) && x>=XRES-2 && x<XRES+BARSIZE-1)
 			{
-				if (((i != SC_DECO && !b) || (i == SC_DECO && b && !bq)) && x>=XRES-2 && x<XRES+BARSIZE-1 &&y>= (i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16) && y<(i*16)+YRES+MENUSIZE-16-(SC_TOTAL*16)+15)
-				{
-					if (i == SC_DECO && active_menu != SC_DECO)
-						last_active_menu = active_menu;
-					if (i == SC_FAV)
-						active_menu = last_fav_menu;
-					else
-						active_menu = i;
-				}
+				if (hover == SC_DECO && active_menu != SC_DECO)
+					last_active_menu = active_menu;
+				if (hover == SC_FAV)
+					active_menu = last_fav_menu;
+				else
+					active_menu = hover;
 			}
 			menu_ui_v3(vid_buf, active_menu, b, bq, x, y); //draw the elements in the current menu
 		}
 		else
 		{
-			if (active_menu > SC_FAV) {
-				over_el = menu_draw(x, y, b, bq, active_menu);
-				if (over_el != -1)
-					h = over_el;
-				menu_draw_text(h, active_menu);
-				menu_select_element(b, over_el);
-			} else {
-				over_el = menu_draw(x, y, b, bq, SC_FAV);
-				if (over_el != -1)
-					h = over_el;
-				menu_draw_text(h, SC_FAV);
-				menu_select_element(b, over_el);
-			}
-			for (i=0; i<SC_TOTAL; i++)
-			{
-				if (i < SC_FAV)
-					drawtext(vid_buf, XRES+1, /*(12*i)+2*/((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+5, msections[i].icon, 255, 255, 255, 255);
-			}
-			for (i=0; i<SC_TOTAL; i++)//check mouse position to see if it is on a menu section
-			{
-				if(!b && i < SC_FAV && x>= XRES+1 && x< XRES+BARSIZE-1 && y>= ((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+3 && y<((YRES/SC_TOTAL)*i)+((YRES/SC_TOTAL)/2)+17)
-					menu_ui(vid_buf, i); //draw the elements in the current menu
-			}
+			old_menu_v2(active_menu, x, y, b, bq);
 		}
-		if (active_menu == SC_DECO && (sl < DECO_DRAW || sl > DECO_SMDG))
+		//TODO: only when entering / exiting menu
+		if (active_menu == SC_DECO && activeTools[0]->GetType() != DECO_TOOL)
 		{
-			last_sl = sl;
-			sl = su = DECO_DRAW;
+			*regularTools = *activeTools;
+			*activeTools = *decoTools;
+
+			activeTools[0] = GetToolFromIdentifier("DEFAULT_WL_26");
 		}
-		else if (active_menu != SC_DECO)
+		else if (active_menu != SC_DECO && activeTools[0]->GetType() == DECO_TOOL)
 		{
-			if (sl >= DECO_DRAW && sl <= DECO_SMDG)
-				sl = su = last_sl;
+			*decoTools = *activeTools;
+			*activeTools = *regularTools;
+
 			deco_disablestuff = 0;
 		}
 		if (deco_disablestuff)
@@ -2818,13 +2763,15 @@ int main(int argc, char *argv[])
 			else if (y<YRES && x<XRES)// mouse is in playing field
 			{
 				int signi;
+				bool clickedSign = false;
 
-				c = ((b&1) || b == 2) ? sl : sr; //c is element to be spawned
-				if (is_DECOTOOL(sl) && b == 4)
-					c = DECO_ERASE;
-				su = c;
+				activeToolID = ((b&1) || b == 2) ? 0 : 1;
+				Tool* activeTool = activeTools[activeToolID];
+				if (activeTools[0]->GetType() == DECO_TOOL && b == 4)
+					activeTool = GetToolFromIdentifier("DEFAULT_WL_27");
 
-				if (c!=WL_SIGN+100 && c!=PT_FIGH)
+				//link signs are clicked from here
+				if (activeTool->GetWallID() != WL_SIGN+100 || b != 1)
 				{
 					if (!bq)
 						for (signi=0; signi<MAXSIGNS; signi++)
@@ -2862,23 +2809,14 @@ int main(int argc, char *argv[])
 											open_link(url);
 										}
 									}
+									clickedSign = true;
 									break;
 								}
 							}
 				}
 
-				if (c==WL_SIGN+100 || MSIGN!=-1) // if sign tool is selected or a sign is being moved
-				{
-					if (!bq)
-						add_sign_ui(vid_buf, x, y);
-				}
-				else if (c==PT_FIGH)
-				{
-					if (!bq)
-						create_part(-1, x, y, PT_FIGH);
-				}
 				//for the click functions, lx and ly, are the positions of where the FIRST click happened.  x,y are current mouse position.
-				else if (lb)//lb means you are holding mouse down
+				if (lb) //lb means you are holding mouse down
 				{
 					toolStrength = 1.0f;
 					if (lm == 1)//line tool
@@ -2896,25 +2834,12 @@ int main(int argc, char *argv[])
 							line_y = y;
 						}
 						xor_line(lx, ly, line_x, line_y, vid_buf);
-						if (c==WL_FAN+100 && lx>=0 && ly>=0 && lx<XRES && ly<YRES && bmap[ly/CELL][lx/CELL]==WL_FAN)
+						//WIND tool works before you even draw the line while holding shift
+						if (activeTool->GetToolID() == SPC_WIND)
 						{
-							nfvx = (line_x-lx)*0.005f;
-							nfvy = (line_y-ly)*0.005f;
-							FloodWalls(lx, ly, WL_FANHELPER, WL_FAN, 0);
-							for (j=0; j<YRES/CELL; j++)
-								for (i=0; i<XRES/CELL; i++)
-									if (bmap[j][i] == WL_FANHELPER)
-									{
-										fvx[j][i] = nfvx;
-										fvy[j][i] = nfvy;
-										bmap[j][i] = WL_FAN;
-									}
-						}
-						if (c == SPC_WIND)
-						{
-							for (j=-bsy; j<=bsy; j++)
-								for (i=-bsx; i<=bsx; i++)
-									if (lx+i>0 && ly+j>0 && lx+i<XRES && ly+j<YRES && InCurrentBrush(i,j,bsx,bsy))
+							for (j = -currentBrush->GetRadius().Y; j <= currentBrush->GetRadius().Y; j++)
+								for (i = -currentBrush->GetRadius().X; i <= currentBrush->GetRadius().X; i++)
+									if (lx+i>0 && ly+j>0 && lx+i<XRES && ly+j<YRES && InCurrentBrush(i, j, currentBrush->GetRadius().X, currentBrush->GetRadius().Y))
 									{
 										vx[(ly+j)/CELL][(lx+i)/CELL] += (line_x-lx)*0.002f;
 										vy[(ly+j)/CELL][(lx+i)/CELL] += (line_y-ly)*0.002f;
@@ -2930,33 +2855,16 @@ int main(int argc, char *argv[])
 					}
 					else//while mouse is held down, it draws lines between previous and current positions
 					{
-						if (c == SPC_WIND)
-						{
-							for (j=-bsy; j<=bsy; j++)
-								for (i=-bsx; i<=bsx; i++)
-									if (x+i>0 && y+j>0 && x+i<XRES && y+j<YRES && InCurrentBrush(i,j,bsx,bsy))
-									{
-										vx[(y+j)/CELL][(x+i)/CELL] += (x-lx)*0.01f;
-										vy[(y+j)/CELL][(x+i)/CELL] += (y-ly)*0.01f;
-									}
-						}
-						else if (c >= PT_NUM || !(ptypes[c].properties&PROP_MOVS))
-						{
-							//printf("From (%d, %d) To (%d, %d)\n", lx, ly, x, y);
-
-							//get tool strength, shift (or ctrl+shift) makes it faster and ctrl makes it slower
-							if (sdl_mod & KMOD_SHIFT)
-								toolStrength = 10.0f;
-							else if (sdl_mod & KMOD_CTRL)
-								toolStrength = .1f;
-
-							create_line(lx, ly, x, y, bsx, bsy, c, get_brush_flags());
-						}
+						if (sdl_mod & KMOD_SHIFT)
+							toolStrength = 10.0f;
+						else if (sdl_mod & KMOD_CTRL)
+							toolStrength = .1f;
+						activeTool->DrawLine(currentBrush, Point(lx, ly), Point(x, y), true);
 						lx = x;
 						ly = y;
 					}
 				}
-				else //it is the first click
+				else if (!clickedSign) //it is the first click
 				{
 					toolStrength = 1.0f;
 					//start line tool
@@ -2976,23 +2884,12 @@ int main(int argc, char *argv[])
 						lm = 2;//box
 					}
 					//flood fill
-					else if ((sdl_mod & (KMOD_CTRL)) && (sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_ALT)) && (!is_TOOL(c) || c==SPC_PROP))
+					else if ((sdl_mod & (KMOD_CTRL)) && (sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_ALT)))
 					{
-						ctrlzSnapshot();
-						if (sdl_mod & (KMOD_CAPS))
-							c = 0;
-						if (c == DECO_DRAW || c == DECO_ERASE)
-						{
-							unsigned int col = (b != 4 && c != DECO_ERASE) ? decocolor : PIXRGB(0,0,0);
-							flood_prop(x, y, offsetof(particle,dcolour), &col, 0);
-						}
-						else if (c >= UI_WALLSTART && c < UI_WALLSTART+UI_WALLCOUNT)
-						{
-							if (c != WL_STREAM+100)
-								FloodWalls(x, y, c, -1, get_brush_flags());
-						}
-						else if (c != DECO_DRAW && c != DECO_ERASE)
-							FloodParts(x, y, c, -1, get_brush_flags());
+						if (!bq)
+							ctrlzSnapshot();
+
+						activeTool->FloodFill(Point(x, y));
 						lx = x;
 						ly = y;
 						lb = 0;
@@ -3003,9 +2900,9 @@ int main(int argc, char *argv[])
 					{
 						if (y>=0 && y<YRES && x>=0 && x<XRES)
 						{
-							if (is_DECOTOOL(c))
+							if (activeTool->GetType() == DECO_TOOL)
 							{
-								unsigned int tempcolor = vid_buf[(my)*(XRES+BARSIZE)+(mx)];
+								unsigned int tempcolor = vid_buf[(y)*(XRES+BARSIZE)+(x)];
 								int cr = PIXR(tempcolor);
 								int cg = PIXG(tempcolor);
 								int cb = PIXB(tempcolor);
@@ -3021,16 +2918,22 @@ int main(int argc, char *argv[])
 							}
 							else
 							{
-								int cr;
-								cr = pmap[y][x];
-								if (!cr)
-									cr = photons[y][x];
-								if (cr)
+								int sample = pmap[y][x];
+								if (sample || (sample = photons[y][x]))
 								{
-									c = sl = cr&0xFF;
-									if (c==PT_LIFE)
-										c = sl = (parts[cr>>8].ctype << 8) | c;
+									if ((sample&0xFF) == PT_LIFE)
+									{
+										activeTools[0] = new Tool(GOL_TOOL, parts[sample>>8].ctype, "DEFAULT_PT_LIFE_" + std::string(gmenu[parts[sample>>8].ctype].name));
+									}
+									else
+									{
+										activeTools[0] = new Tool(ELEMENT_TOOL, sample&0xFF, globalSim->elements[sample&0xFF].Identifier);
+									}
 								}
+								/*else if (bmap[y/CELL][x/CELL]) //TODO: Wall sample
+								{
+									activeTools[0] = new Tool(WALL_TOOL, bmap[y/CELL][x/CELL], "DEFAULT_PT_WL_" + (bmap[y/CELL][x/CELL]-UI_WALLSTART));
+								}*/
 							}
 						}
 						lx = x;
@@ -3049,11 +2952,7 @@ int main(int argc, char *argv[])
 						else if (sdl_mod & KMOD_CTRL)
 							toolStrength = .1f;
 
-						if (c < PT_NUM && (ptypes[c].properties&PROP_MOVS))
-							create_moving_solid(x,y,bsx,bsy,c);
-						else
-							create_parts(x, y, bsx, bsy, c, get_brush_flags(), 1);
-						//printf("(%d, %d)\n", x, y);
+						activeTool->DrawPoint(currentBrush, Point(x, y));
 						lx = x;
 						ly = y;
 						lb = b;
@@ -3067,17 +2966,15 @@ int main(int argc, char *argv[])
 			if (lb && lm) //lm is box/line tool
 			{
 				ctrlzSnapshot();
-				c = (lb&1) ? sl : sr;
-				if (is_DECOTOOL(sl) && lb == 4)
-					c = DECO_ERASE;
-				su = c;
-				if (lm == 1)//line
-				{
-					if (c!=WL_FAN+100 || lx<0 || ly<0 || lx>=XRES || ly>=YRES || bmap[ly/CELL][lx/CELL]!=WL_FAN)
-						create_line(lx, ly, line_x, line_y, bsx, bsy, c, get_brush_flags());
-				}
-				else//box
-					create_box(lx, ly, x, y, c, get_brush_flags());
+				activeToolID = ((lb&1) || lb == 2) ? 0 : 1;
+				Tool* activeTool = activeTools[activeToolID];
+				if (activeTools[0]->GetType() == DECO_TOOL && lb == 4)
+					activeTool = GetToolFromIdentifier("DEFAULT_WL_37");
+
+				if (lm == 1)
+					activeTool->DrawLine(currentBrush, Point(lx, ly), Point(line_x, line_y), false);
+				else
+					activeTool->DrawRect(currentBrush, Point(lx, ly), Point(x, y));
 				lm = 0;
 			}
 			lb = 0;
@@ -3116,7 +3013,7 @@ int main(int argc, char *argv[])
 
 		if (zoom_en!=1 && !load_mode && !save_mode)//draw normal cursor
 		{
-			render_cursor(vid_buf, mx, my, su, bsx, bsy);
+			render_cursor(vid_buf, mx, my, activeTools[activeToolID], currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
 			mousex = mx;
 			mousey = my;
 		}
@@ -3283,6 +3180,7 @@ int main(int argc, char *argv[])
 		//Setting an element for the stick man
 		if (player.spwn==0)
 		{
+			int sr = activeTools[1]->GetElementID();
 			if ((sr>0 && sr<PT_NUM && ptypes[sr].enabled && ptypes[sr].falldown>0) || sr==SPC_AIR || sr == PT_NEUT || sr == PT_PHOT || sr == PT_LIGH)
 				player.elem = sr;
 			else
@@ -3290,6 +3188,7 @@ int main(int argc, char *argv[])
 		}
 		if (player2.spwn==0)
 		{
+			int sr = activeTools[1]->GetElementID();
 			if ((sr>0 && sr<PT_NUM && ptypes[sr].enabled && ptypes[sr].falldown>0) || sr==SPC_AIR || sr == PT_NEUT || sr == PT_PHOT || sr == PT_LIGH)
 				player2.elem = sr;
 			else

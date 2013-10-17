@@ -550,27 +550,28 @@ wall id's don't match with tpt++ in lua
 
 
 
-Future Ideas/TODO: '>' means currently being worked on/added next
+Immediate TODO: '>' means currently being worked on/added next
+Finish brushes (change all instances of rx and ry to the brush things)
+redo GolTool as MultipleTool, special tools that can draw multiple forms of an element (maybe)
+Redo wall ID's and walls entirely
+Redo gmenu, deco struct, and tools struct also
+Redo fav menu ...
+Redo (Add) tooltips
+tpt.selectedl/r/a, look into lua stuff
+Add in all missing lua functions except for interface api
+>Add things from tpt++ that look cool, and any new simulation changes it gets
+
+Medium future TODO:
 changes from tpt++: SPRK, LIGH, LCRY, all others
 make open ui more colorful like tpt++, also fix cut off description in save uploading ui
 make buttons look clicked when pressed, moving mouse away will not do clicks, like tpt++?
 loading circle in save browser?
 https://github.com/FacialTurd/The-Powder-Toy/commit/6e7a5488b561aee4f3b5e3b22ff1b7851c3921ef -> will do later with the elementCount variable
->Add things from tpt++ that look cool, and any new simulation changes it gets
 
-
----
-C++ version todo:
-probably cancelled, I see no reason to switch when I'm happy with the c 
- version and it's fun to convert things back and see the c version become 
- better and more bug-free
-
-maybe in c++ version:
+Far future TODO:
 customizable settings menu completely, ability to add and read options. (also HUD option settings)
 Don't save lua code inside of INDI, since this isn't a lua script anymore
 RAND - deco tool - Uberness - 10/1 #powder at end
-FRME
-PROT - Protons
 CMND - command element to run old commands
 ADGS - Adhesive gas - http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=15188
 CNTR - lets tmp sparks through, then stops. INWR resets - cj646464/mniip - 1/23/13

@@ -16,6 +16,7 @@
  */
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
+#include <string>
 #include <SDL/SDL.h>
 #include "defines.h"
 
@@ -133,11 +134,10 @@ void sdl_blit(int x, int y, int w, int h, pixel *src, int pitch);
 
 void drawblob(pixel *vid, int x, int y, unsigned char cr, unsigned char cg, unsigned char cb);
 
-void draw_tool(pixel *vid_buf, int b, int sl, int sr, unsigned pc, unsigned iswall);
+void draw_tool_button(pixel *vid_buf, int x, int y, pixel color, std::string name);
+int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* currents);
 
-int draw_tool_xy(pixel *vid_buf, int x, int y, int b, unsigned pc);
-
-void draw_menu(pixel *vid_buf, int i, int hover);
+int DrawMenus(pixel *vid_buf, int hover, int mouseY);
 
 void drawpixel(pixel *vid, int x, int y, int r, int g, int b, int a);
 
@@ -239,7 +239,7 @@ void render_zoom(pixel *img);
 
 int render_thumb(void *thumb, int size, int bzip2, pixel *vid_buf, int px, int py, int scl);
 
-void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry);
+void render_cursor(pixel *vid, int x, int y, Tool* t, int rx, int ry);
 
 int LoadWindowPosition(int scale);
 

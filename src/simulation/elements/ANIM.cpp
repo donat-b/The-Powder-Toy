@@ -14,6 +14,7 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "interface.h"
 
 int ANIM_update(UPDATE_FUNC_ARGS)
 {

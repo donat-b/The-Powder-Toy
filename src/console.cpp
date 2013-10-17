@@ -15,13 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <powder.h>
-#include <console.h>
 #include <math.h>
-
-#ifdef PYCONSOLE
-#include <pythonconsole.h>
-#endif
+#include "interface.h"
+#include "powder.h"
+#include "console.h"
 
 char console_more=0;
 int file_script = 0;

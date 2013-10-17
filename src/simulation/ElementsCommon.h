@@ -28,6 +28,7 @@
 #include "powder.h"
 #include "gravity.h"
 #include "powdergraphics.h"
+#include "game/Menus.h"
 
 #define BOUNDS_CHECK true
 

@@ -121,11 +121,6 @@ extern unsigned char ZSIZE;
 
 #define NGOL 24
 
-#define CIRCLE_BRUSH 0
-#define SQUARE_BRUSH 1
-#define TRI_BRUSH 2
-#define BRUSH_NUM 3
-
 
 #define GRAVFFT
 #define LUACONSOLE
@@ -216,7 +211,6 @@ extern char edgeMode;
 extern int limitFPS;
 extern int water_equal_test;
 extern int quickoptionsToolTipFade;
-extern int favMenu[19];
 extern int finding;
 extern int locked;
 extern int highesttemp;
@@ -231,18 +225,17 @@ extern unsigned int prop_offset;
 extern int tab_num;
 extern int num_tabs;
 extern int show_tabs;
-extern int sl;
-extern int last_sl;
-extern int sr;
-extern int su;
+class Tool;
+extern Tool* activeTools[3];
+extern Tool* regularTools[3];
+extern Tool* decoTools[3];
+extern int activeToolID;
 extern float toolStrength;
 extern int autosave;
 extern int realistic;
 extern int loop_time;
 extern int unlockedstuff;
 extern int old_menu;
-extern int h;
-extern int over_el;
 extern int loop_time;
 extern int mod_save;
 extern int decobox_hidden;
@@ -311,7 +304,6 @@ extern int SEC;
 extern int SEC2;
 extern int console_mode;
 extern int REPLACE_MODE;
-extern int CURRENT_BRUSH;
 extern int GRID_MODE;
 extern int DEBUG_MODE;
 extern int GENERATION;

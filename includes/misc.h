@@ -18,6 +18,7 @@
 #define UTILS_H
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 
 #if defined(WIN32) && !defined(__GNUC__)
 #define x86_cpuid(func,af,bf,cf,df) \
@@ -94,8 +95,10 @@ void HSV_to_RGB(int h,int s,int v,int *r,int *g,int *b);
 void RGB_to_HSV(int r,int g,int b,int *h,int *s,int *v);
 
 int is_TOOL(int t);
-
 int is_DECOTOOL(int t);
+
+class Tool;
+Tool* GetToolFromIdentifier(std::string identifier);
 
 void membwand(void * dest, void * src, size_t destsize, size_t srcsize);
 // a b

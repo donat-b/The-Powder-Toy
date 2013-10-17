@@ -37,3 +37,6 @@ powder.pref
 /includes/regex.h
 /includes/sched.h
 /includes/dirent.h
+/includes/zlib.h
+/includes/zconf.h
+

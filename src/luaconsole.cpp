@@ -15,22 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <defines.h>
-
-#ifdef LUACONSOLE
-#include <powder.h>
-#include "gravity.h"
-#include "http.h"
-#include <console.h>
-#include <luaconsole.h>
-#include <luascriptinterface.h>
-#include "simulation\Simulation.h"
-extern "C"
-{
-#include "socket/luasocket.h"
-#include "socket/socket.lua.h"
-}
-#include <save.h>
 #include <math.h>
 
 #if defined(LIN32) || defined(LIN64)
@@ -40,6 +24,27 @@ extern "C"
 #if defined(WIN32)
 #include <direct.h>
 #endif
+extern "C"
+{
+#include "socket/luasocket.h"
+#include "socket/socket.lua.h"
+}
+
+#include "defines.h"
+#ifdef LUACONSOLE
+#include "powder.h"
+#include "gravity.h"
+#include "http.h"
+#include "console.h"
+#include "interface.h"
+#include "luaconsole.h"
+#include "luascriptinterface.h"
+#include "save.h"
+
+#include "game\Brush.h"
+#include "game\Menus.h"
+#include "simulation\Simulation.h"
+#include "simulation\Tool.h"
 
 int *lua_el_func, *lua_el_mode, *lua_gr_func;
 char* log_history[20];
@@ -897,14 +902,16 @@ int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
 	return mpcontinue;
 }
 
-int luacon_step(int mx, int my, int selectl, int selectr, int bsx, int bsy)
+int luacon_step(int mx, int my, std::string selectl, std::string selectr, int bsx, int bsy)
 {
 	int i, j, c, callret;
 	lua_pushinteger(l, bsy);
 	lua_pushinteger(l, bsx);
-	lua_pushinteger(l, SLALT); //TODO: maybe use identifiers like tpt++
-	lua_pushinteger(l, selectr);
-	lua_pushinteger(l, selectl);
+	//TODO: implement
+	//lua_pushstring(l, globalSim->elements[activeTools[2]].Identifier.c_str());
+	lua_pushstring(l, "");
+	lua_pushstring(l, selectr.c_str());
+	lua_pushstring(l, selectl.c_str());
 	lua_pushinteger(l, my);
 	lua_pushinteger(l, mx);
 	lua_setfield(l, tptProperties, "mousex");
@@ -1233,7 +1240,10 @@ int luatpt_getelement(lua_State *l)
 		if (t<0 || t>=PT_NUM)
 			return luaL_error(l, "Unrecognised element number '%d'", t);
 		name = ptypes[t&0xFF].name;
-		lua_pushstring(l, name);
+		if (t == PT_EXPL)
+			lua_pushstring(l, "");
+		else
+			lua_pushstring(l, name);
 	}
 	else
 	{
@@ -2913,18 +2923,18 @@ int luatpt_create_parts(lua_State* l)
 	int y = luaL_optint(l,2,-1);
 	int rx = luaL_optint(l,3,5);
 	int ry = luaL_optint(l,4,5);
-	int c = luaL_optint(l,5,sl);
+	int c = luaL_optint(l,5,activeTools[0]->GetElementID());
 	int fill = luaL_optint(l,6,1);
 	int brush = luaL_optint(l,7,CIRCLE_BRUSH);
 	int flags = luaL_optint(l,8,get_brush_flags());
-	int ret, oldbrush = CURRENT_BRUSH;
+	int ret, oldbrush = currentBrush->GetShape();
 	if (x < 0 || x > XRES || y < 0 || y > YRES)
 		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
 	if (c < 0 || c >= PT_NUM && !ptypes[c].enabled)
 		return luaL_error(l, "Unrecognised element number '%d'", c);
-	CURRENT_BRUSH = brush;
+	currentBrush->SetShape(brush);
 	ret = create_parts(x, y, rx, ry, c, flags, fill);
-	CURRENT_BRUSH = oldbrush;
+	currentBrush->SetShape(oldbrush);
 	lua_pushinteger(l, ret);
 	return 1;
 }
@@ -2937,19 +2947,19 @@ int luatpt_create_line(lua_State* l)
 	int y2 = luaL_optint(l,4,-1);
 	int rx = luaL_optint(l,5,5);
 	int ry = luaL_optint(l,6,5);
-	int c = luaL_optint(l,7,sl);
+	int c = luaL_optint(l,7,activeTools[0]->GetElementID());
 	int brush = luaL_optint(l,8,CIRCLE_BRUSH);
 	int flags = luaL_optint(l,9,get_brush_flags());
-	int oldbrush = CURRENT_BRUSH;
+	int oldbrush = currentBrush->GetShape();
 	if (x1 < 0 || x1 > XRES || y1 < 0 || y1 > YRES)
 		return luaL_error(l, "Starting coordinates out of range (%d,%d)", x1, y1);
 	if (x2 < 0 || x2 > XRES || y2 < 0 || y2 > YRES)
 		return luaL_error(l, "Ending coordinates out of range (%d,%d)", x2, y2);
 	if (c < 0 || c >= PT_NUM && !ptypes[c].enabled)
 		return luaL_error(l, "Unrecognised element number '%d'", c);
-	CURRENT_BRUSH = brush;
+	currentBrush->SetShape(brush);
 	create_line(x1, y1, x2, y2, rx, ry, c, flags);
-	CURRENT_BRUSH = oldbrush;
+	currentBrush->SetShape(oldbrush);
 	return 0;
 }
 
@@ -2957,7 +2967,7 @@ int luatpt_floodfill(lua_State* l)
 {
 	int x = luaL_optint(l,1,-1);
 	int y = luaL_optint(l,2,-1);
-	int c = luaL_optint(l,3,sl);
+	int c = luaL_optint(l,3,activeTools[0]->GetElementID());
 	int cm = luaL_optint(l,4,-1);
 	int flags = luaL_optint(l,5,get_brush_flags());
 	int ret;
@@ -3034,12 +3044,12 @@ int luatpt_load_stamp(lua_State* l)
 
 int luatpt_set_selected(lua_State* l)
 {
-	int newsl = luaL_optint(l, 1, sl);
-	int newsr = luaL_optint(l, 2, sr);
-	int newSLALT = luaL_optint(l, 3, SLALT);
-	sl = newsl;
-	sr = newsr;
-	SLALT = newSLALT;
+	std::string newsl = std::string(luaL_optstring(l, 1, activeTools[0]->GetIdentifier().c_str()));
+	std::string newsr = std::string(luaL_optstring(l, 2, activeTools[1]->GetIdentifier().c_str()));
+	std::string newSLALT = std::string(luaL_optstring(l, 3, activeTools[2]->GetIdentifier().c_str()));
+	activeTools[0] = GetToolFromIdentifier(newsl);
+	activeTools[1] = GetToolFromIdentifier(newsr);
+	activeTools[2] = GetToolFromIdentifier(newSLALT);
 	return 0;
 }
 
