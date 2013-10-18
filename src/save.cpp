@@ -2251,6 +2251,12 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					}
 					if (saved_version < 87 && partsptr[newIndex].type == PT_PSTN && partsptr[newIndex].ctype)
 						partsptr[newIndex].life = 1;
+					if (saved_version < 89 && partsptr[newIndex].type == PT_FILT)
+					{
+						if (partsptr[newIndex].tmp<0 || partsptr[newIndex].tmp>3)
+							partsptr[newIndex].tmp = 6;
+						partsptr[newIndex].ctype = 0;
+					}
 				}
 			}
 		}
@@ -3226,6 +3232,15 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					parts[i-1].type = PT_EMBR;
 					parts[i-1].tmp = 1;
 					parts[i-1].ctype = (((unsigned char)(firw_data[caddress]))<<16) | (((unsigned char)(firw_data[caddress+1]))<<8) | ((unsigned char)(firw_data[caddress+2]));
+				}
+			}
+			if (ver < 89)
+			{
+				if (parts[i-1].type == PT_FILT)
+				{
+					if (parts[i-1].tmp<0 || parts[i-1].tmp>3)
+						parts[i-1].tmp = 6;
+					parts[i-1].ctype = 0;
 				}
 			}
 		}

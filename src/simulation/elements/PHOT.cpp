@@ -55,6 +55,11 @@ int PHOT_update(UPDATE_FUNC_ARGS)
 					parts[r>>8].vy = rr*sinf(rrr);
 					pv[y/CELL][x/CELL] -= 15.0f * CFDS;
 				}
+				else if ((r&0xFF) == PT_FILT && parts[r>>8].tmp==9)
+				{
+					parts[i].vx += ((float)(rand()%1000-500))/1000.0f;
+					parts[i].vy += ((float)(rand()%1000-500))/1000.0f;
+				}
 			}
 	r = pmap[y][x];
 	if((r&0xFF) == PT_QRTZ && r)// && parts[i].ctype==0x3FFFFFFF)

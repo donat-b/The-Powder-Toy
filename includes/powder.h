@@ -538,6 +538,8 @@ void kill_part(int i);
 int flood_prop(int x, int y, size_t propoffset, void * propvalue, int proptype);
 
 void detach(int i);
+int interactWavelengths(particle* cpart, int origWl);
+int getWavelengths(particle* cpart);
 
 void part_change_type(int i, int x, int y, int t);
 

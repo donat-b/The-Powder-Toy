@@ -74,6 +74,14 @@ void SetRightHudText(int x, int y)
 				{
 					sprintf(nametext, "Molten %s, ", ptypes[parts[cr>>8].ctype].name);
 				}
+				else if (currentHud[13] && (cr&0xFF)==PT_FILT)
+				{
+					const char* filtModes[] = { "set color", "AND", "OR", "subtract color", "red shift", "blue shift", "no effect", "XOR", "NOT", "PHOT scatter" };
+					if (parts[cr>>8].tmp>=0 && parts[cr>>8].tmp<=9)
+						sprintf(nametext, "FILT (%s), ", filtModes[parts[cr>>8].tmp]);
+					else
+						sprintf(nametext, "FILT (unknown mode), ", filtModes[parts[cr>>8].tmp]);
+				}
 				else if (currentHud[14] && currentHud[11] && ((cr&0xFF)==PT_PIPE || (cr&0xFF)==PT_PPIP) && (parts[cr>>8].tmp&0xFF) > 0 && (parts[cr>>8].tmp&0xFF) < PT_NUM )
 				{
 					sprintf(nametext, "PIPE (%s), ", ptypes[parts[cr>>8].tmp&0xFF].name);
@@ -161,7 +169,8 @@ void SetRightHudText(int x, int y)
 				sprintf(tempstring,"Vx: %0.*f, Vy: %0.*f, ",currentHud[25],parts[cr>>8].vx,currentHud[25],parts[cr>>8].vy);
 				strappend(heattext,tempstring);
 			}
-			if ((cr&0xFF)==PT_PHOT && currentHud[45]) wavelength_gfx = parts[cr>>8].ctype;
+			if (currentHud[45] && ((cr&0xFF)==PT_PHOT || (cr&0xFF)==PT_BIZR || (cr&0xFF)==PT_BIZRG || (cr&0xFF)==PT_BIZRS || ((cr&0xFF)==PT_FILT && parts[cr>>8].ctype)))
+				wavelength_gfx = parts[cr>>8].ctype;
 		}
 		else if (wl && currentHud[48])
 		{

@@ -485,37 +485,26 @@ int try_move(int i, int x, int y, int nx, int ny)
 			}
 		if (parts[i].type == PT_PHOT && (r&0xFF)==PT_FILT)
 		{
-			int temp_bin = (int)((parts[r>>8].temp-273.0f)*0.025f);
-			if (temp_bin < 0) temp_bin = 0;
-			if (temp_bin > 25) temp_bin = 25;
-			if(!parts[r>>8].tmp){
-				parts[i].ctype = 0x1F << temp_bin; //Assign Colour
-			} else if(parts[r>>8].tmp==1){
-				parts[i].ctype &= 0x1F << temp_bin; //Filter Colour
-			} else if(parts[r>>8].tmp==2){
-				parts[i].ctype |= 0x1F << temp_bin; //Add Colour
-			} else if(parts[r>>8].tmp==3){
-				parts[i].ctype &= ~(0x1F << temp_bin); //Subtract Colour
-			}
+			parts[i].ctype = interactWavelengths(&parts[r>>8], parts[i].ctype);
 		}
-		if (parts[i].type == PT_NEUT && (r&0xFF)==PT_GLAS) {
+		if (parts[i].type == PT_NEUT && (r&0xFF)==PT_GLAS)
+		{
 			if (rand() < RAND_MAX/10)
 				create_cherenkov_photon(i);
 		}
-		if (parts[i].type == PT_PHOT && (r&0xFF)==PT_INVIS && pv[ny/CELL][nx/CELL]<=4.0f && pv[ny/CELL][nx/CELL]>=-4.0f) {
+		if (parts[i].type == PT_PHOT && (r&0xFF)==PT_INVIS && pv[ny/CELL][nx/CELL]<=4.0f && pv[ny/CELL][nx/CELL]>=-4.0f)
+		{
 			part_change_type(i,x,y,PT_NEUT);
 			parts[i].ctype = 0;
 		}
-		if (parts[i].type == PT_PHOT && (r&0xFF)==PT_PINV && parts[r>>8].life == 0) {
+		if (parts[i].type == PT_PHOT && (r&0xFF)==PT_PINV && parts[r>>8].life == 0)
+		{
 			part_change_type(i,x,y,PT_ELEC);
 			parts[i].ctype = 0;
 		}
 		if ((parts[i].type==PT_BIZR||parts[i].type==PT_BIZRG) && (r&0xFF)==PT_FILT)
 		{
-			int temp_bin = (int)((parts[r>>8].temp-273.0f)*0.025f);
-			if (temp_bin < 0) temp_bin = 0;
-			if (temp_bin > 25) temp_bin = 25;
-			parts[i].ctype = 0x1F << temp_bin;
+			parts[i].ctype = interactWavelengths(&parts[r>>8], parts[i].ctype);
 		}
 		if (((r&0xFF)==PT_BIZR || (r&0xFF)==PT_BIZRG || (r&0xFF)==PT_BIZRS) && parts[i].type==PT_PHOT)
 		{

@@ -552,7 +552,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 				{
 					if (strcmp(console4, "all")==0)
 					{
-						if (console_parse_type(console5, &j, console_error))
+						if (console_parse_type(console5, &j, console_error) || (j = atoi(console5)))
 						{
 							strcpy(console_error, "");
 							for (i=0; i<NPART; i++)
@@ -564,7 +564,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 					}
 					else if (console_parse_type(console4, &j, console_error))
 					{
-						if (console_parse_type(console5, &k, console_error))
+						if (console_parse_type(console5, &k, console_error) || (k = atoi(console5)))
 						{
 							strcpy(console_error, "");
 							for (i=0; i<NPART; i++)
@@ -578,7 +578,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 					{
 						if (console_parse_partref(console4, &i, console_error))
 						{
-							if (console_parse_type(console5, &j, console_error))
+							if (console_parse_type(console5, &j, console_error) || (j = atoi(console5)))
 							{
 								strcpy(console_error, "");
 								j = atoi(console5);

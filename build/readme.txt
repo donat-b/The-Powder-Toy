@@ -568,6 +568,7 @@ make open ui more colorful like tpt++, also fix cut off description in save uplo
 make buttons look clicked when pressed, moving mouse away will not do clicks, like tpt++?
 loading circle in save browser?
 https://github.com/FacialTurd/The-Powder-Toy/commit/6e7a5488b561aee4f3b5e3b22ff1b7851c3921ef -> will do later with the elementCount variable
+redo some sign things and remove regex
 
 Far future TODO:
 customizable settings menu completely, ability to add and read options. (also HUD option settings)
