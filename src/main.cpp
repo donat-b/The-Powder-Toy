@@ -1581,7 +1581,7 @@ int main(int argc, char *argv[])
 		}
 		if (ptsaveOpenID)
 		{
-			if (num_tabs < 24-SC_TOTAL)
+			if (num_tabs < 24-GetNumMenus())
 			{
 				char ptsaveOpenString[512];
 				int oldTabNum = tab_num;
@@ -2064,7 +2064,7 @@ int main(int argc, char *argv[])
 			{
 				if (sdl_mod & KMOD_CTRL)
 				{
-					if (num_tabs < 24-SC_TOTAL)
+					if (num_tabs < 24-GetNumMenus())
 					{
 						tab_save(tab_num, 0);
 						num_tabs++;

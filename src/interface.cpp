@@ -3549,7 +3549,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 	//tab menu
 	else
 	{
-		while(i < num_tabs + 2 && i < 25-SC_TOTAL)
+		while(i < num_tabs + 2 && i < 25-GetNumMenus())
 		{
 			char num[8];
 			sprintf(num,"%d",i);
@@ -3826,7 +3826,7 @@ int sdl_poll(void)
 			switch (event.syswm.msg->msg)
 			{
 			case WM_USER+614:
-				if (!ptsaveOpenID && !saveURIOpen && num_tabs < 24-SC_TOTAL && main_loop)
+				if (!ptsaveOpenID && !saveURIOpen && num_tabs < 24-GetNumMenus() && main_loop)
 					ptsaveOpenID = event.syswm.msg->lParam;
 				//If we are already opening a save, we can't have it do another one, so just start it in a new process
 				else
