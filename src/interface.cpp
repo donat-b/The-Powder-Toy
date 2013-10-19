@@ -3826,7 +3826,7 @@ int sdl_poll(void)
 			switch (event.syswm.msg->msg)
 			{
 			case WM_USER+614:
-				if (!ptsaveOpenID && !saveURIOpen && num_tabs < 24-SC_TOTAL)
+				if (!ptsaveOpenID && !saveURIOpen && num_tabs < 24-SC_TOTAL && main_loop)
 					ptsaveOpenID = event.syswm.msg->lParam;
 				//If we are already opening a save, we can't have it do another one, so just start it in a new process
 				else
@@ -3835,11 +3835,7 @@ int sdl_poll(void)
 					sprintf(args, "ptsave noopen:%i", event.syswm.msg->lParam);
 					if (exename)
 					{
-#ifdef WIN32
 						ShellExecute(NULL, "open", exename, args, NULL, SW_SHOWNORMAL);
-#else
-						execl(exename, "powder", args);
-#endif
 						free(exename);
 					}
 					//I doubt this will happen ... but as a last resort just open it in this window anyway

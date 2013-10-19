@@ -3934,7 +3934,7 @@ int get_brush_flags()
 	int flags = 0;
 	if (REPLACE_MODE)
 		flags |= BRUSH_REPLACEMODE;
-	if (sdl_mod & (KMOD_CAPS))
+	if (SPECIFIC_DELETE)
 		flags |= BRUSH_SPECIFIC_DELETE;
 	if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
 		flags |= BRUSH_SPECIFIC_DELETE;

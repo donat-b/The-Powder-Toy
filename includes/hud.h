@@ -43,7 +43,7 @@ static hud hud_menu[] =
 	{"GEN",  PIXPACK(0x000000), 1, "The current life generation"},
 	{"GRAV", PIXPACK(0x000000), 1, "Shows the current gravity mode, changed by pressing w"},
 	{"AIR",  PIXPACK(0x000000), 1, "Shows the current air mode, change it with y"},
-	{"XTRA", PIXPACK(0x000000), 1, "Shows when replace mode or caps lock is activated"},
+	{"XTRA", PIXPACK(0x000000), 1, "Shows whether replace mode or specific delete are activated"},
 	{"GRID", PIXPACK(0x000000), 1, "Adds the current grid mode to the end, when it's activated."},
 	
 	//10

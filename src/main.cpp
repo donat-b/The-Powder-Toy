@@ -276,7 +276,8 @@ int timesplayed = 0;
 int SEC;
 int SEC2;
 int console_mode;
-int REPLACE_MODE;
+bool REPLACE_MODE = false;
+bool SPECIFIC_DELETE = false;
 int GRID_MODE;
 int DEBUG_MODE;
 int debug_flags = 0;
@@ -1893,8 +1894,17 @@ int main(int argc, char *argv[])
 						vy[ny][nx] = -vy[ny][nx];
 					}
 			}
-			if (sdl_key==SDLK_INSERT || sdl_key == SDLK_SEMICOLON)// || sdl_key==SDLK_BACKQUOTE)
+			if (sdl_key==SDLK_INSERT)
 				REPLACE_MODE = !REPLACE_MODE;
+			else if (sdl_key == SDLK_DELETE)
+				SPECIFIC_DELETE = !SPECIFIC_DELETE;
+			else if (sdl_key == SDLK_SEMICOLON)
+			{
+				if (sdl_mod&KMOD_CTRL)
+					SPECIFIC_DELETE = !SPECIFIC_DELETE;
+				else
+					REPLACE_MODE = !REPLACE_MODE;
+			}
 			if (sdl_key==SDLK_BACKQUOTE)
 			{
 				console_mode = !console_mode;

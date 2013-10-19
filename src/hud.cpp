@@ -313,8 +313,8 @@ void SetLeftHudText(float FPSB2, int it)
 	}
 	if (REPLACE_MODE && currentHud[8])
 		strappend(uitext, "[REPLACE MODE] ");
-	if (sdl_mod&(KMOD_CAPS) && currentHud[8])
-		strappend(uitext, "[CAPS LOCK] ");
+	if (SPECIFIC_DELETE && currentHud[8])
+		strappend(uitext, "[SPECIFIC DELETE] ");
 	if ((finding && finding != 8) && currentHud[8])
 		strappend(uitext, "[FIND] ");
 	if (GRID_MODE && currentHud[9])
