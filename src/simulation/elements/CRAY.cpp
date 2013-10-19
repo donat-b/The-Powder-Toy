@@ -90,7 +90,8 @@ int CRAY_update(UPDATE_FUNC_ARGS)
 								else
 									nr = create_part(-1, x+nxi+nxx, y+nyi+nyy, parts[i].ctype);
 								if (nr!=-1) {
-									parts[nr].dcolour = colored;
+									if (colored)
+										parts[nr].dcolour = colored;
 									parts[nr].temp = parts[i].temp;
 									if(!--partsRemaining)
 										docontinue = 0;

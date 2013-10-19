@@ -253,6 +253,8 @@ int PIPE_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, np, change = 0;
 	int rnd, rndstore;
+	if ((parts[i].tmp&0xFF)>=PT_NUM || !sim->elements[parts[i].tmp&0xFF].Enabled)
+		parts[i].tmp &= ~0xFF; 
 	if (parts[i].tmp & PPIP_TMPFLAG_TRIGGERS)
 	{
 		int pause_changed = 0;
@@ -474,7 +476,7 @@ int PIPE_update(UPDATE_FUNC_ARGS)
 int PIPE_graphics(GRAPHICS_FUNC_ARGS)
 {
 
-	if ((cpart->tmp&0xFF)>0 && (cpart->tmp&0xFF)<PT_NUM)
+	if ((cpart->tmp&0xFF)>0 && (cpart->tmp&0xFF)<PT_NUM && globalSim->elements[cpart->tmp&0xFF].Enabled)
 	{
 		//Create a temp. particle and do a subcall.
 		particle tpart;

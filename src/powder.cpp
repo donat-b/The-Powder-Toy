@@ -1057,7 +1057,13 @@ int create_part(int p, int x, int y, int tv)//the function for creating a partic
 		if(type == PT_WIRE)
 		{
 			parts[index].ctype = PT_DUST;
+			return index;
 		}
+		if (p==-2 && ((globalSim->elements[type].Properties & PROP_DRAWONCTYPE) || type==PT_CRAY))
+		{
+			parts[index].ctype = PT_SPRK;
+			return index;
+		} 
 		if (!(type == PT_INST || (ptypes[type].properties&PROP_CONDUCTS)))
 			return -1;
 		if (parts[index].life!=0)
@@ -1908,7 +1914,7 @@ int transfer_heat(int i, int surround[8])
 		if (!(ptypes[t].properties&PROP_INDESTRUCTIBLE))
 		{
 			//A fix for ice with ctype = 0
-			if ((t==PT_ICEI || t==PT_SNOW) && (parts[i].ctype==0 || parts[i].ctype>=PT_NUM || parts[i].ctype==PT_ICEI || parts[i].ctype==PT_SNOW))
+			if ((t==PT_ICEI || t==PT_SNOW) && (parts[i].ctype==0 || parts[i].ctype>=PT_NUM || parts[i].ctype==PT_ICEI || parts[i].ctype==PT_SNOW || !globalSim->elements[parts[i].ctype].Enabled))
 				parts[i].ctype = PT_WATR;
 			if (ctemph > ptransitions[t].thv && ptransitions[t].tht > -1)
 			{
@@ -1936,7 +1942,7 @@ int transfer_heat(int i, int surround[8])
 				{
 					if (realistic)
 					{
-						if (parts[i].ctype<PT_NUM&&parts[i].ctype != t)
+						if (parts[i].ctype > 0 && parts[i].ctype < PT_NUM&&parts[i].ctype != t)
 						{
 							if (ptransitions[parts[i].ctype].tlt==t&&pt<=ptransitions[parts[i].ctype].tlv)
 								s = 0;
@@ -2057,7 +2063,7 @@ int transfer_heat(int i, int surround[8])
 				}
 				else if (t==PT_LAVA)
 				{
-					if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && parts[i].ctype!=PT_LAVA)
+					if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && parts[i].ctype!=PT_LAVA && parts[i].ctype!=PT_LAVA && globalSim->elements[parts[i].ctype].Enabled)
 					{
 						if (parts[i].ctype==PT_THRM&&pt>=ptransitions[PT_BMTL].thv)
 							s = 0;

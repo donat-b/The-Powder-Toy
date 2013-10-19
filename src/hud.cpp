@@ -9,6 +9,7 @@
 
 #include "game/Menus.h"
 #include "simulation/Tool.h"
+#include "simulation\Simulation.h"
 
 char uitext[512] = "";
 char heattext[256] = "";
@@ -70,7 +71,7 @@ void SetRightHudText(int x, int y)
 					else
 						sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, gmenu[parts[cr>>8].ctype].name);
 				}
-				else if (currentHud[13] && (cr&0xFF)==PT_LAVA && parts[cr>>8].ctype > 0 && parts[cr>>8].ctype < PT_NUM )
+				else if (currentHud[13] && (cr&0xFF)==PT_LAVA && globalSim->is_element(parts[cr>>8].ctype))
 				{
 					sprintf(nametext, "Molten %s, ", ptypes[parts[cr>>8].ctype].name);
 				}
@@ -82,7 +83,7 @@ void SetRightHudText(int x, int y)
 					else
 						sprintf(nametext, "FILT (unknown mode), ", filtModes[parts[cr>>8].tmp]);
 				}
-				else if (currentHud[14] && currentHud[11] && ((cr&0xFF)==PT_PIPE || (cr&0xFF)==PT_PPIP) && (parts[cr>>8].tmp&0xFF) > 0 && (parts[cr>>8].tmp&0xFF) < PT_NUM )
+				else if (currentHud[14] && currentHud[11] && ((cr&0xFF)==PT_PIPE || (cr&0xFF)==PT_PPIP) && globalSim->is_element(parts[cr>>8].tmp&0xFF))
 				{
 					sprintf(nametext, "PIPE (%s), ", ptypes[parts[cr>>8].tmp&0xFF].name);
 				}
@@ -95,7 +96,7 @@ void SetRightHudText(int x, int y)
 					}
 					if (!currentHud[12] && (tctype>=PT_NUM || tctype<0 || (cr&0xFF)==PT_PHOT))
 						tctype = 0;
-					if (tctype >= 0 && tctype < PT_NUM)
+					if (globalSim->is_element(tctype))
 						sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, ptypes[tctype].name);
 					else
 						sprintf(nametext, "%s (%d), ", ptypes[cr&0xFF].name, tctype);
