@@ -2251,12 +2251,22 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					}
 					if (saved_version < 87 && partsptr[newIndex].type == PT_PSTN && partsptr[newIndex].ctype)
 						partsptr[newIndex].life = 1;
-					if (saved_version < 89 && partsptr[newIndex].type == PT_FILT)
+					if (saved_version < 89)
 					{
-						if (partsptr[newIndex].tmp<0 || partsptr[newIndex].tmp>3)
-							partsptr[newIndex].tmp = 6;
-						partsptr[newIndex].ctype = 0;
+						if (partsptr[newIndex].type == PT_FILT)
+						{
+							if (partsptr[newIndex].tmp<0 || partsptr[newIndex].tmp>3)
+								partsptr[newIndex].tmp = 6;
+							partsptr[newIndex].ctype = 0;
+						}
+						else if (partsptr[newIndex].type == PT_QRTZ || partsptr[newIndex].type == PT_PQRT)
+						{
+							partsptr[newIndex].tmp2 = partsptr[newIndex].tmp;
+							partsptr[newIndex].tmp = partsptr[newIndex].ctype;
+							partsptr[newIndex].ctype = 0;
+						}
 					}
+					//note: PSv was used in version 77.0 and every version before, add something in PSv too if the element is that old
 				}
 			}
 		}
@@ -3240,6 +3250,12 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 				{
 					if (parts[i-1].tmp<0 || parts[i-1].tmp>3)
 						parts[i-1].tmp = 6;
+					parts[i-1].ctype = 0;
+				}
+				if (parts[i-1].type == PT_QRTZ || parts[i-1].type == PT_PQRT)
+				{
+					parts[i-1].tmp2 = parts[i-1].tmp;
+					parts[i-1].tmp = parts[i-1].ctype;
 					parts[i-1].ctype = 0;
 				}
 			}
