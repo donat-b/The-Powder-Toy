@@ -78,6 +78,19 @@ int console_parse_coords(const char *txt, int *x, int *y, char *err)
 	*y = ny;
 	return 1;
 }
+
+//takes things like 100C or 212F into account
+float console_parse_temp(std::string temperature)
+{
+	if (!temperature.length())
+		return 0;
+	if (temperature.back() == 'C')
+		return atof(temperature.substr(0, temperature.length()-1).c_str())+273.15f;
+	else if (temperature.back() == 'F')
+		return (atof(temperature.substr(0, temperature.length()-1).c_str())-32.0f)*5/9+273.15f;
+	return atof(temperature.c_str());
+}
+
 //takes a string of either coords or a particle number, and puts the particle number into *which
 int console_parse_partref(const char *txt, int *which, char *err)
 {
@@ -407,7 +420,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 				{
 					if (strcmp(console4, "all")==0)
 					{
-						f = atof(console5);
+						f = console_parse_temp(console5);
 						for (i=0; i<NPART; i++)
 						{
 							if (parts[i].type)
@@ -416,7 +429,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 					}
 					else if (console_parse_type(console4, &j, console_error))
 					{
-						f = atof(console5);
+						f = console_parse_temp(console5);
 						for (i=0; i<NPART; i++)
 						{
 							if (parts[i].type == j)
@@ -427,7 +440,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 					{
 						if (console_parse_partref(console4, &i, console_error))
 						{
-							f = atof(console5);
+							f = console_parse_temp(console5);
 							parts[i].temp = f;
 						}
 					}
