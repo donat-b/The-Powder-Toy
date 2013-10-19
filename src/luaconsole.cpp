@@ -1644,7 +1644,7 @@ int luatpt_reset_spark(lua_State* l)
 			if (parts[i].ctype >= 0 && parts[i].ctype < PT_NUM)
 			{
 				parts[i].type = parts[i].ctype;
-				parts[i].life = 0;
+				parts[i].life = parts[i].ctype = 0;
 			}
 			else
 				kill_part(i);
