@@ -3004,7 +3004,7 @@ int scrollbar(int fwidth, int mx, int y)
 	fillrect(vid_buf, scrollbarx, y+19, scrollSize, 3, 200, 200, 200, 255);
 
 	overflow = (float)fwidth-XRES+10;
-	location = ((float)XRES)/((float)(mx-(XRES)));
+	location = ((float)XRES-3)/((float)(mx-(XRES-2)));
 	return (int)(overflow / location);
 }
 
