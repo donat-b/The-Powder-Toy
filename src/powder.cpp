@@ -1916,7 +1916,7 @@ int transfer_heat(int i, int surround[8])
 			//A fix for ice with ctype = 0
 			if ((t==PT_ICEI || t==PT_SNOW) && (parts[i].ctype==0 || parts[i].ctype>=PT_NUM || parts[i].ctype==PT_ICEI || parts[i].ctype==PT_SNOW || !globalSim->elements[parts[i].ctype].Enabled))
 				parts[i].ctype = PT_WATR;
-			if (ctemph > ptransitions[t].thv && ptransitions[t].tht > -1)
+			if (ptransitions[t].tht > -1 && ctemph > ptransitions[t].thv)
 			{
 				// particle type change due to high temperature
 				float dbt = ctempl - pt;
@@ -2030,7 +2030,7 @@ int transfer_heat(int i, int surround[8])
 				else
 					s = 0;
 			}
-			else if (ctempl<ptransitions[t].tlv&&ptransitions[t].tlt>-1)
+			else if (ptransitions[t].tlt>-1 && ctempl<ptransitions[t].tlv)
 			{
 				// particle type change due to low temperature
 				float dbt = ctempl - pt;
@@ -2170,7 +2170,7 @@ int particle_transitions(int i)
 	int t = parts[i].type, x = (int)(parts[i].x+0.5f), y = (int)(parts[i].y+0.5f);
 	int s = 1;
 	float gravtot = fabs(gravy[(y/CELL)*(XRES/CELL)+(x/CELL)])+fabs(gravx[(y/CELL)*(XRES/CELL)+(x/CELL)]);
-	if (pv[y/CELL][x/CELL]>ptransitions[t].phv&&ptransitions[t].pht>-1) {
+	if (ptransitions[t].pht>-1 && pv[y/CELL][x/CELL]>ptransitions[t].phv) {
 		// particle type change due to high pressure
 		if (ptransitions[t].pht!=PT_NUM)
 			t = ptransitions[t].pht;
@@ -2181,12 +2181,12 @@ int particle_transitions(int i)
 				t = PT_BRMT;
 			else s = 0;
 		}
-	} else if (pv[y/CELL][x/CELL]<ptransitions[t].plv&&ptransitions[t].plt>-1&&gravtot<=(ptransitions[ptransitions[t].plt].phv/4.0f)) {
+	} else if (ptransitions[t].plt>-1 && pv[y/CELL][x/CELL]<ptransitions[t].plv) {
 		// particle type change due to low pressure
 		if (ptransitions[t].plt!=PT_NUM)
 			t = ptransitions[t].plt;
 		else s = 0;
-	} else if (gravtot>(ptransitions[t].phv/4.0f)&&ptransitions[t].pht>-1) {
+	} else if (ptransitions[t].pht>-1 && gravtot>(ptransitions[t].phv/4.0f)) {
 		// particle type change due to high gravity
 		if (ptransitions[t].pht!=PT_NUM)
 			t = ptransitions[t].pht;
@@ -2199,7 +2199,9 @@ int particle_transitions(int i)
 		}
 		else s = 0;
 	} else s = 0;
-	if (s) { // particle type change occurred
+	// particle type change occurred
+	if (s)
+	{
 		parts[i].life = 0;
 		part_change_type(i,x,y,t);
 		if (t==PT_FIRE)
@@ -2226,28 +2228,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 	float fin_xf, fin_yf, clear_xf, clear_yf;
 	float nn, ct1, ct2, swappage;
 	int surround[8];
-	int lightning_ok=1;
 	float pGravX, pGravY, pGravD;
-
-	if (sys_pause&&lighting_recreate>0)
-    {
-        for (i=0; i<=parts_lastActiveIndex; i++)
-        {
-            if (parts[i].type==PT_LIGH && parts[i].tmp2>0)
-            {
-                lightning_ok=0;
-                break;
-            }
-        }
-    }
-	if (lightning_ok)
-        lighting_recreate--;
-
-    if (lighting_recreate<0)
-        lighting_recreate=1;
-
-    if (lighting_recreate>21)
-        lighting_recreate=21;
 	
 	if (sys_pause&&!framerender)//do nothing if paused
 		return;
@@ -2271,6 +2252,9 @@ void update_particles_i(pixel *vid, int start, int inc)
 
 	if (ISWIRE>0) //wifi channel reseting
 		WIFI_update();
+
+	if (lighting_recreate)
+        lighting_recreate--;
 
 	//the main particle loop function, goes over all particles.
 	for (i=0; i<=parts_lastActiveIndex; i++)
@@ -3721,18 +3705,18 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 	{
 		gravwl_timeout = 60;
 	}
-	if (c==PT_LIGH)
+	if (c == PT_LIGH)
 	{
 	    if (lighting_recreate>0 && rx+ry>0)
             return 0;
-        p=create_part(-2, x, y, c);
-        if (p!=-1)
+        p = create_part(-2, x, y, c);
+        if (p != -1)
         {
-            parts[p].life=rx+ry;
-            if (parts[p].life>55)
-                parts[p].life=55;
-            parts[p].temp=parts[p].life*150.0f; // temperature of the lighting shows the power of the lighting
-            lighting_recreate+=parts[p].life/2+1;
+            parts[p].life = rx + ry;
+            if (parts[p].life > 55)
+                parts[p].life = 55;
+            parts[p].temp = parts[p].life*150.0f; // temperature of the lighting shows the power of the lighting
+            lighting_recreate = parts[p].life/4;
             return 1;
         }
         else return 0;
