@@ -38,7 +38,7 @@ int DeutExplosion(Simulation *sim, int n, int x, int y, float temp, int t)
 
 int NEUT_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, rt;
+	int r, rx, ry;
 	int pressureFactor = 3 + (int)pv[y/CELL][x/CELL];
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)

@@ -80,7 +80,7 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 					kill_part(i);
 					return 1;
 				}
-				if ((r&0xFF)==PT_NEUT && !pmap[y+ry][x+rx])
+				if ((r&0xFF)==PT_NEUT || ((r&0xFF)==PT_PROT && !(parts[r>>8].tmp2&0x1)))
 				{
 					part_change_type(r>>8, x+rx, y+ry, PT_H2);
 					parts[r>>8].life = 0;

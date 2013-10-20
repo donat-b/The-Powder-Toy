@@ -48,7 +48,6 @@ unsigned char fighcount = 0; //Contains the number of fighters
 
 particle *parts;
 particle *cb_parts;
-const particle emptyparticle = { 0 };
 
 int airMode = 0;
 int water_equal_test = 0;
@@ -262,13 +261,16 @@ void init_can_move()
 			can_move[movingType][movingType] = 2;
 	}
 	//a list of lots of things PHOT can move through
-	for (movingType = 0; movingType < PT_NUM; movingType++)
+	for (destinationType = 0; destinationType < PT_NUM; destinationType++)
 	{
-		if (movingType == PT_GLAS || movingType == PT_PHOT || movingType == PT_FILT || movingType == PT_INVIS || movingType == PT_PINV
-		 || movingType == PT_WATR || movingType == PT_DSTW || movingType == PT_SLTW || movingType == PT_GLOW
-		 || movingType == PT_ISOZ || movingType == PT_ISZS || movingType == PT_QRTZ || movingType == PT_PQRT
-		 || (ptypes[movingType].properties&PROP_CLONE) || (ptypes[movingType].properties&PROP_BREAKABLECLONE))
-			can_move[PT_PHOT][movingType] = 2;
+		if (destinationType == PT_GLAS || destinationType == PT_PHOT || destinationType == PT_FILT || destinationType == PT_H2
+		 || destinationType == PT_WATR || destinationType == PT_DSTW || destinationType == PT_SLTW || destinationType == PT_GLOW
+		 || destinationType == PT_ISOZ || destinationType == PT_ISZS || destinationType == PT_QRTZ || destinationType == PT_PQRT
+		 || destinationType == PT_INVIS || destinationType == PT_PINV
+		 || (ptypes[destinationType].properties&PROP_CLONE) || (ptypes[destinationType].properties&PROP_BREAKABLECLONE))
+			can_move[PT_PHOT][destinationType] = 2;
+		if (destinationType != PT_DMND && destinationType != PT_INSL && destinationType != PT_VOID && destinationType != PT_PVOD && destinationType != PT_VIBR)
+			can_move[PT_PROT][destinationType] = 2;
 	}
 
 	//other special cases that weren't covered above
@@ -429,7 +431,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 			if ((r & 0xFF) < PT_NUM && ptypes[r&0xFF].hconduct && ((r&0xFF)!=PT_HSWC||parts[r>>8].life==10) && (r&0xFF)!=PT_FILT)
 				parts[i].temp = parts[r>>8].temp = restrict_flt((parts[r>>8].temp+parts[i].temp)/2, MIN_TEMP, MAX_TEMP);
 		}
-		if ((parts[i].type==PT_NEUT || parts[i].type==PT_ELEC) && ((ptypes[r&0xFF].properties&PROP_CLONE) || (ptypes[r&0xFF].properties&PROP_BREAKABLECLONE))) {
+		else if ((parts[i].type==PT_NEUT || parts[i].type==PT_ELEC) && ((ptypes[r&0xFF].properties&PROP_CLONE) || (ptypes[r&0xFF].properties&PROP_BREAKABLECLONE))) {
 			if (!parts[r>>8].ctype)
 				parts[r>>8].ctype = parts[i].type;
 		}
@@ -477,56 +479,80 @@ int try_move(int i, int x, int y, int nx, int ny)
 	}
 	if (e == 2) //if occupy same space
 	{
-		if (parts[i].type == PT_PHOT && (r&0xFF)==PT_GLOW && !parts[r>>8].life)
-			if (rand() < RAND_MAX/30)
+		if (parts[i].type == PT_PHOT)
+		{
+			if ((r&0xFF) == PT_GLOW)
 			{
-				parts[r>>8].life = 120;
-				create_gain_photon(i);
+				if (!parts[r>>8].life && rand() < RAND_MAX/30)
+				{
+					parts[r>>8].life = 120;
+					create_gain_photon(i);
+				}
 			}
-		if (parts[i].type == PT_PHOT && (r&0xFF)==PT_FILT)
-		{
-			parts[i].ctype = interactWavelengths(&parts[r>>8], parts[i].ctype);
+			else if ((r&0xFF) == PT_FILT)
+			{
+				parts[i].ctype = interactWavelengths(&parts[r>>8], parts[i].ctype);
+			}
+			else if ((r&0xFF) == PT_INVIS)
+			{
+				if (pv[ny/CELL][nx/CELL]<=4.0f && pv[ny/CELL][nx/CELL]>=-4.0f)
+				{
+					part_change_type(i, x, y, PT_NEUT);
+					parts[i].ctype = 0;
+				}
+				else if ((r&0xFF) == PT_PINV)
+				{
+					if (!parts[r>>8].life)
+					{
+						part_change_type(i, x, y, PT_ELEC);
+						parts[i].ctype = 0;
+					}
+				}
+			}
+			else if ((r&0xFF)==PT_BIZR || (r&0xFF)==PT_BIZRG || (r&0xFF)==PT_BIZRS)
+			{
+				part_change_type(i, x, y, PT_ELEC);
+				parts[i].ctype = 0;
+			}
+			else if ((r&0xFF) == PT_H2 && pv[y/CELL][x/CELL] < 45.0f && parts[i].temp < 3000)
+			{
+				part_change_type(i, x, y, PT_PROT);
+				parts[i].ctype = 0;
+				parts[i].tmp2 = 0x1;
+
+				create_part(r>>8, x, y, PT_ELEC);
+				return -1;
+			}
 		}
-		if (parts[i].type == PT_NEUT && (r&0xFF)==PT_GLAS)
+		else if (parts[i].type == PT_NEUT)
 		{
-			if (rand() < RAND_MAX/10)
-				create_cherenkov_photon(i);
+			if ((r&0xFF) == PT_GLAS)
+			{
+				if (rand() < RAND_MAX/10)
+					create_cherenkov_photon(i);
+			}
 		}
-		if (parts[i].type == PT_PHOT && (r&0xFF)==PT_INVIS && pv[ny/CELL][nx/CELL]<=4.0f && pv[ny/CELL][nx/CELL]>=-4.0f)
+		else if (parts[i].type==PT_BIZR || parts[i].type==PT_BIZRG)
 		{
-			part_change_type(i,x,y,PT_NEUT);
-			parts[i].ctype = 0;
+			if ((r&0xFF) == PT_FILT)
+				parts[i].ctype = interactWavelengths(&parts[r>>8], parts[i].ctype);
 		}
-		if (parts[i].type == PT_PHOT && (r&0xFF)==PT_PINV && parts[r>>8].life == 0)
+		else if (parts[i].type == PT_PROT)
 		{
-			part_change_type(i,x,y,PT_ELEC);
-			parts[i].ctype = 0;
-		}
-		if ((parts[i].type==PT_BIZR||parts[i].type==PT_BIZRG) && (r&0xFF)==PT_FILT)
-		{
-			parts[i].ctype = interactWavelengths(&parts[r>>8], parts[i].ctype);
-		}
-		if (((r&0xFF)==PT_BIZR || (r&0xFF)==PT_BIZRG || (r&0xFF)==PT_BIZRS) && parts[i].type==PT_PHOT)
-		{
-			part_change_type(i, x, y, PT_ELEC);
-			parts[i].ctype = 0;
+			if ((r&0xFF) == PT_INVIS)
+				part_change_type(i, x, y, PT_NEUT);
 		}
 		return 1;
 	}
 	//else e=1 , we are trying to swap the particles, return 0 no swap/move, 1 is still overlap/move, because the swap takes place later
 
-	if (parts[i].type==PT_NEUT && (ptypes[r&0xFF].properties&PROP_NEUTABSORB))
-	{
-		kill_part(i);
-		return 0;
-	}
 	if ((r&0xFF)==PT_VOID || (r&0xFF)==PT_PVOD) //this is where void eats particles
 	{
 		//void ctype already checked in eval_move
 		kill_part(i);
 		return 0;
 	}
-	if ((r&0xFF)==PT_BHOL || (r&0xFF)==PT_NBHL) //this is where blackhole eats particles
+	else if ((r&0xFF)==PT_BHOL || (r&0xFF)==PT_NBHL) //this is where blackhole eats particles
 	{
 		kill_part(i);
 		if (!legacy_enable)
@@ -535,37 +561,60 @@ int try_move(int i, int x, int y, int nx, int ny)
 		}
 		return 0;
 	}
-	if (((r&0xFF)==PT_WHOL||(r&0xFF)==PT_NWHL) && parts[i].type==PT_ANAR) //whitehole eats anar
+	else if ((r&0xFF)==PT_WHOL || (r&0xFF)==PT_NWHL) //whitehole eats anar
 	{
-		kill_part(i);
-		if (!legacy_enable)
+		if (parts[i].type == PT_ANAR)
 		{
-			parts[r>>8].temp = restrict_flt(parts[r>>8].temp- (MAX_TEMP-parts[i].temp)/2, MIN_TEMP, MAX_TEMP);
+			if (!legacy_enable)
+			{
+				parts[r>>8].temp = restrict_flt(parts[r>>8].temp- (MAX_TEMP-parts[i].temp)/2, MIN_TEMP, MAX_TEMP);
+			}
+			kill_part(i);
+			return 0;
 		}
-		return 0;
 	}
-	if (((r&0xFF)==PT_VIBR || (r&0xFF)==PT_BVBR) && (ptypes[parts[i].type].properties & TYPE_ENERGY))
+	else if ((r&0xFF) == PT_DEUT)
 	{
-		parts[r>>8].tmp += 20;
-		kill_part(i);
-		return 0;
+		if (parts[i].type == PT_ELEC)
+		{
+			if (parts[r>>8].life < 6000)
+				parts[r>>8].life += 1;
+			parts[r>>8].temp = 0;
+			kill_part(i);
+			return 0;
+		}
 	}
-	if ((r&0xFF)==PT_DEUT && parts[i].type==PT_ELEC)
+	else if ((r&0xFF)==PT_VIBR || (r&0xFF)==PT_BVBR)
 	{
-		if(parts[r>>8].life < 6000)
-		parts[r>>8].life += 1;
-		parts[r>>8].temp = 0;
-		kill_part(i);
-		return 0;
+		if (ptypes[parts[i].type].properties & TYPE_ENERGY)
+		{
+			parts[r>>8].tmp += 20;
+			kill_part(i);
+			return 0;
+		}
 	}
 
-	if (parts[i].type==PT_CNCT && y<ny && (pmap[y+1][x]&0xFF)==PT_CNCT)//check below CNCT for another CNCT
-		return 0;
+	if (parts[i].type == PT_NEUT)
+	{
+		if (ptypes[r&0xFF].properties & PROP_NEUTABSORB)
+		{
+			kill_part(i);
+			return 0;
+		}
+	}
+	else if (parts[i].type == PT_CNCT)
+	{
+		//check below CNCT for another CNCT
+		if (y<ny && (pmap[y+1][x]&0xFF)==PT_CNCT)
+			return 0;
+	}
+	else if (parts[i].type == PT_GBMB)
+	{
+		if (parts[i].life > 0)
+			return 0;
+	}
 
 	if ((bmap[y/CELL][x/CELL]==WL_EHOLE && !emap[y/CELL][x/CELL]) && !(bmap[ny/CELL][nx/CELL]==WL_EHOLE && !emap[ny/CELL][nx/CELL]))
-		return 0;
-
-	if(parts[i].type==PT_GBMB&&parts[i].life>0)
 		return 0;
 
 	e = r >> 8; //e is now the particle number at r (pmap[ny][nx])

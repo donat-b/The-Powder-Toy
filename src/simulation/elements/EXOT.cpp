@@ -21,7 +21,8 @@ int EXOT_update(UPDATE_FUNC_ARGS)
 	t = parts[i].type;
 	for (rx=-2; rx<=2; rx++)
 		for (ry=-2; ry<=2; ry++)
-			if (BOUNDS_CHECK) {
+			if (BOUNDS_CHECK && (rx || ry))
+			{
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
@@ -33,10 +34,16 @@ int EXOT_update(UPDATE_FUNC_ARGS)
 							parts[i].tmp2 += 100;
 						}
 				}
-				else if ((r&0xFF) == PT_EXOT && parts[r>>8].life == 1500 && 1>rand()%1000)
-					parts[i].life = 1500;
+				else if ((r&0xFF) == PT_EXOT)
+				{
+					if (parts[r>>8].ctype == PT_PROT)
+						parts[i].ctype = PT_PROT;
+					if (parts[r>>8].life == 1500 && !(rand()%1000))
+						parts[i].life = 1500;
+				}
 				else if ((r&0xFF) == PT_LAVA)
 				{
+					//turn molten TTAN or molten GOLD to molten VIBR 
 					if (parts[r>>8].ctype == PT_TTAN || parts[r>>8].ctype == PT_TTAN)
 					{
 						if (!(rand()%10))
@@ -46,6 +53,7 @@ int EXOT_update(UPDATE_FUNC_ARGS)
 							return 1;
 						}
 					}
+					//molten VIBR will kill the leftover EXOT though, so the VIBR isn't killed later
 					else if (parts[r>>8].ctype == PT_VIBR)
 					{
 						if (!(rand()%1000))
@@ -55,39 +63,41 @@ int EXOT_update(UPDATE_FUNC_ARGS)
 						}
 					}
 				}
-				if ((parts[i].tmp>245) && (parts[i].life>1000))
+				if (parts[i].tmp>245 && parts[i].life>1000)
 					if ((r&0xFF)!=PT_EXOT && (r&0xFF)!=PT_BREL && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && (r&0xFF)!=PT_PRTI && (r&0xFF)!=PT_PRTO && (r&0xFF)!=PT_PHOT && (r&0xFF)!=PT_VOID && (r&0xFF)!=PT_NBHL && (r&0xFF)!=PT_WARP && (r&0xFF)!=PT_NEUT)
 					{
 						sim->part_create(i, x, y, parts[r>>8].type);
-						return 0;
+						return 1;
 					}
 			}
-	parts[i].tmp--;	
-	parts[i].tmp2--;	
+	parts[i].tmp--;
+	parts[i].tmp2--;
+	//reset tmp every 250 frames, gives EXOT it's slow flashing effect 
 	if (parts[i].tmp<1 || parts[i].tmp>250)
 		parts[i].tmp = 250;
-	if (parts[i].tmp2<1)
+	if (parts[i].tmp2 < 1)
 		parts[i].tmp2 = 1;
-	else if (parts[i].tmp2>6000)
+	else if (parts[i].tmp2 > 6000)
 	{
 		parts[i].tmp2 = 10000;
-		if (parts[i].life<1001)
+		if (parts[i].life < 1001)
 		{
 			part_change_type(i, x, y, PT_WARP);
 			return 0;
 		}
 	}
-	else if (parts[i].life<1001)
+	else if (parts[i].life < 1001)
 		pv[y/CELL][x/CELL] += (parts[i].tmp2*CFDS)/160000;
+
 	if (pv[y/CELL][x/CELL]>200 && parts[i].temp>9000 && parts[i].tmp2>200)
 	{
 		parts[i].tmp2 = 6000;
 		part_change_type(i, x, y, PT_WARP);
 		return 0;
 	}		
-	if (parts[i].tmp2>100)
+	if (parts[i].tmp2 > 100)
 	{
-		for ( trade = 0; trade<9; trade ++)
+		for (trade = 0; trade<9; trade++)
 		{
 			rx = rand()%5-2;
 			ry = rand()%5-2;
@@ -96,16 +106,16 @@ int EXOT_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)==t && (parts[i].tmp2>parts[r>>8].tmp2) && parts[r>>8].tmp2>=0 )//diffusion
+				if ((r&0xFF)==t && (parts[i].tmp2>parts[r>>8].tmp2) && parts[r>>8].tmp2>=0)//diffusion
 				{
 					tym = parts[i].tmp2 - parts[r>>8].tmp2;
-					if (tym ==1)
+					if (tym == 1)
 					{
-						parts[r>>8].tmp2 ++;
-						parts[i].tmp2 --;
+						parts[r>>8].tmp2++;
+						parts[i].tmp2--;
 						break;
 					}
-					if (tym>0)
+					if (tym > 0)
 					{
 						parts[r>>8].tmp2 += tym/2;
 						parts[i].tmp2 -= tym/2;
@@ -115,7 +125,17 @@ int EXOT_update(UPDATE_FUNC_ARGS)
 			}
 		}
 	}
-	if (parts[i].temp<273.15f)
+	if (parts[i].ctype == PT_PROT)
+	{
+		if (parts[i].temp < 50.0f)
+		{
+			sim->part_create(i, x, y, PT_HFLM);
+			return 1;
+		}
+		else
+			parts[i].temp -= 1.0f;
+	}
+	else if (parts[i].temp<273.15f)
 	{
 		parts[i].vx = 0;
 		parts[i].vy = 0;

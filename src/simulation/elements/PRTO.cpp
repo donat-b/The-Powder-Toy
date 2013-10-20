@@ -55,14 +55,14 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 						create_part(-1,x-1,y+1,PT_SPRK);
 						create_part(-1,x-1,y,PT_SPRK);
 						create_part(-1,x-1,y-1,PT_SPRK);
-						portalp[parts[i].tmp][randomness][nnx] = emptyparticle;
+						memset(&portalp[parts[i].tmp][randomness][nnx], 0, sizeof(particle)); 
 						break;
 					}
 					else if (portalp[parts[i].tmp][randomness][nnx].type)
 					{
 						if (portalp[parts[i].tmp][randomness][nnx].type < 0 || portalp[parts[i].tmp][randomness][nnx].type >= PT_NUM)
 						{
-							portalp[parts[i].tmp][randomness][nnx] = emptyparticle;
+							memset(&portalp[parts[i].tmp][randomness][nnx], 0, sizeof(particle)); 
 							continue;
 						}
 						if (portalp[parts[i].tmp][randomness][nnx].type==PT_STKM)
@@ -109,7 +109,7 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 						}
 						parts[np].x = (float)(x+rx);
 						parts[np].y = (float)(y+ry);
-						portalp[parts[i].tmp][randomness][nnx] = emptyparticle;
+						memset(&portalp[parts[i].tmp][randomness][nnx], 0, sizeof(particle)); 
 						break;
 					}
 				}
