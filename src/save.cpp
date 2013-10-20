@@ -2721,12 +2721,16 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 			{
 				//In old saves, ignore walls created by sign tool bug
 				//Not ignoring other invalid walls or invalid walls in new saves, so that any other bugs causing them are easier to notice, find and fix
-				if (ver<71 && d[p]==WL_SIGN)
+				if (ver>=44 && ver<71 && d[p]==WL_SIGN)
 				{
 					p++;
 					continue;
 				}
 
+				//TODO: if wall id's are changed look at https://github.com/simtr/The-Powder-Toy/commit/02a4c17d72def847205c8c89dacabe9ecdcb0dab
+				//for now, old saves shouldn't have id's this large
+				if (ver < 44 && bmap[y][x] >= UI_ACTUALSTART)
+					bmap[y][x] = 0;
 				bmap[y][x] = change_wall(d[p]);
 			}
 
@@ -2734,7 +2738,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 		}
 	for (y=by0; y<by0+bh; y++)
 		for (x=bx0; x<bx0+bw; x++)
-			if (d[(y-by0)*bw+(x-bx0)]==4||d[(y-by0)*bw+(x-bx0)]==WL_FAN)
+			if (d[(y-by0)*bw+(x-bx0)]==4||(ver>=44 && d[(y-by0)*bw+(x-bx0)]==WL_FAN))
 			{
 				if (p >= size)
 					goto corrupt;
@@ -2742,7 +2746,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 			}
 	for (y=by0; y<by0+bh; y++)
 		for (x=bx0; x<bx0+bw; x++)
-			if (d[(y-by0)*bw+(x-bx0)]==4||d[(y-by0)*bw+(x-bx0)]==WL_FAN)
+			if (d[(y-by0)*bw+(x-bx0)]==4||(ver>=44 && d[(y-by0)*bw+(x-bx0)]==WL_FAN))
 			{
 				if (p >= size)
 					goto corrupt;
