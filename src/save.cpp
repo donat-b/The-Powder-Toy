@@ -910,12 +910,17 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 				//Life (optional), 1 to 2 bytes
 				if(partsptr[i].life)
 				{
+					int life = partsptr[i].life;
+					if (life > 0xFFFF)
+						life = 0xFFFF;
+					else if (life < 0)
+						life = 0;
 					fieldDesc |= 1 << 1;
-					partsData[partsDataLen++] = partsptr[i].life;
+					partsData[partsDataLen++] = life;
 					if(partsptr[i].life & 0xFF00)
 					{
 						fieldDesc |= 1 << 2;
-						partsData[partsDataLen++] = partsptr[i].life >> 8;
+						partsData[partsDataLen++] = life >> 8;
 					}
 				}
 				
@@ -1028,7 +1033,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 					}
 				}
 				
-				//Write the field descriptor;
+				//Write the field descriptor
 				partsData[fieldDescLoc] = fieldDesc;
 				partsData[fieldDescLoc+1] = fieldDesc>>8;
 

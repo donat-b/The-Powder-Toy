@@ -2254,7 +2254,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 		WIFI_update();
 
 	if (lighting_recreate)
-        lighting_recreate--;
+		lighting_recreate--;
 
 	//the main particle loop function, goes over all particles.
 	for (i=0; i<=parts_lastActiveIndex; i++)
