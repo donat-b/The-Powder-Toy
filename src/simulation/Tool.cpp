@@ -63,6 +63,8 @@ int Tool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 					vy[(endPos.Y+j)/CELL][(endPos.X+i)/CELL] += (endPos.Y-startPos.Y)*0.01f;
 				}
 	}
+	else if (held && type == ELEMENT_TOOL && (globalSim->elements[ID].Properties&PROP_MOVS))
+		return 0;
 	else
 		create_line(startPos.X, startPos.Y, endPos.X, endPos.Y, currentBrush->GetRadius().X, currentBrush->GetRadius().Y, ID, get_brush_flags());
 	return 0;
