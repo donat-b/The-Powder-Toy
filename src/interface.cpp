@@ -5097,7 +5097,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	int hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1;
 	int comment_scroll = 0, comment_page = 0, redraw_comments = 1, dofocus = 0, disable_scrolling = 0;
 	int nyd,nyu,ry,lv;
-	float ryf;
+	float ryf, scroll_velocity = 0.0f;
 
 	char *uri, *uri_2, *o_uri, *uri_3, *uri_4;
 	void *data = NULL, *info_data, *thumb_data_full, *comment_data;
@@ -5538,7 +5538,10 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							if (ccy+comment_scroll < 100 && cc == info->comment_count-1 && active_4) // disable scrolling until more comments have loaded
 								disable_scrolling = 1;
 							if (ccy+comment_scroll < 0 && cc == info->comment_count-1 && !active_4) // reset to top of comments
+							{
 								comment_scroll = 0;
+								scroll_velocity = 0.0f;
+							}
 
 							if (ccy+52+comment_scroll<YRES+MENUSIZE-50 && ccy+comment_scroll>-3) { //draw the line that separates comments
 								draw_line(vid_buf, 50+(XRES/2)+2, ccy+52+comment_scroll, XRES+BARSIZE-51, ccy+52+comment_scroll, 100, 100, 100, XRES+BARSIZE);
@@ -5720,14 +5723,25 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						comment_page = 0;
 						info->comment_count = 0;
 						comment_scroll = 0;
+						scroll_velocity = 0.0f;
 					}
 				}
+			}
+			if (scroll_velocity)
+			{
+				comment_scroll += (int)scroll_velocity;
+				if (comment_scroll > 0)
+					comment_scroll = 0;
+				scroll_velocity *= .95f;
+				if (abs(scroll_velocity) < .5f)
+					scroll_velocity = 0.0f;
 			}
 			if (sdl_wheel && (!ed.focus || (sdl_key != '-' && sdl_key != '+')))
 			{
 				if (!disable_scrolling || sdl_wheel > 0)
 				{
 					comment_scroll += 6*sdl_wheel;
+					scroll_velocity += sdl_wheel;
 					if (comment_scroll > 0)
 						comment_scroll = 0;
 					redraw_comments = 1;
