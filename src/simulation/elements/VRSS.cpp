@@ -16,6 +16,7 @@
 #include "simulation/ElementsCommon.h"
 
 int VIRS_update(UPDATE_FUNC_ARGS);
+int VIRS_graphics(GRAPHICS_FUNC_ARGS);
 
 void VRSS_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
@@ -36,7 +37,7 @@ void VRSS_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->PressureAdd_NoAmbHeat = 0.000f	* CFDS;
 	elem->Falldown = 0;
 
-	elem->Flammable = 5;
+	elem->Flammable = 0;
 	elem->Explosive = 0;
 	elem->Meltable = 0;
 	elem->Hardness = 1;
@@ -60,9 +61,9 @@ void VRSS_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = 305.0f;
 	elem->HighTemperatureTransitionElement = PT_VIRS;
 
-	elem->DefaultProperties.pavg[1] = 100;
+	elem->DefaultProperties.pavg[1] = 250;
 
 	elem->Update = &VIRS_update;
-	elem->Graphics = NULL;
+	elem->Graphics = &VIRS_graphics;
 	elem->Init = &VRSS_init_element;
 }

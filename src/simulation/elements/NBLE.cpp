@@ -45,7 +45,7 @@ int NBLE_update(UPDATE_FUNC_ARGS)
 			if (j != -1)
 			{
 				parts[j].temp = temp;
-				parts[j].tmp |= 1;
+				parts[j].tmp |= 4;
 			}
 
 			parts[i].temp = temp+1750+rand()%500;

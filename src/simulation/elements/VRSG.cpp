@@ -16,6 +16,7 @@
 #include "simulation/ElementsCommon.h"
 
 int VIRS_update(UPDATE_FUNC_ARGS);
+int VIRS_graphics(GRAPHICS_FUNC_ARGS);
 
 void VRSG_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
@@ -56,13 +57,13 @@ void VRSG_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighPressureTransitionThreshold = IPH;
 	elem->HighPressureTransitionElement = NT;
 	elem->LowTemperatureTransitionThreshold = 673.0f;
-	elem->LowTemperatureTransitionElement = PT_VRSG;
+	elem->LowTemperatureTransitionElement = PT_VIRS;
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->DefaultProperties.pavg[1] = 100;
+	elem->DefaultProperties.pavg[1] = 250;
 
 	elem->Update = &VIRS_update;
-	elem->Graphics = NULL;
+	elem->Graphics = &VIRS_graphics;
 	elem->Init = &VRSG_init_element;
 }

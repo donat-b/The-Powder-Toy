@@ -89,7 +89,9 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 int fix_type(int type, int version, int modver)
 {
 	int max = 161;
-	if (version >= 87)
+	if (modver >= 16)
+		max = 174;
+	else if (version >= 87)
 		max = 173;
 	else if (version >= 86 || modver == 14)
 		max = 170;
@@ -249,7 +251,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 {
 	unsigned char * inputData = (unsigned char*)save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *wallData = NULL;
 	int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, wallDataLen;
-	int i, x, y, j, type, ctype, wt, pc, gc, modsave = 0, movscenter = 0, saved_version = inputData[4];
+	int i, x, y, j, type, ctype, wt, pc, gc, modsave = 0, saved_version = inputData[4];
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	int bsonInitialised = 0;
 	pixel * vidBuf = NULL;
@@ -625,7 +627,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 					}
 
 					//Skip pavg (moving solids)
-					if (fieldDescriptor & 0x8000)
+					if ((fieldDescriptor & 0x2000) || ((fieldDescriptor&0x8000) && modsave && modsave <= 15))
 					{
 						int pavg, pavg2;
 						if(i+3 >= partsDataLen) goto fail;
@@ -633,11 +635,14 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 						pavg |= (((unsigned)partsData[i++]) << 8);
 						pavg2 = partsData[i++];
 						pavg2 |= (((unsigned)partsData[i++]) << 8);
-						if (pavg || pavg2 || type == PT_VRSS || type == PT_VIRS || type == PT_VRSG)
-							movscenter = 0;
-						else
-							movscenter = 1;
+
+						//Skip moving solid rotation
+						if (!pavg && !pavg2 && ((fieldDescriptor & 0x8000) || (modsave && modsave <= 8 && type == PT_MOVS)) && type != PT_VRSS && type != PT_VIRS && type != PT_VRSG)
+							if(i++ >= partsDataLen) goto fail;
 					}
+					//Skip moving solid rotation
+					else if (modsave && modsave >= 16 && type == PT_MOVS)
+						if(i++ >= partsDataLen) goto fail;
 
 					//Skip flags (instantly activated powered elements in my mod)
 					if(fieldDescriptor & 0x4000)
@@ -651,10 +656,6 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 						i += 4+4*ctype;
 						if(i > partsDataLen) goto fail;
 					}
-
-					//Skip moving solid rotation
-					if ((((fieldDescriptor & 0x8000) && movscenter) || (modsave && modsave <= 8 && type == PT_MOVS && !(fieldDescriptor & 0x08) && !(fieldDescriptor & 0x400))))
-						if(i++ >= partsDataLen) goto fail;
 				}
 			}
 		}
@@ -852,7 +853,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	//Copy parts data
 	/* Field descriptor format:
 	|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|
-	|	PROP_MOVS	|	  flags		|				|	tmp[3+4]	|		tmp2[2]	|		tmp2	|	ctype[2]	|		vy		|		vx		|	dcololour	|	ctype[1]	|		tmp[2]	|		tmp[1]	|		life[2]	|		life[1]	|	temp dbl len|
+	|PROP_MOVS (mod)|	flags (mod)	|	  pavg		|	tmp[3+4]	|		tmp2[2]	|		tmp2	|	ctype[2]	|		vy		|		vx		|	dcololour	|	ctype[1]	|		tmp[2]	|		tmp[1]	|		life[2]	|		life[1]	|	temp dbl len|
 	life[2] means a second byte (for a 16 bit field) if life[1] is present
 	*/
 	partsData = (unsigned char*)malloc(NPART * (sizeof(particle)+1));
@@ -998,17 +999,18 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 					}
 				}
 
+				//Don't save pavg for things that break under pressure, because then they will break when the save is loaded, since pressure isn't also loaded
+				if ((partsptr[i].pavg[0] || partsptr[i].pavg[1]) && !(partsptr[i].type == PT_QRTZ || partsptr[i].type == PT_GLAS || partsptr[i].type == PT_TUNG))
+				{
+					fieldDesc |= 1 << 13;
+					partsData[partsDataLen++] = (int)partsptr[i].pavg[0];
+					partsData[partsDataLen++] = ((int)partsptr[i].pavg[0])>>8;
+					partsData[partsDataLen++] = (int)partsptr[i].pavg[1];
+					partsData[partsDataLen++] = ((int)partsptr[i].pavg[1])>>8;
+				}
+
 				if (save_as == 3)
 				{
-					//Moving solids, save pavg (and rotation for center particle)
-					if ((ptypes[partsptr[i].type].properties&PROP_MOVS) || partsptr[i].type == PT_VRSS || partsptr[i].type == PT_VIRS || partsptr[i].type == PT_VRSG)
-					{
-						fieldDesc |= 1 << 15;
-						partsData[partsDataLen++] = (int)partsptr[i].pavg[0];
-						partsData[partsDataLen++] = ((int)partsptr[i].pavg[0])>>8;
-						partsData[partsDataLen++] = (int)partsptr[i].pavg[1];
-						partsData[partsDataLen++] = ((int)partsptr[i].pavg[1])>>8;
-					}
 					//Instantly activated electronics
 					if (partsptr[i].flags)
 					{
@@ -1016,6 +1018,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 						partsData[partsDataLen++] = partsptr[i].flags;
 					}
 
+					//animations, and also lua code in saves
 					if ((partsptr[i].type == PT_ANIM || partsptr[i].type == PT_INDI) && partsptr[i].ctype)
 					{
 						int j, max = partsptr[i].ctype;
@@ -1027,7 +1030,8 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 							partsData[partsDataLen++] = (partsptr[i].animations[j]&0x000000FF);
 						}
 					}
-					if ((ptypes[partsptr[i].type].properties&PROP_MOVS) && !partsptr[i].pavg[0] && !partsptr[i].pavg[1] && i == msindex[partsptr[i].tmp2]-1)
+					//moving solid rotation
+					if (partsptr[i].type == PT_MOVS && !partsptr[i].pavg[0] && !partsptr[i].pavg[1] && i == msindex[partsptr[i].tmp2]-1)
 					{
 						partsData[partsDataLen++] = (int)((msrotation[partsptr[i].tmp2] + 2*M_PI)*20);
 					}
@@ -2076,7 +2080,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					}
 
 					//Read pavg (for moving solids)
-					if(fieldDescriptor & 0x8000)
+					if ((fieldDescriptor & 0x2000) || ((fieldDescriptor&0x8000) && modsave && modsave <= 15))
 					{
 						int pavg, el = partsptr[newIndex].type;
 						if(i+3 >= partsDataLen) goto fail;
@@ -2086,7 +2090,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						pavg = partsData[i++];
 						pavg |= (((unsigned)partsData[i++]) << 8);
 						partsptr[newIndex].pavg[1] = (float)pavg;
-						if (!(ptypes[el].properties&PROP_MOVS) && el != PT_VRSS && el != PT_VIRS && el != PT_VRSG)
+						//tpt.moving_solid properties no longer saved in saves, because they aren't easily undoable and this isn't done very well
+						if (!(ptypes[el].properties&PROP_MOVS) && el != PT_VRSS && el != PT_VIRS && el != PT_VRSG && modsave && modsave <= 15)
 						{
 							ptypes[el].properties |= PROP_MOVS;
 							ptypes[el].advection = ptypes[PT_MOVS].advection;
@@ -2134,7 +2139,9 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						}
 					}
 
-					if (((fieldDescriptor & 0x8000) || (modsave && modsave <= 8 && partsptr[newIndex].type == PT_MOVS)) && partsptr[newIndex].type != PT_VRSS && partsptr[newIndex].type != PT_VIRS && partsptr[newIndex].type != PT_VRSG)
+					//moving solid loading code stuff. Versions before save version 8 and after 16 only consider BALL to be a moving solid, 
+					//versions inbetween would save anything that had been modified with tpt.moving_solid as one. Disabled until further notice
+					if (((fieldDescriptor & 0x8000) || (modsave && (modsave <= 8 || modsave >= 16) && partsptr[newIndex].type == PT_MOVS)) && partsptr[newIndex].type != PT_VRSS && partsptr[newIndex].type != PT_VIRS && partsptr[newIndex].type != PT_VRSG)
 					{
 						if (modsave && modsave <= 8)
 						{

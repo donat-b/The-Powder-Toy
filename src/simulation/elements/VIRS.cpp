@@ -17,11 +17,14 @@
 
 int VIRS_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry;
+	//pavg[0] measures how many frames until it is cured (0 if still actively spreading and not being cured)
+	//pavg[1] measures how many frames until it dies 
+	int r, rx, ry, rndstore = rand();
 	if (parts[i].pavg[0])
 	{
-		parts[i].pavg[0] -= rand()%2 < 1 ? 0:1;
-		if ((parts[i].pavg[0]) == 0)
+		parts[i].pavg[0] -= (rndstore&0x1) ? 0:1;
+		//has been cured, so change back into the original element
+		if (!parts[i].pavg[0])
 		{
 			part_change_type(i,x,y,parts[i].tmp2);
 			parts[i].tmp2 = 0;
@@ -30,53 +33,92 @@ int VIRS_update(UPDATE_FUNC_ARGS)
 			return 0;
 		}
 	}
+	//decrease pavg[1] so it slowly dies
 	if (parts[i].pavg[1] > 0)
 	{
-		if (rand()%15 < 1)
+		if (((rndstore>>1)&0xD) < 1)
+		{
 			parts[i].pavg[1]--;
+			//if pavg[1] is now 0 and it's not in the process of being cured, kill it
+			if (!parts[i].pavg[1] && !parts[i].pavg[0])
+			{
+				kill_part(i);
+				return 1;
+			}
+		}
 	}
-	else if (!parts[i].pavg[0])
+
+	//none of the things in the below loop happen while virus is being cured
+	if (parts[i].pavg[0])
+		return 0;
+
+	for (rx=-1; rx<2; rx++)
 	{
-		kill_part(i);
-		return 1;
-	}
-	for (rx=-2; rx<3; rx++)
-		for (ry=-2; ry<3; ry++)
+		//reset rndstore, one random can last through 3 locations and reduce rand() calling by up to 6x as much
+		rndstore = rand();
+		for (ry=-1; ry<2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
 				r = ((pmap[y+ry][x+rx]&0xFF)==PT_PINV&&parts[pmap[y+ry][x+rx]>>8].life==10)?0:pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if (((r&0xFF) == PT_VIRS || (r&0xFF) == PT_VRSS || (r&0xFF) == PT_VRSG) && parts[r>>8].pavg[0] && !parts[i].pavg[0])
+
+				//spread "being cured" state
+				if (((r&0xFF) == PT_VIRS || (r&0xFF) == PT_VRSS || (r&0xFF) == PT_VRSG) && parts[r>>8].pavg[0])
 				{
-					int newtmp = (int)parts[r>>8].pavg[0] + (rand()%6 < 1 ? 1:2);
-					parts[i].pavg[0] = (float)newtmp;
+					parts[i].pavg[0] = parts[r>>8].pavg[0] + (((rndstore&0x7)>>1) ? 2:1);
+					return 0;
 				}
-				else if (!(parts[i].pavg[0] || parts[i].pavg[0] > 10) && (r&0xFF) == PT_CURE)
+				//soap cures virus
+				else if ((r&0xFF) == PT_SOAP || (r&0xFF) == PT_CURE)
 				{
 					parts[i].pavg[0] += 10;
-					if (rand()%10<1)
+					if (!((rndstore&0x7)>>1))
 						kill_part(r>>8);
+					return 0;
 				}
-				else if (!parts[i].pavg[0] && (r&0xFF) != PT_VIRS && (r&0xFF) != PT_VRSS && (r&0xFF) != PT_VRSG && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE))
+				else if ((r&0xFF) == PT_PLSM)
 				{
-					if (rand()%50<1)
+					if (surround_space && 10 + (int)(pv[(y+ry)/CELL][(x+rx)/CELL]) > (rand()%100))
 					{
-						int newtmp = (int)parts[i].pavg[1] + (rand()%3 < 1 ? 0:1);
+						globalSim->part_create(i, x, y, PT_PLSM);
+						return 1;
+					}
+				}
+				else if ((r&0xFF) != PT_VIRS && (r&0xFF) != PT_VRSS && (r&0xFF) != PT_VRSG && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE))
+				{
+					if (!((rndstore&0xF)>>1))
+					{
 						parts[r>>8].tmp2 = (r&0xFF);
 						parts[r>>8].pavg[0] = 0;
-						parts[r>>8].pavg[1] = (float)newtmp;
-						if (parts[r>>8].temp < 305)
+						if (parts[i].pavg[1])
+							parts[r>>8].pavg[1] = parts[i].pavg[1] + ((rndstore>>4) ? 1:0);
+						else
+							parts[r>>8].pavg[1] = 0;
+						if (parts[r>>8].temp < 305.0f)
 							part_change_type(r>>8,x,y,PT_VRSS);
-						else if (parts[r>>8].temp > 673)
+						else if (parts[r>>8].temp > 673.0f)
 							part_change_type(r>>8,x,y,PT_VRSG);
 						else
 							part_change_type(r>>8,x,y,PT_VIRS);
 					}
+					rndstore = rndstore >> 5;
+				}
+				//protons make VIRS last forever
+				else if ((photons[y+ry][x+rx]&0xFF) == PT_PROT)
+				{
+					parts[i].pavg[1] = 0;
 				}
 			}
+	}
 	return 0;
 }
+
+int VIRS_graphics(GRAPHICS_FUNC_ARGS)
+{
+	*pixel_mode |= NO_DECO;
+	return 1;
+} 
 
 void VIRS_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
@@ -97,7 +139,7 @@ void VIRS_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->PressureAdd_NoAmbHeat = 0.000f	* CFDS;
 	elem->Falldown = 2;
 
-	elem->Flammable = 100;
+	elem->Flammable = 0;
 	elem->Explosive = 0;
 	elem->Meltable = 0;
 	elem->Hardness = 20;
@@ -121,9 +163,9 @@ void VIRS_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = 673.0f;
 	elem->HighTemperatureTransitionElement = PT_VRSG;
 
-	elem->DefaultProperties.pavg[1] = 100;
+	elem->DefaultProperties.pavg[1] = 250;
 
 	elem->Update = &VIRS_update;
-	elem->Graphics = NULL;
+	elem->Graphics = &VIRS_graphics;
 	elem->Init = &VIRS_init_element;
 }

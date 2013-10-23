@@ -18,8 +18,6 @@
 int H2_update(UPDATE_FUNC_ARGS)
 {
 	int r,rx,ry,rt;
-	if (parts[i].temp > 2273.15 && pv[y/CELL][x/CELL] > 50.0f)
-		parts[i].tmp = 1;
 	for (rx=-2; rx<3; rx++)
 		for (ry=-2; ry<3; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
@@ -35,7 +33,7 @@ int H2_update(UPDATE_FUNC_ARGS)
 				}
 				if (parts[r>>8].temp > 2273.15 && pv[y/CELL][x/CELL] > 45.0f)
 					continue;
-				if (pv[x/CELL][y/CELL] < 45.0f)
+				if (pv[x/CELL][y/CELL] <= 45.0f)
 				{
 					if (rt==PT_FIRE)
 					{
@@ -44,7 +42,7 @@ int H2_update(UPDATE_FUNC_ARGS)
 							parts[r>>8].temp=3473;
 						parts[r>>8].tmp |= 1;
 					}
-					if (rt==PT_FIRE || (rt==PT_PLSM && !(parts[r>>8].tmp&1)) || (rt==PT_LAVA && parts[r>>8].ctype != PT_BMTL))
+					if (rt==PT_FIRE || (rt==PT_PLSM && !(parts[r>>8].tmp&4)) || (rt==PT_LAVA && parts[r>>8].ctype != PT_BMTL))
 					{
 						sim->part_create(i,x,y,PT_FIRE);
 						parts[i].temp+=(rand()%250);
@@ -80,7 +78,7 @@ int H2_update(UPDATE_FUNC_ARGS)
 			if (j != -1)
 			{
 				parts[j].temp = temp;
-				parts[j].tmp |= 1;
+				parts[j].tmp |= 4;
 			}
 
 			parts[i].temp = temp+750+rand()%500;

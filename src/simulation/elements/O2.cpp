@@ -35,7 +35,7 @@ int O2_update(UPDATE_FUNC_ARGS)
 					parts[r>>8].temp=3473;
 					parts[r>>8].tmp |= 2;
 				}
-				if ((r&0xFF)==PT_FIRE || (r&0xFF)==PT_PLSM)
+				if ((r&0xFF)==PT_FIRE || ((r&0xFF)==PT_PLSM && !(parts[r>>8].tmp&4)))
 				{
 					sim->part_create(i,x,y,PT_FIRE);
 					parts[i].temp+=(rand()/(RAND_MAX/100));
@@ -60,7 +60,7 @@ int O2_update(UPDATE_FUNC_ARGS)
 			if (j != -1)
 			{
 				parts[j].temp = 15000;
-				parts[j].tmp |= 1;
+				parts[j].tmp |= 4;
 			}
 
 			parts[i].temp = 15000;

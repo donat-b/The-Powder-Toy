@@ -63,7 +63,7 @@ int ACID_update(UPDATE_FUNC_ARGS)
 					}
 				}
 			}
-	for ( trade = 0; trade<2; trade ++)
+	for (trade = 0; trade < 2; trade++)
 	{
 		rx = rand()%5-2;
 		ry = rand()%5-2;
@@ -77,8 +77,8 @@ int ACID_update(UPDATE_FUNC_ARGS)
 				int temp = parts[i].life - parts[r>>8].life;
 				if (temp ==1)
 				{
-					parts[r>>8].life ++;
-					parts[i].life --;
+					parts[r>>8].life++;
+					parts[i].life--;
 				}
 				else if (temp>0)
 				{

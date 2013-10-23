@@ -25,7 +25,7 @@ int update_PYRO(UPDATE_FUNC_ARGS) {
 	}
 	if(t==PT_FIRE && parts[i].life <=1)
 	{
-		if (parts[i].tmp==3){
+		if ((parts[i].tmp&0x3) == 3){
 			t = PT_DSTW;
 			part_change_type(i,x,y,t);
 			parts[i].life = 0;
@@ -40,7 +40,7 @@ int update_PYRO(UPDATE_FUNC_ARGS) {
 	}
 	if(t==PT_PLSM && parts[i].life <=1)
 	{
-		if (parts[i].tmp==3){
+		if ((parts[i].tmp&0x3) == 3){
 			t = PT_DSTW;
 			part_change_type(i,x,y,t);
 			parts[i].life = 0;
@@ -94,13 +94,13 @@ int update_PYRO(UPDATE_FUNC_ARGS) {
 					}
 				}
 				if ((surround_space || ptypes[rt].explosive) &&
-					(t!=PT_SPRK || (rt!=PT_RBDM && rt!=PT_LRBD && rt!=PT_INSL)) &&
-					(t!=PT_PHOT || rt!=PT_INSL) &&
-				    (rt!=PT_SPNG || parts[r>>8].life==0) &&
-					(rt!=PT_H2 || parts[r>>8].temp < 2273.15) &&
-					ptypes[rt].flammable && (ptypes[rt].flammable + (int)(pv[(y+ry)/CELL][(x+rx)/CELL]*10.0f))>(rand()%1000))
+					ptypes[rt].flammable && (ptypes[rt].flammable + (int)(pv[(y+ry)/CELL][(x+rx)/CELL]*10.0f)) > (rand()%1000) &&
+					//exceptions, t is the thing causing the flame and rt is what's burning 
+					(t != PT_SPRK || (rt != PT_RBDM && rt != PT_LRBD && rt != PT_INSL)) && 
+					(t != PT_PHOT || rt != PT_INSL) && 
+				    (rt != PT_SPNG || parts[r>>8].life == 0))
 				{
-					part_change_type(r>>8,x+rx,y+ry,PT_FIRE);
+					part_change_type(r>>8, x+rx, y+ry, PT_FIRE);
 					parts[r>>8].temp = restrict_flt(ptypes[PT_FIRE].heat + (ptypes[rt].flammable/2), MIN_TEMP, MAX_TEMP);
 					parts[r>>8].life = rand()%80+180;
 					parts[r>>8].tmp = parts[r>>8].ctype = 0;
@@ -108,7 +108,8 @@ int update_PYRO(UPDATE_FUNC_ARGS) {
 						pv[y/CELL][x/CELL] += 0.25f * CFDS;
 				}
 			}
-	if (legacy_enable) update_legacy_PYRO(UPDATE_FUNC_SUBCALL_ARGS);
+	if (legacy_enable)
+		update_legacy_PYRO(UPDATE_FUNC_SUBCALL_ARGS);
 	return 0;
 }
 

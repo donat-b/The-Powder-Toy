@@ -19,8 +19,6 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 {
 	int r, rt, rx, ry, nb, rrx, rry;
 	float rr, rrr;
-	parts[i].pavg[0] = (float)x;
-	parts[i].pavg[1] = (float)y;
 	if(pmap[y][x]==PT_GLOW)
 	{
 		part_change_type(i, x, y, PT_PHOT);
