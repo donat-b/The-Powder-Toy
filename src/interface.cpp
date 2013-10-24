@@ -7653,8 +7653,18 @@ int save_filename_ui(pixel *vid_buf)
 	pixel *save_data_image;
 	pixel *save = NULL;//calloc((XRES/3)*(YRES/3), PIXELSIZE);
 	ui_edit ed;
+	int official_save = check_save(2,0,0,XRES,YRES,0), oldsave_as = save_as;
+	if (official_save)
+		save_as = 3;
 
 	save_data = build_save(&save_size, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, (save_as == 3 && (sdl_mod & KMOD_SHIFT)));
+	if (!save_data)
+	{
+		error_ui(vid_buf, 0, "Unable to create save file");
+		free(old_vid);
+		return 1;
+	}
+
 	save_data_image = prerender_save(save_data, save_size, &imgw, &imgh);
 	if(save_data_image!=NULL)
 	{
@@ -7797,6 +7807,7 @@ savefin:
 	free(save);
 	if(filename) free(filename);
 	if(savefname) free(savefname);
+	save_as = oldsave_as;
 	return 0;
 }
 
