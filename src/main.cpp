@@ -2785,12 +2785,20 @@ int main(int argc, char *argv[])
 				{
 					if (!bq)
 						for (signi=0; signi<MAXSIGNS; signi++)
-							if (sregexp(signs[signi].text, "^{[ct]:[0-9]+|.*}$") == 0 || sregexp(signs[signi].text, "^{s:.*|.*}$") == 0)
+							if (!sregexp(signs[signi].text, "^{[ct]:[0-9]*|.*}$") || !sregexp(signs[signi].text, "^{s:.*|.*}$") || !sregexp(signs[signi].text, "^{b|.*}$"))
 							{
 								int signx, signy, signw, signh;
 								get_sign_pos(signi, &signx, &signy, &signw, &signh);
 								if (x>=signx && x<=signx+signw && y>=signy && y<=signy+signh)
 								{
+									if (signs[signi].text[1] == 'b')
+									{
+										create_part(-1, signs[signi].x, signs[signi].y, PT_SPRK);
+										//hacky hack to cancel out clicks ...
+										lm = -1;
+										lb = 1;
+										break;
+									}
 									char buff[256];
 									int sldr;
 
@@ -2863,7 +2871,7 @@ int main(int argc, char *argv[])
 						xor_line(x, y, x, ly, vid_buf);
 						xor_line(x, ly, lx, ly, vid_buf);
 					}
-					else//while mouse is held down, it draws lines between previous and current positions
+					else if (!lm) //while mouse is held down, it draws lines between previous and current positions
 					{
 						if (sdl_mod & KMOD_SHIFT)
 							toolStrength = 10.0f;
@@ -2983,7 +2991,7 @@ int main(int argc, char *argv[])
 
 				if (lm == 1)
 					activeTool->DrawLine(currentBrush, Point(lx, ly), Point(line_x, line_y), false);
-				else
+				else if (lm == 2)
 					activeTool->DrawRect(currentBrush, Point(lx, ly), Point(x, y));
 				lm = 0;
 			}
