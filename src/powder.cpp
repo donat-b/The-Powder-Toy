@@ -27,7 +27,7 @@
 #include "luaconsole.h"
 #endif
 
-#include "game\Brush.h"
+#include "game/Brush.h"
 #include "simulation/Tool.h"
 #include "simulation/Simulation.h"
 

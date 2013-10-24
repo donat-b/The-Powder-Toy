@@ -41,10 +41,10 @@ extern "C"
 #include "luascriptinterface.h"
 #include "save.h"
 
-#include "game\Brush.h"
-#include "game\Menus.h"
-#include "simulation\Simulation.h"
-#include "simulation\Tool.h"
+#include "game/Brush.h"
+#include "game/Menus.h"
+#include "simulation/Simulation.h"
+#include "simulation/Tool.h"
 
 int *lua_el_func, *lua_el_mode, *lua_gr_func;
 char* log_history[20];

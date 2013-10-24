@@ -84,9 +84,9 @@ float console_parse_temp(std::string temperature)
 {
 	if (!temperature.length())
 		return 0;
-	if (temperature.back() == 'C')
+	if (temperature[temperature.length()-1] == 'C')
 		return atof(temperature.substr(0, temperature.length()-1).c_str())+273.15f;
-	else if (temperature.back() == 'F')
+	else if (temperature[temperature.length()-1] == 'F')
 		return (atof(temperature.substr(0, temperature.length()-1).c_str())-32.0f)*5/9+273.15f;
 	return atof(temperature.c_str());
 }

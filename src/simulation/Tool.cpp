@@ -2,7 +2,7 @@
 #include "interface.h"
 #include "powder.h"
 #include "Simulation.h"
-#include "game/brush.h"
+#include "game/Brush.h"
 
 Tool::Tool(int toolType, int toolID, std::string toolIdentifier):
 	type(toolType),

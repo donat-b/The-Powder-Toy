@@ -41,6 +41,9 @@
 #include <unistd.h>
 #endif
 
+#if defined(LIN32) || defined(LIN64)
+#include "images.h"
+#endif
 #include "defines.h"
 #include "misc.h"
 #include "font.h"

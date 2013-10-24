@@ -24,6 +24,7 @@
 #define SC_TOTAL 20
 
 #include <vector>
+#include <string>
 
 class Tool;
 class MenuSection

@@ -138,7 +138,7 @@ int show_ids = 0;
 
 int drawgrav_enable = 0;
 
-#include <simulation\Simulation.h>
+#include <simulation/Simulation.h>
 #include <sstream>
 
 //TODO: just do tooltips and make things much simpler

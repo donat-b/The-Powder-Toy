@@ -9,7 +9,7 @@
 
 #include "game/Menus.h"
 #include "simulation/Tool.h"
-#include "simulation\Simulation.h"
+#include "simulation/Simulation.h"
 
 char uitext[512] = "";
 char heattext[256] = "";

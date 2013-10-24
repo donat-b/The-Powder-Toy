@@ -1,9 +1,9 @@
-SOURCES := $(wildcard src/*.c src/elements/*.c src/socket/*.c)
-HEADERS := $(wildcard includes/*.h src/socket/*.h)
-OBJS := $(patsubst src/%.c,build/obj/%.o,$(SOURCES))
+SOURCES := $(wildcard src/*.cpp src/*/*.cpp src/*/*/*.cpp src/socket/*.c)
+HEADERS := $(wildcard includes/*.h src/*/*.h src/socket/*.h)
+OBJS := $(patsubst src/%.c,build/obj/%.o,$(patsubst src/%.cpp,build/obj/%.o,$(SOURCES)))
 
-CFLAGS := -w -std=c99 -D_POSIX_C_SOURCE=200112L -DLUACONSOLE -DGRAVFFT -Iincludes/ -D_GNU_SOURCE
-OFLAGS := -O3 -ffast-math -ftree-vectorize -funsafe-math-optimizations
+CFLAGS := -w -Iincludes/ -Isrc/ -D_GNU_SOURCE
+OFLAGS := -O3 -ffast-math -ftree-vectorize -funsafe-math-optimizations -fomit-frame-pointer -funsafe-loop-optimizations -Wunsafe-loop-optimizations
 LFLAGS := -lpthread -lSDL -lfftw3f -lm -lbz2 -lX11 -llua5.1 -lrt
 LFLAGS_X := -lm -lbz2 -lSDLmain
 LFLAGS_WIN := -lmingw32 -lgnurx -lws2_32 -lSDLmain -lpthread -lSDL -lfftw3f -lm -lbz2 -llua5.1
@@ -27,8 +27,8 @@ WIN32_TARG := powder-sse.exe powder-sse2.exe
 #WIN_RES := windres.exe
 
 #others (Linux) c. Change the CC_WIN and WIN_RES to match your mingw installation
-COMPILER := gcc
-CC := gcc
+CC := gcc -std=c99 -D_POSIX_C_SOURCE=200112L
+CXX := g++ -std=c++98
 CC_WIN := i586-mingw32msvc-gcc
 WIN_RES := i586-mingw32msvc-windres
 
@@ -78,9 +78,8 @@ build/powder-64-sse3-opengl build/powder-sse3-opengl: LIBS += -lGL
 
 # extra windows stuff
 build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe build/powdercrosscompile.exe build/powdercrosscompile-sse2.exe: EXTRA_OBJS += build/obj/powder-res.o
-build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe build/powdercrosscompile.exe build/powdercrosscompile-sse2.exe: CC := $(CC_WIN)
+build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe build/powdercrosscompile.exe build/powdercrosscompile-sse2.exe: CXX := $(CC_WIN)
 build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe build/powdercrosscompile.exe build/powdercrosscompile-sse2.exe: build/obj/powder-res.o
-
 
 
 #Create different .o files for each build <filename>.<buildname>.o
@@ -88,112 +87,145 @@ build/powder: $(patsubst build/obj/%.o,build/obj/%.powder.o,$(OBJS))
 	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder.o,$(OBJS)) $(LIBS) -o $@
 build/obj/%.powder.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
+build/obj/%.powder.o: src/%.cpp $(HEADERS)
+	$(CXX) -c $(CFLAGS) -o $@ $<
 
 build/powder-sse: $(patsubst build/obj/%.o,build/obj/%.powder-sse.o,$(OBJS))
 	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-sse.o,$(OBJS)) $(LIBS) -o $@
 	strip $@
 build/obj/%.powder-sse.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
+build/obj/%.powder-sse.o: src/%.cpp $(HEADERS)
+	$(CC) -c $(CFLAGS) -o $@ $<
 
 build/powder-sse2: $(patsubst build/obj/%.o,build/obj/%.powder-sse2.o,$(OBJS))
-	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-sse2.o,$(OBJS)) $(LIBS) -o $@
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-sse2.o,$(OBJS)) $(LIBS) -o $@
 	strip $@
 build/obj/%.powder-sse2.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
+build/obj/%.powder-sse2.o: src/%.cpp $(HEADERS)
+	$(CXX) -c $(CFLAGS) -o $@ $<
 
 build/powder-sse3: $(patsubst build/obj/%.o,build/obj/%.powder-sse3.o,$(OBJS))
-	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-sse3.o,$(OBJS)) $(LIBS) -o $@
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-sse3.o,$(OBJS)) $(LIBS) -o $@
 	strip $@
 build/obj/%.powder-sse3.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
+build/obj/%.powder-sse3.o: src/%.cpp $(HEADERS)
+	$(CXX) -c $(CFLAGS) -o $@ $<
 
 build/powder-debug: $(patsubst build/obj/%.o,build/obj/%.powder-debug.o,$(OBJS))
-	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-debug.o,$(OBJS)) $(LIBS) -o $@
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-debug.o,$(OBJS)) $(LIBS) -o $@
 build/obj/%.powder-debug.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
+build/obj/%.powder-debug.o: src/%.cpp $(HEADERS)
+	$(CXX) -c $(CFLAGS) -o $@ $<
 
 build/powder-sse3-opengl: $(patsubst build/obj/%.o,build/obj/%.powder-sse3-opengl.o,$(OBJS))
-	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-sse3-opengl.o,$(OBJS)) $(LIBS) -o $@
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-sse3-opengl.o,$(OBJS)) $(LIBS) -o $@
 	strip $@
 build/obj/%.powder-sse3-opengl.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
+build/obj/%.powder-sse3-opengl.o: src/%.cpp $(HEADERS)
+	$(CXX) -c $(CFLAGS) -o $@ $<
 
 
 build/powder-64: $(patsubst build/obj/%.o,build/obj/%.powder-64.o,$(OBJS))
-	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-64.o,$(OBJS)) $(LIBS) -o $@
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-64.o,$(OBJS)) $(LIBS) -o $@
+	strip $@
 build/obj/%.powder-64.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
+build/obj/%.powder-64.o: src/%.cpp $(HEADERS)
+	$(CXX) -c $(CFLAGS) -o $@ $<
 
 build/powder-64-sse2: $(patsubst build/obj/%.o,build/obj/%.powder-64-sse2.o,$(OBJS))
-	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-64-sse2.o,$(OBJS)) $(LIBS) -o $@
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-64-sse2.o,$(OBJS)) $(LIBS) -o $@
 	strip $@
 build/obj/%.powder-64-sse2.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
+build/obj/%.powder-64-sse2.o: src/%.cpp $(HEADERS)
+	$(CXX) -c $(CFLAGS) -o $@ $<
 
 build/powder-64-sse3: $(patsubst build/obj/%.o,build/obj/%.powder-64-sse3.o,$(OBJS))
-	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-64-sse3.o,$(OBJS)) $(LIBS) -o $@
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-64-sse3.o,$(OBJS)) $(LIBS) -o $@
 	strip $@
 build/obj/%.powder-64-sse3.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
+build/obj/%.powder-64-sse3.o: src/%.cpp $(HEADERS)
+	$(CXX) -c $(CFLAGS) -o $@ $<
 
 build/powder-64-debug: $(patsubst build/obj/%.o,build/obj/%.powder-64-debug.o,$(OBJS))
-	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-64-debug.o,$(OBJS)) $(LIBS) -o $@
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-64-debug.o,$(OBJS)) $(LIBS) -o $@
 build/obj/%.powder-64-debug.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
+build/obj/%.powder-64-debug.o: src/%.cpp $(HEADERS)
+	$(CXX) -c $(CFLAGS) -o $@ $<
 
 build/powder-64-sse3-opengl: $(patsubst build/obj/%.o,build/obj/%.powder-64-sse3-opengl.o,$(OBJS))
-	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-64-sse3-opengl.o,$(OBJS)) $(LIBS) -o $@
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-64-sse3-opengl.o,$(OBJS)) $(LIBS) -o $@
 	strip $@
 build/obj/%.powder-64-sse3-opengl.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
+build/obj/%.powder-64-sse3-opengl.o: src/%.cpp $(HEADERS)
+	$(CXX) -c $(CFLAGS) -o $@ $<
 
 # On Windows builds, an extra compiler flag is needed to fix stack alignment
 # When Windows creates the gravity calculation thread, it has 4 byte stack alignment
 # But we need 16 byte alignment so that SSE instructions in FFTW work without crashing
 build/powder-sse.exe: $(patsubst build/obj/%.o,build/obj/%.powder-sse.exe.o,$(OBJS))
-	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-sse.exe.o,$(OBJS)) $(LIBS) -o $@
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-sse.exe.o,$(OBJS)) $(LIBS) -o $@
 	strip $@
 	chmod 0644 $@
 build/obj/%.powder-sse.exe.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
+build/obj/%.powder-sse.exe.o: src/%.cpp $(HEADERS)
+	$(CXX) -c $(CFLAGS) -o $@ $<
 build/obj/gravity.powder-sse.exe.o: src/gravity.c $(HEADERS)
-	$(CC) -c $(CFLAGS) -mstackrealign -o $@ $<
+	$(CXX) -c $(CFLAGS) -mstackrealign -o $@ $<
 
 build/powder-sse2.exe: $(patsubst build/obj/%.o,build/obj/%.powder-sse2.exe.o,$(OBJS))
-	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-sse2.exe.o,$(OBJS)) $(LIBS) -o $@
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-sse2.exe.o,$(OBJS)) $(LIBS) -o $@
 	strip $@
 	chmod 0644 $@
 build/obj/%.powder-sse2.exe.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
+build/obj/%.powder-sse2.exe.o: src/%.cpp $(HEADERS)
+	$(CXX) -c $(CFLAGS) -o $@ $<
 build/obj/gravity.powder-sse2.exe.o: src/gravity.c $(HEADERS)
-	$(CC) -c $(CFLAGS) -mstackrealign -o $@ $<
+	$(CXX) -c $(CFLAGS) -mstackrealign -o $@ $<
 
 build/powder-sse3.exe: $(patsubst build/obj/%.o,build/obj/%.powder-sse3.exe.o,$(OBJS))
-	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-sse3.exe.o,$(OBJS)) $(LIBS) -o $@
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-sse3.exe.o,$(OBJS)) $(LIBS) -o $@
 	strip $@
 	chmod 0644 $@
 build/obj/%.powder-sse3.exe.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
+build/obj/%.powder-sse3.exe.o: src/%.cpp $(HEADERS)
+	$(CXX) -c $(CFLAGS) -o $@ $<
 build/obj/gravity.powder-sse3.exe.o: src/gravity.c $(HEADERS)
-	$(CC) -c $(CFLAGS) -mstackrealign -o $@ $<
+	$(CXX) -c $(CFLAGS) -mstackrealign -o $@ $<
 
 build/powdercrosscompile.exe: $(patsubst build/obj/%.o,build/obj/%.powdercrosscompile.exe.o,$(OBJS))
-	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powdercrosscompile.exe.o,$(OBJS)) $(LIBS) -o $@
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powdercrosscompile.exe.o,$(OBJS)) $(LIBS) -o $@
 	strip $@
 	chmod 0644 $@
 build/obj/%.powdercrosscompile.exe.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
+build/obj/%.powdercrosscompile.exe.o: src/%.cpp $(HEADERS)
+	$(CXX) -c $(CFLAGS) -o $@ $<
 build/obj/gravity.powdercrosscompile.exe.o: src/gravity.c $(HEADERS)
-	$(CC) -c $(CFLAGS) -mstackrealign -o $@ $<
+	$(CXX) -c $(CFLAGS) -mstackrealign -o $@ $<
 
 build/powdercrosscompile-sse2.exe: $(patsubst build/obj/%.o,build/obj/%.powdercrosscompile-sse2.exe.o,$(OBJS))
-	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powdercrosscompile-sse2.exe.o,$(OBJS)) $(LIBS) -o $@
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powdercrosscompile-sse2.exe.o,$(OBJS)) $(LIBS) -o $@
 	strip $@
 	chmod 0644 $@
 build/obj/%.powdercrosscompile-sse2.exe.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
+build/obj/%.powdercrosscompile-sse2.exe.o: src/%.cpp $(HEADERS)
+	$(CXX) -c $(CFLAGS) -o $@ $<
 build/obj/gravity.powdercrosscompile-sse2.exe.o: src/gravity.c $(HEADERS)
-	$(CC) -c $(CFLAGS) -mstackrealign -o $@ $<
+	$(CXX) -c $(CFLAGS) -mstackrealign -o $@ $<
 
 
 
@@ -203,8 +235,8 @@ build/obj/gravity.powdercrosscompile-sse2.exe.o: src/gravity.c $(HEADERS)
 
 clean:
 	rm -f build/obj/*.o
-	rm -f build/obj/elements/*.o
-	rm -f build/obj/socket/*.o
+	rm -f build/obj/*/*.o
+	rm -f build/obj/*/*/*.o
 
 
 

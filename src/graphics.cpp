@@ -57,7 +57,7 @@
 #include "images.h"
 #endif
 
-#include "game\Brush.h"
+#include "game/Brush.h"
 #include "game/Menus.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"

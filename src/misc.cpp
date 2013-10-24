@@ -35,6 +35,9 @@
 #endif
 #include <math.h>
 
+#if defined(LIN32) || defined(LIN64)
+#include "images.h"
+#endif
 #include "misc.h"
 #include "defines.h"
 #include "interface.h"
@@ -47,7 +50,7 @@
 #include "update.h"
 
 #include "game/Menus.h"
-#include "simulation\Tool.h"
+#include "simulation/Tool.h"
 
 char *clipboard_text = NULL;
 
