@@ -70,7 +70,7 @@ int VIRS_update(UPDATE_FUNC_ARGS)
 					return 0;
 				}
 				//soap cures virus
-				else if ((r&0xFF) == PT_SOAP || (r&0xFF) == PT_CURE)
+				else if ((r&0xFF) == PT_SOAP)
 				{
 					parts[i].pavg[0] += 10;
 					if (!((rndstore&0x7)>>1))

@@ -90,7 +90,7 @@ int fix_type(int type, int version, int modver)
 {
 	int max = 161;
 	if (modver >= 16)
-		max = 174;
+		max = 177;
 	else if (version >= 87)
 		max = 173;
 	else if (version >= 86 || modver == 14)
@@ -103,9 +103,19 @@ int fix_type(int type, int version, int modver)
 		max = 163;
 	else if (version >= 82)
 		max = 162;
+
 	if (type >= max)
 	{
 		type += (PT_NORMAL_NUM-max);
+	}
+	if (modver <= 15)
+	{
+		if (type >= PT_NORMAL_NUM+6 && type <= PT_NORMAL_NUM+8)
+			type = PT_VIRS + type-(PT_NORMAL_NUM+6);
+		else if (type == PT_NORMAL_NUM+9)
+			type = PT_SOAP;
+		else if (type > PT_NORMAL_NUM+9)
+			type -= 4;
 	}
 	return type;
 }
