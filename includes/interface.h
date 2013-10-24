@@ -172,7 +172,7 @@ extern SDLMod sdl_mod;
 extern int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii, sdl_zoom_trig;
 #if (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
 extern SDL_SysWMinfo sdl_wminfo;
-extern Atom XA_CLIPBOARD, XA_TARGETS;
+extern Atom XA_CLIPBOARD, XA_TARGETS, XA_UTF8_STRING;
 #endif
 
 extern char *shift_0;
@@ -316,6 +316,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i);
 void menu_draw_text(Tool* over, int i);
 void menu_select_element(int b, Tool* over);
 
+int EventProcess(SDL_Event event);
 int sdl_poll(void);
 
 void stickmen_keys();

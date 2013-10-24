@@ -68,7 +68,7 @@ SDLMod sdl_mod;
 int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii, sdl_zoom_trig=0;
 #if (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
 SDL_SysWMinfo sdl_wminfo;
-Atom XA_CLIPBOARD, XA_TARGETS;
+Atom XA_CLIPBOARD, XA_TARGETS, XA_UTF8_STRING;
 #endif
 
 char *shift_0="`1234567890-=[]\\;',./";
@@ -3723,6 +3723,113 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 	}
 }
 
+int EventProcess(SDL_Event event)
+{
+	switch (event.type)
+	{
+	case SDL_KEYDOWN:
+		sdl_key=event.key.keysym.sym;
+		sdl_ascii=event.key.keysym.unicode;
+		if (event.key.keysym.sym == SDLK_PLUS)
+		{
+			sdl_wheel++;
+		}
+		if (event.key.keysym.sym == SDLK_MINUS)
+		{
+			sdl_wheel--;
+		}
+		if (event.key.keysym.sym=='q' && (sdl_mod & KMOD_CTRL))
+		{
+			if (confirm_ui(vid_buf, "You are about to quit", "Are you sure you want to quit?", "Quit"))
+			{
+				has_quit = 1;
+				return 1;
+			}
+		}
+		break;
+
+	case SDL_KEYUP:
+		sdl_rkey=event.key.keysym.sym;
+		break;
+	case SDL_MOUSEBUTTONDOWN:
+		if (event.button.button == SDL_BUTTON_WHEELUP)
+			sdl_wheel++;
+		if (event.button.button == SDL_BUTTON_WHEELDOWN)
+			sdl_wheel--;
+		break;
+	case SDL_QUIT:
+		if (fastquit)
+			has_quit = 1;
+		return 1;
+	case SDL_SYSWMEVENT:
+#if (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
+		if (event.syswm.msg->subsystem != SDL_SYSWM_X11)
+			break;
+		sdl_wminfo.info.x11.lock_func();
+		XEvent xe = event.syswm.msg->event.xevent;
+		if (xe.type==SelectionClear)
+		{
+			if (clipboard_text!=NULL) {
+				free(clipboard_text);
+				clipboard_text = NULL;
+			}
+		}
+		else if (xe.type==SelectionRequest)
+		{
+			XEvent xr;
+			xr.xselection.type = SelectionNotify;
+			xr.xselection.requestor = xe.xselectionrequest.requestor;
+			xr.xselection.selection = xe.xselectionrequest.selection;
+			xr.xselection.target = xe.xselectionrequest.target;
+			xr.xselection.property = xe.xselectionrequest.property;
+			xr.xselection.time = xe.xselectionrequest.time;
+			if (xe.xselectionrequest.target==XA_TARGETS)
+			{
+				// send list of supported formats
+				Atom targets[] = {XA_TARGETS, XA_STRING, XA_UTF8_STRING};
+				xr.xselection.property = xe.xselectionrequest.property;
+				XChangeProperty(sdl_wminfo.info.x11.display, xe.xselectionrequest.requestor, xe.xselectionrequest.property, XA_ATOM, 32, PropModeReplace, (unsigned char*)targets, (int)(sizeof(targets)/sizeof(Atom)));
+			}
+			// TODO: Supporting more targets would be nice
+			else if ((xe.xselectionrequest.target==XA_STRING || xe.xselectionrequest.target==XA_UTF8_STRING) && clipboard_text)
+			{
+				XChangeProperty(sdl_wminfo.info.x11.display, xe.xselectionrequest.requestor, xe.xselectionrequest.property, xe.xselectionrequest.target, 8, PropModeReplace, (unsigned char*)clipboard_text, strlen(clipboard_text)+1);
+			}
+			else
+			{
+				// refuse clipboard request
+				xr.xselection.property = None;
+			}
+			XSendEvent(sdl_wminfo.info.x11.display, xe.xselectionrequest.requestor, 0, 0, &xr);
+		}
+		sdl_wminfo.info.x11.unlock_func();
+#elif defined(WIN32)
+		switch (event.syswm.msg->msg)
+		{
+		case WM_USER+614:
+			if (!ptsaveOpenID && !saveURIOpen && num_tabs < 24-GetNumMenus() && main_loop)
+				ptsaveOpenID = event.syswm.msg->lParam;
+			//If we are already opening a save, we can't have it do another one, so just start it in a new process
+			else
+			{
+				char *exename = exe_name(), args[64];
+				sprintf(args, "ptsave noopen:%i", event.syswm.msg->lParam);
+				if (exename)
+				{
+					ShellExecute(NULL, "open", exename, args, NULL, SW_SHOWNORMAL);
+					free(exename);
+				}
+				//I doubt this will happen ... but as a last resort just open it in this window anyway
+				else
+					saveURIOpen = event.syswm.msg->lParam;
+			}
+			break;
+		}
+#endif
+	}
+	return 0;
+}
+
 int FPSwait = 0, fastquit = 0;
 int sdl_poll(void)
 {
@@ -3742,112 +3849,14 @@ int sdl_poll(void)
 		else
 			SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 	}
+
 	while (SDL_PollEvent(&event))
 	{
-		switch (event.type)
-		{
-		case SDL_KEYDOWN:
-			sdl_key=event.key.keysym.sym;
-			sdl_ascii=event.key.keysym.unicode;
-			if (event.key.keysym.sym == SDLK_PLUS)
-			{
-				sdl_wheel++;
-			}
-			if (event.key.keysym.sym == SDLK_MINUS)
-			{
-				sdl_wheel--;
-			}
-			if (event.key.keysym.sym=='q' && (sdl_mod & KMOD_CTRL))
-			{
-				if (confirm_ui(vid_buf, "You are about to quit", "Are you sure you want to quit?", "Quit"))
-				{
-					has_quit = 1;
-					return 1;
-				}
-			}
-			break;
-
-		case SDL_KEYUP:
-			sdl_rkey=event.key.keysym.sym;
-			break;
-		case SDL_MOUSEBUTTONDOWN:
-			if (event.button.button == SDL_BUTTON_WHEELUP)
-				sdl_wheel++;
-			if (event.button.button == SDL_BUTTON_WHEELDOWN)
-				sdl_wheel--;
-			break;
-		case SDL_QUIT:
-			if (fastquit)
-				has_quit = 1;
-			return 1;
-		case SDL_SYSWMEVENT:
-#if (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
-			if (event.syswm.msg->subsystem != SDL_SYSWM_X11)
-				break;
-			sdl_wminfo.info.x11.lock_func();
-			XEvent xe = event.syswm.msg->event.xevent;
-			if (xe.type==SelectionClear)
-			{
-				if (clipboard_text!=NULL) {
-					free(clipboard_text);
-					clipboard_text = NULL;
-				}
-			}
-			else if (xe.type==SelectionRequest)
-			{
-				XEvent xr;
-				xr.xselection.type = SelectionNotify;
-				xr.xselection.requestor = xe.xselectionrequest.requestor;
-				xr.xselection.selection = xe.xselectionrequest.selection;
-				xr.xselection.target = xe.xselectionrequest.target;
-				xr.xselection.property = xe.xselectionrequest.property;
-				xr.xselection.time = xe.xselectionrequest.time;
-				if (xe.xselectionrequest.target==XA_TARGETS)
-				{
-					// send list of supported formats
-					Atom targets[] = {XA_TARGETS, XA_STRING};
-					xr.xselection.property = xe.xselectionrequest.property;
-					XChangeProperty(sdl_wminfo.info.x11.display, xe.xselectionrequest.requestor, xe.xselectionrequest.property, XA_ATOM, 32, PropModeReplace, (unsigned char*)targets, (int)(sizeof(targets)/sizeof(Atom)));
-				}
-				// TODO: Supporting more targets would be nice
-				else if (xe.xselectionrequest.target==XA_STRING && clipboard_text)
-				{
-					XChangeProperty(sdl_wminfo.info.x11.display, xe.xselectionrequest.requestor, xe.xselectionrequest.property, xe.xselectionrequest.target, 8, PropModeReplace, (unsigned char*)clipboard_text, strlen(clipboard_text)+1);
-				}
-				else
-				{
-					// refuse clipboard request
-					xr.xselection.property = None;
-				}
-				XSendEvent(sdl_wminfo.info.x11.display, xe.xselectionrequest.requestor, 0, 0, &xr);
-			}
-			sdl_wminfo.info.x11.unlock_func();
-#elif defined(WIN32)
-			switch (event.syswm.msg->msg)
-			{
-			case WM_USER+614:
-				if (!ptsaveOpenID && !saveURIOpen && num_tabs < 24-GetNumMenus() && main_loop)
-					ptsaveOpenID = event.syswm.msg->lParam;
-				//If we are already opening a save, we can't have it do another one, so just start it in a new process
-				else
-				{
-					char *exename = exe_name(), args[64];
-					sprintf(args, "ptsave noopen:%i", event.syswm.msg->lParam);
-					if (exename)
-					{
-						ShellExecute(NULL, "open", exename, args, NULL, SW_SHOWNORMAL);
-						free(exename);
-					}
-					//I doubt this will happen ... but as a last resort just open it in this window anyway
-					else
-						saveURIOpen = event.syswm.msg->lParam;
-				}
-				break;
-			}
-#endif
-			continue;
-		}
+		int ret = EventProcess(event);
+		if (ret)
+			return ret;
 	}
+
 	sdl_mod = SDL_GetModState();
 	limit_fps();
 	return 0;

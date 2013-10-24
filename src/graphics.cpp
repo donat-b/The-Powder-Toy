@@ -5022,6 +5022,7 @@ int sdl_open(void)
 	sdl_wminfo.info.x11.lock_func();
 	XA_CLIPBOARD = XInternAtom(sdl_wminfo.info.x11.display, "CLIPBOARD", 1);
 	XA_TARGETS = XInternAtom(sdl_wminfo.info.x11.display, "TARGETS", 1);
+	XA_UTF8_STRING = XInternAtom(sdl_wminfo.info.x11.display, "UTF8_STRING", 1);
 	sdl_wminfo.info.x11.unlock_func();
 #elif defined (WIN32)
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);

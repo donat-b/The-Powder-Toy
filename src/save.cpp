@@ -1223,7 +1223,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 		bson_append_finish_object(&b);
 	}
 	bson_finish(&b);
-	bson_print(&b);
+	//bson_print(&b);
 	
 	finalData = (unsigned char*)bson_data(&b);
 	finalDataLen = bson_size(&b);
@@ -1261,7 +1261,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 		goto fin;
 	}
 	
-	printf("compressed data: %d\n", outputDataLen);
+	//printf("compressed data: %d\n", outputDataLen);
 	*size = outputDataLen + 12;
 	
 fin:
