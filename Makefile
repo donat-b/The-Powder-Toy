@@ -29,8 +29,8 @@ WIN32_TARG := powder-sse.exe powder-sse2.exe
 #others (Linux) c. Change the CC_WIN and WIN_RES to match your mingw installation
 CC := gcc -std=c99 -D_POSIX_C_SOURCE=200112L
 CXX := g++ -std=c++98
-CC_WIN := i586-mingw32msvc-gcc
-CXX_WIN := i586-mingw32msvc-g++
+CC_WIN := i586-mingw32msvc-gcc -std=gnu99 -D_POSIX_C_SOURCE=200112L
+CXX_WIN := i586-mingw32msvc-g++ -std=gnu++98
 WIN_RES := i586-mingw32msvc-windres
 
 #32bit linux

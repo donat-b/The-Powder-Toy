@@ -540,6 +540,9 @@ wall, and blob mode would always be on if you had fire mode on when quitting.
 Version 24.0 (build 21) 7/15/13
 Fix crash when turning on newtonian gravity with the quickoption
 
+Version 25.0 10/24/13
+Yes this mod is still alive. It was just on a few month break :P. Large internal rewrites, some by jacksonmj, some by me. Elements and element drawing code, menu code, brush code, and some other related things were all redone (partially to completely). Move around a few elements. Fix !set type and !set ctype sometimes not working. Specific delete now activated by 'Delete' or ctrl+semicolon. Many simulation updates from tpt++, including PROT and official VIRS. Add Comment scrolling velocity. Fix not being able to save local saves with mod elements.
+
 
 
 

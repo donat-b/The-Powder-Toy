@@ -534,10 +534,10 @@ void DrawLuaLogs()
 
 void GetTimeString(int currtime, char *string, int length)
 {
-	long long years, days, hours, minutes, seconds, milliseconds;
+	int years, days, hours, minutes, seconds, milliseconds;
 	if (length == 0)
 	{
-		years = currtime/31557600000ULL;
+		years = (int)(currtime/31557600000ULL);
 		currtime = currtime%31557600000ULL;
 		days = currtime/86400000;
 		currtime = currtime%86400000;

@@ -575,22 +575,20 @@ void load_presets(void)
 				pretty_powder = tmpobj->valueint;
 		}
 
+		//read console history
 		consoleobj = cJSON_GetObjectItem(root, "Console");
 		if (consoleobj)
 		{
-			int max = 0;
 			if(tmpobj = cJSON_GetObjectItem(consoleobj, "History"))
 			{
-				max = cJSON_GetArraySize(tmpobj);
-				if(tmpobj = cJSON_GetObjectItem(consoleobj, "HistoryResults"))
-					max = cJSON_GetArraySize(tmpobj)>max?cJSON_GetArraySize(tmpobj):max;
-				else
-					max = 0;
-			}
-			if (max)
-			{
-				load_console_history(cJSON_GetObjectItem(consoleobj, "History"), &last_command, max);
-				load_console_history(cJSON_GetObjectItem(consoleobj, "HistoryResults"), &last_command_result, max);
+				int size = cJSON_GetArraySize(tmpobj);
+				tmpobj = cJSON_GetObjectItem(consoleobj, "HistoryResults");
+				//if results doesn't have the same number of items as history, don't load them. This might cause a crash, and wouldn't match anyway
+				if (tmpobj && cJSON_GetArraySize(tmpobj) == size)
+				{
+					load_console_history(cJSON_GetObjectItem(consoleobj, "History"), &last_command, size);
+					load_console_history(tmpobj, &last_command_result, cJSON_GetArraySize(tmpobj));
+				}
 			}
 		}
 
