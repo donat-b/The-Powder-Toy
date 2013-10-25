@@ -589,7 +589,6 @@ void tab_save(int num, char reloadButton)
 	int fileSize, oldsave_as = save_as;
 	char fileName[64];
 	void *saveData;
-	pixel *thumb;
 
 	//build the tab
 	save_as = 3;
@@ -1471,7 +1470,6 @@ int main(int argc, char *argv[])
 		{
 			if (!do_s_check && http_async_req_status(http_session_check))
 			{
-				char saveURIOpenString[512];
 				check_data = http_async_req_stop(http_session_check, &http_s_ret, NULL);
 				if (http_s_ret==200 && check_data)
 				{

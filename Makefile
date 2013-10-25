@@ -30,6 +30,7 @@ WIN32_TARG := powder-sse.exe powder-sse2.exe
 CC := gcc -std=c99 -D_POSIX_C_SOURCE=200112L
 CXX := g++ -std=c++98
 CC_WIN := i586-mingw32msvc-gcc
+CXX_WIN := i586-mingw32msvc-g++
 WIN_RES := i586-mingw32msvc-windres
 
 #32bit linux
@@ -78,7 +79,8 @@ build/powder-64-sse3-opengl build/powder-sse3-opengl: LIBS += -lGL
 
 # extra windows stuff
 build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe build/powdercrosscompile.exe build/powdercrosscompile-sse2.exe: EXTRA_OBJS += build/obj/powder-res.o
-build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe build/powdercrosscompile.exe build/powdercrosscompile-sse2.exe: CXX := $(CC_WIN)
+build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe build/powdercrosscompile.exe build/powdercrosscompile-sse2.exe: CC := $(CC_WIN)
+build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe build/powdercrosscompile.exe build/powdercrosscompile-sse2.exe: CXX := $(CXX_WIN)
 build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe build/powdercrosscompile.exe build/powdercrosscompile-sse2.exe: build/obj/powder-res.o
 
 
@@ -180,7 +182,7 @@ build/obj/%.powder-sse.exe.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
 build/obj/%.powder-sse.exe.o: src/%.cpp $(HEADERS)
 	$(CXX) -c $(CFLAGS) -o $@ $<
-build/obj/gravity.powder-sse.exe.o: src/gravity.c $(HEADERS)
+build/obj/gravity.powder-sse.exe.o: src/gravity.cpp $(HEADERS)
 	$(CXX) -c $(CFLAGS) -mstackrealign -o $@ $<
 
 build/powder-sse2.exe: $(patsubst build/obj/%.o,build/obj/%.powder-sse2.exe.o,$(OBJS))
@@ -191,7 +193,7 @@ build/obj/%.powder-sse2.exe.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
 build/obj/%.powder-sse2.exe.o: src/%.cpp $(HEADERS)
 	$(CXX) -c $(CFLAGS) -o $@ $<
-build/obj/gravity.powder-sse2.exe.o: src/gravity.c $(HEADERS)
+build/obj/gravity.powder-sse2.exe.o: src/gravity.cpp $(HEADERS)
 	$(CXX) -c $(CFLAGS) -mstackrealign -o $@ $<
 
 build/powder-sse3.exe: $(patsubst build/obj/%.o,build/obj/%.powder-sse3.exe.o,$(OBJS))
@@ -202,7 +204,7 @@ build/obj/%.powder-sse3.exe.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
 build/obj/%.powder-sse3.exe.o: src/%.cpp $(HEADERS)
 	$(CXX) -c $(CFLAGS) -o $@ $<
-build/obj/gravity.powder-sse3.exe.o: src/gravity.c $(HEADERS)
+build/obj/gravity.powder-sse3.exe.o: src/gravity.cpp $(HEADERS)
 	$(CXX) -c $(CFLAGS) -mstackrealign -o $@ $<
 
 build/powdercrosscompile.exe: $(patsubst build/obj/%.o,build/obj/%.powdercrosscompile.exe.o,$(OBJS))
@@ -213,7 +215,7 @@ build/obj/%.powdercrosscompile.exe.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
 build/obj/%.powdercrosscompile.exe.o: src/%.cpp $(HEADERS)
 	$(CXX) -c $(CFLAGS) -o $@ $<
-build/obj/gravity.powdercrosscompile.exe.o: src/gravity.c $(HEADERS)
+build/obj/gravity.powdercrosscompile.exe.o: src/gravity.cpp $(HEADERS)
 	$(CXX) -c $(CFLAGS) -mstackrealign -o $@ $<
 
 build/powdercrosscompile-sse2.exe: $(patsubst build/obj/%.o,build/obj/%.powdercrosscompile-sse2.exe.o,$(OBJS))
@@ -224,7 +226,7 @@ build/obj/%.powdercrosscompile-sse2.exe.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
 build/obj/%.powdercrosscompile-sse2.exe.o: src/%.cpp $(HEADERS)
 	$(CXX) -c $(CFLAGS) -o $@ $<
-build/obj/gravity.powdercrosscompile-sse2.exe.o: src/gravity.c $(HEADERS)
+build/obj/gravity.powdercrosscompile-sse2.exe.o: src/gravity.cpp $(HEADERS)
 	$(CXX) -c $(CFLAGS) -mstackrealign -o $@ $<
 
 
