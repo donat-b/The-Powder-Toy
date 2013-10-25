@@ -18,8 +18,8 @@ void InitMenusections()
 	menuSections[2] =  new MenuSection('\xD6', "Powered Materials", true);
 	menuSections[3] =  new MenuSection('\x99', "Sensors", true);
 	menuSections[4] =  new MenuSection('\xE3', "Force Creating", true);
-	menuSections[5] =  new MenuSection('\xC5', "Explosives", true);
-	menuSections[6] =  new MenuSection('\xC3', "Gases", true);
+	menuSections[5] =  new MenuSection('\xC3', "Explosives", true);
+	menuSections[6] =  new MenuSection('\xC5', "Gases", true);
 	menuSections[7] =  new MenuSection('\xC4', "Liquids", true);
 	menuSections[8] =  new MenuSection('\xD0', "Powders", true);
 	menuSections[9] =  new MenuSection('\xD1', "Solids", true);
