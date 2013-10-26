@@ -5466,11 +5466,15 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			if (info_ready)// && redraw_comments) // draw the comments
 			{
+				int commentNum = 0;
 				ccy = 0;
 				info->comments[0].y = 72+comment_scroll;
 				clearrect(vid_buf, 50+(XRES/2)+1, 50, XRES+BARSIZE-100-((XRES/2)+1), YRES+MENUSIZE-100);
-				for (cc=0; cc<info->comment_count; cc++) {
-					if (ccy + 72 + comment_scroll<YRES+MENUSIZE-56 && info->comments[cc].str) { //Try not to draw off the screen
+				for (cc=0; cc<info->comment_count; cc++)
+				{
+					 //Try not to draw off the screen
+					if (ccy + 72 + comment_scroll<YRES+MENUSIZE-56 && info->comments[cc].str)
+					{
 						if (ccy+comment_scroll >= 0 && info->commentauthors[cc]) //Don't draw above the screen either
 						{
 							int r = 255, g = 255, bl = 255;
@@ -5534,11 +5538,11 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							else                        // else set how much can be drawn until it goes off the screen
 								info->comments[cc].maxHeight = YRES+MENUSIZE-41 - (ccy + 72 + comment_scroll);
 
-							change = ui_label_draw(vid_buf, &info->comments[cc]); // draw the comment
-							ui_label_process(mx, my, b, bq, &info->comments[cc]); // process copying
-
 							if (svf_login && b && !bq && mx > 50+(XRES/2)+1 && mx < 50 + XRES+BARSIZE-100 && my > commentboxy - 2 && my < commentboxy + ed.h+2) // defocus comments that are under textbox
 								info->comments[cc].focus = 0;
+
+							change = ui_label_draw(vid_buf, &info->comments[cc]); // draw the comment
+							ui_label_process(mx, my, b, bq, &info->comments[cc]); // process copying
 
 							ccy += change + 10;
 							if (cc < NUM_COMMENTS-1)
@@ -5552,13 +5556,19 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 								scroll_velocity = 0.0f;
 							}
 
-							if (ccy+52+comment_scroll<YRES+MENUSIZE-50 && ccy+comment_scroll>-3) { //draw the line that separates comments
-								draw_line(vid_buf, 50+(XRES/2)+2, ccy+52+comment_scroll, XRES+BARSIZE-51, ccy+52+comment_scroll, 100, 100, 100, XRES+BARSIZE);
+							//draw the line that separates comments
+							if (ccy+52+comment_scroll<YRES+MENUSIZE-56 && ccy+comment_scroll>-2)
+							{
+								draw_line(vid_buf, 50+(XRES/2)+2, ccy+52+comment_scroll, XRES+BARSIZE-51, ccy+52+comment_scroll, (cc == info->comment_count-1 && (info->comment_count%20))?175:100, 100, 100, XRES+BARSIZE);
 							}
 						}
 					}
 					else
+					{
+						if (!commentNum)
+							commentNum = cc;
 						break;
+					}
 					if (cc == info->comment_count-1 && !http_4 && comment_page < NUM_COMMENTS/10 && !(info->comment_count%20))
 					{
 						comment_page++;
@@ -5570,11 +5580,19 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						active_4 = 1;
 					}
 				}
-				memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
+
+				if (!commentNum)
+					commentNum = info->comment_count;
+				char pageText[128];
+				sprintf(pageText, "Page %i of %i%s", commentNum/20+1, info->comment_count/20+1, (info->comment_count%20)?"":"+");
+				drawtext(vid_buf, XRES+BARSIZE-190, YRES+MENUSIZE-43, pageText, 255, 255, 255, 255);
+
+				//memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 				redraw_comments = 0;
 			}
-			if (info_ready && svf_login) {
-				//Render the comment box.
+			//Render the comment box.
+			if (info_ready && svf_login)
+			{
 				fillrect(vid_buf, 51+(XRES/2), ed.y-6, XRES+BARSIZE-100-((XRES/2)+1), ed.h+25, 0, 0, 0, 255);
 				drawrect(vid_buf, 51+(XRES/2), ed.y-6, XRES+BARSIZE-100-((XRES/2)+1), ed.h+25, 200, 200, 200, 255);
 
