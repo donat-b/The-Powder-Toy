@@ -16,7 +16,12 @@
 #include "simulation/ElementsCommon.h"
 
 int VIRS_update(UPDATE_FUNC_ARGS);
-int VIRS_graphics(GRAPHICS_FUNC_ARGS);
+
+int VRSS_graphics(GRAPHICS_FUNC_ARGS)
+{
+	*pixel_mode |= NO_DECO;
+	return 1;
+}
 
 void VRSS_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
@@ -64,6 +69,6 @@ void VRSS_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->DefaultProperties.pavg[1] = 250;
 
 	elem->Update = &VIRS_update;
-	elem->Graphics = &VIRS_graphics;
+	elem->Graphics = &VRSS_graphics;
 	elem->Init = &VRSS_init_element;
 }

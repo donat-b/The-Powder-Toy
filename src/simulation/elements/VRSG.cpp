@@ -16,7 +16,18 @@
 #include "simulation/ElementsCommon.h"
 
 int VIRS_update(UPDATE_FUNC_ARGS);
-int VIRS_graphics(GRAPHICS_FUNC_ARGS);
+
+int VRSG_graphics(GRAPHICS_FUNC_ARGS)
+{
+	*pixel_mode &= ~PMODE;
+	*pixel_mode |= FIRE_BLEND;
+	*firer = *colr/2;
+	*fireg = *colg/2;
+	*fireb = *colb/2;
+	*firea = 125;
+	*pixel_mode |= NO_DECO;
+	return 1;
+}
 
 void VRSG_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
@@ -64,6 +75,6 @@ void VRSG_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->DefaultProperties.pavg[1] = 250;
 
 	elem->Update = &VIRS_update;
-	elem->Graphics = &VIRS_graphics;
+	elem->Graphics = &VRSG_graphics;
 	elem->Init = &VRSG_init_element;
 }

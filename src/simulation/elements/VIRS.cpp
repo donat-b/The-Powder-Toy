@@ -116,6 +116,7 @@ int VIRS_update(UPDATE_FUNC_ARGS)
 
 int VIRS_graphics(GRAPHICS_FUNC_ARGS)
 {
+	*pixel_mode |= PMODE_BLUR;
 	*pixel_mode |= NO_DECO;
 	return 1;
 } 
