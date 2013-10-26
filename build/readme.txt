@@ -50,9 +50,9 @@ shape as your brush, no matter what shape or size it is. They are very
 bouncy, and fall with gravity. Pressure over 10.0 will destroy them, and if 
 the center particle is destroyed, it will fall apart, making really tiny 
 bouncing pixels. Go into the fav2 menu and click SPIN to make them be able 
-to rotate. NOTE: They don't bounce off walls. This is a glitch that I won't 
-fix, because it would make them a little laggier and they would get eaten 
-by the wall anyway.
+to rotate, now enabled by default. NOTE: They don't bounce off walls. This 
+is a glitch that I won't fix, because it would make them a little laggier 
+and they would get eaten by the wall anyway.
 
 Animated LCRY: Found in the powered elements menu. In the decoration editor, 
 press left or right to change frames, and paint each frame normally. Press 

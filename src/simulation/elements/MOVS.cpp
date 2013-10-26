@@ -15,10 +15,17 @@
 
 #include "simulation/ElementsCommon.h"
 
+void rotate(float *x, float *y, float angle)
+{
+	float cos = cosf(angle), sin = sinf(angle);
+	float newx = cos**x-sin**y, newy = sin**x+cos**y;
+	*x = newx, *y = newy;
+}
+
 int MOVS_update(UPDATE_FUNC_ARGS)
 {
 	int bn = parts[i].tmp2, type, bounce = 2;
-	float tmp = 0, tmp2 = 0;
+	float tmp = parts[i].pavg[0], tmp2 = parts[i].pavg[1];
 	if (bn < 0 || bn > 255)
 		return 0;
 	//center control particle was killed, ball slowly falls apart
@@ -29,33 +36,14 @@ int MOVS_update(UPDATE_FUNC_ARGS)
 			kill_part(i);
 			return 1;
 		}
-		tmp = parts[i].pavg[0];
-		tmp2 = parts[i].pavg[1];
 	}
-	//speed improvement if rotation disabled, no need to do trigonometry
-	else if (!ms_rotation)
+	//determine rotated x and y coordinates relative to center (if rotation is on)
+	else
 	{
 		tmp = parts[i].pavg[0];
 		tmp2 = parts[i].pavg[1];
-	}
-	//determine rotated x and y coordinates relative to center
-	else if (parts[i].pavg[0] != 0)
-	{
-		float angle = atan((float)parts[i].pavg[1]/parts[i].pavg[0]);
-		float distance = sqrt(pow((float)parts[i].pavg[0],2)+pow((float)parts[i].pavg[1],2));
-		if (parts[i].pavg[0] < 0)
-			angle += M_PI;
-		tmp = distance*cos(angle+msrotation[bn]);
-		tmp2 = distance*sin(angle+msrotation[bn]);
-	}
-	else if (parts[i].pavg[1] != 0)
-	{
-		float angle = M_PI/2;
-		tmp = parts[msindex[bn]-1].x + parts[i].pavg[1]*cos(angle+msrotation[bn]);
-		if (parts[i].pavg[1] < 0)
-			tmp2 = parts[i].pavg[1]*sin(angle+msrotation[bn]);
-		else
-			tmp2 = -1*parts[i].pavg[1]*sin(angle+msrotation[bn]);
+		if (ms_rotation)
+			rotate(&tmp, &tmp2, msrotation[bn]);
 	}
 	//kill moving solid control particle with a lot of pressure (other ones disappear at 30 pressure)
 	if (!tmp && !tmp2 && pv[y/CELL][x/CELL] > 10 || pv[y/CELL][x/CELL] < -10)

@@ -121,10 +121,11 @@
 #define PROP_NOCTYPEDRAW	0x2000000 // 2^26 When this element is drawn upon with, do not set ctype (like BCLN for CLNE) 
 
 #define FLAG_STAGNANT	0x1
-#define FLAG_SKIPMOVE	0x2 // Skip movement for one frame
-#define FLAG_EXPLODE	0x4 // EXPL explosion
-#define FLAG_INSTACTV	0x8 // Instant activation for powered electronics
-#define FLAG_WATEREQUAL 0x10 //if a liquid was already checked during equalization
+#define FLAG_SKIPMOVE	0x2  // Skip movement for one frame
+#define FLAG_EXPLODE	0x4  // EXPL explosion
+#define FLAG_INSTACTV	0x8  // Instant activation for powered electronics
+#define FLAG_WATEREQUAL 0x10 // If a liquid was already checked during equalization
+#define FLAG_DISAPPEAR	0x20 // Will disappear on next frame no matter what
 
 class Simulation;
 #define UPDATE_FUNC_ARGS Simulation *sim, int i, int x, int y, int surround_space, int nt

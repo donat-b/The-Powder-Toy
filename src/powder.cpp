@@ -89,7 +89,7 @@ unsigned char gol[YRES][XRES];
 short gol2[YRES][XRES][9];
 
 float msvx[256], msvy[256], msrotation[256], newmsrotation[256];
-int msindex[256], msnum[256], numballs = 0, ms_rotation = 0;
+int msindex[256], msnum[256], numballs = 0, ms_rotation = 1;
 
 void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float *pGravX, float *pGravY)
 {
@@ -3082,6 +3082,11 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 			y = (int)(parts[i].y+0.5f);
 			if (parts[i].flags&FLAG_SKIPMOVE)
 				parts[i].flags &= ~FLAG_SKIPMOVE;
+			if (parts[i].flags&FLAG_DISAPPEAR)
+			{
+				kill_part(i);
+				continue;
+			}
 			if (x>=0 && y>=0 && x<XRES && y<YRES)
 			{
 				if (t == PT_PINV && (parts[i].tmp2>>8) >= i)
@@ -3159,6 +3164,7 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 	}
 }
 
+void rotate(float *x, float *y, float angle);
 void update_moving_solids()
 {
 	int i, bn;
@@ -3195,26 +3201,21 @@ void update_moving_solids()
 				continue;
 			if (msindex[bn])
 			{
-				if (parts[i].pavg[0] != 0)
+				float tmp = parts[i].pavg[0];
+				float tmp2 = parts[i].pavg[1];
+				rotate(&tmp, &tmp2, msrotation[bn]);
+				nx = parts[msindex[bn]-1].x + tmp;
+				ny = parts[msindex[bn]-1].y + tmp2;
+				move(i,(int)(parts[i].x+.5f),(int)(parts[i].y+.5f),nx,ny);
+
+				rotate(&tmp, &tmp2, .02f);
+				if (parts[msindex[bn]-1].x + tmp != nx || parts[msindex[bn]-1].y + tmp2 != ny)
 				{
-					float angle = atan((float)parts[i].pavg[1]/parts[i].pavg[0]);
-					float distance = sqrt(pow((float)parts[i].pavg[0],2)+pow((float)parts[i].pavg[1],2));
-					if (parts[i].pavg[0] < 0)
-						angle += M_PI;
-					nx = parts[msindex[bn]-1].x + distance*cosf(angle+msrotation[bn]);
-					ny = parts[msindex[bn]-1].y + distance*sinf(angle+msrotation[bn]);
-					move(i,(int)(parts[i].x+.5f),(int)(parts[i].y+.5f),nx,ny);
+					int j = globalSim->part_create(-1, (int)(parts[msindex[bn]-1].x + tmp), (int)(parts[msindex[bn]-1].y + tmp2), parts[i].type);
+					if (j >= 0)
+						parts[j].flags |= FLAG_DISAPPEAR;
 				}
-				else if (parts[i].pavg[1] != 0)
-				{
-					float angle = M_PI/2;
-					nx = parts[msindex[bn]-1].x + parts[i].pavg[1]*cosf(angle+msrotation[bn]);
-					if (parts[i].pavg[1] < 0)
-						ny = parts[msindex[bn]-1].y + parts[i].pavg[1]*sinf(angle+msrotation[bn]);
-					else
-						ny = parts[msindex[bn]-1].y - parts[i].pavg[1]*sinf(-angle+msrotation[bn]);
-					move(i,(int)(parts[i].x+.5f),(int)(parts[i].y+.5f),nx,ny);
-				}
+
 				parts[i].vx = msvx[bn];
 				parts[i].vy = msvy[bn];
 			}
