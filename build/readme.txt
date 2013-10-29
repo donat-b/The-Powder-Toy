@@ -541,7 +541,20 @@ Version 24.0 (build 21) 7/15/13
 Fix crash when turning on newtonian gravity with the quickoption
 
 Version 25.0 10/24/13
-Yes this mod is still alive. It was just on a few month break :P. Large internal rewrites, some by jacksonmj, some by me. Elements and element drawing code, menu code, brush code, and some other related things were all redone (partially to completely). Move around a few elements. Fix !set type and !set ctype sometimes not working. Specific delete now activated by 'Delete' or ctrl+semicolon. Many simulation updates from tpt++, including PROT and official VIRS. Add Comment scrolling velocity. Fix not being able to save local saves with mod elements.
+Yes this mod is still alive. It was just on a few month break :P. Large
+internal rewrites, some by jacksonmj, some by me. Elements and element
+drawing code, menu code, brush code, and some other related things were all
+redone (partially to completely). Move around a few elements. Fix !set type
+and !set ctype sometimes not working. Specific delete now activated by
+'Delete' or ctrl+semicolon. Many simulation updates from tpt++, including
+PROT and official VIRS. Add Comment scrolling velocity. Fix not being able
+to save local saves with mod elements.
+
+Version 25.1 10/29/13
+Fix possible crash when using the same preference file as tpt. Add page
+number to save preview. Fix incorrect gas/explosive menu icons. Fix VIRS
+graphics. Fix most holes in rotating moving solids, enable rotation by
+default.
 
 
 
