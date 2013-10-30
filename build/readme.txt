@@ -551,10 +551,10 @@ PROT and official VIRS. Add Comment scrolling velocity. Fix not being able
 to save local saves with mod elements.
 
 Version 25.1 10/29/13
-Fix possible crash when using the same preference file as tpt. Add page
-number to save preview. Fix incorrect gas/explosive menu icons. Fix VIRS
-graphics. Fix most holes in rotating moving solids, enable rotation by
-default.
+Fix possible crash when using the same preference file as tpt. Add page 
+number to save preview. Fix incorrect gas/explosive menu icons. Fix VIRS 
+graphics. Fix most holes in rotating moving solids, enable rotation by 
+default. Update internal version number to 89.0.274
 
 
 
