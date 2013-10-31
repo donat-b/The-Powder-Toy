@@ -89,7 +89,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 int fix_type(int type, int version, int modver)
 {
 	int max = 161;
-	if (modver >= 16)
+	if (version >= 89 || modver >= 16)
 		max = 177;
 	else if (version >= 87)
 		max = 173;
@@ -108,7 +108,7 @@ int fix_type(int type, int version, int modver)
 	{
 		type += (PT_NORMAL_NUM-max);
 	}
-	if (modver <= 15)
+	if (modver && modver <= 15)
 	{
 		if (type >= PT_NORMAL_NUM+6 && type <= PT_NORMAL_NUM+8)
 			type = PT_VIRS + type-(PT_NORMAL_NUM+6);
