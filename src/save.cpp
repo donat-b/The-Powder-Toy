@@ -654,17 +654,20 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 					else if (modsave && modsave >= 16 && type == PT_MOVS)
 						if(i++ >= partsDataLen) goto fail;
 
-					//Skip flags (instantly activated powered elements in my mod)
-					if(fieldDescriptor & 0x4000)
+					if (modsave)
 					{
-						if(i++ >= partsDataLen) goto fail;
-					}
+						//Skip flags (instantly activated powered elements in my mod)
+						if(fieldDescriptor & 0x4000)
+						{
+							if(i++ >= partsDataLen) goto fail;
+						}
 
-					//Skip animations
-					if ((type == PT_ANIM || type == PT_INDI) && (fieldDescriptor & 0x20))
-					{
-						i += 4+4*ctype;
-						if(i > partsDataLen) goto fail;
+						//Skip animations
+						if ((type == PT_ANIM || type == PT_INDI) && (fieldDescriptor & 0x20))
+						{
+							i += 4+4*ctype;
+							if(i > partsDataLen) goto fail;
+						}
 					}
 				}
 			}
@@ -2114,38 +2117,42 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						}
 					}
 
-					//Read flags (for instantly activated powered elements in my mod)
-					if(fieldDescriptor & 0x4000)
-					{
-						if(i >= partsDataLen) goto fail;
-						partsptr[newIndex].flags = partsData[i++];
-					}
-					
 #ifdef OGLR
 					partsptr[newIndex].lastX = partsptr[newIndex].x - partsptr[newIndex].vx;
 					partsptr[newIndex].lastY = partsptr[newIndex].y - partsptr[newIndex].vy;
 #endif
 
-					if ((partsptr[newIndex].type == PT_ANIM || partsptr[newIndex].type == PT_INDI) && (fieldDescriptor & 0x20))
+					if (modsave)
 					{
-						int k;
-						if (partsptr[newIndex].type == PT_ANIM)
+						//Read flags (for instantly activated powered elements in my mod)
+						if(fieldDescriptor & 0x4000)
 						{
-							if (partsptr[newIndex].ctype > maxframes)
-								maxframes = partsptr[newIndex].ctype;
-							partsptr[newIndex].animations = (unsigned int*)calloc(maxframes,sizeof(unsigned int));
+							if(i >= partsDataLen) goto fail;
+							partsptr[newIndex].flags = partsData[i++];
 						}
-						else
-							partsptr[newIndex].animations = (unsigned int*)calloc(257,sizeof(unsigned int));
-						if (i+4+4*partsptr[newIndex].ctype >= partsDataLen || partsptr[newIndex].animations == NULL)
-							goto fail;
-						memset(partsptr[newIndex].animations, 0, sizeof(partsptr[newIndex].animations));
-						for (k = 0; k <= partsptr[newIndex].ctype; k++)
+					
+
+						if ((partsptr[newIndex].type == PT_ANIM || partsptr[newIndex].type == PT_INDI) && (fieldDescriptor & 0x20))
 						{
-							partsptr[newIndex].animations[k] = partsData[i++]<<24;
-							partsptr[newIndex].animations[k] |= partsData[i++]<<16;
-							partsptr[newIndex].animations[k] |= partsData[i++]<<8;
-							partsptr[newIndex].animations[k] |= partsData[i++];
+							int k;
+							if (partsptr[newIndex].type == PT_ANIM)
+							{
+								if (partsptr[newIndex].ctype > maxframes)
+									maxframes = partsptr[newIndex].ctype;
+								partsptr[newIndex].animations = (unsigned int*)calloc(maxframes,sizeof(unsigned int));
+							}
+							else
+								partsptr[newIndex].animations = (unsigned int*)calloc(257,sizeof(unsigned int));
+							if (i+4+4*partsptr[newIndex].ctype >= partsDataLen || partsptr[newIndex].animations == NULL)
+								goto fail;
+							memset(partsptr[newIndex].animations, 0, sizeof(partsptr[newIndex].animations));
+							for (k = 0; k <= partsptr[newIndex].ctype; k++)
+							{
+								partsptr[newIndex].animations[k] = partsData[i++]<<24;
+								partsptr[newIndex].animations[k] |= partsData[i++]<<16;
+								partsptr[newIndex].animations[k] |= partsData[i++]<<8;
+								partsptr[newIndex].animations[k] |= partsData[i++];
+							}
 						}
 					}
 
