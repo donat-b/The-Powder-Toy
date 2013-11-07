@@ -130,10 +130,7 @@ int FIGH_create_override(ELEMENT_CREATE_OVERRIDE_FUNC_ARGS)
 		{
 			if (pmap[y][x] ? (eval_move(t, x, y, NULL)!=2) : (bmap[y/CELL][x/CELL] && eval_move(t, x, y, NULL)==0))
 			{
-				if ((pmap[y][x]&0xFF)!=PT_SPAWN&&(pmap[y][x]&0xFF)!=PT_SPAWN2)
-				{
-					return -1;
-				}
+				return -1;
 			}
 			i = sim->part_alloc();
 		}

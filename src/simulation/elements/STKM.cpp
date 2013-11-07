@@ -629,6 +629,10 @@ void STKM_init_legs(playerst* playerp, int i)
 	playerp->legs[13] = y+12.0f;
 	playerp->legs[14] = x+3.0f;
 	playerp->legs[15] = y+12.0f;
+
+	playerp->comm = 0;
+	playerp->frames = 0;
+	playerp->pcomm = 0;
 }
 
 int STKM_update(UPDATE_FUNC_ARGS)
@@ -646,55 +650,18 @@ int STKM_graphics(GRAPHICS_FUNC_ARGS)
 
 int STKM_create_override(ELEMENT_CREATE_OVERRIDE_FUNC_ARGS)
 {
-	int i;
-
 	if (player.spwn)
 		return -1;
-
-	if (p==-1)
-	{
-		if (pmap[y][x] ? (eval_move(t, x, y, NULL)!=2) : (bmap[y/CELL][x/CELL] && eval_move(t, x, y, NULL)==0))
-		{
-			if ((pmap[y][x]&0xFF)!=PT_SPAWN&&(pmap[y][x]&0xFF)!=PT_SPAWN2)
-			{
-				return -1;
-			}
-		}
-		i = sim->part_alloc();
-	}
-	else if (p<0)
-	{
-		i = sim->part_alloc();
-	}
 	else
-	{
-		int oldX = (int)(parts[p].x+0.5f);
-		int oldY = (int)(parts[p].y+0.5f);
-		sim->pmap_remove(p, oldX, oldY);
-		i = p;
-	}
+		return -4;
+}
 
-	if (i<0)
-		return -1;
-
-	sim->parts[i] = sim->elements[t].DefaultProperties;
-	sim->parts[i].type = t;
-	sim->parts[i].x = (float)x;
-	sim->parts[i].y = (float)y;
-#ifdef OGLR
-	sim->parts[i].lastX = (float)x;
-	sim->parts[i].lastY = (float)y;
-#endif
-	parts[i].life = 100;
+void STKM_create(ELEMENT_CREATE_FUNC_ARGS)
+{
 	STKM_init_legs(&player, i);
 	player.rocketBoots = 0;
 	player.spwn = 1;
-
 	sim->part_create(-3, x, y, PT_SPAWN);
-
-	sim->elementCount[t]++;
-	sim->pmap_add(i, x, y, t);
-	return i;
 }
 
 void STKM_init_element(ELEMENT_INIT_FUNC_ARGS)
@@ -745,5 +712,6 @@ void STKM_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &STKM_update;
 	elem->Graphics = &STKM_graphics;
 	elem->Func_Create_Override = &STKM_create_override;
+	elem->Func_Create = &STKM_create;
 	elem->Init = &STKM_init_element;
 }
