@@ -3071,6 +3071,10 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 	NUM_PARTS = 0;
 	for (i=0; i<=parts_lastActiveIndex; i++)//the particle loop that resets the pmap/photon maps every frame, to update them.
 	{
+		if (parts[i].flags&FLAG_DISAPPEAR)
+		{
+			kill_part(i);
+		}
 		if (parts[i].type)
 		{
 			t = parts[i].type;
@@ -3078,11 +3082,6 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 			y = (int)(parts[i].y+0.5f);
 			if (parts[i].flags&FLAG_SKIPMOVE)
 				parts[i].flags &= ~FLAG_SKIPMOVE;
-			if (parts[i].flags&FLAG_DISAPPEAR)
-			{
-				kill_part(i);
-				continue;
-			}
 			if (x>=0 && y>=0 && x<XRES && y<YRES)
 			{
 				if (t == PT_PINV && (parts[i].tmp2>>8) >= i)
@@ -3199,17 +3198,21 @@ void update_moving_solids()
 			{
 				float tmp = parts[i].pavg[0];
 				float tmp2 = parts[i].pavg[1];
-				rotate(&tmp, &tmp2, msrotation[bn]);
+				if (ms_rotation)
+					rotate(&tmp, &tmp2, msrotation[bn]);
 				nx = parts[msindex[bn]-1].x + tmp;
 				ny = parts[msindex[bn]-1].y + tmp2;
 				move(i,(int)(parts[i].x+.5f),(int)(parts[i].y+.5f),nx,ny);
 
-				rotate(&tmp, &tmp2, .02f);
-				if (parts[msindex[bn]-1].x + tmp != nx || parts[msindex[bn]-1].y + tmp2 != ny)
+				if (ms_rotation)
 				{
-					int j = globalSim->part_create(-1, (int)(parts[msindex[bn]-1].x + tmp), (int)(parts[msindex[bn]-1].y + tmp2), parts[i].type);
-					if (j >= 0)
-						parts[j].flags |= FLAG_DISAPPEAR;
+					rotate(&tmp, &tmp2, .02f);
+					if (parts[msindex[bn]-1].x + tmp != nx || parts[msindex[bn]-1].y + tmp2 != ny)
+					{
+						int j = globalSim->part_create(-1, (int)(parts[msindex[bn]-1].x + tmp), (int)(parts[msindex[bn]-1].y + tmp2), parts[i].type);
+						if (j >= 0)
+							parts[j].flags |= FLAG_DISAPPEAR;
+					}
 				}
 
 				parts[i].vx = msvx[bn];
