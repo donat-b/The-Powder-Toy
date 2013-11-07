@@ -476,7 +476,7 @@ int ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 	return ret;
 }
 
-void findWordPosition(const char *s, int position, int *cursorStart, int *cursorEnd, char *spaces)
+void findWordPosition(const char *s, int position, int *cursorStart, int *cursorEnd, const char *spaces)
 {
 	int wordLength = 0, totalLength = 0, strLength = strlen(s);
 	while (totalLength < strLength)
@@ -499,9 +499,6 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 {
 	char ch, ts[2], echo[1024], *str = ed->str;
 	int l, i;
-#ifdef RAWINPUT
-	char *p;
-#endif
 
 	if (ed->alwaysFocus)
 		ed->focus = 1;
@@ -576,27 +573,56 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			ed->cursor = ed->cursorstart = l;
 			break;
 		case SDLK_LEFT:
-			if (ed->cursor > 0)
-				ed->cursor --;
-			if (ed->cursor > 0 && ed->str[ed->cursor-1] == '\b')
+			if (sdl_mod & (KMOD_LSHIFT|KMOD_RSHIFT))
 			{
-				ed->cursor--;
+				if (ed->cursor)
+					ed->cursor--;
+				else if (ed->cursorstart < ed->cursor && ed->cursorstart)
+					ed->cursorstart--;
 			}
-			ed->cursorstart = ed->cursor;
+			else
+			{
+				if (ed->cursor > 0)
+					ed->cursor--;
+				if (ed->cursor > 0 && ed->str[ed->cursor-1] == '\b')
+				{
+					ed->cursor--;
+				}
+				ed->cursorstart = ed->cursor;
+			}
 			break;
 		case SDLK_RIGHT:
-			if (ed->cursor < l && ed->str[ed->cursor] == '\b')
+			if (sdl_mod & (KMOD_LSHIFT|KMOD_RSHIFT))
 			{
-				ed->cursor++;
+				if (ed->cursor < l)
+					ed->cursor++;
+				else if (ed->cursorstart > ed->cursor && ed->cursorstart < l)
+					ed->cursorstart++;
 			}
-			if (ed->cursor < l)
-				ed->cursor ++;
-			ed->cursorstart = ed->cursor;
+			else
+			{
+				if (ed->cursor < l && ed->str[ed->cursor] == '\b')
+				{
+					ed->cursor++;
+				}
+				if (ed->cursor < l)
+					ed->cursor++;
+				ed->cursorstart = ed->cursor;
+			}
 			break;
 		case SDLK_DELETE:
 			if (sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
-				ed->str[ed->cursor] = 0;
-			else if (ed->highlightlength)
+			{
+				int start, end;
+				const char *spaces = " .,!?\n";
+				findWordPosition(ed->str, ed->cursor+1, &start, &end, spaces);
+				if (end > ed->cursor)
+				{
+					memmove(ed->str+ed->cursor, ed->str+end, l-ed->cursor);
+					break;
+				}
+			}
+			if (ed->highlightlength)
 			{
 				memmove(ed->str+ed->highlightstart, ed->str+ed->highlightstart+ed->highlightlength, l-ed->highlightstart);
 				ed->cursor = ed->highlightstart;
@@ -615,11 +641,17 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 		case SDLK_BACKSPACE:
 			if (sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
 			{
-				if (ed->cursor > 0)
-					memmove(ed->str, ed->str+ed->cursor, l-ed->cursor+1);
-				ed->cursor = 0;
+				int start, end;
+				const char *spaces = " .,!?\n";
+				findWordPosition(ed->str, ed->cursor-1, &start, &end, spaces);
+				if (start < ed->cursor)
+				{
+					memmove(ed->str+start, ed->str+ed->cursor, l-ed->cursor+1);
+					ed->cursor = start;
+					break;
+				}
 			}
-			else if (ed->highlightlength)
+			if (ed->highlightlength)
 			{
 				memmove(ed->str+ed->highlightstart, ed->str+ed->highlightstart+ed->highlightlength, l-ed->highlightstart);
 				ed->cursor = ed->highlightstart;
@@ -672,33 +704,6 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 				ed->cursorstart = 0;
 				ed->cursor = l;
 			}
-#ifdef RAWINPUT
-			if (sdl_key>=SDLK_SPACE && sdl_key<=SDLK_z && l<ed->limit)
-			{
-				if (ed->highlightlength)
-				{
-					memmove(ed->str+ed->highlightstart, ed->str+ed->highlightstart+ed->highlightlength, l-ed->highlightstart);
-					ed->cursor = ed->highlightstart;
-				}
-				ch = sdl_key;
-				if ((sdl_mod & (KMOD_LSHIFT|KMOD_RSHIFT|KMOD_CAPS)))
-				{
-					if (ch>='a' && ch<='z')
-						ch &= ~0x20;
-					p = strchr(shift_0, ch);
-					if (p)
-						ch = shift_1[p-shift_0];
-				}
-				ts[0]=ed->hide?0x8D:ch;
-				ts[1]=0;
-				if ((textwidth(str)+textwidth(ts) > ed->w-14 && !ed->multiline) || (float)(((textwidth(str)+textwidth(ts))/(ed->w-14)*12) > ed->h && ed->multiline && ed->limit != 1023))
-					break;
-				memmove(ed->str+ed->cursor+1, ed->str+ed->cursor, l+1-ed->cursor);
-				ed->str[ed->cursor] = ch;
-				ed->cursor++;
-				ed->cursorstart = ed->cursor;
-			}
-#else
 			if ((sdl_mod & (KMOD_CTRL)) && (svf_admin || svf_mod))
 			{
 				if (ed->cursor > 1 && ed->str[ed->cursor-2] == '\b')
@@ -737,7 +742,6 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 				ed->cursor++;
 				ed->cursorstart = ed->cursor;
 			}
-#endif
 			break;
 		}
 	}
@@ -760,7 +764,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 	if (ed->numClicks >= 2)
 	{
 		int start = 0, end = strlen(ed->str);
-		char *spaces = " .,!?\n";
+		const char *spaces = " .,!?\n";
 		if (ed->numClicks == 3)
 			spaces = "\n";
 		findWordPosition(ed->str, ed->cursor, &start, &end, spaces);
@@ -868,7 +872,28 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 
 	if (ed->focus && sdl_key)
 	{
-		if(sdl_mod & (KMOD_CTRL) && sdl_key=='c')//copy
+		int l = strlen(ed->str);
+		if (sdl_key == SDLK_LEFT)
+		{
+			if (sdl_mod & (KMOD_LSHIFT|KMOD_RSHIFT))
+			{
+				if (ed->cursor)
+					ed->cursor--;
+				else if (ed->cursorstart < ed->cursor && ed->cursorstart)
+					ed->cursorstart--;
+			}
+		}
+		else if (sdl_key == SDLK_RIGHT)
+		{
+			if (sdl_mod & (KMOD_LSHIFT|KMOD_RSHIFT))
+			{
+				if (ed->cursor < l)
+					ed->cursor++;
+				else if (ed->cursorstart > ed->cursor && ed->cursorstart < l)
+					ed->cursorstart++;
+			}
+		}
+		else if(sdl_mod & (KMOD_CTRL) && sdl_key=='c')//copy
 		{
 			if (ed->highlightlength)
 			{
@@ -883,7 +908,7 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 		else if(sdl_mod & (KMOD_CTRL) && sdl_key=='a')//highlight all
 		{
 			ed->cursorstart = 0;
-			ed->cursor = strlen(ed->str);
+			ed->cursor = l;
 		}
 	}
 	if (mb && !mbq && ed->focus)
@@ -905,7 +930,7 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 	if (ed->numClicks >= 2)
 	{
 		int start = 0, end = strlen(ed->str);
-		char *spaces = " .,!?\n";
+		const char *spaces = " .,!?\n";
 		if (ed->numClicks == 3)
 			spaces = "\n";
 		findWordPosition(ed->str, ed->cursor, &start, &end, spaces);
