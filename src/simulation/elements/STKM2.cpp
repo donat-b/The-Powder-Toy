@@ -26,7 +26,7 @@ int STKM2_update(UPDATE_FUNC_ARGS)
 
 int STKM2_create_override(ELEMENT_CREATE_OVERRIDE_FUNC_ARGS)
 {
-	if (player2.spwn)
+	if (player2.spwn || (p == -2 && ISSPAWN2))
 		return -1;
 	else
 		return -4;

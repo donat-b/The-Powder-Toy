@@ -650,7 +650,7 @@ int STKM_graphics(GRAPHICS_FUNC_ARGS)
 
 int STKM_create_override(ELEMENT_CREATE_OVERRIDE_FUNC_ARGS)
 {
-	if (player.spwn)
+	if (player.spwn || (p == -2 && ISSPAWN1))
 		return -1;
 	else
 		return -4;
