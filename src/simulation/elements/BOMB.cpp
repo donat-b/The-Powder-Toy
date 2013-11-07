@@ -30,6 +30,7 @@ int BOMB_update(UPDATE_FUNC_ARGS)
 					int rad = 8;
 					int nxi;
 					int nxj;
+					//TODO: this looks like a bad idea
 					pmap[y][x] = 0;
 					for (nxj=-rad; nxj<=rad; nxj++)
 						for (nxi=-rad; nxi<=rad; nxi++)

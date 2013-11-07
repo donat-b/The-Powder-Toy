@@ -17,7 +17,7 @@
 
 int AMTR_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry;
+	int r, rx, ry, rt;
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
@@ -25,7 +25,9 @@ int AMTR_update(UPDATE_FUNC_ARGS)
 				r = ((pmap[y+ry][x+rx]&0xFF)==PT_PINV&&parts[pmap[y+ry][x+rx]>>8].life==10)?0:pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)!=PT_AMTR && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && !(ptypes[r&0xFF].properties&PROP_CLONE) && (r&0xFF)!=PT_NONE && (r&0xFF)!=PT_PHOT && (r&0xFF)!=PT_VOID && (r&0xFF)!=PT_BHOL && (r&0xFF)!=PT_NBHL && (r&0xFF)!=PT_PRTI && (r&0xFF)!=PT_PRTO && (r&0xFF)!=PT_PPTI && (r&0xFF)!=PT_PPTO)
+				rt = (r&0xFF);
+				//would a table lookup be faster than 11 checks?
+				if (rt!=PT_AMTR && !(ptypes[rt].properties&PROP_INDESTRUCTIBLE) && !(ptypes[rt].properties&PROP_CLONE) && rt!=PT_NONE && rt!=PT_PHOT && rt!=PT_VOID && rt!=PT_BHOL && rt!=PT_NBHL && rt!=PT_PRTI && rt!=PT_PRTO && rt!=PT_PPTI && rt!=PT_PPTO)
 				{
 					if(!parts[i].ctype || (parts[i].ctype==(r&0xFF))!=(parts[i].tmp&1))
 					{

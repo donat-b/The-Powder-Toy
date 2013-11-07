@@ -18,7 +18,7 @@
 int BANG_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, nb;
-	if(parts[i].tmp==0)
+	if(parts[i].tmp == 0)
 	{
 		if(parts[i].temp>=673.0f)
 			parts[i].tmp = 1;
@@ -30,18 +30,14 @@ int BANG_update(UPDATE_FUNC_ARGS)
 						r = pmap[y+ry][x+rx];
 						if (!r)
 							continue;
-						if ((r&0xFF)==PT_FIRE || (r&0xFF)==PT_PLSM)
-						{
-							parts[i].tmp = 1;
-						}
-						else if ((r&0xFF)==PT_SPRK || (r&0xFF)==PT_LIGH)
+						if ((r&0xFF)==PT_FIRE || (r&0xFF)==PT_PLSM || (r&0xFF)==PT_SPRK || (r&0xFF)==PT_LIGH)
 						{
 							parts[i].tmp = 1;
 						}
 					}
 	
 	}
-	else if(parts[i].tmp==1)
+	else if(parts[i].tmp == 1)
 	{
 		if ((pmap[y][x]>>8 == i))
 		{
@@ -50,13 +46,13 @@ int BANG_update(UPDATE_FUNC_ARGS)
 		}
 		parts[i].tmp = 2;
 	}
-	else if(parts[i].tmp==2)
+	else if(parts[i].tmp == 2)
 	{
 		parts[i].tmp = 3;
 	}
-	else if(parts[i].tmp>=3)
+	else
 	{
-		float otemp = parts[i].temp-275.13f;
+		float otemp = parts[i].temp-273.15f;
 		//Explode!!
 		pv[y/CELL][x/CELL] += 0.5f;
 		parts[i].tmp = 0;
@@ -65,14 +61,13 @@ int BANG_update(UPDATE_FUNC_ARGS)
 			if(!(rand()%2))
 			{
 				sim->part_create(i, x, y, PT_FIRE);
-				parts[i].temp = restrict_flt((MAX_TEMP/4)+otemp, MIN_TEMP, MAX_TEMP);
 			}
 			else
 			{
 				sim->part_create(i, x, y, PT_SMKE);
 				parts[i].life = rand()%50+500;
-				parts[i].temp = restrict_flt((MAX_TEMP/4)+otemp, MIN_TEMP, MAX_TEMP);
 			}
+			parts[i].temp = restrict_flt((MAX_TEMP/4)+otemp, MIN_TEMP, MAX_TEMP);
 		}
 		else
 		{

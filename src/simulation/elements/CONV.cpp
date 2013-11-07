@@ -18,7 +18,7 @@
 int CONV_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
-	if (parts[i].ctype<=0 || parts[i].ctype>=PT_NUM || !ptypes[parts[i].ctype].enabled || (parts[i].ctype==PT_LIFE && (parts[i].tmp<0 || parts[i].tmp>=NGOL)))
+	if (parts[i].ctype<=0 || parts[i].ctype>=PT_NUM || !ptypes[parts[i].ctype].enabled || parts[i].ctype==PT_CONV || (parts[i].ctype==PT_LIFE && (parts[i].tmp<0 || parts[i].tmp>=NGOL)))
 	{
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
@@ -40,7 +40,9 @@ int CONV_update(UPDATE_FUNC_ARGS)
 					}
 				}
 	}
-	else if(parts[i].ctype>0 && parts[i].ctype<PT_NUM && ptypes[parts[i].ctype].enabled && parts[i].ctype!=PT_CONV) {
+	else
+	{
+		bool life = parts[i].ctype==PT_LIFE;
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
 				if (BOUNDS_CHECK)
@@ -53,7 +55,7 @@ int CONV_update(UPDATE_FUNC_ARGS)
 					if((r&0xFF)!=PT_CONV && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && (r&0xFF)!=parts[i].ctype)
 					{
 						// TODO: change this create_part
-						if (parts[i].ctype==PT_LIFE) create_part(r>>8, x+rx, y+ry, parts[i].ctype|(parts[i].tmp<<8));
+						if (life) create_part(r>>8, x+rx, y+ry, parts[i].ctype|(parts[i].tmp<<8));
 						else sim->part_create(r>>8, x+rx, y+ry, parts[i].ctype);
 					}
 				}

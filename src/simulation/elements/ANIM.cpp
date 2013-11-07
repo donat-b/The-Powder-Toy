@@ -25,13 +25,15 @@ int ANIM_update(UPDATE_FUNC_ARGS)
 		return 1;
 	}
 	if (parts[i].tmp >= 0 && parts[i].life == 10)
-		parts[i].tmp--;
-	if (parts[i].tmp == 0)
 	{
-		parts[i].tmp = (int)(parts[i].temp-273.15);
-		if (framenum == parts[i].tmp2)
-			framenum++;
-		parts[i].tmp2++;
+		parts[i].tmp--;
+		if (!parts[i].tmp)
+		{
+			parts[i].tmp = (int)(parts[i].temp-273.15);
+			if (framenum == parts[i].tmp2)
+				framenum++;
+			parts[i].tmp2++;
+		}
 	}
 	if (parts[i].tmp2 > parts[i].ctype)
 	{
@@ -52,17 +54,15 @@ int ANIM_update(UPDATE_FUNC_ARGS)
 						continue;
 					if ((r&0xFF)==PT_ANIM)
 					{
-						if (parts[r>>8].life<10&&parts[r>>8].life>0)
+						if (parts[r>>8].life < 10 && parts[r>>8].life > 0)
 						{
 							parts[i].life = 9;
-							parts[i].tmp = parts[r>>8].tmp;
-							parts[i].tmp2 = parts[r>>8].tmp2;
+							parts[i].tmp = parts[i].tmp2 = parts[r>>8].tmp;
 						}
-						else if (parts[r>>8].life==0)
+						else if (parts[r>>8].life == 0)
 						{
 							parts[r>>8].life = 10;
-							parts[r>>8].tmp = (r>>8 > i) ? oldtmp : parts[i].tmp;
-							parts[r>>8].tmp2 = (r>>8 > i) ? oldtmp2 : parts[i].tmp2;
+							parts[r>>8].tmp = parts[r>>8].tmp2 = (r>>8 > i) ? oldtmp : parts[i].tmp;
 						}
 					}
 				}

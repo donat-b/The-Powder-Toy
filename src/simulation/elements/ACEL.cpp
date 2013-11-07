@@ -36,7 +36,7 @@ int ACEL_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if(!r)
 					r = photons[y+ry][x+rx];
-				if ((r>>8)>=NPART || !r)
+				if (!r)
 					continue;
 				if(ptypes[r&0xFF].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY))
 				{

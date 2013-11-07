@@ -561,6 +561,8 @@ default. Update internal version number to 89.0.274
 
 Bugs:
 wall id's don't match with tpt++ in lua
+figure out why STKM die if comm/pcomm aren't reset
+STKM(AIR) is weak
 //None (at least that I know of)
 
 

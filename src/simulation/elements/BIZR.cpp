@@ -20,7 +20,8 @@ int BIZR_update(UPDATE_FUNC_ARGS)
 	int r, rx, ry, nr, ng, nb, na;
 	float tr, tg, tb, ta, mr, mg, mb, ma;
 	float blend;
-	if(parts[i].dcolour){
+	if(parts[i].dcolour)
+	{
 		for (rx=-2; rx<3; rx++)
 			for (ry=-2; ry<3; ry++)
 				if (BOUNDS_CHECK && (rx || ry))
@@ -50,7 +51,7 @@ int BIZR_update(UPDATE_FUNC_ARGS)
 					}
 				}
 	}
-	if(((r = photons[y][x])&0xFF)==PT_PHOT || ((r = pmap[y][x])&0xFF)==PT_PHOT)
+	if (((r = photons[y][x])&0xFF) == PT_PHOT)
 	{
 		part_change_type(r>>8, x, y, PT_ELEC);
 		parts[r>>8].ctype = 0;
