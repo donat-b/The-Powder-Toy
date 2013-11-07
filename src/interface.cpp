@@ -2927,13 +2927,12 @@ void menu_ui_v2(pixel *vid_buf, int i)
 	}
 	while (!sdl_poll())
 	{
-		SEC = SEC2;
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 		fillrect(vid_buf, (XRES-BARSIZE-width)-4, y-5, width+16, height+16+rows, 0, 0, 0, 100);
 		drawrect(vid_buf, (XRES-BARSIZE-width)-4, y-5, width+16, height+16+rows, 255, 255, 255, 255);
 		fillrect(vid_buf, (XRES-BARSIZE)+14, someStrangeYValue, 15, FONT_H+4, 0, 0, 0, 100);
-		drawrect(vid_buf, (XRES-BARSIZE)+13, someStrangeYValue, 16, FONT_H+4, (SEC==i&&SEC!=0)?0:255, 255, 255, 255);
+		drawrect(vid_buf, (XRES-BARSIZE)+13, someStrangeYValue, 16, FONT_H+4, 255, 255, 255, 255);
 		drawrect(vid_buf, (XRES-BARSIZE)+12, someStrangeYValue+1, 1, FONT_H+2, 0, 0, 0, 255);
 		if (i) //if not in walls
 			drawtext(vid_buf, 12, 12, "\bgPress 'o' to return to the old menu", 255, 255, 255, 255);
@@ -2941,10 +2940,6 @@ void menu_ui_v2(pixel *vid_buf, int i)
 		Tool *over = menu_draw(mx, my, b, bq, active_menu);
 		if (over)
 			lastOver = over;
-		if (!bq && mx>=((XRES+BARSIZE)-16) ) //highlight menu section
-			if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
-				if (i > 0 && i < SC_TOTAL)
-					SEC = i;
 		menu_draw_text(lastOver, active_menu);
 
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
@@ -2974,16 +2969,9 @@ void menu_ui_v2(pixel *vid_buf, int i)
 //current menu function
 void menu_ui_v3(pixel *vid_buf, int i, int b, int bq, int mx, int my)
 {
-	SEC = SEC2;
-
 	Tool* over = menu_draw(mx, my, b, bq, i);
 	if (over)
 		lastOver = over;
-
-	if (!bq && mx>=((XRES+BARSIZE)-16) ) //highlight menu section
-		if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
-			if (i > 0 && i < SC_TOTAL)
-				SEC = i;
 
 	menu_draw_text(lastOver, i);
 	menu_select_element(b, over);
@@ -3256,14 +3244,6 @@ void menu_select_element(int b, Tool* over)
 	int toolID;
 	if (over)
 		toolID = over->GetID();
-	if (b==1 && !over)
-	{
-		if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL) && SEC>=0)
-		{
-			activeTools[2] = NULL;
-			SEC2 = SEC;
-		}
-	}
 	if (b==1 && over)
 	{
 		int j;
@@ -3390,7 +3370,6 @@ void menu_select_element(int b, Tool* over)
 		else if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
 		{
 			activeTools[2] = over;
-			SEC2 = -1;
 		}
 		else
 		{
@@ -3426,14 +3405,6 @@ void menu_select_element(int b, Tool* over)
 			}
 		}
 	}
-	if (b==4 && !over)
-	{
-		if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL) && SEC>=0)
-		{
-			activeTools[2] = NULL;
-			SEC2 = SEC;
-		}
-	}
 	if (b==4 && over)
 	{
 		int j;
@@ -3459,7 +3430,6 @@ void menu_select_element(int b, Tool* over)
 		else if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
 		{
 			activeTools[2] = over;
-			SEC2 = -1;
 		}
 		else
 		{

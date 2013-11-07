@@ -977,10 +977,7 @@ int DrawMenus(pixel *vid_buf, int hover, int mouseY)
 	{
 		if (menuSections[i]->enabled)
 		{
-			if (SEC && i == SEC)
-				drawrect(vid_buf, (XRES+BARSIZE)-16, y, 14, 14, 0, 255, 255, 255);
-			else
-				drawrect(vid_buf, (XRES+BARSIZE)-16, y, 14, 14, 255, 255, 255, 255);
+			drawrect(vid_buf, (XRES+BARSIZE)-16, y, 14, 14, 255, 255, 255, 255);
 
 			if (hover == i || (i == SC_FAV && (hover == SC_FAV2 || hover == SC_HUD)))
 			{

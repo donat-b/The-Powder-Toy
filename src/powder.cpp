@@ -1291,10 +1291,6 @@ TPT_INLINE void delete_part(int x, int y, int flags)//calls kill_part with the p
 	{
 		kill_part(i>>8);
 	}
-	else if (ptypes[parts[i>>8].type].menusection==SEC)//specific menu deletion
-	{
-		kill_part(i>>8);
-	}
 	else
 		return;
 }

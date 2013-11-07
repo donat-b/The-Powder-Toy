@@ -276,8 +276,6 @@ double maxfps = 0;
 int prevafktime = 0;
 int timesplayed = 0;
 
-int SEC;
-int SEC2;
 int console_mode;
 bool REPLACE_MODE = false;
 bool SPECIFIC_DELETE = false;
