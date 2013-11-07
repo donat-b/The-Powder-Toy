@@ -5533,11 +5533,11 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							else                        // else set how much can be drawn until it goes off the screen
 								info->comments[cc].maxHeight = YRES+MENUSIZE-41 - (ccy + 72 + comment_scroll);
 
-							if (svf_login && b && !bq && mx > 50+(XRES/2)+1 && mx < 50 + XRES+BARSIZE-100 && my > commentboxy - 2 && my < commentboxy + ed.h+2) // defocus comments that are under textbox
-								info->comments[cc].focus = 0;
-
 							change = ui_label_draw(vid_buf, &info->comments[cc]); // draw the comment
 							ui_label_process(mx, my, b, bq, &info->comments[cc]); // process copying
+
+							if (svf_login && b && !bq && mx > 50+(XRES/2)+1 && mx < 50 + XRES+BARSIZE-100 && my > commentboxy - 2 && my < commentboxy + ed.h+2) // defocus comments that are under textbox
+								info->comments[cc].focus = info->comments[cc].cursor = info->comments[cc].cursorstart = info->comments[cc].numClicks = 0;
 
 							ccy += change + 10;
 							if (cc < NUM_COMMENTS-1)
