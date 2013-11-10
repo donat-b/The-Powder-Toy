@@ -556,6 +556,9 @@ number to save preview. Fix incorrect gas/explosive menu icons. Fix VIRS
 graphics. Fix most holes in rotating moving solids, enable rotation by 
 default. Update internal version number to 89.0.274
 
+Version 25.1 (build 24)
+Fix some VIRS saves not opening. Fix moving solids sometimes not drawing. Fix stickmen not respawning. Fix crash when ctrl+alt+clicking. In textboxes, Ctrl+delete deletes one word and shift+arrow keys highlights text. Red DEUT fix from tpt. Start on merging some major optimizations from cracker64.
+
 
 
 

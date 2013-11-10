@@ -2865,10 +2865,22 @@ int main(int argc, char *argv[])
 					}
 					else if (lm == 2)//box tool
 					{
-						xor_line(lx, ly, lx, y, vid_buf);
-						xor_line(lx, y, x, y, vid_buf);
-						xor_line(x, y, x, ly, vid_buf);
-						xor_line(x, ly, lx, ly, vid_buf);
+						if (sdl_mod & KMOD_ALT)
+						{
+							float snap_angle = floor((atan2((float)y-ly, x-lx)+M_PI*0.25)/(M_PI*0.5)+0.5)*M_PI*0.5 - M_PI*0.25;
+							float line_mag = sqrtf(pow((float)x-lx,2.0f)+pow((float)y-ly,2.0f));
+							line_x = (int)(line_mag*cos(snap_angle)+lx+0.5f);
+							line_y = (int)(line_mag*sin(snap_angle)+ly+0.5f);
+						}
+						else
+						{
+							line_x = x;
+							line_y = y;
+						}
+						xor_line(lx, ly, lx, line_y, vid_buf);
+						xor_line(lx, line_y, line_x, line_y, vid_buf);
+						xor_line(line_x, line_y, line_x, ly, vid_buf);
+						xor_line(line_x, ly, lx, ly, vid_buf);
 					}
 					else if (!lm) //while mouse is held down, it draws lines between previous and current positions
 					{
@@ -2991,7 +3003,7 @@ int main(int argc, char *argv[])
 				if (lm == 1)
 					activeTool->DrawLine(currentBrush, Point(lx, ly), Point(line_x, line_y), false);
 				else if (lm == 2)
-					activeTool->DrawRect(currentBrush, Point(lx, ly), Point(x, y));
+					activeTool->DrawRect(currentBrush, Point(lx, ly), Point(line_x, line_y));
 				lm = 0;
 			}
 			lb = 0;

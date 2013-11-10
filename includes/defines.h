@@ -26,13 +26,13 @@
 //VersionInfoStart
 #define SAVE_VERSION 89
 #define MINOR_VERSION 0
-#define BUILD_NUM 274
+#define BUILD_NUM 275
 //VersionInfoEnd
 
 #define MOD_VERSION 25
 #define MOD_MINOR_VERSION 1
 #define MOD_SAVE_VERSION 16 //This is not the version number of my mod anymore, it's only changed when I change the saving code
-#define MOD_BUILD_VERSION 23 //For update checks
+#define MOD_BUILD_VERSION 24 //For update checks
 #define BETA_VERSION 89
 #define BETA_MINOR_VER 0
 #define RELEASE_VERSION 89
