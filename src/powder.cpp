@@ -3975,8 +3975,6 @@ int get_brush_flags()
 		flags |= BRUSH_REPLACEMODE;
 	if (SPECIFIC_DELETE)
 		flags |= BRUSH_SPECIFIC_DELETE;
-	if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
-		flags |= BRUSH_SPECIFIC_DELETE;
 	return flags;
 }
 

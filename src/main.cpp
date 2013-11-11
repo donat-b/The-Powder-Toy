@@ -2905,7 +2905,7 @@ int main(int argc, char *argv[])
 						lm = 1;//line
 					}
 					//start box tool
-					else if ((sdl_mod & (KMOD_CTRL)) && !(sdl_mod & (KMOD_SHIFT|KMOD_ALT)))
+					else if ((sdl_mod & (KMOD_CTRL)) && !(sdl_mod & (KMOD_SHIFT)))
 					{
 						lx = x;
 						ly = y;
@@ -2913,7 +2913,7 @@ int main(int argc, char *argv[])
 						lm = 2;//box
 					}
 					//flood fill
-					else if ((sdl_mod & (KMOD_CTRL)) && (sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_ALT)))
+					else if ((sdl_mod & (KMOD_CTRL)) && (sdl_mod & (KMOD_SHIFT)))
 					{
 						if (!bq)
 							ctrlzSnapshot();
