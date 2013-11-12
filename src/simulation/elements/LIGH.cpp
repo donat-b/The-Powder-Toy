@@ -57,15 +57,23 @@ int contact_part(int i, int tp)
 	return -1;
 }
 
-int create_LIGH(Simulation *sim, int x, int y, int c, int temp, int life, int tmp, int tmp2)
+int create_LIGH(Simulation *sim, int x, int y, int c, int temp, int life, int tmp, int tmp2, bool last)
 {
 	int p = sim->part_create(-1, x, y,c);
 	if (p != -1)
 	{
-		parts[p].life = life;
 		parts[p].temp = (float)temp;
 		parts[p].tmp = tmp;
-		parts[p].tmp2 = tmp2;
+		if (last)
+		{
+			sim->parts[p].tmp2=1+(rand()%200>tmp2*tmp2/10+60);
+			sim->parts[p].life=(int)(life/1.5-rand()%2);
+		}
+		else
+		{
+			parts[p].life = life;
+			parts[p].tmp2 = tmp2;
+		}
 	}
 	else if (x >= 0 && x < XRES && y >= 0 && y < YRES)
 	{
@@ -107,9 +115,9 @@ void create_line_par(Simulation *sim, int x1, int y1, int x2, int y2, int c, int
 		{
 			int ret;
 			if (reverseXY)
-				ret = create_LIGH(sim, y, x, c, temp, life, tmp, tmp2);
+				ret = create_LIGH(sim, y, x, c, temp, life, tmp, tmp2, x==x2);
 			else
-				ret = create_LIGH(sim, x, y, c, temp, life, tmp, tmp2);
+				ret = create_LIGH(sim, x, y, c, temp, life, tmp, tmp2, x==x2);
 			if (ret)
 				return;
 
@@ -127,9 +135,9 @@ void create_line_par(Simulation *sim, int x1, int y1, int x2, int y2, int c, int
 		{
 			int ret;
 			if (reverseXY)
-				ret = create_LIGH(sim, y, x, c, temp, life, tmp, tmp2);
+				ret = create_LIGH(sim, y, x, c, temp, life, tmp, tmp2, x==x2);
 			else
-				ret = create_LIGH(sim, x, y, c, temp, life, tmp, tmp2);
+				ret = create_LIGH(sim, x, y, c, temp, life, tmp, tmp2, x==x2);
 			if (ret)
 				return;
 
@@ -160,7 +168,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 	 * tmp - angle of lighting, measured in degrees anticlockwise from the positive x direction
 	 *
 	*/
-	int r,rx,ry,rt, multipler, powderful=(int)(parts[i].temp*(1+parts[i].life/40)*LIGHTING_POWER), near, voidnearby = 0;
+	int r,rx,ry,rt, multipler, powderful=(int)(parts[i].temp*(1+parts[i].life/40)*LIGHTING_POWER), near;
 	float angle, angle2=-1;
 	update_PYRO(UPDATE_FUNC_SUBCALL_ARGS);
 	if (aheat_enable)
@@ -187,64 +195,57 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 							// TODO: change this create_part
 							create_part(r>>8,x+rx,y+ry,PT_SPRK);
 						}
-						pv[y/CELL][x/CELL] += powderful/400;
-						if (ptypes[r&0xFF].hconduct) parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/1.5, MIN_TEMP, MAX_TEMP);
-					}
-					if (rt==PT_DEUT || rt==PT_PLUT) // start nuclear reactions
-					{
-						parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful, MIN_TEMP, MAX_TEMP);
-						pv[y/CELL][x/CELL] +=powderful/35;
-						if (!(rand()%3))
+						if (rt==PT_DEUT || rt==PT_PLUT) // start nuclear reactions
 						{
-							part_change_type(r>>8,x+rx,y+ry,PT_NEUT);
-							parts[r>>8].life = rand()%480+480;
-							parts[r>>8].vx=rand()%10-5.0f;
-							parts[r>>8].vy=rand()%10-5.0f;
+							parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful, MIN_TEMP, MAX_TEMP);
+							pv[y/CELL][x/CELL] +=powderful/35;
+							if (!(rand()%3))
+							{
+								part_change_type(r>>8,x+rx,y+ry,PT_NEUT);
+								parts[r>>8].life = rand()%480+480;
+								parts[r>>8].vx=rand()%10-5.0f;
+								parts[r>>8].vy=rand()%10-5.0f;
+							}
 						}
-					}
-					if (rt==PT_COAL || rt==PT_BCOL) // ignite coal
-					{
-						if (parts[r>>8].life>100) {
-							parts[r>>8].life = 99;
+						else if (rt==PT_COAL || rt==PT_BCOL) // ignite coal
+						{
+							if (parts[r>>8].life>100) {
+								parts[r>>8].life = 99;
+							}
 						}
+						else if ((rt==PT_STKM && player.elem!=PT_LIGH) || (rt==PT_STKM2 && player2.elem!=PT_LIGH))
+						{
+							parts[r>>8].life-=powderful/100;
+						}
+
+						pv[y/CELL][x/CELL] += powderful/400;
+						if (ptypes[r&0xFF].hconduct)
+							parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/1.5, MIN_TEMP, MAX_TEMP);
 					}
 					if (ptypes[rt].hconduct)
 						parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/10, MIN_TEMP, MAX_TEMP);
-					if ((rt==PT_STKM && player.elem!=PT_LIGH) || (rt==PT_STKM2 && player2.elem!=PT_LIGH))
-					{
-						parts[r>>8].life-=powderful/100;
-					}
-					if (((rt==PT_VOID || (rt==PT_PVOD && parts[r>>8].life >= 10)) && (!parts[r>>8].ctype || (parts[r>>8].ctype==PT_LIGH)!=(parts[r>>8].tmp&1))) || rt==PT_BHOL || rt==PT_NBHL) // VOID, PVOD, VACU, and BHOL eat LIGH here
-					{
-						voidnearby = 1;
-					}
 				}
 			}
-	if (parts[i].tmp2==3)
+	if (parts[i].tmp2 == 3)
 	{
 		parts[i].tmp2=0;
 		return 1;
 	}
-
-	if (parts[i].tmp2==-1)
+	else if (parts[i].tmp2 == -1)
 	{
 		kill_part(i);
 		return 1;
 	}
-	if (parts[i].tmp2<=0 || parts[i].life<=1)
+	else if (parts[i].tmp2 <= 0 || parts[i].life<=1)
 	{
 		if (parts[i].tmp2>0)
 			parts[i].tmp2=0;
 		parts[i].tmp2--;
 		return 1;
 	}
-	if (parts[i].tmp2<=-2 || voidnearby)
-	{
-		kill_part(i);
-		return 1;
-	}
 
-	near = LIGH_nearest_part(i, (int)(parts[i].life*2.5));
+	//Completely broken and laggy function, possibly can be fixed later
+	/*near = LIGH_nearest_part(i, (int)(parts[i].life*2.5));
 	if (near!=-1)
 	{
 		int t=parts[near].type;
@@ -278,59 +279,23 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 			}
 		}
 		else near=-1;
-	}
+	}*/
 
 	//if (parts[i].tmp2==1/* || near!=-1*/)
 	//angle=0;//parts[i].tmp-30+rand()%60;
-	angle = parts[i].tmp-30.0f+rand()%60;
-	if (angle<0)
-		angle+=360;
-	if (angle>=360)
-		angle-=360;
-	if (parts[i].tmp2==2 && near==-1)
-	{
-		angle2=angle+100-rand()%200;
-		if (angle2<0)
-			angle2+=360;
-		if (angle2>=360)
-			angle-=360;
-	}
-
-	multipler=(int)(parts[i].life*1.5+rand()%((int)(parts[i].life+1)));
-	rx=(int)(cos(angle*M_PI/180)*multipler);
-	ry=(int)(-sin(angle*M_PI/180)*multipler);
+	angle = (float)((parts[i].tmp-30+rand()%60)%360);
+	multipler = (int)(parts[i].life*1.5+rand()%((int)(parts[i].life+1)));
+	rx = (int)(cos(angle*M_PI/180)*multipler);
+	ry = (int)(-sin(angle*M_PI/180)*multipler);
 	create_line_par(sim, x, y, x+rx, y+ry, PT_LIGH, (int)parts[i].temp, parts[i].life, (int)angle, 0);
 
-	if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+	if (parts[i].tmp2 == 2)// && pNear==-1)
 	{
-		r = pmap[y+ry][x+rx];
-		if ((r&0xFF)==PT_LIGH)
-		{
-			parts[r>>8].tmp2=1+(rand()%200>parts[i].tmp2*parts[i].tmp2/10+60);
-			parts[r>>8].life=(int)(1.0*parts[i].life/1.5-rand()%2);
-			parts[r>>8].tmp=(int)angle;
-			parts[r>>8].temp=parts[i].temp;
-		}
-	}
-
-	if (angle2!=-1)
-	{
-		multipler=(int)(parts[i].life*1.5+rand()%((int)(parts[i].life+1)));
-		rx=(int)(cos(angle2*M_PI/180)*multipler);
-		ry=(int)(-sin(angle2*M_PI/180)*multipler);
+		angle2 = (float)(((int)angle+100-rand()%200)%360);
+		multipler = (int)(parts[i].life*1.5+rand()%((int)(parts[i].life+1)));
+		rx = (int)(cos(angle2*M_PI/180)*multipler);
+		ry = (int)(-sin(angle2*M_PI/180)*multipler);
 		create_line_par(sim, x, y, x+rx, y+ry, PT_LIGH, (int)parts[i].temp, parts[i].life, (int)angle2, 0);
-
-		if (BOUNDS_CHECK && (rx || ry))
-		{
-			r = pmap[y+ry][x+rx];
-			if ((r&0xFF)==PT_LIGH)
-			{
-				parts[r>>8].tmp2=1+(rand()%200>parts[i].tmp2*parts[i].tmp2/10+40);
-				parts[r>>8].life=(int)(1.0*parts[i].life/1.5-rand()%2);
-				parts[r>>8].tmp=(int)angle;
-				parts[r>>8].temp=parts[i].temp;
-			}
-		}
 	}
 
 	parts[i].tmp2=-1;

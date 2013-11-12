@@ -19,7 +19,7 @@ int CLNE_update(UPDATE_FUNC_ARGS)
 {
 	if (parts[i].ctype<=0 || parts[i].ctype>=PT_NUM || !ptypes[parts[i].ctype].enabled || (parts[i].ctype==PT_LIFE && (parts[i].tmp<0 || parts[i].tmp>=NGOL)))
 	{
-		int r, rx, ry;
+		int r, rx, ry, rt;
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
 				if (BOUNDS_CHECK)
@@ -29,13 +29,13 @@ int CLNE_update(UPDATE_FUNC_ARGS)
 						r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if (!(ptypes[r&0xFF].properties&PROP_CLONE) &&
-						!(ptypes[r&0xFF].properties&PROP_BREAKABLECLONE) &&
-				        (r&0xFF)!=PT_STKM && (r&0xFF)!=PT_STKM2 && 
-						(r&0xFF)<PT_NUM)
+					rt = r&0xFF;
+					if (!(ptypes[rt].properties&PROP_CLONE) &&
+						!(ptypes[rt].properties&PROP_BREAKABLECLONE) &&
+				        rt!=PT_STKM && rt!=PT_STKM2)
 					{
-						parts[i].ctype = r&0xFF;
-						if ((r&0xFF)==PT_LIFE || (r&0xFF)==PT_LAVA)
+						parts[i].ctype = rt;
+						if (rt==PT_LIFE || rt==PT_LAVA)
 							parts[i].tmp = parts[r>>8].ctype;
 					}
 				}

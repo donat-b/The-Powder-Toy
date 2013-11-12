@@ -34,7 +34,7 @@ int DEUT_update(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r || (parts[i].life >=maxlife))
 						continue;
-					if ((r&0xFF)==PT_DEUT&&33>=rand()/(RAND_MAX/100)+1)
+					if ((r&0xFF)==PT_DEUT && !(rand()%3))
 					{
 						// If neighbour life+1 fits in the free capacity for this particle, absorb neighbour
 						// Condition is written in this way so that large neighbour life values don't cause integer overflow
