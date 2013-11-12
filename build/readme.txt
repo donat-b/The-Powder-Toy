@@ -1,30 +1,33 @@
-------------------------------------------------------------------------------
+Jacob1's Mod, tpt's longest lasting and probably most popular mod. My overall 
+goal isn't to add a bunch of elements you can forget about, it's to create a 
+more stable tpt version with lots of new features and other things not fit 
+for the official version, things like moving solids, multiple tabs, 
+improvements to the save preview, and others.
+
+
+The favorites menu has been the center of most things in the mod, since the 
+beginning. To "favorite" an element, ctrl+shift click it from any menu, and 
+it will get a green box around it. To unfavorite it, ctrl+shift+right click 
+it instead. Any recently used elements, even from past sessions, also will 
+appear in the menu, but they don't stay forever.  If you click the MORE 
+button, a new menu will appear with more options. HUD's are customizable using 
+the HUD2 button (there used to be a HUD button too, but now the new HUD is on 
+by default). The FIND button colors whatever element you have selected red, 
+and dims everything else. There's also a way to double or triple highlight 
+things in green and blue at the same time, if you click the button more times. 
+The INFO button displays statistics about how long and how many times you have 
+played powder toy, your average and highest FPS, and info about the current 
+save. HEAT and LUA are explained in the readme, the rest will be later.
+
 Note: Use the legacy version of my mod if using an older computer that doesn't 
 support sse2 (yours probably does), or if it just runs faster.
 
-Scroll to the bottom for recent changes and a todo list.
 
 
 
-This is a mod that basically does the same thing as the Lua script I made. 
-It has a favorites menu below the Tools menu, that has all of the elements 
-you selected recently, including walls and tools. Ctrl+Shift+left clicking 
-an element in any menu will pin it permanently to the menu, even after you 
-exit the Powder Toy. Ctrl+Shift+right clicking an element will unpin it from 
-the menu.
-
-If you click the more button, a new menu will appear with more options. The 
-HUD button activates a better HUD that fixes some problems, has less useless 
-info, and has more decimal places in debug mode. HUD's are customizable using 
-the HUD2 button. This HUD should now be on by default though. The FIND button 
-colors whatever element you have selected red, and dims everything else. 
-Ctrl + F also activates it. The INFO button displays statistics about how long 
-and how many times you have played powder toy, your average and highest FPS, 
-and info about the current save.
-
-I will take any suggestions for new elements or other features, no matter 
-how hard they are to code, and if I like it, I will try to add it in.
-
+------------------------------------------------------------------------------
+------------------------------------Credits-----------------------------------
+------------------------------------------------------------------------------
 Things in my mod suggested by other people:
 Atrayin - Powered Portals, RAZR
 OmegaSupreme - Animated LCRY
@@ -42,8 +45,10 @@ The-Fall - GEL and SPNG can absorb water from more elements (ex. PSTE + SPNG -> 
 
 
 
-Explanation of other new features that need a long explanation:
 
+------------------------------------------------------------------------------
+---------------------------------Explanations---------------------------------
+------------------------------------------------------------------------------
 Moving Solids: No lag, and it actually works. They are found in the special
 menu, and you can have a maximum of 256 at once. They are drawn the same 
 shape as your brush, no matter what shape or size it is. They are very 
@@ -118,8 +123,49 @@ tpt.graphics_func(graphics,tpt.el.eqve.id)
 
 
 
-Changes:
+------------------------------------------------------------------------------
+------------------------------------History-----------------------------------
+------------------------------------------------------------------------------
+The original point of this mod was the favorite elements menu back in version 
+1. It was intended to do everything my badly written lua script did, because 
+several users such as @MasterMind555 encouraged me to start developing tpt. 
+It was very ambitious, I barely knew how to code and claimed version 2 would 
+have moving solids, something everyone said was impossible. I managed to get 
+it done though, and my mod took off from there. Over time, I have fixed a lot 
+of things (moving solids back then were hollow and had bad collisions) from 
+the beginning as I figured out what I was doing.
 
+At some point, I decided to add @BoredInSchool's fusion suggestion into my 
+mod. Everyone loved it, and I decided to try and get some of my code into the 
+official game. After two pull requests filled with fusion, lots of bug fixes, 
+and other small features, I was unexpectedly made a moderator. A few months 
+later I was given access to the repo to help fix all the bugs in the c++ 
+rewrite. Three times before I have stopped work on this for periods of a month 
+or more, but I always come back to it and keep it up to date as new tpt 
+versions are released. Originally, I had planned to port my mod into the c++ 
+rewrite in hopes it would be merged into official. Eventually I realized that 
+was never going to happen, and in fact I didn't want this in official. I like 
+being able to do whatever I want without having others tell me what needs to 
+be done and what can't be put in. I went into full backporting mode, putting 
+all the missing features the c++ rewrite allows into my mod so that you 
+wouldn't miss any features when using this. Even though i'm really busy with 
+college, I am still doing this today, and now plan to rewrite a few parts 
+into c++ myself so that I can add more features.
+
+Sometime in the middle, I thought the idea of having a special update server 
+would be cool. @mniip offered to host it for me, with his new server. I 
+quickly put something together that even had in game changelogs, and he did 
+the server side script. It worked great, this helped keep people interested 
+in the mod, because they didn't need to redownload every new version, and 
+eventually get tired of it. Now, a lot of people actually use this as an 
+entire tpt replacement (including me).
+
+
+
+
+------------------------------------------------------------------------------
+----------------------------------Changelogs----------------------------------
+------------------------------------------------------------------------------
 Version 1.0: http://min.us/lbuOtsPdEMibD2
 Original release, with most of the stuff from my Lua Mod
 
@@ -541,31 +587,33 @@ Version 24.0 (build 21) 7/15/13
 Fix crash when turning on newtonian gravity with the quickoption
 
 Version 25.0 10/24/13
-Yes this mod is still alive. It was just on a few month break :P. Large
-internal rewrites, some by jacksonmj, some by me. Elements and element
-drawing code, menu code, brush code, and some other related things were all
-redone (partially to completely). Move around a few elements. Fix !set type
-and !set ctype sometimes not working. Specific delete now activated by
-'Delete' or ctrl+semicolon. Many simulation updates from tpt++, including
-PROT and official VIRS. Add Comment scrolling velocity. Fix not being able
-to save local saves with mod elements.
+Yes this mod is still alive. It was just on a few month break :P. Large 
+internal rewrites, some by jacksonmj, some by me. Elements and element drawing 
+code, menu code, brush code, and some other related things were all redone 
+(partially to completely). Move around a few elements. Fix !set type and !set 
+ctype sometimes not working. Specific delete now activated by 'Delete' or 
+ctrl+semicolon. Many simulation updates from tpt++, including PROT and 
+official VIRS. Add Comment scrolling velocity. Fix not being able to save 
+local saves with mod elements.
 
 Version 25.1 10/29/13
-Fix possible crash when using the same preference file as tpt. Add page 
-number to save preview. Fix incorrect gas/explosive menu icons. Fix VIRS 
-graphics. Fix most holes in rotating moving solids, enable rotation by 
-default. Update internal version number to 89.0.274
+Fix possible crash when using the same preference file as tpt. Add page number 
+to save preview. Fix incorrect gas/explosive menu icons. Fix VIRS graphics. 
+Fix most holes in rotating moving solids, enable rotation by default. Update 
+internal version number to 89.0.274
 
-Version 25.1 (build 24)
-Fix some VIRS saves not opening. Fix moving solids sometimes not drawing.
-Fix stickmen not respawning. Fix crash when ctrl+alt+clicking. In textboxes,
-Ctrl+delete deletes one word and shift+arrow keys highlights text. Red DEUT
-fix from tpt. Start on merging some major optimizations from cracker64.
-
-
+Version 25.1 (build 24) 11/11/13
+Fix some VIRS saves not opening. Fix moving solids sometimes not drawing. Fix 
+stickmen not respawning. Fix crash when ctrl+alt+clicking. In textboxes, 
+Ctrl+delete deletes one word and shift+arrow keys highlights text. Red DEUT 
+fix from tpt. Start on merging some major optimizations from cracker64. 
 
 
-Bugs:
+
+
+------------------------------------------------------------------------------
+-------------------------------------Bugs-------------------------------------
+------------------------------------------------------------------------------
 wall id's don't match with tpt++ in lua
 figure out why STKM die if comm/pcomm aren't reset
 STKM(AIR) is weak
@@ -574,8 +622,13 @@ STKM(AIR) is weak
 
 
 
+------------------------------------------------------------------------------
+-------------------------------------TODO-------------------------------------
+------------------------------------------------------------------------------
 Immediate TODO: '>' means currently being worked on/added next
->move menu_count to Menus.h (needs tooltips done first)
+>merge in cracker's element optimizations
+>add all missing lua functions
+move menu_count to Menus.h (needs tooltips done first)
 Finish brushes (change all instances of rx and ry to the brush things)
 redo GolTool as MultipleTool, special tools that can draw multiple forms of an element (maybe)
 Redo wall ID's and walls entirely
