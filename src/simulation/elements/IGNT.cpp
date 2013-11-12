@@ -17,8 +17,8 @@
 
 int IGNT_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry;
-	if(parts[i].tmp==0)
+	int r, rx, ry, rt;
+	if (!parts[i].tmp)
 	{
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
@@ -27,11 +27,8 @@ int IGNT_update(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if ((r&0xFF)==PT_FIRE || (r&0xFF)==PT_PLSM)
-					{
-						parts[i].tmp = 1;
-					}
-					else if ((r&0xFF)==PT_SPRK || (r&0xFF)==PT_LIGH || ((r&0xFF)==PT_IGNT && parts[r>>8].life==1))
+					rt = r&0xFF;
+					if (rt==PT_FIRE || rt==PT_PLSM || rt==PT_SPRK || rt==PT_LIGH || (rt==PT_IGNT && parts[r>>8].life==1))
 					{
 						parts[i].tmp = 1;
 					}

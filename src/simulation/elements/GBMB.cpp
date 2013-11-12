@@ -18,7 +18,7 @@
 int GBMB_update(UPDATE_FUNC_ARGS)
 {
 	int rx,ry,r;
-	if (parts[i].life<=0)
+	if (parts[i].life <= 0)
 	{
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
@@ -26,18 +26,16 @@ int GBMB_update(UPDATE_FUNC_ARGS)
 				r = ((pmap[y+ry][x+rx]&0xFF)==PT_PINV&&parts[pmap[y+ry][x+rx]>>8].life==10)?0:pmap[y+ry][x+rx];
 				if(!r)
 					continue;
-				if((r&0xFF)!=PT_BOMB && (r&0xFF)!=PT_GBMB &&
-				   !(ptypes[r&0xFF].properties&PROP_CLONE) &&
-				   !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE))
+				if((r&0xFF)!=PT_BOMB && (r&0xFF)!=PT_GBMB && !(ptypes[r&0xFF].properties&PROP_CLONE) && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE))
 				{
 					parts[i].life=60;
 					break;
 				}
 			}
 	}
-	if(parts[i].life>20)
+	if (parts[i].life > 20)
 		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = 20;
-	if(parts[i].life<20 && parts[i].life>=1)
+	else if (parts[i].life >= 1)
 		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = -80;
 	return 0;
 }

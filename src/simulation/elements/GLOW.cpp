@@ -25,11 +25,12 @@ int GLOW_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)==PT_WATR&&5>(rand()%2000))
+				if ((r&0xFF)==PT_WATR && !(rand()%400))
 				{
 					kill_part(i);
 					part_change_type(r>>8,x+rx,y+ry,PT_DEUT);
 					parts[r>>8].life = 10;
+					return 1;
 				}
 				/*else if (((r&0xFF)==PT_TTAN || ((r&0xFF)==PT_LAVA && parts[r>>8].ctype == PT_TTAN)) && pv[y/CELL][x/CELL] < -200) //not final
 				{
@@ -43,13 +44,7 @@ int GLOW_update(UPDATE_FUNC_ARGS)
 				}*/
 			}
 	parts[i].ctype = (int)pv[y/CELL][x/CELL]*16;
-
 	parts[i].tmp = abs((int)((vx[y/CELL][x/CELL]+vy[y/CELL][x/CELL])*16.0f)) + abs((int)((parts[i].vx+parts[i].vy)*64.0f));
-	//printf("%f %f\n", parts[i].vx, parts[i].vy);
-	if (parts[i].type==PT_NONE) {
-		kill_part(i);
-		return 1;
-	}
 	return 0;
 }
 

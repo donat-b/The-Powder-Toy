@@ -160,7 +160,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 	 * tmp - angle of lighting, measured in degrees anticlockwise from the positive x direction
 	 *
 	*/
-	int r,rx,ry, multipler, powderful=(int)(parts[i].temp*(1+parts[i].life/40)*LIGHTING_POWER), near, voidnearby = 0;
+	int r,rx,ry,rt, multipler, powderful=(int)(parts[i].temp*(1+parts[i].life/40)*LIGHTING_POWER), near, voidnearby = 0;
 	float angle, angle2=-1;
 	update_PYRO(UPDATE_FUNC_SUBCALL_ARGS);
 	if (aheat_enable)
@@ -177,9 +177,10 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 				r = ((pmap[y+ry][x+rx]&0xFF)==PT_PINV&&parts[pmap[y+ry][x+rx]>>8].life==10)?0:pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)!=PT_LIGH && (r&0xFF)!=PT_TESC)
+				rt = r&0xFF;
+				if (rt!=PT_LIGH && rt!=PT_TESC)
 				{
-					if ((r&0xFF)!=PT_THDR&&!(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE)&&(r&0xFF)!=PT_FIRE&&(r&0xFF)!=PT_NEUT&&(r&0xFF)!=PT_PHOT)
+					if (rt!=PT_THDR && !(ptypes[rt].properties&PROP_INDESTRUCTIBLE) && rt!=PT_FIRE)
 					{
 						if ((ptypes[r&0xFF].properties&PROP_CONDUCTS) && parts[r>>8].life==0)
 						{
@@ -189,11 +190,11 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 						pv[y/CELL][x/CELL] += powderful/400;
 						if (ptypes[r&0xFF].hconduct) parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/1.5, MIN_TEMP, MAX_TEMP);
 					}
-					if ((r&0xFF)==PT_DEUT || (r&0xFF)==PT_PLUT) // start nuclear reactions
+					if (rt==PT_DEUT || rt==PT_PLUT) // start nuclear reactions
 					{
 						parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful, MIN_TEMP, MAX_TEMP);
 						pv[y/CELL][x/CELL] +=powderful/35;
-						if (rand()%3==0)
+						if (!(rand()%3))
 						{
 							part_change_type(r>>8,x+rx,y+ry,PT_NEUT);
 							parts[r>>8].life = rand()%480+480;
@@ -201,19 +202,19 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 							parts[r>>8].vy=rand()%10-5.0f;
 						}
 					}
-					if ((r&0xFF)==PT_COAL || (r&0xFF)==PT_BCOL) // ignite coal
+					if (rt==PT_COAL || rt==PT_BCOL) // ignite coal
 					{
 						if (parts[r>>8].life>100) {
 							parts[r>>8].life = 99;
 						}
 					}
-					if (ptypes[r&0xFF].hconduct)
+					if (ptypes[rt].hconduct)
 						parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/10, MIN_TEMP, MAX_TEMP);
-					if (((r&0xFF)==PT_STKM && player.elem!=PT_LIGH) || ((r&0xFF)==PT_STKM2 && player2.elem!=PT_LIGH))
+					if ((rt==PT_STKM && player.elem!=PT_LIGH) || (rt==PT_STKM2 && player2.elem!=PT_LIGH))
 					{
 						parts[r>>8].life-=powderful/100;
 					}
-					if ((((r&0xFF)==PT_VOID || ((r&0xFF)==PT_PVOD && parts[r>>8].life >= 10)) && (!parts[r>>8].ctype || (parts[r>>8].ctype==PT_LIGH)!=(parts[r>>8].tmp&1))) || (r&0xFF)==PT_BHOL || (r&0xFF)==PT_NBHL) // VOID, PVOD, VACU, and BHOL eat LIGH here
+					if (((rt==PT_VOID || (rt==PT_PVOD && parts[r>>8].life >= 10)) && (!parts[r>>8].ctype || (parts[r>>8].ctype==PT_LIGH)!=(parts[r>>8].tmp&1))) || rt==PT_BHOL || rt==PT_NBHL) // VOID, PVOD, VACU, and BHOL eat LIGH here
 					{
 						voidnearby = 1;
 					}

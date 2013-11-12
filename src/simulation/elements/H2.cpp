@@ -31,9 +31,12 @@ int H2_update(UPDATE_FUNC_ARGS)
 					part_change_type(r>>8,x+rx,y+ry,PT_WATR);
 					part_change_type(i,x,y,PT_OIL);
 				}
-				if (parts[r>>8].temp > 2273.15 && pv[y/CELL][x/CELL] > 45.0f)
-					continue;
-				if (pv[x/CELL][y/CELL] <= 45.0f)
+				if (pv[y/CELL][x/CELL] > 45.0f)
+				{
+					if (parts[r>>8].temp > 2273.15)
+						continue;
+				}
+				else
 				{
 					if (rt==PT_FIRE)
 					{
@@ -41,8 +44,12 @@ int H2_update(UPDATE_FUNC_ARGS)
 						if(parts[r>>8].tmp&0x02)
 							parts[r>>8].temp=3473;
 						parts[r>>8].tmp |= 1;
+
+						sim->part_create(i,x,y,PT_FIRE);
+						parts[i].temp+=(rand()%250);
+						parts[i].tmp |= 1;
 					}
-					if (rt==PT_FIRE || (rt==PT_PLSM && !(parts[r>>8].tmp&4)) || (rt==PT_LAVA && parts[r>>8].ctype != PT_BMTL))
+					else if ((rt==PT_PLSM && !(parts[r>>8].tmp&4)) || (rt==PT_LAVA && parts[r>>8].ctype != PT_BMTL))
 					{
 						sim->part_create(i,x,y,PT_FIRE);
 						parts[i].temp+=(rand()%250);
@@ -53,29 +60,29 @@ int H2_update(UPDATE_FUNC_ARGS)
 			}
 	if (parts[i].temp > 2273.15f && pv[y/CELL][x/CELL] > 50.0f)
 	{
-		if (rand()%5 < 1)
+		if (!(rand()%5))
 		{
 			int j;
 			float temp = parts[i].temp;
 			sim->part_create(i,x,y,PT_NBLE);
 
 			j = sim->part_create(-3,x+rand()%3-1,y+rand()%3-1,PT_NEUT);
-			if (j != -1)
+			if (j > -1)
 				parts[j].temp = temp;
 			if (!(rand()%10))
 			{
 				j = sim->part_create(-3,x+rand()%3-1,y+rand()%3-1,PT_ELEC);
-				if (j != -1)
+				if (j > -1)
 					parts[j].temp = temp;
 			}
 			j = sim->part_create(-3,x+rand()%3-1,y+rand()%3-1,PT_PHOT);
-			if (j != -1)
+			if (j >-1)
 			{
 				parts[j].ctype = 0x7C0000;
 				parts[j].temp = temp;
 			}
 			j = sim->part_create(-3,x+rand()%3-1,y+rand()%3-1,PT_PLSM);
-			if (j != -1)
+			if (j > -1)
 			{
 				parts[j].temp = temp;
 				parts[j].tmp |= 4;

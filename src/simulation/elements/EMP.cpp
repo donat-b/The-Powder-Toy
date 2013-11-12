@@ -76,7 +76,7 @@ ok:
 							}
 							if (nt==PT_BMTL && !(rand()%160))
 							{
-								part_change_type(n>>8, rx+nx, ry+ny, PT_BRMT);//TODO: Redundant, was this meant to be BRMT or something?
+								part_change_type(n>>8, rx+nx, ry+ny, PT_BRMT);
 								parts[n>>8].temp = restrict_flt(parts[n>>8].temp+1000.0f, MIN_TEMP, MAX_TEMP);
 							}
 							if (nt==PT_METL && !(rand()%300))
