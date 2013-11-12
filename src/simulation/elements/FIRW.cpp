@@ -19,7 +19,8 @@
 int FIRW_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, rt, np;
-	if (parts[i].tmp<=0) {
+	if (parts[i].tmp <= 0)
+	{
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
 				if (BOUNDS_CHECK && (rx || ry))
@@ -27,8 +28,8 @@ int FIRW_update(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					rt = parts[r>>8].type;
-					if (rt==PT_FIRE||rt==PT_PLSM||rt==PT_THDR)
+					rt = r&0xFF;
+					if (rt==PT_FIRE || rt==PT_PLSM || rt==PT_THDR)
 					{
 						float gx, gy, multiplier;
 						get_gravity_field(x, y, ptypes[PT_FIRW].gravity, 1.0f, &gx, &gy);
@@ -47,14 +48,19 @@ int FIRW_update(UPDATE_FUNC_ARGS)
 					}
 				}
 	}
-	else if (parts[i].tmp==1) {
-		if (parts[i].life<=0) {
-			parts[i].tmp=2;
-		} else {
+	else if (parts[i].tmp == 1)
+	{
+		if (parts[i].life <= 0)
+		{
+			parts[i].tmp = 2;
+		}
+		else
+		{
 			parts[i].flags &= ~FLAG_STAGNANT;
 		}
 	}
-	else if (parts[i].tmp>=2) {
+	else //if (parts[i].tmp >= 2)
+	{
 		float angle, magnitude;
 		int caddress = (rand()%200)*3;
 		int n;

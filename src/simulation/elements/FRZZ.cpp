@@ -25,18 +25,15 @@ int FRZZ_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)==PT_WATR&&5>rand()%100)
+				if ((r&0xFF)==PT_WATR&& !(rand()%20))
 				{
 					part_change_type(r>>8,x+rx,y+ry,PT_FRZW);
 					parts[r>>8].life = 100;
 					kill_part(i);
+					return 1;
 				}
 
 			}
-	if (parts[i].type==PT_NONE) {
-		kill_part(i);
-		return 1;
-	}
 	return 0;
 }
 

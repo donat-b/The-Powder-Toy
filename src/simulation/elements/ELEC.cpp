@@ -19,7 +19,7 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 {
 	int r, rt, rx, ry, nb, rrx, rry;
 	float rr, rrr;
-	if(pmap[y][x]==PT_GLOW)
+	if(pmap[y][x]==PT_GLOW)//move into movement code
 	{
 		part_change_type(i, x, y, PT_PHOT);
 	}
@@ -31,7 +31,8 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 					r = photons[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)==PT_GLAS)
+				rt = r&0xFF;
+				if (rt == PT_GLAS)
 				{
 					for (rrx=-1; rrx<=1; rrx++)
 					{
@@ -61,13 +62,13 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 					kill_part(i);
 					return 1;
 				}
-				if ((r&0xFF)==PT_LCRY)
+				if (rt == PT_LCRY)
 				{
 					parts[r>>8].tmp2 = 5+rand()%5;
 				}
-				if ((r&0xFF)==PT_WATR || (r&0xFF)==PT_DSTW || (r&0xFF)==PT_SLTW || (r&0xFF)==PT_CBNW)
+				if (rt==PT_WATR || rt==PT_DSTW || rt==PT_SLTW || rt==PT_CBNW)
 				{
-					if(rand()<RAND_MAX/3)
+					if(!(rand()%3))
 					{
 						sim->part_create(r>>8, x+rx, y+ry, PT_O2);
 					}
@@ -78,13 +79,13 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 					kill_part(i);
 					return 1;
 				}
-				if ((r&0xFF)==PT_NEUT || ((r&0xFF)==PT_PROT && !(parts[r>>8].tmp2&0x1)))
+				if (rt==PT_NEUT || (rt==PT_PROT && !(parts[r>>8].tmp2&0x1)))
 				{
 					part_change_type(r>>8, x+rx, y+ry, PT_H2);
 					parts[r>>8].life = 0;
 					parts[r>>8].ctype = 0;
 				}
-				if ((r&0xFF)==PT_DEUT)
+				if (rt == PT_DEUT)
 				{
 					if(parts[r>>8].life < 6000)
 						parts[r>>8].life += 1;
@@ -92,12 +93,12 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 					kill_part(i);
 					return 1;
 				}
-				if ((r&0xFF)==PT_EXOT)
+				if (rt == PT_EXOT)
 				{
 					parts[r>>8].tmp2 += 5;
 					parts[r>>8].life = 1000;
 				}
-				if (ptypes[r&0xFF].properties & PROP_CONDUCTS && ((r&0xFF)!=PT_NBLE||parts[i].temp<2273.15))
+				if (ptypes[rt].properties & PROP_CONDUCTS && (rt!=PT_NBLE || parts[i].temp<2273.15))
 				{
 					// TODO: change this create_part
 					create_part(-1, x+rx, y+ry, PT_SPRK);

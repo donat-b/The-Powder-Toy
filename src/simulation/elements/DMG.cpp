@@ -53,7 +53,7 @@ int DMG_update(UPDATE_FUNC_ARGS)
 
 										pv[(y+nxj)/CELL][(x+nxi)/CELL] += 1.0f;
 										
-										t = parts[rr>>8].type;
+										t = rr&0xFF;
 										if(t && ptransitions[t].pht>-1 && ptransitions[t].pht<PT_NUM)
 											part_change_type(rr>>8, x+nxi, y+nxj, ptransitions[t].pht);
 										else if(t == PT_BMTL)

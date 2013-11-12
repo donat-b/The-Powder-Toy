@@ -18,7 +18,7 @@
 int FWRK_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, np;
-	if (parts[i].life==0 && ((parts[i].temp>400&&(9+parts[i].temp/40)>rand()%100000&&surround_space)||parts[i].ctype==PT_DUST))
+	if (parts[i].life==0 && ((parts[i].temp>400 && (9+parts[i].temp/40) > rand()%100000 && surround_space) || parts[i].ctype==PT_DUST))
 	{
 		float gx, gy, multiplier, gmax;
 		int randTmp;
@@ -51,9 +51,7 @@ int FWRK_update(UPDATE_FUNC_ARGS)
 			return 0;
 		}
 	}
-	if (parts[i].life>=45)
-		parts[i].life=0;
-	if (parts[i].life<3&&parts[i].life>0)
+	if (parts[i].life<3 && parts[i].life>0)
 	{
 		int r = (rand()%245+11);
 		int g = (rand()%245+11);
@@ -81,6 +79,8 @@ int FWRK_update(UPDATE_FUNC_ARGS)
 		kill_part(i);
 		return 1;
 	}
+	if (parts[i].life >= 45)
+		parts[i].life=0;
 	return 0;
 }
 

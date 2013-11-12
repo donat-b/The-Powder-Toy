@@ -17,8 +17,7 @@
 
 int EXOT_update(UPDATE_FUNC_ARGS)
 {
-	int r, rt, rx, ry, nb, rrx, rry, trade, tym, t;
-	t = parts[i].type;
+	int r, rt, rx, ry, nb, rrx, rry, trade, tym;
 	for (rx=-2; rx<=2; rx++)
 		for (ry=-2; ry<=2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
@@ -26,22 +25,22 @@ int EXOT_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF) == PT_WARP)
+				rt = r&0xFF;
+				if (rt == PT_WARP)
 				{
-					if (parts[r>>8].tmp2>2000)
-						if (1>rand()%100)
-						{
-							parts[i].tmp2 += 100;
-						}
+					if (parts[r>>8].tmp2>2000 && !(rand()%100))
+					{
+						parts[i].tmp2 += 100;
+					}
 				}
-				else if ((r&0xFF) == PT_EXOT)
+				else if (rt == PT_EXOT)
 				{
 					if (parts[r>>8].ctype == PT_PROT)
 						parts[i].ctype = PT_PROT;
 					if (parts[r>>8].life == 1500 && !(rand()%1000))
 						parts[i].life = 1500;
 				}
-				else if ((r&0xFF) == PT_LAVA)
+				else if (rt == PT_LAVA)
 				{
 					//turn molten TTAN or molten GOLD to molten VIBR 
 					if (parts[r>>8].ctype == PT_TTAN || parts[r>>8].ctype == PT_TTAN)
@@ -64,9 +63,9 @@ int EXOT_update(UPDATE_FUNC_ARGS)
 					}
 				}
 				if (parts[i].tmp>245 && parts[i].life>1000)
-					if ((r&0xFF)!=PT_EXOT && (r&0xFF)!=PT_BREL && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && (r&0xFF)!=PT_PRTI && (r&0xFF)!=PT_PRTO && (r&0xFF)!=PT_PHOT && (r&0xFF)!=PT_VOID && (r&0xFF)!=PT_NBHL && (r&0xFF)!=PT_WARP && (r&0xFF)!=PT_NEUT)
+					if (rt!=PT_EXOT && rt!=PT_BREL && !(ptypes[rt].properties&PROP_INDESTRUCTIBLE) && rt!=PT_PRTI && rt!=PT_PRTO && rt!=PT_VOID && rt!=PT_NBHL && rt!=PT_WARP)
 					{
-						sim->part_create(i, x, y, parts[r>>8].type);
+						sim->part_create(i, x, y, rt);
 						return 1;
 					}
 			}
@@ -106,7 +105,7 @@ int EXOT_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)==t && (parts[i].tmp2>parts[r>>8].tmp2) && parts[r>>8].tmp2>=0)//diffusion
+				if ((r&0xFF)==PT_EXOT && (parts[i].tmp2>parts[r>>8].tmp2) && parts[r>>8].tmp2>=0)//diffusion
 				{
 					tym = parts[i].tmp2 - parts[r>>8].tmp2;
 					if (tym == 1)
