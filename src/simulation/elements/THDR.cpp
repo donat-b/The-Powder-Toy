@@ -17,7 +17,8 @@
 
 int THDR_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry;
+	int r, rx, ry, rt;
+	bool kill;
 	for (rx=-2; rx<3; rx++)
 		for (ry=-2; ry<3; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
@@ -25,14 +26,15 @@ int THDR_update(UPDATE_FUNC_ARGS)
 				r = ((pmap[y+ry][x+rx]&0xFF)==PT_PINV&&parts[pmap[y+ry][x+rx]>>8].life==10)?0:pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((ptypes[r&0xFF].properties&PROP_CONDUCTS) && parts[r>>8].life==0 && !((r&0xFF)==PT_WATR||(r&0xFF)==PT_SLTW) && parts[r>>8].ctype!=PT_SPRK)
+				rt = r&0xFF;
+				if ((ptypes[rt].properties&PROP_CONDUCTS) && parts[r>>8].life==0 && !(rt==PT_WATR||rt==PT_SLTW) && parts[r>>8].ctype!=PT_SPRK)
 				{
-					parts[i].type = PT_NONE;
 					parts[r>>8].ctype = parts[r>>8].type;
 					part_change_type(r>>8,x+rx,y+ry,PT_SPRK);
 					parts[r>>8].life = 4;
+					kill = true;
 				}
-				else if ((r&0xFF)!=PT_THDR&&(r&0xFF)!=PT_SPRK&&!(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE)&&(r&0xFF)!=PT_FIRE&&(r&0xFF)!=PT_NEUT&&(r&0xFF)!=PT_PHOT&&(r&0xFF))
+				else if (rt!=PT_THDR && rt!=PT_SPRK && !(ptypes[rt].properties&PROP_INDESTRUCTIBLE) && rt!=PT_FIRE && rt!=PT_NEUT && rt!=PT_PHOT)
 				{
 					pv[y/CELL][x/CELL] += 100.0f;
 					if (legacy_enable&&1>(rand()%200))
@@ -42,11 +44,12 @@ int THDR_update(UPDATE_FUNC_ARGS)
 					}
 					else
 					{
-						parts[i].type = PT_NONE;
+						kill = true;
 					}
 				}
 			}
-	if (parts[i].type==PT_NONE) {
+	if (kill)
+	{
 		kill_part(i);
 		return 1;
 	}

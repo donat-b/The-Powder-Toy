@@ -18,15 +18,7 @@
 int VIBR_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, transfer, trade;
-	if (parts[i].ctype == 1) //newly created BVBR
-	{
-		if (pv[y/CELL][x/CELL] > -2.5 || parts[i].tmp)
-		{
-			parts[i].ctype = 0;
-			part_change_type(i, x, y, PT_VIBR);
-		}
-	}
-	else if (!parts[i].life) //if not exploding
+	if (!parts[i].life) //if not exploding
 	{
 		//Heat absorption code
 		if (parts[i].temp > 274.65f)

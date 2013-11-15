@@ -55,29 +55,35 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 	{
 		NPTCT_update(UPDATE_FUNC_SUBCALL_ARGS);
 	}
-	else if (ct==PT_ETRD&&parts[i].life==1)
+	else if (ct==PT_ETRD)
 	{
-		nearp = nearest_part(i, PT_ETRD, -1);
-		if (nearp!=-1&&parts_avg(i, nearp, PT_INSL)!=PT_INSL)
+		if (parts[i].life == 1)
 		{
-			create_line(x, y, (int)(parts[nearp].x+0.5f), (int)(parts[nearp].y+0.5f), 0, 0, PT_PLSM, 0);
-			part_change_type(i,x,y,ct);
-			ct = parts[i].ctype = PT_NONE;
-			parts[i].life = 20;
-			part_change_type(nearp,(int)(parts[nearp].x+0.5f),(int)(parts[nearp].y+0.5f),PT_SPRK);
-			parts[nearp].life = 9;
-			parts[nearp].ctype = PT_ETRD;
+			nearp = nearest_part(i, PT_ETRD, -1);
+			if (nearp!=-1&&parts_avg(i, nearp, PT_INSL)!=PT_INSL)
+			{
+				create_line(x, y, (int)(parts[nearp].x+0.5f), (int)(parts[nearp].y+0.5f), 0, 0, PT_PLSM, 0);
+				part_change_type(i, x, y, ct);
+				ct = parts[i].ctype = PT_NONE;
+				parts[i].life = 20;
+				part_change_type(nearp, (int)(parts[nearp].x+0.5f), (int)(parts[nearp].y+0.5f), PT_SPRK);
+				parts[nearp].life = 9;
+				parts[nearp].ctype = PT_ETRD;
+			}
 		}
 	}
-	else if (ct==PT_NBLE&&parts[i].life<=1&&parts[i].temp<5273.15)
+	else if (ct==PT_NBLE)
 	{
-		parts[i].life = rand()%150+50;
-		part_change_type(i,x,y,PT_PLSM);
-		parts[i].ctype = PT_NBLE;
-		if (parts[i].temp > 5273.15)
-			parts[i].tmp |= 4;
-		parts[i].temp = 3500;
-		pv[y/CELL][x/CELL] += 1;
+		if (parts[i].life<=1 && parts[i].temp<5273.15f)
+		{
+			parts[i].life = rand()%150+50;
+			part_change_type(i, x, y, PT_PLSM);
+			parts[i].ctype = PT_NBLE;
+			if (parts[i].temp > 5273.15)
+				parts[i].tmp |= 4;
+			parts[i].temp = 3500;
+			pv[y/CELL][x/CELL] += 1;
+		}
 	}
 	else if (ct==PT_TESC) // tesla coil code
 	{
@@ -146,7 +152,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				rt = parts[r>>8].type;
+				rt = r&0xFF;
 				conduct_sprk = 1;
 
 				pavg = parts_avg(r>>8, i,PT_INSL);
@@ -207,32 +213,33 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 				}
 				if (ct==PT_NTCT && !(rt==PT_PSCN || rt==PT_NTCT || (rt==PT_NSCN&&parts[i].temp>373.0f)))
 					conduct_sprk = 0;
-				if (ct==PT_PTCT && !(rt==PT_PSCN || rt==PT_PTCT || (rt==PT_NSCN&&parts[i].temp<373.0f)))
+				else if (ct==PT_PTCT && !(rt==PT_PSCN || rt==PT_PTCT || (rt==PT_NSCN&&parts[i].temp<373.0f)))
 					conduct_sprk = 0;
-				if (ct==PT_INWR && !(rt==PT_NSCN || rt==PT_INWR || rt==PT_PSCN))
+				else if (ct==PT_INWR && !(rt==PT_NSCN || rt==PT_INWR || rt==PT_PSCN))
 					conduct_sprk = 0;
-				if (ct==PT_NSCN && rt==PT_PSCN)
+				else if (ct==PT_NSCN && rt==PT_PSCN)
 					conduct_sprk = 0;
-				if (ct==PT_ETRD && !(rt==PT_METL||rt==PT_ETRD||rt==PT_BMTL||rt==PT_BRMT||rt==PT_LRBD||rt==PT_RBDM||rt==PT_PSCN||rt==PT_NSCN))
+				else if (ct==PT_ETRD && !(rt==PT_METL||rt==PT_ETRD||rt==PT_BMTL||rt==PT_BRMT||rt==PT_LRBD||rt==PT_RBDM||rt==PT_PSCN||rt==PT_NSCN))
 					conduct_sprk = 0;
-				if (ct==PT_INST&&rt!=PT_NSCN) conduct_sprk = 0;
-				if (ct==PT_SWCH && (rt==PT_PSCN||rt==PT_NSCN||rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR))
+				else if (ct==PT_INST&&rt!=PT_NSCN)
 					conduct_sprk = 0;
-				if (rt==PT_QRTZ && !((ct==PT_NSCN||ct==PT_METL||ct==PT_PSCN||ct==PT_QRTZ) && (parts[r>>8].temp<173.15||pv[(y+ry)/CELL][(x+rx)/CELL]>8)))
+				else if (ct==PT_SWCH && (rt==PT_PSCN||rt==PT_NSCN||rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR))
 					conduct_sprk = 0;
-				if (rt==PT_NTCT && !(ct==PT_NSCN || ct==PT_NTCT || (ct==PT_PSCN&&parts[r>>8].temp>373.0f)))
+				else if (rt==PT_QRTZ && !((ct==PT_NSCN||ct==PT_METL||ct==PT_PSCN||ct==PT_QRTZ) && (parts[r>>8].temp<173.15||pv[(y+ry)/CELL][(x+rx)/CELL]>8)))
 					conduct_sprk = 0;
-				if (rt==PT_PTCT && !(ct==PT_NSCN || ct==PT_PTCT || (ct==PT_PSCN&&parts[r>>8].temp<373.0f)))
+				else if (rt==PT_NTCT && !(ct==PT_NSCN || ct==PT_NTCT || (ct==PT_PSCN&&parts[r>>8].temp>373.0f)))
 					conduct_sprk = 0;
-				if (rt==PT_INWR && !(ct==PT_NSCN || ct==PT_INWR || ct==PT_PSCN))
+				else if (rt==PT_PTCT && !(ct==PT_NSCN || ct==PT_PTCT || (ct==PT_PSCN&&parts[r>>8].temp<373.0f)))
 					conduct_sprk = 0;
-				if (rt==PT_INST&&ct!=PT_PSCN)
+				else if (rt==PT_INWR && !(ct==PT_NSCN || ct==PT_INWR || ct==PT_PSCN))
 					conduct_sprk = 0;
-				if (ct==PT_BUTN && (rt==PT_PSCN||rt==PT_NSCN||rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR))
+				else if (rt==PT_INST && ct!=PT_PSCN)
 					conduct_sprk = 0;
-				if (ct==PT_COND && rt == PT_COND && parts[i].tmp != parts[r>>8].tmp)
+				else if (ct==PT_BUTN && (rt==PT_PSCN||rt==PT_NSCN||rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR))
 					conduct_sprk = 0;
-				if (rt == PT_NBLE && parts[r>>8].temp > 5273.15)
+				else if (ct==PT_COND && rt == PT_COND && parts[i].tmp != parts[r>>8].tmp)
+					conduct_sprk = 0;
+				else if (rt == PT_NBLE && parts[r>>8].temp > 5273.15)
 					conduct_sprk = 0;
 
 				if (conduct_sprk) {

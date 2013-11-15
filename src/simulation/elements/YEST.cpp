@@ -25,12 +25,13 @@ int YEST_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)==PT_DYST && 1>(rand()%6) && !legacy_enable)
+				if ((r&0xFF)==PT_DYST && !(rand()%6) && !legacy_enable)
 				{
 					part_change_type(i,x,y,PT_DYST);
 				}
 			}
-	if (parts[i].temp>303&&parts[i].temp<317) {
+	if (parts[i].temp>303 && parts[i].temp<317)
+	{
 		sim->part_create(-1, x+rand()%3-1, y+rand()%3-1, PT_YEST);
 	}
 	return 0;

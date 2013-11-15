@@ -36,7 +36,7 @@ int QRTZ_update(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					else if ((r&0xFF)==PT_SLTW && (1>rand()%500))
+					else if ((r&0xFF)==PT_SLTW && !(rand()%500))
 					{
 						kill_part(r>>8);
 						parts[i].tmp++;
@@ -45,7 +45,7 @@ int QRTZ_update(UPDATE_FUNC_ARGS)
 	// grow if absorbed SLTW
 	if (parts[i].tmp > 0)
 	{
-		for ( trade = 0; trade<5; trade ++)
+		for (trade = 0; trade<5; trade++)
 		{
 			rx = rand()%3-1;
 			ry = rand()%3-1;
@@ -59,15 +59,14 @@ int QRTZ_update(UPDATE_FUNC_ARGS)
 					{
 						parts[np].tmp2 = parts[i].tmp2;
 						parts[i].tmp--;
-						if (5>rand()%10)
+						if (rand()%2)
 						{
 							parts[np].tmp = -1;//dead qrtz
 						}
-						else if (!parts[i].tmp && 1>rand()%15)
+						else if (!parts[i].tmp && !(rand()%15))
 						{
 							parts[i].tmp=-1;
 						}
-
 						break;
 					}
 				}
@@ -77,7 +76,7 @@ int QRTZ_update(UPDATE_FUNC_ARGS)
 	// diffuse absorbed SLTW
 	if (parts[i].tmp > 0)
 	{
-		for ( trade = 0; trade<9; trade ++)
+		for (trade = 0; trade<9; trade ++)
 		{
 			rx = rand()%5-2;
 			ry = rand()%5-2;
@@ -86,16 +85,16 @@ int QRTZ_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)==t && (parts[i].tmp > parts[r>>8].tmp) && parts[r>>8].tmp>=0 )//diffusion
+				if ((r&0xFF)==t && (parts[i].tmp > parts[r>>8].tmp) && parts[r>>8].tmp>=0)//diffusion
 				{
 					tmp = parts[i].tmp - parts[r>>8].tmp;
-					if (tmp ==1)
+					if (tmp == 1)
 					{
 						parts[r>>8].tmp ++;
 						parts[i].tmp --;
 						break;
 					}
-					if (tmp>0)
+					if (tmp > 0)
 					{
 						parts[r>>8].tmp += tmp/2;
 						parts[i].tmp -= tmp/2;

@@ -47,15 +47,17 @@ int SING_update(UPDATE_FUNC_ARGS)
 				pv[y/CELL-1][x/CELL-1] += 0.1f*(singularity-pv[y/CELL-1][x/CELL-1]);
 		}
 	}
-	if (parts[i].life<1) {
+	if (parts[i].life<1)
+	{
 		//Pop!
-		for (rx=-1; rx<2; rx++) {
+		for (rx=-1; rx<2; rx++)
+		{
 			crx = (x/CELL)+rx;
-			for (ry=-1; ry<2; ry++) {
+			for (ry=-1; ry<2; ry++)
+			{
 				cry = (y/CELL)+ry;
-				if (cry >= 0 && crx >= 0 && crx < (XRES/CELL) && cry < (YRES/CELL)) {
+				if (cry >= 0 && crx >= 0 && crx < (XRES/CELL) && cry < (YRES/CELL))
 					pv[cry][crx] += (float)parts[i].tmp;
-				}
 			}
 		}
 		spawncount = (parts[i].tmp>255)?255:parts[i].tmp;
@@ -76,7 +78,8 @@ int SING_update(UPDATE_FUNC_ARGS)
 					nb = sim->part_create(-3, x, y, PT_ELEC);
 					break;
 			}
-			if (nb!=-1) {
+			if (nb!=-1)
+			{
 				parts[nb].life = (rand()%300);
 				parts[nb].temp = MAX_TEMP/2;
 				angle = rand()*2.0f*M_PI/RAND_MAX;
@@ -97,7 +100,7 @@ int SING_update(UPDATE_FUNC_ARGS)
 				r = ((pmap[y+ry][x+rx]&0xFF)==PT_PINV&&parts[pmap[y+ry][x+rx]>>8].life==10)?0:pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if (!(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && !(ptypes[r&0xFF].properties&PROP_CLONE) && !(ptypes[r&0xFF].properties&PROP_BREAKABLECLONE) && 33>=rand()/(RAND_MAX/100)+1)
+				if (!(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && !(ptypes[r&0xFF].properties&PROP_CLONE) && !(ptypes[r&0xFF].properties&PROP_BREAKABLECLONE) && !(rand()%3))
 				{
 					if ((r&0xFF)==PT_SING && parts[r>>8].life >10)
 					{
@@ -109,7 +112,7 @@ int SING_update(UPDATE_FUNC_ARGS)
 					{
 						if (parts[i].life+3 > 255)
 						{
-							if (parts[r>>8].type!=PT_SING && 1>rand()%100)
+							if (parts[r>>8].type!=PT_SING && !(rand()%100))
 							{
 								int np;
 								np = sim->part_create(r>>8,x+rx,y+ry,PT_SING);

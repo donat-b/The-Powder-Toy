@@ -120,7 +120,6 @@ int trymovetron(int x, int y, int dir, int i, int len)
 
 int TRON_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, np;
 	if (parts[i].tmp&TRON_WAIT)
 	{
 		parts[i].tmp &= ~TRON_WAIT;

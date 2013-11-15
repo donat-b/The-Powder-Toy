@@ -55,10 +55,7 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 			{
 				if ((parts[i].ctype&6) != 6 && (parts[i].ctype&6))
 				{
-					int target;
-
-					target = i;
-
+					int target = i;
 					while((parts[target].ctype&6) != 6 && (parts[target].ctype&6))
 					{
 						if (parts[target].ctype&2)
@@ -66,7 +63,6 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 							target = parts[target].tmp;
 							detach(target);
 						}
-
 						if (parts[target].ctype&4)
 						{
 							target = parts[target].tmp2;
@@ -74,17 +70,12 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 						}
 					}
 				}
-
 				if ((parts[i].ctype&6) != 6)
 					parts[i].ctype = 0;
-
 				if ((parts[i].ctype&6) == 6 && (parts[parts[i].tmp].ctype&6) == 6 && parts[parts[i].tmp].tmp == i)
 					detach(i);
 			}
-
-			parts[i].vy -= 0.1f;
-
-			parts[i].vy *= 0.5f;
+			parts[i].vy = (parts[i].vy-0.1f)*0.5f;
 			parts[i].vx *= 0.5f;
 		}
 
@@ -115,50 +106,45 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 
 							if (parts[i].temp>SOAP_FREEZING)
 							{
-								if (bmap[(y+ry)/CELL][(x+rx)/CELL] 
-										|| (r && ptypes[r&0xFF].state != ST_GAS 
-											&& (r&0xFF) != PT_SOAP && (r&0xFF) != PT_GLAS))
+								if (bmap[(y+ry)/CELL][(x+rx)/CELL] ||
+									(r && ptypes[r&0xFF].state != ST_GAS && (r&0xFF) != PT_SOAP && (r&0xFF) != PT_GLAS))
 								{
 									detach(i);
 									continue;
 								}
 							}
 
-							if ((r&0xFF) == PT_SOAP && parts[r>>8].ctype == 1)
+							if ((r&0xFF) == PT_SOAP)
 							{
-								int buf;
+								if (parts[r>>8].ctype == 1)
+								{
+									int buf = parts[i].tmp;
 
-								buf = parts[i].tmp;
-
-								parts[i].tmp = r>>8;
-								parts[buf].tmp2 = r>>8;
-								parts[r>>8].tmp2 = i;
-								parts[r>>8].tmp = buf;
-								parts[r>>8].ctype = 7;
-							}
-
-							if ((r&0xFF) == PT_SOAP && parts[r>>8].ctype == 7 && parts[i].tmp != r>>8 && parts[i].tmp2 != r>>8)
-							{
-								parts[parts[i].tmp].tmp2 = parts[r>>8].tmp2;
-								parts[parts[r>>8].tmp2].tmp = parts[i].tmp;
-								parts[r>>8].tmp2 = i;
-								parts[i].tmp = r>>8;
+									parts[i].tmp = r>>8;
+									parts[buf].tmp2 = r>>8;
+									parts[r>>8].tmp2 = i;
+									parts[r>>8].tmp = buf;
+									parts[r>>8].ctype = 7;
+								}
+								else if (parts[r>>8].ctype == 7 && parts[i].tmp != r>>8 && parts[i].tmp2 != r>>8)
+								{
+									parts[parts[i].tmp].tmp2 = parts[r>>8].tmp2;
+									parts[parts[r>>8].tmp2].tmp = parts[i].tmp;
+									parts[r>>8].tmp2 = i;
+									parts[i].tmp = r>>8;
+								}
 							}
 						}
 		}
 
 		if(parts[i].ctype&2)
 		{
-			float d, dx, dy;
-
-			dx = parts[i].x - parts[parts[i].tmp].x;
-			dy = parts[i].y - parts[parts[i].tmp].y;
-
-			d = 9/(pow(dx, 2)+pow(dy, 2)+9)-0.5;
+			float dx = parts[i].x - parts[parts[i].tmp].x;
+			float dy = parts[i].y - parts[parts[i].tmp].y;
+			float d = 9/(pow(dx, 2)+pow(dy, 2)+9)-0.5;
 
 			parts[parts[i].tmp].vx -= dx*d;
 			parts[parts[i].tmp].vy -= dy*d;
-
 			parts[i].vx += dx*d;
 			parts[i].vy += dy*d;
 
@@ -171,12 +157,10 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 				{
 					dx = parts[ii].x - parts[parts[i].tmp].x;
 					dy = parts[ii].y - parts[parts[i].tmp].y;
-
 					d = 81/(pow(dx, 2)+pow(dy, 2)+81)-0.5;
 
 					parts[parts[i].tmp].vx -= dx*d*0.5f;
 					parts[parts[i].tmp].vy -= dy*d*0.5f;
-
 					parts[ii].vx += dx*d*0.5f;
 					parts[ii].vy += dy*d*0.5f;
 				}
@@ -190,7 +174,6 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 			parts[i].ctype = 1;
 			parts[i].life = 10;
 		}
-
 		for (rx=-2; rx<3; rx++)
 			for (ry=-2; ry<3; ry++)
 				if (BOUNDS_CHECK && (rx || ry))
@@ -201,15 +184,11 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 
 					if ((r&0xFF) == PT_OIL)
 					{
-						float ax, ay;
-
-						parts[i].vy -= 0.1f;
-
-						parts[i].vy *= 0.5f;
+						parts[i].vy = (parts[i].vy-0.1f)*0.5f;
 						parts[i].vx *= 0.5f;
 
-						ax = (parts[i].vx + parts[r>>8].vx)/2;
-						ay = (parts[i].vy + parts[r>>8].vy)/2;
+						float ax = (parts[i].vx + parts[r>>8].vx)/2;
+						float ay = (parts[i].vy + parts[r>>8].vy)/2;
 
 						parts[i].vx = ax;
 						parts[i].vy = ay;

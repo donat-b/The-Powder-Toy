@@ -20,8 +20,8 @@ int REPL_update(UPDATE_FUNC_ARGS)
 	int r, rx, ry, ri;
 	for(ri = 0; ri <= 10; ri++)
 	{
-		rx = (rand()%20)-10;
-		ry = (rand()%20)-10;
+		rx = (rand()%21)-10;
+		ry = (rand()%21)-10;
 		if (BOUNDS_CHECK && (rx || ry))
 		{
 			r = pmap[y+ry][x+rx];

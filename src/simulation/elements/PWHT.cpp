@@ -73,23 +73,18 @@ int PWHT_update(UPDATE_FUNC_ARGS)
 	float temp = parts[i].temp;
 	if (parts[i].life < 10)
 		return 0;
-	if ((pmap[y-1][x]&0xFF) == PT_PWHT)
+	if ((r&0xFF) == PT_PWHT)
 	{
-		int rx, ry;
-		for (rx=-1; rx<2; rx++)
-			for (ry=-1; ry<2; ry++)
+		for (int rx=-1; rx<2; rx++)
+			for (int ry=-1; ry<2; ry++)
 				if (BOUNDS_CHECK)
 				{
-					r = pmap[y+ry][x+rx];
-					if(!r)
-						r = photons[y+ry][x+rx];
-					if ((r>>8)>=NPART || !r || (r&0xFF) != PT_PWHT)
-						continue;
-					kill_part(r>>8);
+					if ((pmap[y+ry][x+rx]&0xFF) == PT_PWHT)
+						kill_part(pmap[y+ry][x+rx]>>8);
 				}
 		return 1;
 	}
-	else if (pmap[y-1][x]&0xFF)
+	else if (r&0xFF)
 	{
 		if (!parts[i].ctype && !parts[i].tmp2)
 			flood_prop(x,y-1,offsetof(particle, temp),&parts[i].temp,2);
@@ -149,6 +144,8 @@ void PWHT_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->LowTemperatureTransitionElement = NT;
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
+
+	elem->DefaultProperties.life = 10;
 
 	elem->Update = &PWHT_update;
 	elem->Graphics = &PWHT_graphics;

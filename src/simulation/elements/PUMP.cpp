@@ -18,7 +18,7 @@
 int PUMP_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
-	if (parts[i].life==10)
+	if (parts[i].life == 10)
 	{
 		if (parts[i].temp>=256.0+273.15)
 			parts[i].temp=256.0f+273.15f;

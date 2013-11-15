@@ -41,7 +41,7 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 			if (!r)
 			{
 				fe = 1;
-				for ( nnx =0 ; nnx<80; nnx++)
+				for (nnx =0 ; nnx<80; nnx++)
 				{
 					int randomness = (count + rand()%3-1 + 4)%8;//add -1,0,or 1 to count
 					if (portalp[parts[i].tmp][randomness][nnx].type==PT_SPRK)// TODO: make it look better, spark creation

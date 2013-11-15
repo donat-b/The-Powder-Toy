@@ -27,30 +27,43 @@ int SPNG_update(UPDATE_FUNC_ARGS)
 				if (BOUNDS_CHECK && (rx || ry))
 				{
 					r = pmap[y+ry][x+rx];
-					if (!r)
-						continue;
-					if (((r&0xFF)==PT_WATR || (r&0xFF)==PT_DSTW || (r&0xFF)==PT_FRZW) && parts[i].life<limit && 500>rand()%absorbChanceDenom)
+					switch (r&0xFF)
 					{
-						parts[i].life++;
-						kill_part(r>>8);
-					}
-					if ((r&0xFF)==PT_SLTW && parts[i].life<limit && 50>rand()%absorbChanceDenom)
-					{
-						parts[i].life++;
-						if (rand()%4)
+					case PT_WATR:
+					case PT_DSTW:
+					case PT_FRZW:
+						if (parts[i].life<limit && 500>rand()%absorbChanceDenom)
+						{
+							parts[i].life++;
 							kill_part(r>>8);
-						else
-							part_change_type(r>>8, x+rx, y+ry, PT_SALT);
-					}
-					if ((r&0xFF)==PT_CBNW && parts[i].life<limit && 100>rand()%absorbChanceDenom)
-					{
-						parts[i].life++;
-						part_change_type(r>>8, x+rx, y+ry, PT_CO2);
-					}
-					if ((r&0xFF)==PT_PSTE && parts[i].life<limit && 20>rand()%absorbChanceDenom)
-					{
-						parts[i].life++;
-						sim->part_create(r>>8, x+rx, y+ry, PT_CLST);
+						}
+						break;
+					case PT_SLTW:
+						if (parts[i].life<limit && 50>rand()%absorbChanceDenom)
+						{
+							parts[i].life++;
+							if (rand()%4)
+								kill_part(r>>8);
+							else
+								part_change_type(r>>8, x+rx, y+ry, PT_SALT);
+						}
+						break;
+					case PT_CBNW:
+						if (parts[i].life<limit && 100>rand()%absorbChanceDenom)
+						{
+							parts[i].life++;
+							part_change_type(r>>8, x+rx, y+ry, PT_CO2);
+						}
+						break;
+					case PT_PSTE:
+						if (parts[i].life<limit && 20>rand()%absorbChanceDenom)
+						{
+							parts[i].life++;
+							sim->part_create(r>>8, x+rx, y+ry, PT_CLST);
+						}
+						break;
+					default:
+						continue;
 					}
 				}
 	}

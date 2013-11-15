@@ -21,7 +21,7 @@ int VINE_update(UPDATE_FUNC_ARGS)
 	if (BOUNDS_CHECK && (rx || ry))
 	{
 		r = pmap[y+ry][x+rx];
-		if (1>rand()%15)
+		if (!(rand()%15))
 			part_change_type(i,x,y,PT_PLNT);
 		else if (!r)
 		{

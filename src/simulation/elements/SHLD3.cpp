@@ -25,31 +25,28 @@ int SHLD3_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 				{
-					if (1>rand()%2500)
+					if (!(rand()%2500))
 					{
 						np = sim->part_create(-1,x+rx,y+ry,PT_SHLD1);
 						if (np<0) continue;
 						parts[np].life=7;
 						part_change_type(i,x,y,PT_SHLD2);
 					}
-					else
-						continue;
-
 				}
-				if ((r&0xFF)==PT_SHLD1 && parts[i].life>3)
+				else if ((r&0xFF)==PT_SHLD1 && parts[i].life>3)
 				{
 					part_change_type(r>>8,x+rx,y+ry,PT_SHLD2);
 					parts[r>>8].life=7;
 				}
-				else if ((r&0xFF)==PT_SPRK&&parts[i].life==0)
+				else if ((r&0xFF)==PT_SPRK && !parts[i].life)
 				{
-					if (18>rand()%3000&&parts[i].life==0)
+					if (3>rand()%500)
 					{
 						part_change_type(i,x,y,PT_SHLD4);
 						parts[i].life = 7;
 					}
-					for ( nnx=-1; nnx<2; nnx++)
-						for ( nny=-1; nny<2; nny++)
+					for (nnx=-1; nnx<2; nnx++)
+						for (nny=-1; nny<2; nny++)
 						{
 
 							if (!pmap[y+ry+nny][x+rx+nnx])

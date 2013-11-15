@@ -23,36 +23,49 @@ int PLNT_update(UPDATE_FUNC_ARGS)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
 				r = pmap[y+ry][x+rx];
-				if (!r)
-					continue;
-				if ((r&0xFF)==PT_WATR && !(rand()%50))
+				switch (r&0xFF)
 				{
-					np = sim->part_create(r>>8,x+rx,y+ry,PT_PLNT);
-					if (np<0) continue;
-					parts[np].life = 0;
-				}
-				else if ((r&0xFF)==PT_LAVA && !(rand()%50))
-				{
-					part_change_type(i,x,y,PT_FIRE);
-					parts[i].life = 4;
-				}
-				else if (((r&0xFF)==PT_SMKE || (r&0xFF)==PT_CO2) && !(rand()%50))
-				{
-					kill_part(r>>8);
-					parts[i].life = rand()%60 + 60;
-				}
-				else if (surround_space && ((r&0xFF)==PT_WOOD) && !(rand()%4) && (abs(rx+ry)<=2) && parts[i].tmp==1)
-				{
-					int nnx = rand()%3 -1;
-					int nny = rand()%3 -1;
-					if (x+rx+nnx>=0 && y+ry+nny>0 && x+rx+nnx<XRES && y+ry+nny<YRES && (nnx || nny))
+				case PT_WATR:
+					if (!(rand()%50))
 					{
-						if (pmap[y+ry+nny][x+rx+nnx])
-							continue;
-						np = sim->part_create(-1,x+rx+nnx,y+ry+nny,PT_VINE);
+						np = sim->part_create(r>>8, x+rx, y+ry, PT_PLNT);
 						if (np<0) continue;
-						parts[np].temp = parts[i].temp;
+						parts[np].life = 0;
 					}
+					break;
+				case PT_LAVA:
+					if (!(rand()%50))
+					{
+						part_change_type(i, x, y, PT_FIRE);
+						parts[i].life = 4;
+					}
+					break;
+				case PT_SMKE:
+				case PT_CO2:
+					if (!(rand()%50))
+					{
+						kill_part(r>>8);
+						parts[i].life = rand()%60 + 60;
+					}
+					break;
+				case PT_WOOD:
+					if (surround_space && abs(rx+ry)<=2 && parts[i].tmp==1 && !(rand()%4))
+					{
+						int nnx = rand()%3 -1;
+						int nny = rand()%3 -1;
+						if (x+rx+nnx>=0 && y+ry+nny>0 && x+rx+nnx<XRES && y+ry+nny<YRES && (nnx || nny))
+						{
+							if (pmap[y+ry+nny][x+rx+nnx])
+								continue;
+							np = sim->part_create(-1, x+rx+nnx, y+ry+nny, PT_VINE);
+							if (np < 0)
+								continue;
+							parts[np].temp = parts[i].temp;
+						}
+					}
+					break;
+				default:
+					continue;
 				}
 			}
 	if (parts[i].life==2)
