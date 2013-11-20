@@ -18,7 +18,7 @@
 #include <math.h>
 #include <SDL/SDL.h>
 #include <bzlib.h>
-#ifdef WIN32
+#if defined(WIN32) || defined(LIN32) || defined(LIN64)
 #include <SDL/SDL_syswm.h>
 #endif
 
@@ -4738,7 +4738,7 @@ int LoadWindowPosition(int scale)
 		// 1 if we didn't use the default, i.e. the position was valid
 		return success;
 	}
-	#endif
+#endif
 
 	return 0;
 }
@@ -4760,7 +4760,45 @@ int SaveWindowPosition()
 
 		return 1;
 	}
-	#endif
+#elif (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
+	SDL_SysWMinfo sysInfo;
+	SDL_VERSION(&sysInfo.version);
+	if (SDL_GetWMInfo(&sysInfo) > 0)
+	{
+		Display *display;
+		Window window, dummy;
+		XWindowAttributes attributes;
+
+		sysInfo.info.x11.lock_func();
+		display = sysInfo.info.x11.display;
+		window = sysInfo.info.x11.window;
+		XSync(display, false);
+		XGetWindowAttributes(display, window, &attributes);
+		XTranslateCoordinates(display, window, attributes.root, 0, 0, &savedWindowX, &savedWindowY, &dummy);
+
+		//some window managers don't include the border when getting position, so we adjust for that here
+		unsigned long nitems, bytes_after;
+		unsigned char *property;
+		Atom type;
+		int format;
+
+		//adjust for window border. Some window managers will have get ignore the window border, so set needs to be adjusted to include it
+		//this doesn't actually work though, for some reason
+		if (Success == XGetWindowProperty(display, window, XA_NET_FRAME_EXTENTS, 0, 16, 0, XA_CARDINAL, &type, &format, &nitems, &bytes_after, &property) && property)
+		{
+			long border_left = ((Atom*)property)[0];
+			long border_top = ((Atom*)property)[2];
+
+			savedWindowX -= border_left;
+			savedWindowY -= border_top;
+
+			XFree(property);
+		}
+
+		sysInfo.info.x11.unlock_func();
+		return 1;
+	}
+#endif
 
 	return 0;
 }
@@ -4777,6 +4815,9 @@ int sdl_open(void)
 	HICON hIconBig;
 #elif defined(LIN32) || defined(LIN64)
 	SDL_Surface *icon;
+	char envStr[64];
+	sprintf(envStr, "SDL_VIDEO_WINDOW_POS=%i,%i", savedWindowX, savedWindowY);
+	SDL_putenv(envStr);
 #endif
 	int status;
 	if (SDL_Init(SDL_INIT_VIDEO)<0)
@@ -5020,6 +5061,7 @@ int sdl_open(void)
 	XA_CLIPBOARD = XInternAtom(sdl_wminfo.info.x11.display, "CLIPBOARD", 1);
 	XA_TARGETS = XInternAtom(sdl_wminfo.info.x11.display, "TARGETS", 1);
 	XA_UTF8_STRING = XInternAtom(sdl_wminfo.info.x11.display, "UTF8_STRING", 1);
+	XA_NET_FRAME_EXTENTS = XInternAtom(sdl_wminfo.info.x11.display, "_NET_FRAME_EXTENTS", 0);
 	sdl_wminfo.info.x11.unlock_func();
 #elif defined (WIN32)
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);

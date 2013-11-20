@@ -68,7 +68,7 @@ SDLMod sdl_mod;
 int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii, sdl_zoom_trig=0;
 #if (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
 SDL_SysWMinfo sdl_wminfo;
-Atom XA_CLIPBOARD, XA_TARGETS, XA_UTF8_STRING;
+Atom XA_CLIPBOARD, XA_TARGETS, XA_UTF8_STRING, XA_NET_FRAME_EXTENTS;
 #endif
 
 char *shift_0="`1234567890-=[]\\;',./";
