@@ -26,23 +26,26 @@ int CLST_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)==PT_WATR && 1>(rand()%1500))
+				if ((r&0xFF) == PT_WATR)
 				{
-					part_change_type(i,x,y,PT_PSTS);
-					kill_part(r>>8);
+					if (!(rand()%1500))
+					{
+						part_change_type(i, x, y, PT_PSTS);
+						kill_part(r>>8);
+					}
 				}
-				if ((r&0xFF)==PT_NITR)
+				else if ((r&0xFF) == PT_NITR)
 				{
 					sim->part_create(i, x, y, PT_BANG);
 					sim->part_create(r>>8, x+rx, y+ry, PT_BANG);
 				}
-				if ((r&0xFF)==PT_CLST)
+				else if ((r&0xFF) == PT_CLST)
 				{
-					if (parts[i].temp <195)
+					if (parts[i].temp < 195)
 						cxy = 0.05f;
-					else if (parts[i].temp >= 195 && parts[i].temp <295)
+					else if (parts[i].temp < 295)
 						cxy = 0.015f;
-					else if (parts[i].temp >= 295 && parts[i].temp <350)
+					else if (parts[i].temp < 350)
 						cxy = 0.01f;
 					else
 						cxy = 0.005f;

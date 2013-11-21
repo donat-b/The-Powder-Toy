@@ -41,11 +41,14 @@ int CO2_update(UPDATE_FUNC_ARGS)
 						return 1;
 					}
 				}
-				if (((r&0xFF)==PT_WATR || (r&0xFF)==PT_DSTW) && !(rand()%50))
+				else if (((r&0xFF)==PT_WATR || (r&0xFF)==PT_DSTW) && !(rand()%50))
 				{
 					part_change_type(r>>8, x+rx, y+ry, PT_CBNW);
 					if (parts[i].ctype==5) //conserve number of water particles - ctype=5 means this CO2 hasn't released the water particle from BUBW yet
+					{
 						sim->part_create(i, x, y, PT_WATR);
+						return 0;
+					}
 					else
 					{
 						kill_part(i);

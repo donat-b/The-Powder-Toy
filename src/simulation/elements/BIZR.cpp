@@ -51,7 +51,7 @@ int BIZR_update(UPDATE_FUNC_ARGS)
 					}
 				}
 	}
-	if (((r = photons[y][x])&0xFF) == PT_PHOT)
+	if (((r = photons[y][x])&0xFF) == PT_PHOT) //this should be in movement checks?
 	{
 		part_change_type(r>>8, x, y, PT_ELEC);
 		parts[r>>8].ctype = 0;

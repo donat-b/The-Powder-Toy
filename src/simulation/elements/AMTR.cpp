@@ -27,7 +27,7 @@ int AMTR_update(UPDATE_FUNC_ARGS)
 					continue;
 				rt = (r&0xFF);
 				//would a table lookup be faster than 11 checks?
-				if (rt!=PT_AMTR && !(ptypes[rt].properties&PROP_INDESTRUCTIBLE) && !(ptypes[rt].properties&PROP_CLONE) && rt!=PT_NONE && rt!=PT_PHOT && rt!=PT_VOID && rt!=PT_BHOL && rt!=PT_NBHL && rt!=PT_PRTI && rt!=PT_PRTO && rt!=PT_PPTI && rt!=PT_PPTO)
+				if (rt!=PT_AMTR && !(ptypes[rt].properties&PROP_INDESTRUCTIBLE) && !(ptypes[rt].properties&PROP_CLONE) && rt!=PT_NONE && rt!=PT_VOID && rt!=PT_BHOL && rt!=PT_NBHL && rt!=PT_PRTI && rt!=PT_PRTO && rt!=PT_PPTI && rt!=PT_PPTO)
 				{
 					if(!parts[i].ctype || (parts[i].ctype==(r&0xFF))!=(parts[i].tmp&1))
 					{
@@ -37,7 +37,7 @@ int AMTR_update(UPDATE_FUNC_ARGS)
 							kill_part(i);
 							return 1;
 						}
-						if (10>(rand()/(RAND_MAX/100)))
+						if (!(rand()%10))
 							sim->part_create(r>>8, x+rx, y+ry, PT_PHOT);
 						else
 							kill_part(r>>8);

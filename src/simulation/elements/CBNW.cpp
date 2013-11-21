@@ -26,7 +26,7 @@ int CBNW_update(UPDATE_FUNC_ARGS)
 			parts[i].ctype = 5;
 			pv[y/CELL][x/CELL] += 0.5f;
 		}
-		else if(1>(rand()%4000))
+		else if (!(rand()%4000))
 		{
 			part_change_type(i, x, y, PT_CO2);
 			parts[i].ctype = 5;
@@ -89,13 +89,16 @@ int CBNW_update(UPDATE_FUNC_ARGS)
 							parts[r>>8].tmp++;
 					}
 				}
-				if (((r&0xFF)==PT_RBDM||(r&0xFF)==PT_LRBD) && (legacy_enable||parts[i].temp>(273.15f+12.0f)) && !(rand()%166))
+				else if ((r&0xFF)==PT_RBDM || (r&0xFF)==PT_LRBD)
 				{
-					part_change_type(i, x, y, PT_FIRE);
-					parts[i].life = 4;
-					parts[i].ctype = PT_WATR;
+					if ((legacy_enable||parts[i].temp>(273.15f+12.0f)) && !(rand()%166))
+					{
+						part_change_type(i, x, y, PT_FIRE);
+						parts[i].life = 4;
+						parts[i].ctype = PT_WATR;
+					}
 				}
-				if ((r&0xFF)==PT_FIRE && parts[r>>8].ctype!=PT_WATR)
+				else if ((r&0xFF)==PT_FIRE && parts[r>>8].ctype!=PT_WATR)
 				{
 					kill_part(r>>8);
 					if (!(rand()%50)){

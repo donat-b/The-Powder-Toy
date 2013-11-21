@@ -43,15 +43,19 @@ int BOYL_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)==PT_WATR && !(rand()%30))
+				if ((r&0xFF)==PT_WATR)
 				{
-					part_change_type(r>>8,x+rx,y+ry,PT_FOG);
+					if (!(rand()%30))
+						part_change_type(r>>8,x+rx,y+ry,PT_FOG);
 				}
-				else if ((r&0xFF)==PT_O2 && !(rand()%9))
+				else if ((r&0xFF)==PT_O2)
 				{
-					kill_part(r>>8);
-					part_change_type(i,x,y,PT_WATR);
-					pv[y/CELL][x/CELL] += 4.0;
+					if (!(rand()%9))
+					{
+						kill_part(r>>8);
+						part_change_type(i, x, y, PT_WATR);
+						pv[y/CELL][x/CELL] += 4.0;
+					}
 				}
 			}
 	return 0;

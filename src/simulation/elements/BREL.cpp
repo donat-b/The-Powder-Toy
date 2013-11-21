@@ -26,7 +26,7 @@ int BREL_update(UPDATE_FUNC_ARGS)
 				part_change_type(i, x, y, PT_EXOT);
 				parts[i].life = 1000;
 			}
-			parts[i].temp = parts[i].temp + (pv[y/CELL][x/CELL])/8;
+			parts[i].temp += (pv[y/CELL][x/CELL])/8;
 		}
 	}
 	return 0;
