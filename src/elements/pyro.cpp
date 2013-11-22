@@ -15,36 +15,46 @@
 
 #include <element.h>
 
-int update_PYRO(UPDATE_FUNC_ARGS) {
+int update_PYRO(UPDATE_FUNC_ARGS)
+{
 	int r, rx, ry, rt, t = parts[i].type;
-	if (t == PT_PLSM && parts[i].ctype == PT_NBLE && parts[i].life <= 1)
+	switch (t)
 	{
-		t = PT_NBLE;
-		part_change_type(i,x,y,t);
-		parts[i].life = 0;
-	}
-	else if (t==PT_FIRE && parts[i].life <=1)
-	{
-		if ((parts[i].tmp&0x3) == 3)
+	case PT_PLSM:
+		if (parts[i].life <= 1)
 		{
-			part_change_type(i,x,y,PT_DSTW);
-			parts[i].life = 0;
-			parts[i].ctype = PT_FIRE;
+			if (parts[i].ctype == PT_NBLE)
+			{
+				t = PT_NBLE;
+				part_change_type(i, x, y, t);
+				parts[i].life = 0;
+			}
+			else if ((parts[i].tmp&0x3) == 3)
+			{
+				part_change_type(i, x, y, PT_DSTW);
+				parts[i].life = 0;
+				parts[i].ctype = PT_FIRE;
+			}
 		}
-		else if (parts[i].temp<625)
+		break;
+	case PT_FIRE:
+		if (parts[i].life <=1)
 		{
-			part_change_type(i,x,y,PT_SMKE);
-			parts[i].life = rand()%20+250;
+			if ((parts[i].tmp&0x3) == 3)
+			{
+				part_change_type(i, x, y, PT_DSTW);
+				parts[i].life = 0;
+				parts[i].ctype = PT_FIRE;
+			}
+			else if (parts[i].temp<625)
+			{
+				part_change_type(i, x, y, PT_SMKE);
+				parts[i].life = rand()%20+250;
+			}
 		}
-	}
-	else if (t==PT_PLSM && parts[i].life <=1)
-	{
-		if ((parts[i].tmp&0x3) == 3)
-		{
-			part_change_type(i,x,y,PT_DSTW);
-			parts[i].life = 0;
-			parts[i].ctype = PT_FIRE;
-		}
+		break;
+	default:
+		break;
 	}
 	for (rx=-2; rx<3; rx++)
 		for (ry=-2; ry<3; ry++)

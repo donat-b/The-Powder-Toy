@@ -23,9 +23,9 @@ int H2_update(UPDATE_FUNC_ARGS)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
 				r = pmap[y+ry][x+rx];
-				rt = (r&0xFF);
 				if (!r)
 					continue;
+				rt = (r&0xFF);
 				if (pv[y/CELL][x/CELL] > 8.0f && rt == PT_DESL) // This will not work. DESL turns to fire above 5.0 pressure
 				{
 					part_change_type(r>>8,x+rx,y+ry,PT_WATR);
@@ -40,19 +40,20 @@ int H2_update(UPDATE_FUNC_ARGS)
 				{
 					if (rt==PT_FIRE)
 					{
-						parts[r>>8].temp=2473.15f;
 						if(parts[r>>8].tmp&0x02)
-							parts[r>>8].temp=3473;
+							parts[r>>8].temp = 3473;
+						else
+							parts[r>>8].temp = 2473.15f;
 						parts[r>>8].tmp |= 1;
 
 						sim->part_create(i,x,y,PT_FIRE);
-						parts[i].temp+=(rand()%250);
+						parts[i].temp += (rand()%100);
 						parts[i].tmp |= 1;
 					}
 					else if ((rt==PT_PLSM && !(parts[r>>8].tmp&4)) || (rt==PT_LAVA && parts[r>>8].ctype != PT_BMTL))
 					{
 						sim->part_create(i,x,y,PT_FIRE);
-						parts[i].temp+=(rand()%250);
+						parts[i].temp += (rand()%100);
 						parts[i].tmp |= 1;
 						pv[y/CELL][x/CELL] += 0.1f;
 					}

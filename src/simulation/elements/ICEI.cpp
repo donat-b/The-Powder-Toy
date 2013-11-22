@@ -29,11 +29,14 @@ int ICE_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if (((r&0xFF)==PT_SALT || (r&0xFF)==PT_SLTW) && parts[i].temp > ptransitions[PT_SLTW].tlv && !(rand()%200))
+				if ((r&0xFF)==PT_SALT || (r&0xFF)==PT_SLTW)
 				{
-					part_change_type(i,x,y,PT_SLTW);
-					part_change_type(r>>8,x+rx,y+ry,PT_SLTW);
-					return 0;
+					if (parts[i].temp > ptransitions[PT_SLTW].tlv && !(rand()%200))
+					{
+						part_change_type(i, x, y, PT_SLTW);
+						part_change_type(r>>8, x+rx, y+ry, PT_SLTW);
+						return 0;
+					}
 				}
 				else if (((r&0xFF)==PT_FRZZ) && (parts[i].ctype=PT_FRZW) && !(rand()%200))
 					part_change_type(r>>8,x+rx,y+ry,PT_ICEI);

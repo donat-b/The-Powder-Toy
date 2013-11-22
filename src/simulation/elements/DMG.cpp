@@ -50,7 +50,6 @@ int DMG_update(UPDATE_FUNC_ARGS)
 
 										vx[(y+nxj)/CELL][(x+nxi)/CELL] += fx;
 										vy[(y+nxj)/CELL][(x+nxi)/CELL] += fy;
-
 										pv[(y+nxj)/CELL][(x+nxi)/CELL] += 1.0f;
 										
 										t = rr&0xFF;

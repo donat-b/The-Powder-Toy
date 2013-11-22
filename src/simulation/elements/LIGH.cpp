@@ -81,6 +81,8 @@ int create_LIGH(Simulation *sim, int x, int y, int c, int temp, int life, int tm
 		if ((((r&0xFF)==PT_VOID || ((r&0xFF)==PT_PVOD && parts[r>>8].life >= 10)) && (!parts[r>>8].ctype || (parts[r>>8].ctype==c)!=(parts[r>>8].tmp&1))) || (r&0xFF)==PT_BHOL || (r&0xFF)==PT_NBHL) // VOID, PVOD, VACU, and BHOL eat LIGH here
 			return 1;
 	}
+	else
+		return 1;
 	return 0;
 }
 
@@ -186,45 +188,60 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 				if (!r)
 					continue;
 				rt = r&0xFF;
-				if (rt!=PT_LIGH && rt!=PT_TESC)
-				{
-					if (rt!=PT_THDR && !(ptypes[rt].properties&PROP_INDESTRUCTIBLE) && rt!=PT_FIRE)
-					{
-						if ((ptypes[r&0xFF].properties&PROP_CONDUCTS) && parts[r>>8].life==0)
-						{
-							// TODO: change this create_part
-							create_part(r>>8,x+rx,y+ry,PT_SPRK);
-						}
-						if (rt==PT_DEUT || rt==PT_PLUT) // start nuclear reactions
-						{
-							parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful, MIN_TEMP, MAX_TEMP);
-							pv[y/CELL][x/CELL] +=powderful/35;
-							if (!(rand()%3))
-							{
-								part_change_type(r>>8,x+rx,y+ry,PT_NEUT);
-								parts[r>>8].life = rand()%480+480;
-								parts[r>>8].vx=rand()%10-5.0f;
-								parts[r>>8].vy=rand()%10-5.0f;
-							}
-						}
-						else if (rt==PT_COAL || rt==PT_BCOL) // ignite coal
-						{
-							if (parts[r>>8].life>100) {
-								parts[r>>8].life = 99;
-							}
-						}
-						else if ((rt==PT_STKM && player.elem!=PT_LIGH) || (rt==PT_STKM2 && player2.elem!=PT_LIGH))
-						{
-							parts[r>>8].life-=powderful/100;
-						}
 
-						pv[y/CELL][x/CELL] += powderful/400;
-						if (ptypes[r&0xFF].hconduct)
-							parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/1.5, MIN_TEMP, MAX_TEMP);
-					}
-					if (ptypes[rt].hconduct)
-						parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/10, MIN_TEMP, MAX_TEMP);
+				if (ptypes[rt].properties & PROP_INDESTRUCTIBLE)
+				{
+					parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/10, MIN_TEMP, MAX_TEMP);
+					continue;
 				}
+				switch (rt)
+				{
+				case PT_LIGH:
+				case PT_TESC:
+					continue;
+				case PT_THDR:
+				case PT_CLNE:
+				case PT_FIRE:
+					parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/10, MIN_TEMP, MAX_TEMP);
+					continue;
+				case PT_DEUT:
+				case PT_PLUT:
+					//start nuclear reactions
+					parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful, MIN_TEMP, MAX_TEMP);
+					pv[y/CELL][x/CELL] += powderful/35;
+					if (!(rand()%3))
+					{
+						part_change_type(r>>8,x+rx,y+ry,PT_NEUT);
+						parts[r>>8].life = rand()%480+480;
+						parts[r>>8].vx=rand()%10-5.0f;
+						parts[r>>8].vy=rand()%10-5.0f;
+					}
+					break;
+				case PT_COAL:
+				case PT_BCOL:
+					//ignite coal
+					if (parts[r>>8].life > 100)
+						parts[r>>8].life = 99;
+					break;
+				case PT_STKM:
+					if (player.elem != PT_LIGH)
+						parts[r>>8].life-=powderful/100;
+					break;
+				case PT_STKM2:
+					if (player2.elem != PT_LIGH)
+						parts[r>>8].life-=powderful/100;
+					break;
+				default:
+					break;
+				}
+				if ((ptypes[rt].properties&PROP_CONDUCTS) && !parts[r>>8].life)
+				{
+					// TODO: change this create_part
+					create_part(r>>8, x+rx, y+ry, PT_SPRK);
+				}
+				pv[y/CELL][x/CELL] += powderful/400;
+				if (sim->elements[r&0xFF].HeatConduct)
+					parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/1.3, MIN_TEMP, MAX_TEMP);
 			}
 	if (parts[i].tmp2 == 3)
 	{

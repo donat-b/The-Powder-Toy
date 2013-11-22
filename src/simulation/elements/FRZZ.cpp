@@ -32,7 +32,6 @@ int FRZZ_update(UPDATE_FUNC_ARGS)
 					kill_part(i);
 					return 1;
 				}
-
 			}
 	return 0;
 }

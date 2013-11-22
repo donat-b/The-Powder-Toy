@@ -32,43 +32,33 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 				if (!r)
 					continue;
 				rt = r&0xFF;
-				if (rt == PT_GLAS)
+				switch (r&0xFF)
 				{
+				case PT_GLAS:
 					for (rrx=-1; rrx<=1; rrx++)
+					for (rry=-1; rry<=1; rry++)
+					if (x+rx+rrx>=0 && y+ry+rry>=0 && x+rx+rrx<XRES && y+ry+rry<YRES)
 					{
-						for (rry=-1; rry<=1; rry++)
+						nb = sim->part_create(-1, x+rx+rrx, y+ry+rry, PT_EMBR);
+						if (nb!=-1)
 						{
-							if (x+rx+rrx>=0 && y+ry+rry>=0 && x+rx+rrx<XRES && y+ry+rry<YRES) {
-								nb = sim->part_create(-1, x+rx+rrx, y+ry+rry, PT_EMBR);
-								if (nb!=-1) {
-									parts[nb].tmp = 0;
-									parts[nb].life = 50;
-									parts[nb].temp = parts[i].temp*0.8f;
-									parts[nb].vx = (float)(rand()%20-10);
-									parts[nb].vy = (float)(rand()%20-10);
-								}
-							}
+							parts[nb].tmp = 0;
+							parts[nb].life = 50;
+							parts[nb].temp = parts[i].temp*0.8f;
+							parts[nb].vx = (float)(rand()%20-10);
+							parts[nb].vy = (float)(rand()%20-10);
 						}
 					}
-					fire_r[y/CELL][x/CELL] += rand()%200;   //D: Doesn't work with OpenGL, also shouldn't be here
-					fire_g[y/CELL][x/CELL] += rand()%200;
-					fire_b[y/CELL][x/CELL] += rand()%200;
-					/* possible alternative, but doesn't work well at the moment because FIRE_ADD divides firea by 8, so the glow isn't strong enough
-					sim->part_create(i, x, y, PT_EMBR);
-					parts[i].tmp = 2;
-					parts[i].life = 2;
-					parts[i].ctype = ((rand()%200)<<16) | ((rand()%200)<<8) | (rand()%200);
-					*/
 					kill_part(i);
 					return 1;
-				}
-				if (rt == PT_LCRY)
-				{
+				case PT_LCRY:
 					parts[r>>8].tmp2 = 5+rand()%5;
-				}
-				if (rt==PT_WATR || rt==PT_DSTW || rt==PT_SLTW || rt==PT_CBNW)
-				{
-					if(!(rand()%3))
+					break;
+				case PT_WATR:
+				case PT_DSTW:
+				case PT_SLTW:
+				case PT_CBNW:
+					if (!(rand()%3))
 					{
 						sim->part_create(r>>8, x+rx, y+ry, PT_O2);
 					}
@@ -78,32 +68,33 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 					}
 					kill_part(i);
 					return 1;
-				}
-				if (rt==PT_NEUT || (rt==PT_PROT && !(parts[r>>8].tmp2&0x1)))
-				{
+				case PT_PROT:
+					if (parts[r>>8].tmp2&0x1)
+						continue;
+				case PT_NEUT:
 					part_change_type(r>>8, x+rx, y+ry, PT_H2);
 					parts[r>>8].life = 0;
 					parts[r>>8].ctype = 0;
-				}
-				if (rt == PT_DEUT)
-				{
-					if(parts[r>>8].life < 6000)
+					break;
+				case PT_DEUT:
+					if (parts[r>>8].life < 6000)
 						parts[r>>8].life += 1;
 					parts[r>>8].temp = 0;
 					kill_part(i);
 					return 1;
-				}
-				if (rt == PT_EXOT)
-				{
+				case PT_EXOT:
 					parts[r>>8].tmp2 += 5;
 					parts[r>>8].life = 1000;
-				}
-				if (ptypes[rt].properties & PROP_CONDUCTS && (rt!=PT_NBLE || parts[i].temp<2273.15))
-				{
-					// TODO: change this create_part
-					create_part(-1, x+rx, y+ry, PT_SPRK);
-					kill_part(i);
-					return 1;
+					break;
+				default:
+					if (ptypes[rt].properties & PROP_CONDUCTS && (rt!=PT_NBLE || parts[i].temp<2273.15))
+					{
+						// TODO: change this create_part
+						create_part(-1, x+rx, y+ry, PT_SPRK);
+						kill_part(i);
+						return 1;
+					}
+					continue;
 				}
 			}
 	return 0;

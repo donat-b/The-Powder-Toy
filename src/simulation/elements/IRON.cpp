@@ -23,20 +23,34 @@ int IRON_update(UPDATE_FUNC_ARGS)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
 				r = pmap[y+ry][x+rx];
-				if (!r)
-					continue;
-				rt = r&0xFF;
-				if (!parts[i].life &&
-					 ((rt == PT_SALT && !(rand()%47)) ||
-					  (rt == PT_SLTW && !(rand()%67)) ||
-					  (rt == PT_WATR && !(rand()%1200)) ||
-					  (rt == PT_O2   && !(rand()%250)) ||
-					  (rt == PT_LO2)))
+				switch (r&0xFF)
 				{
-					part_change_type(i,x,y,PT_BMTL);
-					parts[i].tmp=(rand()/(RAND_MAX/10))+20;
+				case PT_SALT:
+					if (!(parts[i].life) && !(rand()%47))
+						goto succ;
+					break;
+				case PT_SLTW:
+					if (!(parts[i].life) && !(rand()%67))
+						goto succ;
+					break;
+				case PT_WATR:
+					if (!(parts[i].life) && !(rand()%1200))
+						goto succ;
+					break;
+				case PT_O2:
+					if (!(parts[i].life) && !(rand()%250))
+						goto succ;
+					break;
+				case PT_LO2:
+					goto succ;
+				default:
+					break;
 				}
 			}
+	return 0;
+succ:
+	part_change_type(i,x,y,PT_BMTL);
+	parts[i].tmp=(rand()%10)+20;   
 	return 0;
 }
 
