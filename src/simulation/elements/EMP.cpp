@@ -85,6 +85,7 @@ ok:
 									part_change_type(n>>8, rx+nx, ry+ny, PT_BRMT);
 									parts[n>>8].temp = restrict_flt(parts[n>>8].temp+1000.0f, MIN_TEMP, MAX_TEMP);
 								}
+								continue;
 							case PT_WIFI:
 								if (!(rand()%8))
 								{

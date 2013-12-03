@@ -88,6 +88,7 @@ int GEL_update(UPDATE_FUNC_ARGS)
 						parts[r>>8].tmp++;
 						parts[i].tmp--;
 					}
+					break;
 				default:
 					break;
 				}

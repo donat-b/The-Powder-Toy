@@ -19,7 +19,7 @@ int NPTCT_update(UPDATE_FUNC_ARGS);
 
 int SPRK_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, rt, conduct_sprk, nearp, pavg, ct = parts[i].ctype, rd = 2;
+	int r, rx, ry, rt, nearp, pavg, ct = parts[i].ctype, rd = 2;
 	update_PYRO(UPDATE_FUNC_SUBCALL_ARGS);
 
 	if (parts[i].life<=0)
@@ -153,7 +153,8 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 				if (!r)
 					continue;
 				rt = r&0xFF;
-				conduct_sprk = 1;
+
+				// ct = spark from material, rt = spark to material
 
 				pavg = parts_avg(r>>8, i,PT_INSL);
 				if (!(parts[i].flags & FLAG_INSTACTV))
@@ -197,83 +198,86 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 						PPIP_flood_trigger(x+rx, y+ry, ct);
 				}
 
-				// ct = spark from material, rt = spark to material. Make conduct_sprk = 0 if conduction not allowed
-
-				if (pavg == PT_INSL) conduct_sprk = 0;
-				if (!(ptypes[rt].properties&PROP_CONDUCTS||rt==PT_INST||rt==PT_QRTZ)) conduct_sprk = 0;
-				if (ct!=PT_COND && abs(rx)+abs(ry)>=4 &&ct!=PT_SWCH&&rt!=PT_SWCH)
-					conduct_sprk = 0;
-
-
 				if (ct==PT_METL && (rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR||(rt==PT_SPRK&&(parts[r>>8].ctype==PT_NTCT||parts[r>>8].ctype==PT_PTCT))) && pavg!=PT_INSL && parts[i].life<4)
 				{
 					parts[r>>8].temp = 473.0f;
 					if (rt==PT_NTCT||rt==PT_PTCT)
-						conduct_sprk = 0;
+						continue;
 				}
-				if (ct==PT_NTCT && !(rt==PT_PSCN || rt==PT_NTCT || (rt==PT_NSCN&&parts[i].temp>373.0f)))
-					conduct_sprk = 0;
-				else if (ct==PT_PTCT && !(rt==PT_PSCN || rt==PT_PTCT || (rt==PT_NSCN&&parts[i].temp<373.0f)))
-					conduct_sprk = 0;
-				else if (ct==PT_INWR && !(rt==PT_NSCN || rt==PT_INWR || rt==PT_PSCN))
-					conduct_sprk = 0;
-				else if (ct==PT_NSCN && rt==PT_PSCN)
-					conduct_sprk = 0;
-				else if (ct==PT_ETRD && !(rt==PT_METL||rt==PT_ETRD||rt==PT_BMTL||rt==PT_BRMT||rt==PT_LRBD||rt==PT_RBDM||rt==PT_PSCN||rt==PT_NSCN))
-					conduct_sprk = 0;
-				else if (ct==PT_INST&&rt!=PT_NSCN)
-					conduct_sprk = 0;
-				else if (ct==PT_SWCH && (rt==PT_PSCN||rt==PT_NSCN||rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR))
-					conduct_sprk = 0;
-				else if (rt==PT_QRTZ && !((ct==PT_NSCN||ct==PT_METL||ct==PT_PSCN||ct==PT_QRTZ) && (parts[r>>8].temp<173.15||pv[(y+ry)/CELL][(x+rx)/CELL]>8)))
-					conduct_sprk = 0;
-				else if (rt==PT_NTCT && !(ct==PT_NSCN || ct==PT_NTCT || (ct==PT_PSCN&&parts[r>>8].temp>373.0f)))
-					conduct_sprk = 0;
-				else if (rt==PT_PTCT && !(ct==PT_NSCN || ct==PT_PTCT || (ct==PT_PSCN&&parts[r>>8].temp<373.0f)))
-					conduct_sprk = 0;
-				else if (rt==PT_INWR && !(ct==PT_NSCN || ct==PT_INWR || ct==PT_PSCN))
-					conduct_sprk = 0;
-				else if (rt==PT_INST && ct!=PT_PSCN)
-					conduct_sprk = 0;
-				else if (ct==PT_BUTN && (rt==PT_PSCN||rt==PT_NSCN||rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR))
-					conduct_sprk = 0;
-				else if (ct==PT_COND && rt == PT_COND && parts[i].tmp != parts[r>>8].tmp)
-					conduct_sprk = 0;
-				else if (rt == PT_NBLE && parts[r>>8].temp > 5273.15)
-					conduct_sprk = 0;
+				if (pavg == PT_INSL) 
+					continue;
+				if (!(ptypes[rt].properties&PROP_CONDUCTS||rt==PT_INST||rt==PT_QRTZ)) 
+					continue;
+				if (ct!=PT_COND && abs(rx)+abs(ry)>=4 &&ct!=PT_SWCH&&rt!=PT_SWCH)
+					continue;
+				if (rt == ct && rt != PT_INST)
+					goto conduct;
 
-				if (conduct_sprk) {
-					if (rt==PT_WATR||rt==PT_SLTW) {
-						if (parts[r>>8].life==0 && parts[i].life<3)
-						{
-							part_change_type(r>>8,x+rx,y+ry,PT_SPRK);
-							if (rt==PT_WATR) parts[r>>8].life = 6;
-							else parts[r>>8].life = 5;
-							parts[r>>8].ctype = rt;
-						}
-					}
-					else if (rt==PT_INST) {
-						if (parts[r>>8].life==0 && parts[i].life<4)
-						{
-							flood_INST(x+rx,y+ry,PT_SPRK,PT_INST);//spark the wire
-						}
-					}
-					else if (parts[r>>8].life==0 && parts[i].life<4) {
-						parts[r>>8].life = 4;
-						parts[r>>8].ctype = rt;
-						part_change_type(r>>8,x+rx,y+ry,PT_SPRK);
-						if (parts[r>>8].temp+10.0f<673.0f&&!legacy_enable&&(rt==PT_METL||rt==PT_BMTL||rt==PT_BRMT||rt==PT_PSCN||rt==PT_NSCN||rt==PT_ETRD||rt==PT_NBLE||rt==PT_IRON))
-							parts[r>>8].temp = parts[r>>8].temp+10.0f;
-					}
-					else if (ct==PT_ETRD && parts[i].life==5)
+				if (ct==PT_NTCT && !(rt==PT_PSCN || rt==PT_NTCT || (rt==PT_NSCN&&parts[i].temp>373.0f)))
+					continue;
+				else if (ct==PT_PTCT && !(rt==PT_PSCN || rt==PT_PTCT || (rt==PT_NSCN&&parts[i].temp<373.0f)))
+					continue;
+				else if (ct==PT_INWR && !(rt==PT_NSCN || rt==PT_INWR || rt==PT_PSCN))
+					continue;
+				else if (ct==PT_NSCN && rt==PT_PSCN)
+					continue;
+				else if (ct==PT_ETRD && !(rt==PT_METL||rt==PT_ETRD||rt==PT_BMTL||rt==PT_BRMT||rt==PT_LRBD||rt==PT_RBDM||rt==PT_PSCN||rt==PT_NSCN))
+					continue;
+				else if (ct==PT_INST&&rt!=PT_NSCN)
+					continue;
+				else if (ct==PT_SWCH && (rt==PT_PSCN||rt==PT_NSCN||rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR))
+					continue;
+				else if (rt==PT_QRTZ && !((ct==PT_NSCN||ct==PT_METL||ct==PT_PSCN||ct==PT_QRTZ) && (parts[r>>8].temp<173.15||pv[(y+ry)/CELL][(x+rx)/CELL]>8)))
+					continue;
+				else if (rt==PT_NTCT && !(ct==PT_NSCN || ct==PT_NTCT || (ct==PT_PSCN&&parts[r>>8].temp>373.0f)))
+					continue;
+				else if (rt==PT_PTCT && !(ct==PT_NSCN || ct==PT_PTCT || (ct==PT_PSCN&&parts[r>>8].temp<373.0f)))
+					continue;
+				else if (rt==PT_INWR && !(ct==PT_NSCN || ct==PT_INWR || ct==PT_PSCN))
+					continue;
+				else if (rt==PT_INST && ct!=PT_PSCN)
+					continue;
+				else if (ct==PT_BUTN && (rt==PT_PSCN||rt==PT_NSCN||rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR))
+					continue;
+				else if (ct==PT_COND && rt == PT_COND && parts[i].tmp != parts[r>>8].tmp)
+					continue;
+				else if (rt == PT_NBLE && parts[r>>8].temp > 5273.15)
+					continue;
+
+conduct:
+				if (rt==PT_WATR||rt==PT_SLTW)
+				{
+					if (parts[r>>8].life==0 && parts[i].life<3)
 					{
-						part_change_type(i,x,y,ct);
-						parts[i].ctype = PT_NONE;
-						parts[i].life = 20;
-						parts[r>>8].life = 4;
-						parts[r>>8].ctype = rt;
 						part_change_type(r>>8,x+rx,y+ry,PT_SPRK);
+						if (rt==PT_WATR) parts[r>>8].life = 6;
+						else parts[r>>8].life = 5;
+						parts[r>>8].ctype = rt;
 					}
+				}
+				else if (rt==PT_INST)
+				{
+					if (parts[r>>8].life==0 && parts[i].life<4)
+					{
+						flood_INST(x+rx,y+ry,PT_SPRK,PT_INST);//spark the wire
+					}
+				}
+				else if (parts[r>>8].life==0 && parts[i].life<4)
+				{
+					parts[r>>8].life = 4;
+					parts[r>>8].ctype = rt;
+					part_change_type(r>>8,x+rx,y+ry,PT_SPRK);
+					if (parts[r>>8].temp+10.0f<673.0f&&!legacy_enable&&(rt==PT_METL||rt==PT_BMTL||rt==PT_BRMT||rt==PT_PSCN||rt==PT_NSCN||rt==PT_ETRD||rt==PT_NBLE||rt==PT_IRON))
+						parts[r>>8].temp = parts[r>>8].temp+10.0f;
+				}
+				else if (ct==PT_ETRD && parts[i].life==5)
+				{
+					part_change_type(i,x,y,ct);
+					parts[i].ctype = PT_NONE;
+					parts[i].life = 20;
+					parts[r>>8].life = 4;
+					parts[r>>8].ctype = rt;
+					part_change_type(r>>8,x+rx,y+ry,PT_SPRK);
 				}
 			}
 	return 0;

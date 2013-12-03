@@ -38,102 +38,134 @@ int DeutExplosion(Simulation *sim, int n, int x, int y, float temp, int t)
 
 int NEUT_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, rt;
+	int r, rx, ry;
 	int pressureFactor = 3 + (int)pv[y/CELL][x/CELL];
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)
 			if (BOUNDS_CHECK)
 			{
 				r = pmap[y+ry][x+rx];
-				if (!r)
-					continue;
-				rt = r&0xFF;
-				if (rt==PT_WATR || rt==PT_ICEI || rt==PT_SNOW)
+				switch (r&0xFF)
 				{
+				case PT_WATR:
+					if (3>(rand()%20))
+						part_change_type(r>>8, x+rx, y+ry, PT_DSTW);
+					//no break
+				case PT_ICEI:
+				case PT_SNOW:
 					parts[i].vx *= 0.995f;
 					parts[i].vy *= 0.995f;
-				}
-				if (rt==PT_PLUT && pressureFactor>(rand()%1000))
-				{
-					if (!(rand()%3))
+					break;
+				case PT_PLUT:
+					if (pressureFactor>(rand()%1000))
 					{
-						sim->part_create(r>>8, x+rx, y+ry, rand()%3 ? PT_LAVA : PT_URAN);
-						parts[r>>8].temp = MAX_TEMP;
-						if (parts[r>>8].type==PT_LAVA) {
-							parts[r>>8].tmp = 100;
-							parts[r>>8].ctype = PT_PLUT;
+						if (!(rand()%3))
+						{
+							sim->part_create(r>>8, x+rx, y+ry, rand()%3 ? PT_LAVA : PT_URAN);
+							parts[r>>8].temp = MAX_TEMP;
+							if (parts[r>>8].type==PT_LAVA) {
+								parts[r>>8].tmp = 100;
+								parts[r>>8].ctype = PT_PLUT;
+							}
 						}
+						else
+						{
+							sim->part_create(r>>8, x+rx, y+ry, PT_NEUT);
+							parts[r>>8].vx = 0.25f*parts[r>>8].vx + parts[i].vx;
+							parts[r>>8].vy = 0.25f*parts[r>>8].vy + parts[i].vy;
+						}
+						pv[y/CELL][x/CELL] += 10.0f * CFDS; //Used to be 2, some people said nukes weren't powerful enough
+						update_PYRO(UPDATE_FUNC_SUBCALL_ARGS);
 					}
-					else
+					break;
+#ifdef SDEUT
+				case PT_DEUT:
+					if (pressureFactor+1+(parts[r>>8].life/100) > rand()%1000)
+					{
+						DeutExplosion(sim, parts[r>>8].life, x+rx, y+ry, restrict_flt(parts[r>>8].temp + parts[r>>8].life*500.0f, MIN_TEMP, MAX_TEMP), PT_NEUT);
+						kill_part(r>>8);
+					}
+					break;
+#else
+				case PT_DEUT:
+					if (pressureFactor+1 > rand()%1000)
 					{
 						sim->part_create(r>>8, x+rx, y+ry, PT_NEUT);
 						parts[r>>8].vx = 0.25f*parts[r>>8].vx + parts[i].vx;
 						parts[r>>8].vy = 0.25f*parts[r>>8].vy + parts[i].vy;
+						if (parts[r>>8].life>0)
+						{
+							parts[r>>8].life --;
+							parts[r>>8].temp = restrict_flt(parts[r>>8].temp + parts[r>>8].life*17.0f, MIN_TEMP, MAX_TEMP);
+							pv[y/CELL][x/CELL] += 6.0f * CFDS;
+						}
+						else
+							kill_part(r>>8);
 					}
-					pv[y/CELL][x/CELL] += 10.0f * CFDS; //Used to be 2, some people said nukes weren't powerful enough
-					update_PYRO(UPDATE_FUNC_SUBCALL_ARGS);
-				}
-#ifdef SDEUT
-				else if (rt==PT_DEUT && (pressureFactor+1+(parts[r>>8].life/100))>(rand()%1000))
-				{
-					DeutExplosion(sim, parts[r>>8].life, x+rx, y+ry, restrict_flt(parts[r>>8].temp + parts[r>>8].life*500.0f, MIN_TEMP, MAX_TEMP), PT_NEUT);
-					kill_part(r>>8);
-				}
-#else
-				else if (rt==PT_DEUT && (pressureFactor+1)>(rand()%1000))
-				{
-					sim->part_create(r>>8, x+rx, y+ry, PT_NEUT);
-					parts[r>>8].vx = 0.25f*parts[r>>8].vx + parts[i].vx;
-					parts[r>>8].vy = 0.25f*parts[r>>8].vy + parts[i].vy;
-					if (parts[r>>8].life>0)
-					{
-						parts[r>>8].life --;
-						parts[r>>8].temp = restrict_flt(parts[r>>8].temp + parts[r>>8].life*17.0f, MIN_TEMP, MAX_TEMP);
-						pv[y/CELL][x/CELL] += 6.0f * CFDS;
-					}
-					else
-						kill_part(r>>8);
-				}
+					break;
 #endif
-				else if (rt==PT_GUNP && 3>(rand()%200))
-					part_change_type(r>>8,x+rx,y+ry,PT_DUST);
-				else if (rt==PT_DYST && 3>(rand()%200))
-					part_change_type(r>>8,x+rx,y+ry,PT_YEST);
-				else if (rt==PT_YEST)
-					part_change_type(r>>8,x+rx,y+ry,PT_DYST);
-				else if (rt==PT_WATR && 3>(rand()%20))
-					part_change_type(r>>8,x+rx,y+ry,PT_DSTW);
-				else if (rt==PT_PLEX && 3>(rand()%200))
-					part_change_type(r>>8,x+rx,y+ry,PT_GOO);
-				else if (rt==PT_NITR && 3>(rand()%200))
-					part_change_type(r>>8,x+rx,y+ry,PT_DESL);
-				else if (rt==PT_PLNT && !(rand()%20))
-					sim->part_create(r>>8, x+rx, y+ry, PT_WOOD);
-				else if ((rt==PT_DESL || rt==PT_OIL) && 3>(rand()%200))
-					part_change_type(r>>8,x+rx,y+ry,PT_GAS);
-				else if (rt==PT_COAL && !(rand()%20))
-					sim->part_create(r>>8, x+rx, y+ry, PT_WOOD);
-				else if (rt==PT_DUST && !(rand()%20))
-					part_change_type(r>>8, x+rx, y+ry, PT_FWRK);
-				else if (rt==PT_EMBR && parts[i].tmp == 1 && !(rand()%20))
-					part_change_type(r>>8, x+rx, y+ry, PT_FWRK);
-				else if (rt==PT_FWRK && !(rand()%20))
-					parts[r>>8].ctype = PT_DUST;
-				else if (rt==PT_ACID && !(rand()%20))
-					sim->part_create(r>>8, x+rx, y+ry, PT_ISOZ);
-				else if (rt==PT_TTAN && !(rand()%20))
-				{
-					kill_part(i);
-					return 1;
+				case PT_GUNP:
+					if (3>(rand()%200))
+						part_change_type(r>>8, x+rx, y+ry, PT_DUST);
+					break;
+				case PT_DYST:
+					if (3>(rand()%200))
+						part_change_type(r>>8, x+rx, y+ry, PT_YEST);
+					break;
+				case PT_YEST:
+					part_change_type(r>>8, x+rx, y+ry, PT_DYST);
+					break;
+				case PT_PLEX:
+					if (3>(rand()%200))
+						part_change_type(r>>8, x+rx, y+ry, PT_GOO);
+					break;
+				case PT_NITR:
+					if (3>(rand()%200))
+						part_change_type(r>>8, x+rx, y+ry, PT_DESL);
+					break;
+				case PT_PLNT:
+					if (!(rand()%20))
+						sim->part_create(r>>8, x+rx, y+ry, PT_WOOD);
+					break;
+				case PT_DESL:
+				case PT_OIL:
+					if (3>(rand()%200))
+						part_change_type(r>>8, x+rx, y+ry, PT_GAS);
+					break;
+				case PT_COAL:
+					if (!(rand()%20))
+						sim->part_create(r>>8, x+rx, y+ry, PT_WOOD);
+					break;
+				case PT_DUST:
+					if (!(rand()%20))
+						part_change_type(r>>8, x+rx, y+ry, PT_FWRK);
+					break;
+				case PT_EMBR:
+					if (parts[i].tmp == 1 && !(rand()%20))
+						part_change_type(r>>8, x+rx, y+ry, PT_FWRK);
+					break;
+				case PT_FWRK:
+					if (!(rand()%20))
+						parts[r>>8].ctype = PT_DUST;
+					break;
+				case PT_ACID:
+					if (!(rand()%20))
+						sim->part_create(r>>8, x+rx, y+ry, PT_ISOZ);
+					break;
+				case PT_TTAN:
+					if (!(rand()%20))
+					{
+						kill_part(i);
+						return 1;
+					}
+					break;
+				case PT_EXOT:
+					if (5>(rand()%100))
+						parts[r>>8].life = 1500;
+					break;
+				default:
+					break;
 				}
-				else if (rt==PT_EXOT && 5>(rand()%100))
-					parts[r>>8].life = 1500;
-				/*if(parts[r>>8].type>1 && parts[r>>8].type!=PT_NEUT && parts[r>>8].type-1!=PT_NEUT && parts[r>>8].type-1!=PT_STKM &&
-				  (ptypes[parts[r>>8].type-1].menusection==SC_LIQUID||
-				  ptypes[parts[r>>8].type-1].menusection==SC_EXPLOSIVE||
-				  ptypes[parts[r>>8].type-1].menusection==SC_GAS||
-				  ptypes[parts[r>>8].type-1].menusection==SC_POWDERS) && 15>(rand()%1000))
-				  parts[r>>8].type--;*/
 			}
 	return 0;
 }
