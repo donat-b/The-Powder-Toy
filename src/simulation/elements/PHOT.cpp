@@ -29,48 +29,46 @@ int PHOT_update(UPDATE_FUNC_ARGS)
 
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)
-			if (BOUNDS_CHECK) {
+			if (BOUNDS_CHECK)
+			{
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)==PT_ISOZ && !(rand()%400))
+				if ((r&0xFF)==PT_ISOZ || (r&0xFF)==PT_ISZS)
 				{
-					parts[i].vx *= 0.90f;
-					parts[i].vy *= 0.90f;
-					sim->part_create(r>>8, x+rx, y+ry, PT_PHOT);
-					rrr = (rand()%360)*M_PI/180.0f;
-					rr = (rand()%128+128)/127.0f;
-					parts[r>>8].vx = rr*cosf(rrr);
-					parts[r>>8].vy = rr*sinf(rrr);
-					pv[y/CELL][x/CELL] -= 15.0f * CFDS;
+					if (!(rand()%400))
+					{
+						parts[i].vx *= 0.90f;
+						parts[i].vy *= 0.90f;
+						sim->part_create(r>>8, x+rx, y+ry, PT_PHOT);
+						rrr = (rand()%360)*M_PI/180.0f;
+						rr = (rand()%128+128)/127.0f;
+						parts[r>>8].vx = rr*cosf(rrr);
+						parts[r>>8].vy = rr*sinf(rrr);
+						pv[y/CELL][x/CELL] -= 15.0f * CFDS;
+					}
 				}
-				if ((r&0xFF)==PT_ISZS && !(rand()%400))
+				else if ((r&0xFF) == PT_QRTZ)
 				{
-					parts[i].vx *= 0.90f;
-					parts[i].vy *= 0.90f;
-					sim->part_create(r>>8, x+rx, y+ry, PT_PHOT);
-					rr = (rand()%228+128)/127.0f;
-					rrr = (rand()%360)*M_PI/180.0f;
-					parts[r>>8].vx = rr*cosf(rrr);
-					parts[r>>8].vy = rr*sinf(rrr);
-					pv[y/CELL][x/CELL] -= 15.0f * CFDS;
+					if (!ry && !rx)
+					{
+						float a = (rand()%360)*M_PI/180.0f;
+						parts[i].vx = 3.0f*cosf(a);
+						parts[i].vy = 3.0f*sinf(a);
+						if (parts[i].ctype == 0x3FFFFFFF)
+							parts[i].ctype = 0x1F<<(rand()%26);
+						parts[i].life++; //Delay death
+					}
 				}
-				else if ((r&0xFF) == PT_FILT && parts[r>>8].tmp==9)
+				else if ((r&0xFF) == PT_FILT)
 				{
-					parts[i].vx += ((float)(rand()%1000-500))/1000.0f;
-					parts[i].vy += ((float)(rand()%1000-500))/1000.0f;
+					if (parts[r>>8].tmp == 9)
+					{
+						parts[i].vx += ((float)(rand()%1000-500))/1000.0f;
+						parts[i].vy += ((float)(rand()%1000-500))/1000.0f;
+					}
 				}
 			}
-	r = pmap[y][x];
-	if((r&0xFF) == PT_QRTZ)// && parts[i].ctype==0x3FFFFFFF)
-	{
-		float a = (rand()%360)*M_PI/180.0f;
-		parts[i].vx = 3.0f*cosf(a);
-		parts[i].vy = 3.0f*sinf(a);
-		if(parts[i].ctype == 0x3FFFFFFF)
-			parts[i].ctype = 0x1F<<(rand()%26);
-		parts[i].life++; //Delay death
-	}
 
 	return 0;
 }

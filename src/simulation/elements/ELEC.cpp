@@ -18,11 +18,6 @@
 int ELEC_update(UPDATE_FUNC_ARGS)
 {
 	int r, rt, rx, ry, nb, rrx, rry;
-	float rr, rrr;
-	if(pmap[y][x]==PT_GLOW)//move into movement code
-	{
-		part_change_type(i, x, y, PT_PHOT);
-	}
 	for (rx=-2; rx<=2; rx++)
 		for (ry=-2; ry<=2; ry++)
 			if (BOUNDS_CHECK) {
@@ -36,19 +31,19 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 				{
 				case PT_GLAS:
 					for (rrx=-1; rrx<=1; rrx++)
-					for (rry=-1; rry<=1; rry++)
-					if (x+rx+rrx>=0 && y+ry+rry>=0 && x+rx+rrx<XRES && y+ry+rry<YRES)
-					{
-						nb = sim->part_create(-1, x+rx+rrx, y+ry+rry, PT_EMBR);
-						if (nb!=-1)
-						{
-							parts[nb].tmp = 0;
-							parts[nb].life = 50;
-							parts[nb].temp = parts[i].temp*0.8f;
-							parts[nb].vx = (float)(rand()%20-10);
-							parts[nb].vy = (float)(rand()%20-10);
-						}
-					}
+						for (rry=-1; rry<=1; rry++)
+							if (x+rx+rrx>=0 && y+ry+rry>=0 && x+rx+rrx<XRES && y+ry+rry<YRES)
+							{
+								nb = sim->part_create(-1, x+rx+rrx, y+ry+rry, PT_EMBR);
+								if (nb!=-1)
+								{
+									parts[nb].tmp = 0;
+									parts[nb].life = 50;
+									parts[nb].temp = parts[i].temp*0.8f;
+									parts[nb].vx = (float)(rand()%20-10);
+									parts[nb].vy = (float)(rand()%20-10);
+								}
+							}
 					kill_part(i);
 					return 1;
 				case PT_LCRY:
@@ -86,6 +81,12 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 					parts[r>>8].tmp2 += 5;
 					parts[r>>8].life = 1000;
 					break;
+				case PT_GLOW:
+					if (!rx && !ry) //if on GLOW
+						part_change_type(i, x, y, PT_PHOT);
+					break;
+				case PT_NONE: //seems to speed up ELEC even if it isn't used
+					break;
 				default:
 					if (ptypes[rt].properties & PROP_CONDUCTS && (rt!=PT_NBLE || parts[i].temp<2273.15))
 					{
@@ -94,7 +95,7 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 						kill_part(i);
 						return 1;
 					}
-					continue;
+					break;
 				}
 			}
 	return 0;

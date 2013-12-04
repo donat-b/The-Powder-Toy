@@ -53,6 +53,8 @@ int SLTW_update(UPDATE_FUNC_ARGS)
 						}
 					}
 					break;
+				case PT_NONE:
+					break;
 				default:
 					continue;
 				}

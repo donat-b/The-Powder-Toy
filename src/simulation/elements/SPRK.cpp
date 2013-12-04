@@ -40,23 +40,22 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 		parts[i].life = 4;
 		if (ct == PT_WATR)
 			parts[i].life = 64;
-		if (ct == PT_SLTW)
+		else if (ct == PT_SLTW)
 			parts[i].life = 54;
-		if (ct == PT_SWCH || ct == PT_BUTN)
+		else if (ct == PT_SWCH || ct == PT_BUTN)
 			parts[i].life = 14;
 		return 0;
 	}
-	if (ct==PT_SPRK)
+	switch (ct)
 	{
+	case PT_SPRK:
 		kill_part(i);
 		return 1;
-	}
-	else if (ct==PT_NTCT || ct==PT_PTCT)
-	{
+	case PT_NTCT:
+	case PT_PTCT:
 		NPTCT_update(UPDATE_FUNC_SUBCALL_ARGS);
-	}
-	else if (ct==PT_ETRD)
-	{
+		break;
+	case PT_ETRD:
 		if (parts[i].life == 1)
 		{
 			nearp = nearest_part(i, PT_ETRD, -1);
@@ -71,9 +70,8 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 				parts[nearp].ctype = PT_ETRD;
 			}
 		}
-	}
-	else if (ct==PT_NBLE)
-	{
+		break;
+	case PT_NBLE:
 		if (parts[i].life<=1 && parts[i].temp<5273.15f)
 		{
 			parts[i].life = rand()%150+50;
@@ -84,67 +82,68 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 			parts[i].temp = 3500;
 			pv[y/CELL][x/CELL] += 1;
 		}
-	}
-	else if (ct==PT_TESC) // tesla coil code
-	{
+		break;
+	case PT_TESC:
 		if (parts[i].tmp>300)
 			parts[i].tmp=300;
 		for (rx=-1; rx<2; rx++)
-			for (ry=-1; ry<2; ry++)
-				if (BOUNDS_CHECK && (rx || ry))
+		for (ry=-1; ry<2; ry++)
+		if (BOUNDS_CHECK && (rx || ry))
+		{
+			r = pmap[y+ry][x+rx];
+			if (r)
+				continue;
+			if (parts[i].tmp>4 && rand()%(parts[i].tmp*parts[i].tmp/20+6)==0)
+			{
+				int p=sim->part_create(-1, x+rx*2, y+ry*2, PT_LIGH);
+				if (p!=-1)
 				{
-					r = pmap[y+ry][x+rx];
-					if (r)
-						continue;
-					if (parts[i].tmp>4 && rand()%(parts[i].tmp*parts[i].tmp/20+6)==0)
+					parts[p].life=rand()%(2+parts[i].tmp/15)+parts[i].tmp/7;
+					if (parts[i].life>60)
+						parts[i].life=60;
+					parts[p].temp=parts[p].life*parts[i].tmp/2.5;
+					parts[p].tmp2=1;
+					parts[p].tmp=(int)(atan2((float)-ry, (float)rx)/M_PI*360);
+					parts[i].temp-=parts[i].tmp*2+parts[i].temp/5; // slight self-cooling
+					if (fabs(pv[y/CELL][x/CELL])!=0.0f)
 					{
-						int p=sim->part_create(-1, x+rx*2, y+ry*2, PT_LIGH);
-						if (p!=-1)
-						{
-							parts[p].life=rand()%(2+parts[i].tmp/15)+parts[i].tmp/7;
-							if (parts[i].life>60)
-								parts[i].life=60;
-							parts[p].temp=parts[p].life*parts[i].tmp/2.5;
-							parts[p].tmp2=1;
-							parts[p].tmp=(int)(atan2((float)-ry, (float)rx)/M_PI*360);
-							parts[i].temp-=parts[i].tmp*2+parts[i].temp/5; // slight self-cooling
-							if (fabs(pv[y/CELL][x/CELL])!=0.0f)
-							{
-								if (fabs(pv[y/CELL][x/CELL])<=0.5f)
-									pv[y/CELL][x/CELL]=0;
-								else
-									pv[y/CELL][x/CELL]-=(pv[y/CELL][x/CELL]>0)?0.5:-0.5;
-							}
-						}
-					}
-				}
-	}
-	else if (ct==PT_IRON) {
-		for (rx=-1; rx<2; rx++)
-			for (ry=-1; ry<2; ry++)
-				if (BOUNDS_CHECK && (rx || ry))
-				{
-					r = pmap[y+ry][x+rx];
-					if (!r)
-						continue;
-					if (((r&0xFF) == PT_DSTW && 30>(rand()/(RAND_MAX/1000))) ||
-					        ((r&0xFF) == PT_SLTW && 30>(rand()/(RAND_MAX/1000))) ||
-					        ((r&0xFF) == PT_WATR && 30>(rand()/(RAND_MAX/1000))))
-					{
-						if (rand()<RAND_MAX/3)
-							part_change_type(r>>8,x+rx,y+ry,PT_O2);
+						if (fabs(pv[y/CELL][x/CELL])<=0.5f)
+							pv[y/CELL][x/CELL]=0;
 						else
-							part_change_type(r>>8,x+rx,y+ry,PT_H2);
+							pv[y/CELL][x/CELL]-=(pv[y/CELL][x/CELL]>0)?0.5:-0.5;
 					}
 				}
-	}
-	else if (ct == PT_TUNG)
-	{
-		if(parts[i].temp < 3595.0)
+			}
+		}
+		break;
+	case PT_IRON:
+		for (rx=-1; rx<2; rx++)
+		for (ry=-1; ry<2; ry++)
+		if (BOUNDS_CHECK && (rx || ry))
+		{
+			r = pmap[y+ry][x+rx];
+			if (!r)
+				continue;
+			if ((r&0xFF) == PT_DSTW || (r&0xFF) == PT_SLTW || ((r&0xFF) == PT_WATR))
+			{
+				int rnd = rand()%100;
+				if (!rnd)
+					part_change_type(r>>8, x+rx, y+ry, PT_O2);
+				else if (3 > rnd)
+					part_change_type(r>>8, x+rx, y+ry, PT_H2);
+			}
+		}
+		break;
+	case PT_TUNG:
+		if (parts[i].temp < 3595.0)
 			parts[i].temp += (rand()%20)-4;
-	}
-	if (ct == PT_COND)
+		break;
+	case PT_COND:
 		rd = parts[i].tmp2>MAX_DISTANCE?(int)MAX_DISTANCE:parts[i].tmp2;
+		break;
+	default:
+		break;
+	}
 	for (rx=-rd; rx<=rd; rx++)
 		for (ry=-rd; ry<=rd; ry++)
 			if (x+rx>=0 && y+ry>=0 && x+rx<XRES && y+ry<YRES && (rx || ry))
@@ -157,92 +156,159 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 				// ct = spark from material, rt = spark to material
 
 				pavg = parts_avg(r>>8, i,PT_INSL);
-				if (!(parts[i].flags & FLAG_INSTACTV))
+				switch (rt)
 				{
-					if ((rt==PT_SWCH||(rt==PT_SPRK&&parts[r>>8].ctype==PT_SWCH)) && pavg!=PT_INSL && parts[i].life<4) // make sparked SWCH turn off correctly
+				case PT_SWCH:
+				case PT_BUTN:
+					// make sparked SWCH and BUTN turn off correctly
+					if (!(parts[i].flags & FLAG_INSTACTV) && pavg != PT_INSL && parts[i].life < 4)
 					{
-						if (rt==PT_SWCH&&ct==PT_PSCN&&parts[r>>8].life<10) {
+						if (ct == PT_PSCN && parts[r>>8].life<10)
+						{
 							parts[r>>8].life = 10;
 						}
-						if (ct==PT_NSCN) {
-							part_change_type(r>>8,x+rx,y+ry,PT_SWCH);
+						else if (ct == PT_NSCN)
+						{
 							parts[r>>8].ctype = PT_NONE;
 							parts[r>>8].life = 9;
 						}
 					}
-					else if ((rt==PT_BUTN||(rt==PT_SPRK&&parts[r>>8].ctype==PT_BUTN)) && pavg!=PT_INSL) // make sparked ACTV turn off correctly
+					break;
+				case PT_SPRK:
+					if (pavg != PT_INSL && parts[i].life < 4)
 					{
-						if (rt==PT_BUTN&&ct==PT_PSCN&&parts[r>>8].life<10) {
-							parts[r>>8].life = 10;
+						if (parts[r>>8].ctype == rt)
+						{
+							if (!(parts[i].flags & FLAG_INSTACTV) && ct == PT_NSCN)
+							{
+								part_change_type(r>>8, x+rx, y+ry, PT_SWCH);
+								parts[r>>8].ctype = PT_NONE;
+								parts[r>>8].life = 9;
+							}
 						}
-						if (ct==PT_NSCN) {
-							part_change_type(r>>8,x+rx,y+ry,PT_BUTN);
-							parts[r>>8].ctype = PT_NONE;
-							parts[r>>8].life = 9;
+						else if (parts[r>>8].ctype==PT_NTCT || parts[r>>8].ctype==PT_PTCT)
+						{
+							if (ct == PT_METL)
+								parts[r>>8].temp = 473.0f;
 						}
 					}
-				}
-				if ((ct==PT_PSCN||ct==PT_NSCN) && (((rt==PT_PUMP||rt==PT_GPMP||rt==PT_HSWC)&&!(parts[i].flags & FLAG_INSTACTV))||rt==PT_PBCN) && parts[i].life<4) // PROP_PTOGGLE, Maybe? We seem to use 2 different methods for handling actived elements, this one seems better. Yes, use this one for new elements, PCLN is different for compatibility with existing saves
-				{
-					if (ct==PT_PSCN) parts[r>>8].life = 10;
-					else if (ct==PT_NSCN && parts[r>>8].life>=10) parts[r>>8].life = 9;
-				}
-				else if ((ct==PT_PSCN||ct==PT_NSCN) && (rt==PT_LCRY&&abs(rx)<2&&abs(ry)<2) && parts[i].life<4)
-				{
-					if (ct==PT_PSCN && parts[r>>8].tmp == 0) parts[r>>8].tmp = 2;
-					else if (ct==PT_NSCN && parts[r>>8].tmp == 3) parts[r>>8].tmp = 1;
-				}
-				if (rt == PT_PPIP && parts[i].life == 3 && pavg!=PT_INSL)
-				{
-					if (ct == PT_NSCN || ct == PT_PSCN || ct == PT_INST)
-						PPIP_flood_trigger(x+rx, y+ry, ct);
+					break;
+				case PT_PUMP:
+				case PT_GPMP:
+				case PT_HSWC:
+				case PT_PBCN:
+					if (!(parts[i].flags & FLAG_INSTACTV) && parts[i].life < 4) // PROP_PTOGGLE, Maybe? We seem to use 2 different methods for handling actived elements, this one seems better. Yes, use this one
+					{
+						if (ct==PT_PSCN)
+							parts[r>>8].life = 10;
+						else if (ct==PT_NSCN && parts[r>>8].life>=10)
+							parts[r>>8].life = 9;
+					}
+					break;
+				case PT_LCRY:
+					if (abs(rx) < 2 && abs(ry) < 2 && parts[i].life < 4)
+					{
+						if (ct==PT_PSCN && parts[r>>8].tmp == 0)
+							parts[r>>8].tmp = 2;
+						else if (ct==PT_NSCN && parts[r>>8].tmp == 3)
+							parts[r>>8].tmp = 1;
+					}
+					break;
+				case PT_PPIP:
+					if (parts[i].life == 3 && pavg!=PT_INSL)
+					{
+						if (ct == PT_NSCN || ct == PT_PSCN || ct == PT_INST)
+							PPIP_flood_trigger(x+rx, y+ry, ct);
+					}
+					break;
+				case PT_NTCT:
+				case PT_PTCT:
+				case PT_INWR:
+					if (ct==PT_METL && pavg!=PT_INSL && parts[i].life<4)
+					{
+						parts[r>>8].temp = 473.0f;
+						if (rt==PT_NTCT || rt==PT_PTCT)
+							continue;
+					}
+					break;
+				default:
+					break;
 				}
 
-				if (ct==PT_METL && (rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR||(rt==PT_SPRK&&(parts[r>>8].ctype==PT_NTCT||parts[r>>8].ctype==PT_PTCT))) && pavg!=PT_INSL && parts[i].life<4)
-				{
-					parts[r>>8].temp = 473.0f;
-					if (rt==PT_NTCT||rt==PT_PTCT)
-						continue;
-				}
-				if (pavg == PT_INSL) 
+				//the crazy conduct checks
+				if (pavg == PT_INSL)
 					continue;
-				if (!(ptypes[rt].properties&PROP_CONDUCTS||rt==PT_INST||rt==PT_QRTZ)) 
+				if (!((ptypes[rt].properties&PROP_CONDUCTS) || rt==PT_INST || rt==PT_QRTZ))
 					continue;
-				if (ct!=PT_COND && abs(rx)+abs(ry)>=4 &&ct!=PT_SWCH&&rt!=PT_SWCH)
+				if (abs(rx)+abs(ry)>=4 && rt!=PT_SWCH && ct!=PT_SWCH && ct!=PT_COND)
 					continue;
-				if (rt == ct && rt != PT_INST)
+				if (rt == ct && rt != PT_INST && rt != PT_COND)
 					goto conduct;
 
-				if (ct==PT_NTCT && !(rt==PT_PSCN || rt==PT_NTCT || (rt==PT_NSCN&&parts[i].temp>373.0f)))
+				switch (ct)
+				{
+				case PT_INST:
+					if (rt == PT_NSCN)
+						goto conduct;
 					continue;
-				else if (ct==PT_PTCT && !(rt==PT_PSCN || rt==PT_PTCT || (rt==PT_NSCN&&parts[i].temp<373.0f)))
+				case PT_SWCH:
+				case PT_BUTN:
+					if (rt==PT_PSCN||rt==PT_NSCN||rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR)
+						continue;
+					goto conduct;
+				case PT_ETRD:
+					if (rt==PT_METL||rt==PT_BMTL||rt==PT_BRMT||rt==PT_LRBD||rt==PT_RBDM||rt==PT_PSCN||rt==PT_NSCN)
+						goto conduct;
 					continue;
-				else if (ct==PT_INWR && !(rt==PT_NSCN || rt==PT_INWR || rt==PT_PSCN))
+				case PT_NTCT:
+					if (rt==PT_PSCN || (rt==PT_NSCN&&parts[i].temp>373.0f))
+						goto conduct;
 					continue;
-				else if (ct==PT_NSCN && rt==PT_PSCN)
+				case PT_PTCT:
+					if (rt==PT_PSCN || (rt==PT_NSCN&&parts[i].temp<373.0f))
+						goto conduct;
 					continue;
-				else if (ct==PT_ETRD && !(rt==PT_METL||rt==PT_ETRD||rt==PT_BMTL||rt==PT_BRMT||rt==PT_LRBD||rt==PT_RBDM||rt==PT_PSCN||rt==PT_NSCN))
+				case PT_INWR:
+					if (rt==PT_NSCN || rt==PT_PSCN)
+						goto conduct;
 					continue;
-				else if (ct==PT_INST&&rt!=PT_NSCN)
+				case PT_COND:
+					if (rt == PT_COND && parts[i].tmp != parts[r>>8].tmp)
+						continue;
+					goto conduct;
+				}
+
+				switch (rt)
+				{
+				case PT_QRTZ:
+					if ((ct==PT_NSCN||ct==PT_METL||ct==PT_PSCN) && (parts[r>>8].temp<173.15||pv[(y+ry)/CELL][(x+rx)/CELL]>8))
+						goto conduct;
 					continue;
-				else if (ct==PT_SWCH && (rt==PT_PSCN||rt==PT_NSCN||rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR))
+				case PT_NTCT:
+					if (ct==PT_NSCN || (ct==PT_PSCN&&parts[r>>8].temp>373.0f))
+						goto conduct;
 					continue;
-				else if (rt==PT_QRTZ && !((ct==PT_NSCN||ct==PT_METL||ct==PT_PSCN||ct==PT_QRTZ) && (parts[r>>8].temp<173.15||pv[(y+ry)/CELL][(x+rx)/CELL]>8)))
+				case PT_PTCT:
+					if (ct==PT_NSCN || (ct==PT_PSCN&&parts[r>>8].temp<373.0f))
+						goto conduct;
 					continue;
-				else if (rt==PT_NTCT && !(ct==PT_NSCN || ct==PT_NTCT || (ct==PT_PSCN&&parts[r>>8].temp>373.0f)))
+				case PT_INWR:
+					if (ct==PT_NSCN || ct==PT_PSCN)
+						goto conduct;
 					continue;
-				else if (rt==PT_PTCT && !(ct==PT_NSCN || ct==PT_PTCT || (ct==PT_PSCN&&parts[r>>8].temp<373.0f)))
+				case PT_INST:
+					if (ct == PT_PSCN)
+						goto conduct;
 					continue;
-				else if (rt==PT_INWR && !(ct==PT_NSCN || ct==PT_INWR || ct==PT_PSCN))
+				case PT_NBLE:
+					if (parts[r>>8].temp < 5273.15)
+						goto conduct;
 					continue;
-				else if (rt==PT_INST && ct!=PT_PSCN)
+				case PT_PSCN:
+					if (ct != PT_NSCN)
+						goto conduct;
 					continue;
-				else if (ct==PT_BUTN && (rt==PT_PSCN||rt==PT_NSCN||rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR))
-					continue;
-				else if (ct==PT_COND && rt == PT_COND && parts[i].tmp != parts[r>>8].tmp)
-					continue;
-				else if (rt == PT_NBLE && parts[r>>8].temp > 5273.15)
-					continue;
+				}
 
 conduct:
 				if (rt==PT_WATR||rt==PT_SLTW)

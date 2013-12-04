@@ -42,46 +42,42 @@ int QRTZ_update(UPDATE_FUNC_ARGS)
 						parts[i].tmp++;
 					}
 				}
-	// grow if absorbed SLTW
+	// grow and diffuse if absorbed SLTW
 	if (parts[i].tmp > 0)
 	{
-		for (trade = 0; trade<5; trade++)
+		bool stopgrow = false;
+		int rnd, sry, srx;
+		for (trade = 0; trade < 9; trade++)
 		{
-			rx = rand()%3-1;
-			ry = rand()%3-1;
+			rnd = rand()%0x3FF;
+			rx = (rnd%5)-2;
+			srx = (rnd%3)-1;
+			rnd >>= 3;
+			ry = (rnd%5)-2;
+			sry = (rnd%3)-1;
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = pmap[y+ry][x+rx];
-				if (!r && parts[i].tmp)
+				if (!stopgrow)
 				{
-					np = sim->part_create(-1,x+rx,y+ry,PT_QRTZ);
-					if (np>-1)
+					if (!pmap[y+sry][x+srx] && parts[i].tmp != 0)
 					{
-						parts[np].tmp2 = parts[i].tmp2;
-						parts[i].tmp--;
-						if (rand()%2)
+						np = sim->part_create(-1,x+srx,y+sry,PT_QRTZ);
+						if (np > -1)
 						{
-							parts[np].tmp = -1;//dead qrtz
+							parts[np].tmp2 = parts[i].tmp2;
+							parts[i].tmp--;
+							if (rand()%2)
+							{
+								parts[np].tmp = -1;//dead qrtz
+							}
+							else if (!parts[i].tmp && !(rand()%15))
+							{
+								parts[i].tmp=-1;
+							}
+							stopgrow = true;
 						}
-						else if (!parts[i].tmp && !(rand()%15))
-						{
-							parts[i].tmp=-1;
-						}
-						break;
 					}
 				}
-			}
-		}
-	}
-	// diffuse absorbed SLTW
-	if (parts[i].tmp > 0)
-	{
-		for (trade = 0; trade<9; trade ++)
-		{
-			rx = rand()%5-2;
-			ry = rand()%5-2;
-			if (BOUNDS_CHECK && (rx || ry))
-			{
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
