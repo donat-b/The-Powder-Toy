@@ -1064,6 +1064,7 @@ int main(int argc, char *argv[])
 	decoTools[0] = GetToolFromIdentifier("DEFAULT_WL_26");
 	decoTools[1] = GetToolFromIdentifier("DEFAULT_WL_27");
 	decoTools[2] = GetToolFromIdentifier("DEFAULT_PT_NONE");
+	*regularTools = *activeTools;
 	currentBrush = new Brush(Point(5, 5), CIRCLE_BRUSH);
 
 	cb_parts = (particle*)calloc(sizeof(particle), NPART);
