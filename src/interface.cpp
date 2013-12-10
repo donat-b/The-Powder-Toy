@@ -7787,11 +7787,12 @@ int save_filename_ui(pixel *vid_buf)
 					{
 						fwrite(save_data, save_size, 1, f);
 						fclose(f);
+						f = NULL;
 						if(svf_fileopen)
 						{
 							strncpy(svf_filename, savefname, 255);
 							svf_fileopen = 1;
-							
+
 							//Allow reloading
 							if(svf_last)
 								free(svf_last);
@@ -7799,12 +7800,13 @@ int save_filename_ui(pixel *vid_buf)
 							memcpy(svf_last, save_data, save_size);
 							svf_lsize = save_size;
 						}
-						fclose(f);
 						break;
 					} else {
 						error_ui(vid_buf, 0, "Unable to write to save file.");
 					}
 				}
+				if (f)
+					fclose(f);
 			}
 		}
 
