@@ -149,7 +149,7 @@ void PBCN_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = &PBCN_update;
+	elem->Update = NULL;
 	elem->Graphics = &PBCN_graphics;
 	elem->Init = &PBCN_init_element;
 }

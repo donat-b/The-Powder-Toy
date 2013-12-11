@@ -107,7 +107,7 @@ void BCLN_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = &BCLN_update;
+	elem->Update = NULL;
 	elem->Graphics = NULL;
 	elem->Init = &BCLN_init_element;
 }

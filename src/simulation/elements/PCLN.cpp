@@ -136,7 +136,7 @@ void PCLN_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = &PCLN_update;
+	elem->Update = NULL;
 	elem->Graphics = &PCLN_graphics;
 	elem->Init = &PCLN_init_element;
 }

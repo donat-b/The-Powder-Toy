@@ -99,7 +99,7 @@ void CLNE_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = &CLNE_update;
+	elem->Update = NULL;
 	elem->Graphics = NULL;
 	elem->Init = &CLNE_init_element;
 }

@@ -57,6 +57,8 @@ int CONV_update(UPDATE_FUNC_ARGS)
 						// TODO: change this create_part
 						if (life) create_part(r>>8, x+rx, y+ry, parts[i].ctype|(parts[i].tmp<<8));
 						else sim->part_create(r>>8, x+rx, y+ry, parts[i].ctype);
+						if ((photons[y+ry][x+rx]&0xFF) == PT_PHOT)
+							kill_part(r>>8);
 					}
 				}
 	}
