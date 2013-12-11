@@ -270,7 +270,10 @@ void init_can_move()
 		 || (ptypes[destinationType].properties&PROP_CLONE) || (ptypes[destinationType].properties&PROP_BREAKABLECLONE))
 			can_move[PT_PHOT][destinationType] = 2;
 		if (destinationType != PT_DMND && destinationType != PT_INSL && destinationType != PT_VOID && destinationType != PT_PVOD && destinationType != PT_VIBR)
+		{
 			can_move[PT_PROT][destinationType] = 2;
+			can_move[PT_GRVT][destinationType] = 2;
+		}
 	}
 
 	//other special cases that weren't covered above

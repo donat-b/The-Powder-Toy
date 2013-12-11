@@ -66,6 +66,9 @@ int O2_update(UPDATE_FUNC_ARGS)
 				parts[j].temp = MAX_TEMP;
 				parts[j].tmp |= 4;
 			}
+			j = sim->part_create(-3,x+rand()%3-1,y+rand()%3-1,PT_GRVT);
+			if (j != -1)
+				parts[j].temp = MAX_TEMP;
 
 			parts[i].temp = MAX_TEMP;
 			pv[y/CELL][x/CELL] = 256;
