@@ -1707,9 +1707,9 @@ void LIFE_update()
 				}
 				gol[ny][nx] = golnum;
 				if (parts[r>>8].tmp == grule[golnum][9]-1) {
-					for ( nnx=-1; nnx<2; nnx++)
+					for (nnx=-1; nnx<2; nnx++)
 					{
-						for ( nny=-1; nny<2; nny++)//it will count itself as its own neighbor, which is needed, but will have 1 extra for delete check
+						for (nny=-1; nny<2; nny++) //it will count itself as its own neighbor, which is needed, but will have 1 extra for delete check
 						{
 							int adx = ((nx+nnx+XRES-3*CELL)%(XRES-2*CELL))+CELL;
 							int ady = ((ny+nny+YRES-3*CELL)%(YRES-2*CELL))+CELL;
@@ -1779,7 +1779,7 @@ void LIFE_update()
 			}
 			//we still need to kill things with 0 neighbors (higher state life)
 			if (r && parts[r>>8].tmp<=0)
-					kill_part(r>>8);
+				kill_part(r>>8);
 		}
 	}
 	if (createdsomething)

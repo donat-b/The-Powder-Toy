@@ -48,18 +48,31 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 							} else if (!destroy) {
 								if ((r&0xFF)==PT_BRAY)
 								{
-									if (parts[r>>8].tmp==0) { //if it hits another BRAY that isn't red
-										if (nyy!=0 || nxx!=0) {
-											parts[r>>8].life = 1020;//makes it last a while
-											parts[r>>8].tmp = 1;
-											if (!parts[r>>8].ctype)//and colors it if it isn't already
-												parts[r>>8].ctype = colored;
+									switch (parts[r>>8].tmp)
+									{
+									case 0:
+										//if it hits another BRAY that isn't red
+										if (parts[r>>8].tmp==0)
+										{
+											if (nyy!=0 || nxx!=0)
+											{
+												parts[r>>8].life = 1020; //makes it last a while
+												parts[r>>8].tmp = 1;
+												if (!parts[r>>8].ctype) //and colors it if it isn't already
+													parts[r>>8].ctype = colored;
+											}
+											docontinue = 0;//then stop it
 										}
-										docontinue = 0;//then stop it
-									}
-									else if (parts[r>>8].tmp==1) {//if it hits one that already was a long life, reset it
+										break;
+									case 2:
+									default:
+										docontinue = 0;
+										break;
+									case 1:
+										//if it hits one that already was a long life, reset it
 										parts[r>>8].life = 1020;
 										//docontinue = 1;
+										break;
 									}
 								} else if ((r&0xFF)==PT_FILT) {//get color if passed through FILT
 									colored = interactWavelengths(&parts[r>>8], colored);
