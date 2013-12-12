@@ -5591,7 +5591,10 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				fillrect(vid_buf, 51+(XRES/2), ed.y-6, XRES+BARSIZE-100-((XRES/2)+1), ed.h+25, 0, 0, 0, 255);
 				drawrect(vid_buf, 51+(XRES/2), ed.y-6, XRES+BARSIZE-100-((XRES/2)+1), ed.h+25, 200, 200, 200, 255);
 
-				drawrect(vid_buf, 55+(XRES/2), ed.y-3, XRES+BARSIZE-108-((XRES/2)+1), ed.h, 255, 255, 255, 200);
+				if (strlen(ed.str) <= 500)
+					drawrect(vid_buf, 55+(XRES/2), ed.y-3, XRES+BARSIZE-108-((XRES/2)+1), ed.h, 255, 255, 255, 200);
+				else
+					drawrect(vid_buf, 55+(XRES/2), ed.y-3, XRES+BARSIZE-108-((XRES/2)+1), ed.h, 255, 150, 150, 200);
 
 				ed.y = YRES+MENUSIZE-71-ui_edit_draw(vid_buf, &ed);
 

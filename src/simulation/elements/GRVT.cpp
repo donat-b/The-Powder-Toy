@@ -24,7 +24,7 @@ int GRVT_update(UPDATE_FUNC_ARGS)
 		parts[i].tmp = -100;
 
 	gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = 0.2f*parts[i].tmp;
-    return 0;
+	return 0;
 }
 
 int GRVT_graphics(GRAPHICS_FUNC_ARGS)
@@ -41,7 +41,7 @@ int GRVT_graphics(GRAPHICS_FUNC_ARGS)
 void GRVT_create(ELEMENT_CREATE_FUNC_ARGS)
 {
 	float a = (rand()%360)*3.14159f/180.0f;
-	sim->parts[i].life = 150 + rand()%200;
+	sim->parts[i].life = 250 + rand()%200;
 	sim->parts[i].vx = 2.0f*cosf(a);
 	sim->parts[i].vy = 2.0f*sinf(a);
 }
