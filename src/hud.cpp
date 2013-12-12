@@ -26,8 +26,8 @@ int currentHud[HUD_OPTIONS];
 
 void HudDefaults()
 {
-	int defaultNormalHud[HUD_OPTIONS] = {0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,1,0,0,0,0,2,0,2,1,0,0,1,1};
-	int defaultDebugHud[HUD_OPTIONS] =  {0,0,1,2,1,0,0,0,1,0,1,1,1,0,0,1,0,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,1,0,0,0,0,4,0,4,1,0,0,1,1};
+	int defaultNormalHud[HUD_OPTIONS] = {0,0,1,0,0,0,0,0,1,0,1,0,0,0,1,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,1,0,0,0,0,2,0,2,1,0,0,1,1,1};
+	int defaultDebugHud[HUD_OPTIONS] =  {0,0,1,2,1,0,0,0,1,0,1,1,1,0,1,1,0,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,1,0,0,0,0,4,0,4,1,0,0,1,1,1};
 	memcpy(normalHud, defaultNormalHud, sizeof(normalHud));
 	memcpy(debugHud, defaultDebugHud, sizeof(debugHud));
 }
@@ -75,7 +75,7 @@ void SetRightHudText(int x, int y)
 				{
 					sprintf(nametext, "Molten %s, ", ptypes[parts[cr>>8].ctype].name);
 				}
-				else if (currentHud[13] && (cr&0xFF)==PT_FILT)
+				else if (currentHud[50] && currentHud[11] && (cr&0xFF)==PT_FILT)
 				{
 					const char* filtModes[] = { "set color", "AND", "OR", "subtract color", "red shift", "blue shift", "no effect", "XOR", "NOT", "PHOT scatter" };
 					if (parts[cr>>8].tmp>=0 && parts[cr>>8].tmp<=9)
