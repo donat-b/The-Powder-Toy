@@ -1961,8 +1961,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					{
 						//Replace existing particle or allocated block
 						newIndex = pmap[y][x]>>8;
-						if (parts[newIndex].type)
-							globalSim->elementCount[parts[newIndex].type]--;
+						globalSim->elementCount[parts[newIndex].type]--;
 					}
 					else if(freeIndicesIndex<freeIndicesCount)
 					{
@@ -2825,6 +2824,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 				if (pmap[y][x])
 				{
 					k = pmap[y][x]>>8;
+					globalSim->elementCount[pmap[y][x]&0xFF]--;
 				}
 				else if (i<nf)
 				{
