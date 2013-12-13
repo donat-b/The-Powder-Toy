@@ -49,6 +49,7 @@ public:
 	void InitElements();
 	void InitElement(char* name, int id);
 	void Clear();
+	void recountElements();
 	int part_create(int p, int x, int y, int t);
 	void part_change_type(int i, int x, int y, int t);
 	void part_kill(int i);

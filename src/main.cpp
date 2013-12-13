@@ -2181,6 +2181,7 @@ int main(int argc, char *argv[])
 						}
 
 					force_stacking_check = 1;//check for excessive stacking of particles next time update_particles is run
+					globalSim->recountElements();
 				}
 				else
 				{

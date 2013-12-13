@@ -71,6 +71,14 @@ void Simulation::Clear()
 	pfree = 0;
 }
 
+void Simulation::recountElements()
+{
+	memset(elementCount, 0, sizeof(elementCount));
+	for (int i = 0; i < NPART; i++)
+		if (parts[i].type)
+			elementCount[parts[i].type]++;
+}
+
 // the function for creating a particle
 // p=-1 for normal creation (checks whether the particle is allowed to be in that location first)
 // p=-3 to create without checking whether the particle is allowed to be in that location
