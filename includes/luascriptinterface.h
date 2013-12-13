@@ -21,6 +21,7 @@ int simulation_ambientHeat(lua_State* l);
 int simulation_velocityX(lua_State* l);
 int simulation_velocityY(lua_State* l);
 int simulation_gravMap(lua_State* l);
+int simulation_elementCount(lua_State* l);
 
 void initRendererAPI(lua_State * l);
 int renderer_renderModes(lua_State * l);

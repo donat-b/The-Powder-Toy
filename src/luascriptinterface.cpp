@@ -39,6 +39,7 @@ void initSimulationAPI(lua_State * l)
 		{"velocityX", simulation_velocityX},
 		{"velocityY", simulation_velocityY},
 		{"gravMap", simulation_gravMap},
+		{"elementCount", simulation_elementCount},
 		{NULL, NULL}
 	};
 	luaL_register(l, "simulation", simulationAPIMethods);
@@ -353,6 +354,16 @@ int simulation_gravMap(lua_State* l)
 
 	set_map(x, y, width, height, value, 5);
 	return 0;
+}
+
+int simulation_elementCount(lua_State* l)
+{
+	int element = luaL_checkint(l, 1);
+	if (element < 0 || element >= PT_NUM)
+		return luaL_error(l, "Invalid element ID (%d)", element);
+
+	lua_pushnumber(l, globalSim->elementCount[element]);
+	return 1;
 }
 
 /*

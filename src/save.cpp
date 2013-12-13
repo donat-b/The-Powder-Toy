@@ -27,6 +27,7 @@
 
 #include "game/Menus.h"
 #include "simulation/Tool.h"
+#include "simulation/Simulation.h"
 
 int saveversion;
 int mod_save;
@@ -1960,6 +1961,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					{
 						//Replace existing particle or allocated block
 						newIndex = pmap[y][x]>>8;
+						if (parts[newIndex].type)
+							globalSim->elementCount[parts[newIndex].type]--;
 					}
 					else if(freeIndicesIndex<freeIndicesCount)
 					{
@@ -2304,6 +2307,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						}
 					}
 					//note: PSv was used in version 77.0 and every version before, add something in PSv too if the element is that old
+
+					globalSim->elementCount[partsptr[newIndex].type]++;
 				}
 			}
 		}
@@ -3303,6 +3308,8 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					parts[i-1].ctype = 0;
 				}
 			}
+
+			globalSim->elementCount[parts[i-1].type]++;
 		}
 	}
 

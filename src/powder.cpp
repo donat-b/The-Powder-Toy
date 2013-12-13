@@ -884,62 +884,8 @@ void detach(int i)
 
 void kill_part(int i)//kills particle number i
 {
-	int x, y;
-
-	if (parts[i].type == PT_NONE) //This shouldn't happen anymore, but it's here just in case
-		return;
-
-	if (parts[i].type == PT_STKM)
-	{
-		player.spwn = 0;
-	}
-	else if (parts[i].type == PT_STKM2)
-	{
-		player2.spwn = 0;
-	}
-	if (parts[i].type == PT_FIGH)
-	{
-		fighters[(unsigned char)parts[i].tmp].spwn = 0;
-		fighcount--;
-	}
-	else if (parts[i].type == PT_SPAWN)
-	{
-		ISSPAWN1 = 0;
-	}
-	else if (parts[i].type == PT_SPAWN2)
-	{
-		ISSPAWN2 = 0;
-	}
-	else if (parts[i].type == PT_SOAP)
-	{
-		detach(i);
-	}
-	else if (ptypes[parts[i].type].properties&PROP_MOVS)
-	{
-		int bn = parts[i].tmp2;
-		if (bn >= 0 && bn < 256)
-		{
-			msnum[bn]--;
-			if (msindex[bn]-1 == i)
-				msindex[bn] = 0;
-		}
-	}
-	else if (parts[i].type == PT_ANIM && parts[i].animations)
-	{
-		free(parts[i].animations);
-		parts[i].animations = NULL;
-	}
-
-	x = (int)(parts[i].x+0.5f);
-	y = (int)(parts[i].y+0.5f);
-	if (x>=0 && y>=0 && x<XRES && y<YRES) {
-		if ((pmap[y][x]>>8)==i)
-			pmap[y][x] = 0;
-		else if ((photons[y][x]>>8)==i)
-			photons[y][x] = 0;
-	}
-
-	globalSim->part_free(i);
+	//TODO: replace everything with this
+	globalSim->part_kill(i);
 }
 
 TPT_INLINE void part_change_type(int i, int x, int y, int t)//changes the type of particle number i, to t.  This also changes pmap at the same time.
@@ -956,46 +902,8 @@ TPT_INLINE void part_change_type(int i, int x, int y, int t)//changes the type o
 		return;
 	}
 
-	if (parts[i].type == PT_STKM)
-	{
-		player.spwn = 0;
-	}
-	else if (parts[i].type == PT_STKM2)
-	{
-		player2.spwn = 0;
-	}
-	if (parts[i].type == PT_FIGH)
-	{
-		fighters[(unsigned char)parts[i].tmp].spwn = 0;
-		fighcount--;
-	}
-	else if (parts[i].type == PT_SPAWN)
-	{
-		ISSPAWN1 = 0;
-	}
-	else if (parts[i].type == PT_SPAWN2)
-	{
-		ISSPAWN2 = 0;
-	}
-	else if (parts[i].type == PT_SOAP)
-	{
-		detach(i);
-	}
-	else if (ptypes[parts[i].type].properties&PROP_MOVS)
-	{
-		int bn = parts[i].tmp2;
-		if (bn >= 0 && bn < 256)
-		{
-			msnum[bn]--;
-			if (msindex[bn]-1 == i)
-				msindex[bn] = 0;
-		}
-	}
-	else if (parts[i].type == PT_ANIM && parts[i].animations)
-	{
-		free(parts[i].animations);
-		parts[i].animations = NULL;
-	}
+	globalSim->delete_part_info(i);
+	globalSim->elementCount[t]++;
 
 	parts[i].type = t;
 	if (ptypes[t].properties & TYPE_ENERGY)
@@ -1097,10 +1005,9 @@ int create_part(int p, int x, int y, int tv)//the function for creating a partic
 	//activate BUTN here
 	if (p == -2 && (pmap[y][x]&0xFF) == PT_BUTN && parts[pmap[y][x]>>8].life == 10)
 	{
-		parts[pmap[y][x]>>8].type = PT_SPRK;
+		part_change_type(pmap[y][x]>>8, x, y, PT_SPRK);
 		parts[pmap[y][x]>>8].life = 4;
 		parts[pmap[y][x]>>8].ctype = pmap[y][x]&0xFF;
-		pmap[y][x] = (pmap[y][x]&~0xFF) | PT_SPRK;
 		return pmap[y][x]>>8;
 	}
 	if (t==PT_SPRK)
@@ -1126,10 +1033,10 @@ int create_part(int p, int x, int y, int tv)//the function for creating a partic
 			flood_INST(x, y, PT_SPRK, PT_INST);
 			return index;
 		}
-		parts[index].type = PT_SPRK;
+
+		part_change_type(index, x, y, PT_SPRK);
 		parts[index].life = 4;
 		parts[index].ctype = type;
-		pmap[y][x] = (pmap[y][x]&~0xFF) | PT_SPRK;
 		if (parts[index].temp+10.0f < 673.0f && !legacy_enable && (type==PT_METL || type == PT_BMTL || type == PT_BRMT || type == PT_PSCN || type == PT_NSCN || type == PT_ETRD || type == PT_NBLE || type == PT_IRON))
 			parts[index].temp = parts[index].temp+10.0f;
 		return index;

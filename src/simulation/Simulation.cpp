@@ -184,15 +184,20 @@ void Simulation::part_kill(int i)//kills particle number i
 {
 	int x, y;
 
+	if (parts[i].type == PT_NONE) // TODO: remove this? (//This shouldn't happen anymore, but it's here just in case)
+		return;
+
 	// Remove from pmap even if type==0, otherwise infinite recursion occurs when flood fill deleting
 	// a particle which sets type to 0 without calling kill_part (such as LIFE)
 	x = (int)(parts[i].x+0.5f);
 	y = (int)(parts[i].y+0.5f);
 	pmap_remove(i, x, y);
 
-	if (parts[i].type == PT_NONE) // TODO: remove this? (//This shouldn't happen anymore, but it's here just in case)
-		return;
+	part_free(i);
+}
 
+void Simulation::delete_part_info(int i)
+{
 	if (parts[i].type)
 	{
 		elementCount[parts[i].type]--;
@@ -239,8 +244,6 @@ void Simulation::part_kill(int i)//kills particle number i
 				msindex[bn] = 0;
 		}
 	}
-
-	part_free(i);
 }
 
 void Simulation_Compat_CopyData(Simulation* sim)
