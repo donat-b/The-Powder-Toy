@@ -137,6 +137,7 @@ int Simulation::part_create(int p, int x, int y, int t)
 		{
 			(*(elements[oldType].Func_ChangeType))(this, p, oldX, oldY, oldType, t);
 		}
+		if (oldType) elementCount[oldType]--;
 		delete_part_info(p);
 		pmap_remove(p, oldX, oldY);
 		i = p;
@@ -226,6 +227,7 @@ bool Simulation::part_change_type(int i, int x, int y, int t)//changes the type 
 
 	if (!ptypes[t].enabled)
 		t = PT_NONE;
+	delete_part_info(i);
 
 	parts[i].type = t;
 	if (t) elementCount[t]++;
@@ -237,7 +239,6 @@ bool Simulation::part_change_type(int i, int x, int y, int t)//changes the type 
 	{
 		(*(elements[t].Func_ChangeType))(this, i, x, y, oldType, t);
 	}
-	delete_part_info(i);
 	return true;
 }
 

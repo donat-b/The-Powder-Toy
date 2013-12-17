@@ -30,6 +30,8 @@ int PRTI_update(UPDATE_FUNC_ARGS)
 {
 	if (!sim->elementData[PT_PRTI])
 		return 0;
+	if (parts[i].type == PT_PPTI && parts[i].tmp2 < 10)
+		return 0;
 	int r, nnx, rx, ry, fe = 0;
 	int count = 0;
 	PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, i);
