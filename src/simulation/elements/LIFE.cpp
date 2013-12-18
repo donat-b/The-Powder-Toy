@@ -60,9 +60,13 @@ int LIFE_graphics(GRAPHICS_FUNC_ARGS)
 			pc = PIXRGB(150, 150, 0);
 		else
 			pc = PIXRGB(255, 255, 0);
-	} else {
+	}
+	else if (cpart->ctype >= 0 && cpart->ctype < NGOL)
+	{
 		pc = gmenu[cpart->ctype].colour;
 	}
+	else
+		pc = ptypes[cpart->type].pcolors;
 	*colr = PIXR(pc);
 	*colg = PIXG(pc);
 	*colb = PIXB(pc);
