@@ -86,7 +86,7 @@ public:
 		// NB: all arguments are assumed to be within bounds
 		if (elements[t].Properties & TYPE_ENERGY)
 			photons[y][x] = t|(i<<8);
-		else if (!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT))
+		else if ((!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT)))// && (pmap[y][x]&0xFF) != PT_PINV)
 			pmap[y][x] = t|(i<<8);
 	}
 	void pmap_remove(int i, int x, int y)
@@ -94,7 +94,7 @@ public:
 		// NB: all arguments are assumed to be within bounds
 		if ((pmap[y][x]>>8)==i)
 			pmap[y][x] = 0;
-		if ((photons[y][x]>>8)==i)
+		else if ((photons[y][x]>>8)==i)
 			photons[y][x] = 0;
 	}
 };

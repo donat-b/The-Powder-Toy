@@ -230,6 +230,8 @@ bool Simulation::part_change_type(int i, int x, int y, int t)//changes the type 
 	delete_part_info(i);
 
 	parts[i].type = t;
+	pmap_remove(i, x, y);
+	pmap_add(i, x, y, t);
 	if (t) elementCount[t]++;
 	if (elements[oldType].Func_ChangeType)
 	{
