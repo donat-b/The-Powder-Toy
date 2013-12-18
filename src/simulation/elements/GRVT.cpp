@@ -75,7 +75,7 @@ void GRVT_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->DefaultProperties.temp = R_TEMP+273.15f;
 	elem->HeatConduct = 61;
 	elem->Latent = 0;
-	elem->Description = "Gravitrons. Creates Newtonian Gravity.";
+	elem->Description = "Gravitons. Create Newtonian Gravity.";
 
 	elem->State = ST_GAS;
 	elem->Properties = TYPE_ENERGY|PROP_LIFE_DEC|PROP_LIFE_KILL_DEC;

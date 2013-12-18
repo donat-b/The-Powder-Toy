@@ -42,7 +42,7 @@ Galacticruler - SING can emit gravity instead of pressure (set tmp2 to 1, or 2 f
 Joeboy25 - AMTR ctypes
 baizuo - Multiple element highlights
 The-Fall - GEL and SPNG can absorb water from more elements (ex. PSTE + SPNG -> CLST)
-
+GIGATeun - GRVI (gravitons)
 
 
 
@@ -618,6 +618,10 @@ default HUD options slightly. sim.elementCount; some rewrites to portals,
 stickmen, and WIFI from jacksonmj. Fix save browser glitching when 
 shift-clicking a username in the save preview and then opening one of their 
 saves.
+
+Version 26.0 (build 26) 12/18/13
+Fix pmap errors breaking a lot of things including SWCH. Fix GVRT
+description.
 
 
 
