@@ -608,6 +608,17 @@ stickmen not respawning. Fix crash when ctrl+alt+clicking. In textboxes,
 Ctrl+delete deletes one word and shift+arrow keys highlights text. Red DEUT 
 fix from tpt. Start on merging some major optimizations from cracker64. 
 
+Version 26.0 (build 25) 12/17/13
+A ton of optimizations to almost every element, by cracker64. Report 
+anything broken to me. Fix crash when starting game in deco section. Fix 
+crash when saving local saves on linux. Fix clones cloning double. New 
+Element: Gravitons (GRVT), creates Newtonian Gravity. Comment box turns red 
+when your comment gets too long. New HUD option for FILT modes, change 
+default HUD options slightly. sim.elementCount; some rewrites to portals, 
+stickmen, and WIFI from jacksonmj. Fix save browser glitching when 
+shift-clicking a username in the save preview and then opening one of their 
+saves.
+
 
 
 
@@ -640,7 +651,6 @@ Add in all missing lua functions except for interface api
 >Add things from tpt++ that look cool, and any new simulation changes it gets
 
 Medium future TODO:
-changes from tpt++: SPRK, LIGH, LCRY, all others
 make open ui more colorful like tpt++, also fix cut off description in save uploading ui
 make buttons look clicked when pressed, moving mouse away will not do clicks, like tpt++?
 loading circle in save browser?

@@ -25,16 +25,16 @@
  
 //VersionInfoStart
 #define SAVE_VERSION 89
-#define MINOR_VERSION 0
-#define BUILD_NUM 275
+#define MINOR_VERSION 1
+#define BUILD_NUM 278
 //VersionInfoEnd
 
-#define MOD_VERSION 25
-#define MOD_MINOR_VERSION 1
+#define MOD_VERSION 26
+#define MOD_MINOR_VERSION 0
 #define MOD_SAVE_VERSION 16 //This is not the version number of my mod anymore, it's only changed when I change the saving code
-#define MOD_BUILD_VERSION 24 //For update checks
+#define MOD_BUILD_VERSION 25 //For update checks
 #define BETA_VERSION 89
-#define BETA_MINOR_VER 0
+#define BETA_MINOR_VER 1
 #define RELEASE_VERSION 89
 #define RELEASE_MINOR_VER 0
 
@@ -121,8 +121,9 @@ extern unsigned char ZSIZE;
 
 #define NGOL 24
 
-
+#if defined(X86_SSE) || defined(X86_SSE2) || defined(X86_SSE3)
 #define GRAVFFT
+#endif
 #define LUACONSOLE
 
 #ifdef PIX16
