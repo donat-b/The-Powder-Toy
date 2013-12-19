@@ -431,7 +431,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 		}
 		if (((r&0xFF)==PT_PRTI || (r&0xFF)==PT_PPTI) && (ptypes[parts[i].type].properties & TYPE_ENERGY))
 		{
-			PortalChannel *channel = ((PRTI_ElementDataContainer*)globalSim->elementData[PT_PRTI])->GetParticleChannel(globalSim, r);
+			PortalChannel *channel = ((PRTI_ElementDataContainer*)globalSim->elementData[PT_PRTI])->GetParticleChannel(globalSim, r>>8);
 			int slot = PRTI_ElementDataContainer::GetSlot(x-nx,y-ny);
 			if (channel->StoreParticle(globalSim, i, slot))
 				return -1;
