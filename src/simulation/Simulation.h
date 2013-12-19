@@ -71,11 +71,6 @@ public:
 	{
 		return (x>=0 && y>=0 && x<XRES && y<YRES);
 	}
-	// used in INST flood fill
-	static bool part_cmp_conductive(const particle& p, int t)
-	{
-		return (p.type==t || (p.type==PT_SPRK && p.ctype==t));
-	}
 
 	// Most of the time, part_alloc and part_free should not be used directly unless you really know what you're doing. 
 	// Use part_create and part_kill instead.

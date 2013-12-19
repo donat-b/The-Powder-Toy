@@ -16,9 +16,16 @@
 #include "simulation/ElementsCommon.h"
 #include "simulation/CoordStack.h"
 
+//INST that can be sparked
 bool contains_sparkable_INST(Simulation *sim, int x, int y)
 {
 	return (pmap[y][x]&0xFF) == PT_INST && parts[pmap[y][x]>>8].life <= 0;
+}
+
+//Any INST or SPRK(INST) regardless of life
+bool part_cmp_conductive(unsigned int p, int t)
+{
+	return ((p&0xFF)==t || ((p&0xFF)==PT_SPRK && parts[p>>8].ctype==t));
 }
 
 int INST_flood_spark(Simulation *sim, int x, int y)
@@ -65,12 +72,12 @@ int INST_flood_spark(Simulation *sim, int x, int y)
 			// add vertically adjacent pixels to stack
 			// (wire crossing for INST)
 			if (y>=CELL+1 && x1==x2 &&
-					sim->part_cmp_conductive(parts[pmap[y-1][x1-1]>>8], cm) &&
-					sim->part_cmp_conductive(parts[pmap[y-1][x1]>>8], cm) &&
-					sim->part_cmp_conductive(parts[pmap[y-1][x1+1]>>8], cm) &&
-					!sim->part_cmp_conductive(parts[pmap[y-2][x1-1]>>8], cm) &&
-					sim->part_cmp_conductive(parts[pmap[y-2][x1]>>8], cm) &&
-					!sim->part_cmp_conductive(parts[pmap[y-2][x1+1]>>8], cm))
+					part_cmp_conductive(pmap[y-1][x1-1], cm) &&
+					part_cmp_conductive(pmap[y-1][x1], cm) &&
+					part_cmp_conductive(pmap[y-1][x1+1], cm) &&
+					!part_cmp_conductive(pmap[y-2][x1-1], cm) &&
+					part_cmp_conductive(pmap[y-2][x1], cm) &&
+					!part_cmp_conductive(pmap[y-2][x1+1], cm))
 			{
 				// travelling vertically up, skipping a horizontal line
 				if (contains_sparkable_INST(sim, x1, y-2))
@@ -81,7 +88,7 @@ int INST_flood_spark(Simulation *sim, int x, int y)
 				for (x=x1; x<=x2; x++)
 				{
 					// if at the end of a horizontal section, or if it's a T junction
-					if (x==x1 || x==x2 || y>=YRES-CELL-1 || !sim->part_cmp_conductive(parts[pmap[y+1][x]>>8],cm))
+					if (x==x1 || x==x2 || y>=YRES-CELL-1 || !part_cmp_conductive(pmap[y+1][x],cm) || part_cmp_conductive(pmap[y+1][x-1],cm) || part_cmp_conductive(pmap[y+1][x+1],cm))
 					{
 						if (contains_sparkable_INST(sim, x, y-1))
 							cs.push(x, y-1);
@@ -90,12 +97,12 @@ int INST_flood_spark(Simulation *sim, int x, int y)
 			}
 
 			if (y<YRES-CELL-1 && x1==x2 &&
-					sim->part_cmp_conductive(parts[pmap[y+1][x1-1]>>8], cm) &&
-					sim->part_cmp_conductive(parts[pmap[y+1][x1]>>8], cm) &&
-					sim->part_cmp_conductive(parts[pmap[y+1][x1+1]>>8], cm) &&
-					!sim->part_cmp_conductive(parts[pmap[y+2][x1-1]>>8], cm) &&
-					sim->part_cmp_conductive(parts[pmap[y+2][x1]>>8], cm) &&
-					!sim->part_cmp_conductive(parts[pmap[y+2][x1+1]>>8], cm))
+					part_cmp_conductive(pmap[y+1][x1-1], cm) &&
+					part_cmp_conductive(pmap[y+1][x1], cm) &&
+					part_cmp_conductive(pmap[y+1][x1+1], cm) &&
+					!part_cmp_conductive(pmap[y+2][x1-1], cm) &&
+					part_cmp_conductive(pmap[y+2][x1], cm) &&
+					!part_cmp_conductive(pmap[y+2][x1+1], cm))
 			{
 				// travelling vertically down, skipping a horizontal line
 				if (contains_sparkable_INST(sim, x1, y+2))
@@ -105,7 +112,7 @@ int INST_flood_spark(Simulation *sim, int x, int y)
 			{
 				for (x=x1; x<=x2; x++)
 				{
-					if (x==x1 || x==x2 || y<0 || !sim->part_cmp_conductive(parts[pmap[y-1][x]>>8],cm))
+					if (x==x1 || x==x2 || y<0 || !part_cmp_conductive(pmap[y-1][x],cm) || part_cmp_conductive(pmap[y-1][x-1],cm) || part_cmp_conductive(pmap[y-1][x+1],cm))
 					{
 						if (contains_sparkable_INST(sim, x, y+1))
 							cs.push(x, y+1);
