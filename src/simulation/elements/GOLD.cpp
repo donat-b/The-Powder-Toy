@@ -46,6 +46,7 @@ int GOLD_update(UPDATE_FUNC_ARGS)
 				if((r&0xFF)==PT_SPRK && parts[r>>8].life && parts[r>>8].life<4)
 				{
 					globalSim->spark_conductive(i, x, y);
+					return 1;
 				}
 			}
 		}
