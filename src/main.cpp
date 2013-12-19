@@ -2789,7 +2789,8 @@ int main(int argc, char *argv[])
 								{
 									if (signs[signi].text[1] == 'b')
 									{
-										create_part(-1, signs[signi].x, signs[signi].y, PT_SPRK);
+										if ((pmap[signs[signi].y][signs[signi].x]&0xFF) != PT_INST)
+											globalSim->spark_all_attempt(pmap[signs[signi].y][signs[signi].x]>>8, signs[signi].x, signs[signi].y);
 										//hacky hack to cancel out clicks ...
 										lm = -1;
 										lb = 1;

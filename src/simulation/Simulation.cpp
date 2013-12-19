@@ -303,7 +303,7 @@ void Simulation::spark_conductive(int i, int x, int y)
 	parts[i].ctype = type;
 	if (type==PT_WATR)
 		parts[i].life = 6;
-	else if (type==PT_SLTW) 
+	else if (type==PT_SLTW)
 		parts[i].life = 5;
 	else
 		parts[i].life = 4;
