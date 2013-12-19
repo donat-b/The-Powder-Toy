@@ -375,8 +375,7 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS)
 		r = pmap[ry][rx];
 		if (ptypes[r&0xFF].state == ST_SOLID)
 		{
-			// TODO: change this create_part
-			create_part(-1, rx, ry, PT_SPRK);
+			sim->spark_conductive_attempt(pmap[ry][rx]>>8, rx, ry);
 			playerp->frames = 0;
 		}
 		else

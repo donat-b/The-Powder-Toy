@@ -67,9 +67,8 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 				part_change_type(i, x, y, ct);
 				ct = parts[i].ctype = PT_NONE;
 				parts[i].life = 20;
-				part_change_type(nearp, (int)(parts[nearp].x+0.5f), (int)(parts[nearp].y+0.5f), PT_SPRK);
+				sim->spark_conductive(nearp, (int)(parts[nearp].x+0.5f),(int)(parts[nearp].y+0.5f));
 				parts[nearp].life = 9;
-				parts[nearp].ctype = PT_ETRD;
 			}
 		}
 		break;
@@ -344,20 +343,14 @@ conduct:
 				}
 				else if (parts[r>>8].life==0 && parts[i].life<4)
 				{
-					parts[r>>8].life = 4;
-					parts[r>>8].ctype = receiver;
-					part_change_type(r>>8,x+rx,y+ry,PT_SPRK);
-					if (parts[r>>8].temp+10.0f<673.0f && !legacy_enable && (receiver==PT_METL||receiver==PT_BMTL||receiver==PT_BRMT||receiver==PT_PSCN||receiver==PT_NSCN||receiver==PT_ETRD||receiver==PT_NBLE||receiver==PT_IRON))
-						parts[r>>8].temp = parts[r>>8].temp+10.0f;
+					sim->spark_conductive(r>>8, x+rx, y+ry);
 				}
 				else if (sender==PT_ETRD && parts[i].life==5) //ETRD is odd and conducts to others only at life 5, this could probably be somewhere else
 				{
 					part_change_type(i,x,y,sender);
 					parts[i].ctype = PT_NONE;
 					parts[i].life = 20;
-					parts[r>>8].life = 4;
-					parts[r>>8].ctype = receiver;
-					part_change_type(r>>8,x+rx,y+ry,PT_SPRK);
+					sim->spark_conductive(r>>8, x+rx, y+ry);
 				}
 			}
 	return 0;

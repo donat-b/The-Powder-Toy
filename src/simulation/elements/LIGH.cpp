@@ -236,8 +236,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 				}
 				if ((ptypes[rt].properties&PROP_CONDUCTS) && !parts[r>>8].life)
 				{
-					// TODO: change this create_part
-					create_part(r>>8, x+rx, y+ry, PT_SPRK);
+					sim->spark_conductive(r>>8, x+rx, y+ry);
 				}
 				pv[y/CELL][x/CELL] += powderful/400;
 				if (sim->elements[r&0xFF].HeatConduct)

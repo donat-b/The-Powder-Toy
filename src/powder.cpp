@@ -122,13 +122,7 @@ static int pn_junction_sprk(int x, int y, int pt)
 	r >>= 8;
 	if (parts[r].type != pt)
 		return 0;
-	if (parts[r].life != 0)
-		return 0;
-
-	parts[r].ctype = pt;
-	part_change_type(r,x,y,PT_SPRK);
-	parts[r].life = 4;
-	return 1;
+	return globalSim->spark_conductive_attempt(r, x, y);
 }
 
 static void photoelectric_effect(int nx, int ny)//create sparks from PHOT when hitting PSCN and NSCN
@@ -966,9 +960,7 @@ int create_part(int p, int x, int y, int tv)//the function for creating a partic
 	//activate BUTN here
 	if (p == -2 && (pmap[y][x]&0xFF) == PT_BUTN && parts[pmap[y][x]>>8].life == 10)
 	{
-		part_change_type(pmap[y][x]>>8, x, y, PT_SPRK);
-		parts[pmap[y][x]>>8].life = 4;
-		parts[pmap[y][x]>>8].ctype = pmap[y][x]&0xFF;
+		globalSim->spark_conductive(pmap[y][x]>>8, x, y);
 		return pmap[y][x]>>8;
 	}
 	if (t==PT_SPRK)
@@ -995,11 +987,7 @@ int create_part(int p, int x, int y, int tv)//the function for creating a partic
 			return index;
 		}
 
-		part_change_type(index, x, y, PT_SPRK);
-		parts[index].life = 4;
-		parts[index].ctype = type;
-		if (parts[index].temp+10.0f < 673.0f && !legacy_enable && (type==PT_METL || type == PT_BMTL || type == PT_BRMT || type == PT_PSCN || type == PT_NSCN || type == PT_ETRD || type == PT_NBLE || type == PT_IRON))
-			parts[index].temp = parts[index].temp+10.0f;
+		globalSim->spark_conductive_attempt(index, x, y);
 		return index;
 	}
 	if (p==-2)//creating from brush
@@ -2353,9 +2341,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 					{
 						if (emap[ny][nx]==12 && !parts[i].life)
 						{
-							part_change_type(i,x,y,PT_SPRK);
-							parts[i].life = 4;
-							parts[i].ctype = t;
+							globalSim->spark_conductive(i, x, y);
 							t = PT_SPRK;
 						}
 					}

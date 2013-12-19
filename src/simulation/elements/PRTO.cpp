@@ -53,15 +53,14 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 					particle *storedPart = &(channel->portalp[randomness][nnx]);
 					if (storedPart->type==PT_SPRK)// TODO: make it look better, spark creation
 					{
-						// TODO: change these create_parts
-						create_part(-1,x+1,y,PT_SPRK);
-						create_part(-1,x+1,y+1,PT_SPRK);
-						create_part(-1,x+1,y-1,PT_SPRK);
-						create_part(-1,x,y-1,PT_SPRK);
-						create_part(-1,x,y+1,PT_SPRK);
-						create_part(-1,x-1,y+1,PT_SPRK);
-						create_part(-1,x-1,y,PT_SPRK);
-						create_part(-1,x-1,y-1,PT_SPRK);
+						sim->spark_conductive_attempt(pmap[y+1][x+1]>>8, x+1, y+1);
+						sim->spark_conductive_attempt(pmap[y][x+1]>>8, x+1, y);
+						sim->spark_conductive_attempt(pmap[y-1][x+1]>>8, x+1, y-1);
+						sim->spark_conductive_attempt(pmap[y+1][x]>>8, x, y+1);
+						sim->spark_conductive_attempt(pmap[y-1][x]>>8, x, y-1);
+						sim->spark_conductive_attempt(pmap[y+1][x-1]>>8, x-1, y+1);
+						sim->spark_conductive_attempt(pmap[y][x-1]>>8, x-1, y);
+						sim->spark_conductive_attempt(pmap[y-1][x-1]>>8, x-1, y-1);
 						storedPart->type = 0;
 						channel->particleCount[randomness]--;
 						break;

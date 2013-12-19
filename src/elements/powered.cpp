@@ -1,4 +1,4 @@
-#include <element.h>
+#include "simulation/ElementsCommon.h"
 
 int update_POWERED(UPDATE_FUNC_ARGS) {
 	int r, rx, ry;
@@ -37,9 +37,7 @@ int update_POWERED(UPDATE_FUNC_ARGS) {
 								parts[i].life = 9;
 							else if ((parts[i].type == PT_SWCH || parts[i].type == PT_BUTN) && parts[r>>8].ctype != PT_PSCN && parts[r>>8].ctype != PT_NSCN && !(parts[r>>8].ctype == PT_INWR && parts[r>>8].tmp == 1) && parts[i].life == 10)
 							{
-								parts[i].ctype = parts[i].type;
-								part_change_type(i,x,y,PT_SPRK);
-								parts[i].life = 4;
+								sim->spark_conductive(i, x, y);
 								return 0;
 							}
 						}
@@ -108,9 +106,7 @@ int update_POWERED(UPDATE_FUNC_ARGS) {
 							}
 							else if ((parts[i].type == PT_SWCH || parts[i].type == PT_BUTN) && parts[r>>8].ctype != PT_PSCN && parts[r>>8].ctype != PT_NSCN && !(parts[r>>8].ctype == PT_INWR && parts[r>>8].tmp == 1) && parts[i].life == 10)
 							{
-								parts[i].ctype = parts[i].type;
-								part_change_type(i,x,y,PT_SPRK);
-								parts[i].life = 4;
+								sim->spark_conductive(i, x, y);
 								return 0;
 							}
 						}

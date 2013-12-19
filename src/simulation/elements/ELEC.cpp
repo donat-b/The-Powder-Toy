@@ -90,8 +90,7 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 				default:
 					if (ptypes[rt].properties & PROP_CONDUCTS && (rt!=PT_NBLE || parts[i].temp<2273.15))
 					{
-						// TODO: change this create_part
-						create_part(-1, x+rx, y+ry, PT_SPRK);
+						sim->spark_conductive_attempt(r>>8, x+rx, y+ry);
 						kill_part(i);
 						return 1;
 					}
