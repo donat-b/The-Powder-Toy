@@ -38,7 +38,7 @@ int update_POWERED(UPDATE_FUNC_ARGS) {
 							else if ((parts[i].type == PT_SWCH || parts[i].type == PT_BUTN) && parts[r>>8].ctype != PT_PSCN && parts[r>>8].ctype != PT_NSCN && !(parts[r>>8].ctype == PT_INWR && parts[r>>8].tmp == 1) && parts[i].life == 10)
 							{
 								sim->spark_conductive(i, x, y);
-								return 0;
+								return 1;
 							}
 						}
 						else if ((parts[i].type == PT_PPTI || parts[i].type == PT_PPTO))
@@ -86,7 +86,7 @@ int update_POWERED(UPDATE_FUNC_ARGS) {
 									{
 										flood_prop(x,y,offsetof(particle, life),&fourteenlife,0);
 										//flood_prop(x,y,offsetof(particle, flags),&skipmoveflags,0);
-										return 1;
+										return 0;
 									}
 								}
 							}
@@ -107,7 +107,7 @@ int update_POWERED(UPDATE_FUNC_ARGS) {
 							else if ((parts[i].type == PT_SWCH || parts[i].type == PT_BUTN) && parts[r>>8].ctype != PT_PSCN && parts[r>>8].ctype != PT_NSCN && !(parts[r>>8].ctype == PT_INWR && parts[r>>8].tmp == 1) && parts[i].life == 10)
 							{
 								sim->spark_conductive(i, x, y);
-								return 0;
+								return 1;
 							}
 						}
 					}

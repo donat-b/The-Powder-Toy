@@ -214,7 +214,8 @@ bool Simulation::part_change_type(int i, int x, int y, int t)//changes the type 
 
 	if (t==parts[i].type)
 		return true;
-
+	if (ptypes[parts[i].type].properties&PROP_INDESTRUCTIBLE)
+		return false;
 	if (elements[t].Func_Create_Allowed)
 	{
 		if (!(*(elements[t].Func_Create_Allowed))(this, i, x, y, t))
