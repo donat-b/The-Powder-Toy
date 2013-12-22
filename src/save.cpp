@@ -963,7 +963,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 				{
 					fieldDesc |= 1 << 5;
 					partsData[partsDataLen++] = partsptr[i].ctype;
-					if(partsptr[i].ctype & 0xFFFF0000)
+					if(partsptr[i].ctype & 0xFFFFFF00)
 					{
 						fieldDesc |= 1 << 9;
 						partsData[partsDataLen++] = (partsptr[i].ctype&0xFF000000)>>24;
