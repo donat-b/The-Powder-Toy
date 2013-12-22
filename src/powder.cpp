@@ -1723,7 +1723,7 @@ int transfer_heat(int i, int surround[8])
 				c_heat = parts[i].temp*96.645/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight) + hv[y/CELL][x/CELL]*100*(pv[y/CELL][x/CELL]+273.15f)/256;
 				c_Cm = 96.645/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight) + 100*(pv[y/CELL][x/CELL]+273.15f)/256;
 				pt = c_heat/c_Cm;
-				pt = restrict_flt(pt, -MAX_TEMP+MIN_TEMP, MAX_TEMP-MIN_TEMP);
+				pt = restrict_flt(pt, MIN_TEMP, MAX_TEMP);
 				parts[i].temp = pt;
 				//Pressure increase from heat (temporary)
 				pv[y/CELL][x/CELL] += (pt-hv[y/CELL][x/CELL])*0.004;
@@ -1735,7 +1735,7 @@ int transfer_heat(int i, int surround[8])
 			else
 			{
 				c_heat = (hv[y/CELL][x/CELL]-parts[i].temp)*0.04;
-				c_heat = restrict_flt(c_heat, -MAX_TEMP+MIN_TEMP, MAX_TEMP-MIN_TEMP);
+				c_heat = restrict_flt(c_heat, MIN_TEMP, MAX_TEMP);
 				parts[i].temp += c_heat;
 				hv[y/CELL][x/CELL] -= c_heat;
 
@@ -2019,7 +2019,13 @@ int transfer_heat(int i, int surround[8])
 					parts[i].life = 0;
 				if (ptypes[t].state==ST_GAS && ptypes[parts[i].type].state!=ST_GAS)
 					pv[y/CELL][x/CELL] += 0.50f;
-				part_change_type(i,x,y,t);
+				if (t==PT_NONE)
+				{
+					kill_part(i);
+					return t;
+				}
+				else
+					part_change_type(i,x,y,t);
 				if (t==PT_FIRE || t==PT_PLSM || t==PT_HFLM)
 					parts[i].life = rand()%50+120;
 				if (t==PT_LAVA)
@@ -2029,11 +2035,6 @@ int transfer_heat(int i, int surround[8])
 					else if (parts[i].ctype==PT_BGLA)	parts[i].ctype = PT_GLAS;
 					else if (parts[i].ctype==PT_PQRT)	parts[i].ctype = PT_QRTZ;
 					parts[i].life = rand()%120+240;
-				}
-				if (t==PT_NONE)
-				{
-					kill_part(i);
-					return t;
 				}
 			}
 		}
@@ -2059,51 +2060,62 @@ int transfer_heat(int i, int surround[8])
 	return t;
 }
 
-int particle_transitions(int i)
+void particle_transitions(int i, int *t)
 {
-	int t = parts[i].type, x = (int)(parts[i].x+0.5f), y = (int)(parts[i].y+0.5f);
-	int s = 1;
+	int x = (int)(parts[i].x+0.5f), y = (int)(parts[i].y+0.5f);
 	float gravtot = fabs(gravy[(y/CELL)*(XRES/CELL)+(x/CELL)])+fabs(gravx[(y/CELL)*(XRES/CELL)+(x/CELL)]);
-	if (ptransitions[t].pht>-1 && pv[y/CELL][x/CELL]>ptransitions[t].phv) {
-		// particle type change due to high pressure
-		if (ptransitions[t].pht!=PT_NUM)
-			t = ptransitions[t].pht;
-		else if (t==PT_BMTL) {
-			if (pv[y/CELL][x/CELL]>2.5f)
-				t = PT_BRMT;
-			else if (pv[y/CELL][x/CELL]>1.0f && parts[i].tmp==1)
-				t = PT_BRMT;
-			else s = 0;
-		}
-	} else if (ptransitions[t].plt>-1 && pv[y/CELL][x/CELL]<ptransitions[t].plv) {
-		// particle type change due to low pressure
-		if (ptransitions[t].plt!=PT_NUM)
-			t = ptransitions[t].plt;
-		else s = 0;
-	} else if (ptransitions[t].pht>-1 && gravtot>(ptransitions[t].phv/4.0f)) {
-		// particle type change due to high gravity
-		if (ptransitions[t].pht!=PT_NUM)
-			t = ptransitions[t].pht;
-		else if (t==PT_BMTL) {
-			if (gravtot>0.625f)
-				t = PT_BRMT;
-			else if (gravtot>0.25f && parts[i].tmp==1)
-				t = PT_BRMT;
-			else s = 0;
-		}
-		else s = 0;
-	} else s = 0;
-	// particle type change occurred
-	if (s)
+
+	// particle type change due to high pressure
+	if (ptransitions[*t].pht>-1 && pv[y/CELL][x/CELL]>ptransitions[*t].phv)
 	{
-		parts[i].life = 0;
-		part_change_type(i,x,y,t);
-		if (t==PT_FIRE)
-			parts[i].life = rand()%50+120;
-		if (t==PT_NONE)
-			kill_part(i);
+		if (ptransitions[*t].pht != PT_NUM)
+			*t = ptransitions[*t].pht;
+		else if (*t == PT_BMTL)
+		{
+			if (pv[y/CELL][x/CELL] > 2.5f)
+				*t = PT_BRMT;
+			else if (pv[y/CELL][x/CELL]>1.0f && parts[i].tmp==1)
+				*t = PT_BRMT;
+			else
+				return;
+		}
 	}
-	return t;
+	// particle type change due to low pressure
+	else if (ptransitions[*t].plt>-1 && pv[y/CELL][x/CELL]<ptransitions[*t].plv)
+	{
+		if (ptransitions[*t].plt != PT_NUM)
+			*t = ptransitions[*t].plt;
+		else
+			return;
+	}
+	// particle type change due to high gravity
+	else if (ptransitions[*t].pht>-1 && gravtot>(ptransitions[*t].phv/4.0f))
+	{
+		if (ptransitions[*t].pht != PT_NUM)
+			*t = ptransitions[*t].pht;
+		else if (*t == PT_BMTL)
+		{
+			if (gravtot > 0.625f)
+				*t = PT_BRMT;
+			else if (gravtot>0.25f && parts[i].tmp==1)
+				*t = PT_BRMT;
+			else
+				return;
+		}
+		else
+			return;
+	}
+	else
+		return;
+
+	// particle type change occurred
+	parts[i].life = 0;
+	if (!*t)
+		kill_part(i);
+	else
+		part_change_type(i,x,y,*t);
+	if (*t == PT_FIRE)
+		parts[i].life = rand()%50+120;
 }
 
 //todo, I never really like this so maybe remove it ...
@@ -2362,7 +2374,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 
 			if (!(ptypes[t].properties&PROP_INDESTRUCTIBLE) && (ptransitions[t].plt != -1 || ptransitions[t].pht != -1))
 			{
-				t = particle_transitions(i);
+				particle_transitions(i, &t);
 				if (!t)
 					goto killed;
 			}

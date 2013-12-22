@@ -580,7 +580,7 @@ void decrease_life(int i);
 
 int transfer_heat(int i, int surround[8]);
 
-int particle_transitions(int i);
+void particle_transitions(int i, int* t);
 
 void update_particles_i(pixel *vid, int start, int inc);
 
