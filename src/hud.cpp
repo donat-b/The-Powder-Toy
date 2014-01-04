@@ -26,8 +26,8 @@ int currentHud[HUD_OPTIONS];
 
 void HudDefaults()
 {
-	int defaultNormalHud[HUD_OPTIONS] = {0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,1,0,0,0,0,2,0,2,1,0,0,1,1,0};
-	int defaultDebugHud[HUD_OPTIONS] =  {0,0,1,2,1,0,0,0,1,0,1,1,1,0,1,1,0,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,1,0,0,0,0,4,0,4,1,0,0,1,1,1};
+	int defaultNormalHud[HUD_OPTIONS] = {0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,1,0,0,0,0,2,0,2,1,0,0,1,1,0,0};
+	int defaultDebugHud[HUD_OPTIONS] =  {0,0,1,2,1,0,0,0,1,0,1,1,1,0,1,1,0,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,1,0,0,0,0,4,0,4,1,0,0,1,1,1,0};
 	memcpy(normalHud, defaultNormalHud, sizeof(normalHud));
 	memcpy(debugHud, defaultDebugHud, sizeof(debugHud));
 }
@@ -168,6 +168,11 @@ void SetRightHudText(int x, int y)
 			if (currentHud[24])
 			{
 				sprintf(tempstring,"Vx: %0.*f, Vy: %0.*f, ",currentHud[25],parts[cr>>8].vx,currentHud[25],parts[cr>>8].vy);
+				strappend(heattext,tempstring);
+			}
+			if (currentHud[51])
+			{
+				sprintf(tempstring,"pavg[0]: %f, pavg[1]: %f, ",parts[cr>>8].pavg[0],parts[cr>>8].pavg[1]);
 				strappend(heattext,tempstring);
 			}
 			if (currentHud[45] && ((cr&0xFF)==PT_PHOT || (cr&0xFF)==PT_BIZR || (cr&0xFF)==PT_BIZRG || (cr&0xFF)==PT_BIZRS || ((cr&0xFF)==PT_FILT && parts[cr>>8].ctype)))
