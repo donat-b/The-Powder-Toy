@@ -623,6 +623,12 @@ Version 26.0 (build 26) 12/18/13
 Fix pmap errors breaking a lot of things including SWCH. Fix GVRT
 description.
 
+Version 26.1 (build 27) 12/21/13
+Internal changes to how things are sparked. Fix crash when energy particles
+go into portals. Fix ctype not saving correctly. Realistic heat is glitchy,
+so no longer load that from powder.pref. Also attempt to make it less
+glitchy.
+
 
 
 
