@@ -1810,7 +1810,7 @@ int transfer_heat(int i, int surround[8])
 			//A fix for ice with ctype = 0
 			if ((t==PT_ICEI || t==PT_SNOW) && (parts[i].ctype==0 || parts[i].ctype>=PT_NUM || parts[i].ctype==PT_ICEI || parts[i].ctype==PT_SNOW || !globalSim->elements[parts[i].ctype].Enabled))
 				parts[i].ctype = PT_WATR;
-			if (ptransitions[t].tht > -1 && ctemph > ptransitions[t].thv)
+			if (ptransitions[t].tht > -1 && ctemph >= ptransitions[t].thv)
 			{
 				// particle type change due to high temperature
 				float dbt = ctempl - pt;
@@ -1838,7 +1838,7 @@ int transfer_heat(int i, int surround[8])
 					{
 						if (parts[i].ctype > 0 && parts[i].ctype < PT_NUM&&parts[i].ctype != t)
 						{
-							if (ptransitions[parts[i].ctype].tlt==t&&pt<=ptransitions[parts[i].ctype].tlv)
+							if (ptransitions[parts[i].ctype].tlt==t&&pt<ptransitions[parts[i].ctype].tlv)
 								s = 0;
 							else
 							{
@@ -1864,7 +1864,7 @@ int transfer_heat(int i, int surround[8])
 					{
 						if (parts[i].ctype>0&&parts[i].ctype<PT_NUM&&parts[i].ctype!=t) 
 						{
-							if (ptransitions[parts[i].ctype].tlt==t&&pt<=ptransitions[parts[i].ctype].tlv)
+							if (ptransitions[parts[i].ctype].tlt==t&&pt<ptransitions[parts[i].ctype].tlv)
 								s = 0;
 							else
 							{
@@ -1908,7 +1908,7 @@ int transfer_heat(int i, int surround[8])
 				{
 					if (parts[i].ctype == PT_TUNG)
 					{
-						if (ctemph <= 3695.0)
+						if (ctemph < 3695.0)
 							s = 0;
 						else
 						{
@@ -1965,7 +1965,7 @@ int transfer_heat(int i, int surround[8])
 							s = 0;
 						else if (parts[i].ctype==PT_TUNG)
 						{
-							if (pt>3695.0)
+							if (pt>=3695.0)
 								s = 0;
 						}
 						else if (ptransitions[parts[i].ctype].tht==PT_LAVA)
