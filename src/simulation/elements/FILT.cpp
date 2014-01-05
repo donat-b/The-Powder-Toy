@@ -17,7 +17,7 @@
 
 int getWavelengths(particle* cpart)
 {
-	if (cpart->ctype)
+	if (cpart->ctype&0x3FFFFFFF)
 	{
 		return cpart->ctype;
 	}
