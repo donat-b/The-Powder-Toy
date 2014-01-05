@@ -1723,7 +1723,7 @@ int transfer_heat(int i, int surround[8])
 				c_heat = parts[i].temp*96.645/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight) + hv[y/CELL][x/CELL]*100*(pv[y/CELL][x/CELL]+273.15f)/256;
 				c_Cm = 96.645/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight) + 100*(pv[y/CELL][x/CELL]+273.15f)/256;
 				pt = c_heat/c_Cm;
-				pt = restrict_flt(pt, MIN_TEMP, MAX_TEMP);
+				pt = restrict_flt(pt, -MAX_TEMP+MIN_TEMP, MAX_TEMP-MIN_TEMP);
 				parts[i].temp = pt;
 				//Pressure increase from heat (temporary)
 				pv[y/CELL][x/CELL] += (pt-hv[y/CELL][x/CELL])*0.004;
@@ -1735,7 +1735,7 @@ int transfer_heat(int i, int surround[8])
 			else
 			{
 				c_heat = (hv[y/CELL][x/CELL]-parts[i].temp)*0.04;
-				c_heat = restrict_flt(c_heat, MIN_TEMP, MAX_TEMP);
+				c_heat = restrict_flt(c_heat, -MAX_TEMP+MIN_TEMP, MAX_TEMP-MIN_TEMP);
 				parts[i].temp += c_heat;
 				hv[y/CELL][x/CELL] -= c_heat;
 
