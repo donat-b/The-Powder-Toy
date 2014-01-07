@@ -2056,7 +2056,12 @@ int transfer_heat(int i, int surround[8])
 		}
 	}
 	else
+	{
+		if (!(bmap_blockairh[y/CELL][x/CELL]&0x8))
+			bmap_blockairh[y/CELL][x/CELL]++;
+
 		parts[i].temp = restrict_flt(parts[i].temp, MIN_TEMP, MAX_TEMP);
+	}
 	return t;
 }
 
@@ -2314,7 +2319,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 					}
 				}
 
-			if (!legacy_enable && ptypes[t].hconduct)
+			if (!legacy_enable)
 			{
 				t = transfer_heat(i, surround);
 				if (!t)
@@ -2999,7 +3004,7 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 				if (emap[y][x])
 					emap[y][x] --;
 				bmap_blockair[y][x] = (bmap[y][x]==WL_WALL || bmap[y][x]==WL_WALLELEC || (bmap[y][x]==WL_EWALL && !emap[y][x]));
-				bmap_blockairh[y][x] = (bmap[y][x]==WL_WALL || bmap[y][x]==WL_WALLELEC || bmap[y][x]==WL_GRAV || (bmap[y][x]==WL_EWALL && !emap[y][x]));
+				bmap_blockairh[y][x] = (bmap[y][x]==WL_WALL || bmap[y][x]==WL_WALLELEC || bmap[y][x]==WL_GRAV || (bmap[y][x]==WL_EWALL && !emap[y][x])) ? 0x8:0;
 			}
 		}
 	}
