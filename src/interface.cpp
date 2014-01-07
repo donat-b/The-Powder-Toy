@@ -1337,11 +1337,15 @@ void draw_svf_ui(pixel *vid_buf, int alternate)// all the buttons at the bottom
 	//the tags button
 	drawtext(vid_buf, 222, YRES+(MENUSIZE-15), "\x83", c, c, c, 255);
 	if (svf_tags[0])
-		drawtextmax(vid_buf, 240, YRES+(MENUSIZE-12), XRES+BARSIZE-405, svf_tags, c, c, c, 255);
+		drawtextmax(vid_buf, 240, YRES+(MENUSIZE-12), XRES+BARSIZE-421, svf_tags, c, c, c, 255);
 	else
 		drawtext(vid_buf, 240, YRES+(MENUSIZE-12), "[no tags set]", c, c, c, 255);
 
-	drawrect(vid_buf, 219, YRES+(MENUSIZE-16), XRES+BARSIZE-380, 14, c, c, c, 255);
+	drawrect(vid_buf, 219, YRES+(MENUSIZE-16), XRES+BARSIZE-396, 14, c, c, c, 255);
+
+	//Report bugs
+	drawtext(vid_buf, XRES+BARSIZE-173, YRES+(MENUSIZE-14), "\xE7", 255, 255, 255, 255);
+	drawrect(vid_buf, XRES+BARSIZE-175, YRES+(MENUSIZE-16), 14, 14, 255, 255, 255, 255);
 
 	//the clear sim button------------some of the commented values are wrong
 	drawtext(vid_buf, XRES-139+BARSIZE/*371*/, YRES+(MENUSIZE-14), "\x92", 255, 255, 255, 255);
@@ -4972,12 +4976,15 @@ finish:
 	return 0;
 }
 
-int report_ui(pixel* vid_buf, char *save_id)
+int report_ui(pixel* vid_buf, char *save_id, bool bug)
 {
 	int b=1,bq,mx,my;
 	ui_edit ed;
 	ui_edit_init(&ed, 209, 159, (XRES+BARSIZE-400)-18, (YRES+MENUSIZE-300)-36);
-	ed.def = "Report details";
+	if (bug)
+		ed.def = "Feedback";
+	else
+		ed.def = "Report details";
 	ed.focus = 0;
 	ed.multiline = 1;
 
@@ -5002,19 +5009,35 @@ int report_ui(pixel* vid_buf, char *save_id)
 		drawtext(vid_buf, 213, (YRES+MENUSIZE-150)-13, "Cancel", 255, 255, 255, 255);
 
 		drawrect(vid_buf, (XRES+BARSIZE-400)+150, (YRES+MENUSIZE-150)-18, 50, 18, 255, 255, 255, 255);
-		drawtext(vid_buf, (XRES+BARSIZE-400)+163, (YRES+MENUSIZE-150)-13, "Report", 255, 255, 255, 255);
+		if (bug)
+			drawtext(vid_buf, (XRES+BARSIZE-400)+163, (YRES+MENUSIZE-150)-13, "Send", 255, 255, 255, 255);
+		else
+			drawtext(vid_buf, (XRES+BARSIZE-400)+163, (YRES+MENUSIZE-150)-13, "Report", 255, 255, 255, 255);
 		if (mx>(XRES+BARSIZE-400)+150 && my>(YRES+MENUSIZE-150)-18 && mx<(XRES+BARSIZE-400)+200 && my<(YRES+MENUSIZE-150)) {
 			fillrect(vid_buf, (XRES+BARSIZE-400)+150, (YRES+MENUSIZE-150)-18, 50, 18, 255, 255, 255, 40);
-			if (b) {
-				if (execute_report(vid_buf, save_id, ed.str)) {
-					info_ui(vid_buf, "Success", "This save has been reported");
+			if (b)
+			{
+				int ret = 0;
+				if (bug)
+					ret = execute_bug(vid_buf, ed.str);
+				else
+					ret = execute_report(vid_buf, save_id, ed.str);
+				if (ret)
+				{
+					if (bug)
+						info_ui(vid_buf, "Success", "Feedback has been sent");
+					else
+						info_ui(vid_buf, "Success", "This save has been reported");
 					return 1;
-				} else {
+				}
+				else
+				{
 					return 0;
 				}
 			}
 		}
-		if (mx>200 && my>(YRES+MENUSIZE-150)-18 && mx<250 && my<(YRES+MENUSIZE-150)) {
+		if (mx>200 && my>(YRES+MENUSIZE-150)-18 && mx<250 && my<(YRES+MENUSIZE-150))
+		{
 			fillrect(vid_buf, 200, (YRES+MENUSIZE-150)-18, 50, 18, 255, 255, 255, 40);
 			if (b)
 				return 0;
@@ -5675,7 +5698,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				fillrect(vid_buf, 150, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
 				if (b && !bq) {
 					//Button Clicked
-					if (report_ui(vid_buf, save_id)) {
+					if (report_ui(vid_buf, save_id, false)) {
 						retval = 0;
 						break;
 					}
@@ -6642,6 +6665,33 @@ int execute_report(pixel *vid_buf, char *id, char *reason)
 	             names, parts, NULL,
 	             svf_user_id, /*svf_pass*/NULL, svf_session_id,
 	             &status, NULL);
+
+	if (status!=200)
+	{
+		error_ui(vid_buf, status, http_ret_text(status));
+		if (result)
+			free(result);
+		return 0;
+	}
+	if (result && strncmp(result, "OK", 2))
+	{
+		error_ui(vid_buf, 0, result);
+		free(result);
+		return 0;
+	}
+
+	if (result)
+		free(result);
+	return 1;
+}
+
+int execute_bug(pixel *vid_buf, char *feedback)
+{
+	int status;
+	char *result;
+
+	result = http_simple_post("http://" UPDATESERVERALT "/jacob1/bug.lua",
+					 feedback, strlen(feedback), &status, NULL);
 
 	if (status!=200)
 	{

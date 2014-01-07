@@ -2392,9 +2392,15 @@ int main(int argc, char *argv[])
 				if (da < 51)
 					da ++;
 			}
-			else if (x>=219 && x<=((XRES+BARSIZE-(510-349))) && svf_open)
+			else if (x>=219 && x<=((XRES+BARSIZE-(510-333))) && svf_open) //tags
 			{
 				db = svf_own ? 257 : 256;
+				if (da < 51)
+					da ++;
+			}
+			else if (x>=((XRES+BARSIZE-(510-335))) && x<((XRES+BARSIZE-(510-350)))) //bug reports
+			{
+				db = 279; // oh god, redo tooltips fast
 				if (da < 51)
 					da ++;
 			}
@@ -2654,8 +2660,11 @@ int main(int argc, char *argv[])
 							svf_myvote = -1;
 						}
 					}
-					if (x>=219 && x<=(XRES+BARSIZE-(510-349)) && svf_open)
+					//tags
+					if (x>=219 && x<=(XRES+BARSIZE-(510-333)) && svf_open)
 						tag_list_ui(vid_buf);
+					else if (x>=((XRES+BARSIZE-(510-335))) && x<((XRES+BARSIZE-(510-350))))
+						report_ui(vid_buf, NULL, true);
 					if (x>=(XRES+BARSIZE-(510-351)) && x<(XRES+BARSIZE-(510-366)) && !bq)
 					{
 						//legacy_enable = !legacy_enable;
@@ -3121,6 +3130,9 @@ int main(int argc, char *argv[])
 				break;
 			case 278: //Fix for Ctrl + X showing copy message
 				drawtext(vid_buf, 16, YRES-24, "Click-and-drag to specify a rectangle to copy and then cut (right click = cancel)", 255, 216, 32, da*5);
+				break;
+			case 279:
+				drawtext(vid_buf, 16, YRES-24, "Report bugs, feedback, or suggestions to jacob1", 255, 255, 255, da*5);
 				break;
 			default:
 				drawtext(vid_buf, 16, YRES-24, (char *)ptypes[db].descs, 255, 255, 255, da*5);

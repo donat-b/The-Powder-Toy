@@ -205,6 +205,7 @@ int main(int argc, char *argv[])
     }
 
     sdl_open();
+	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     while(!sdl_poll()) {
 	if(sdl_key=='q' || sdl_key==SDLK_ESCAPE)
 	    break;

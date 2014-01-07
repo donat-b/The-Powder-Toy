@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
     FILE *f;
     int i;
 
-    for(i=0; i<sizeof(font_ptrs)/sizeof(short); i++)
+    for(i=0; i<sizeof(short)/sizeof(short); i++)
 	load_char(i);
 
     f = fopen("font.bin", "w");
