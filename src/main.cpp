@@ -1332,9 +1332,9 @@ int main(int argc, char *argv[])
 		//Pretty powders, colour cycle
 		//sandcolour_r = 0;
 		//sandcolour_g = 0;
-		sandcolour_b = sandcolour_r = sandcolour_g = (int)(20.0f*sin((float)sandcolour_frame*(M_PI/180.0f)));
-		sandcolour_frame++;
-		sandcolour_frame%=360;
+		sandcolor = (int)(20.0f*sin((float)sandcolor_frame*(M_PI/180.0f)));
+		sandcolor_frame++;
+		sandcolor_frame%=360;
 
 #ifdef OGLR
 		part_vbuf = vid_buf;

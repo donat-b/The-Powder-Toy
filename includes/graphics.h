@@ -73,10 +73,8 @@ extern int sdl_scale;
 extern int savedWindowX;
 extern int savedWindowY;
 
-extern int sandcolour_r;
-extern int sandcolour_g;
-extern int sandcolour_b;
-extern int sandcolour_frame;
+extern int sandcolor;
+extern int sandcolor_frame;
 
 extern unsigned char fire_r[YRES/CELL][XRES/CELL];
 extern unsigned char fire_g[YRES/CELL][XRES/CELL];
