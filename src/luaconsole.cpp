@@ -709,9 +709,6 @@ int luacon_element_getproperty(char * key, int * format, unsigned int * modified
 int luacon_elementread(lua_State* l)
 {
 	int format, offset;
-	char * tempstring;
-	int tempinteger;
-	float tempfloat;
 	int i;
 	char * key = mystrdup((char*)luaL_optstring(l, 2, ""));
 	offset = luacon_element_getproperty(key, &format, NULL);
@@ -736,8 +733,6 @@ int luacon_elementread(lua_State* l)
 int luacon_elementwrite(lua_State* l)
 {
 	int format, offset;
-	int tempinteger;
-	float tempfloat;
 	int i;
 	unsigned int modified_stuff = 0;
 	char * key = mystrdup((char*)luaL_optstring(l, 2, ""));
@@ -764,12 +759,6 @@ int luacon_elementwrite(lua_State* l)
 		//Convert to upper case
 		for(j = 0; j < strlen(tempstring); j++)
 			tempstring[j] = toupper(tempstring[j]);
-		if(strlen(tempstring) > 4)
-		{
-			free(tempstring);
-			free(key);
-			return luaL_error(l, "Name too long");
-		}
 		if(console_parse_type(tempstring, NULL, NULL))
 		{
 			free(tempstring);
