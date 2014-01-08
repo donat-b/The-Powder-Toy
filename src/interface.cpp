@@ -4119,9 +4119,10 @@ char *download_ui(pixel *vid_buf, char *uri, int *len)
 	int done, total, i, ret, zlen, ulen;
 	char str[16], *tmp, *res;
 	
-	//if (svf_login) {
-	//	http_auth_headers(http, svf_user_id, NULL, svf_session_id);
-	//}
+	if (svf_login)
+	{
+		http_auth_headers(http, svf_user, NULL, NULL);
+	}
 
 	while (!http_async_req_status(http))
 	{
@@ -6694,9 +6695,15 @@ int execute_bug(pixel *vid_buf, char *feedback)
 {
 	int status;
 	char *result;
+	std::string bug = "bug=";
+	bug.append(URLEncode(feedback));
 
-	result = http_simple_post("http://" UPDATESERVERALT "/jacob1/bug.lua",
-					 feedback, strlen(feedback), &status, NULL);
+	void *http = http_async_req_start(NULL, "http://" UPDATESERVER "/jacob1/bug.lua", (char*)bug.c_str(), bug.length(), 0);
+	if (svf_login)
+	{
+		http_auth_headers(http, svf_user, NULL, NULL);
+	}
+	result = http_async_req_stop(http, &status, NULL);
 
 	if (status!=200)
 	{

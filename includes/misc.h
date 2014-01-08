@@ -96,6 +96,8 @@ int is_DECOTOOL(int t);
 class Tool;
 Tool* GetToolFromIdentifier(std::string identifier);
 
+std::string URLEncode(std::string source);
+
 void membwand(void * dest, void * src, size_t destsize, size_t srcsize);
 // a b
 // c d

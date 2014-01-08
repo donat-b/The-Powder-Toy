@@ -352,9 +352,9 @@ void Simulation::CreateWall(int x, int y, int wall)
 		fvx[y][x] = 0.0f;
 		fvy[y][x] = 0.0f;
 	}
+	//streamlines can't be drawn next to each other
 	else if (wall == WL_STREAM)
 	{
-		//streamlines can't be drawn next to each other
 		for (int tempY = y-1; tempY <= y+1; tempY++)
 			for (int tempX = x-1; tempX <= x+1; tempX++)
 			{
