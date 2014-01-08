@@ -8,8 +8,9 @@
 #include "powder.h"
 
 #include "game/Menus.h"
-#include "simulation/Tool.h"
 #include "simulation/Simulation.h"
+#include "simulation/Tool.h"
+#include "simulation/WallNumbers.h"
 
 char uitext[512] = "";
 char heattext[256] = "";
@@ -115,7 +116,7 @@ void SetRightHudText(int x, int y)
 			}
 			else if (wl && currentHud[48])
 			{
-				sprintf(nametext, "%s, ", wtypes[wl-UI_ACTUALSTART].name);
+				sprintf(nametext, "%s, ", wallTypes[wl].name.c_str());
 			}
 			else
 				sprintf(nametext,"");
@@ -180,7 +181,7 @@ void SetRightHudText(int x, int y)
 		}
 		else if (wl && currentHud[48])
 		{
-			sprintf(heattext, "%s, ", wtypes[wl-UI_ACTUALSTART].name);
+			sprintf(heattext, "%s, ", wallTypes[wl].name.c_str());
 		}
 		else
 		{

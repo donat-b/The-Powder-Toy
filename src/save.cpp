@@ -26,8 +26,9 @@
 #include "interface.h"
 
 #include "game/Menus.h"
-#include "simulation/Tool.h"
 #include "simulation/Simulation.h"
+#include "simulation/Tool.h"
+#include "simulation/WallNumbers.h"
 #include "simulation/elements/FIGH.h"
 
 int saveversion;
@@ -226,35 +227,35 @@ int change_wall(int wt)
 
 int change_wallpp(int wt)
 {
-	if (wt == 1)
+	if (wt == O_WL_WALLELEC)
 		return WL_WALLELEC;
-	else if (wt == 2)
+	else if (wt == O_WL_EWALL)
 		return WL_EWALL;
-	else if (wt == 3)
+	else if (wt == O_WL_DETECT)
 		return WL_DETECT;
-	else if (wt == 4)
+	else if (wt == O_WL_STREAM)
 		return WL_STREAM;
-	else if (wt == 5)
+	else if (wt == O_WL_FAN)
 		return WL_FAN;
-	else if (wt == 6)
+	else if (wt == O_WL_ALLOWLIQUID)
 		return WL_ALLOWLIQUID;
-	else if (wt == 7)
+	else if (wt == O_WL_DESTROYALL)
 		return WL_DESTROYALL;
-	else if (wt == 8)
+	else if (wt == O_WL_WALL)
 		return WL_WALL;
-	else if (wt == 9)
+	else if (wt == O_WL_ALLOWAIR)
 		return WL_ALLOWAIR;
-	else if (wt == 10)
+	else if (wt == O_WL_ALLOWSOLID)
 		return WL_ALLOWSOLID;
-	else if (wt == 11)
+	else if (wt == O_WL_ALLOWALLELEC)
 		return WL_ALLOWALLELEC;
-	else if (wt == 12)
+	else if (wt == O_WL_EHOLE)
 		return WL_EHOLE;
-	else if (wt == 13)
+	else if (wt == O_WL_ALLOWGAS)
 		return WL_ALLOWGAS;
-	else if (wt == 14)
+	else if (wt == O_WL_GRAV)
 		return WL_GRAV;
-	else if (wt == 15)
+	else if (wt == O_WL_ALLOWENERGY)
 		return WL_ALLOWENERGY;
 	return wt;
 }
@@ -411,27 +412,27 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 				if(wallData[y*blockW+x])
 				{
 					wt = change_wallpp(wallData[y*blockW+x]);
-					pc = wtypes[wt-UI_ACTUALSTART].colour;
-					gc = wtypes[wt-UI_ACTUALSTART].eglow;
-					if (wtypes[wt-UI_ACTUALSTART].drawstyle==1)
+					pc = wallTypes[wt].colour;
+					gc = wallTypes[wt].eglow;
+					if (wallTypes[wt].drawstyle==1)
 					{
 						for (i=0; i<CELL; i+=2)
 							for (j=(i>>1)&1; j<CELL; j+=2)
 								vidBuf[(fullY+i+(y*CELL))*fullW+(fullX+j+(x*CELL))] = pc;
 					}
-					else if (wtypes[wt-UI_ACTUALSTART].drawstyle==2)
+					else if (wallTypes[wt].drawstyle==2)
 					{
 						for (i=0; i<CELL; i+=2)
 							for (j=0; j<CELL; j+=2)
 								vidBuf[(fullY+i+(y*CELL))*fullW+(fullX+j+(x*CELL))] = pc;
 					}
-					else if (wtypes[wt-UI_ACTUALSTART].drawstyle==3)
+					else if (wallTypes[wt].drawstyle==3)
 					{
 						for (i=0; i<CELL; i++)
 							for (j=0; j<CELL; j++)
 								vidBuf[(fullY+i+(y*CELL))*fullW+(fullX+j+(x*CELL))] = pc;
 					}
-					else if (wtypes[wt-UI_ACTUALSTART].drawstyle==4)
+					else if (wallTypes[wt].drawstyle==4)
 					{
 						for (i=0; i<CELL; i++)
 							for (j=0; j<CELL; j++)
@@ -2402,29 +2403,31 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 		for (x=0; x<bw; x++)
 		{
 			int wt = change_wall(d[p]);
+			if (c[4] >= 44)
+				wt = change_wallpp(wt);
 			rx = x*CELL;
 			ry = y*CELL;
-			pc = wtypes[wt-UI_ACTUALSTART].colour;
-			gc = wtypes[wt-UI_ACTUALSTART].eglow;
-			if (wtypes[wt-UI_ACTUALSTART].drawstyle==1)
+			pc = wallTypes[wt].colour;
+			gc = wallTypes[wt].eglow;
+			if (wallTypes[wt].drawstyle==1)
 			{
 				for (i=0; i<CELL; i+=2)
 					for (j=(i>>1)&1; j<CELL; j+=2)
 						fb[(i+ry)*w+(j+rx)] = pc;
 			}
-			else if (wtypes[wt-UI_ACTUALSTART].drawstyle==2)
+			else if (wallTypes[wt].drawstyle==2)
 			{
 				for (i=0; i<CELL; i+=2)
 					for (j=0; j<CELL; j+=2)
 						fb[(i+ry)*w+(j+rx)] = pc;
 			}
-			else if (wtypes[wt-UI_ACTUALSTART].drawstyle==3)
+			else if (wallTypes[wt].drawstyle==3)
 			{
 				for (i=0; i<CELL; i++)
 					for (j=0; j<CELL; j++)
 						fb[(i+ry)*w+(j+rx)] = pc;
 			}
-			else if (wtypes[wt-UI_ACTUALSTART].drawstyle==4)
+			else if (wallTypes[wt].drawstyle==4)
 			{
 				for (i=0; i<CELL; i++)
 					for (j=0; j<CELL; j++)
@@ -2765,9 +2768,11 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 
 				//TODO: if wall id's are changed look at https://github.com/simtr/The-Powder-Toy/commit/02a4c17d72def847205c8c89dacabe9ecdcb0dab
 				//for now, old saves shouldn't have id's this large
-				if (ver < 44 && bmap[y][x] >= UI_ACTUALSTART)
+				if (ver < 44 && bmap[y][x] >= 122)
 					bmap[y][x] = 0;
 				bmap[y][x] = change_wall(d[p]);
+				if (ver >= 44)
+					bmap[y][x] = change_wallpp(bmap[y][x]);
 			}
 
 			p++;

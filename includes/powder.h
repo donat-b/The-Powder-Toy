@@ -38,7 +38,11 @@
 #define BRUSH_REPLACEMODE 0x1
 #define BRUSH_SPECIFIC_DELETE 0x2
 
-#define UI_WALLSTART 222
+//#define OLD_SPC_AIR 236
+//#define SPC_AIR 256
+
+
+/*#define UI_WALLSTART 222
 #define UI_ACTUALSTART 122
 #define UI_WALLCOUNT 31
 
@@ -60,7 +64,8 @@
 #define WL_ALLOWGAS	140
 #define WL_GRAV		142
 #define WL_ALLOWENERGY 145
-#define WL_ERASEALL 147
+#define WL_ERASEALL 147*/
+#define WL_SIGN	126
 
 #define OLD_SPC_AIR 236
 #define SPC_HEAT 236
@@ -595,7 +600,6 @@ void clear_area(int area_x, int area_y, int area_w, int area_h);
 void create_box(int x1, int y1, int x2, int y2, int c, int flags);
 
 int FloodParts(int x, int y, int fullc, int cm, int flags);
-int FloodWalls(int x, int y, int wall, int bm, int flags);
 
 int INST_flood_spark(Simulation *sim, int x, int y);
 
@@ -610,7 +614,9 @@ int create_parts2(int f, int x, int y, int c, int rx, int ry, int flags);
 void create_line(int x1, int y1, int x2, int y2, int rx, int ry, int c, int flags);
 
 void orbitalparts_get(int block1, int block2, int resblock1[], int resblock2[]);
-
 void orbitalparts_set(int *block1, int *block2, int resblock1[], int resblock2[]);
+
+void draw_bframe();
+void erase_bframe();
 
 #endif

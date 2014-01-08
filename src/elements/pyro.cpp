@@ -13,7 +13,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <element.h>
+#include "simulation/ElementsCommon.h"
 
 int update_PYRO(UPDATE_FUNC_ARGS)
 {

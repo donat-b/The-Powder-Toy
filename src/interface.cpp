@@ -63,6 +63,7 @@
 
 #include "game/Menus.h"
 #include "simulation/Tool.h"
+#include "simulation/WallNumbers.h"
 
 SDLMod sdl_mod;
 int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii, sdl_zoom_trig=0;
@@ -176,11 +177,11 @@ void menu_count()
 	{
 		menuSections[SC_LIFE]->AddTool(new Tool(GOL_TOOL, i, "DEFAULT_PT_LIFE_" + std::string(gmenu[i].name)));
 	}
-	for (int i = UI_WALLSTART; i < UI_WALLSTART+UI_WALLCOUNT; i++)
+	for (int i = 0; i < UI_WALLCOUNT; i++)
 	{
 		//TODO, deco / tool identifiers are wrong
 		std::stringstream identifier;
-		identifier << "DEFAULT_WL_" << i-UI_WALLSTART;
+		identifier << "DEFAULT_WL_" << i;
 		if (!is_TOOL(i) && !is_DECOTOOL(i))
 		{
 			menuSections[SC_WALL]->AddTool(new Tool(WALL_TOOL, i, identifier.str()));
@@ -3260,9 +3261,13 @@ void menu_draw_text(Tool* lastOver, int i)
 	{
 		drawtext(vid_buf, XRES-textwidth((char *)colorlist[toolID-DECO_PRESET_START].descs)-BARSIZE, sy-10, (char *)colorlist[toolID-DECO_PRESET_START].descs, 255, 255, 255, dae*5);
 	}
+	else if (lastOver->GetType() == WALL_TOOL)
+	{
+		drawtext(vid_buf, XRES-textwidth((char *)wallTypes[toolID].descs.c_str())-BARSIZE, sy-10, (char *)wallTypes[toolID].descs.c_str(), 255, 255, 255, dae*5);
+	}
 	else //if (lastOver->GetType() == WALL_TOOL)
 	{
-		drawtext(vid_buf, XRES-textwidth((char *)wtypes[toolID-UI_WALLSTART].descs)-BARSIZE, sy-10, (char *)wtypes[toolID-UI_WALLSTART].descs, 255, 255, 255, dae*5);
+		drawtext(vid_buf, XRES-textwidth((char *)wtypes[toolID].descs)-BARSIZE, sy-10, (char *)wtypes[toolID].descs, 255, 255, 255, dae*5);
 	}
 }
 

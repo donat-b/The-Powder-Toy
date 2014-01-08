@@ -635,6 +635,7 @@ glitchy.
 ------------------------------------------------------------------------------
 -------------------------------------Bugs-------------------------------------
 ------------------------------------------------------------------------------
+TODO: get internet and figure out //TODO: if wall id's are changed look at https://github.com/simtr/The-Powder-Toy/commit/02a4c17d72def847205c8c89dacabe9ecdcb0dab
 wall id's don't match with tpt++ in lua
 figure out why STKM die if comm/pcomm aren't reset
 STKM(AIR) is weak

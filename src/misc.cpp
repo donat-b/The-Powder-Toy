@@ -135,36 +135,6 @@ void clean_text(char *text, int vwidth)
 	}
 }
 
-void draw_bframe()
-{
-	int i;
-	for(i=0; i<(XRES/CELL); i++)
-	{
-		bmap[0][i]=WL_WALL;
-		bmap[YRES/CELL-1][i]=WL_WALL;
-	}
-	for(i=1; i<((YRES/CELL)-1); i++)
-	{
-		bmap[i][0]=WL_WALL;
-		bmap[i][XRES/CELL-1]=WL_WALL;
-	}
-}
-
-void erase_bframe()
-{
-	int i;
-	for(i=0; i<(XRES/CELL); i++)
-	{
-		bmap[0][i]=0;
-		bmap[YRES/CELL-1][i]=0;
-	}
-	for(i=1; i<((YRES/CELL)-1); i++)
-	{
-		bmap[i][0]=0;
-		bmap[i][XRES/CELL-1]=0;
-	}
-}
-
 void save_console_history(cJSON **historyArray, command_history *commandList)
 {
 	if (!commandList)

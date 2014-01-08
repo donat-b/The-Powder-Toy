@@ -16,10 +16,11 @@
  */
 
 #include <math.h>
-#include <air.h>
-#include <powder.h>
-#include <defines.h>
+#include "air.h"
+#include "powder.h"
+#include "defines.h"
 #include "gravity.h"
+#include "simulation/WallNumbers.h"
 
 float kernel[9];
 

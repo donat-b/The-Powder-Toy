@@ -20,6 +20,7 @@
 
 #include <cmath>
 #include "simulation/ElementNumbers.h"
+#include "simulation/WallNumbers.h"
 #include "simulation/Element.h"
 #include "simulation/Simulation.h"
 

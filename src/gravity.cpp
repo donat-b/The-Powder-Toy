@@ -21,6 +21,7 @@
 #include "defines.h"
 #include "gravity.h"
 #include "powder.h"
+#include "simulation/WallNumbers.h"
 
 #ifdef GRAVFFT
 #include <fftw3.h>

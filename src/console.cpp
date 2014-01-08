@@ -19,6 +19,7 @@
 #include "interface.h"
 #include "powder.h"
 #include "console.h"
+#include "simulation/WallNumbers.h"
 
 char console_more=0;
 int file_script = 0;
@@ -57,9 +58,9 @@ int console_parse_wall_type(const char *txt, int *wall)
 {
 	int i;
 	for (i=0; i<UI_WALLCOUNT; i++) {
-		if (strcasecmp(txt,wtypes[i].name)==0 && (wtypes[i].drawstyle != -1 || secret_els))
+		if (strcasecmp(txt,wallTypes[i].name.c_str())==0 && (wallTypes[i].drawstyle != -1 || secret_els))
 		{
-			*wall = i+UI_ACTUALSTART;
+			*wall = i;
 			return 1;
 		}
 	}

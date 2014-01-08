@@ -61,6 +61,7 @@
 #include "game/Menus.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
+#include "simulation/WallNumbers.h"
 #include "simulation/elements/FIGH.h"
 
 //unsigned cmode = CM_FIRE;
@@ -756,9 +757,9 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 	}
 	else if (current->GetType() == WALL_TOOL)
 	{
-		int ds = wtypes[current->GetID()-UI_WALLSTART].drawstyle;
-		pixel color = wtypes[current->GetID()-UI_WALLSTART].colour;
-		pixel glowColor = wtypes[current->GetID()-UI_WALLSTART].eglow;
+		int ds = wallTypes[current->GetID()].drawstyle;
+		pixel color = wallTypes[current->GetID()].colour;
+		pixel glowColor = wallTypes[current->GetID()].eglow;
 		
 		if (ds==1)
 		{
@@ -792,7 +793,7 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 		else
 		switch (current->GetID())
 		{
-		case WL_WALLELEC+100:
+		case WL_WALLELEC:
 			for (j=1; j<15; j++)
 			{
 				for (i=1; i<27; i++)
@@ -808,7 +809,7 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 				}
 			}
 			break;
-		case WL_EWALL+100:
+		case WL_EWALL:
 			for (j=1; j<15; j++)
 			{
 				for (i=1; i<6+j; i++)
@@ -827,7 +828,7 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 				}
 			}
 			break;
-		case WL_STREAM+100:
+		case WL_STREAM:
 			for (j=1; j<15; j++)
 			{
 				for (i=1; i<27; i++)
@@ -841,7 +842,7 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 				drawpixel(vid_buf, x+i, y+8+(int)(3.9f*cos(i*0.3f)), 255, 255, 255, 255);
 			}
 			break;
-		case WL_SIGN+100:
+		case WL_SIGN:
 			for (j=1; j<15; j++)
 			{
 				for (i=1; i<27; i++)
@@ -852,7 +853,7 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 			drawtext(vid_buf, x+9, y+3, "\xA1", 32, 64, 128, 255);
 			drawtext(vid_buf, x+9, y+3, "\xA0", 255, 255, 255, 255);
 			break;
-		case WL_ERASE+100:
+		case WL_ERASE:
 			for (j=1; j<15; j+=2)
 			{
 				for (i=1+(1&(j>>1)); i<13; i+=2)
@@ -867,8 +868,17 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = color;
 				}
 			}
+
+			//X in middle
+			for (j=4; j<12; j++)
+			{
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+6)] = PIXPACK(0xFF0000);
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+7)] = PIXPACK(0xFF0000);
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+21)] = PIXPACK(0xFF0000);
+				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+22)] = PIXPACK(0xFF0000);
+			}
 			break;
-		case WL_ERASEALL+100:
+		case WL_ERASEALL:
 			for (j=1; j<15; j++)
 			{
 				int r = 100, g = 150, b = 50;
@@ -888,22 +898,8 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(rc, gc, bc);
 				}
 			}
-			break;
-		default:
-			draw_tool_button(vid_buf, x, y, color, "");
-		}
-		if (current->GetID()==WL_ERASE+100)
-		{
-			for (j=4; j<12; j++)
-			{
-				vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+6)] = PIXPACK(0xFF0000);
-				vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+7)] = PIXPACK(0xFF0000);
-				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+21)] = PIXPACK(0xFF0000);
-				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+22)] = PIXPACK(0xFF0000);
-			}
-		}
-		if (current->GetID()==WL_ERASEALL+100)
-		{
+
+			//double X in middle
 			for (j=4; j<12; j++)
 			{
 				vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+0)] = PIXPACK(0xFF0000);
@@ -916,15 +912,18 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+26)] = PIXPACK(0xFF0000);
 				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+27)] = PIXPACK(0xFF0000);
 			}
+			break;
+		default:
+			draw_tool_button(vid_buf, x, y, color, "");
 		}
 	}
 	else if (current->GetType() == TOOL_TOOL)
 	{
-		draw_tool_button(vid_buf, x, y, wtypes[current->GetID()-UI_WALLSTART].colour, wtypes[current->GetID()-UI_WALLSTART].name);
+		draw_tool_button(vid_buf, x, y, wtypes[current->GetID()].colour, wtypes[current->GetID()].name);
 	}
 	else if (current->GetType() == DECO_TOOL)
 	{
-		pixel color = wtypes[current->GetID()-UI_WALLSTART].colour;
+		pixel color = wtypes[current->GetID()].colour;
 		for (j=1; j<15; j++)
 		{
 			for (i=1; i<27; i++)
@@ -3726,25 +3725,25 @@ void draw_walls(pixel *vid)
 		for (x=0; x<XRES/CELL; x++)
 			if (bmap[y][x])
 			{
-				wt = bmap[y][x]-UI_ACTUALSTART;
+				wt = bmap[y][x];
 				if (wt<0 || wt>=UI_WALLCOUNT)
 					continue;
-				pc = wtypes[wt].colour;
-				gc = wtypes[wt].eglow;
+				pc = wallTypes[wt].colour;
+				gc = wallTypes[wt].eglow;
 
 				if (finding)
 				{
-					if ((finding & 0x1) && wt == activeTools[0]->GetWallID()-UI_WALLSTART)
+					if ((finding & 0x1) && wt == activeTools[0]->GetWallID())
 					{
 						pc = PIXRGB(255,0,0);
 						gc = PIXRGB(255,0,0);
 					}
-					else if ((finding & 0x2) && wt == activeTools[1]->GetWallID()-UI_WALLSTART)
+					else if ((finding & 0x2) && wt == activeTools[1]->GetWallID())
 					{
 						pc = PIXRGB(0,0,255);
 						gc = PIXRGB(0,0,255);
 					}
-					else if ((finding & 0x4) && wt == activeTools[2]->GetWallID()-UI_WALLSTART)
+					else if ((finding & 0x4) && wt == activeTools[2]->GetWallID())
 					{
 						pc = PIXRGB(0,255,0);
 						gc = PIXRGB(0,255,0);
@@ -3757,25 +3756,25 @@ void draw_walls(pixel *vid)
 				}
 
 				// standard wall patterns
-				if (wtypes[wt].drawstyle==1)
+				if (wallTypes[wt].drawstyle==1)
 				{
 					for (j=0; j<CELL; j+=2)
 						for (i=(j>>1)&1; i<CELL; i+=2)
 							vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = pc;
 				}
-				else if (wtypes[wt].drawstyle==2)
+				else if (wallTypes[wt].drawstyle==2)
 				{
 					for (j=0; j<CELL; j+=2)
 						for (i=0; i<CELL; i+=2)
 							vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = pc;
 				}
-				else if (wtypes[wt].drawstyle==3 || (wtypes[wt].drawstyle==-1 && secret_els))
+				else if (wallTypes[wt].drawstyle==3 || (wallTypes[wt].drawstyle==-1 && secret_els))
 				{
 					for (j=0; j<CELL; j++)
 						for (i=0; i<CELL; i++)
 							vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = pc;
 				}
-				else if (wtypes[wt].drawstyle==4)
+				else if (wallTypes[wt].drawstyle==4)
 				{
 					for (j=0; j<CELL; j++)
 						for (i=0; i<CELL; i++)
@@ -3837,25 +3836,25 @@ void draw_walls(pixel *vid)
 				if (render_mode & PMODE_BLOB)
 				{
 					// when in blob view, draw some blobs...
-					if (wtypes[wt].drawstyle==1)
+					if (wallTypes[wt].drawstyle==1)
 					{
 						for (j=0; j<CELL; j+=2)
 							for (i=(j>>1)&1; i<CELL; i+=2)
 								drawblob(vid, (x*CELL+i), (y*CELL+j), PIXR(pc), PIXG(pc), PIXB(pc));
 					}
-					else if (wtypes[wt].drawstyle==2)
+					else if (wallTypes[wt].drawstyle==2)
 					{
 						for (j=0; j<CELL; j+=2)
 							for (i=0; i<CELL; i+=2)
 								drawblob(vid, (x*CELL+i), (y*CELL+j), PIXR(pc), PIXG(pc), PIXB(pc));
 					}
-					else if (wtypes[wt].drawstyle==3)
+					else if (wallTypes[wt].drawstyle==3)
 					{
 						for (j=0; j<CELL; j++)
 							for (i=0; i<CELL; i++)
 								drawblob(vid, (x*CELL+i), (y*CELL+j), PIXR(pc), PIXG(pc), PIXB(pc));
 					}
-					else if (wtypes[wt].drawstyle==4)
+					else if (wallTypes[wt].drawstyle==4)
 					{
 						for (j=0; j<CELL; j++)
 							for (i=0; i<CELL; i++)
@@ -3913,7 +3912,7 @@ void draw_walls(pixel *vid)
 						}
 					}
 				}
-				if (wtypes[wt].eglow && emap[y][x])
+				if (wallTypes[wt].eglow && emap[y][x])
 				{
 					// glow if electrified
 					pc = wtypes[wt].eglow;

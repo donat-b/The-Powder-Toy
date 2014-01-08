@@ -14,6 +14,7 @@
  */
 
 #include "powder.h"
+#include "gravity.h"
 #include "misc.h"
 #include "simulation/Element.h"
 #include "simulation/ElementDataContainer.h"
@@ -24,6 +25,7 @@
 #define ElementNumbers_Include_Decl
 #define DEFINE_ELEMENT(name, id) void name ## _init_element(ELEMENT_INIT_FUNC_ARGS);
 #include "simulation/ElementNumbers.h"
+#include "simulation/WallNumbers.h"
 
 
 Simulation *globalSim = NULL; // TODO: remove this global variable
@@ -338,6 +340,179 @@ bool Simulation::spark_conductive_attempt(int i, int x, int y)
 	return false;
 }
 
+//Functions for creating parts, walls, tools, and deco
+void Simulation::CreateWall(int x, int y, int wall)
+{
+	if (x < 0 || y < 0 || x >= XRES/CELL || y >= YRES/CELL)
+		return;
+
+	//reset fan velocity, as if new fan walls had been created
+	if (wall == WL_FAN)
+	{
+		fvx[y][x] = 0.0f;
+		fvy[y][x] = 0.0f;
+	}
+	else if (wall == WL_STREAM)
+	{
+		//streamlines can't be drawn next to each other
+		for (int tempY = y-1; tempY <= y+1; tempY++)
+			for (int tempX = x-1; tempX <= x+1; tempX++)
+			{
+				if (tempX >= 0 && tempX < XRES/CELL && tempY >= 0 && tempY < YRES/CELL && bmap[tempY][tempX] == WL_STREAM)
+					return;
+			}
+	}
+	else if (wall == WL_ERASEALL)
+	{
+		for (int i = 0; i < CELL; i++)
+			for (int j = 0; j < CELL; j++)
+			{
+				delete_part(x*CELL+i, y*CELL+j, 0);
+			}
+		for (int i = 0; i < MAXSIGNS; i++)
+			if (signs[i].text[0])
+			{
+				if (signs[i].x >= x*CELL && signs[i].y >= y*CELL && signs[i].x <= (x+1)*CELL && signs[i].y <= (y+1)*CELL)
+					signs[i].text[0] = 0;
+			}
+		wall = 0;
+	}
+	if (wall == WL_GRAV || bmap[y][x] == WL_GRAV)
+		gravwl_timeout = 60;
+	bmap[y][x] = wall;
+}
+
+void Simulation::CreateWallLine(int x1, int y1, int x2, int y2, int rx, int ry, int wall)
+{
+	int x, y, dx, dy, sy;
+	bool reverseXY = abs(y2-y1) > abs(x2-x1);
+	float e = 0.0f, de;
+	if (reverseXY)
+	{
+		y = x1;
+		x1 = y1;
+		y1 = y;
+		y = x2;
+		x2 = y2;
+		y2 = y;
+	}
+	if (x1 > x2)
+	{
+		y = x1;
+		x1 = x2;
+		x2 = y;
+		y = y1;
+		y1 = y2;
+		y2 = y;
+	}
+	dx = x2 - x1;
+	dy = abs(y2 - y1);
+	if (dx)
+		de = dy/(float)dx;
+	else
+		de = 0.0f;
+	y = y1;
+	sy = (y1<y2) ? 1 : -1;
+	for (x=x1; x<=x2; x++)
+	{
+		if (reverseXY)
+			CreateWallBox(y, x, y+ry, x+rx, wall);
+		else
+			CreateWallBox(x, y, x+rx, y+ry, wall);
+		e += de;
+		if (e >= 0.5f)
+		{
+			y += sy;
+			if (!(rx+ry) && ((y1<y2) ? (y<=y2) : (y>=y2)))
+			{
+				if (reverseXY)
+					CreateWallBox(y, x, y+ry, x+rx, wall);
+				else
+					CreateWallBox(x, y, x+rx, y+ry, wall);
+			}
+			e -= 1.0f;
+		}
+	}
+}
+
+void Simulation::CreateWallBox(int x1, int y1, int x2, int y2, int wall)
+{
+	if (x1 > x2)
+	{
+		int temp = x2;
+		x2 = x1;
+		x1 = temp;
+	}
+	if (y1 > y2)
+	{
+		int temp = y2;
+		y2 = y1;
+		y1 = temp;
+	}
+	for (int i = x1; i <= x2; i++)
+		for (int j = y1; j <= y2; j++)
+			CreateWall(i, j, wall);
+}
+
+int Simulation::FloodWalls(int x, int y, int wall, int replace)
+{
+	int x1, x2;
+	if (wall == SPC_PROP)
+		return flood_prop(x*CELL, y*CELL, prop_offset, prop_value, prop_format);
+	if (replace == -1)
+	{
+		if (wall==WL_ERASE || wall==WL_ERASEALL)
+		{
+			replace = bmap[y][x];
+			if (!replace)
+				return 0;
+		}
+		else
+			replace = 0;
+	}
+
+	if (bmap[y][x] != replace)
+		return 1;
+
+	// go left as far as possible
+	x1 = x2 = x;
+	while (x1 >= 1)
+	{
+		if (bmap[y][x1-1] != replace)
+		{
+			break;
+		}
+		x1--;
+	}
+	while (x2 < XRES/CELL-1)
+	{
+		if (bmap[y][x2+1] != replace)
+		{
+			break;
+		}
+		x2++;
+	}
+
+	// fill span
+	for (x=x1; x<=x2; x++)
+	{
+		CreateWall(x, y, wall);
+	}
+	// fill children
+	if (y >= 1)
+		for (x=x1; x<=x2; x++)
+			if (bmap[y-1][x] == replace)
+				if (!FloodWalls(x, y-1, wall, replace))
+					return 0;
+	if (y < YRES/CELL-1)
+		for (x=x1; x<=x2; x++)
+			if (bmap[y+1][x] == replace)
+				if (!FloodWalls(x, y+1, wall, replace))
+					return 0;
+	return 1;
+}
+
+//This is not part of the simulation class
 void Simulation_Compat_CopyData(Simulation* sim)
 {
 	// TODO: this can be removed once all the code uses Simulation instead of global variables

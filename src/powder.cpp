@@ -28,8 +28,9 @@
 #endif
 
 #include "game/Brush.h"
-#include "simulation/Tool.h"
 #include "simulation/Simulation.h"
+#include "simulation/Tool.h"
+#include "simulation/WallNumbers.h"
 #include "simulation/ElementDataContainer.h"
 #include "simulation/elements/PRTI.h"
 
@@ -3225,7 +3226,7 @@ int FloodParts(int x, int y, int fullc, int cm, int flags)
 			if(!cm && !(cm = photons[y][x]&0xFF))
 			{
 				if (bmap[y/CELL][x/CELL])
-					return FloodWalls(x, y, WL_ERASE+100, -1, flags);
+					return globalSim->FloodWalls(x/CELL, y/CELL, WL_ERASE, -1);
 				else
 					return -1;
 				if ((flags&BRUSH_REPLACEMODE) && activeTools[2]->GetElementID() != cm)
@@ -3309,65 +3310,6 @@ int FloodParts(int x, int y, int fullc, int cm, int flags)
 	return created_something;
 }
 
-int FloodWalls(int x, int y, int wall, int bm, int flags)
-{
-	int x1, x2, dy = CELL;
-	if (wall == SPC_PROP)
-		return flood_prop(x, y, prop_offset, prop_value, prop_format);
-	if (bm==-1)
-	{
-		if (wall-UI_WALLSTART+UI_ACTUALSTART==WL_ERASE || wall-UI_WALLSTART+UI_ACTUALSTART==WL_ERASEALL)
-		{
-			bm = bmap[y/CELL][x/CELL];
-			if (!bm)
-				return 0;
-		}
-		else
-			bm = 0;
-	}
-
-	if (bmap[y/CELL][x/CELL] != bm || ((flags&BRUSH_SPECIFIC_DELETE) && activeTools[2]->GetWallID() != bm))
-		return 1;
-
-	// go left as far as possible
-	x1 = x2 = x;
-	while (x1>=CELL)
-	{
-		if (bmap[y/CELL][(x1-1)/CELL]!=bm)
-		{
-			break;
-		}
-		x1--;
-	}
-	while (x2<XRES-CELL)
-	{
-		if (bmap[y/CELL][(x2+1)/CELL]!=bm)
-		{
-			break;
-		}
-		x2++;
-	}
-
-	// fill span
-	for (x=x1; x<=x2; x++)
-	{
-		if (!create_parts(x, y, 0, 0, wall, flags, 1))
-			return 0;
-	}
-	// fill children
-	if (y>=CELL)
-		for (x=x1; x<=x2; x++)
-			if (bmap[(y-dy)/CELL][x/CELL]==bm)
-				if (!FloodWalls(x, y-dy, wall, bm, flags))
-					return 0;
-	if (y<YRES-CELL)
-		for (x=x1; x<=x2; x++)
-			if (bmap[(y+dy)/CELL][x/CELL]==bm)
-				if (!FloodWalls(x, y+dy, wall, bm, flags))
-					return 0;
-	return 1;
-}
-
 int flood_water(int x, int y, int i, int originaly, int check)
 {
 	int x1 = 0,x2 = 0;
@@ -3443,7 +3385,7 @@ int create_part_add_props(int p, int x, int y, int tv, int rx, int ry)
 //this creates particles from a brush, don't use if you want to create one particle
 int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 {
-	int i, j, r, f = 0, u, v, oy, ox, b = 0, dw = 0, stemp = 0, p, fn;
+	int i, j, r, f = 0, u, v, oy, ox, b = 0, dw = 0, p, fn;
 
 	int wall = c - 100;
 	if (c==SPC_WIND || c==PT_FIGH || c==WL_SIGN+100)
@@ -3451,7 +3393,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 
 	if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM || c == DECO_LIGH || c == DECO_DARK || c == DECO_SMDG)
 		fill = 1;
-	for (r=UI_ACTUALSTART; r<=UI_ACTUALSTART+UI_WALLCOUNT; r++)
+	for (r = 0; r < UI_WALLCOUNT; r++)
 	{
 		if (wall==r)
 		{
@@ -3783,4 +3725,34 @@ TPT_GNU_INLINE void orbitalparts_set(int *block1, int *block2, int resblock1[], 
 
 	*block1 = block1tmp;
 	*block2 = block2tmp;
+}
+
+void draw_bframe()
+{
+	int i;
+	for(i=0; i<(XRES/CELL); i++)
+	{
+		bmap[0][i]=WL_WALL;
+		bmap[YRES/CELL-1][i]=WL_WALL;
+	}
+	for(i=1; i<((YRES/CELL)-1); i++)
+	{
+		bmap[i][0]=WL_WALL;
+		bmap[i][XRES/CELL-1]=WL_WALL;
+	}
+}
+
+void erase_bframe()
+{
+	int i;
+	for(i=0; i<(XRES/CELL); i++)
+	{
+		bmap[0][i]=0;
+		bmap[YRES/CELL-1][i]=0;
+	}
+	for(i=1; i<((YRES/CELL)-1); i++)
+	{
+		bmap[i][0]=0;
+		bmap[i][XRES/CELL-1]=0;
+	}
 }

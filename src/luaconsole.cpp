@@ -45,6 +45,7 @@ extern "C"
 #include "game/Menus.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
+#include "simulation/WallNumbers.h"
 
 int *lua_el_func, *lua_el_mode, *lua_gr_func;
 char* log_history[20];
@@ -2772,7 +2773,7 @@ int luatpt_createwall(lua_State* l)
 		width = (XRES/CELL)-wx;
 	if (wy+height > (YRES/CELL))
 		height = (YRES/CELL)-wy;
-	if ((wt < UI_ACTUALSTART && wt != 0) || wt >= UI_ACTUALSTART+UI_WALLCOUNT || (wtypes[wt-UI_ACTUALSTART].drawstyle == -1 && !secret_els))
+	if (wt < 0 || wt >= UI_WALLCOUNT || (wallTypes[wt].drawstyle == -1 && !secret_els))
 		return luaL_error(l, "Unrecognised wall number %d", wt);
 	for (nx = wx; nx < wx+width; nx++)
 		for (ny = wy; ny < wy+height; ny++)
@@ -2959,15 +2960,11 @@ int luatpt_floodfill(lua_State* l)
 	int c = luaL_optint(l,3,activeTools[0]->GetElementID());
 	int cm = luaL_optint(l,4,-1);
 	int flags = luaL_optint(l,5,get_brush_flags());
-	int ret;
 	if (x < 0 || x > XRES || y < 0 || y > YRES)
 		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
-	if (c < 0 || c >= PT_NUM && !ptypes[c].enabled)
+	if ((c < 0 || c >= PT_NUM) && !ptypes[c].enabled)
 		return luaL_error(l, "Unrecognised element number '%d'", c);
-	if (c >= UI_WALLSTART && c < UI_WALLSTART+UI_WALLCOUNT)
-		ret = FloodWalls(x, y, c, cm, flags);
-	else
-		ret = FloodParts(x, y, c, cm, flags);
+	int ret = FloodParts(x, y, c, cm, flags);
 	lua_pushinteger(l, ret);
 	return 1;
 }

@@ -19,8 +19,6 @@
 #include "simulation/Element.h"
 #include "powder.h"
 
-#include "powder.h"
-
 // Defines for element transitions
 #define IPL -257.0f
 #define IPH 257.0f
@@ -59,6 +57,11 @@ public:
 	bool spark_all_attempt(int i, int x, int y);
 	void spark_conductive(int i, int x, int y);
 	bool spark_conductive_attempt(int i, int x, int y);
+
+	void CreateWall(int x, int y, int wall);
+	void CreateWallLine(int x1, int y1, int x2, int y2, int rx, int ry, int wall);
+	void CreateWallBox(int x1, int y1, int x2, int y2, int wall);
+	int FloodWalls(int x, int y, int wall, int replace);
 
 	// Functions defined here should hopefully be inlined
 	// Don't put anything that will change often here, since changes cause a lot of recompiling
