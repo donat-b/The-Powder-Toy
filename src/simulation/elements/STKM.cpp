@@ -14,6 +14,7 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "simulation/ToolNumbers.h"
 #include "simulation/elements/FIGH.h"
 #include "simulation/elements/PRTI.h"
 

@@ -64,6 +64,7 @@
 #include "game/Menus.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
+#include "simulation/ToolNumbers.h"
 
 SDLMod sdl_mod;
 int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii, sdl_zoom_trig=0;
@@ -177,23 +178,17 @@ void menu_count()
 	{
 		menuSections[SC_LIFE]->AddTool(new Tool(GOL_TOOL, i, "DEFAULT_PT_LIFE_" + std::string(gmenu[i].name)));
 	}
-	for (int i = 0; i < UI_WALLCOUNT; i++)
+	for (int i = 0; i < WALLCOUNT; i++)
 	{
-		//TODO, deco / tool identifiers are wrong
 		std::stringstream identifier;
 		identifier << "DEFAULT_WL_" << i;
-		if (!is_TOOL(i) && !is_DECOTOOL(i))
-		{
-			menuSections[SC_WALL]->AddTool(new Tool(WALL_TOOL, i, identifier.str()));
-		}
-		else if (is_DECOTOOL(i))
-		{
-			menuSections[SC_DECO]->AddTool(new Tool(DECO_TOOL, i, identifier.str()));
-		}
-		else
-		{
-			menuSections[SC_TOOL]->AddTool(new Tool(TOOL_TOOL, i, identifier.str()));
-		}
+		menuSections[SC_WALL]->AddTool(new Tool(WALL_TOOL, i, identifier.str()));
+	}
+	for (int i = 0; i < TOOLCOUNT; i++)
+	{
+		std::stringstream identifier;
+		identifier << "DEFAULT_TOOL_" << toolTypes[i].name;
+		menuSections[SC_TOOL]->AddTool(new Tool(TOOL_TOOL, i, identifier.str()));
 	}
 	menuSections[SC_FAV]->AddTool(new Tool(INVALID_TOOL, FAV_MORE, "DEFAULT_FAV_MORE"));
 	for (int i = 0; i < 18; i++)
@@ -260,7 +255,7 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 	ui_edit ed;
 
 	// if currently moving a sign, stop doing so
-	if (MSIGN!=-1)
+	if (MSIGN != -1)
 	{
 		MSIGN = -1;
 		return;
@@ -3139,7 +3134,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 				else
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 
-				if (b && current->GetID() == SPC_PROP) //TODO: compare to identifier once tool identifiers are set up
+				if (b && current->GetToolID() == TOOL_PROP)
 					prop_edit_ui(vid_buf, -1, -1, 0);
 			}
 			//draw rectangles around selected tools
@@ -3264,6 +3259,10 @@ void menu_draw_text(Tool* lastOver, int i)
 	else if (lastOver->GetType() == WALL_TOOL)
 	{
 		drawtext(vid_buf, XRES-textwidth((char *)wallTypes[toolID].descs.c_str())-BARSIZE, sy-10, (char *)wallTypes[toolID].descs.c_str(), 255, 255, 255, dae*5);
+	}
+	else if (lastOver->GetType() == TOOL_TOOL)
+	{
+		drawtext(vid_buf, XRES-textwidth((char *)toolTypes[toolID].descs.c_str())-BARSIZE, sy-10, (char *)toolTypes[toolID].descs.c_str(), 255, 255, 255, dae*5);
 	}
 	else //if (lastOver->GetType() == WALL_TOOL)
 	{

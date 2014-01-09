@@ -42,7 +42,7 @@
 #define WL_ERASEALL		16
 #define WL_FANHELPER	255
 
-#define UI_WALLCOUNT 17
+#define WALLCOUNT 17
 
 struct wallType
 {

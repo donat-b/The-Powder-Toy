@@ -57,7 +57,7 @@ int console_parse_type(const char *txt, int *element, char *err)
 int console_parse_wall_type(const char *txt, int *wall)
 {
 	int i;
-	for (i=0; i<UI_WALLCOUNT; i++) {
+	for (i = 0; i < WALLCOUNT; i++) {
 		if (strcasecmp(txt,wallTypes[i].name.c_str())==0 && (wallTypes[i].drawstyle != -1 || secret_els))
 		{
 			*wall = i;

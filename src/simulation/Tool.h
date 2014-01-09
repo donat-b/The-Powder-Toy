@@ -46,6 +46,7 @@ public:
 	int DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
 	void DrawRect(Brush* brush, Point startPos, Point endPos);
 	int FloodFill(Point position);
+	Tool* Sample(Point position);
 };
 
 #endif

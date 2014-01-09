@@ -90,9 +90,6 @@ void HSV_to_RGB(int h,int s,int v,int *r,int *g,int *b);
 
 void RGB_to_HSV(int r,int g,int b,int *h,int *s,int *v);
 
-int is_TOOL(int t);
-int is_DECOTOOL(int t);
-
 class Tool;
 Tool* GetToolFromIdentifier(std::string identifier);
 

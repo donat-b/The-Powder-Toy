@@ -883,11 +883,11 @@ int create_part(int p, int x, int y, int tv)//the function for creating a partic
 	int t = tv & 0xFF;
 	int v = (tv >> 8) & 0xFF;
 	
-	if (x<0 || y<0 || x>=XRES || y>=YRES || ((t<=0 || t>=PT_NUM)&&!is_TOOL(t)&&!is_DECOTOOL(t)))
+	if (x<0 || y<0 || x>=XRES || y>=YRES || t<=0 || t>=PT_NUM)
 		return -1;
 	if (t>=0 && t<PT_NUM && !ptypes[t].enabled)
 		return -1;
-	if(t==SPC_PROP) {
+	/*if(t==SPC_PROP) {
 		return create_property(x, y, prop_offset, prop_value, prop_format);
 	}
 
@@ -956,7 +956,7 @@ int create_part(int p, int x, int y, int tv)//the function for creating a partic
 	{
 		create_decoration(x, y, PIXR(decocolor), PIXG(decocolor), PIXB(decocolor), decocolor>>24, 1, t);
 		return -1;
-	}
+	}*/
 
 	//activate BUTN here
 	if (p == -2 && (pmap[y][x]&0xFF) == PT_BUTN && parts[pmap[y][x]>>8].life == 10)
@@ -3387,7 +3387,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 {
 	int i, j, r, f = 0, u, v, oy, ox, b = 0, dw = 0, p, fn;
 
-	int wall = c - 100;
+	/*int wall = c - 100;
 	if (c==SPC_WIND || c==PT_FIGH || c==WL_SIGN+100)
 		return 0;
 
@@ -3414,7 +3414,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 	if (wall == WL_GRAV)
 	{
 		gravwl_timeout = 60;
-	}
+	}*/
 	if (c == PT_LIGH)
 	{
 	    if (lighting_recreate>0 && rx+ry>0)
@@ -3434,7 +3434,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 	if (c == PT_STKM || c == PT_STKM2 || c == PT_FIGH)
 		rx = ry = 0;
 	
-	if (dw==1)
+	/*if (dw==1)
 	{
 		ry = ry/CELL;
 		rx = rx/CELL;
@@ -3499,10 +3499,10 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 			}
 		}
 		return 1;
-	}
+	}*/
 
-	if (is_TOOL(c) || is_DECOTOOL(c))
-		fn = 3;
+	//if (is_TOOL(c) || is_DECOTOOL(c))
+	//	fn = 3;
 	else if (c == 0 && !(flags&BRUSH_REPLACEMODE))							// delete
 		fn = 0;
 	else if ((flags&BRUSH_SPECIFIC_DELETE) && !(flags&BRUSH_REPLACEMODE))	// specific delete
@@ -3546,8 +3546,6 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 			{
 				if ((oldy != tempy && currentBrush->GetShape() != SQUARE_BRUSH) || i == x-rx)
 					oldy--;
-				//if (currentBrush->GetShape() == TRI_BRUSH)
-				//	oldy = tempy;
 				for (j = tempy; j <= oldy+1; j++) {
 					int i2 = 2*x-i, j2 = 2*y-j;
 					if (currentBrush->GetShape() == TRI_BRUSH)
@@ -3676,14 +3674,13 @@ void create_line(int x1, int y1, int x2, int y2, int rx, int ry, int c, int flag
 			create_parts(y, x, rx, ry, c, flags, fill);
 		else
 			create_parts(x, y, rx, ry, c, flags, fill);
-		if (c != SPC_PROP)
-			fill = 0;
+		//if (c != TOOL_PROP)
+		//	fill = 0;
 		e += de;
 		if (e >= 0.5f)
 		{
 			y += sy;
-			if ((c==WL_EHOLE+100 || c==WL_ALLOWGAS+100 || c==WL_ALLOWENERGY+100 || c==WL_ALLOWALLELEC+100 || c==WL_ALLOWSOLID+100 || c==WL_ALLOWAIR+100 || c==WL_WALL+100 || c==WL_DESTROYALL+100 || c==WL_ALLOWLIQUID+100 || c==WL_FAN+100 || c==WL_STREAM+100 || c==WL_DETECT+100 || c==WL_EWALL+100 || c==WL_WALLELEC+100 || !(rx+ry))
-			   && ((y1<y2) ? (y<=y2) : (y>=y2)))
+			if (!(rx+ry) && ((y1<y2) ? (y<=y2) : (y>=y2)))
 			{
 				if (cp)
 					create_parts(y, x, rx, ry, c, flags, fill);

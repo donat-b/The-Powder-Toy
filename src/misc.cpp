@@ -1371,20 +1371,6 @@ void RGB_to_HSV(int r,int g,int b,int *h,int *s,int *v)//convert 0-255 RGB value
 	}
 }
 
-int is_TOOL(int t)
-{
-	if (t == SPC_AIR || t == SPC_HEAT || t == SPC_COOL || t == SPC_VACUUM || t == SPC_WIND || t == SPC_PGRV || t == SPC_NGRV || t == SPC_PROP)
-		return 1;
-	return 0;
-}
-
-int is_DECOTOOL(int t)
-{
-	if (t == DECO_DRAW || t == DECO_ERASE || t == DECO_LIGH || t == DECO_DARK || t == DECO_SMDG)
-		return 1;
-	return 0;
-}
-
 Tool* GetToolFromIdentifier(std::string identifier)
 {
 	for (int i = 0; i < SC_TOTAL; i++)

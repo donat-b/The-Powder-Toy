@@ -38,53 +38,7 @@
 #define BRUSH_REPLACEMODE 0x1
 #define BRUSH_SPECIFIC_DELETE 0x2
 
-//#define OLD_SPC_AIR 236
-//#define SPC_AIR 256
-
-
-/*#define UI_WALLSTART 222
-#define UI_ACTUALSTART 122
-#define UI_WALLCOUNT 31
-
-#define WL_WALLELEC	122
-#define WL_EWALL	123
-#define WL_DETECT	124
-#define WL_STREAM	125
-#define WL_SIGN	126
-#define WL_FAN	127
-#define WL_FANHELPER 255
-#define WL_ALLOWLIQUID	128
-#define WL_DESTROYALL	129
-#define WL_ERASE	130
-#define WL_WALL	131
-#define WL_ALLOWAIR	132
-#define WL_ALLOWSOLID	133
-#define WL_ALLOWALLELEC	134
-#define WL_EHOLE	135
-#define WL_ALLOWGAS	140
-#define WL_GRAV		142
-#define WL_ALLOWENERGY 145
-#define WL_ERASEALL 147*/
-#define WL_SIGN	126
-
-#define OLD_SPC_AIR 236
-#define SPC_HEAT 236
-#define SPC_COOL 237
-#define SPC_AIR 238
-#define SPC_VACUUM 239
-#define SPC_PGRV 241
-#define SPC_NGRV 243
-#define SPC_WIND 244
-#define SPC_PROP 246
-
-#define DECO_DRAW 248
-#define DECO_ERASE 249
-#define DECO_LIGH 250
-#define DECO_DARK 251
-#define DECO_SMDG 252
-
 #include "simulation/ElementNumbers.h"
-#define OLD_PT_WIND 147
 #define PT_NUM  222
 
 #define R_TEMP 22

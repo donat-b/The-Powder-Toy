@@ -63,6 +63,11 @@ public:
 	void CreateWallBox(int x1, int y1, int x2, int y2, int wall);
 	int FloodWalls(int x, int y, int wall, int replace);
 
+	int CreateTool(int x, int y, int tool);
+	void CreateToolBrush(int x, int y, int rx, int ry, int tool);
+	void CreateToolLine(int x1, int y1, int x2, int y2, int rx, int ry, int tool);
+	void CreateToolBox(int x1, int y1, int x2, int y2, int tool);
+
 	// Functions defined here should hopefully be inlined
 	// Don't put anything that will change often here, since changes cause a lot of recompiling
 

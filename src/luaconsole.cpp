@@ -2773,7 +2773,7 @@ int luatpt_createwall(lua_State* l)
 		width = (XRES/CELL)-wx;
 	if (wy+height > (YRES/CELL))
 		height = (YRES/CELL)-wy;
-	if (wt < 0 || wt >= UI_WALLCOUNT || (wallTypes[wt].drawstyle == -1 && !secret_els))
+	if (wt < 0 || wt >= WALLCOUNT || (wallTypes[wt].drawstyle == -1 && !secret_els))
 		return luaL_error(l, "Unrecognised wall number %d", wt);
 	for (nx = wx; nx < wx+width; nx++)
 		for (ny = wy; ny < wy+height; ny++)

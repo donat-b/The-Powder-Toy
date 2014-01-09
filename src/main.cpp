@@ -69,6 +69,7 @@
 #include "game/Menus.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
+#include "simulation/ToolNumbers.h"
 
 pixel *vid_buf;
 
@@ -2786,7 +2787,7 @@ int main(int argc, char *argv[])
 					activeTool = GetToolFromIdentifier("DEFAULT_WL_27");
 
 				//link signs are clicked from here
-				if (activeTool->GetWallID() != WL_SIGN+100 || b != 1)
+				if (activeTool->GetToolID() != TOOL_SIGN || b != 1)
 				{
 					if (!bq)
 						for (signi=0; signi<MAXSIGNS; signi++)
@@ -2859,7 +2860,7 @@ int main(int argc, char *argv[])
 						}
 						xor_line(lx, ly, line_x, line_y, vid_buf);
 						//WIND tool works before you even draw the line while holding shift
-						if (activeTool->GetToolID() == SPC_WIND)
+						if (activeTool->GetToolID() == TOOL_WIND)
 						{
 							for (j = -currentBrush->GetRadius().Y; j <= currentBrush->GetRadius().Y; j++)
 								for (i = -currentBrush->GetRadius().X; i <= currentBrush->GetRadius().X; i++)
@@ -2934,44 +2935,7 @@ int main(int argc, char *argv[])
 					//sample
 					else if (((sdl_mod & (KMOD_ALT)) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL))) || b==SDL_BUTTON_MIDDLE)
 					{
-						if (y>=0 && y<YRES && x>=0 && x<XRES)
-						{
-							if (activeTool->GetType() == DECO_TOOL)
-							{
-								unsigned int tempcolor = vid_buf[(y)*(XRES+BARSIZE)+(x)];
-								int cr = PIXR(tempcolor);
-								int cg = PIXG(tempcolor);
-								int cb = PIXB(tempcolor);
-								if (cr || cg || cb)
-								{
-									if (cr && cr<255) cr++;
-									if (cg && cg<255) cg++;
-									if (cb && cb<255) cb++;
-									decocolor = (255<<24)|PIXRGB(cr, cg, cb);
-									currR = PIXR(decocolor), currG = PIXG(decocolor), currB = PIXB(decocolor), currA = decocolor>>24;
-									RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
-								}
-							}
-							else
-							{
-								int sample = pmap[y][x];
-								if (sample || (sample = photons[y][x]))
-								{
-									if ((sample&0xFF) == PT_LIFE)
-									{
-										activeTools[0] = new Tool(GOL_TOOL, parts[sample>>8].ctype, "DEFAULT_PT_LIFE_" + std::string(gmenu[parts[sample>>8].ctype].name));
-									}
-									else
-									{
-										activeTools[0] = new Tool(ELEMENT_TOOL, sample&0xFF, globalSim->elements[sample&0xFF].Identifier);
-									}
-								}
-								/*else if (bmap[y/CELL][x/CELL]) //TODO: Wall sample
-								{
-									activeTools[0] = new Tool(WALL_TOOL, bmap[y/CELL][x/CELL], "DEFAULT_PT_WL_" + (bmap[y/CELL][x/CELL]-UI_WALLSTART));
-								}*/
-							}
-						}
+						activeTools[activeToolID] = activeTool->Sample(Point(x, y));
 						lx = x;
 						ly = y;
 						lb = 0;
@@ -3220,7 +3184,7 @@ int main(int argc, char *argv[])
 		if (player.spwn==0)
 		{
 			int sr = activeTools[1]->GetElementID();
-			if ((sr>0 && sr<PT_NUM && ptypes[sr].enabled && ptypes[sr].falldown>0) || sr==SPC_AIR || sr == PT_NEUT || sr == PT_PHOT || sr == PT_LIGH)
+			if ((sr>0 && sr<PT_NUM && ptypes[sr].enabled && ptypes[sr].falldown>0) || sr == PT_NEUT || sr == PT_PHOT || sr == PT_LIGH)
 				player.elem = sr;
 			else
 				player.elem = PT_DUST;
@@ -3228,7 +3192,7 @@ int main(int argc, char *argv[])
 		if (player2.spwn==0)
 		{
 			int sr = activeTools[1]->GetElementID();
-			if ((sr>0 && sr<PT_NUM && ptypes[sr].enabled && ptypes[sr].falldown>0) || sr==SPC_AIR || sr == PT_NEUT || sr == PT_PHOT || sr == PT_LIGH)
+			if ((sr>0 && sr<PT_NUM && ptypes[sr].enabled && ptypes[sr].falldown>0) || sr == PT_NEUT || sr == PT_PHOT || sr == PT_LIGH)
 				player2.elem = sr;
 			else
 				player2.elem = PT_DUST;

@@ -29,6 +29,7 @@
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
+#include "simulation/ToolNumbers.h"
 #include "simulation/elements/FIGH.h"
 
 int saveversion;
@@ -2211,7 +2212,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						player.spwn = 1;
 						player.elem = PT_DUST;
 						player.rocketBoots = 0;
-						if (parts[newIndex].ctype == 256 || parts[newIndex].ctype == OLD_SPC_AIR)
+						if (parts[newIndex].ctype == OLD_SPC_AIR)
 							parts[newIndex].ctype = SPC_AIR;
 					}
 					else if (partsptr[newIndex].type == PT_STKM2)
@@ -2220,7 +2221,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						player2.spwn = 1;
 						player2.elem = PT_DUST;
 						player2.rocketBoots = 0;
-						if (parts[newIndex].ctype == 256 || parts[newIndex].ctype == OLD_SPC_AIR)
+						if (parts[newIndex].ctype == OLD_SPC_AIR)
 							parts[newIndex].ctype = SPC_AIR;
 					}
 					else if (partsptr[newIndex].type == PT_FIGH)
@@ -2233,7 +2234,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							figh->elem = PT_DUST;
 							figh->rocketBoots = 0;
 							STKM_init_legs(figh, newIndex);
-							if (parts[newIndex].ctype == 256 || parts[newIndex].ctype == OLD_SPC_AIR)
+							if (parts[newIndex].ctype == OLD_SPC_AIR)
 								parts[newIndex].ctype = SPC_AIR;
 						}
 						else
@@ -2760,7 +2761,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 			{
 				//In old saves, ignore walls created by sign tool bug
 				//Not ignoring other invalid walls or invalid walls in new saves, so that any other bugs causing them are easier to notice, find and fix
-				if (ver>=44 && ver<71 && d[p]==WL_SIGN)
+				if (ver>=44 && ver<71 && d[p]==OLD_WL_SIGN)
 				{
 					p++;
 					continue;

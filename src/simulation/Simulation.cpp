@@ -19,6 +19,7 @@
 #include "simulation/Element.h"
 #include "simulation/ElementDataContainer.h"
 #include "simulation/Simulation.h"
+#include "game/Brush.h"
 #include <cmath>
 
 // Declare the element initialisation functions
@@ -26,6 +27,7 @@
 #define DEFINE_ELEMENT(name, id) void name ## _init_element(ELEMENT_INIT_FUNC_ARGS);
 #include "simulation/ElementNumbers.h"
 #include "simulation/WallNumbers.h"
+#include "simulation/ToolNumbers.h"
 
 
 Simulation *globalSim = NULL; // TODO: remove this global variable
@@ -423,7 +425,7 @@ void Simulation::CreateWallLine(int x1, int y1, int x2, int y2, int rx, int ry, 
 		if (e >= 0.5f)
 		{
 			y += sy;
-			if (!(rx+ry) && ((y1<y2) ? (y<=y2) : (y>=y2)))
+			if ((y1<y2) ? (y<=y2) : (y>=y2))
 			{
 				if (reverseXY)
 					CreateWallBox(y, x, y+ry, x+rx, wall);
@@ -457,8 +459,6 @@ void Simulation::CreateWallBox(int x1, int y1, int x2, int y2, int wall)
 int Simulation::FloodWalls(int x, int y, int wall, int replace)
 {
 	int x1, x2;
-	if (wall == SPC_PROP)
-		return flood_prop(x*CELL, y*CELL, prop_offset, prop_value, prop_format);
 	if (replace == -1)
 	{
 		if (wall==WL_ERASE || wall==WL_ERASEALL)
@@ -510,6 +510,178 @@ int Simulation::FloodWalls(int x, int y, int wall, int replace)
 				if (!FloodWalls(x, y+1, wall, replace))
 					return 0;
 	return 1;
+}
+
+int Simulation::CreateTool(int x, int y, int tool)
+{
+	if (!InBounds(x, y))
+		return -2;
+	if (tool == TOOL_HEAT || tool == TOOL_COOL)
+	{
+		int r = pmap[y][x];
+		if (!(r&0xFF))
+			r = photons[y][x];
+		if (r&0xFF)
+		{
+			float heatchange;
+			if ((r&0xFF) == PT_PUMP || (r&0xFF) == PT_GPMP)
+				heatchange = toolStrength*.1f;
+			else if ((r&0xFF) == PT_ANIM)
+				heatchange = toolStrength;
+			else
+				heatchange = toolStrength*2.0f;
+
+			if (tool == TOOL_HEAT)
+			{
+				parts[r>>8].temp = restrict_flt(parts[r>>8].temp + heatchange, MIN_TEMP, MAX_TEMP);
+			}
+			else if (tool == TOOL_COOL)
+			{
+				parts[r>>8].temp = restrict_flt(parts[r>>8].temp - heatchange, MIN_TEMP, MAX_TEMP);
+			}
+			return r>>8;
+		}
+		else
+		{
+			return -1;
+		}
+	}
+	else if (tool == TOOL_AIR)
+	{
+		pv[y/CELL][x/CELL] += toolStrength*.05f;
+		return -1;
+	}
+	else if (tool == TOOL_VACUUM)
+	{
+		pv[y/CELL][x/CELL] -= toolStrength*.05f;
+		return -1;
+	}
+	else if (tool == TOOL_PGRV)
+	{
+		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = toolStrength*5.0f;
+		return -1;
+	}
+	else if (tool == TOOL_NGRV)
+	{
+		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = toolStrength*-5.0f;
+		return -1;
+	}
+	else if (tool == TOOL_PROP)
+	{
+		return create_property(x, y, prop_offset, prop_value, prop_format);
+	}
+}
+
+void Simulation::CreateToolBrush(int x, int y, int rx, int ry, int tool)
+{
+	if (rx<=0) //workaround for rx == 0 crashing. todo: find a better fix later.
+	{
+		for (int j = y - ry; j <= y + ry; j++)
+			CreateTool(x, j, tool);
+	}
+	else
+	{
+		int tempy = y, i, j, jmax, oldy;
+		// tempy is the smallest y value that is still inside the brush
+		// jmax is the largest y value that is still inside the brush (bottom border of brush)
+
+		//For triangle brush, start at the very bottom
+		if (currentBrush->GetShape() == TRI_BRUSH)
+			tempy = y + ry;
+		for (i = x - rx; i <= x; i++)
+		{
+			oldy = tempy;
+			//loop up until it finds a point not in the brush
+			while (InCurrentBrush(i-x,tempy-y,rx,ry))
+				tempy = tempy - 1;
+			tempy = tempy + 1;
+
+			//If triangle brush, create parts down to the bottom always; if not go down to the bottom border
+			if (currentBrush->GetShape() == TRI_BRUSH)
+				jmax = y + ry;
+			else
+				jmax = 2*y - tempy;
+			for (j = tempy; j <= jmax; j++)
+			{
+				CreateTool(i, j, tool);
+				//don't create twice in the vertical center line
+				if (i != x)
+					CreateTool(2*x-i, j, tool);
+			}
+		}
+	}
+}
+
+void Simulation::CreateToolLine(int x1, int y1, int x2, int y2, int rx, int ry, int tool)
+{
+	int x, y, dx, dy, sy;
+	bool reverseXY = abs(y2-y1) > abs(x2-x1);
+	float e = 0.0f, de;
+	if (reverseXY)
+	{
+		y = x1;
+		x1 = y1;
+		y1 = y;
+		y = x2;
+		x2 = y2;
+		y2 = y;
+	}
+	if (x1 > x2)
+	{
+		y = x1;
+		x1 = x2;
+		x2 = y;
+		y = y1;
+		y1 = y2;
+		y2 = y;
+	}
+	dx = x2 - x1;
+	dy = abs(y2 - y1);
+	if (dx)
+		de = dy/(float)dx;
+	else
+		de = 0.0f;
+	y = y1;
+	sy = (y1<y2) ? 1 : -1;
+	for (x=x1; x<=x2; x++)
+	{
+		if (reverseXY)
+			CreateToolBrush(y, x, ry, rx, tool);
+		else
+			CreateToolBrush(x, y, rx, ry, tool);
+		e += de;
+		if (e >= 0.5f)
+		{
+			y += sy;
+			if (!(rx+ry) && ((y1<y2) ? (y<=y2) : (y>=y2)))
+			{
+				if (reverseXY)
+					CreateToolBrush(y, x, ry, rx, tool);
+				else
+					CreateToolBrush(x, y, rx, ry, tool);
+			}
+			e -= 1.0f;
+		}
+	}
+}
+
+void Simulation::CreateToolBox(int x1, int y1, int x2, int y2, int tool)
+{
+	if (x1 > x2)
+	{
+		int temp = x2;
+		x2 = x1;
+		x1 = temp;
+	}
+	if (y1 > y2)
+	{
+		int temp = y2;
+		y2 = y1;
+		y1 = temp;
+	}
+	for (int i = x1; i <= x2; i++)
+		for (int j = y1; j <= y2; j++)
+			CreateTool(i, j, tool);
 }
 
 //This is not part of the simulation class

@@ -62,6 +62,7 @@
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
+#include "simulation/ToolNumbers.h"
 #include "simulation/elements/FIGH.h"
 
 //unsigned cmode = CM_FIRE;
@@ -842,17 +843,6 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 				drawpixel(vid_buf, x+i, y+8+(int)(3.9f*cos(i*0.3f)), 255, 255, 255, 255);
 			}
 			break;
-		case WL_SIGN:
-			for (j=1; j<15; j++)
-			{
-				for (i=1; i<27; i++)
-				{
-					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = i==1||i==26||j==1||j==14 ? PIXPACK(0xA0A0A0) : PIXPACK(0x000000);
-				}
-			}
-			drawtext(vid_buf, x+9, y+3, "\xA1", 32, 64, 128, 255);
-			drawtext(vid_buf, x+9, y+3, "\xA0", 255, 255, 255, 255);
-			break;
 		case WL_ERASE:
 			for (j=1; j<15; j+=2)
 			{
@@ -919,7 +909,20 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 	}
 	else if (current->GetType() == TOOL_TOOL)
 	{
-		draw_tool_button(vid_buf, x, y, wtypes[current->GetID()].colour, wtypes[current->GetID()].name);
+		if (current->GetID() == TOOL_SIGN)
+		{
+			for (j=1; j<15; j++)
+			{
+				for (i=1; i<27; i++)
+				{
+					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = i==1||i==26||j==1||j==14 ? PIXPACK(0xA0A0A0) : PIXPACK(0x000000);
+				}
+			}
+			drawtext(vid_buf, x+9, y+3, "\xA1", 32, 64, 128, 255);
+			drawtext(vid_buf, x+9, y+3, "\xA0", 255, 255, 255, 255);
+		}
+		else
+			draw_tool_button(vid_buf, x, y, toolTypes[current->GetID()].color, toolTypes[current->GetID()].name.c_str());
 	}
 	else if (current->GetType() == DECO_TOOL)
 	{
@@ -3726,7 +3729,7 @@ void draw_walls(pixel *vid)
 			if (bmap[y][x])
 			{
 				wt = bmap[y][x];
-				if (wt<0 || wt>=UI_WALLCOUNT)
+				if (wt<0 || wt>=WALLCOUNT)
 					continue;
 				pc = wallTypes[wt].colour;
 				gc = wallTypes[wt].eglow;
@@ -3915,7 +3918,7 @@ void draw_walls(pixel *vid)
 				if (wallTypes[wt].eglow && emap[y][x])
 				{
 					// glow if electrified
-					pc = wtypes[wt].eglow;
+					pc = wallTypes[wt].eglow;
 					cr = fire_r[y][x] + PIXR(pc);
 					if (cr > 255) cr = 255;
 					fire_r[y][x] = cr;
@@ -4565,7 +4568,7 @@ void render_cursor(pixel *vid, int x, int y, Tool* tool, int rx, int ry)
 {
 #ifdef OGLR
 	int i;
-	if (tool->GetType() == ELEMENT_TOOL || tool->GetType() == GOL_TOOL || tool->GetType() == TOOL_TOOL || tool->GetType() == DECO_TOOL || tool->GetWallID() == WL_SIGN-UI_ACTUALSTART)
+	if (tool->GetType() == ELEMENT_TOOL || tool->GetType() == GOL_TOOL || tool->GetType() == TOOL_TOOL || tool->GetType() == DECO_TOOL)
 	{
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, partsFbo);
 		glEnable(GL_COLOR_LOGIC_OP);
@@ -4605,7 +4608,7 @@ void render_cursor(pixel *vid, int x, int y, Tool* tool, int rx, int ry)
 	}
 #else
 	int i,j,c;
-	if ((sdl_mod & KMOD_CTRL) && (sdl_mod & KMOD_SHIFT) && (tool->GetType() != TOOL_TOOL || tool->GetToolID() == SPC_PROP) && tool->GetWallID() != WL_SIGN+100)
+	if ((sdl_mod & KMOD_CTRL) && (sdl_mod & KMOD_SHIFT) && (tool->GetType() != TOOL_TOOL || tool->GetToolID() == TOOL_PROP))
 	{
 		for (i = -5; i < 6; i++)
 			if (i != 0)
@@ -4614,7 +4617,7 @@ void render_cursor(pixel *vid, int x, int y, Tool* tool, int rx, int ry)
 			if (j != 0)
 				xor_pixel(x, y+j, vid);
 	}
-	else if (tool->GetType() == ELEMENT_TOOL || tool->GetType() == GOL_TOOL || tool->GetType() == TOOL_TOOL || tool->GetType() == DECO_TOOL || tool->GetWallID() == WL_SIGN+100)
+	else if (tool->GetType() == ELEMENT_TOOL || tool->GetType() == GOL_TOOL || tool->GetType() == TOOL_TOOL || tool->GetType() == DECO_TOOL)
 	{
 		if (rx<=0)
 			for (j = y - ry; j <= y + ry; j++)
