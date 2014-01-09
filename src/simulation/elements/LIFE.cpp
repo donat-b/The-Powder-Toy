@@ -73,6 +73,15 @@ int LIFE_graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
+void LIFE_create(ELEMENT_CREATE_FUNC_ARGS)
+{
+	if (v >= 0 && v < NGOL)
+	{
+		parts[i].tmp = grule[v+1][9] - 1;
+		parts[i].ctype = v;
+	}
+}
+
 void LIFE_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_LIFE_GOL";
@@ -118,5 +127,6 @@ void LIFE_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = NULL;
 	elem->Graphics = &LIFE_graphics;
+	elem->Func_Create = &LIFE_create;
 	elem->Init = &LIFE_init_element;
 }

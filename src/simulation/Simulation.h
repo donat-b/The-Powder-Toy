@@ -48,7 +48,7 @@ public:
 	void InitElement(char* name, int id);
 	void Clear();
 	void recountElements();
-	int part_create(int p, int x, int y, int t);
+	int part_create(int p, int x, int y, int t, int v = -1);
 	void part_kill(int i);
 	bool part_change_type(int i, int x, int y, int t);
 	void delete_part_info(int i);
@@ -57,6 +57,13 @@ public:
 	bool spark_all_attempt(int i, int x, int y);
 	void spark_conductive(int i, int x, int y);
 	bool spark_conductive_attempt(int i, int x, int y);
+
+	int lightning_recreate; //timer for when LIGH can be created again
+	int CreateParts(int x, int y, int rx, int ry, int c, int flags, bool fill);
+	int CreatePartFlags(int x, int y, int c, int flags);
+	void CreateLine(int x1, int y1, int x2, int y2, int rx, int ry, int c, int flags);
+	void CreateBox(int x1, int y1, int x2, int y2, int c, int flags);
+	void FloodParts(int x, int y, int c, int flags, unsigned int replace);
 
 	void CreateWall(int x, int y, int wall);
 	void CreateWallLine(int x1, int y1, int x2, int y2, int rx, int ry, int wall);

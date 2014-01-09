@@ -32,7 +32,7 @@ class Simulation;
 #define UPDATE_FUNC_SUBCALL_ARGS sim, i, x, y, surround_space, nt
 #define GRAPHICS_FUNC_ARGS Simulation *sim, particle *cpart, int nx, int ny, int *pixel_mode, int* cola, int *colr, int *colg, int *colb, int *firea, int *firer, int *fireg, int *fireb
 #define GRAPHICS_FUNC_SUBCALL_ARGS sim, cpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb
-#define ELEMENT_CREATE_FUNC_ARGS Simulation *sim, int i, int x, int y, int t
+#define ELEMENT_CREATE_FUNC_ARGS Simulation *sim, int i, int x, int y, int t, int v
 #define ELEMENT_CREATE_OVERRIDE_FUNC_ARGS Simulation *sim, int p, int x, int y, int t
 #define ELEMENT_CREATE_ALLOWED_FUNC_ARGS Simulation *sim, int i, int x, int y, int t
 #define ELEMENT_CHANGETYPE_FUNC_ARGS Simulation *sim, int i, int x, int y, int from, int to

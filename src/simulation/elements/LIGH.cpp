@@ -331,7 +331,14 @@ int LIGH_graphics(GRAPHICS_FUNC_ARGS)
 void LIGH_create(ELEMENT_CREATE_FUNC_ARGS)
 {
 	float gx, gy, gsize;
-	sim->parts[i].life = 30;
+	if (v >= 0)
+	{
+		if (v > 55)
+			v = 55;
+		sim->parts[i].life = v;
+	}
+	else
+		sim->parts[i].life = 30;
 	sim->parts[i].temp = sim->parts[i].life*150.0f; // temperature of the lightning shows the power of the lightning
 	get_gravity_field(x, y, 1.0f, 1.0f, &gx, &gy);
 	gsize = gx*gx+gy*gy;

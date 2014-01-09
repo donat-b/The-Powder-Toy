@@ -19,6 +19,7 @@
 #include "interface.h" //for framenum, try and remove this later
 #include "simulation/Element.h"
 #include "simulation/ElementDataContainer.h"
+#include "simulation/Tool.h"
 #include "simulation/Simulation.h"
 #include "game/Brush.h"
 #include <cmath>
@@ -34,7 +35,8 @@
 Simulation *globalSim = NULL; // TODO: remove this global variable
 
 Simulation::Simulation() :
-	pfree(-1)
+	pfree(-1),
+	lightning_recreate(0)
 {
 	memset(elementData, 0, sizeof(elementData));
 	Clear();
@@ -88,7 +90,7 @@ void Simulation::recountElements()
 // p=-1 for normal creation (checks whether the particle is allowed to be in that location first)
 // p=-3 to create without checking whether the particle is allowed to be in that location
 // or p = a particle number, to replace a particle
-int Simulation::part_create(int p, int x, int y, int t)
+int Simulation::part_create(int p, int x, int y, int t, int v)
 {
 	// This function is only for actually creating particles.
 	// Not for tools, or changing things into spark, or special brush things like setting clone ctype.
@@ -189,7 +191,7 @@ int Simulation::part_create(int p, int x, int y, int t)
 	// Set non-static properties (such as randomly generated ones)
 	if (elements[t].Func_Create)
 	{
-		(*(elements[t].Func_Create))(this, i, x, y, t);
+		(*(elements[t].Func_Create))(this, i, x, y, t, v);
 	}
 
 	//default moving solid values, not part of any ball and random "bounciness"
@@ -348,6 +350,189 @@ bool Simulation::spark_conductive_attempt(int i, int x, int y)
  *Functions for creating parts, walls, tools, and deco
  *
  */
+
+int Simulation::CreateParts(int x, int y, int rx, int ry, int c, int flags, bool fill)
+{
+	int f = 0;
+
+	if (c == PT_LIGH)
+	{
+		if (globalSim->lightning_recreate > 0)
+			return 0;
+		int newlife = rx + ry;
+		if (newlife > 55)
+			newlife = 55;
+		c = c|newlife<<8;
+		globalSim->lightning_recreate = newlife/4;
+		rx = ry = 0;
+	}
+	else if (c == PT_STKM || c == PT_STKM2 || c == PT_FIGH)
+		rx = ry = 0;
+	else if (c == PT_TESC)
+	{
+		int newtmp = (rx*4+ry*4+7);
+		if (newtmp > 300)
+			newtmp = 300;
+		c = c|newtmp<<8;
+	}
+
+	if (rx<=0) //workaround for rx == 0 crashing. todo: find a better fix later.
+	{
+		for (int j = y - ry; j <= y + ry; j++)
+			if (CreatePartFlags(x, j, c, flags))
+				f = 1;
+	}
+	else
+	{
+		int tempy = y, i, j, jmax, oldy;
+		// tempy is the smallest y value that is still inside the brush
+		// jmax is the largest y value that is still inside the brush
+
+		//For triangle brush, start at the very bottom
+		if (currentBrush->GetShape() == TRI_BRUSH)
+			tempy = y + ry;
+		for (i = x - rx; i <= x; i++)
+		{
+			oldy = tempy;
+			while (InCurrentBrush(i-x,tempy-y,rx,ry))
+				tempy = tempy - 1;
+			tempy = tempy + 1;
+			if (fill)
+			{
+				//If triangle brush, create parts down to the bottom always; if not go down to the bottom border
+				if (currentBrush->GetShape() == TRI_BRUSH)
+					jmax = y + ry;
+				else
+					jmax = 2*y - tempy;
+
+				for (j = tempy; j <= jmax; j++)
+				{
+					if (CreatePartFlags(i, j, c, flags))
+						f = 1;
+					//don't create twice in the vertical center line
+					if (i!=x && CreatePartFlags(2*x-i, j, c, flags))
+						f = 1;
+				}
+			}
+			else
+			{
+				if ((oldy != tempy && currentBrush->GetShape() != SQUARE_BRUSH) || i == x-rx)
+					oldy--;
+				for (j = tempy; j <= oldy+1; j++)
+				{
+					int i2 = 2*x-i, j2 = 2*y-j;
+					if (currentBrush->GetShape() == TRI_BRUSH)
+						j2 = y+ry;
+					if (CreatePartFlags(i, j, c, flags))
+						f = 1;
+					if (i2 != i && CreatePartFlags(i2, j, c, flags))
+						f = 1;
+					if (j2 != j && CreatePartFlags(i, j2, c, flags))
+						f = 1;
+					if (i2 != i && j2 != j && CreatePartFlags(i2, j2, c, flags))
+						f = 1;
+				}
+			}
+		}
+	}
+	return !f;
+}
+
+int Simulation::CreatePartFlags(int x, int y, int c, int flags)
+{
+	//delete
+	if (c == 0 && !(flags&REPLACE_MODE))
+		delete_part(x, y, flags);
+	//specific delete
+	else if ((flags&SPECIFIC_DELETE) && !(flags&REPLACE_MODE))
+	{
+		if (!activeTools[2]->GetElementID() || (pmap[y][x]&0xFF) == activeTools[2]->GetElementID() || (photons[y][x]&0xFF) == activeTools[2]->GetElementID())
+			delete_part(x, y, flags);
+	}
+	//replace mode
+	else if (flags&REPLACE_MODE)
+	{
+		if (x<0 || y<0 || x>=XRES || y>=YRES)
+			return 0;
+		if (activeTools[2]->GetElementID() && (pmap[y][x]&0xFF) != activeTools[2]->GetElementID() && (photons[y][x]&0xFF) != activeTools[2]->GetElementID())
+			return 0;
+		if ((pmap[y][x]))
+		{
+			delete_part(x, y, flags);
+			if (c!=0)
+				create_part(-2, x, y, c);
+		}
+	}
+	//normal draw
+	else
+		if (create_part(-2, x, y, c) == -1)
+			return 1;
+	return 0;
+}
+
+void Simulation::CreateLine(int x1, int y1, int x2, int y2, int rx, int ry, int c, int flags)
+{
+	int x, y, dx, dy, sy;
+	bool reverseXY = abs(y2-y1) > abs(x2-x1), fill = true;
+	float e = 0.0f, de;
+	if (reverseXY)
+	{
+		y = x1;
+		x1 = y1;
+		y1 = y;
+		y = x2;
+		x2 = y2;
+		y2 = y;
+	}
+	if (x1 > x2)
+	{
+		y = x1;
+		x1 = x2;
+		x2 = y;
+		y = y1;
+		y1 = y2;
+		y2 = y;
+	}
+	dx = x2 - x1;
+	dy = abs(y2 - y1);
+	if (dx)
+		de = dy/(float)dx;
+	else
+		de = 0.0f;
+	y = y1;
+	sy = (y1<y2) ? 1 : -1;
+	for (x=x1; x<=x2; x++)
+	{
+		if (reverseXY)
+			CreateParts(y, x, ry, rx, c, flags, fill);
+		else
+			CreateParts(x, y, rx, ry, c, flags, fill);
+		e += de;
+		fill = false;
+		if (e >= 0.5f)
+		{
+			y += sy;
+			if (!(rx+ry) && ((y1<y2) ? (y<=y2) : (y>=y2)))
+			{
+				if (reverseXY)
+					CreateParts(y, x, ry, rx, c, flags, fill);
+				else
+					CreateParts(x, y, rx, ry, c, flags, fill);
+			}
+			e -= 1.0f;
+		}
+	}
+}
+
+void Simulation::CreateBox(int x1, int y1, int x2, int y2, int c, int flags)
+{
+
+}
+
+void Simulation::FloodParts(int x, int y, int c, int flags, unsigned int replace)
+{
+
+}
 
 void Simulation::CreateWall(int x, int y, int wall)
 {
@@ -693,6 +878,9 @@ void Simulation::CreateToolBox(int x1, int y1, int x2, int y2, int tool)
 void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 {
 	int rp, tr = 0, tg = 0, tb = 0;
+	if (!InBounds(x, y))
+		return;
+
 	rp = pmap[y][x];
 	if (!rp)
 		rp = photons[y][x];
@@ -726,28 +914,31 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 	}
 	else if (tool == DECO_SMDG)
 	{
-		int rx, ry, num = 0, ta = 0;
-		for (rx=-2; rx<3; rx++)
-			for (ry=-2; ry<3; ry++)
-			{
-				if ((pmap[y+ry][x+rx]&0xFF) && parts[pmap[y+ry][x+rx]>>8].dcolour)
+		if (x >= CELL && x < XRES-CELL && y >= CELL && y < YRES-CELL)
+		{
+			int rx, ry, num = 0, ta = 0;
+			for (rx=-2; rx<3; rx++)
+				for (ry=-2; ry<3; ry++)
 				{
-					num++;
-					ta += (parts[pmap[y+ry][x+rx]>>8].dcolour>>24)&0xFF;
-					tr += (parts[pmap[y+ry][x+rx]>>8].dcolour>>16)&0xFF;
-					tg += (parts[pmap[y+ry][x+rx]>>8].dcolour>>8)&0xFF;
-					tb += (parts[pmap[y+ry][x+rx]>>8].dcolour)&0xFF;
+					if (abs(rx)+abs(ry) > 2 && (pmap[y+ry][x+rx]&0xFF) && parts[pmap[y+ry][x+rx]>>8].dcolour)
+					{
+						num++;
+						ta += (parts[pmap[y+ry][x+rx]>>8].dcolour>>24)&0xFF;
+						tr += (parts[pmap[y+ry][x+rx]>>8].dcolour>>16)&0xFF;
+						tg += (parts[pmap[y+ry][x+rx]>>8].dcolour>>8)&0xFF;
+						tb += (parts[pmap[y+ry][x+rx]>>8].dcolour)&0xFF;
+					}
 				}
-			}
-		if (num == 0)
-			return;
-		ta = fmin(255,(int)((float)ta/num+.5));
-		tr = fmin(255,(int)((float)tr/num+.5));
-		tg = fmin(255,(int)((float)tg/num+.5));
-		tb = fmin(255,(int)((float)tb/num+.5));
-		if (!parts[rp>>8].dcolour)
-			ta = fmax(0,ta-3);
-		parts[rp>>8].dcolour = ((ta<<24)|(tr<<16)|(tg<<8)|tb);
+			if (num == 0)
+				return;
+			ta = fmin(255,(int)((float)ta/num+.5));
+			tr = fmin(255,(int)((float)tr/num+.5));
+			tg = fmin(255,(int)((float)tg/num+.5));
+			tb = fmin(255,(int)((float)tb/num+.5));
+			if (!parts[rp>>8].dcolour)
+				ta = fmax(0,ta-3);
+			parts[rp>>8].dcolour = ((ta<<24)|(tr<<16)|(tg<<8)|tb);
+		}
 	}
 	if (parts[rp>>8].type == PT_ANIM)
 	{

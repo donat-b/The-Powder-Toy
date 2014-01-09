@@ -635,8 +635,6 @@ glitchy.
 ------------------------------------------------------------------------------
 -------------------------------------Bugs-------------------------------------
 ------------------------------------------------------------------------------
-TODO: get internet and figure out //TODO: if wall id's are changed look at https://github.com/simtr/The-Powder-Toy/commit/02a4c17d72def847205c8c89dacabe9ecdcb0dab
-wall id's don't match with tpt++ in lua
 figure out why STKM die if comm/pcomm aren't reset
 STKM(AIR) is weak
 when using console, particles may not be killed properly (ChangeType function not called)
@@ -654,10 +652,9 @@ move menu_count to Menus.h (needs tooltips done first)
 Finish brushes (change all instances of rx and ry to the brush things)
 redo GolTool as MultipleTool, special tools that can draw multiple forms of an element (maybe)
 Redo wall ID's and walls entirely
-Redo gmenu, deco struct, and tools struct also
+Redo gmenu
 Redo fav menu ...
 Redo (Add) tooltips
-tpt.selectedl/r/a, look into lua stuff
 Add in all missing lua functions except for interface api
 >Add things from tpt++ that look cool, and any new simulation changes it gets
 

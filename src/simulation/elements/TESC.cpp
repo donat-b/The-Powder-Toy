@@ -15,6 +15,16 @@
 
 #include "simulation/ElementsCommon.h"
 
+void TESC_create(ELEMENT_CREATE_FUNC_ARGS)
+{
+	if (v >= 0)
+	{
+		parts[i].tmp = v;
+		if (parts[i].tmp > 300)
+			parts[i].tmp = 300;
+	}
+}
+
 void TESC_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_TESC";
@@ -60,5 +70,6 @@ void TESC_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = NULL;
 	elem->Graphics = NULL;
+	elem->Func_Create = &TESC_create;
 	elem->Init = &TESC_init_element;
 }

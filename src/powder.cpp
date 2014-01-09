@@ -40,7 +40,6 @@ unsigned int platent[PT_NUM];
 
 int wire_placed = 0;
 
-int lighting_recreate = 0;
 int force_stacking_check = 0;//whether to force a check for excessively stacked particles
 
 playerst player;
@@ -881,82 +880,12 @@ int create_part(int p, int x, int y, int tv)//the function for creating a partic
 	int i;
 
 	int t = tv & 0xFF;
-	int v = (tv >> 8) & 0xFF;
+	int v = (tv >> 8) & 0xFFFFFFFF;
 	
 	if (x<0 || y<0 || x>=XRES || y>=YRES || t<=0 || t>=PT_NUM)
 		return -1;
 	if (t>=0 && t<PT_NUM && !ptypes[t].enabled)
 		return -1;
-	/*if(t==SPC_PROP) {
-		return create_property(x, y, prop_offset, prop_value, prop_format);
-	}
-
-	if (is_TOOL(t))
-	{
-		if (t == SPC_HEAT || t == SPC_COOL)
-		{
-			int r = pmap[y][x];
-			if (!(r&0xFF))
-				r = photons[y][x];
-			if ((r&0xFF) != PT_NONE && (r&0xFF) < PT_NUM)
-			{
-				if (t == SPC_HEAT && parts[r>>8].temp < MAX_TEMP)
-				{
-					float heatchange;
-					if ((r&0xFF) == PT_PUMP || (r&0xFF) == PT_GPMP)
-						heatchange = toolStrength*.1f;
-					else if ((r&0xFF) == PT_ANIM)
-						heatchange = toolStrength;
-					else
-						heatchange = toolStrength*2.0f;
-				
-					parts[r>>8].temp = restrict_flt(parts[r>>8].temp + heatchange, MIN_TEMP, MAX_TEMP);
-				}
-				if (t == SPC_COOL && parts[r>>8].temp > MIN_TEMP)
-				{
-					float heatchange;
-					if ((r&0xFF) == PT_PUMP || (r&0xFF) == PT_GPMP)
-						heatchange = toolStrength*.1f;
-					else if ((r&0xFF) == PT_ANIM)
-						heatchange = toolStrength;
-					else
-						heatchange = toolStrength*4.0f;
-				
-					parts[r>>8].temp = restrict_flt(parts[r>>8].temp - heatchange, MIN_TEMP, MAX_TEMP);
-				}
-				return r>>8;
-			}
-			else
-			{
-				return -1;
-			}
-		}
-		else if (t==SPC_AIR)
-		{
-			pv[y/CELL][x/CELL] += toolStrength*.05f;
-			return -1;
-		}
-		else if (t==SPC_VACUUM)
-		{
-			pv[y/CELL][x/CELL] -= toolStrength*.05f;
-			return -1;
-		}
-		else if (t==SPC_PGRV)
-		{
-			gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = toolStrength*5.0f;
-			return -1;
-		}
-		else if (t==SPC_NGRV)
-		{
-			gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = toolStrength*-5.0f;
-			return -1;
-		}
-	}
-	else if (is_DECOTOOL(t))
-	{
-		create_decoration(x, y, PIXR(decocolor), PIXG(decocolor), PIXB(decocolor), decocolor>>24, 1, t);
-		return -1;
-	}*/
 
 	//activate BUTN here
 	if (p == -2 && (pmap[y][x]&0xFF) == PT_BUTN && parts[pmap[y][x]>>8].life == 10)
@@ -1020,15 +949,7 @@ int create_part(int p, int x, int y, int tv)//the function for creating a partic
 		if (photons[y][x] && (ptypes[t].properties & TYPE_ENERGY))
 			return -1;
 	}
-	i = globalSim->part_create(p, x, y, t);
-	if (t==PT_LIFE && i>=0)
-	{
-		if (v < NGOL)
-		{
-			parts[i].tmp = grule[v+1][9] - 1;
-			parts[i].ctype = v;
-		}
-	}
+	i = globalSim->part_create(p, x, y, t, v);
 	return i;
 }
 
@@ -2170,8 +2091,8 @@ void update_particles_i(pixel *vid, int start, int inc)
 		}
 	}
 
-	if (lighting_recreate)
-		lighting_recreate--;
+	if (globalSim->lightning_recreate)
+		globalSim->lightning_recreate--;
 
 	//the main particle loop function, goes over all particles.
 	for (i=0; i<=parts_lastActiveIndex; i++)
@@ -3387,27 +3308,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 {
 	int f = 0, fn;
 
-	if (c == PT_LIGH)
-	{
-	    if (lighting_recreate>0 && rx+ry>0)
-            return 0;
-		int p = create_part(-2, x, y, c);
-        if (p != -1)
-        {
-            parts[p].life = rx + ry;
-            if (parts[p].life > 55)
-                parts[p].life = 55;
-            parts[p].temp = parts[p].life*150.0f; // temperature of the lighting shows the power of the lighting
-            lighting_recreate = parts[p].life/4;
-            return 1;
-        }
-		else
-			return 0;
-	}
-	if (c == PT_STKM || c == PT_STKM2 || c == PT_FIGH)
-		rx = ry = 0;
-
-	else if (c == 0 && !(flags&BRUSH_REPLACEMODE))							// delete
+	if (c == 0 && !(flags&BRUSH_REPLACEMODE))							// delete
 		fn = 0;
 	else if ((flags&BRUSH_SPECIFIC_DELETE) && !(flags&BRUSH_REPLACEMODE))	// specific delete
 		fn = 1;

@@ -27,7 +27,7 @@ int Tool::DrawPoint(Brush* brush, Point position)
 		else if (globalSim->elements[ID].Properties&PROP_MOVS)
 			create_moving_solid(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID);
 		else
-			return create_parts(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID, get_brush_flags(), 1);
+			return globalSim->CreateParts(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID, get_brush_flags(), true);
 	}
 	else if (type == WALL_TOOL)
 	{
@@ -50,13 +50,17 @@ int Tool::DrawPoint(Brush* brush, Point position)
 		unsigned int col = (ID == DECO_ERASE) ? PIXRGB(0, 0, 0): decocolor;
 		globalSim->CreateDecoBrush(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID, col, true);
 	}
-	else
-		create_parts(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID, get_brush_flags(), 1);
 	return 0;
 }
 
 int Tool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 {
+	if (type == ELEMENT_TOOL)
+	{
+		if (held && (globalSim->elements[ID].Properties&PROP_MOVS))
+				return 0;
+		globalSim->CreateLine(startPos.X, startPos.Y, endPos.X, endPos.Y, currentBrush->GetRadius().X, currentBrush->GetRadius().Y, ID, get_brush_flags());
+	}
 	if (type == WALL_TOOL)
 	{
 		if (!held && GetID() == WL_FAN && bmap[startPos.Y/CELL][startPos.X/CELL] == WL_FAN)
@@ -102,10 +106,6 @@ int Tool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 		unsigned int col = (ID == DECO_ERASE) ? PIXRGB(0, 0, 0): decocolor;
 		globalSim->CreateDecoLine(startPos.X, startPos.Y, endPos.X, endPos.Y, brush->GetRadius().X, brush->GetRadius().Y, ID, col);
 	}
-	else if (held && type == ELEMENT_TOOL && (globalSim->elements[ID].Properties&PROP_MOVS))
-		return 0;
-	else
-		create_line(startPos.X, startPos.Y, endPos.X, endPos.Y, currentBrush->GetRadius().X, currentBrush->GetRadius().Y, ID, get_brush_flags());
 	return 0;
 }
 
