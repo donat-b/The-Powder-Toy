@@ -3385,41 +3385,13 @@ int create_part_add_props(int p, int x, int y, int tv, int rx, int ry)
 //this creates particles from a brush, don't use if you want to create one particle
 int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 {
-	int i, j, r, f = 0, u, v, oy, ox, b = 0, dw = 0, p, fn;
+	int f = 0, fn;
 
-	/*int wall = c - 100;
-	if (c==SPC_WIND || c==PT_FIGH || c==WL_SIGN+100)
-		return 0;
-
-	if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM || c == DECO_LIGH || c == DECO_DARK || c == DECO_SMDG)
-		fill = 1;
-	for (r = 0; r < UI_WALLCOUNT; r++)
-	{
-		if (wall==r)
-		{
-			if (is_TOOL(c) || c - 100 == WL_SIGN || is_DECOTOOL(c))
-				break;
-			if (wall == WL_ERASE || wall == WL_ERASEALL)
-				b = 0;
-			else
-				b = wall;
-			dw = 1;
-		}
-	}
-	if (c == WL_FANHELPER)
-	{
-		b = WL_FANHELPER;
-		dw = 1;
-	}
-	if (wall == WL_GRAV)
-	{
-		gravwl_timeout = 60;
-	}*/
 	if (c == PT_LIGH)
 	{
 	    if (lighting_recreate>0 && rx+ry>0)
             return 0;
-        p = create_part(-2, x, y, c);
+		int p = create_part(-2, x, y, c);
         if (p != -1)
         {
             parts[p].life = rx + ry;
@@ -3429,80 +3401,12 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
             lighting_recreate = parts[p].life/4;
             return 1;
         }
-        else return 0;
+		else
+			return 0;
 	}
 	if (c == PT_STKM || c == PT_STKM2 || c == PT_FIGH)
 		rx = ry = 0;
-	
-	/*if (dw==1)
-	{
-		ry = ry/CELL;
-		rx = rx/CELL;
-		x = x/CELL;
-		y = y/CELL;
-		x -= rx/2;
-		y -= ry/2;
-		for (ox=x; ox<=x+rx; ox++)
-		{
-			for (oy=y; oy<=y+rx; oy++)
-			{
-				if (ox>=0&&ox<XRES/CELL&&oy>=0&&oy<YRES/CELL)
-				{
-					i = ox;
-					j = oy;
-					if ((flags&BRUSH_SPECIFIC_DELETE) && b!=WL_FANHELPER)
-					{
-						if (bmap[j][i] == activeTools[2]->GetWallID())
-						{
-							b = 0;
-							if (activeTools[2]->GetID()+100 == WL_GRAV)
-								gravwl_timeout = 60;
-						}
-						else
-							continue;
-					}
-					if (b==WL_FAN)
-					{
-						fvx[j][i] = 0.0f;
-						fvy[j][i] = 0.0f;
-					}
-					if (b==WL_STREAM)
-					{
-						i = x + rx/2;
-						j = y + ry/2;
-						for (v=-1; v<2; v++)
-							for (u=-1; u<2; u++)
-								if (i+u>=0 && i+u<XRES/CELL &&
-								        j+v>=0 && j+v<YRES/CELL &&
-								        bmap[j+v][i+u] == WL_STREAM)
-									return 1;
-						bmap[j][i] = WL_STREAM;
-						continue;
-					}
-					if (b==0 && bmap[j][i]==WL_GRAV) gravwl_timeout = 60;
-					bmap[j][i] = b;
-					if (c-100==WL_ERASEALL)
-					{
-						for (v=0; v<CELL; v++)
-							for (u=0; u<CELL; u++)
-							{
-								delete_part(i*CELL+u, j*CELL+v, 0);
-							}
-						for (u=0; u<MAXSIGNS; u++)
-							if (signs[u].text[0])
-							{
-								if (signs[u].x >= i*CELL && signs[u].y >= j*CELL && signs[u].x <= (i+1)*CELL && signs[u].y <= (j+1)*CELL)
-									signs[u].text[0] = 0;
-							}
-					}
-				}
-			}
-		}
-		return 1;
-	}*/
 
-	//if (is_TOOL(c) || is_DECOTOOL(c))
-	//	fn = 3;
 	else if (c == 0 && !(flags&BRUSH_REPLACEMODE))							// delete
 		fn = 0;
 	else if ((flags&BRUSH_SPECIFIC_DELETE) && !(flags&BRUSH_REPLACEMODE))	// specific delete
@@ -3514,7 +3418,7 @@ int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill)
 
 	if (rx<=0) //workaround for rx == 0 crashing. todo: find a better fix later.
 	{
-		for (j = y - ry; j <= y + ry; j++)
+		for (int j = y - ry; j <= y + ry; j++)
 			if (create_parts2(fn,x,j,c,rx,ry,flags))
 				f = 1;
 	}
@@ -3674,8 +3578,7 @@ void create_line(int x1, int y1, int x2, int y2, int rx, int ry, int c, int flag
 			create_parts(y, x, rx, ry, c, flags, fill);
 		else
 			create_parts(x, y, rx, ry, c, flags, fill);
-		//if (c != TOOL_PROP)
-		//	fill = 0;
+		fill = 0;
 		e += de;
 		if (e >= 0.5f)
 		{

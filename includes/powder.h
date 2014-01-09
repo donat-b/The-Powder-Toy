@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Powder Toy - particle simulation (header)
  *
  * This program is free software; you can redistribute it and/or modify
@@ -340,51 +340,6 @@ static int lolzrule[9][9] =
 	{0,1,0,1,1,0,0,1,0},
 	{0,1,0,0,0,0,0,1,0},
 	{0,1,0,0,0,0,0,1,0},
-};
-
-struct wall_type
-{
-	const char *name;
-	pixel colour;
-	pixel eglow; // if emap set, add this to fire glow
-	int drawstyle;
-	const char *descs;
-};
-typedef struct wall_type wall_type;
-
-static wall_type wtypes[] =
-{
-	{"CONDUCTIVE WALL",	PIXPACK(0xC0C0C0), PIXPACK(0x101010), 0,  "Blocks everything. Conductive."},
-	{"EWALL",			PIXPACK(0x808080), PIXPACK(0x808080), 0,  "E-Wall. Becomes transparent when electricity is connected."},
-	{"DETECTOR",		PIXPACK(0xFF8080), PIXPACK(0xFF2008), 1,  "Detector. Generates electricity when a particle is inside."},
-	{"STREAMLINE",		PIXPACK(0x808080), PIXPACK(0x000000), 0,  "Streamline. Creates a line that follows air movement."},
-	{"SIGN",			PIXPACK(0x808080), PIXPACK(0x000000), -1, "Sign. Displays text. Click on a sign to edit it or anywhere else to place a new one."},
-	{"FAN",				PIXPACK(0x8080FF), PIXPACK(0x000000), 1,  "Fan. Accelerates air. Use the line tool to set direction and strength."},
-	{"LIQUID WALL",		PIXPACK(0xC0C0C0), PIXPACK(0x101010), 2,  "Allows liquids, blocks all other particles. Conductive."},
-	{"ABSORB WALL",		PIXPACK(0x808080), PIXPACK(0x000000), 1,  "Absorbs particles but lets air currents through."},
-	{"ERASE",			PIXPACK(0x808080), PIXPACK(0x000000), -1, "Erases walls."},
-	{"WALL",			PIXPACK(0x808080), PIXPACK(0x000000), 3,  "Basic wall, blocks everything."},
-	{"AIRONLY WALL",	PIXPACK(0x3C3C3C), PIXPACK(0x000000), 1,  "Allows air, but blocks all particles."},
-	{"POWDER WALL",		PIXPACK(0x575757), PIXPACK(0x000000), 1,  "Allows powders, blocks all other particles."},
-	{"CONDUCTOR",		PIXPACK(0xFFFF22), PIXPACK(0x101010), 2,  "Conductor. Allows all particles to pass through and conducts electricity."},
-	{"EHOLE",			PIXPACK(0x242424), PIXPACK(0x101010), 0,  "E-Hole. absorbs particles, releases them when powered."},
-	{"HEAT",			PIXPACK(0xFFBB00), PIXPACK(0x000000), -1, "Heats the targeted element."},
-	{"COOL",			PIXPACK(0x00BBFF), PIXPACK(0x000000), -1, "Cools the targeted element."},
-	{"AIR",				PIXPACK(0xFFFFFF), PIXPACK(0x000000), -1, "Air, creates airflow and pressure."},
-	{"VAC",				PIXPACK(0x303030), PIXPACK(0x000000), -1, "Vacuum, reduces air pressure."},
-	{"GAS WALL",		PIXPACK(0x579777), PIXPACK(0x000000), 1,  "Allows gases, blocks all other particles."},
-	{"PGRV",			PIXPACK(0xCCCCFF), PIXPACK(0x000000), -1, "Creates a short-lasting gravity well."},
-	{"GRAVITY WALL",	PIXPACK(0xFFEE00), PIXPACK(0xAA9900), 4,  "Gravity wall. Newtonian Gravity has no effect inside a box drawn with this."},
-	{"NGRV",			PIXPACK(0xAACCFF), PIXPACK(0x000000), -1, "Creates a short-lasting negative gravity well."},
-	{"WIND",			PIXPACK(0x000000), PIXPACK(0x000000), -1, "Creates air movement."},
-	{"ENERGY WALL",		PIXPACK(0xFFAA00), PIXPACK(0xAA5500), 4,  "Allows energy particles, blocks all other particles."},
-	{"PROP",			PIXPACK(0xFFAA00), PIXPACK(0x000000), -1, "Property drawing tool."},
-	{"ERASEALL",		PIXPACK(0x808080), PIXPACK(0x000000), -1, "Erases walls, particles, and signs."},
-	{"DRAW",			PIXPACK(0xFF0000), PIXPACK(0x000000), -1, "Draw decoration."},
-	{"ERASE",			PIXPACK(0x000000), PIXPACK(0x000000), -1, "Erase decoration."},
-	{"LIGH",			PIXPACK(0xDDDDDD), PIXPACK(0x000000), -1, "Lighten deco color."},
-	{"DARK",			PIXPACK(0x111111), PIXPACK(0x000000), -1, "Darken deco color."},
-	{"SMDG",			PIXPACK(0x00FF00), PIXPACK(0x000000), -1, "Smudge tool, blends decoration color."}
 };
 
 #define FAV_START 300

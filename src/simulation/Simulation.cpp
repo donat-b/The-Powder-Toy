@@ -16,6 +16,7 @@
 #include "powder.h"
 #include "gravity.h"
 #include "misc.h"
+#include "interface.h" //for framenum, try and remove this later
 #include "simulation/Element.h"
 #include "simulation/ElementDataContainer.h"
 #include "simulation/Simulation.h"
@@ -342,7 +343,12 @@ bool Simulation::spark_conductive_attempt(int i, int x, int y)
 	return false;
 }
 
-//Functions for creating parts, walls, tools, and deco
+/*
+ *
+ *Functions for creating parts, walls, tools, and deco
+ *
+ */
+
 void Simulation::CreateWall(int x, int y, int wall)
 {
 	if (x < 0 || y < 0 || x >= XRES/CELL || y >= YRES/CELL)
@@ -683,6 +689,218 @@ void Simulation::CreateToolBox(int x1, int y1, int x2, int y2, int tool)
 		for (int j = y1; j <= y2; j++)
 			CreateTool(i, j, tool);
 }
+
+void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
+{
+	int rp, tr = 0, tg = 0, tb = 0;
+	rp = pmap[y][x];
+	if (!rp)
+		rp = photons[y][x];
+	if (!rp)
+		return;
+	if (tool == DECO_DRAW)
+	{
+		parts[rp>>8].dcolour = color;
+	}
+	else if (tool == DECO_ERASE)
+	{
+		parts[rp>>8].dcolour = 0;
+	}
+	else if (tool == DECO_LIGH)
+	{
+		if (!parts[rp>>8].dcolour)
+			return;
+		tr = (parts[rp>>8].dcolour>>16)&0xFF;
+		tg = (parts[rp>>8].dcolour>>8)&0xFF;
+		tb = (parts[rp>>8].dcolour)&0xFF;
+		parts[rp>>8].dcolour = ((parts[rp>>8].dcolour&0xFF000000)|(clamp_flt(tr+(255-tr)*0.02+1, 0,255)<<16)|(clamp_flt(tg+(255-tg)*0.02+1, 0,255)<<8)|clamp_flt(tb+(255-tb)*0.02+1, 0,255));
+	}
+	else if (tool == DECO_DARK)
+	{
+		if (!parts[rp>>8].dcolour)
+			return;
+		tr = (parts[rp>>8].dcolour>>16)&0xFF;
+		tg = (parts[rp>>8].dcolour>>8)&0xFF;
+		tb = (parts[rp>>8].dcolour)&0xFF;
+		parts[rp>>8].dcolour = ((parts[rp>>8].dcolour&0xFF000000)|(clamp_flt(tr-(tr)*0.02, 0,255)<<16)|(clamp_flt(tg-(tg)*0.02, 0,255)<<8)|clamp_flt(tb-(tb)*0.02, 0,255));
+	}
+	else if (tool == DECO_SMDG)
+	{
+		int rx, ry, num = 0, ta = 0;
+		for (rx=-2; rx<3; rx++)
+			for (ry=-2; ry<3; ry++)
+			{
+				if ((pmap[y+ry][x+rx]&0xFF) && parts[pmap[y+ry][x+rx]>>8].dcolour)
+				{
+					num++;
+					ta += (parts[pmap[y+ry][x+rx]>>8].dcolour>>24)&0xFF;
+					tr += (parts[pmap[y+ry][x+rx]>>8].dcolour>>16)&0xFF;
+					tg += (parts[pmap[y+ry][x+rx]>>8].dcolour>>8)&0xFF;
+					tb += (parts[pmap[y+ry][x+rx]>>8].dcolour)&0xFF;
+				}
+			}
+		if (num == 0)
+			return;
+		ta = fmin(255,(int)((float)ta/num+.5));
+		tr = fmin(255,(int)((float)tr/num+.5));
+		tg = fmin(255,(int)((float)tg/num+.5));
+		tb = fmin(255,(int)((float)tb/num+.5));
+		if (!parts[rp>>8].dcolour)
+			ta = fmax(0,ta-3);
+		parts[rp>>8].dcolour = ((ta<<24)|(tr<<16)|(tg<<8)|tb);
+	}
+	if (parts[rp>>8].type == PT_ANIM)
+	{
+		parts[rp>>8].animations[framenum] = parts[rp>>8].dcolour;
+	}
+}
+
+void Simulation::CreateDecoBrush(int x, int y, int rx, int ry, int tool, unsigned int color, bool fill)
+{
+	if (rx<=0) //workaround for rx == 0 crashing. todo: find a better fix later.
+	{
+		for (int j = y - ry; j <= y + ry; j++)
+			CreateDeco(x, j, tool, color);
+	}
+	else
+	{
+		int tempy = y, i, j, jmax, oldy;
+		// tempy is the smallest y value that is still inside the brush
+		// jmax is the largest y value that is still inside the brush (bottom border of brush)
+
+		//For triangle brush, start at the very bottom
+		if (currentBrush->GetShape() == TRI_BRUSH)
+			tempy = y + ry;
+		for (i = x - rx; i <= x; i++)
+		{
+			oldy = tempy;
+			//loop up until it finds a point not in the brush
+			while (InCurrentBrush(i-x,tempy-y,rx,ry))
+				tempy = tempy - 1;
+			tempy = tempy + 1;
+
+			if (fill)
+			{
+				//If triangle brush, create parts down to the bottom always; if not go down to the bottom border
+				if (currentBrush->GetShape() == TRI_BRUSH)
+					jmax = y + ry;
+				else
+					jmax = 2*y - tempy;
+
+				for (j = tempy; j <= jmax; j++)
+				{
+					CreateDeco(i, j, tool, color);
+					//don't create twice in the vertical center line
+					if (i != x)
+						CreateDeco(2*x-i, j, tool, color);
+				}
+			}
+			else
+			{
+				if ((oldy != tempy && currentBrush->GetShape() != SQUARE_BRUSH) || i == x-rx)
+					oldy--;
+				for (j = tempy; j <= oldy+1; j++)
+				{
+					int i2 = 2*x-i, j2 = 2*y-j;
+					if (currentBrush->GetShape() == TRI_BRUSH)
+						j2 = y+ry;
+
+					CreateDeco(i, j, tool, color);
+					if (i2 != i)
+						CreateDeco(i2, j, tool, color);
+					if (j2 != j)
+						CreateDeco(i, j2, tool, color);
+					if (i2 != i)
+						CreateDeco(i2, j2, tool, color);
+				}
+			}
+		}
+	}
+}
+
+void Simulation::CreateDecoLine(int x1, int y1, int x2, int y2, int rx, int ry, int tool, unsigned int color)
+{
+	int x, y, dx, dy, sy;
+	bool reverseXY = abs(y2-y1) > abs(x2-x1), fill = true;
+	float e = 0.0f, de;
+	if (reverseXY)
+	{
+		y = x1;
+		x1 = y1;
+		y1 = y;
+		y = x2;
+		x2 = y2;
+		y2 = y;
+	}
+	if (x1 > x2)
+	{
+		y = x1;
+		x1 = x2;
+		x2 = y;
+		y = y1;
+		y1 = y2;
+		y2 = y;
+	}
+	dx = x2 - x1;
+	dy = abs(y2 - y1);
+	if (dx)
+		de = dy/(float)dx;
+	else
+		de = 0.0f;
+	y = y1;
+	sy = (y1<y2) ? 1 : -1;
+	for (x=x1; x<=x2; x++)
+	{
+		if (reverseXY)
+			CreateDecoBrush(y, x, ry, rx, tool, color, fill);
+		else
+			CreateDecoBrush(x, y, rx, ry, tool, color, fill);
+		e += de;
+		fill = false;
+		if (e >= 0.5f)
+		{
+			y += sy;
+			if (!(rx+ry) && ((y1<y2) ? (y<=y2) : (y>=y2)))
+			{
+				if (reverseXY)
+					CreateDecoBrush(y, x, ry, rx, tool, color, fill);
+				else
+					CreateDecoBrush(x, y, rx, ry, tool, color, fill);
+			}
+			e -= 1.0f;
+		}
+	}
+}
+
+void Simulation::CreateDecoBox(int x1, int y1, int x2, int y2, int tool, unsigned int color)
+{
+	if (x1 > x2)
+	{
+		int temp = x2;
+		x2 = x1;
+		x1 = temp;
+	}
+	if (y1 > y2)
+	{
+		int temp = y2;
+		y2 = y1;
+		y1 = temp;
+	}
+	for (int i = x1; i <= x2; i++)
+		for (int j = y1; j <= y2; j++)
+			CreateDeco(i, j, tool, color);
+}
+
+void Simulation::FloodDeco(int x, int y, unsigned int color, unsigned int replace)
+{
+	//TODO: implement
+}
+
+/*
+ *
+ *End of tool creation section
+ *
+ */
 
 //This is not part of the simulation class
 void Simulation_Compat_CopyData(Simulation* sim)

@@ -14,13 +14,6 @@
 #define TOOL_SIGN	8
 #define TOOLCOUNT	9
 
-#define DECO_DRAW	0
-#define DECO_ERASE	1
-#define DECO_LIGH	2
-#define DECO_DARK	3
-#define DECO_SMDG	4
-#define DECO_COUNT	5
-
 #define OLD_PT_WIND	147
 #define OLD_WL_SIGN	126
 #define OLD_SPC_AIR	236
@@ -51,6 +44,30 @@ static toolType toolTypes[] =
 	{"LIGH",			PIXPACK(0xDDDDDD), PIXPACK(0x000000), -1, "Lighten deco color."},
 	{"DARK",			PIXPACK(0x111111), PIXPACK(0x000000), -1, "Darken deco color."},
 	{"SMDG",			PIXPACK(0x00FF00), PIXPACK(0x000000), -1, "Smudge tool, blends decoration color."}*/
+};
+
+#define DECO_DRAW	0
+#define DECO_ERASE	1
+#define DECO_LIGH	2
+#define DECO_DARK	3
+#define DECO_SMDG	4
+#define DECOCOUNT	5
+
+struct decoType
+{
+	std::string name;
+	pixel color;
+	std::string descs;
+};
+typedef struct decoType decoType;
+
+static decoType decoTypes[] =
+{
+	{"SET",  PIXPACK(0xFF0000), "Draw decoration."},
+	{"CLR", PIXPACK(0x000000), "Erase decoration."},
+	{"LIGH",  PIXPACK(0xDDDDDD), "Lighten deco color."},
+	{"DARK",  PIXPACK(0x111111), "Darken deco color."},
+	{"SMDG",  PIXPACK(0x00FF00), "Smudge tool, blends decoration color."}
 };
 
 #endif

@@ -926,7 +926,7 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 	}
 	else if (current->GetType() == DECO_TOOL)
 	{
-		pixel color = wtypes[current->GetID()].colour;
+		pixel color = decoTypes[current->GetID()].color;
 		for (j=1; j<15; j++)
 		{
 			for (i=1; i<27; i++)

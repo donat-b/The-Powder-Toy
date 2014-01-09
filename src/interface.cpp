@@ -150,18 +150,22 @@ Tool* lastOver = NULL;
 void menu_count()
 {
 	std::string tempActiveTools[3], decoActiveTools[3];
-	if (activeTools[0]) //active tools might not have been initialized at the start
+	//active tools might not have been initialized at the start
+	if (activeTools[0])
 	{
 		for (int i = 0; i < 3; i++)
 			tempActiveTools[i] = activeTools[i]->GetIdentifier();
 		for (int i = 0; i < 3; i++)
 			decoActiveTools[i] = decoTools[i]->GetIdentifier();
 	}
+	//Clear all menusections
 	for (int i = 0; i < SC_TOTAL; i++)
 	{
 		menuSections[i]->ClearTools();
 	}
 	lastOver = NULL;
+
+	//Add all generic elements to menus
 	for (int i = 0; i < PT_NUM; i++)
 	{
 		if (globalSim->elements[i].Enabled && i != PT_LIFE)
@@ -174,22 +178,38 @@ void menu_count()
 				menuSections[SC_OTHER]->AddTool(new Tool(ELEMENT_TOOL, i, globalSim->elements[i].Identifier));
 		}
 	}
+
+	//Fill up LIFE menu
 	for (int i = 0; i < NGOL; i++)
 	{
 		menuSections[SC_LIFE]->AddTool(new Tool(GOL_TOOL, i, "DEFAULT_PT_LIFE_" + std::string(gmenu[i].name)));
 	}
+
+	//Fill up wall menu
 	for (int i = 0; i < WALLCOUNT; i++)
 	{
 		std::stringstream identifier;
 		identifier << "DEFAULT_WL_" << i;
 		menuSections[SC_WALL]->AddTool(new Tool(WALL_TOOL, i, identifier.str()));
 	}
+
+	//Fill up tools menu
 	for (int i = 0; i < TOOLCOUNT; i++)
 	{
 		std::stringstream identifier;
 		identifier << "DEFAULT_TOOL_" << toolTypes[i].name;
 		menuSections[SC_TOOL]->AddTool(new Tool(TOOL_TOOL, i, identifier.str()));
 	}
+
+	//Fill up deco menu
+	for (int i = 0; i < DECOCOUNT; i++)
+	{
+		std::stringstream identifier;
+		identifier << "DEFAULT_DECOUR_" << decoTypes[i].name;
+		menuSections[SC_DECO]->AddTool(new Tool(DECO_TOOL, i, identifier.str()));
+	}
+
+	//Fill up fav. related menus somehow ...
 	menuSections[SC_FAV]->AddTool(new Tool(INVALID_TOOL, FAV_MORE, "DEFAULT_FAV_MORE"));
 	for (int i = 0; i < 18; i++)
 	{
@@ -204,6 +224,7 @@ void menu_count()
 		menuSections[SC_HUD]->AddTool(new Tool(INVALID_TOOL, i, "DEFAULT_FAV_" + std::string(hud_menu[i-HUD_START].name)));
 	}
 
+	//restore active tools
 	if (activeTools[0])
 	{
 		for (int i = 0; i < 3; i++)
@@ -3264,9 +3285,9 @@ void menu_draw_text(Tool* lastOver, int i)
 	{
 		drawtext(vid_buf, XRES-textwidth((char *)toolTypes[toolID].descs.c_str())-BARSIZE, sy-10, (char *)toolTypes[toolID].descs.c_str(), 255, 255, 255, dae*5);
 	}
-	else //if (lastOver->GetType() == WALL_TOOL)
+	else if (lastOver->GetType() == DECO_TOOL)
 	{
-		drawtext(vid_buf, XRES-textwidth((char *)wtypes[toolID].descs)-BARSIZE, sy-10, (char *)wtypes[toolID].descs, 255, 255, 255, dae*5);
+		drawtext(vid_buf, XRES-textwidth((char *)decoTypes[toolID].descs.c_str())-BARSIZE, sy-10, (char *)decoTypes[toolID].descs.c_str(), 255, 255, 255, dae*5);
 	}
 }
 
@@ -3392,9 +3413,9 @@ void menu_select_element(int b, Tool* over)
 				decocolor = newDecoColor;
 			else
 			{
-				if (activeTools[0]->GetIdentifier() != "DEFAULT_WL_26")
+				if (activeTools[0]->GetIdentifier() != "DEFAULT_DECOUR_SET")
 				{
-					activeTools[0] = GetToolFromIdentifier("DEFAULT_WL_26");
+					activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOUR_SET");
 				}
 			}
 			currR = PIXR(decocolor), currG = PIXG(decocolor), currB = PIXB(decocolor), currA = decocolor>>24;
@@ -7503,8 +7524,8 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 				currV = my - 5;
 				HSV_to_RGB(currH,currS,tv,&currR,&currG,&currB);
 				deco_disablestuff = 1;
-				if (activeTools[0]->GetIdentifier() != "DEFAULT_WL_26")
-					activeTools[0] = GetToolFromIdentifier("DEFAULT_WL_26");
+				if (activeTools[0]->GetIdentifier() != "DEFAULT_DECOUR_SET")
+					activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOUR_SET");
 			}
 			HSV_to_RGB(currH,currS,tv,&cr,&cg,&cb);
 			//clearrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6,12,12);
@@ -7530,8 +7551,8 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 				currS = ts;
 				HSV_to_RGB(th,ts,currV,&currR,&currG,&currB);
 				deco_disablestuff = 1;
-				if (activeTools[0]->GetIdentifier() != "DEFAULT_WL_26")
-					activeTools[0] = GetToolFromIdentifier("DEFAULT_WL_26");
+				if (activeTools[0]->GetIdentifier() != "DEFAULT_DECOUR_SET")
+					activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOUR_SET");
 			}
 			HSV_to_RGB(th,ts,currV,&cr,&cg,&cb);
 			//clearrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6,12,12);

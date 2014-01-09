@@ -68,6 +68,12 @@ public:
 	void CreateToolLine(int x1, int y1, int x2, int y2, int rx, int ry, int tool);
 	void CreateToolBox(int x1, int y1, int x2, int y2, int tool);
 
+	void CreateDeco(int x, int y, int tool, unsigned int color);
+	void CreateDecoBrush(int x, int y, int rx, int ry, int tool, unsigned int color, bool fill);
+	void CreateDecoLine(int x1, int y1, int x2, int y2, int rx, int ry, int tool, unsigned int color);
+	void CreateDecoBox(int x1, int y1, int x2, int y2, int tool, unsigned int color);
+	void FloodDeco(int x, int y, unsigned int color, unsigned int replace);
+
 	// Functions defined here should hopefully be inlined
 	// Don't put anything that will change often here, since changes cause a lot of recompiling
 

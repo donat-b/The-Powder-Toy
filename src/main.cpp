@@ -1057,8 +1057,8 @@ int main(int argc, char *argv[])
 	activeTools[0] = GetToolFromIdentifier("DEFAULT_PT_DUST");
 	activeTools[1] = GetToolFromIdentifier("DEFAULT_PT_NONE");
 	activeTools[2] = GetToolFromIdentifier("DEFAULT_PT_NONE");
-	decoTools[0] = GetToolFromIdentifier("DEFAULT_WL_26");
-	decoTools[1] = GetToolFromIdentifier("DEFAULT_WL_27");
+	decoTools[0] = GetToolFromIdentifier("DEFAULT_DECOUR_SET");
+	decoTools[1] = GetToolFromIdentifier("DEFAULT_DECOUR_CLR");
 	decoTools[2] = GetToolFromIdentifier("DEFAULT_PT_NONE");
 	*regularTools = *activeTools;
 	currentBrush = new Brush(Point(5, 5), CIRCLE_BRUSH);
@@ -1930,7 +1930,7 @@ int main(int argc, char *argv[])
 
 					*regularTools = *activeTools;
 					*activeTools = *decoTools;
-					activeTools[0] = GetToolFromIdentifier("DEFAULT_WL_26");
+					activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOUR_SET");
 				}
 			}
 			if (sdl_key=='g')
@@ -2305,7 +2305,7 @@ int main(int argc, char *argv[])
 			*regularTools = *activeTools;
 			*activeTools = *decoTools;
 
-			activeTools[0] = GetToolFromIdentifier("DEFAULT_WL_26");
+			activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOUR_SET");
 		}
 		else if (active_menu != SC_DECO && activeTools[0]->GetType() == DECO_TOOL)
 		{
@@ -2784,7 +2784,7 @@ int main(int argc, char *argv[])
 				activeToolID = ((b&1) || b == 2) ? 0 : 1;
 				Tool* activeTool = activeTools[activeToolID];
 				if (activeTools[0]->GetType() == DECO_TOOL && b == 4)
-					activeTool = GetToolFromIdentifier("DEFAULT_WL_27");
+					activeTool = GetToolFromIdentifier("DEFAULT_DECOUR_CLR");
 
 				//link signs are clicked from here
 				if (activeTool->GetToolID() != TOOL_SIGN || b != 1)
