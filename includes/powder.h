@@ -39,7 +39,6 @@
 #define BRUSH_SPECIFIC_DELETE 0x2
 
 #include "simulation/ElementNumbers.h"
-#define PT_NUM  222
 
 #define R_TEMP 22
 #define MAX_TEMP 9999
@@ -446,6 +445,7 @@ static void create_gain_photon(int pp);
 
 void kill_part(int i);
 
+int FloodFillPmapCheck(int x, int y, int type);
 int flood_prop(int x, int y, size_t propoffset, void * propvalue, int proptype);
 
 void detach(int i);
@@ -471,8 +471,6 @@ int is_wire_off(int x, int y);
 void set_emap(int x, int y);
 
 int parts_avg(int ci, int ni, int t);
-
-void create_arc(int sx, int sy, int dx, int dy, int midpoints, int variance, int type, int flags);
 
 int nearest_part(int ci, int t, int max_d);
 
@@ -506,21 +504,11 @@ void rotate_area(int area_x, int area_y, int area_w, int area_h, int invert);
 
 void clear_area(int area_x, int area_y, int area_w, int area_h);
 
-void create_box(int x1, int y1, int x2, int y2, int c, int flags);
-
-int FloodParts(int x, int y, int fullc, int cm, int flags);
-
 int INST_flood_spark(Simulation *sim, int x, int y);
 
 int flood_water(int x, int y, int i, int originaly, int check);
 
-int create_parts(int x, int y, int rx, int ry, int c, int flags, int fill);
-
 void create_moving_solid(int x, int y, int rx, int ry, int type);
-
-int create_parts2(int f, int x, int y, int c, int rx, int ry, int flags);
-
-void create_line(int x1, int y1, int x2, int y2, int rx, int ry, int c, int flags);
 
 void orbitalparts_get(int block1, int block2, int resblock1[], int resblock2[]);
 void orbitalparts_set(int *block1, int *block2, int resblock1[], int resblock2[]);

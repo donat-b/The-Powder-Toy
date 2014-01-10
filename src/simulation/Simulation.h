@@ -63,7 +63,7 @@ public:
 	int CreatePartFlags(int x, int y, int c, int flags);
 	void CreateLine(int x1, int y1, int x2, int y2, int rx, int ry, int c, int flags);
 	void CreateBox(int x1, int y1, int x2, int y2, int c, int flags);
-	void FloodParts(int x, int y, int c, int flags, unsigned int replace);
+	int FloodParts(int x, int y, int fullc, int replace, int flags);
 
 	void CreateWall(int x, int y, int wall);
 	void CreateWallLine(int x1, int y1, int x2, int y2, int rx, int ry, int wall);

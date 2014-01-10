@@ -19,7 +19,9 @@ Tool::Tool(int toolType, int toolID, std::string toolIdentifier):
 int Tool::DrawPoint(Brush* brush, Point position)
 {
 	if (GetToolID() == TOOL_SIGN || MSIGN != -1) // if sign tool is selected or a sign is being moved
+	{
 		add_sign_ui(vid_buf, position.X, position.Y);
+	}
 	else if (type == ELEMENT_TOOL)
 	{
 		if (ID == PT_FIGH)
@@ -28,6 +30,10 @@ int Tool::DrawPoint(Brush* brush, Point position)
 			create_moving_solid(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID);
 		else
 			return globalSim->CreateParts(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID, get_brush_flags(), true);
+	}
+	else if (type == GOL_TOOL)
+	{
+		return globalSim->CreateParts(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, PT_LIFE+(ID<<8), get_brush_flags(), true);
 	}
 	else if (type == WALL_TOOL)
 	{
@@ -40,10 +46,6 @@ int Tool::DrawPoint(Brush* brush, Point position)
 	else if (type == TOOL_TOOL)
 	{
 		globalSim->CreateToolBrush(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID);
-	}
-	else if (type == GOL_TOOL)
-	{
-		create_parts(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, PT_LIFE+(ID<<8), get_brush_flags(), 1);
 	}
 	else if (type == DECO_TOOL)
 	{
@@ -60,6 +62,10 @@ int Tool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 		if (held && (globalSim->elements[ID].Properties&PROP_MOVS))
 				return 0;
 		globalSim->CreateLine(startPos.X, startPos.Y, endPos.X, endPos.Y, currentBrush->GetRadius().X, currentBrush->GetRadius().Y, ID, get_brush_flags());
+	}
+	else if (type == GOL_TOOL)
+	{
+		globalSim->CreateLine(startPos.X, startPos.Y, endPos.X, endPos.Y, currentBrush->GetRadius().X, currentBrush->GetRadius().Y, PT_LIFE+(ID<<8), get_brush_flags());
 	}
 	if (type == WALL_TOOL)
 	{
@@ -99,8 +105,6 @@ int Tool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 		else
 			globalSim->CreateToolLine(startPos.X, startPos.Y, endPos.X, endPos.Y, currentBrush->GetRadius().X, currentBrush->GetRadius().Y, ID);
 	}
-	else if (type == GOL_TOOL)
-		create_line(startPos.X, startPos.Y, endPos.X, endPos.Y, currentBrush->GetRadius().X, currentBrush->GetRadius().Y, PT_LIFE+(ID<<8), get_brush_flags());
 	else if (type == DECO_TOOL)
 	{
 		unsigned int col = (ID == DECO_ERASE) ? PIXRGB(0, 0, 0): decocolor;
@@ -111,7 +115,15 @@ int Tool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 
 void Tool::DrawRect(Brush* brush, Point startPos, Point endPos)
 {
-	if (type == WALL_TOOL)
+	if (type == ELEMENT_TOOL)
+	{
+		globalSim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, get_brush_flags());
+	}
+	else if (type == GOL_TOOL)
+	{
+		globalSim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, PT_LIFE+(ID<<8), get_brush_flags());
+	}
+	else if (type == WALL_TOOL)
 	{
 		globalSim->CreateWallBox(startPos.X/CELL, startPos.Y/CELL, endPos.X/CELL, endPos.Y/CELL, ID);
 	}
@@ -119,23 +131,23 @@ void Tool::DrawRect(Brush* brush, Point startPos, Point endPos)
 	{
 		globalSim->CreateToolBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID);
 	}
-	else if (type == GOL_TOOL)
-	{
-		create_box(startPos.X, startPos.Y, endPos.X, endPos.Y, PT_LIFE+(ID<<8), get_brush_flags());
-	}
 	else if (type == DECO_TOOL)
 	{
 		unsigned int col = (ID == DECO_ERASE) ? PIXRGB(0, 0, 0): decocolor;
 		globalSim->CreateDecoBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, col);
 	}
-	else
-		create_box(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, get_brush_flags());
 }
 
 int Tool::FloodFill(Point position)
 {
 	if (type == ELEMENT_TOOL)
-			return FloodParts(position.X, position.Y, ID, -1, get_brush_flags());
+	{
+			return globalSim->FloodParts(position.X, position.Y, ID, -1, get_brush_flags());
+	}
+	else if (type == GOL_TOOL)
+	{
+		return globalSim->FloodParts(position.X, position.Y, PT_LIFE+(ID<<8), -1, get_brush_flags());
+	}
 	if (type == WALL_TOOL)
 	{
 		if (ID != WL_STREAM+100)
@@ -145,10 +157,6 @@ int Tool::FloodFill(Point position)
 	{
 		if (GetID() == TOOL_PROP)
 			return flood_prop(position.X, position.Y, prop_offset, prop_value, prop_format);
-	}
-	else if (type == GOL_TOOL)
-	{
-		return FloodParts(position.X, position.Y, PT_LIFE+(ID<<8), -1, get_brush_flags());
 	}
 	else if (type == DECO_TOOL)
 	{

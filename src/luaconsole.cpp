@@ -2923,7 +2923,7 @@ int luatpt_create_parts(lua_State* l)
 	if (c < 0 || c >= PT_NUM && !ptypes[c].enabled)
 		return luaL_error(l, "Unrecognised element number '%d'", c);
 	currentBrush->SetShape(brush);
-	ret = create_parts(x, y, rx, ry, c, flags, fill);
+	ret = globalSim->CreateParts(x, y, rx, ry, c, flags, fill);
 	currentBrush->SetShape(oldbrush);
 	lua_pushinteger(l, ret);
 	return 1;
@@ -2948,7 +2948,7 @@ int luatpt_create_line(lua_State* l)
 	if (c < 0 || c >= PT_NUM && !ptypes[c].enabled)
 		return luaL_error(l, "Unrecognised element number '%d'", c);
 	currentBrush->SetShape(brush);
-	create_line(x1, y1, x2, y2, rx, ry, c, flags);
+	globalSim->CreateLine(x1, y1, x2, y2, rx, ry, c, flags);
 	currentBrush->SetShape(oldbrush);
 	return 0;
 }
@@ -2958,13 +2958,13 @@ int luatpt_floodfill(lua_State* l)
 	int x = luaL_optint(l,1,-1);
 	int y = luaL_optint(l,2,-1);
 	int c = luaL_optint(l,3,activeTools[0]->GetElementID());
-	int cm = luaL_optint(l,4,-1);
+	int replace = luaL_optint(l,4,-1);
 	int flags = luaL_optint(l,5,get_brush_flags());
 	if (x < 0 || x > XRES || y < 0 || y > YRES)
 		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
 	if ((c < 0 || c >= PT_NUM) && !ptypes[c].enabled)
 		return luaL_error(l, "Unrecognised element number '%d'", c);
-	int ret = FloodParts(x, y, c, cm, flags);
+	int ret = globalSim->FloodParts(x, y, c, replace, flags);
 	lua_pushinteger(l, ret);
 	return 1;
 }

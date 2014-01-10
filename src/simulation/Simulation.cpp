@@ -13,23 +13,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cmath>
 #include "powder.h"
 #include "gravity.h"
 #include "misc.h"
 #include "interface.h" //for framenum, try and remove this later
-#include "simulation/Element.h"
-#include "simulation/ElementDataContainer.h"
-#include "simulation/Tool.h"
-#include "simulation/Simulation.h"
 #include "game/Brush.h"
-#include <cmath>
+
+//Simulation stuff
+#include "Element.h"
+#include "ElementDataContainer.h"
+#include "Tool.h"
+#include "Simulation.h"
+#include "CoordStack.h"
 
 // Declare the element initialisation functions
 #define ElementNumbers_Include_Decl
 #define DEFINE_ELEMENT(name, id) void name ## _init_element(ELEMENT_INIT_FUNC_ARGS);
-#include "simulation/ElementNumbers.h"
-#include "simulation/WallNumbers.h"
-#include "simulation/ToolNumbers.h"
+#include "ElementNumbers.h"
+#include "WallNumbers.h"
+#include "ToolNumbers.h"
 
 
 Simulation *globalSim = NULL; // TODO: remove this global variable
@@ -526,12 +529,111 @@ void Simulation::CreateLine(int x1, int y1, int x2, int y2, int rx, int ry, int 
 
 void Simulation::CreateBox(int x1, int y1, int x2, int y2, int c, int flags)
 {
-
+	if (x1 > x2)
+	{
+		int temp = x2;
+		x2 = x1;
+		x1 = temp;
+	}
+	if (y1 > y2)
+	{
+		int temp = y2;
+		y2 = y1;
+		y1 = temp;
+	}
+	for (int i = x1; i <= x2; i++)
+		for (int j = y1; j <= y2; j++)
+			CreateParts(i, j, 0, 0, c, flags, false);
 }
 
-void Simulation::FloodParts(int x, int y, int c, int flags, unsigned int replace)
+int Simulation::FloodParts(int x, int y, int fullc, int replace, int flags)
 {
+	int c = fullc&0xFF;
+	int x1, x2;
+	int created_something = 0;
 
+	if (replace == -1)
+	{
+		//if initial flood point is out of bounds, do nothing
+		if (c != 0 && (x < CELL || x >= XRES-CELL || y < CELL || y >= YRES-CELL))
+			return 1;
+		if (c==0)
+		{
+			replace = pmap[y][x]&0xFF;
+			if(!replace && !(replace = photons[y][x]&0xFF))
+			{
+				if (bmap[y/CELL][x/CELL])
+					return globalSim->FloodWalls(x/CELL, y/CELL, WL_ERASE, -1);
+				else
+					return 0;
+				if ((flags&BRUSH_REPLACEMODE) && activeTools[2]->GetElementID() != replace)
+					return 0;
+			}
+		}
+		else
+			replace = 0;
+	}
+	if (c != 0 && IsWallBlocking(x, y, c))
+		return 0;
+
+	if (!FloodFillPmapCheck(x, y, replace) || ((flags&BRUSH_SPECIFIC_DELETE) && activeTools[2]->GetElementID() != replace))
+		return 0;
+
+	try
+	{
+		CoordStack cs;
+		cs.push(x, y);
+
+		do
+		{
+			cs.pop(x, y);
+			x1 = x2 = x;
+			// go left as far as possible
+			while (c?x1>CELL:x1>0)
+			{
+				if (!FloodFillPmapCheck(x1-1, y, replace) || (c != 0 && IsWallBlocking(x1-1, y, c)))
+				{
+					break;
+				}
+				x1--;
+			}
+			// go right as far as possible
+			while (c?x2<XRES-CELL-1:x2<XRES-1)
+			{
+				if (!FloodFillPmapCheck(x2+1, y, replace) || (c != 0 && IsWallBlocking(x2+1, y, c)))
+				{
+					break;
+				}
+				x2++;
+			}
+			// fill span
+			for (x=x1; x<=x2; x++)
+			{
+				if (CreateParts(x, y, 0, 0, fullc, flags, true));
+					created_something = 1;
+			}
+
+			if (c ? y>CELL : y>0)
+				for (x=x1; x<=x2; x++)
+					if (FloodFillPmapCheck(x, y-1, replace) && (c == 0 || !IsWallBlocking(x, y-1, c)))
+					{
+						cs.push(x, y-1);
+					}
+
+			if (c ? y<=YRES-CELL : y<=YRES)
+				for (x=x1; x<=x2; x++)
+					if (FloodFillPmapCheck(x, y+1, replace) && (c == 0 || !IsWallBlocking(x, y+1, c)))
+					{
+						cs.push(x, y+1);
+					}
+		}
+		while (cs.getSize() > 0);
+	}
+	catch (std::exception& e)
+	{
+		return -1;
+	}
+	return created_something;
 }
 
 void Simulation::CreateWall(int x, int y, int wall)
