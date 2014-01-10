@@ -629,6 +629,14 @@ go into portals. Fix ctype not saving correctly. Realistic heat is glitchy,
 so no longer load that from powder.pref. Also attempt to make it less
 glitchy.
 
+Version 26.2 (build 28) 1/9/14
+pavg option in HUD. Fix ambient heat. Simulation updates from tpt++. Add a
+button to report bugs, feedback, and suggestions. More major rewrites. This
+time; drawing elements, walls, tools, and deco tools have all been redone to
+be neater and separate from each other. Wall IDs and Tool IDs are now
+separate from element IDs, so the max element cap has also been increased to
+256.
+
 
 
 
