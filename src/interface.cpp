@@ -1542,19 +1542,22 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 			while (ptypes[i].name[c]) { tempCompare[c] = tolower(ptypes[i].name[c]); c++; } tempCompare[c] = 0;
 			if(strstr(tempCompare, tempString)!=0 && ptypes[i].enabled)
 			{
+				Tool* foundTool = GetToolFromIdentifier(globalSim->elements[i].Identifier);
+				if (!foundTool)
+					continue;
 				if(firstResult==-1)
 					firstResult = i;
-				toolx += draw_tool_xy(vid_buf, toolx+xoff, tooly+yoff, GetToolFromIdentifier(globalSim->elements[i].Identifier))+5;
+				toolx += draw_tool_xy(vid_buf, toolx+xoff, tooly+yoff, foundTool)+5;
 				if (!bq && mx>=xoff+toolx-32 && mx<xoff+toolx && my>=yoff+tooly && my<yoff+tooly+15)
 				{
 					drawrect(vid_buf, xoff+toolx-32, yoff+tooly-1, 29, 17, 255, 55, 55, 255);
 					hover = i;
 				}
-				else if (i == selectedl || GetToolFromIdentifier(globalSim->elements[i].Identifier) == *selectedLeft)
+				else if (i == selectedl || foundTool == *selectedLeft)
 				{
 					drawrect(vid_buf, xoff+toolx-32, yoff+tooly-1, 29, 17, 255, 55, 55, 255);
 				}
-				else if (i==selectedr || GetToolFromIdentifier(globalSim->elements[i].Identifier) == *selectedRight)
+				else if (i==selectedr || foundTool == *selectedRight)
 				{
 					drawrect(vid_buf, xoff+toolx-32, yoff+tooly-1, 29, 17, 55, 55, 255, 255);
 				}
@@ -1596,19 +1599,22 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 			
 			for(i = 0; i < found; i++)
 			{
+				Tool* foundTool = GetToolFromIdentifier(globalSim->elements[tempInts[i].second].Identifier);
+				if (!foundTool)
+					continue;
 				if(firstResult==-1)
 					firstResult = tempInts[i].second;
-				toolx += draw_tool_xy(vid_buf, toolx+xoff, tooly+yoff, GetToolFromIdentifier(globalSim->elements[tempInts[i].second].Identifier))+5;
+				toolx += draw_tool_xy(vid_buf, toolx+xoff, tooly+yoff, foundTool)+5;
 				if (!bq && mx>=xoff+toolx-32 && mx<xoff+toolx && my>=yoff+tooly && my<yoff+tooly+15)
 				{
 					drawrect(vid_buf, xoff+toolx-32, yoff+tooly-1, 29, 17, 255, 55, 55, 255);
 					hover = tempInts[i].second;
 				}
-				else if (tempInts[i].second == selectedl || GetToolFromIdentifier(globalSim->elements[tempInts[i].second].Identifier) == *selectedLeft)
+				else if (tempInts[i].second == selectedl || foundTool == *selectedLeft)
 				{
 					drawrect(vid_buf, xoff+toolx-32, yoff+tooly-1, 29, 17, 255, 55, 55, 255);
 				}
-				else if (tempInts[i].second == selectedr || GetToolFromIdentifier(globalSim->elements[tempInts[i].second].Identifier) == *selectedRight)
+				else if (tempInts[i].second == selectedr || foundTool == *selectedRight)
 				{
 					drawrect(vid_buf, xoff+toolx-32, yoff+tooly-1, 29, 17, 55, 55, 255, 255);
 				}
