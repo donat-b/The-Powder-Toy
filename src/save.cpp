@@ -3446,7 +3446,7 @@ void *build_thumb(int *size, int bzip2)
 		c[1] = 0x68;
 		c[2] = 0x49;
 		c[3] = 0x74;
-		c[4] = PT_NUM;
+		c[4] = SAVE_VERSION;
 		c[5] = CELL;
 		c[6] = XRES/CELL;
 		c[7] = YRES/CELL;

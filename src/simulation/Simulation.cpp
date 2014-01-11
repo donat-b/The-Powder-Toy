@@ -182,9 +182,9 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 	if ((elements[t].Properties & TYPE_PART) && pretty_powder)
 	{
 		int colr, colg, colb;
-		colr = COLR(elements[t].Colour)+sandcolor*1.3+(rand()%40)-20+(rand()%30)-15;
-		colg = COLG(elements[t].Colour)+sandcolor*1.3+(rand()%40)-20+(rand()%30)-15;
-		colb = COLB(elements[t].Colour)+sandcolor*1.3+(rand()%40)-20+(rand()%30)-15;
+		colr = (int)(COLR(elements[t].Colour)+sandcolor*1.3f+(rand()%40)-20+(rand()%30)-15);
+		colg = (int)(COLG(elements[t].Colour)+sandcolor*1.3f+(rand()%40)-20+(rand()%30)-15);
+		colb = (int)(COLB(elements[t].Colour)+sandcolor*1.3f+(rand()%40)-20+(rand()%30)-15);
 		colr = colr>255 ? 255 : (colr<0 ? 0 : colr);
 		colg = colg>255 ? 255 : (colg<0 ? 0 : colg);
 		colb = colb>255 ? 255 : (colb<0 ? 0 : colb);
@@ -444,16 +444,16 @@ int Simulation::CreateParts(int x, int y, int rx, int ry, int c, int flags, bool
 int Simulation::CreatePartFlags(int x, int y, int c, int flags)
 {
 	//delete
-	if (c == 0 && !(flags&REPLACE_MODE))
+	if (c == 0 && !(flags&BRUSH_REPLACEMODE))
 		delete_part(x, y, flags);
 	//specific delete
-	else if ((flags&SPECIFIC_DELETE) && !(flags&REPLACE_MODE))
+	else if ((flags&BRUSH_SPECIFIC_DELETE) && !(flags&BRUSH_REPLACEMODE))
 	{
 		if (!activeTools[2]->GetElementID() || (pmap[y][x]&0xFF) == activeTools[2]->GetElementID() || (photons[y][x]&0xFF) == activeTools[2]->GetElementID())
 			delete_part(x, y, flags);
 	}
 	//replace mode
-	else if (flags&REPLACE_MODE)
+	else if (flags&BRUSH_REPLACEMODE)
 	{
 		if (x<0 || y<0 || x>=XRES || y>=YRES)
 			return 0;
@@ -863,6 +863,7 @@ int Simulation::CreateTool(int x, int y, int tool)
 	{
 		return create_property(x, y, prop_offset, prop_value, prop_format);
 	}
+	return -1;
 }
 
 void Simulation::CreateToolBrush(int x, int y, int rx, int ry, int tool)
@@ -1033,12 +1034,12 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 				}
 			if (num == 0)
 				return;
-			ta = fmin(255,(int)((float)ta/num+.5));
-			tr = fmin(255,(int)((float)tr/num+.5));
-			tg = fmin(255,(int)((float)tg/num+.5));
-			tb = fmin(255,(int)((float)tb/num+.5));
+			ta = std::min(255,(int)((float)ta/num+.5));
+			tr = std::min(255,(int)((float)tr/num+.5));
+			tg = std::min(255,(int)((float)tg/num+.5));
+			tb = std::min(255,(int)((float)tb/num+.5));
 			if (!parts[rp>>8].dcolour)
-				ta = fmax(0,ta-3);
+				ta = std::max(0,ta-3);
 			parts[rp>>8].dcolour = ((ta<<24)|(tr<<16)|(tg<<8)|tb);
 		}
 	}
