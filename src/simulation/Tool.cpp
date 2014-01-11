@@ -37,11 +37,18 @@ int Tool::DrawPoint(Brush* brush, Point position)
 	}
 	else if (type == WALL_TOOL)
 	{
-		int rx = brush->GetRadius().X/CELL;
-		int ry = brush->GetRadius().Y/CELL;
-		int x = position.X/CELL-rx/2;
-		int y = position.Y/CELL-ry/2;
-		globalSim->CreateWallBox(x, y, x+rx, y+ry, ID);
+		if (ID == WL_STREAM)
+		{
+			globalSim->CreateWall(position.X, position.Y, ID);
+		}
+		else
+		{
+			int rx = brush->GetRadius().X/CELL;
+			int ry = brush->GetRadius().Y/CELL;
+			int x = position.X/CELL-rx/2;
+			int y = position.Y/CELL-ry/2;
+			globalSim->CreateWallBox(x, y, x+rx, y+ry, ID);
+		}
 	}
 	else if (type == TOOL_TOOL)
 	{
@@ -82,6 +89,10 @@ int Tool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 						fvy[j][i] = nfvy;
 						bmap[j][i] = WL_FAN;
 					}
+		}
+		else if (ID == WL_STREAM)
+		{
+			globalSim->CreateWallLine(startPos.X/CELL, startPos.Y/CELL, endPos.X/CELL, endPos.Y/CELL, 0, 0, ID);
 		}
 		else
 		{
@@ -150,7 +161,7 @@ int Tool::FloodFill(Point position)
 	}
 	if (type == WALL_TOOL)
 	{
-		if (ID != WL_STREAM+100)
+		if (ID != WL_STREAM)
 			globalSim->FloodWalls(position.X/CELL, position.Y/CELL, ID, -1);
 	}
 	else if (type == TOOL_TOOL)

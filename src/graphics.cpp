@@ -3659,7 +3659,7 @@ void render_after(pixel *part_vbuf, pixel *vid_buf)
 {
 	render_parts(part_vbuf); //draw particles
 	draw_other(part_vbuf);
-	if (activeTools[activeToolID]->GetWallID() == WL_GRAV+100)
+	if (activeTools[activeToolID]->GetWallID() == WL_GRAV)
 		draw_grav_zones(part_vbuf);
 	if (vid_buf && (display_mode & DISPLAY_PERS))
 	{
