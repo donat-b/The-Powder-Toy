@@ -78,8 +78,9 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 									colored = interactWavelengths(&parts[r>>8], colored);
 									//this if prevents BRAY from stopping on certain materials
 								} else if ((r&0xFF)!=PT_STOR && (r&0xFF)!=PT_INWR && ((r&0xFF)!=PT_SPRK || parts[r>>8].ctype!=PT_INWR) && (r&0xFF)!=PT_ARAY && (r&0xFF)!=PT_WIFI && !((r&0xFF)==PT_SWCH && parts[r>>8].life>=10)) {
-									if (nyy!=0 || nxx!=0) {
-										sim->spark_conductive_attempt(r>>8, x+nxi+nxx, y+nyi+nyy);
+									if ((nyy!=0 || nxx!=0) && (r&0xFF) != PT_WIRE)
+									{
+										sim->spark_all_attempt(r>>8, x+nxi+nxx, y+nyi+nyy);
 									}
 									if (!(nostop && parts[r>>8].type==PT_SPRK && parts[r>>8].ctype >= 0 && parts[r>>8].ctype < PT_NUM && (ptypes[parts[r>>8].ctype].properties&PROP_CONDUCTS))) {
 										docontinue = 0;
