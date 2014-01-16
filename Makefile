@@ -86,14 +86,14 @@ build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe build/powdercro
 
 #Create different .o files for each build <filename>.<buildname>.o
 build/powder: $(patsubst build/obj/%.o,build/obj/%.powder.o,$(OBJS))
-	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder.o,$(OBJS)) $(LIBS) -o $@
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder.o,$(OBJS)) $(LIBS) -o $@
 build/obj/%.powder.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
 build/obj/%.powder.o: src/%.cpp $(HEADERS)
 	$(CXX) -c $(CFLAGS) -o $@ $<
 
 build/powder-sse: $(patsubst build/obj/%.o,build/obj/%.powder-sse.o,$(OBJS))
-	$(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-sse.o,$(OBJS)) $(LIBS) -o $@
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(EXTRA_OBJS) $(patsubst build/obj/%.o,build/obj/%.powder-sse.o,$(OBJS)) $(LIBS) -o $@
 	strip $@
 build/obj/%.powder-sse.o: src/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
