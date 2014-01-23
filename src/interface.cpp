@@ -226,9 +226,19 @@ void menu_count()
 	if (activeTools[0])
 	{
 		for (int i = 0; i < 3; i++)
-			activeTools[i] = GetToolFromIdentifier(tempActiveTools[i]);
+		{
+			Tool* temp = GetToolFromIdentifier(tempActiveTools[i]);
+			if (!temp)
+				temp = GetToolFromIdentifier("DEFAULT_PT_NONE");
+			activeTools[i] = temp;
+		}
 		for (int i = 0; i < 3; i++)
-			decoTools[i] = GetToolFromIdentifier(decoActiveTools[i]);
+		{
+			Tool* temp = GetToolFromIdentifier(decoActiveTools[i]);
+			if (!temp)
+				temp = GetToolFromIdentifier("DEFAULT_PT_NONE");
+			decoTools[i] = temp;
+		}
 	}
 }
 
@@ -4847,7 +4857,7 @@ int search_ui(pixel *vid_buf)
 				if (is_p1)
 				{
 					if (motdswap)
-						sprintf(server_motd,"Links: \bt{a:http://powdertoy.co.uk|Powder Toy main page}\bg, \bt{a:http://powdertoy.co.uk/Discussions/Categories/Index.html|Forums}\bg, \bt{a:https://github.com/FacialTurd/The-Powder-Toy|TPT github}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy/tree/jacob1's_mod|Jacob1's Mod github}");
+						sprintf(server_motd,"Links: \bt{a:http://powdertoy.co.uk|Powder Toy main page}\bg, \bt{a:http://powdertoy.co.uk/Discussions/Categories/Index.html|Forums}\bg, \bt{a:https://github.com/FacialTurd/The-Powder-Toy/tree/develop|TPT latest github}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy/tree/c++|Jacob1's Mod github}");
 					motdswap = !motdswap;
 				}
 				ui_richtext_settext(server_motd, &motd);

@@ -659,7 +659,8 @@ int luacon_element_getproperty(char * key, int * format, unsigned int * modified
 	{
 		offset = offsetof(Element, Enabled);
 		*format = 0;
-		*modified_stuff |= LUACON_EL_MODIFIED_MENUS;
+		if (modified_stuff)
+			*modified_stuff |= LUACON_EL_MODIFIED_MENUS;
 	}
 	else if (!strcmp(key, "weight"))
 	{
