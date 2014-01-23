@@ -1184,7 +1184,7 @@ void elements_setProperty(lua_State * l, int id, int format, int offset)
 			*((float*)(((unsigned char*)&globalSim->elements[id])+offset)) = lua_tonumber(l, 3);
 			break;
 		case 2: //String
-			*((std::string*)(((unsigned char*)&globalSim->elements[id])+offset)) = std::string(lua_tostring(l, 3));
+			*((std::string*)(((unsigned char*)&globalSim->elements[id]) + offset)) = std::string(luaL_optstring(l, 3, ""));
 			break;
 		case 3: //Unsigned char (HeatConduct)
 			*((unsigned char*)(((unsigned char*)&globalSim->elements[id])+offset)) = lua_tointeger(l, 3);

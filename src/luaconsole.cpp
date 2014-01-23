@@ -759,15 +759,17 @@ int luacon_elementwrite(lua_State* l)
 	{
 		int j = 0;
 		//Convert to upper case
-		for(j = 0; j < strlen(tempstring); j++)
+		for (j = 0; j < strlen(tempstring); j++)
 			tempstring[j] = toupper(tempstring[j]);
-		if(console_parse_type(tempstring, NULL, NULL))
+		if (console_parse_type(tempstring, NULL, NULL))
 		{
 			free(tempstring);
 			free(key);
 			return luaL_error(l, "Name in use");
 		}
 	}
+	else
+		free(tempstring);
 	elements_setProperty(l, i, format, offset);
 	Simulation_Compat_CopyData(globalSim);
 	if (modified_stuff)
