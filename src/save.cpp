@@ -39,7 +39,7 @@ int mod_save;
 pixel *prerender_save(void *save, int size, int *width, int *height)
 {
 	unsigned char * saveData = (unsigned char*)save;
-	if (size<16)
+	if (size < 16 || !save)
 	{
 		return NULL;
 	}
@@ -1037,7 +1037,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 					}
 
 					//animations, and also lua code in saves
-					if ((partsptr[i].type == PT_ANIM || partsptr[i].type == PT_INDI) && partsptr[i].ctype)
+					if ((partsptr[i].type == PT_ANIM || partsptr[i].type == PT_INDI) && partsptr[i].ctype && partsptr[i].animations)
 					{
 						int j, max = partsptr[i].ctype;
 						for (j = 0; j <= max; j++)

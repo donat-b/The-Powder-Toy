@@ -2129,11 +2129,14 @@ int main(int argc, char *argv[])
 
 				if (doTransform)
 				{
+					int old_save_as = save_as;
+					save_as = 3;
 					ndata = transform_save(load_data, &load_size, transform, translate);
 					if (ndata!=load_data) free(load_data);
 					free(load_img);
 					load_data = ndata;
 					load_img = prerender_save(load_data, load_size, &load_w, &load_h);
+					save_as = old_save_as;
 				}
 			}
 			if (sdl_key=='x'&&(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)))

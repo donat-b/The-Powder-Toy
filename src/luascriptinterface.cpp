@@ -1083,12 +1083,12 @@ int elements_getProperty(char * key, int * format, unsigned int * modifiedStuff)
 		*format = 0;
 		*modifiedStuff |= LUACON_EL_MODIFIED_MENUS;
 	}
-	else if (!strcmp(key, "Enabled"))
+	/*else if (!strcmp(key, "Enabled"))
 	{
 		offset = offsetof(Element, Enabled);
 		*format = 0;
 		*modifiedStuff |= LUACON_EL_MODIFIED_MENUS;
-	}
+	}*/
 	else if (!strcmp(key, "Weight"))
 	{
 		offset = offsetof(Element, Weight);
