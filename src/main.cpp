@@ -2787,7 +2787,7 @@ int main(int argc, char *argv[])
 					activeTool = GetToolFromIdentifier("DEFAULT_DECOUR_CLR");
 
 				//link signs are clicked from here
-				if (activeTool->GetToolID() != TOOL_SIGN || b != 1)
+				if (((ToolTool*)activeTool)->GetID() != TOOL_SIGN || b != 1)
 				{
 					if (!bq)
 						for (signi=0; signi<MAXSIGNS; signi++)
@@ -2860,7 +2860,7 @@ int main(int argc, char *argv[])
 						}
 						xor_line(lx, ly, line_x, line_y, vid_buf);
 						//WIND tool works before you even draw the line while holding shift
-						if (activeTool->GetToolID() == TOOL_WIND)
+						if (((ToolTool*)activeTool)->GetID() == TOOL_WIND)
 						{
 							for (j = -currentBrush->GetRadius().Y; j <= currentBrush->GetRadius().Y; j++)
 								for (i = -currentBrush->GetRadius().X; i <= currentBrush->GetRadius().X; i++)
@@ -2941,6 +2941,14 @@ int main(int argc, char *argv[])
 						lb = 0;
 						lm = 0;
 					}
+					else if (((ToolTool*)activeTool)->GetID() == TOOL_SIGN || MSIGN != -1) // if sign tool is selected or a sign is being moved
+					{
+						add_sign_ui(vid_buf, x, y);
+						lx = x;
+						ly = y;
+						lb = b;
+						lm = 0;
+					}
 					else //normal click, spawn element
 					{
 						//Copy state before drawing any particles (for undo)
@@ -2969,7 +2977,7 @@ int main(int argc, char *argv[])
 				activeToolID = ((lb&1) || lb == 2) ? 0 : 1;
 				Tool* activeTool = activeTools[activeToolID];
 				if (activeTools[0]->GetType() == DECO_TOOL && lb == 4)
-					activeTool = GetToolFromIdentifier("DEFAULT_WL_37");
+					activeTool = GetToolFromIdentifier("DEFAULT_DECOUR_CLR");
 
 				if (lm == 1)
 					activeTool->DrawLine(currentBrush, Point(lx, ly), Point(line_x, line_y), false);
@@ -3183,7 +3191,7 @@ int main(int argc, char *argv[])
 		//Setting an element for the stick man
 		if (player.spwn==0)
 		{
-			int sr = activeTools[1]->GetElementID();
+			int sr = ((ElementTool*)activeTools[1])->GetID();
 			if ((sr>0 && sr<PT_NUM && ptypes[sr].enabled && ptypes[sr].falldown>0) || sr == PT_NEUT || sr == PT_PHOT || sr == PT_LIGH)
 				player.elem = sr;
 			else
@@ -3191,7 +3199,7 @@ int main(int argc, char *argv[])
 		}
 		if (player2.spwn==0)
 		{
-			int sr = activeTools[1]->GetElementID();
+			int sr = ((ElementTool*)activeTools[1])->GetID();
 			if ((sr>0 && sr<PT_NUM && ptypes[sr].enabled && ptypes[sr].falldown>0) || sr == PT_NEUT || sr == PT_PHOT || sr == PT_LIGH)
 				player2.elem = sr;
 			else

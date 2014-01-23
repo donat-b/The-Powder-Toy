@@ -449,7 +449,7 @@ int Simulation::CreatePartFlags(int x, int y, int c, int flags)
 	//specific delete
 	else if ((flags&BRUSH_SPECIFIC_DELETE) && !(flags&BRUSH_REPLACEMODE))
 	{
-		if (!activeTools[2]->GetElementID() || (pmap[y][x]&0xFF) == activeTools[2]->GetElementID() || (photons[y][x]&0xFF) == activeTools[2]->GetElementID())
+		if (((ElementTool*)activeTools[2])->GetID() > 0 || (pmap[y][x]&0xFF) == ((ElementTool*)activeTools[2])->GetID() || (photons[y][x]&0xFF) == ((ElementTool*)activeTools[2])->GetID())
 			delete_part(x, y, flags);
 	}
 	//replace mode
@@ -457,9 +457,9 @@ int Simulation::CreatePartFlags(int x, int y, int c, int flags)
 	{
 		if (x<0 || y<0 || x>=XRES || y>=YRES)
 			return 0;
-		if (activeTools[2]->GetElementID() && (pmap[y][x]&0xFF) != activeTools[2]->GetElementID() && (photons[y][x]&0xFF) != activeTools[2]->GetElementID())
+		if (((ElementTool*)activeTools[2])->GetID() > 0 && (pmap[y][x]&0xFF) != ((ElementTool*)activeTools[2])->GetID() && (photons[y][x]&0xFF) != ((ElementTool*)activeTools[2])->GetID())
 			return 0;
-		if ((pmap[y][x]))
+		if (pmap[y][x])
 		{
 			delete_part(x, y, flags);
 			if (c!=0)
@@ -566,7 +566,7 @@ int Simulation::FloodParts(int x, int y, int fullc, int replace, int flags)
 					return globalSim->FloodWalls(x/CELL, y/CELL, WL_ERASE, -1);
 				else
 					return 0;
-				if ((flags&BRUSH_REPLACEMODE) && activeTools[2]->GetElementID() != replace)
+				if ((flags&BRUSH_REPLACEMODE) && ((ElementTool*)activeTools[2])->GetID() != replace)
 					return 0;
 			}
 		}
@@ -576,7 +576,7 @@ int Simulation::FloodParts(int x, int y, int fullc, int replace, int flags)
 	if (c != 0 && IsWallBlocking(x, y, c))
 		return 0;
 
-	if (!FloodFillPmapCheck(x, y, replace) || ((flags&BRUSH_SPECIFIC_DELETE) && activeTools[2]->GetElementID() != replace))
+	if (!FloodFillPmapCheck(x, y, replace) || ((flags&BRUSH_SPECIFIC_DELETE) && ((ElementTool*)activeTools[2])->GetID() != replace))
 		return 0;
 
 	try

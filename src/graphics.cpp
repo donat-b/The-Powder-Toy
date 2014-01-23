@@ -63,6 +63,7 @@
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/ToolNumbers.h"
+#include "simulation/GolNumbers.h"
 #include "simulation/elements/FIGH.h"
 
 //unsigned cmode = CM_FIRE;
@@ -958,7 +959,7 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 	}
 	else if (current->GetType() == GOL_TOOL)
 	{
-		draw_tool_button(vid_buf, x, y, gmenu[current->GetID()].colour, gmenu[current->GetID()].name);
+		draw_tool_button(vid_buf, x, y, golTypes[current->GetID()].colour, golTypes[current->GetID()].name.c_str());
 	}
 	else if (current->GetType() == INVALID_TOOL)
 	{
@@ -2634,19 +2635,19 @@ void render_parts(pixel *vid)
 
 				if (finding && !(finding & 0x8))
 				{
-					if ((finding & 0x1) && (parts[i].type == activeTools[0]->GetElementID() || (activeTools[0]->GetType() == GOL_TOOL && parts[i].type == PT_LIFE && activeTools[0]->GetID() == parts[i].ctype)))
+					if ((finding & 0x1) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[0])->GetID()) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[0])->GetID() == parts[i].ctype)))
 					{
 						colr = firer = 255;
 						colg = colb = fireg = fireb = 0;
 						cola = firea = 255;
 					}
-					else if ((finding & 0x2) && (parts[i].type == activeTools[1]->GetElementID() || (activeTools[1]->GetType() == GOL_TOOL && parts[i].type == PT_LIFE && activeTools[1]->GetID() == parts[i].ctype)))
+					else if ((finding & 0x2) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[1])->GetID()) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[1])->GetID() == parts[i].ctype)))
 					{
 						colb = fireb = 255;
 						colr = colg = firer = fireg = 0;
 						cola = firea = 255;
 					}
-					else if ((finding & 0x4) && (parts[i].type == activeTools[2]->GetElementID() || (activeTools[2]->GetType() == GOL_TOOL && parts[i].type == PT_LIFE && activeTools[0]->GetID() == parts[i].ctype)))
+					else if ((finding & 0x4) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[2])->GetID()) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[2])->GetID() == parts[i].ctype)))
 					{
 						colg = fireg = 255;
 						colr = colb = firer = fireb = 0;
@@ -3659,7 +3660,7 @@ void render_after(pixel *part_vbuf, pixel *vid_buf)
 {
 	render_parts(part_vbuf); //draw particles
 	draw_other(part_vbuf);
-	if (activeTools[activeToolID]->GetWallID() == WL_GRAV)
+	if (((WallTool*)activeTools[activeToolID])->GetID() == WL_GRAV)
 		draw_grav_zones(part_vbuf);
 	if (vid_buf && (display_mode & DISPLAY_PERS))
 	{
@@ -3696,22 +3697,22 @@ void draw_find() //Find just like how my lua script did it, it will find everyth
 	fillrect(vid_buf, -1, -1, XRES+1, YRES+1, 0, 0, 0, 230); //Dim everything
 	for (i = 0; i <= parts_lastActiveIndex; i++) //Color particles
 	{
-		if ((finding & 0x1) && (parts[i].type == activeTools[0]->GetElementID() || (activeTools[0]->GetType() == GOL_TOOL && parts[i].type == PT_LIFE && activeTools[0]->GetID() == parts[i].ctype)))
+		if ((finding & 0x1) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[0])->GetID()) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[0])->GetID() == parts[i].ctype)))
 			drawpixel(vid_buf, (int)(parts[i].x+.5f), (int)(parts[i].y+.5f), 255, 0, 0, 255);
-		else if ((finding & 0x2) && (parts[i].type == activeTools[1]->GetElementID() || (activeTools[1]->GetType() == GOL_TOOL && parts[i].type == PT_LIFE && activeTools[1]->GetID() == parts[i].ctype)))
+		else if ((finding & 0x2) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[1])->GetID()) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[1])->GetID() == parts[i].ctype)))
 			drawpixel(vid_buf, (int)(parts[i].x+.5f), (int)(parts[i].y+.5f), 0, 0, 255, 255);
-		else if ((finding & 0x4) && (parts[i].type == activeTools[2]->GetElementID() || (activeTools[2]->GetType() == GOL_TOOL && parts[i].type == PT_LIFE && activeTools[2]->GetID() == parts[i].ctype)))
+		else if ((finding & 0x4) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[2])->GetID()) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[2])->GetID() == parts[i].ctype)))
 			drawpixel(vid_buf, (int)(parts[i].x+.5f), (int)(parts[i].y+.5f), 0, 255, 0, 255);
 	}
 	for (y=0; y<YRES/CELL; y++) //Color walls
 	{
 		for (x=0; x<XRES/CELL; x++)
 		{
-			if ((finding & 0x1) && bmap[y][x] == activeTools[0]->GetWallID()-100)
+			if ((finding & 0x1) && bmap[y][x] == ((WallTool*)activeTools[0])->GetID())
 				fillrect(vid_buf, x*CELL-1, y*CELL-1, CELL+1, CELL+1, 255, 0, 0, 255);
-			else if ((finding & 0x2) && bmap[y][x] == activeTools[1]->GetWallID()-100)
+			else if ((finding & 0x2) && bmap[y][x] == ((WallTool*)activeTools[1])->GetID())
 				fillrect(vid_buf, x*CELL-1, y*CELL-1, CELL+1, CELL+1, 0, 0, 255, 255);
-			else if ((finding & 0x4) && bmap[y][x] == activeTools[2]->GetWallID()-100)
+			else if ((finding & 0x4) && bmap[y][x] == ((WallTool*)activeTools[2])->GetID())
 				fillrect(vid_buf, x*CELL-1, y*CELL-1, CELL+1, CELL+1, 0, 255, 0, 255);
 		}
 	}
@@ -3736,17 +3737,17 @@ void draw_walls(pixel *vid)
 
 				if (finding)
 				{
-					if ((finding & 0x1) && wt == activeTools[0]->GetWallID())
+					if ((finding & 0x1) && wt == ((WallTool*)activeTools[0])->GetID())
 					{
 						pc = PIXRGB(255,0,0);
 						gc = PIXRGB(255,0,0);
 					}
-					else if ((finding & 0x2) && wt == activeTools[1]->GetWallID())
+					else if ((finding & 0x2) && wt == ((WallTool*)activeTools[1])->GetID())
 					{
 						pc = PIXRGB(0,0,255);
 						gc = PIXRGB(0,0,255);
 					}
-					else if ((finding & 0x4) && wt == activeTools[2]->GetWallID())
+					else if ((finding & 0x4) && wt == ((WallTool*)activeTools[2])->GetID())
 					{
 						pc = PIXRGB(0,255,0);
 						gc = PIXRGB(0,255,0);
@@ -4608,7 +4609,7 @@ void render_cursor(pixel *vid, int x, int y, Tool* tool, int rx, int ry)
 	}
 #else
 	int i,j,c;
-	if ((sdl_mod & KMOD_CTRL) && (sdl_mod & KMOD_SHIFT) && (tool->GetType() != TOOL_TOOL || tool->GetToolID() == TOOL_PROP))
+	if ((sdl_mod & KMOD_CTRL) && (sdl_mod & KMOD_SHIFT) && (tool->GetType() != TOOL_TOOL || ((ToolTool*)tool)->GetID() == TOOL_PROP))
 	{
 		for (i = -5; i < 6; i++)
 			if (i != 0)

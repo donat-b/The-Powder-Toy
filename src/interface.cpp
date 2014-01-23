@@ -65,6 +65,7 @@
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/ToolNumbers.h"
+#include "simulation/GolNumbers.h"
 
 SDLMod sdl_mod;
 int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii, sdl_zoom_trig=0;
@@ -172,41 +173,38 @@ void menu_count()
 		{
 			if (globalSim->elements[i].MenuVisible || secret_els)
 			{
-				menuSections[globalSim->elements[i].MenuSection]->AddTool(new Tool(ELEMENT_TOOL, i, globalSim->elements[i].Identifier));
+				menuSections[globalSim->elements[i].MenuSection]->AddTool(new ElementTool(i));
 			}
 			else
-				menuSections[SC_OTHER]->AddTool(new Tool(ELEMENT_TOOL, i, globalSim->elements[i].Identifier));
+				menuSections[SC_OTHER]->AddTool(new ElementTool(i));
 		}
 	}
 
 	//Fill up LIFE menu
 	for (int i = 0; i < NGOL; i++)
 	{
-		menuSections[SC_LIFE]->AddTool(new Tool(GOL_TOOL, i, "DEFAULT_PT_LIFE_" + std::string(gmenu[i].name)));
+		menuSections[SC_LIFE]->AddTool(new GolTool(i));
 	}
 
 	//Fill up wall menu
 	for (int i = 0; i < WALLCOUNT; i++)
 	{
-		std::stringstream identifier;
-		identifier << "DEFAULT_WL_" << i;
-		menuSections[SC_WALL]->AddTool(new Tool(WALL_TOOL, i, identifier.str()));
+		if (i == WL_STREAM)
+			menuSections[SC_WALL]->AddTool(new StreamlineTool());
+		else
+			menuSections[SC_WALL]->AddTool(new WallTool(i));
 	}
 
 	//Fill up tools menu
 	for (int i = 0; i < TOOLCOUNT; i++)
 	{
-		std::stringstream identifier;
-		identifier << "DEFAULT_TOOL_" << toolTypes[i].name;
-		menuSections[SC_TOOL]->AddTool(new Tool(TOOL_TOOL, i, identifier.str()));
+		menuSections[SC_TOOL]->AddTool(new ToolTool(i));
 	}
 
 	//Fill up deco menu
 	for (int i = 0; i < DECOCOUNT; i++)
 	{
-		std::stringstream identifier;
-		identifier << "DEFAULT_DECOUR_" << decoTypes[i].name;
-		menuSections[SC_DECO]->AddTool(new Tool(DECO_TOOL, i, identifier.str()));
+		menuSections[SC_DECO]->AddTool(new DecoTool(i));
 	}
 
 	//Fill up fav. related menus somehow ...
@@ -3154,14 +3152,14 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 			{
 				over = current;
 				//draw rectangles around hovered on tools
-				if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
+				if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL) && ((ElementTool*)current)->GetID() >= 0)
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
 				else if (sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL))
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
 				else
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 
-				if (b && current->GetToolID() == TOOL_PROP)
+				if (b && ((ToolTool*)current)->GetID() == TOOL_PROP)
 					prop_edit_ui(vid_buf, -1, -1, 0);
 			}
 			//draw rectangles around selected tools
@@ -3277,7 +3275,7 @@ void menu_draw_text(Tool* lastOver, int i)
 	}
 	else if (lastOver->GetType() == GOL_TOOL)
 	{
-		drawtext(vid_buf, XRES-textwidth((char *)gmenu[toolID].description)-BARSIZE, sy-10, (char *)gmenu[toolID].description, 255, 255, 255, dae*5);
+		drawtext(vid_buf, XRES-textwidth((char *)golTypes[toolID].description.c_str())-BARSIZE, sy-10, (char *)golTypes[toolID].description.c_str(), 255, 255, 255, dae*5);
 	}
 	else if (toolID >= DECO_PRESET_START && toolID < DECO_PRESET_START + NUM_COLOR_PRESETS)
 	{
@@ -3427,7 +3425,7 @@ void menu_select_element(int b, Tool* over)
 			currR = PIXR(decocolor), currG = PIXG(decocolor), currB = PIXB(decocolor), currA = decocolor>>24;
 			RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
 		}
-		else if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
+		else if ((sdl_mod & (KMOD_LALT)) && (sdl_mod & (KMOD_CTRL)) && ((ElementTool*)over)->GetID() >= 0)
 		{
 			activeTools[2] = over;
 		}
@@ -3487,7 +3485,7 @@ void menu_select_element(int b, Tool* over)
 		else if (toolID >= HUD_START && toolID < HUD_START+HUD_NUM)
 		{
 		}
-		else if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL))
+		else if ((sdl_mod & (KMOD_LALT)) && (sdl_mod & (KMOD_CTRL)) && ((ElementTool*)over)->GetID() >= 0)
 		{
 			activeTools[2] = over;
 		}

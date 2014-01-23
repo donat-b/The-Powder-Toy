@@ -2913,7 +2913,7 @@ int luatpt_create_parts(lua_State* l)
 	int y = luaL_optint(l,2,-1);
 	int rx = luaL_optint(l,3,5);
 	int ry = luaL_optint(l,4,5);
-	int c = luaL_optint(l,5,activeTools[0]->GetElementID());
+	int c = luaL_optint(l,5,((ElementTool*)activeTools[0])->GetID());
 	int fill = luaL_optint(l,6,1);
 	int brush = luaL_optint(l,7,CIRCLE_BRUSH);
 	int flags = luaL_optint(l,8,get_brush_flags());
@@ -2937,7 +2937,7 @@ int luatpt_create_line(lua_State* l)
 	int y2 = luaL_optint(l,4,-1);
 	int rx = luaL_optint(l,5,5);
 	int ry = luaL_optint(l,6,5);
-	int c = luaL_optint(l,7,activeTools[0]->GetElementID());
+	int c = luaL_optint(l,7,((ElementTool*)activeTools[0])->GetID());
 	int brush = luaL_optint(l,8,CIRCLE_BRUSH);
 	int flags = luaL_optint(l,9,get_brush_flags());
 	int oldbrush = currentBrush->GetShape();
@@ -2957,7 +2957,7 @@ int luatpt_floodfill(lua_State* l)
 {
 	int x = luaL_optint(l,1,-1);
 	int y = luaL_optint(l,2,-1);
-	int c = luaL_optint(l,3,activeTools[0]->GetElementID());
+	int c = luaL_optint(l,3,((ElementTool*)activeTools[0])->GetID());
 	int replace = luaL_optint(l,4,-1);
 	int flags = luaL_optint(l,5,get_brush_flags());
 	if (x < 0 || x > XRES || y < 0 || y > YRES)

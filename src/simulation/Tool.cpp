@@ -5,176 +5,49 @@
 #include "Simulation.h"
 #include "WallNumbers.h"
 #include "ToolNumbers.h"
+#include "GolNumbers.h"
 #include "game/Brush.h"
+
+Tool::Tool(int toolID, std::string toolIdentifier):
+	type(INVALID_TOOL),
+	ID(toolID),
+	identifier(toolIdentifier)
+{
+
+}
 
 Tool::Tool(int toolType, int toolID, std::string toolIdentifier):
 	type(toolType),
 	ID(toolID),
-	identifier(toolIdentifier),
-	strength(1.0f)
+	identifier(toolIdentifier)
 {
 
 }
 
 int Tool::DrawPoint(Brush* brush, Point position)
 {
-	if (GetToolID() == TOOL_SIGN || MSIGN != -1) // if sign tool is selected or a sign is being moved
-	{
-		add_sign_ui(vid_buf, position.X, position.Y);
-	}
-	else if (type == ELEMENT_TOOL)
-	{
-		if (ID == PT_FIGH)
-			create_part(-1, position.X, position.Y, PT_FIGH);
-		else if (globalSim->elements[ID].Properties&PROP_MOVS)
-			create_moving_solid(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID);
-		else
-			return globalSim->CreateParts(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID, get_brush_flags(), true);
-	}
-	else if (type == GOL_TOOL)
-	{
-		return globalSim->CreateParts(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, PT_LIFE+(ID<<8), get_brush_flags(), true);
-	}
-	else if (type == WALL_TOOL)
-	{
-		if (ID == WL_STREAM)
-		{
-			globalSim->CreateWall(position.X, position.Y, ID);
-		}
-		else
-		{
-			int rx = brush->GetRadius().X/CELL;
-			int ry = brush->GetRadius().Y/CELL;
-			int x = position.X/CELL-rx/2;
-			int y = position.Y/CELL-ry/2;
-			globalSim->CreateWallBox(x, y, x+rx, y+ry, ID);
-		}
-	}
-	else if (type == TOOL_TOOL)
-	{
-		globalSim->CreateToolBrush(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID);
-	}
-	else if (type == DECO_TOOL)
-	{
-		unsigned int col = (ID == DECO_ERASE) ? PIXRGB(0, 0, 0): decocolor;
-		globalSim->CreateDecoBrush(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID, col, true);
-	}
+	if (globalSim->elements[ID].Properties&PROP_MOVS)
+		create_moving_solid(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID);
+	else
+		return globalSim->CreateParts(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID, get_brush_flags(), true);
 	return 0;
 }
 
-int Tool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
+void Tool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 {
-	if (type == ELEMENT_TOOL)
-	{
-		if (held && (globalSim->elements[ID].Properties&PROP_MOVS))
-				return 0;
-		globalSim->CreateLine(startPos.X, startPos.Y, endPos.X, endPos.Y, currentBrush->GetRadius().X, currentBrush->GetRadius().Y, ID, get_brush_flags());
-	}
-	else if (type == GOL_TOOL)
-	{
-		globalSim->CreateLine(startPos.X, startPos.Y, endPos.X, endPos.Y, currentBrush->GetRadius().X, currentBrush->GetRadius().Y, PT_LIFE+(ID<<8), get_brush_flags());
-	}
-	if (type == WALL_TOOL)
-	{
-		if (!held && GetID() == WL_FAN && bmap[startPos.Y/CELL][startPos.X/CELL] == WL_FAN)
-		{
-			float nfvx = (endPos.X-startPos.X)*0.005f;
-			float nfvy = (endPos.Y-startPos.Y)*0.005f;
-			globalSim->FloodWalls(startPos.X/CELL, startPos.Y/CELL, WL_FANHELPER, WL_FAN);
-			for (int j=0; j<YRES/CELL; j++)
-				for (int i=0; i<XRES/CELL; i++)
-					if (bmap[j][i] == WL_FANHELPER)
-					{
-						fvx[j][i] = nfvx;
-						fvy[j][i] = nfvy;
-						bmap[j][i] = WL_FAN;
-					}
-		}
-		else if (ID == WL_STREAM)
-		{
-			globalSim->CreateWallLine(startPos.X/CELL, startPos.Y/CELL, endPos.X/CELL, endPos.Y/CELL, 0, 0, ID);
-		}
-		else
-		{
-			int rx = brush->GetRadius().X/CELL;
-			int ry = brush->GetRadius().Y/CELL;
-			globalSim->CreateWallLine(startPos.X/CELL-rx/2, startPos.Y/CELL-ry/2, endPos.X/CELL-rx/2, endPos.Y/CELL-ry/2, rx, ry, ID);
-		}
-	}
-	else if (type == TOOL_TOOL)
-	{
-		if (GetToolID() == TOOL_WIND)
-		{
-			for (int j = -brush->GetRadius().Y; j <= brush->GetRadius().Y; j++)
-				for (int i = -brush->GetRadius().X; i <= brush->GetRadius().X; i++)
-					if (endPos.X+i>0 && endPos.Y+j>0 && endPos.X+i<XRES && endPos.Y+j<YRES && InCurrentBrush(i, j, brush->GetRadius().X, brush->GetRadius().Y))
-					{
-						vx[(endPos.Y+j)/CELL][(endPos.X+i)/CELL] += (endPos.X-startPos.X)*0.01f;
-						vy[(endPos.Y+j)/CELL][(endPos.X+i)/CELL] += (endPos.Y-startPos.Y)*0.01f;
-					}
-		}
-		else
-			globalSim->CreateToolLine(startPos.X, startPos.Y, endPos.X, endPos.Y, currentBrush->GetRadius().X, currentBrush->GetRadius().Y, ID);
-	}
-	else if (type == DECO_TOOL)
-	{
-		unsigned int col = (ID == DECO_ERASE) ? PIXRGB(0, 0, 0): decocolor;
-		globalSim->CreateDecoLine(startPos.X, startPos.Y, endPos.X, endPos.Y, brush->GetRadius().X, brush->GetRadius().Y, ID, col);
-	}
-	return 0;
+	if (held && (globalSim->elements[ID].Properties&PROP_MOVS))
+		return;
+	globalSim->CreateLine(startPos.X, startPos.Y, endPos.X, endPos.Y, currentBrush->GetRadius().X, currentBrush->GetRadius().Y, ID, get_brush_flags());
 }
 
 void Tool::DrawRect(Brush* brush, Point startPos, Point endPos)
 {
-	if (type == ELEMENT_TOOL)
-	{
-		globalSim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, get_brush_flags());
-	}
-	else if (type == GOL_TOOL)
-	{
-		globalSim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, PT_LIFE+(ID<<8), get_brush_flags());
-	}
-	else if (type == WALL_TOOL)
-	{
-		globalSim->CreateWallBox(startPos.X/CELL, startPos.Y/CELL, endPos.X/CELL, endPos.Y/CELL, ID);
-	}
-	else if (type == TOOL_TOOL)
-	{
-		globalSim->CreateToolBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID);
-	}
-	else if (type == DECO_TOOL)
-	{
-		unsigned int col = (ID == DECO_ERASE) ? PIXRGB(0, 0, 0): decocolor;
-		globalSim->CreateDecoBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, col);
-	}
+	globalSim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, get_brush_flags());
 }
 
 int Tool::FloodFill(Point position)
 {
-	if (type == ELEMENT_TOOL)
-	{
-			return globalSim->FloodParts(position.X, position.Y, ID, -1, get_brush_flags());
-	}
-	else if (type == GOL_TOOL)
-	{
-		return globalSim->FloodParts(position.X, position.Y, PT_LIFE+(ID<<8), -1, get_brush_flags());
-	}
-	if (type == WALL_TOOL)
-	{
-		if (ID != WL_STREAM)
-			globalSim->FloodWalls(position.X/CELL, position.Y/CELL, ID, -1);
-	}
-	else if (type == TOOL_TOOL)
-	{
-		if (GetID() == TOOL_PROP)
-			return flood_prop(position.X, position.Y, prop_offset, prop_value, prop_format);
-	}
-	else if (type == DECO_TOOL)
-	{
-		unsigned int col = (ID == DECO_ERASE) ? PIXRGB(0, 0, 0): decocolor;
-		flood_prop(position.X, position.Y, offsetof(particle, dcolour), &col, 0);
-	}
-	return 0;
+	return globalSim->FloodParts(position.X, position.Y, ID, -1, get_brush_flags());
 }
 
 Tool* Tool::Sample(Point position)
@@ -182,44 +55,215 @@ Tool* Tool::Sample(Point position)
 	if (position.Y < 0 || position.Y >= YRES || position.X < 0 || position.X >= XRES)
 		return this;
 
-	if (type == DECO_TOOL)
+	int sample = pmap[position.Y][position.X];
+	if (sample || (sample = photons[position.Y][position.X]))
 	{
-		unsigned int tempcolor = vid_buf[(position.Y)*(XRES+BARSIZE)+(position.X)];
-		int cr = PIXR(tempcolor);
-		int cg = PIXG(tempcolor);
-		int cb = PIXB(tempcolor);
-		if (cr || cg || cb)
+		if ((sample&0xFF) == PT_LIFE)
 		{
-			if (cr && cr<255) cr++;
-			if (cg && cg<255) cg++;
-			if (cb && cb<255) cb++;
-			decocolor = (255<<24)|PIXRGB(cr, cg, cb);
-			currR = PIXR(decocolor), currG = PIXG(decocolor), currB = PIXB(decocolor), currA = decocolor>>24;
-			RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
+			if (parts[sample>>8].ctype < NGOL)
+				return GetToolFromIdentifier(golTypes[parts[sample>>8].ctype].identifier);
 		}
-		return this;
+		else
+		{
+			return GetToolFromIdentifier(globalSim->elements[sample&0xFF].Identifier);
+		}
+	}
+	else if (bmap[position.Y/CELL][position.X/CELL] > 0 && bmap[position.Y/CELL][position.X/CELL] < WALLCOUNT)
+	{
+		return GetToolFromIdentifier(wallTypes[bmap[position.Y / CELL][position.X / CELL]].identifier);
+	}
+	return this;
+}
+
+
+ElementTool::ElementTool(int elementID):
+	Tool(ELEMENT_TOOL, elementID, globalSim->elements[elementID].Identifier)
+{
+
+}
+int ElementTool::GetID()
+{
+	if (type == ELEMENT_TOOL)
+		return ID;
+	else if (type == GOL_TOOL)
+		return PT_LIFE;
+	else
+		return -1;
+}
+
+GolTool::GolTool(int golID):
+	Tool(GOL_TOOL, golID, golTypes[golID].identifier)
+{
+
+}
+int GolTool::GetID()
+{
+	if (type == GOL_TOOL)
+		return ID;
+	//else if (type == ELEMENT_TOOL)
+	//	return PT_LIFE;
+	else
+		return -1;
+}
+int GolTool::DrawPoint(Brush* brush, Point position)
+{
+	return globalSim->CreateParts(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, PT_LIFE+(ID<<8), get_brush_flags(), true);
+}
+void GolTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
+{
+	globalSim->CreateLine(startPos.X, startPos.Y, endPos.X, endPos.Y, currentBrush->GetRadius().X, currentBrush->GetRadius().Y, PT_LIFE+(ID<<8), get_brush_flags());
+}
+void GolTool::DrawRect(Brush* brush, Point startPos, Point endPos)
+{
+	globalSim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, PT_LIFE+(ID<<8), get_brush_flags());
+}
+int GolTool::FloodFill(Point position)
+{
+	return globalSim->FloodParts(position.X, position.Y, PT_LIFE+(ID<<8), -1, get_brush_flags());
+}
+
+
+WallTool::WallTool(int wallID):
+	Tool(WALL_TOOL, wallID, wallTypes[wallID].identifier)
+{
+
+}
+int WallTool::DrawPoint(Brush* brush, Point position)
+{
+	int rx = brush->GetRadius().X/CELL;
+	int ry = brush->GetRadius().Y/CELL;
+	int x = position.X/CELL-rx/2;
+	int y = position.Y/CELL-ry/2;
+	globalSim->CreateWallBox(x, y, x+rx, y+ry, ID);
+	return 0;
+}
+void WallTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
+{
+	if (!held && ID == WL_FAN && bmap[startPos.Y/CELL][startPos.X/CELL] == WL_FAN)
+	{
+		float nfvx = (endPos.X-startPos.X)*0.005f;
+		float nfvy = (endPos.Y-startPos.Y)*0.005f;
+		globalSim->FloodWalls(startPos.X/CELL, startPos.Y/CELL, WL_FANHELPER, WL_FAN);
+		for (int j=0; j<YRES/CELL; j++)
+			for (int i=0; i<XRES/CELL; i++)
+				if (bmap[j][i] == WL_FANHELPER)
+				{
+					fvx[j][i] = nfvx;
+					fvy[j][i] = nfvy;
+					bmap[j][i] = WL_FAN;
+				}
 	}
 	else
 	{
-		int sample = pmap[position.Y][position.X];
-		if (sample || (sample = photons[position.Y][position.X]))
-		{
-			if ((sample&0xFF) == PT_LIFE)
-			{
-				if (parts[sample>>8].ctype < NGOL)
-					return GetToolFromIdentifier("DEFAULT_PT_LIFE_" + std::string(gmenu[parts[sample>>8].ctype].name));
-			}
-			else
-			{
-				return GetToolFromIdentifier(globalSim->elements[sample&0xFF].Identifier);
-			}
-		}
-		else if (bmap[position.Y/CELL][position.X/CELL] > 0 && bmap[position.Y/CELL][position.X/CELL] < WALLCOUNT)
-		{
-			std::stringstream identifier;
-			identifier << "DEFAULT_WL_" << int(bmap[position.Y/CELL][position.X/CELL]);
-			return GetToolFromIdentifier(identifier.str());
-		}
+		int rx = brush->GetRadius().X/CELL;
+		int ry = brush->GetRadius().Y/CELL;
+		globalSim->CreateWallLine(startPos.X/CELL-rx/2, startPos.Y/CELL-ry/2, endPos.X/CELL-rx/2, endPos.Y/CELL-ry/2, rx, ry, ID);
+	}
+}
+void WallTool::DrawRect(Brush* brush, Point startPos, Point endPos)
+{
+	globalSim->CreateWallBox(startPos.X/CELL, startPos.Y/CELL, endPos.X/CELL, endPos.Y/CELL, ID);
+}
+int WallTool::FloodFill(Point position)
+{
+	return globalSim->FloodWalls(position.X/CELL, position.Y/CELL, ID, -1);
+}
+
+StreamlineTool::StreamlineTool():
+	WallTool(WL_STREAM)
+{
+
+}
+int StreamlineTool::DrawPoint(Brush* brush, Point position)
+{
+	globalSim->CreateWall(position.X, position.Y, ID);
+	return 0;
+}
+void StreamlineTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
+{
+	globalSim->CreateWallLine(startPos.X/CELL, startPos.Y/CELL, endPos.X/CELL, endPos.Y/CELL, 0, 0, ID);
+}
+
+
+ToolTool::ToolTool(int toolID):
+	Tool(TOOL_TOOL, toolID, toolTypes[toolID].identifier)
+{
+
+}
+int ToolTool::DrawPoint(Brush* brush, Point position)
+{
+	globalSim->CreateToolBrush(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID);
+	return 0;
+}
+void ToolTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
+{
+	if (ID == TOOL_WIND)
+	{
+		for (int j = -brush->GetRadius().Y; j <= brush->GetRadius().Y; j++)
+			for (int i = -brush->GetRadius().X; i <= brush->GetRadius().X; i++)
+				if (endPos.X+i>0 && endPos.Y+j>0 && endPos.X+i<XRES && endPos.Y+j<YRES && InCurrentBrush(i, j, brush->GetRadius().X, brush->GetRadius().Y))
+				{
+					vx[(endPos.Y+j)/CELL][(endPos.X+i)/CELL] += (endPos.X-startPos.X)*0.01f;
+					vy[(endPos.Y+j)/CELL][(endPos.X+i)/CELL] += (endPos.Y-startPos.Y)*0.01f;
+				}
+	}
+	else
+		globalSim->CreateToolLine(startPos.X, startPos.Y, endPos.X, endPos.Y, currentBrush->GetRadius().X, currentBrush->GetRadius().Y, ID);
+}
+void ToolTool::DrawRect(Brush* brush, Point startPos, Point endPos)
+{
+	globalSim->CreateToolBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID);
+}
+int ToolTool::FloodFill(Point position)
+{
+	if (GetID() == TOOL_PROP)
+		return flood_prop(position.X, position.Y, prop_offset, prop_value, prop_format);
+	return 0;
+}
+
+DecoTool::DecoTool(int decoID):
+Tool(DECO_TOOL, decoID, decoTypes[decoID].identifier)
+{
+
+}
+int DecoTool::DrawPoint(Brush* brush, Point position)
+{
+	unsigned int col = (ID == DECO_ERASE) ? PIXRGB(0, 0, 0) : decocolor;
+	globalSim->CreateDecoBrush(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID, col, true);
+	return 0;
+}
+void DecoTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
+{
+	unsigned int col = (ID == DECO_ERASE) ? PIXRGB(0, 0, 0) : decocolor;
+	globalSim->CreateDecoLine(startPos.X, startPos.Y, endPos.X, endPos.Y, brush->GetRadius().X, brush->GetRadius().Y, ID, col);
+}
+void DecoTool::DrawRect(Brush* brush, Point startPos, Point endPos)
+{
+	unsigned int col = (ID == DECO_ERASE) ? PIXRGB(0, 0, 0) : decocolor;
+	globalSim->CreateDecoBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, col);
+}
+int DecoTool::FloodFill(Point position)
+{
+	unsigned int col = (ID == DECO_ERASE) ? PIXRGB(0, 0, 0) : decocolor;
+	return flood_prop(position.X, position.Y, offsetof(particle, dcolour), &col, 0);
+}
+Tool* DecoTool::Sample(Point position)
+{
+	if (position.Y < 0 || position.Y >= YRES || position.X < 0 || position.X >= XRES)
+		return this;
+
+	unsigned int tempcolor = vid_buf[(position.Y)*(XRES + BARSIZE) + (position.X)];
+	int cr = PIXR(tempcolor);
+	int cg = PIXG(tempcolor);
+	int cb = PIXB(tempcolor);
+	if (cr || cg || cb)
+	{
+		if (cr && cr<255) cr++;
+		if (cg && cg<255) cg++;
+		if (cb && cb<255) cb++;
+		decocolor = (255 << 24) | PIXRGB(cr, cg, cb);
+		currR = PIXR(decocolor), currG = PIXG(decocolor), currB = PIXB(decocolor), currA = decocolor >> 24;
+		RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
 	}
 	return this;
 }

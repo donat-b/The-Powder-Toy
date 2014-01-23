@@ -22,6 +22,7 @@
 struct toolType
 {
 	std::string name;
+	std::string identifier;
 	pixel color;
 	std::string descs;
 };
@@ -29,21 +30,15 @@ typedef struct toolType toolType;
 
 static toolType toolTypes[] =
 {
-	{"HEAT", PIXPACK(0xFFBB00), "Heats the targeted element."},
-	{"COOL", PIXPACK(0x00BBFF), "Cools the targeted element."},
-	{"AIR",  PIXPACK(0xFFFFFF), "Air, creates airflow and pressure."},
-	{"VAC",  PIXPACK(0x303030), "Vacuum, reduces air pressure."},
-	{"PGRV", PIXPACK(0xCCCCFF), "Creates a short-lasting gravity well."},
-	{"NGRV", PIXPACK(0xAACCFF), "Creates a short-lasting negative gravity well."},
-	{"WIND", PIXPACK(0x000000), "Creates air movement."},
-	{"PROP", PIXPACK(0xFFAA00), "Property drawing tool."},
-	{"SIGN", PIXPACK(0x808080), "Sign. Displays text. Click on a sign to edit it or anywhere else to place a new one."},
-
-	/*{"DRAW",			PIXPACK(0xFF0000), PIXPACK(0x000000), -1, "Draw decoration."},
-	{"ERASE",			PIXPACK(0x000000), PIXPACK(0x000000), -1, "Erase decoration."},
-	{"LIGH",			PIXPACK(0xDDDDDD), PIXPACK(0x000000), -1, "Lighten deco color."},
-	{"DARK",			PIXPACK(0x111111), PIXPACK(0x000000), -1, "Darken deco color."},
-	{"SMDG",			PIXPACK(0x00FF00), PIXPACK(0x000000), -1, "Smudge tool, blends decoration color."}*/
+	{"HEAT", "DEFAULT_TOOL_HEAT", PIXPACK(0xFFBB00), "Heats the targeted element."},
+	{"COOL", "DEFAULT_TOOL_COOL", PIXPACK(0x00BBFF), "Cools the targeted element."},
+	{"AIR",  "DEFAULT_TOOL_AIR", PIXPACK(0xFFFFFF), "Air, creates airflow and pressure."},
+	{"VAC",  "DEFAULT_TOOL_VAC", PIXPACK(0x303030), "Vacuum, reduces air pressure."},
+	{"PGRV", "DEFAULT_TOOL_PGRV", PIXPACK(0xCCCCFF), "Creates a short-lasting gravity well."},
+	{"NGRV", "DEFAULT_TOOL_NGRV", PIXPACK(0xAACCFF), "Creates a short-lasting negative gravity well."},
+	{"WIND", "DEFAULT_TOOL_WIND", PIXPACK(0x000000), "Creates air movement."},
+	{"PROP", "DEFAULT_TOOL_PROP", PIXPACK(0xFFAA00), "Property drawing tool."},
+	{"SIGN", "DEFAULT_TOOL_SIGN", PIXPACK(0x808080), "Sign. Displays text. Click on a sign to edit it or anywhere else to place a new one."}
 };
 
 #define DECO_DRAW	0
@@ -56,6 +51,7 @@ static toolType toolTypes[] =
 struct decoType
 {
 	std::string name;
+	std::string identifier;
 	pixel color;
 	std::string descs;
 };
@@ -63,11 +59,11 @@ typedef struct decoType decoType;
 
 static decoType decoTypes[] =
 {
-	{"SET",  PIXPACK(0xFF0000), "Draw decoration."},
-	{"CLR", PIXPACK(0x000000), "Erase decoration."},
-	{"LIGH",  PIXPACK(0xDDDDDD), "Lighten deco color."},
-	{"DARK",  PIXPACK(0x111111), "Darken deco color."},
-	{"SMDG",  PIXPACK(0x00FF00), "Smudge tool, blends decoration color."}
+	{"SET", "DEFAULT_DECOUR_SET",	PIXPACK(0xFF0000), "Draw decoration."},
+	{"CLR", "DEFAULT_DECOUR_CLR",	PIXPACK(0x000000), "Erase decoration."},
+	{"LIGH", "DEFAULT_DECOUR_LIGH",	PIXPACK(0xDDDDDD), "Lighten deco color."},
+	{"DARK", "DEFAULT_DECOUR_DARK",	PIXPACK(0x111111), "Darken deco color."},
+	{"SMDG", "DEFAULT_DECOUR_SMDG",	PIXPACK(0x00FF00), "Smudge tool, blends decoration color."}
 };
 
 #endif

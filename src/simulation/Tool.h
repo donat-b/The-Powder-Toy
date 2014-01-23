@@ -26,27 +26,89 @@ enum { ELEMENT_TOOL, WALL_TOOL, TOOL_TOOL, DECO_TOOL, GOL_TOOL, INVALID_TOOL };
 class Brush;
 class Tool
 {
+	std::string identifier;
+protected:
 	int type;
 	int ID;
-	std::string identifier;
-	float strength;
 public:
+	Tool(int toolID, std::string toolIdentifier);
 	Tool(int toolType, int toolID, std::string toolIdentifier);
-
-	void SetStrength(float newStrength) { strength = newStrength; }
 
 	int GetType() { return type; }
 	int GetID() { return ID; }
 	std::string GetIdentifier() { return identifier; }
-	int GetElementID() { if (type == ELEMENT_TOOL) return ID; else return -1; }
-	int GetWallID() { if (type == WALL_TOOL) return ID; else return -1; }
-	int GetToolID() { if (type == TOOL_TOOL) return ID; else return -1; }
 
-	int DrawPoint(Brush* brush, Point position);
-	int DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	void DrawRect(Brush* brush, Point startPos, Point endPos);
-	int FloodFill(Point position);
-	Tool* Sample(Point position);
+	virtual int DrawPoint(Brush* brush, Point position);
+	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
+	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
+	virtual int FloodFill(Point position);
+	virtual Tool* Sample(Point position);
+};
+
+class ElementTool : public Tool
+{
+public:
+	ElementTool(int elementID);
+	int GetID();
+};
+
+class GolTool : public Tool
+{
+public:
+	GolTool(int golID);
+	int GetID();
+
+	virtual int DrawPoint(Brush* brush, Point position);
+	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
+	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
+	virtual int FloodFill(Point position);
+};
+
+class WallTool : public Tool
+{
+public:
+	WallTool(int wallID);
+	int GetID() { if (type == WALL_TOOL) return ID; else return -1; }
+
+	virtual int DrawPoint(Brush* brush, Point position);
+	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
+	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
+	virtual int FloodFill(Point position);
+};
+
+class StreamlineTool : public WallTool
+{
+public:
+	StreamlineTool();
+
+	virtual int DrawPoint(Brush* brush, Point position);
+	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
+	virtual int FloodFill(Point position) { return 0; }
+};
+
+class ToolTool : public Tool
+{
+public:
+	ToolTool(int toolID);
+	int GetID() { if (type == TOOL_TOOL) return ID; else return -1; }
+
+	virtual int DrawPoint(Brush* brush, Point position);
+	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
+	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
+	virtual int FloodFill(Point position);
+};
+
+class DecoTool : public Tool
+{
+public:
+	DecoTool(int decoID);
+	int GetID() { if (type == DECO_TOOL) return ID; else return -1; }
+
+	virtual int DrawPoint(Brush* brush, Point position);
+	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
+	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
+	virtual int FloodFill(Point position);
+	virtual Tool* Sample(Point position);
 };
 
 #endif

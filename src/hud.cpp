@@ -11,6 +11,7 @@
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
+#include "simulation/GolNumbers.h"
 
 char uitext[512] = "";
 char heattext[256] = "";
@@ -68,9 +69,9 @@ void SetRightHudText(int x, int y)
 				if ((cr&0xFF)==PT_LIFE && parts[cr>>8].ctype>=0 && parts[cr>>8].ctype<NGOL)
 				{
 					if (currentHud[49] || !currentHud[11])
-						sprintf(nametext, "%s, ", gmenu[parts[cr>>8].ctype].name);
+						sprintf(nametext, "%s, ", golTypes[parts[cr>>8].ctype].name.c_str());
 					else
-						sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, gmenu[parts[cr>>8].ctype].name);
+						sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, golTypes[parts[cr>>8].ctype].name.c_str());
 				}
 				else if (currentHud[13] && (cr&0xFF)==PT_LAVA && globalSim->IsElement(parts[cr>>8].ctype))
 				{
@@ -455,9 +456,12 @@ void DrawRecordsInfo()
 		}
 
 		//count total number of left selected element particles
-		if (parts[i].type == activeTools[0]->GetElementID())
-			totalselected++;
-		else if (activeTools[0]->GetType() == GOL_TOOL && parts[i].type == PT_LIFE && parts[i].ctype == activeTools[0]->GetID())
+		if (parts[i].type == PT_LIFE)
+		{
+			if (parts[i].ctype == ((GolTool*)activeTools[0])->GetID())
+				totalselected++;
+		}
+		else if (parts[i].type == ((ElementTool*)activeTools[0])->GetID())
 			totalselected++;
 	}
 	for (y=0; y<YRES/CELL; y++)
@@ -509,8 +513,8 @@ void DrawRecordsInfo()
 		if (num_parts)
 		{
 			if (activeTools[0]->GetType() == GOL_TOOL)
-				sprintf(infotext,"%%%s: %f", gmenu[activeTools[0]->GetID()].name,(float)totalselected/num_parts*100);
-			else if (activeTools[0]->GetElementID() > 0)
+				sprintf(infotext,"%%%s: %f", golTypes[activeTools[0]->GetID()].name.c_str(),(float)totalselected/num_parts*100);
+			else if (((ElementTool*)activeTools[0])->GetID() > 0)
 				sprintf(infotext,"%%%s: %f", ptypes[activeTools[0]->GetID()].name,(float)totalselected/num_parts*100);
 			else
 				sprintf(infotext,"%%Empty: %f", (float)totalselected/XRES/YRES*100);

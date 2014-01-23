@@ -14,6 +14,7 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "simulation/GolNumbers.h"
 
 int LIFE_graphics(GRAPHICS_FUNC_ARGS)
 {
@@ -63,7 +64,7 @@ int LIFE_graphics(GRAPHICS_FUNC_ARGS)
 	}
 	else if (cpart->ctype >= 0 && cpart->ctype < NGOL)
 	{
-		pc = gmenu[cpart->ctype].colour;
+		pc = golTypes[cpart->ctype].colour;
 	}
 	else
 		pc = ptypes[cpart->type].pcolors;

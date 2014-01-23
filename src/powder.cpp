@@ -31,6 +31,7 @@
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
+#include "simulation/GolNumbers.h"
 #include "simulation/ElementDataContainer.h"
 #include "simulation/elements/PRTI.h"
 
@@ -1069,7 +1070,7 @@ TPT_INLINE void delete_part(int x, int y, int flags)//calls kill_part with the p
 
 	if (!i)
 		return;
-	if (!(flags&BRUSH_SPECIFIC_DELETE) || parts[i>>8].type == activeTools[2]->GetElementID() || activeTools[2]->GetElementID() <= 0)//specific deletion
+	if (!(flags&BRUSH_SPECIFIC_DELETE) || parts[i>>8].type == ((ElementTool*)activeTools[2])->GetID() || ((ElementTool*)activeTools[2])->GetID() <= 0)//specific deletion
 	{
 		kill_part(i>>8);
 	}

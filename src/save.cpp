@@ -30,6 +30,7 @@
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/ToolNumbers.h"
+#include "simulation/GolNumbers.h"
 #include "simulation/elements/FIGH.h"
 
 int saveversion;
@@ -2932,7 +2933,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					parts[i-1].tmp = ttv;
 					if (ver<53 && !parts[i-1].tmp)
 						for (q = 1; q<=NGOL; q++) {
-							if (parts[i-1].type==goltype[q-1] && grule[q][9]==2)
+							if (parts[i-1].type==oldgolTypes[q-1] && grule[q][9]==2)
 								parts[i-1].tmp = grule[q][9]-1;
 						}
 					if (ver>=51 && ver<53 && parts[i-1].type==PT_PBCN)
@@ -3217,7 +3218,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 				//Replace old GOL
 				parts[i-1].type = PT_LIFE;
 				for (gnum = 0; gnum<NGOL; gnum++){
-					if (ty==goltype[gnum])
+					if (ty==oldgolTypes[gnum])
 						parts[i-1].ctype = gnum;
 				}
 				ty = PT_LIFE;
@@ -3225,7 +3226,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 			if(ver<52 && (ty==PT_CLNE || ty==PT_PCLN || ty==PT_BCLN)){
 				//Replace old GOL ctypes in clone
 				for (gnum = 0; gnum<NGOL; gnum++){
-					if (parts[i-1].ctype==goltype[gnum])
+					if (parts[i-1].ctype==oldgolTypes[gnum])
 					{
 						parts[i-1].ctype = PT_LIFE;
 						parts[i-1].tmp = gnum;
