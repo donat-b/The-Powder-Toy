@@ -507,7 +507,7 @@ void Simulation::CreateLine(int x1, int y1, int x2, int y2, int rx, int ry, int 
 	for (x=x1; x<=x2; x++)
 	{
 		if (reverseXY)
-			CreateParts(y, x, ry, rx, c, flags, fill);
+			CreateParts(y, x, rx, ry, c, flags, fill);
 		else
 			CreateParts(x, y, rx, ry, c, flags, fill);
 		e += de;
@@ -518,7 +518,7 @@ void Simulation::CreateLine(int x1, int y1, int x2, int y2, int rx, int ry, int 
 			if (!(rx+ry) && ((y1<y2) ? (y<=y2) : (y>=y2)))
 			{
 				if (reverseXY)
-					CreateParts(y, x, ry, rx, c, flags, fill);
+					CreateParts(y, x, rx, ry, c, flags, fill);
 				else
 					CreateParts(x, y, rx, ry, c, flags, fill);
 			}
@@ -711,7 +711,7 @@ void Simulation::CreateWallLine(int x1, int y1, int x2, int y2, int rx, int ry, 
 	for (x=x1; x<=x2; x++)
 	{
 		if (reverseXY)
-			CreateWallBox(y, x, y+ry, x+rx, wall);
+			CreateWallBox(y, x, y+rx, x+ry, wall);
 		else
 			CreateWallBox(x, y, x+rx, y+ry, wall);
 		e += de;
@@ -721,7 +721,7 @@ void Simulation::CreateWallLine(int x1, int y1, int x2, int y2, int rx, int ry, 
 			if ((y1<y2) ? (y<=y2) : (y>=y2))
 			{
 				if (reverseXY)
-					CreateWallBox(y, x, y+ry, x+rx, wall);
+					CreateWallBox(y, x, y+rx, x+ry, wall);
 				else
 					CreateWallBox(x, y, x+rx, y+ry, wall);
 			}
@@ -940,7 +940,7 @@ void Simulation::CreateToolLine(int x1, int y1, int x2, int y2, int rx, int ry, 
 	for (x=x1; x<=x2; x++)
 	{
 		if (reverseXY)
-			CreateToolBrush(y, x, ry, rx, tool);
+			CreateToolBrush(y, x, rx, ry, tool);
 		else
 			CreateToolBrush(x, y, rx, ry, tool);
 		e += de;
@@ -950,7 +950,7 @@ void Simulation::CreateToolLine(int x1, int y1, int x2, int y2, int rx, int ry, 
 			if (!(rx+ry) && ((y1<y2) ? (y<=y2) : (y>=y2)))
 			{
 				if (reverseXY)
-					CreateToolBrush(y, x, ry, rx, tool);
+					CreateToolBrush(y, x, rx, ry, tool);
 				else
 					CreateToolBrush(x, y, rx, ry, tool);
 			}
@@ -1146,7 +1146,7 @@ void Simulation::CreateDecoLine(int x1, int y1, int x2, int y2, int rx, int ry, 
 	for (x=x1; x<=x2; x++)
 	{
 		if (reverseXY)
-			CreateDecoBrush(y, x, ry, rx, tool, color, fill);
+			CreateDecoBrush(y, x, rx, ry, tool, color, fill);
 		else
 			CreateDecoBrush(x, y, rx, ry, tool, color, fill);
 		e += de;
@@ -1157,7 +1157,7 @@ void Simulation::CreateDecoLine(int x1, int y1, int x2, int y2, int rx, int ry, 
 			if (!(rx+ry) && ((y1<y2) ? (y<=y2) : (y>=y2)))
 			{
 				if (reverseXY)
-					CreateDecoBrush(y, x, ry, rx, tool, color, fill);
+					CreateDecoBrush(y, x, rx, ry, tool, color, fill);
 				else
 					CreateDecoBrush(x, y, rx, ry, tool, color, fill);
 			}

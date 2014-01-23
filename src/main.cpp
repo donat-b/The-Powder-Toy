@@ -2921,7 +2921,7 @@ int main(int argc, char *argv[])
 						lm = 2;//box
 					}
 					//flood fill
-					else if ((sdl_mod & (KMOD_CTRL)) && (sdl_mod & (KMOD_SHIFT)))
+					else if ((sdl_mod & (KMOD_CTRL)) && (sdl_mod & (KMOD_SHIFT)) && (((ToolTool*)activeTool)->GetID() == -1 || ((ToolTool*)activeTool)->GetID() == TOOL_PROP))
 					{
 						if (!bq)
 							ctrlzSnapshot();
@@ -3019,12 +3019,12 @@ int main(int argc, char *argv[])
 				db = 278;
 		}
 
-		if (zoom_en!=1 && !load_mode && !save_mode)//draw normal cursor
+		if (zoom_en!=1 && !load_mode && !save_mode && lm != 2)//draw normal cursor
 		{
 			render_cursor(vid_buf, mx, my, activeTools[activeToolID], currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
-			mousex = mx;
-			mousey = my;
 		}
+		mousex = mx;
+		mousey = my;
 #ifdef OGLR
 		draw_parts_fbo();
 #endif		
