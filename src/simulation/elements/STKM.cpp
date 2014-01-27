@@ -387,7 +387,21 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS)
 				int j, k;
 				for(j = -4; j < 5; j++)
 					for (k = -4; k < 5; k++)
-						create_part(-2, rx + 3*((((int)playerp->pcomm)&0x02) == 0x02) - 3*((((int)playerp->pcomm)&0x01) == 0x01)+j, ry+k, SPC_AIR);
+					{
+						int x = rx + 3*((((int)playerp->pcomm)&0x02) == 0x02) - 3*((((int)playerp->pcomm)&0x01) == 0x01)+j;
+						int y = ry+k;
+						pv[y/CELL][x/CELL] += 0.03f;
+						if (y+CELL<YRES)
+							pv[y/CELL+1][x/CELL] += 0.03f;
+						if (x+CELL<XRES)
+						{
+							pv[y/CELL][x/CELL+1] += 0.03f;
+							if (y+CELL<YRES)
+								pv[y/CELL+1][x/CELL+1] += 0.03f;
+						}
+
+						//sim->CreateTool(x, y, TOOL_AIR);
+					}
 			}
 			else if (playerp->elem==PT_LIGH && playerp->frames<30)//limit lightning creation rate
 				np = -1;

@@ -4842,6 +4842,7 @@ int sdl_open(void)
 #elif defined(LIN32) || defined(LIN64)
 	icon = SDL_CreateRGBSurfaceFrom(app_icon, 16, 16, 32, 64, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
 	SDL_WM_SetIcon(icon, NULL);
+	SDL_FreeSurface(icon);
 #endif
 	SDL_WM_SetCaption("Jacob1's Mod", "Jacob1's Mod");
 	
@@ -5050,7 +5051,7 @@ int sdl_open(void)
 		fprintf(stderr, "Creating window: %s\n", SDL_GetError());
 		return 0;
 	}
-	sdl_seticon();
+	//sdl_seticon();
 	SDL_EnableUNICODE(1);
 	SDL_SetModState(sdl_mod);
 	//SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);

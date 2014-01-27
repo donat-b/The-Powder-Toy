@@ -3234,11 +3234,11 @@ int main(int argc, char *argv[])
 	ClearMenusections();
 	delete currentBrush;
 #ifdef PTW32_STATIC_LIB
-    pthread_win32_thread_detach_np();
-    pthread_win32_process_detach_np();
+	pthread_win32_thread_detach_np();
+	pthread_win32_process_detach_np();
 #endif
-    if (part_vbuf_store)
-    	free(part_vbuf_store);
+	if (part_vbuf_store)
+		free(part_vbuf_store);
 	for (i = 1; i < 10; i++)
 	{
 		char name[30] = {0};

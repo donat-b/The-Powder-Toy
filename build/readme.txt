@@ -637,6 +637,10 @@ be neater and separate from each other. Wall IDs and Tool IDs are now
 separate from element IDs, so the max element cap has also been increased to
 256.
 
+Version 26.3 1/16/14
+Fix steamline drawing and floodfill crash. Fix glitch where ARAY didn't spark 
+INST. Possible element search crash fix. Fix STKM(AIR) blowing ability.
+
 
 
 
@@ -644,7 +648,6 @@ separate from element IDs, so the max element cap has also been increased to
 -------------------------------------Bugs-------------------------------------
 ------------------------------------------------------------------------------
 figure out why STKM die if comm/pcomm aren't reset
-STKM(AIR) is weak
 when using console, particles may not be killed properly (ChangeType function not called)
 //None (at least that I know of)
 

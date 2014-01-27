@@ -268,7 +268,7 @@ void save_presets(int do_update)
 	}
 	cJSON_AddItemToObject(recobj, "Recent Elements", cJSON_CreateStringArray((const char**)tempFavMenu, 18));
 	for (int j = 0; j < 18; j++)
-		delete tempFavMenu[j];
+		delete[] tempFavMenu[j];
 	cJSON_AddNumberToObject(recobj, "Total Time Played", ((double)currentTime/1000)+((double)totaltime/1000)-((double)totalafktime/1000)-((double)afktime/1000));
 	cJSON_AddNumberToObject(recobj, "Average FPS", totalfps/frames);
 	cJSON_AddNumberToObject(recobj, "Number of frames", frames);
