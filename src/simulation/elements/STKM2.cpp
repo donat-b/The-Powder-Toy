@@ -90,6 +90,8 @@ void STKM2_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = 620.0f;
 	elem->HighTemperatureTransitionElement = PT_FIRE;
 
+	elem->DefaultProperties.life = 100;
+
 	elem->Update = &STKM2_update;
 	elem->Graphics = &STKM_graphics;
 	elem->Func_Create_Allowed = &STKM2_create_allowed;
