@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
@@ -103,6 +103,74 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 	{
 		return -1;
 	}
+
+	// Spark Checks here
+	if (p == -2 && (pmap[y][x]&0xFF) == PT_BUTN && parts[pmap[y][x]>>8].life == 10)
+	{
+		spark_conductive(pmap[y][x]>>8, x, y);
+		return pmap[y][x]>>8;
+	}
+	if (t==PT_SPRK)
+	{
+		int type = pmap[y][x]&0xFF;
+		int index = pmap[y][x]>>8;
+		if(type == PT_WIRE)
+		{
+			parts[index].ctype = PT_DUST;
+			return index;
+		}
+		if (p==-2 && ((elements[type].Properties & PROP_DRAWONCTYPE) || type==PT_CRAY))
+		{
+			parts[index].ctype = PT_SPRK;
+			return index;
+		}
+		if (!(type == PT_INST || (elements[type].Properties&PROP_CONDUCTS)))
+			return -1;
+		if (parts[index].life!=0)
+			return -1;
+		if (p == -2 && type == PT_INST)
+		{
+			INST_flood_spark(this, x, y);
+			return index;
+		}
+
+		spark_conductive_attempt(index, x, y);
+		return index;
+	}
+	// End Spark checks
+
+	//Brush Creation
+	if (p == -2)
+	{
+		if (pmap[y][x])
+		{
+			int drawOn = pmap[y][x]&0xFF;
+			//If an element has the PROP_DRAWONCTYPE property, and the element being drawn to it does not have PROP_NOCTYPEDRAW (Also some special cases), set the element's ctype
+			if (((ptypes[drawOn].properties & PROP_DRAWONCTYPE) ||
+				 (drawOn == PT_STOR && !(ptypes[t].properties & TYPE_SOLID)) ||
+				 (drawOn == PT_PCLN && t != PT_PSCN && t != PT_NSCN) ||
+				 (drawOn == PT_PBCN && t != PT_PSCN && t != PT_NSCN))
+				&& (!(ptypes[t].properties & PROP_NOCTYPEDRAW)))
+			{
+				parts[pmap[y][x]>>8].ctype = t;
+				if (t == PT_LIFE && v < NGOL && drawOn != PT_STOR)
+					parts[pmap[y][x]>>8].tmp = v;
+			}
+			else if ((drawOn == PT_DTEC || (drawOn == PT_PSTN && t != PT_FRME)) && drawOn != t)
+			{
+				parts[pmap[y][x]>>8].ctype = t;
+				if (drawOn == PT_DTEC && t==PT_LIFE && v<NGOL)
+					parts[pmap[y][x]>>8].tmp = v;
+			}
+			return -1;
+		}
+		else if (IsWallBlocking(x, y, t))
+			return -1;
+		if (photons[y][x] && (ptypes[t].properties & TYPE_ENERGY))
+			return -1;
+	}
+	// End Brush Creation
+
 	// If the element has a Func_Create_Override, use that instead of the rest of this function
 	if (elements[t].Func_Create_Override)
 	{
@@ -120,7 +188,7 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 			return -1;
 	}
 
-	if (p==-1)
+	if (p == -1)
 	{
 		// Check whether the particle can be created here
 
@@ -134,11 +202,11 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 		}
 		i = part_alloc();
 	}
-	else if (p==-3) // skip pmap checks, e.g. for sing explosion
+	else if (p == -3) // skip pmap checks, e.g. for sing explosion
 	{
 		i = part_alloc();
 	}
-	else if (p>=0) // Replace existing particle
+	else if (p >= 0) // Replace existing particle
 	{
 		int oldX = (int)(parts[p].x+0.5f);
 		int oldY = (int)(parts[p].y+0.5f);
@@ -160,9 +228,6 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 	// Check whether a particle was successfully allocated
 	if (i<0)
 		return -1;
-
-	// set the pmap/photon maps to the newly created particle
-	pmap_add(i, x, y, t);// TODO: ? only set pmap if (t!=PT_STKM && t!=PT_STKM2 && t!=PT_FIGH)
 
 	// Set some properties
 	parts[i] = elements[t].DefaultProperties;

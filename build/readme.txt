@@ -647,7 +647,7 @@ INST. Possible element search crash fix. Fix STKM(AIR) blowing ability.
 ------------------------------------------------------------------------------
 -------------------------------------Bugs-------------------------------------
 ------------------------------------------------------------------------------
-figure out why STKM die if comm/pcomm aren't reset
+figure out why STKM die if comm/pcomm aren't reset, also it seems like stickmen can be created with high life randomly
 when using console, particles may not be killed properly (ChangeType function not called)
 //None (at least that I know of)
 

@@ -876,80 +876,15 @@ void part_change_type(int i, int x, int y, int t)//changes the type of particle 
 	globalSim->part_change_type(i, x, y, t);
 }
 
-int create_part(int p, int x, int y, int tv)//the function for creating a particle, use p=-1 for creating a new particle, -2 is from a brush, or a particle number to replace a particle.
+//the function for creating a particle, use p=-1 for creating a new particle, -2 is from a brush, or a particle number to replace a particle.
+//TODO: replace with Simulation::part_create now
+int create_part(int p, int x, int y, int tv)
 {
 	int i;
 
 	int t = tv & 0xFF;
 	int v = (tv >> 8) & 0xFFFFFFFF;
-	
-	if (x<0 || y<0 || x>=XRES || y>=YRES || t<=0 || t>=PT_NUM)
-		return -1;
-	if (t>=0 && t<PT_NUM && !ptypes[t].enabled)
-		return -1;
 
-	//activate BUTN here
-	if (p == -2 && (pmap[y][x]&0xFF) == PT_BUTN && parts[pmap[y][x]>>8].life == 10)
-	{
-		globalSim->spark_conductive(pmap[y][x]>>8, x, y);
-		return pmap[y][x]>>8;
-	}
-	if (t==PT_SPRK)
-	{
-		int type = pmap[y][x]&0xFF;
-		int index = pmap[y][x]>>8;
-		if(type == PT_WIRE)
-		{
-			parts[index].ctype = PT_DUST;
-			return index;
-		}
-		if (p==-2 && ((globalSim->elements[type].Properties & PROP_DRAWONCTYPE) || type==PT_CRAY))
-		{
-			parts[index].ctype = PT_SPRK;
-			return index;
-		} 
-		if (!(type == PT_INST || (ptypes[type].properties&PROP_CONDUCTS)))
-			return -1;
-		if (parts[index].life!=0)
-			return -1;
-		if (p == -2 && type == PT_INST)
-		{
-			INST_flood_spark(globalSim, x, y);
-			return index;
-		}
-
-		globalSim->spark_conductive_attempt(index, x, y);
-		return index;
-	}
-	if (p==-2)//creating from brush
-	{
-		if (pmap[y][x])
-		{
-			int drawOn = pmap[y][x]&0xFF;
-			//If an element has the PROP_DRAWONCTYPE property, and the element being drawn to it does not have PROP_NOCTYPEDRAW (Also some special cases), set the element's ctype
-			if (((ptypes[drawOn].properties & PROP_DRAWONCTYPE) ||
-				 (drawOn == PT_STOR && !(ptypes[t].properties & TYPE_SOLID)) ||
-				 (drawOn == PT_PCLN && t != PT_PSCN && t != PT_NSCN) ||
-				 (drawOn == PT_PBCN && t != PT_PSCN && t != PT_NSCN))
-				&& (!(ptypes[t].properties & PROP_NOCTYPEDRAW)))
-			{
-				parts[pmap[y][x]>>8].ctype = t;
-				if (t == PT_LIFE && v < NGOL && drawOn != PT_STOR)
-					parts[pmap[y][x]>>8].tmp = v;
-			}
-			else if ((drawOn == PT_DTEC || (drawOn == PT_PSTN && t != PT_FRME)) && drawOn != t)
-			{
-				parts[pmap[y][x]>>8].ctype = t;
-				if (drawOn == PT_DTEC && t==PT_LIFE && v<NGOL)
-					parts[pmap[y][x]>>8].tmp = v;
-			}
-			return -1;
-		}
-		else if (IsWallBlocking(x, y, t))
-			return -1;
-		if (photons[y][x] && (ptypes[t].properties & TYPE_ENERGY))
-			return -1;
-	}
 	i = globalSim->part_create(p, x, y, t, v);
 	return i;
 }
