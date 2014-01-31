@@ -41,8 +41,9 @@ int BANG_update(UPDATE_FUNC_ARGS)
 	{
 		if ((pmap[y][x]>>8 == i))
 		{
-			int tempvalue = 2;
-			flood_prop(x, y, offsetof(particle, tmp), &tempvalue, 0);
+			PropertyValue tempValue;
+			tempValue.Integer = 2;
+			globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, tmp));
 		}
 		parts[i].tmp = 2;
 	}

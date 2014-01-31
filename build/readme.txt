@@ -45,6 +45,10 @@ The-Fall - GEL and SPNG can absorb water from more elements (ex. PSTE + SPNG -> 
 GIGATeun - GRVI (gravitons)
 
 
+mniip - hosts the update server
+iam4722202468 - made the bug font icon
+
+
 
 ------------------------------------------------------------------------------
 ---------------------------------Explanations---------------------------------

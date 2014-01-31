@@ -300,9 +300,6 @@ static void create_gain_photon(int pp);
 
 void kill_part(int i);
 
-int FloodFillPmapCheck(int x, int y, int type);
-int flood_prop(int x, int y, size_t propoffset, void * propvalue, int proptype);
-
 void detach(int i);
 int interactWavelengths(particle* cpart, int origWl);
 int getWavelengths(particle* cpart);
@@ -314,8 +311,6 @@ void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float
 int get_brush_flags();
 
 int create_part(int p, int x, int y, int t);
-
-int create_property(int x, int y, size_t propoffset, void * propvalue, int proptype);
 
 void delete_part(int x, int y, int flags);
 

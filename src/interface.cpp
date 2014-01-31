@@ -198,7 +198,10 @@ void menu_count()
 	//Fill up tools menu
 	for (int i = 0; i < TOOLCOUNT; i++)
 	{
-		menuSections[SC_TOOL]->AddTool(new ToolTool(i));
+		if (i == TOOL_PROP)
+			menuSections[SC_TOOL]->AddTool(new PropTool);
+		else
+			menuSections[SC_TOOL]->AddTool(new ToolTool(i));
 	}
 
 	//Fill up deco menu
@@ -1384,7 +1387,7 @@ void draw_svf_ui(pixel *vid_buf, int alternate)// all the buttons at the bottom
 		drawtext(vid_buf, XRES-104+BARSIZE/*406*/, YRES+(MENUSIZE-12), "[sign in]", 255, 255, 255, 255);
 	drawrect(vid_buf, XRES-125+BARSIZE/*385*/, YRES+(MENUSIZE-16), 91, 14, 255, 255, 255, 255);
 
-	//te pause button
+	//the pause button
 	if (sys_pause)
 	{
 		fillrect(vid_buf, XRES-17+BARSIZE/*493*/, YRES+(MENUSIZE-17), 16, 16, 255, 255, 255, 255);
@@ -1744,14 +1747,12 @@ char *input_ui(pixel *vid_buf, char *title, char *prompt, char *text, char *shad
 	return mystrdup(ed.str);
 }
 
-void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
+int propSelected = 0;
+char propValue[255] = "";
+void prop_edit_ui(pixel *vid_buf)
 {
 	pixel * o_vid_buf;
-	float valuef;
-	unsigned char valuec;
-	int valuei;
-	unsigned int valueui;
-	int format, pwht_property;
+	int format;
 	size_t propoffset;
 	char *listitems[] = {"type", "life", "ctype", "temp", "tmp", "tmp2", "vy", "vx", "x", "y", "dcolour", "flags"};
 	int listitemscount = 12;
@@ -1766,18 +1767,17 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 	ed.w = xsize - 16;
 	ed.h = 16;
 	ed.def = "[property]";
-	ed.selected = 0;
+	ed.selected = propSelected;
 	ed.items = listitems;
 	ed.count = listitemscount;
+	strncpy(ed.str, listitems[propSelected], 254);
 	
 	ui_edit_init(&ed2, x0+12, y0+50, xsize-20, 14);
 	ed2.def = "[value]";
-	ed2.focus = 0;
-	strncpy(ed2.str, "0", 254);
-	strncpy(ed.str, "type", 254);
-
-	if (x >= 0 && y >= 0 && x < XRES && y < YRES && (pmap[y][x]&0xFF) == PT_PWHT)
-		flood = 0;
+	ed2.focus = 1;
+	strncpy(ed2.str, propValue, 254);
+	ed2.cursorstart = 0;
+	ed2.cursor = strlen(propValue);
 
 	o_vid_buf = (pixel*)calloc((YRES+MENUSIZE) * (XRES+BARSIZE), PIXELSIZE);
 	if (o_vid_buf)
@@ -1836,181 +1836,129 @@ void prop_edit_ui(pixel *vid_buf, int x, int y, int flood)
 		}
 	}
 
-	if(ed.selected!=-1)
+	bool name = false;
+	if(ed.selected != -1)
 	{
-		if (strcmp(ed.str,"type")==0){
+		if (!strcmp(ed.str, "type")) {
 			propoffset = offsetof(particle, type);
 			format = 1;
-			pwht_property = 0;
-		} else if (strcmp(ed.str,"life")==0){
+			name = true;
+		} else if (!strcmp(ed.str,"life")) {
 			propoffset = offsetof(particle, life);
 			format = 0;
-			pwht_property = 1;
-		} else if (strcmp(ed.str,"ctype")==0){
+		} else if (!strcmp(ed.str,"ctype")) {
 			propoffset = offsetof(particle, ctype);
 			format = 1;
-			pwht_property = 2;
-		} else if (strcmp(ed.str,"temp")==0){
+		} else if (!strcmp(ed.str,"temp")) {
 			propoffset = offsetof(particle, temp);
 			format = 2;
-			pwht_property = 3;
-		} else if (strcmp(ed.str,"tmp")==0){
+		} else if (!strcmp(ed.str,"tmp")) {
 			propoffset = offsetof(particle, tmp);
 			format = 0;
-			pwht_property = 4;
-		} else if (strcmp(ed.str,"tmp2")==0){
+		} else if (!strcmp(ed.str,"tmp2")) {
 			propoffset = offsetof(particle, tmp2);
 			format = 0;
-			pwht_property = 5;
-		} else if (strcmp(ed.str,"vy")==0){
+		} else if (!strcmp(ed.str,"vy")) {
 			propoffset = offsetof(particle, vy);
 			format = 2;
-			pwht_property = 6;
-		} else if (strcmp(ed.str,"vx")==0){
+		} else if (!strcmp(ed.str,"vx")) {
 			propoffset = offsetof(particle, vx);
 			format = 2;
-			pwht_property = 7;
-		} else if (strcmp(ed.str,"x")==0){
+		} else if (!strcmp(ed.str,"x")) {
 			propoffset = offsetof(particle, x);
 			format = 2;
-			pwht_property = 8;
-		} else if (strcmp(ed.str,"y")==0){
+		} else if (!strcmp(ed.str,"y")) {
 			propoffset = offsetof(particle, y);
 			format = 2;
-			pwht_property = 9;
-		} else if (strcmp(ed.str,"dcolour")==0){
+		} else if (!strcmp(ed.str,"dcolour")) {
 			propoffset = offsetof(particle, dcolour);
 			format = 3;
-			pwht_property = 10;
-		} else if (strcmp(ed.str,"flags")==0){
+		} else if (!strcmp(ed.str,"flags")) {
 			propoffset = offsetof(particle, flags);
 			format = 3;
-			pwht_property = 11;
 		}
 	} else {
 		error_ui(vid_buf, 0, "Invalid property");
 		goto exit;
 	}
+	propSelected = ed.selected;
+	strncpy(propValue, ed2.str, 254);
 	
-	if(format==0){
-		sscanf(ed2.str, "%d", &valuei);
-		if (flood)
-			flood_prop(x, y, propoffset, &valuei, format);
+	PropTool* propTool = (PropTool*)GetToolFromIdentifier("DEFAULT_TOOL_PROP");
+	propTool->propOffset = propoffset;
+	if (format == 0)
+	{
+		int value;
+		sscanf(ed2.str, "%d", &value);
+		propTool->propValue.Integer = value;
+		propTool->propType = Integer;
 	}
-	if(format==1){
+	else if (format == 1)
+	{
+		unsigned int value;
 		int isint = 1, i;
 		//Check if it's an element name
-		for(i = 0; i < strlen(ed2.str); i++)
+		for (i = 0; i < strlen(ed2.str); i++)
 		{
-			if(!(ed2.str[i] >= '0' && ed2.str[i] <= '9'))
+			if (!(ed2.str[i] >= '0' && ed2.str[i] <= '9'))
 			{
 				isint = 0;
 				break;
 			}
 		}
-		if(isint)
+		if (isint)
 		{
-			sscanf(ed2.str, "%u", &valuei);
+			sscanf(ed2.str, "%u", &value);
 		}
 		else
 		{
-			if(!console_parse_type(ed2.str, &valuei, NULL))
+			if (!console_parse_type(ed2.str, (int*)(&value), NULL))
 			{
 				error_ui(vid_buf, 0, "Invalid element name");
 				goto exit;
 			}
 		}
-		if (pwht_property == 0 && (valuei < 0 || valuei > PT_NUM || !ptypes[valuei].enabled))
+		if (name && (value < 0 || value > PT_NUM || !ptypes[value].enabled))
 		{
 			error_ui(vid_buf, 0, "Invalid element number");
 			goto exit;
 		}
-		valuec = (unsigned char)valuei;
-		if (flood)
-			flood_prop(x, y, propoffset, &valuec, format);
+		propTool->propValue.UInteger = value;
+		propTool->propType = UInteger;
 	}
-	if(format==2){
-		sscanf(ed2.str, "%f", &valuef);
-		if (flood)
-			flood_prop(x, y, propoffset, &valuef, format);
+	else if (format == 2)
+	{
+		float value;
+		sscanf(ed2.str, "%f", &value);
+		propTool->propValue.Float = value;
+		propTool->propType = Float;
 	}
-	if(format==3){
+	else if (format == 3)
+	{
+		unsigned int value;
 		int j;
-		if(ed2.str[0] == '#') // #FFFFFFFF
+		if (ed2.str[0] == '#') // #FFFFFFFF
 		{
 			//Convert to lower case
 			for(j = 0; j < strlen(ed2.str); j++)
 				ed2.str[j] = tolower(ed2.str[j]);
-			sscanf(ed2.str, "#%x", &valueui);
-			printf("%s, %u\n", ed2.str, valueui);
+			sscanf(ed2.str, "#%x", &value);
 		}
-		else if(ed2.str[0] == '0' && ed2.str[1] == 'x') // 0xFFFFFFFF
+		else if (ed2.str[0] == '0' && ed2.str[1] == 'x') // 0xFFFFFFFF
 		{
 			//Convert to lower case
 			for(j = 0; j < strlen(ed2.str); j++)
 				ed2.str[j] = tolower(ed2.str[j]);
-			sscanf(ed2.str, "0x%x", &valueui);
-			printf("%s, %u\n", ed2.str, valueui);
+			sscanf(ed2.str, "0x%x", &value);
 		}
 		else
 		{
-			sscanf(ed2.str, "%d", &valueui);
+			sscanf(ed2.str, "%u", &value);
 		}
-		if (flood)
-			flood_prop(x, y, propoffset, &valueui, 0);
+		propTool->propValue.UInteger = value;
+		propTool->propType = UInteger;
 	}
-	if (!flood)
-	{
-		prop_offset = propoffset;
-		prop_format = format;
-		if (prop_value)
-			free(prop_value);
-		if (format == 0)
-		{
-			prop_value = malloc(sizeof(int));
-			memcpy(prop_value,&valuei,sizeof(int));
-			if (x >= 0 && y >= 0 && x < XRES && y < YRES && (pmap[y][x]&0xFF) == PT_PWHT)
-			{
-				parts[pmap[y][x]>>8].ctype = pwht_property;
-				parts[pmap[y][x]>>8].tmp2 = format;
-				parts[pmap[y][x]>>8].tmp = valuei;
-			}
-		}
-		else if (format == 1)
-		{
-			prop_value = malloc(sizeof(unsigned char));
-			memcpy(prop_value,&valuec,sizeof(unsigned char));
-			if (x >= 0 && y >= 0 && x < XRES && y < YRES && (pmap[y][x]&0xFF) == PT_PWHT)
-			{
-				parts[pmap[y][x]>>8].ctype = pwht_property;
-				parts[pmap[y][x]>>8].tmp2 = format;
-				parts[pmap[y][x]>>8].tmp = valuei;
-			}
-		}
-		else if (format == 2)
-		{
-			prop_value = malloc(sizeof(float));
-			memcpy(prop_value,&valuef,sizeof(float));
-			if (x >= 0 && y >= 0 && x < XRES && y < YRES && (pmap[y][x]&0xFF) == PT_PWHT)
-			{
-				parts[pmap[y][x]>>8].ctype = pwht_property;
-				parts[pmap[y][x]>>8].tmp2 = format;
-				parts[pmap[y][x]>>8].temp = valuef;
-			}
-		}
-		else if (format == 3)
-		{
-			prop_format = 0;
-			prop_value = malloc(sizeof(unsigned int));
-			memcpy(prop_value,&valueui,sizeof(unsigned int));
-			if (x >= 0 && y >= 0 && x < XRES && y < YRES && (pmap[y][x]&0xFF) == PT_PWHT)
-			{
-				parts[pmap[y][x]>>8].ctype = pwht_property;
-				parts[pmap[y][x]>>8].tmp2 = 3;
-				parts[pmap[y][x]>>8].dcolour = valueui;
-			}
-		}
-	}
+
 exit:
 	while (!sdl_poll())
 	{
@@ -3170,7 +3118,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 
 				if (b && ((ToolTool*)current)->GetID() == TOOL_PROP)
-					prop_edit_ui(vid_buf, -1, -1, 0);
+					prop_edit_ui(vid_buf);
 			}
 			//draw rectangles around selected tools
 			else if (activeTools[0]->GetIdentifier() == current->GetIdentifier())

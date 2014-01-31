@@ -889,27 +889,6 @@ int create_part(int p, int x, int y, int tv)
 	return i;
 }
 
-int create_property(int x, int y, size_t propoffset, void * propvalue, int proptype)
-{
-	int i = pmap[y][x];
-	if (!i)
-		i = photons[y][x];
-	if (!propvalue)
-		return -1;
-	if (i&0xFF)
-	{
-		if(proptype==0) {
-			*((int*)(((char*)&parts[i>>8])+propoffset)) = *((int*)propvalue);
-		} else if(proptype==1) {
-			*((char*)(((char*)&parts[i>>8])+propoffset)) = *((char*)propvalue);
-		} else if(proptype==2) {
-			*((float*)(((char*)&parts[i>>8])+propoffset)) = *((float*)propvalue);
-		}
-		return i>>8;
-	}
-	return -1;
-}
-
 static void create_gain_photon(int pp)//photons from PHOT going through GLOW
 {
 	float xx, yy;
@@ -2942,71 +2921,6 @@ void clear_area(int area_x, int area_y, int area_w, int area_h)
 			signs[i].text[0] = 0;
 		}
 	}
-}
-
-int FloodFillPmapCheck(int x, int y, int type)
-{
-	if (type == 0)
-		return !pmap[y][x] && !photons[y][x];
-	if (ptypes[type].properties&TYPE_ENERGY)
-		return (photons[y][x]&0xFF) == type;
-	else
-		return (pmap[y][x]&0xFF) == type;
-}
-
-int flood_prop_2(int x, int y, size_t propoffset, void * propvalue, int proptype, int parttype, char * bitmap)
-{
-	int x1, x2, dy = 1;
-	x1 = x2 = x;
-	while (x1>=CELL)
-	{
-		if (!FloodFillPmapCheck(x1-1, y, parttype) || bitmap[(y*XRES)+x1-1])
-		{
-			break;
-		}
-		x1--;
-	}
-	while (x2<XRES-CELL)
-	{
-		if (!FloodFillPmapCheck(x2+1, y, parttype) || bitmap[(y*XRES)+x2+1])
-		{
-			break;
-		}
-		x2++;
-	}
-	for (x=x1; x<=x2; x++)
-	{
-		create_property(x, y, propoffset, propvalue, proptype);
-		bitmap[(y*XRES)+x] = 1;
-	}
-	if (y>=CELL+dy)
-		for (x=x1; x<=x2; x++)
-			if (FloodFillPmapCheck(x, y-dy, parttype) && !bitmap[((y-dy)*XRES)+x])
-				if (!flood_prop_2(x, y-dy, propoffset, propvalue, proptype, parttype, bitmap))
-					return 0;
-	if (y<YRES-CELL-dy)
-		for (x=x1; x<=x2; x++)
-			if (FloodFillPmapCheck(x, y+dy, parttype) && !bitmap[((y+dy)*XRES)+x])
-				if (!flood_prop_2(x, y+dy, propoffset, propvalue, proptype, parttype, bitmap))
-					return 0;
-	return 1;
-}
-
-int flood_prop(int x, int y, size_t propoffset, void * propvalue, int proptype)
-{
-	int r = 0;
-	char * bitmap = (char*)malloc(XRES*YRES); //Bitmap for checking
-	if (bitmap == 0)
-		return 0;
-	memset(bitmap, 0, XRES*YRES);
-	r = pmap[y][x];
-	if (!r)
-		r = photons[y][x];
-	if (!r)
-		return 1;
-	flood_prop_2(x, y, propoffset, propvalue, proptype, r&0xFF, bitmap);
-	free(bitmap);
-	return 0;
 }
 
 int flood_water(int x, int y, int i, int originaly, int check)

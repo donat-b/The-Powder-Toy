@@ -18,6 +18,7 @@
 #define TOOL_H
 
 #include <iostream>
+#include "defines.h"
 //#include "Simulation.h" //TODO: make Simulation an arg later
 #include "common/Point.h"
 
@@ -95,7 +96,23 @@ public:
 	virtual int DrawPoint(Brush* brush, Point position);
 	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
 	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
+	virtual int FloodFill(Point position)  { return 0; }
+};
+
+class PropTool : public ToolTool
+{
+public:
+	PropTool();
+	~PropTool() {}
+
+	virtual int DrawPoint(Brush* brush, Point position);
+	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
+	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
 	virtual int FloodFill(Point position);
+
+	PropertyType propType;
+	PropertyValue propValue;
+	size_t propOffset;
 };
 
 class DecoTool : public Tool

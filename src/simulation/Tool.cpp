@@ -214,12 +214,32 @@ void ToolTool::DrawRect(Brush* brush, Point startPos, Point endPos)
 {
 	globalSim->CreateToolBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID);
 }
-int ToolTool::FloodFill(Point position)
+
+PropTool::PropTool():
+ToolTool(TOOL_PROP),
+propType(Integer),
+propOffset(0)
 {
-	if (GetID() == TOOL_PROP)
-		return flood_prop(position.X, position.Y, prop_offset, prop_value, prop_format);
+	propValue.Integer = 0;
+}
+int PropTool::DrawPoint(Brush* brush, Point position)
+{
+	globalSim->CreatePropBrush(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, propType, propValue, propOffset);
 	return 0;
 }
+void PropTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
+{
+	globalSim->CreatePropLine(startPos.X, startPos.Y, endPos.X, endPos.Y, currentBrush->GetRadius().X, currentBrush->GetRadius().Y, propType, propValue, propOffset);
+}
+void PropTool::DrawRect(Brush* brush, Point startPos, Point endPos)
+{
+	globalSim->CreatePropBox(startPos.X, startPos.Y, endPos.X, endPos.Y, propType, propValue, propOffset);
+}
+int PropTool::FloodFill(Point position)
+{
+	return globalSim->FloodProp(position.X, position.Y, propType, propValue, propOffset);
+}
+
 
 DecoTool::DecoTool(int decoID):
 Tool(DECO_TOOL, decoID, decoTypes[decoID].identifier)
@@ -244,8 +264,9 @@ void DecoTool::DrawRect(Brush* brush, Point startPos, Point endPos)
 }
 int DecoTool::FloodFill(Point position)
 {
-	unsigned int col = (ID == DECO_ERASE) ? PIXRGB(0, 0, 0) : decocolor;
-	return flood_prop(position.X, position.Y, offsetof(particle, dcolour), &col, 0);
+	PropertyValue col;
+	col.UInteger = (ID == DECO_ERASE) ? PIXRGB(0, 0, 0) : decocolor;
+	return globalSim->FloodProp(position.X, position.Y, UInteger, col, offsetof(particle, dcolour));
 }
 Tool* DecoTool::Sample(Point position)
 {

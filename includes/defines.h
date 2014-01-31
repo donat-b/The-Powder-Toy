@@ -172,6 +172,14 @@ typedef unsigned int pixel;
 #endif
 #endif
 
+enum PropertyType { ParticleType, Colour, Integer, UInteger, Float, String, Char, UChar };
+union PropertyValue
+{
+	int Integer;
+	unsigned int UInteger;
+	float Float;
+};
+
 #define SDEUT
 
 #define DEBUG_PARTS		0x0001
@@ -220,9 +228,6 @@ extern int heatmode;
 extern int maxframes;
 extern int secret_els;
 extern int save_as;
-extern void *prop_value;
-extern int prop_format;
-extern unsigned int prop_offset;
 extern int tab_num;
 extern int num_tabs;
 extern int show_tabs;

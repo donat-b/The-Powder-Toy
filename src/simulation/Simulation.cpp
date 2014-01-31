@@ -611,6 +611,17 @@ void Simulation::CreateBox(int x1, int y1, int x2, int y2, int c, int flags)
 			CreateParts(i, j, 0, 0, c, flags, false);
 }
 
+//used for element and prop tool floodfills
+int Simulation::FloodFillPmapCheck(int x, int y, int type)
+{
+	if (type == 0)
+		return !pmap[y][x] && !photons[y][x];
+	if (ptypes[type].properties&TYPE_ENERGY)
+		return (photons[y][x] & 0xFF) == type;
+	else
+		return (pmap[y][x] & 0xFF) == type;
+}
+
 int Simulation::FloodParts(int x, int y, int fullc, int replace, int flags)
 {
 	int c = fullc&0xFF;
@@ -924,10 +935,6 @@ int Simulation::CreateTool(int x, int y, int tool)
 		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = toolStrength*-5.0f;
 		return -1;
 	}
-	else if (tool == TOOL_PROP)
-	{
-		return create_property(x, y, prop_offset, prop_value, prop_format);
-	}
 	return -1;
 }
 
@@ -1041,6 +1048,196 @@ void Simulation::CreateToolBox(int x1, int y1, int x2, int y2, int tool)
 	for (int i = x1; i <= x2; i++)
 		for (int j = y1; j <= y2; j++)
 			CreateTool(i, j, tool);
+}
+
+int Simulation::CreateProp(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset)
+{
+	if (!InBounds(x, y))
+		return -2;
+
+	int i = pmap[y][x];
+	if (!i)
+		i = photons[y][x];
+
+	if (i & 0xFF)
+	{
+		if (propType == Integer)
+			*((int*)(((char*)&parts[i>>8]) + propOffset)) = propValue.Integer;
+		else if (propType == UInteger)
+			*((unsigned int*)(((char*)&parts[i>>8]) + propOffset)) = propValue.UInteger;
+		else if (propType == Float)
+			*((float*)(((char*)&parts[i>>8]) + propOffset)) = propValue.Float;
+		return i >> 8;
+	}
+	return -1;
+}
+
+void Simulation::CreatePropBrush(int x, int y, int rx, int ry, PropertyType propType, PropertyValue propValue, size_t propOffset)
+{
+	if (rx <= 0) //workaround for rx == 0 crashing. todo: find a better fix later.
+	{
+		for (int j = y - ry; j <= y + ry; j++)
+			CreateProp(x, j, propType, propValue, propOffset);
+	}
+	else
+	{
+		int tempy = y, i, j, jmax, oldy;
+		// tempy is the smallest y value that is still inside the brush
+		// jmax is the largest y value that is still inside the brush (bottom border of brush)
+
+		//For triangle brush, start at the very bottom
+		if (currentBrush->GetShape() == TRI_BRUSH)
+			tempy = y + ry;
+		for (i = x - rx; i <= x; i++)
+		{
+			oldy = tempy;
+			//loop up until it finds a point not in the brush
+			while (InCurrentBrush(i - x, tempy - y, rx, ry))
+				tempy = tempy - 1;
+			tempy = tempy + 1;
+
+			//If triangle brush, create parts down to the bottom always; if not go down to the bottom border
+			if (currentBrush->GetShape() == TRI_BRUSH)
+				jmax = y + ry;
+			else
+				jmax = 2 * y - tempy;
+			for (j = tempy; j <= jmax; j++)
+			{
+				CreateProp(i, j, propType, propValue, propOffset);
+				//don't create twice in the vertical center line
+				if (i != x)
+					CreateProp(2 * x - i, j, propType, propValue, propOffset);
+			}
+			//TODO: should use fill argument like creating elements does (but all the repetitiveness here needs to be removed first)
+		}
+	}
+}
+
+void Simulation::CreatePropLine(int x1, int y1, int x2, int y2, int rx, int ry, PropertyType propType, PropertyValue propValue, size_t propOffset)
+{
+	int x, y, dx, dy, sy;
+	bool reverseXY = abs(y2 - y1) > abs(x2 - x1);
+	float e = 0.0f, de;
+	if (reverseXY)
+	{
+		y = x1;
+		x1 = y1;
+		y1 = y;
+		y = x2;
+		x2 = y2;
+		y2 = y;
+	}
+	if (x1 > x2)
+	{
+		y = x1;
+		x1 = x2;
+		x2 = y;
+		y = y1;
+		y1 = y2;
+		y2 = y;
+	}
+	dx = x2 - x1;
+	dy = abs(y2 - y1);
+	if (dx)
+		de = dy / (float)dx;
+	else
+		de = 0.0f;
+	y = y1;
+	sy = (y1<y2) ? 1 : -1;
+	for (x = x1; x <= x2; x++)
+	{
+		if (reverseXY)
+			CreatePropBrush(y, x, rx, ry, propType, propValue, propOffset);
+		else
+			CreatePropBrush(x, y, rx, ry, propType, propValue, propOffset);
+		e += de;
+		if (e >= 0.5f)
+		{
+			y += sy;
+			if (!(rx + ry) && ((y1<y2) ? (y <= y2) : (y >= y2)))
+			{
+				if (reverseXY)
+					CreatePropBrush(y, x, rx, ry, propType, propValue, propOffset);
+				else
+					CreatePropBrush(x, y, rx, ry, propType, propValue, propOffset);
+			}
+			e -= 1.0f;
+		}
+	}
+}
+
+void Simulation::CreatePropBox(int x1, int y1, int x2, int y2, PropertyType propType, PropertyValue propValue, size_t propOffset)
+{
+	if (x1 > x2)
+	{
+		int temp = x2;
+		x2 = x1;
+		x1 = temp;
+	}
+	if (y1 > y2)
+	{
+		int temp = y2;
+		y2 = y1;
+		y1 = temp;
+	}
+	for (int i = x1; i <= x2; i++)
+		for (int j = y1; j <= y2; j++)
+			CreateProp(i, j, propType, propValue, propOffset);
+}
+
+int Simulation::FloodPropHelper(int x, int y, int partType, PropertyType propType, PropertyValue propValue, size_t propOffset, char * bitmap)
+{
+	int x1, x2, dy = 1;
+	x1 = x2 = x;
+	while (x1 >= CELL)
+	{
+		if (!FloodFillPmapCheck(x1 - 1, y, partType) || bitmap[(y*XRES) + x1 - 1])
+		{
+			break;
+		}
+		x1--;
+	}
+	while (x2<XRES - CELL)
+	{
+		if (!FloodFillPmapCheck(x2 + 1, y, partType) || bitmap[(y*XRES) + x2 + 1])
+		{
+			break;
+		}
+		x2++;
+	}
+	for (x = x1; x <= x2; x++)
+	{
+		CreateProp(x, y, propType, propValue, propOffset);
+		bitmap[(y*XRES) + x] = 1;
+	}
+	if (y >= CELL + dy)
+		for (x = x1; x <= x2; x++)
+			if (FloodFillPmapCheck(x, y - dy, partType) && !bitmap[((y - dy)*XRES) + x])
+				if (!FloodPropHelper(x, y - dy, partType, propType, propValue, propOffset, bitmap))
+					return 0;
+	if (y<YRES - CELL - dy)
+		for (x = x1; x <= x2; x++)
+			if (FloodFillPmapCheck(x, y + dy, partType) && !bitmap[((y + dy)*XRES) + x])
+				if (!FloodPropHelper(x, y + dy, partType, propType, propValue, propOffset, bitmap))
+					return 0;
+	return 1;
+}
+
+int Simulation::FloodProp(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset)
+{
+	int r = 0;
+	char * bitmap = (char*)malloc(XRES*YRES); //Bitmap for checking
+	if (bitmap == 0)
+		return 0;
+	memset(bitmap, 0, XRES*YRES);
+	r = pmap[y][x];
+	if (!r)
+		r = photons[y][x];
+	if (!r)
+		return 1;
+	FloodPropHelper(x, y, r & 0xFF, propType, propValue, propOffset, bitmap);
+	free(bitmap);
+	return 0;
 }
 
 void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)

@@ -45,16 +45,21 @@ int update_POWERED(UPDATE_FUNC_ARGS) {
 						{
 							if (parts[r>>8].life>2)
 							{
-								int tentmp2 = 10, ninetmp2 = 9, skipmoveflags = parts[i].flags|FLAG_SKIPMOVE;
 								if (parts[r>>8].ctype==PT_PSCN && parts[i].tmp2 < 10)
 								{
-									flood_prop(x,y,offsetof(particle, tmp2),&tentmp2,0);
-									flood_prop(x,y,offsetof(particle, flags),&skipmoveflags,0);
+									PropertyValue tempValue;
+									tempValue.Integer = 10;
+									globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, tmp2));
+									tempValue.Integer = parts[i].flags|FLAG_SKIPMOVE;
+									globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, flags));
 								}
 								else if (parts[r>>8].ctype==PT_NSCN && parts[i].tmp2 >= 10)
 								{
-									flood_prop(x,y,offsetof(particle, tmp2),&ninetmp2,0);
-									flood_prop(x,y,offsetof(particle, flags),&skipmoveflags,0);
+									PropertyValue tempValue;
+									tempValue.Integer = 9;
+									globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, tmp2));
+									tempValue.Integer = parts[i].flags|FLAG_SKIPMOVE;
+									globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, flags));
 								}
 							}
 						}
@@ -62,30 +67,38 @@ int update_POWERED(UPDATE_FUNC_ARGS) {
 						{
 							if (parts[r>>8].life>2)
 							{
-								int tenlife = 10, ninelife = 9, fourteenlife = 14, zero = 0, skipmoveflags = parts[i].flags|FLAG_SKIPMOVE;
 								if (parts[r>>8].ctype==PT_PSCN && parts[i].life < 10)
 								{
-									flood_prop(x,y,offsetof(particle, life),&tenlife,0);
-									flood_prop(x,y,offsetof(particle, flags),&skipmoveflags,0);
+									PropertyValue tempValue;
+									tempValue.Integer = 10;
+									globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, life));
+									tempValue.Integer = parts[i].flags|FLAG_SKIPMOVE;
+									globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, flags));
 								}
 								else if (parts[r>>8].ctype==PT_NSCN && (parts[i].life >= 10 || parts[i].tmp != (int)(parts[i].temp-273.15) || parts[i].tmp2 > 1))
 								{
-									flood_prop(x,y,offsetof(particle, life),&ninelife,0);
-									flood_prop(x,y,offsetof(particle, tmp),&zero,0);
-									flood_prop(x,y,offsetof(particle, tmp2),&zero,0);
-									flood_prop(x,y,offsetof(particle, flags),&skipmoveflags,0);
+									PropertyValue tempValue;
+									tempValue.Integer = 9;
+									globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, life));
+									tempValue.Integer = parts[i].flags|FLAG_SKIPMOVE;
+									globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, flags));
+									tempValue.Integer = 0;
+									globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, tmp));
+									globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, tmp2));
 								}
 								else if (parts[r>>8].ctype==PT_METL)
 								{
 									if (parts[i].life == 10)
 									{
-										flood_prop(x,y,offsetof(particle, life),&ninelife,0);
-										//flood_prop(x,y,offsetof(particle, flags),&skipmoveflags,0);
+										PropertyValue tempValue;
+										tempValue.Integer = 9;
+										globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, life));
 									}
 									else if (parts[i].life == 0)
 									{
-										flood_prop(x,y,offsetof(particle, life),&fourteenlife,0);
-										//flood_prop(x,y,offsetof(particle, flags),&skipmoveflags,0);
+										PropertyValue tempValue;
+										tempValue.Integer = 14;
+										globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, life));
 										return 0;
 									}
 								}
@@ -93,16 +106,21 @@ int update_POWERED(UPDATE_FUNC_ARGS) {
 						}
 						else
 						{
-							int tenlife = 10, ninelife = 9, skipmoveflags = parts[i].flags|FLAG_SKIPMOVE;
 							if (parts[r>>8].ctype==PT_PSCN && parts[i].life < 10)
 							{
-								flood_prop(x,y,offsetof(particle, life),&tenlife,0);
-								flood_prop(x,y,offsetof(particle, flags),&skipmoveflags,0);
+								PropertyValue tempValue;
+								tempValue.Integer = 10;
+								globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, life));
+								tempValue.Integer = parts[i].flags|FLAG_SKIPMOVE;
+								globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, flags));
 							}
 							else if (parts[r>>8].ctype==PT_NSCN && parts[i].life >= 10)
 							{
-								flood_prop(x,y,offsetof(particle, life),&ninelife,0);
-								flood_prop(x,y,offsetof(particle, flags),&skipmoveflags,0);
+								PropertyValue tempValue;
+								tempValue.Integer = 9;
+								globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, life));
+								tempValue.Integer = parts[i].flags|FLAG_SKIPMOVE;
+								globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, flags));
 							}
 							else if ((parts[i].type == PT_SWCH || parts[i].type == PT_BUTN) && parts[r>>8].ctype != PT_PSCN && parts[r>>8].ctype != PT_NSCN && !(parts[r>>8].ctype == PT_INWR && parts[r>>8].tmp == 1) && parts[i].life == 10)
 							{

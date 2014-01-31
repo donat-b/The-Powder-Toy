@@ -63,6 +63,7 @@ public:
 	int CreatePartFlags(int x, int y, int c, int flags);
 	void CreateLine(int x1, int y1, int x2, int y2, int rx, int ry, int c, int flags);
 	void CreateBox(int x1, int y1, int x2, int y2, int c, int flags);
+	int FloodFillPmapCheck(int x, int y, int type);
 	int FloodParts(int x, int y, int fullc, int replace, int flags);
 
 	void CreateWall(int x, int y, int wall);
@@ -74,6 +75,13 @@ public:
 	void CreateToolBrush(int x, int y, int rx, int ry, int tool);
 	void CreateToolLine(int x1, int y1, int x2, int y2, int rx, int ry, int tool);
 	void CreateToolBox(int x1, int y1, int x2, int y2, int tool);
+
+	int CreateProp(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset);
+	void CreatePropBrush(int x, int y, int rx, int ry, PropertyType propType, PropertyValue propValue, size_t propOffset);
+	void CreatePropLine(int x1, int y1, int x2, int y2, int rx, int ry, PropertyType propType, PropertyValue propValue, size_t propOffset);
+	void CreatePropBox(int x1, int y1, int x2, int y2, PropertyType propType, PropertyValue propValue, size_t propOffset);
+	int FloodPropHelper(int x, int y, int partType, PropertyType propType, PropertyValue propValue, size_t propOffset, char * bitmap);
+	int FloodProp(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset);
 
 	void CreateDeco(int x, int y, int tool, unsigned int color);
 	void CreateDecoBrush(int x, int y, int rx, int ry, int tool, unsigned int color, bool fill);
