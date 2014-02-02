@@ -65,7 +65,8 @@ int PRTI_update(UPDATE_FUNC_ARGS)
 	}
 
 
-	if (fe) {
+	if (fe)
+	{
 		int orbd[4] = {0, 0, 0, 0};	//Orbital distances
 		int orbl[4] = {0, 0, 0, 0};	//Orbital locations
 		if (!parts[i].life) parts[i].life = rand()*rand()*rand();

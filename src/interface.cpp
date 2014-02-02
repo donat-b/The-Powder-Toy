@@ -1881,8 +1881,6 @@ void prop_edit_ui(pixel *vid_buf)
 		error_ui(vid_buf, 0, "Invalid property");
 		goto exit;
 	}
-	propSelected = ed.selected;
-	strncpy(propValue, ed2.str, 254);
 	
 	PropTool* propTool = (PropTool*)GetToolFromIdentifier("DEFAULT_TOOL_PROP");
 	propTool->propOffset = propoffset;
@@ -1958,6 +1956,8 @@ void prop_edit_ui(pixel *vid_buf)
 		propTool->propValue.UInteger = value;
 		propTool->propType = UInteger;
 	}
+	propSelected = ed.selected;
+	strncpy(propValue, ed2.str, 254);
 
 exit:
 	while (!sdl_poll())

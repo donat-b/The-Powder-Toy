@@ -37,8 +37,8 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 	{
 		//add -1,0,or 1 to count
 		int randomness = (count + rand()%3-1 + 4)%8;
-		rx = portal_rx[(count + 4)%8];
-		ry = portal_ry[(count + 4)%8];
+		rx = portal_rx[count];
+		ry = portal_ry[count];
 		if (BOUNDS_CHECK && (rx || ry))
 		{
 			if (!pmap[y+ry][x+rx])
