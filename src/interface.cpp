@@ -5001,9 +5001,13 @@ int report_ui(pixel* vid_buf, char *save_id, bool bug)
 			drawtext(vid_buf, (XRES+BARSIZE-400)+163, (YRES+MENUSIZE-150)-13, "Send", 255, 255, 255, 255);
 		else
 			drawtext(vid_buf, (XRES+BARSIZE-400)+163, (YRES+MENUSIZE-150)-13, "Report", 255, 255, 255, 255);
-		if (mx>(XRES+BARSIZE-400)+150 && my>(YRES+MENUSIZE-150)-18 && mx<(XRES+BARSIZE-400)+200 && my<(YRES+MENUSIZE-150)) {
-			fillrect(vid_buf, (XRES+BARSIZE-400)+150, (YRES+MENUSIZE-150)-18, 50, 18, 255, 255, 255, 40);
+		if (mx>(XRES+BARSIZE-400)+150 && my>(YRES+MENUSIZE-150)-18 && mx<(XRES+BARSIZE-400)+200 && my<(YRES+MENUSIZE-150))
+		{
 			if (b)
+			{
+				fillrect(vid_buf, (XRES+BARSIZE-400)+150, (YRES+MENUSIZE-150)-18, 50, 18, 255, 255, 255, 100);
+			}
+			else if (!b && bq == 1)
 			{
 				int ret = 0;
 				if (bug)
@@ -5023,12 +5027,18 @@ int report_ui(pixel* vid_buf, char *save_id, bool bug)
 					return 0;
 				}
 			}
+			else
+				fillrect(vid_buf, (XRES+BARSIZE-400)+150, (YRES+MENUSIZE-150)-18, 50, 18, 255, 255, 255, 40);
 		}
 		if (mx>200 && my>(YRES+MENUSIZE-150)-18 && mx<250 && my<(YRES+MENUSIZE-150))
 		{
 			fillrect(vid_buf, 200, (YRES+MENUSIZE-150)-18, 50, 18, 255, 255, 255, 40);
-			if (b)
+			if (!b && bq)
 				return 0;
+			else if (b)
+				fillrect(vid_buf, 200, (YRES+MENUSIZE-150)-18, 50, 18, 255, 255, 255, 100);
+			else
+				fillrect(vid_buf, 200, (YRES+MENUSIZE-150)-18, 50, 18, 255, 255, 255, 40);
 		}
 		ui_edit_draw(vid_buf, &ed);
 #ifdef OGLR

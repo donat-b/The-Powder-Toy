@@ -2646,7 +2646,7 @@ int main(int argc, char *argv[])
 				it = 50;
 			if (y > YRES+MENUSIZE-BARSIZE)//check if mouse is on menu buttons
 			{
-				if (!lb)//mouse is NOT held down, so it is a first click
+				if (!lb && !bq)//mouse is NOT held down, so it is a first click
 				{
 					if (x>=189 && x<=202 && svf_login && svf_open && svf_myvote==0 && svf_own==0)
 					{
@@ -2655,7 +2655,7 @@ int main(int argc, char *argv[])
 							svf_myvote = 1;
 						}
 					}
-					if (x>=204 && x<=217 && svf_login && svf_open && svf_myvote==0 && svf_own==0)
+					else if (x>=204 && x<=217 && svf_login && svf_open && svf_myvote==0 && svf_own==0)
 					{
 						if (execute_vote(vid_buf, svf_id, "Down"))
 						{
@@ -2663,16 +2663,16 @@ int main(int argc, char *argv[])
 						}
 					}
 					//tags
-					if (x>=219 && x<=(XRES+BARSIZE-(510-333)) && svf_open)
+					else if (x>=219 && x<=(XRES+BARSIZE-(510-333)) && svf_open)
 						tag_list_ui(vid_buf);
 					else if (x>=((XRES+BARSIZE-(510-335))) && x<((XRES+BARSIZE-(510-350))))
 						report_ui(vid_buf, NULL, true);
-					if (x>=(XRES+BARSIZE-(510-351)) && x<(XRES+BARSIZE-(510-366)) && !bq)
+					else if (x>=(XRES+BARSIZE-(510-351)) && x<(XRES+BARSIZE-(510-366)))
 					{
 						//legacy_enable = !legacy_enable;
 						simulation_ui(vid_buf);
 					}
-					if (x>=(XRES+BARSIZE-(510-367)) && x<=(XRES+BARSIZE-(510-383)) && !bq)
+					else if (x>=(XRES+BARSIZE-(510-367)) && x<=(XRES+BARSIZE-(510-383)))
 					{
 						NewSim();
 						for (i=0; i<NPART-1; i++)
@@ -2680,7 +2680,7 @@ int main(int argc, char *argv[])
 						parts[NPART-1].life = -1;
 						globalSim->pfree = 0;
 					}
-					if (x>=(XRES+BARSIZE-(510-385)) && x<=(XRES+BARSIZE-(510-476)))
+					else if (x>=(XRES+BARSIZE-(510-385)) && x<=(XRES+BARSIZE-(510-476)))
 					{
 						login_ui(vid_buf);
 						if (svf_login) {
@@ -2688,19 +2688,28 @@ int main(int argc, char *argv[])
 							http_session_check = NULL;
 						}
 					}
-					if(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
+					else if (x >= 1 && x <= 17)
 					{
-						if (x>=37 && x<=187)
-						{
-							save_filename_ui(vid_buf);
-									
-						}
-						if (x>=1 && x<=17)
+						if (sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
 						{
 							catalogue_ui(vid_buf);
 						}
-					} else {
-						if (x>=37 && x<=187 && svf_login)
+						else
+						{
+							search_ui(vid_buf);
+							memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
+							memset(fire_r, 0, sizeof(fire_r));
+							memset(fire_g, 0, sizeof(fire_g));
+							memset(fire_b, 0, sizeof(fire_b));
+						}
+					}
+					else if (x >= 37 && x <= 187 && svf_login)
+					{
+						if (sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
+						{
+							save_filename_ui(vid_buf);
+						}
+						else
 						{
 							if (!svf_open || !svf_own || x>51)
 							{
@@ -2718,7 +2727,7 @@ int main(int argc, char *argv[])
 							else
 							{
 								int oldsave_as = save_as;
-								int can_publish = check_save(2,0,0,XRES,YRES,0);
+								int can_publish = check_save(2, 0, 0, XRES, YRES, 0);
 								if (can_publish)
 								{
 									svf_publish = 0;
@@ -2741,23 +2750,16 @@ int main(int argc, char *argv[])
 									strcpy(itc_msg, "Saved Successfully");
 								}
 								save_as = oldsave_as;
-								
+
 							}
 							while (!sdl_poll())
 								if (!mouse_get_state(&x, &y))
 									break;
 							b = bq = 0;
 						}
-						if (x>=1 && x<=17)
-						{
-							search_ui(vid_buf);
-							memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
-							memset(fire_r, 0, sizeof(fire_r));
-							memset(fire_g, 0, sizeof(fire_g));
-							memset(fire_b, 0, sizeof(fire_b));
-						}
 					}
-					if (x>=19 && x<=35 && svf_last && !bq) {
+					else if (x>=19 && x<=35 && svf_last)
+					{
 						//int tpval = sys_pause;
 						if (b == 1 || !strncmp(svf_id,"",8))
 						{
@@ -2768,11 +2770,11 @@ int main(int argc, char *argv[])
 							open_ui(vid_buf, svf_id, NULL, 0);
 						//sys_pause = tpval;
 					}
-					if (x>=(XRES+BARSIZE-(510-476)) && x<=(XRES+BARSIZE-(510-491)) && !bq)
+					else if (x>=(XRES+BARSIZE-(510-476)) && x<=(XRES+BARSIZE-(510-491)))
 					{
 						render_ui(vid_buf, XRES+BARSIZE-(510-491)+1, YRES+22, 3);
 					}
-					if (x>=(XRES+BARSIZE-(510-494)) && x<=(XRES+BARSIZE-(510-509)) && !bq)
+					else if (x>=(XRES+BARSIZE-(510-494)) && x<=(XRES+BARSIZE-(510-509)))
 						sys_pause = !sys_pause;
 					lb = 0;
 				}
