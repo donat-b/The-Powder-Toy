@@ -1761,6 +1761,8 @@ void prop_edit_ui(pixel *vid_buf)
 	int x0=(XRES-xsize)/2,y0=(YRES-MENUSIZE-ysize)/2,b=1,bq,mx,my;
 	ui_list ed;
 	ui_edit ed2;
+	PropTool* propTool = (PropTool*)GetToolFromIdentifier("DEFAULT_TOOL_PROP");
+	bool name = false;
 
 	ed.x = x0+8;
 	ed.y = y0+25;
@@ -1836,7 +1838,6 @@ void prop_edit_ui(pixel *vid_buf)
 		}
 	}
 
-	bool name = false;
 	if(ed.selected != -1)
 	{
 		if (!strcmp(ed.str, "type")) {
@@ -1882,7 +1883,6 @@ void prop_edit_ui(pixel *vid_buf)
 		goto exit;
 	}
 	
-	PropTool* propTool = (PropTool*)GetToolFromIdentifier("DEFAULT_TOOL_PROP");
 	propTool->propOffset = propoffset;
 	if (format == 0)
 	{

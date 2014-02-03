@@ -645,6 +645,14 @@ Version 26.3 1/16/14
 Fix steamline drawing and floodfill crash. Fix glitch where ARAY didn't spark 
 INST. Possible element search crash fix. Fix STKM(AIR) blowing ability.
 
+Version 26.4 2/3/14
+Rewrites / fixes to Tool, box, and ellipse brush drawing. Fix possible crash
+when shifting stamps, and make ctrl key not needed. Lots of crash fixes for
+some lua functions. Fix STKM2 spawning with really high life (probably). New
+bug icon. PROP remembers what property you set last. Fix things coming out
+the wrong side of portals. Fix some bugs with clicking after exiting out of
+certain interfaces.
+
 
 
 
