@@ -14,8 +14,11 @@
 #include "gravity.h"
 #include "powdergraphics.h"
 
+#include "game/Brush.h"
 #include "game/Menus.h"
 #include "simulation/Simulation.h"
+#include "simulation/WallNumbers.h"
+#include "simulation/Tool.h"
 
 /*
 
@@ -39,6 +42,15 @@ void initSimulationAPI(lua_State * l)
 		{"velocityX", simulation_velocityX},
 		{"velocityY", simulation_velocityY},
 		{"gravMap", simulation_gravMap},
+		{"createParts", simulation_createParts},
+		{"createLine", simulation_createLine},
+		{"createBox", simulation_createBox},
+		{"floodParts", simulation_floodParts},
+		{"createWalls", simulation_createWalls},
+		{"createWallLine", simulation_createWallLine},
+		{"createWallBox", simulation_createWallBox},
+		{"floodWalls", simulation_floodWalls},
+		{"clearSim", simulation_clearSim},
 		{"elementCount", simulation_elementCount},
 		{NULL, NULL}
 	};
@@ -353,6 +365,136 @@ int simulation_gravMap(lua_State* l)
 	}
 
 	set_map(x, y, width, height, value, 5);
+	return 0;
+}
+
+int simulation_createParts(lua_State * l)
+{
+	int x = luaL_optint(l,1,-1);
+	int y = luaL_optint(l,2,-1);
+	int rx = luaL_optint(l,3,5);
+	int ry = luaL_optint(l,4,5);
+	int c = luaL_optint(l,5,((ElementTool*)activeTools[0])->GetID());
+	int brush = luaL_optint(l,6,CIRCLE_BRUSH), oldBrush = currentBrush->GetShape();
+	int flags = luaL_optint(l,7,get_brush_flags());
+	if (brush < 0 || brush >= BRUSH_NUM)
+		return luaL_error(l, "Invalid brush id '%d'", brush);
+
+	currentBrush->SetShape(brush);
+	int ret = globalSim->CreateParts(x, y, rx, ry, c, flags, true);
+	currentBrush->SetShape(oldBrush);
+	lua_pushinteger(l, ret);
+	return 1;
+}
+
+int simulation_createLine(lua_State * l)
+{
+	int x1 = luaL_optint(l,1,-1);
+	int y1 = luaL_optint(l,2,-1);
+	int x2 = luaL_optint(l,3,-1);
+	int y2 = luaL_optint(l,4,-1);
+	int rx = luaL_optint(l,5,5);
+	int ry = luaL_optint(l,6,5);
+	int c = luaL_optint(l,7,((ElementTool*)activeTools[0])->GetID());
+	int brush = luaL_optint(l,8,CIRCLE_BRUSH), oldBrush = currentBrush->GetShape();
+	int flags = luaL_optint(l,9,get_brush_flags());
+	if (brush < 0 || brush >= BRUSH_NUM)
+		return luaL_error(l, "Invalid brush id '%d'", brush);
+
+	currentBrush->SetShape(brush);
+	globalSim->CreateLine(x1, y1, x2, y2, rx, ry, c, flags);
+	currentBrush->SetShape(oldBrush);
+	return 0;
+}
+
+int simulation_createBox(lua_State * l)
+{
+	int x1 = luaL_optint(l,1,-1);
+	int y1 = luaL_optint(l,2,-1);
+	int x2 = luaL_optint(l,3,-1);
+	int y2 = luaL_optint(l,4,-1);
+	int c = luaL_optint(l,5,((ElementTool*)activeTools[0])->GetID());
+	int flags = luaL_optint(l,6,get_brush_flags());
+
+	globalSim->CreateBox(x1, y1, x2, y2, c, flags);
+	return 0;
+}
+
+int simulation_floodParts(lua_State * l)
+{
+	int x = luaL_optint(l,1,-1);
+	int y = luaL_optint(l,2,-1);
+	int c = luaL_optint(l,3,((ElementTool*)activeTools[0])->GetID());
+	int cm = luaL_optint(l,4,-1);
+	int flags = luaL_optint(l,5,get_brush_flags());
+
+	int ret = globalSim->FloodParts(x, y, c, cm, flags);
+	lua_pushinteger(l, ret);
+	return 1;
+}
+
+int simulation_createWalls(lua_State * l)
+{
+	int x = luaL_optint(l,1,-1)/CELL;
+	int y = luaL_optint(l,2,-1)/CELL;
+	int rx = luaL_optint(l,3,0)/CELL;
+	int ry = luaL_optint(l,4,0)/CELL;
+	int c = luaL_optint(l,5,WL_WALL);
+	if (c < 0 || c >= WALLCOUNT)
+		return luaL_error(l, "Unrecognised wall id '%d'", c);
+
+	globalSim->CreateWallBox(x-rx, y-ry, x+rx, y+ry, c);
+	lua_pushinteger(l, 1);
+	return 1;
+}
+
+int simulation_createWallLine(lua_State * l)
+{
+	int x1 = luaL_optint(l,1,-1)/CELL;
+	int y1 = luaL_optint(l,2,-1)/CELL;
+	int x2 = luaL_optint(l,3,-1)/CELL;
+	int y2 = luaL_optint(l,4,-1)/CELL;
+	int rx = luaL_optint(l,5,0)/CELL;
+	int ry = luaL_optint(l,6,0)/CELL;
+	int c = luaL_optint(l,7,WL_WALL);
+	if (c < 0 || c >= WALLCOUNT)
+		return luaL_error(l, "Unrecognised wall id '%d'", c);
+
+	globalSim->CreateWallLine(x1-rx, y1-rx, x2-rx, y2-rx, rx*2, ry*2, c);
+	return 0;
+}
+
+int simulation_createWallBox(lua_State * l)
+{
+	int x1 = luaL_optint(l,1,-1)/CELL;
+	int y1 = luaL_optint(l,2,-1)/CELL;
+	int x2 = luaL_optint(l,3,-1)/CELL;
+	int y2 = luaL_optint(l,4,-1)/CELL;
+	int c = luaL_optint(l,5,WL_WALL);
+	if (c < 0 || c >= WALLCOUNT)
+		return luaL_error(l, "Unrecognised wall id '%d'", c);
+
+	globalSim->CreateWallBox(x1, y1, x2, y2, c);
+	return 0;
+}
+
+int simulation_floodWalls(lua_State * l)
+{
+	int x = luaL_optint(l,1,-1)/CELL;
+	int y = luaL_optint(l,2,-1)/CELL;
+	int c = luaL_optint(l,3,WL_WALL);
+	int bm = luaL_optint(l,4,-1);
+	if (c < 0 || c >= WALLCOUNT)
+		return luaL_error(l, "Unrecognised wall id '%d'", c);
+
+	int ret = globalSim->FloodWalls(x, y, c, bm);
+	lua_pushinteger(l, ret);
+	return 1;
+}
+
+int simulation_clearSim(lua_State * l)
+{
+	clear_sim();
 	return 0;
 }
 

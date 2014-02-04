@@ -3,9 +3,7 @@
 
 #include "common/Point.h"
 
-#define CIRCLE_BRUSH 0
-#define SQUARE_BRUSH 1
-#define TRI_BRUSH 2
+enum { CIRCLE_BRUSH, SQUARE_BRUSH, TRI_BRUSH};
 #define BRUSH_NUM 3
 
 //TODO: maybe use bitmaps and support tpt++ custom brushes?

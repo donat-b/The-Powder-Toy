@@ -21,6 +21,15 @@ int simulation_ambientHeat(lua_State* l);
 int simulation_velocityX(lua_State* l);
 int simulation_velocityY(lua_State* l);
 int simulation_gravMap(lua_State* l);
+int simulation_createParts(lua_State * l);
+int simulation_createLine(lua_State * l);
+int simulation_createBox(lua_State * l);
+int simulation_floodParts(lua_State * l);
+int simulation_createWalls(lua_State * l);
+int simulation_createWallLine(lua_State * l);
+int simulation_createWallBox(lua_State * l);
+int simulation_floodWalls(lua_State * l);
+int simulation_clearSim(lua_State * l);
 int simulation_elementCount(lua_State* l);
 
 void initRendererAPI(lua_State * l);

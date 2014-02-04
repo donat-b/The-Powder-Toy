@@ -135,7 +135,7 @@ int WallTool::DrawPoint(Brush* brush, Point position)
 	int x = position.X/CELL-rx/2;
 	int y = position.Y/CELL-ry/2;
 	globalSim->CreateWallBox(x, y, x+rx, y+ry, ID);
-	return 0;
+	return 1;
 }
 void WallTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 {
