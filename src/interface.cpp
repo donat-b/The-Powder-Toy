@@ -712,7 +712,9 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			}
 			else if(sdl_mod & (KMOD_CTRL) && sdl_key=='v')//paste
 			{
-				char *paste = clipboard_pull_text();
+				char* paste = clipboard_pull_text();
+				if (!paste)
+					return;
 				int pl = strlen(paste);
 				if ((textwidth(str)+textwidth(paste) > ed->w-14 && !ed->multiline) || (pl+strlen(ed->str)>ed->limit) || (float)(((textwidth(str)+textwidth(paste))/(ed->w-14)*12) > ed->h && ed->multiline && ed->limit != 1023))
 					break;

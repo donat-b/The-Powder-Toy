@@ -673,9 +673,6 @@ Immediate TODO: '>' means currently being worked on/added next
 >add all missing lua functions
 move menu_count to Menus.h (needs tooltips done first)
 Finish brushes (change all instances of rx and ry to the brush things)
-redo GolTool as MultipleTool, special tools that can draw multiple forms of an element (maybe)
-Redo wall ID's and walls entirely
-Redo gmenu
 Redo fav menu ...
 Redo (Add) tooltips
 Add in all missing lua functions except for interface api
