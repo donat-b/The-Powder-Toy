@@ -2703,13 +2703,13 @@ int main(int argc, char *argv[])
 							memset(fire_b, 0, sizeof(fire_b));
 						}
 					}
-					else if (x >= 37 && x <= 187 && svf_login)
+					else if (x >= 37 && x <= 187)
 					{
 						if (sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
 						{
 							save_filename_ui(vid_buf);
 						}
-						else
+						else if (svf_login)
 						{
 							if (!svf_open || !svf_own || x>51)
 							{
