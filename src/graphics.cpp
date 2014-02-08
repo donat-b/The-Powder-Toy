@@ -1434,14 +1434,22 @@ void fillrect(pixel *vid, int x, int y, int w, int h, int r, int g, int b, int a
 void drawcircle(pixel* vid, int x, int y, int rx, int ry, int r, int g, int b, int a)
 {
 	int tempy = y, i, j, oldy;
-	for (i = x - rx; i <= x; i++) {
+	if (!rx)
+	{
+		for (j = -ry; j <= ry; j++)
+			drawpixel(vid, x, y+j, r, g, b, a);
+		return;
+	}
+	for (i = x - rx; i <= x; i++)
+	{
 		oldy = tempy;
 		while (InCurrentBrush(i-x,tempy-y,rx,ry))
 			tempy = tempy - 1;
 		tempy = tempy + 1;
 		if (oldy != tempy)
 			oldy--;
-		for (j = tempy; j <= oldy; j++) {
+		for (j = tempy; j <= oldy; j++)
+		{
 			int i2 = 2*x-i, j2 = 2*y-j;
 			drawpixel(vid, i, j, r, g, b, a);
 			if (i2 != i)
@@ -1457,13 +1465,21 @@ void drawcircle(pixel* vid, int x, int y, int rx, int ry, int r, int g, int b, i
 void fillcircle(pixel* vid, int x, int y, int rx, int ry, int r, int g, int b, int a)
 {
 	int tempy = y, i, j, oldy, jmax;
-	for (i = x - rx; i <= x; i++) {
+	if (!rx)
+	{
+		for (j = -ry; j <= ry; j++)
+			drawpixel(vid, x, y+j, r, g, b, a);
+		return;
+	}
+	for (i = x - rx; i <= x; i++)
+	{
 		oldy = tempy;
 		while (InCurrentBrush(i-x,tempy-y,rx,ry))
 			tempy = tempy - 1;
 		tempy = tempy + 1;
 		jmax = 2*y - tempy;
-		for (j = tempy; j <= jmax; j++) {
+		for (j = tempy; j <= jmax; j++)
+		{
 			drawpixel(vid, i, j, r, g, b, a);
 			if (i != x)
 				drawpixel(vid, 2*x-i, j, r, g, b, a);

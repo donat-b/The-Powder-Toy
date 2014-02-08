@@ -549,10 +549,13 @@ int simulation_loadStamp(lua_State* l)
 		}
 	}
 
+	int oldPause = sys_pause;
 	if (parse_save(load_data, stamp_size, 0, x, y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap))
 		lua_pushinteger(l, 1);
 	else
 		lua_pushnil(l);
+
+	sys_pause = oldPause; //tpt++ doesn't change pause state with this function, so we won't here either
 	if (load_data)
 		free(load_data);
 	return 1;
