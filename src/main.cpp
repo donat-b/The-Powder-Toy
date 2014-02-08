@@ -2274,7 +2274,7 @@ int main(int argc, char *argv[])
 			luacon_mouseevent(x, y, bq, 0, sdl_wheel);
 		}
 		
-		luacon_step(x, y, activeTools[0]->GetIdentifier(), activeTools[1]->GetIdentifier(), currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
+		luacon_step(x, y, activeTools[0]->GetIdentifier(), activeTools[1]->GetIdentifier(), activeTools[2]->GetIdentifier(), currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
 		readluastuff();
 #endif
 		sdl_wheel = 0;

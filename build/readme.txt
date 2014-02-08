@@ -653,6 +653,11 @@ bug icon. PROP remembers what property you set last. Fix things coming out
 the wrong side of portals. Fix some bugs with clicking after exiting out of
 certain interfaces.
 
+Version 26.4 (build 31) 2/5/14
+Fix local saving not working when not logged in. Simulation api functions for
+drawing particles / walls (intended for the next version really ...). Fix
+possible crash when pasting text in linux.
+
 
 
 

@@ -895,16 +895,14 @@ int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
 	return mpcontinue;
 }
 
-int luacon_step(int mx, int my, std::string selectl, std::string selectr, int bsx, int bsy)
+int luacon_step(int mx, int my, std::string selectedl, std::string selectedr, std::string selecteda, int bsx, int bsy)
 {
 	int i, j, c, callret;
 	lua_pushinteger(l, bsy);
 	lua_pushinteger(l, bsx);
-	//TODO: implement
-	//lua_pushstring(l, globalSim->elements[activeTools[2]].Identifier.c_str());
-	lua_pushstring(l, "");
-	lua_pushstring(l, selectr.c_str());
-	lua_pushstring(l, selectl.c_str());
+	lua_pushstring(l, selecteda.c_str());
+	lua_pushstring(l, selectedr.c_str());
+	lua_pushstring(l, selectedl.c_str());
 	lua_pushinteger(l, my);
 	lua_pushinteger(l, mx);
 	lua_setfield(l, tptProperties, "mousex");
@@ -1329,15 +1327,10 @@ int luatpt_graphics_func(lua_State *l)
 
 int luatpt_error(lua_State* l)
 {
-	char *error = "";
-	error = mystrdup((char*)luaL_optstring(l, 1, "Error text"));
-	if(vid_buf!=NULL){
-		error_ui(vid_buf, 0, error);
-		free(error);
-		return 0;
-	}
+	char *error = mystrdup((char*)luaL_optstring(l, 1, "Error text"));
+	error_ui(vid_buf, 0, error);
 	free(error);
-	return luaL_error(l, "Screen buffer does not exist");
+	return 0;
 }
 
 int luatpt_drawtext(lua_State* l)
@@ -1351,21 +1344,20 @@ int luatpt_drawtext(lua_State* l)
 	textgreen = luaL_optint(l, 5, 255);
 	textblue = luaL_optint(l, 6, 255);
 	textalpha = luaL_optint(l, 7, 255);
+
 	if (textx<0 || texty<0 || textx>=XRES+BARSIZE || texty>=YRES+MENUSIZE)
 		return luaL_error(l, "Screen coordinates out of range (%d,%d)", textx, texty);
 	if (textred<0) textred = 0;
-	if (textred>255) textred = 255;
+	else if (textred>255) textred = 255;
 	if (textgreen<0) textgreen = 0;
-	if (textgreen>255) textgreen = 255;
+	else if (textgreen>255) textgreen = 255;
 	if (textblue<0) textblue = 0;
-	if (textblue>255) textblue = 255;
+	else if (textblue>255) textblue = 255;
 	if (textalpha<0) textalpha = 0;
-	if (textalpha>255) textalpha = 255;
-	if(vid_buf!=NULL){
-		drawtext(vid_buf, textx, texty, string, textred, textgreen, textblue, textalpha);
-		return 0;
-	}
-	return luaL_error(l, "Screen buffer does not exist");
+	else if (textalpha>255) textalpha = 255;
+
+	drawtext(vid_buf, textx, texty, string, textred, textgreen, textblue, textalpha);
+	return 0;
 }
 
 int luatpt_create(lua_State* l)
@@ -1890,19 +1882,16 @@ int luatpt_drawpixel(lua_State* l)
 	if (x<0 || y<0 || x>=XRES+BARSIZE || y>=YRES+MENUSIZE)
 		return luaL_error(l, "Screen coordinates out of range (%d,%d)", x, y);
 	if (r<0) r = 0;
-	if (r>255) r = 255;
+	else if (r>255) r = 255;
 	if (g<0) g = 0;
-	if (g>255) g = 255;
+	else if (g>255) g = 255;
 	if (b<0) b = 0;
-	if (b>255) b = 255;
+	else if (b>255) b = 255;
 	if (a<0) a = 0;
-	if (a>255) a = 255;
-	if (vid_buf!=NULL)
-	{
-		drawpixel(vid_buf, x, y, r, g, b, a);
-		return 0;
-	}
-	return luaL_error(l, "Screen buffer does not exist");
+	else if (a>255) a = 255;
+
+	drawpixel(vid_buf, x, y, r, g, b, a);
+	return 0;
 }
 
 int luatpt_drawrect(lua_State* l)
@@ -1924,19 +1913,16 @@ int luatpt_drawrect(lua_State* l)
 	if(y+h > YRES+MENUSIZE)
 		h = YRES+MENUSIZE-y;
 	if (r<0) r = 0;
-	if (r>255) r = 255;
+	else if (r>255) r = 255;
 	if (g<0) g = 0;
-	if (g>255) g = 255;
+	else if (g>255) g = 255;
 	if (b<0) b = 0;
-	if (b>255) b = 255;
+	else if (b>255) b = 255;
 	if (a<0) a = 0;
-	if (a>255) a = 255;
-	if (vid_buf!=NULL)
-	{
-		drawrect(vid_buf, x, y, w, h, r, g, b, a);
-		return 0;
-	}
-	return luaL_error(l, "Screen buffer does not exist");
+	else if (a>255) a = 255;
+
+	drawrect(vid_buf, x, y, w, h, r, g, b, a);
+	return 0;
 }
 
 int luatpt_fillrect(lua_State* l)
@@ -1958,19 +1944,15 @@ int luatpt_fillrect(lua_State* l)
 	if(y+h > YRES+MENUSIZE)
 		h = YRES+MENUSIZE-y;
 	if (r<0) r = 0;
-	if (r>255) r = 255;
+	else if (r>255) r = 255;
 	if (g<0) g = 0;
-	if (g>255) g = 255;
+	else if (g>255) g = 255;
 	if (b<0) b = 0;
-	if (b>255) b = 255;
+	else if (b>255) b = 255;
 	if (a<0) a = 0;
-	if (a>255) a = 255;
-	if (vid_buf!=NULL)
-	{
-		fillrect(vid_buf, x, y, w, h, r, g, b, a);
-		return 0;
-	}
-	return luaL_error(l, "Screen buffer does not exist");
+	else if (a>255) a = 255;
+
+	fillrect(vid_buf, x, y, w, h, r, g, b, a);
 }
 
 int luatpt_drawcircle(lua_State* l)
@@ -1985,22 +1967,17 @@ int luatpt_drawcircle(lua_State* l)
 	b = luaL_optint(l, 7, 255);
 	a = luaL_optint(l, 8, 255);
 
-	//if (x<0 || y<0 || x>=XRES+BARSIZE || y>=YRES+MENUSIZE)
-	//	return luaL_error(l, "Screen coordinates out of range (%d,%d)", x, y);
 	if (r<0) r = 0;
-	if (r>255) r = 255;
+	else if (r>255) r = 255;
 	if (g<0) g = 0;
-	if (g>255) g = 255;
+	else if (g>255) g = 255;
 	if (b<0) b = 0;
-	if (b>255) b = 255;
+	else if (b>255) b = 255;
 	if (a<0) a = 0;
-	if (a>255) a = 255;
-	if (vid_buf!=NULL)
-	{
-		drawcircle(vid_buf, x, y, rx, ry, r, g, b, a);
-		return 0;
-	}
-	return luaL_error(l, "Screen buffer does not exist");
+	else if (a>255) a = 255;
+
+	drawcircle(vid_buf, x, y, rx, ry, r, g, b, a);
+	return 0;
 }
 
 int luatpt_fillcircle(lua_State* l)
@@ -2015,22 +1992,17 @@ int luatpt_fillcircle(lua_State* l)
 	b = luaL_optint(l, 7, 255);
 	a = luaL_optint(l, 8, 255);
 
-	//if (x<0 || y<0 || x>=XRES+BARSIZE || y>=YRES+MENUSIZE)
-	//	return luaL_error(l, "Screen coordinates out of range (%d,%d)", x, y);
 	if (r<0) r = 0;
-	if (r>255) r = 255;
+	else if (r>255) r = 255;
 	if (g<0) g = 0;
-	if (g>255) g = 255;
+	else if (g>255) g = 255;
 	if (b<0) b = 0;
-	if (b>255) b = 255;
+	else if (b>255) b = 255;
 	if (a<0) a = 0;
-	if (a>255) a = 255;
-	if (vid_buf!=NULL)
-	{
-		fillcircle(vid_buf, x, y, rx, ry, r, g, b, a);
-		return 0;
-	}
-	return luaL_error(l, "Screen buffer does not exist");
+	else if (a>255) a = 255;
+
+	fillcircle(vid_buf, x, y, rx, ry, r, g, b, a);
+	return 0;
 }
 
 int luatpt_drawline(lua_State* l)
@@ -2047,19 +2019,16 @@ int luatpt_drawline(lua_State* l)
 
 	//Don't need to check coordinates, as they are checked in blendpixel
 	if (r<0) r = 0;
-	if (r>255) r = 255;
+	else if (r>255) r = 255;
 	if (g<0) g = 0;
-	if (g>255) g = 255;
+	else if (g>255) g = 255;
 	if (b<0) b = 0;
-	if (b>255) b = 255;
+	else if (b>255) b = 255;
 	if (a<0) a = 0;
-	if (a>255) a = 255;
-	if (vid_buf!=NULL)
-	{
-		blend_line(vid_buf, x1, y1, x2, y2, r, g, b, a);
-		return 0;
-	}
-	return luaL_error(l, "Screen buffer does not exist");
+	else if (a>255) a = 255;
+
+	blend_line(vid_buf, x1, y1, x2, y2, r, g, b, a);
+	return 0;
 }
 
 int luatpt_textwidth(lua_State* l)
@@ -2164,6 +2133,7 @@ int luatpt_unregister_step(lua_State* l)
 	}
 	return 0;
 }
+
 int luatpt_register_keypress(lua_State* l)
 {
 	if(lua_isfunction(l, 1))
@@ -2268,6 +2238,7 @@ int luatpt_unregister_mouseclick(lua_State* l)
 	}
 	return 0;
 }
+
 int luatpt_input(lua_State* l)
 {
 	char *prompt, *title, *result, *shadow, *text;
@@ -2276,44 +2247,34 @@ int luatpt_input(lua_State* l)
 	text = mystrdup((char*)luaL_optstring(l, 3, ""));
 	shadow = mystrdup((char*)luaL_optstring(l, 4, ""));
 
-	if (vid_buf!=NULL)
-	{
-		result = input_ui(vid_buf, title, prompt, text, shadow);
-		lua_pushstring(l, result);
-		free(result);
-		free(title);
-		free(prompt);
-		free(text);
-		free(shadow);
-		return 1;
-	}
+	result = input_ui(vid_buf, title, prompt, text, shadow);
+	lua_pushstring(l, result);
+	free(result);
 	free(title);
 	free(prompt);
 	free(text);
 	free(shadow);
-	return luaL_error(l, "Screen buffer does not exist");
+	return 1;
 }
+
 int luatpt_message_box(lua_State* l)
 {
 	char *title, *text;
 	title = mystrdup((char*)luaL_optstring(l, 1, "Title"));
 	text = mystrdup((char*)luaL_optstring(l, 2, "Message"));
-	if (vid_buf!=NULL)
-	{
-		info_ui(vid_buf, title, text);
-		free(title);
-		free(text);
-		return 0;
-	}
+
+	info_ui(vid_buf, title, text);
 	free(title);
 	free(text);
-	return luaL_error(l, "Screen buffer does not exist");;
+	return 0;
 }
+
 int luatpt_get_numOfParts(lua_State* l)
 {
 	lua_pushinteger(l, NUM_PARTS);
 	return 1;
 }
+
 int luatpt_start_getPartIndex(lua_State* l)
 {
 	getPartIndex_curIdx = -1;
@@ -2348,6 +2309,7 @@ int luatpt_getPartIndex(lua_State* l)
 	lua_pushinteger(l, getPartIndex_curIdx);
 	return 1;
 }
+
 int luatpt_hud(lua_State* l)
 {
 	int hudstate;
@@ -2360,6 +2322,7 @@ int luatpt_hud(lua_State* l)
 	hud_enable = (hudstate==0?0:1);
 	return 0;
 }
+
 int luatpt_gravity(lua_State* l)
 {
 	int gravstate;
@@ -2376,6 +2339,7 @@ int luatpt_gravity(lua_State* l)
 	ngrav_enable = (gravstate==0?0:1);
 	return 0;
 }
+
 int luatpt_airheat(lua_State* l)
 {
 	int aheatstate;
@@ -2388,6 +2352,7 @@ int luatpt_airheat(lua_State* l)
 	aheat_enable = (aheatstate==0?0:1);
 	return 0;
 }
+
 int luatpt_active_menu(lua_State* l)
 {
 	int menuid;
@@ -2403,6 +2368,7 @@ int luatpt_active_menu(lua_State* l)
 		return luaL_error(l, "Invalid menu");
 	return 0;
 }
+
 int luatpt_decorations_enable(lua_State* l)
 {
 	int decostate;
@@ -2574,19 +2540,16 @@ int luatpt_setwindowsize(lua_State* l)
 int luatpt_screenshot(lua_State* l)
 {
 	int captureUI = luaL_optint(l, 1, 0);
-	if(vid_buf)
+
+	if(captureUI)
 	{
-		if(captureUI)
-		{
-			dump_frame(vid_buf, XRES+BARSIZE, YRES+MENUSIZE, XRES+BARSIZE);
-		}
-		else
-		{
-			dump_frame(vid_buf, XRES, YRES, XRES+BARSIZE);
-		}
-		return 0;
+		dump_frame(vid_buf, XRES+BARSIZE, YRES+MENUSIZE, XRES+BARSIZE);
 	}
-	return luaL_error(l, "Screen buffer does not exist");
+	else
+	{
+		dump_frame(vid_buf, XRES, YRES, XRES+BARSIZE);
+	}
+	return 0;
 }
 
 int luatpt_sound(lua_State* l)
