@@ -908,6 +908,8 @@ void initGraphicsAPI(lua_State * l)
 		{"drawLine", graphics_drawLine},
 		{"drawRect", graphics_drawRect},
 		{"fillRect", graphics_fillRect},
+		{"drawCircle", graphics_drawCircle},
+		{"fillCircle", graphics_fillCircle},
 		{NULL, NULL}
 	};
 	luaL_register(l, "graphics", graphicsAPIMethods);
@@ -945,13 +947,13 @@ int graphics_drawText(lua_State * l)
 	a = luaL_optint(l, 7, 255);
 	
 	if (r<0) r = 0;
-	if (r>255) r = 255;
+	else if (r>255) r = 255;
 	if (g<0) g = 0;
-	if (g>255) g = 255;
+	else if (g>255) g = 255;
 	if (b<0) b = 0;
-	if (b>255) b = 255;
+	else if (b>255) b = 255;
 	if (a<0) a = 0;
-	if (a>255) a = 255;
+	else if (a>255) a = 255;
 
 	drawtext(vid_buf, x, y, text, r, g, b, a);
 	return 0;
@@ -970,13 +972,14 @@ int graphics_drawLine(lua_State * l)
 	a = luaL_optint(l, 8, 255);
 
 	if (r<0) r = 0;
-	if (r>255) r = 255;
+	else if (r>255) r = 255;
 	if (g<0) g = 0;
-	if (g>255) g = 255;
+	else if (g>255) g = 255;
 	if (b<0) b = 0;
-	if (b>255) b = 255;
+	else if (b>255) b = 255;
 	if (a<0) a = 0;
-	if (a>255) a = 255;
+	else if (a>255) a = 255;
+
 	blend_line(vid_buf, x1, y1, x2, y2, r, g, b, a);
 	return 0;
 }
@@ -994,13 +997,14 @@ int graphics_drawRect(lua_State * l)
 	a = luaL_optint(l, 8, 255);
 
 	if (r<0) r = 0;
-	if (r>255) r = 255;
+	else if (r>255) r = 255;
 	if (g<0) g = 0;
-	if (g>255) g = 255;
+	else if (g>255) g = 255;
 	if (b<0) b = 0;
-	if (b>255) b = 255;
+	else if (b>255) b = 255;
 	if (a<0) a = 0;
-	if (a>255) a = 255;
+	else if (a>255) a = 255;
+
 	drawrect(vid_buf, x, y, w, h, r, g, b, a);
 	return 0;
 }
@@ -1018,14 +1022,65 @@ int graphics_fillRect(lua_State * l)
 	a = luaL_optint(l, 8, 255);
 
 	if (r<0) r = 0;
-	if (r>255) r = 255;
+	else if (r>255) r = 255;
 	if (g<0) g = 0;
-	if (g>255) g = 255;
+	else if (g>255) g = 255;
 	if (b<0) b = 0;
-	if (b>255) b = 255;
+	else if (b>255) b = 255;
 	if (a<0) a = 0;
-	if (a>255) a = 255;
+	else if (a>255) a = 255;
+
 	fillrect(vid_buf, x, y, w, h, r, g, b, a);
+	return 0;
+}
+
+int graphics_drawCircle(lua_State * l)
+{
+	int x, y, w, h, r, g, b, a;
+	x = lua_tointeger(l, 1);
+	y = lua_tointeger(l, 2);
+	w = lua_tointeger(l, 3);
+	h = lua_tointeger(l, 4);
+	r = luaL_optint(l, 5, 255);
+	g = luaL_optint(l, 6, 255);
+	b = luaL_optint(l, 7, 255);
+	a = luaL_optint(l, 8, 255);
+
+	if (r<0) r = 0;
+	else if (r>255) r = 255;
+	if (g<0) g = 0;
+	else if (g>255) g = 255;
+	if (b<0) b = 0;
+	else if (b>255) b = 255;
+	if (a<0) a = 0;
+	else if (a>255) a = 255;
+
+	drawcircle(vid_buf, x, y, w, h, r, g, b, a);
+	return 0;
+}
+
+int graphics_fillCircle(lua_State * l)
+{
+	int x, y, w, h, r, g, b, a;
+	x = lua_tointeger(l, 1);
+	y = lua_tointeger(l, 2);
+	w = lua_tointeger(l, 3);
+	h = lua_tointeger(l, 4);
+	r = luaL_optint(l, 5, 255);
+	g = luaL_optint(l, 6, 255);
+	b = luaL_optint(l, 7, 255);
+	a = luaL_optint(l, 8, 255);
+
+	if (r<0) r = 0;
+	else if (r>255) r = 255;
+	if (g<0) g = 0;
+	else if (g>255) g = 255;
+	if (b<0) b = 0;
+	else if (b>255) b = 255;
+	if (a<0) a = 0;
+	else if (a>255) a = 255;
+
+	fillcircle(vid_buf, x, y, w, h, r, g, b, a);
 	return 0;
 }
 

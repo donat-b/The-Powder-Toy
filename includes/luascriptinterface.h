@@ -55,6 +55,8 @@ int graphics_drawText(lua_State * l);
 int graphics_drawLine(lua_State * l);
 int graphics_drawRect(lua_State * l);
 int graphics_fillRect(lua_State * l);
+int graphics_drawCircle(lua_State * l);
+int graphics_fillCircle(lua_State * l);
 
 int elements_getProperty(char * key, int * format, unsigned int * modifiedStuff);
 void elements_setProperty(lua_State * l, int id, int format, int offset);

@@ -1957,52 +1957,12 @@ int luatpt_fillrect(lua_State* l)
 
 int luatpt_drawcircle(lua_State* l)
 {
-	int x, y, rx, ry, r, g, b, a;
-	x = luaL_optint(l, 1, 0);
-	y = luaL_optint(l, 2, 0);
-	rx = luaL_optint(l, 3, 10);
-	ry = luaL_optint(l, 4, 10);
-	r = luaL_optint(l, 5, 255);
-	g = luaL_optint(l, 6, 255);
-	b = luaL_optint(l, 7, 255);
-	a = luaL_optint(l, 8, 255);
-
-	if (r<0) r = 0;
-	else if (r>255) r = 255;
-	if (g<0) g = 0;
-	else if (g>255) g = 255;
-	if (b<0) b = 0;
-	else if (b>255) b = 255;
-	if (a<0) a = 0;
-	else if (a>255) a = 255;
-
-	drawcircle(vid_buf, x, y, rx, ry, r, g, b, a);
-	return 0;
+	return graphics_drawCircle(l);
 }
 
 int luatpt_fillcircle(lua_State* l)
 {
-	int x,y,rx,ry,r,g,b,a;
-	x = luaL_optint(l, 1, 0);
-	y = luaL_optint(l, 2, 0);
-	rx = luaL_optint(l, 3, 10);
-	ry = luaL_optint(l, 4, 10);
-	r = luaL_optint(l, 5, 255);
-	g = luaL_optint(l, 6, 255);
-	b = luaL_optint(l, 7, 255);
-	a = luaL_optint(l, 8, 255);
-
-	if (r<0) r = 0;
-	else if (r>255) r = 255;
-	if (g<0) g = 0;
-	else if (g>255) g = 255;
-	if (b<0) b = 0;
-	else if (b>255) b = 255;
-	if (a<0) a = 0;
-	else if (a>255) a = 255;
-
-	fillcircle(vid_buf, x, y, rx, ry, r, g, b, a);
-	return 0;
+	return graphics_fillCircle(l);
 }
 
 int luatpt_drawline(lua_State* l)
