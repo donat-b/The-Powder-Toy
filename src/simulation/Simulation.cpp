@@ -1243,6 +1243,7 @@ int Simulation::FloodProp(int x, int y, PropertyType propType, PropertyValue pro
 void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 {
 	int rp, tr = 0, tg = 0, tb = 0;
+	float strength = 0.01f, colr, colg, colb, cola;
 	if (!InBounds(x, y))
 		return;
 
@@ -1251,34 +1252,78 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 		rp = photons[y][x];
 	if (!rp)
 		return;
-	if (tool == DECO_DRAW)
+
+	switch (tool)
 	{
+	case DECO_DRAW:
 		parts[rp>>8].dcolour = color;
-	}
-	else if (tool == DECO_ERASE)
-	{
+		break;
+	case DECO_ERASE:
 		parts[rp>>8].dcolour = 0;
-	}
-	else if (tool == DECO_LIGH)
-	{
+		break;
+	case DECO_ADD:
+	case DECO_SUB:
+	case DECO_MUL:
+	case DECO_DIV:
+		if (!parts[rp>>8].dcolour)
+			return;
+		cola = COLA(color)/255.0f;
+		colr = (parts[rp>>8].dcolour>>16)&0xFF;
+		colg = (parts[rp>>8].dcolour>>8)&0xFF;
+		colb = (parts[rp>>8].dcolour)&0xFF;
+
+		if (tool == DECO_ADD)
+		{
+			colr += (COLR(color)*strength)*cola;
+			colg += (COLG(color)*strength)*cola;
+			colb += (COLB(color)*strength)*cola;
+		}
+		else if (tool == DECO_SUB)
+		{
+			colr -= (COLR(color)*strength)*cola;
+			colg -= (COLG(color)*strength)*cola;
+			colb -= (COLB(color)*strength)*cola;
+		}
+		else if (tool == DECO_MUL)
+		{
+			colr *= 1.0f+(COLR(color)/255.0f*strength)*cola;
+			colg *= 1.0f+(COLG(color)/255.0f*strength)*cola;
+			colb *= 1.0f+(COLB(color)/255.0f*strength)*cola;
+		}
+		else if (tool == DECO_DIV)
+		{
+			colr /= 1.0f+(COLR(color)/255.0f*strength)*cola;
+			colg /= 1.0f+(COLG(color)/255.0f*strength)*cola;
+			colb /= 1.0f+(COLB(color)/255.0f*strength)*cola;
+		}
+
+		tr = colr+.5f; tg = colg+.5f; tb = colb+.5f;
+		if (tr > 255) tr = 255;
+		else if (tr < 0) tr = 0;
+		if (tg > 255) tg = 255;
+		else if (tg < 0) tg = 0;
+		if (tb > 255) tb = 255;
+		else if (tb < 0) tb = 0;
+
+		parts[rp>>8].dcolour = COLRGB(tr, tg, tb);
+		break;
+	case DECO_LIGH:
 		if (!parts[rp>>8].dcolour)
 			return;
 		tr = (parts[rp>>8].dcolour>>16)&0xFF;
 		tg = (parts[rp>>8].dcolour>>8)&0xFF;
 		tb = (parts[rp>>8].dcolour)&0xFF;
 		parts[rp>>8].dcolour = ((parts[rp>>8].dcolour&0xFF000000)|(clamp_flt(tr+(255-tr)*0.02+1, 0,255)<<16)|(clamp_flt(tg+(255-tg)*0.02+1, 0,255)<<8)|clamp_flt(tb+(255-tb)*0.02+1, 0,255));
-	}
-	else if (tool == DECO_DARK)
-	{
+		break;
+	case DECO_DARK:
 		if (!parts[rp>>8].dcolour)
 			return;
 		tr = (parts[rp>>8].dcolour>>16)&0xFF;
 		tg = (parts[rp>>8].dcolour>>8)&0xFF;
 		tb = (parts[rp>>8].dcolour)&0xFF;
 		parts[rp>>8].dcolour = ((parts[rp>>8].dcolour&0xFF000000)|(clamp_flt(tr-(tr)*0.02, 0,255)<<16)|(clamp_flt(tg-(tg)*0.02, 0,255)<<8)|clamp_flt(tb-(tb)*0.02, 0,255));
-	}
-	else if (tool == DECO_SMDG)
-	{
+		break;
+	case DECO_SMDG:
 		if (x >= CELL && x < XRES-CELL && y >= CELL && y < YRES-CELL)
 		{
 			int rx, ry, num = 0, ta = 0;
@@ -1304,14 +1349,16 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 				ta = std::max(0,ta-3);
 			parts[rp>>8].dcolour = ((ta<<24)|(tr<<16)|(tg<<8)|tb);
 		}
+		break;
 	}
+
 	if (parts[rp>>8].type == PT_ANIM)
 	{
 		parts[rp>>8].animations[framenum] = parts[rp>>8].dcolour;
 	}
 }
 
-void Simulation::CreateDecoBrush(int x, int y, int rx, int ry, int tool, unsigned int color, bool fill)
+void Simulation::CreateDecoBrush(int x, int y, int rx, int ry, int tool, unsigned int color)
 {
 	if (rx<=0) //workaround for rx == 0 crashing. todo: find a better fix later.
 	{
@@ -1335,40 +1382,18 @@ void Simulation::CreateDecoBrush(int x, int y, int rx, int ry, int tool, unsigne
 				tempy = tempy - 1;
 			tempy = tempy + 1;
 
-			if (fill)
-			{
-				//If triangle brush, create parts down to the bottom always; if not go down to the bottom border
-				if (currentBrush->GetShape() == TRI_BRUSH)
-					jmax = y + ry;
-				else
-					jmax = 2*y - tempy;
-
-				for (j = tempy; j <= jmax; j++)
-				{
-					CreateDeco(i, j, tool, color);
-					//don't create twice in the vertical center line
-					if (i != x)
-						CreateDeco(2*x-i, j, tool, color);
-				}
-			}
+			//If triangle brush, create parts down to the bottom always; if not go down to the bottom border
+			if (currentBrush->GetShape() == TRI_BRUSH)
+				jmax = y + ry;
 			else
-			{
-				if ((oldy != tempy && currentBrush->GetShape() != SQUARE_BRUSH) || i == x-rx)
-					oldy--;
-				for (j = tempy; j <= oldy+1; j++)
-				{
-					int i2 = 2*x-i, j2 = 2*y-j;
-					if (currentBrush->GetShape() == TRI_BRUSH)
-						j2 = y+ry;
+				jmax = 2*y - tempy;
 
-					CreateDeco(i, j, tool, color);
-					if (i2 != i)
-						CreateDeco(i2, j, tool, color);
-					if (j2 != j)
-						CreateDeco(i, j2, tool, color);
-					if (i2 != i)
-						CreateDeco(i2, j2, tool, color);
-				}
+			for (j = tempy; j <= jmax; j++)
+			{
+				CreateDeco(i, j, tool, color);
+				//don't create twice in the vertical center line
+				if (i != x)
+					CreateDeco(2*x-i, j, tool, color);
 			}
 		}
 	}
@@ -1377,7 +1402,7 @@ void Simulation::CreateDecoBrush(int x, int y, int rx, int ry, int tool, unsigne
 void Simulation::CreateDecoLine(int x1, int y1, int x2, int y2, int rx, int ry, int tool, unsigned int color)
 {
 	int x, y, dx, dy, sy;
-	bool reverseXY = abs(y2-y1) > abs(x2-x1), fill = true;
+	bool reverseXY = abs(y2-y1) > abs(x2-x1);
 	float e = 0.0f, de;
 	if (reverseXY)
 	{
@@ -1408,20 +1433,19 @@ void Simulation::CreateDecoLine(int x1, int y1, int x2, int y2, int rx, int ry, 
 	for (x=x1; x<=x2; x++)
 	{
 		if (reverseXY)
-			CreateDecoBrush(y, x, rx, ry, tool, color, fill);
+			CreateDecoBrush(y, x, rx, ry, tool, color);
 		else
-			CreateDecoBrush(x, y, rx, ry, tool, color, fill);
+			CreateDecoBrush(x, y, rx, ry, tool, color);
 		e += de;
-		fill = false;
 		if (e >= 0.5f)
 		{
 			y += sy;
 			if (!(rx+ry) && ((y1<y2) ? (y<=y2) : (y>=y2)))
 			{
 				if (reverseXY)
-					CreateDecoBrush(y, x, rx, ry, tool, color, fill);
+					CreateDecoBrush(y, x, rx, ry, tool, color);
 				else
-					CreateDecoBrush(x, y, rx, ry, tool, color, fill);
+					CreateDecoBrush(x, y, rx, ry, tool, color);
 			}
 			e -= 1.0f;
 		}

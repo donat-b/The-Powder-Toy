@@ -84,7 +84,7 @@ public:
 	int FloodProp(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset);
 
 	void CreateDeco(int x, int y, int tool, unsigned int color);
-	void CreateDecoBrush(int x, int y, int rx, int ry, int tool, unsigned int color, bool fill);
+	void CreateDecoBrush(int x, int y, int rx, int ry, int tool, unsigned int color);
 	void CreateDecoLine(int x1, int y1, int x2, int y2, int rx, int ry, int tool, unsigned int color);
 	void CreateDecoBox(int x1, int y1, int x2, int y2, int tool, unsigned int color);
 	void FloodDeco(int x, int y, unsigned int color, unsigned int replace);

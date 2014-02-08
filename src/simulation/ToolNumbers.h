@@ -43,10 +43,14 @@ static toolType toolTypes[] =
 
 #define DECO_DRAW	0
 #define DECO_ERASE	1
-#define DECO_LIGH	2
-#define DECO_DARK	3
-#define DECO_SMDG	4
-#define DECOCOUNT	5
+#define DECO_ADD	2
+#define DECO_SUB	3
+#define DECO_MUL	4
+#define DECO_DIV	5
+#define DECO_LIGH	6
+#define DECO_DARK	7
+#define DECO_SMDG	8
+#define DECOCOUNT	9
 
 struct decoType
 {
@@ -61,9 +65,13 @@ static decoType decoTypes[] =
 {
 	{"SET", "DEFAULT_DECOUR_SET",	PIXPACK(0xFF0000), "Draw decoration."},
 	{"CLR", "DEFAULT_DECOUR_CLR",	PIXPACK(0x000000), "Erase decoration."},
+	{"ADD", "DEFAULT_DECOUR_ADD",	PIXPACK(0x323232), "Color blending: Add."},
+	{"SUB", "DEFAULT_DECOUR_SUB",	PIXPACK(0x323232), "Color blending: Subtract."},
+	{"MUL", "DEFAULT_DECOUR_MUL",	PIXPACK(0x323232), "Color blending: Multiply."},
+	{"DIV", "DEFAULT_DECOUR_DIV",	PIXPACK(0x323232), "Color blending: Divide."},
 	{"LIGH", "DEFAULT_DECOUR_LIGH",	PIXPACK(0xDDDDDD), "Lighten deco color."},
 	{"DARK", "DEFAULT_DECOUR_DARK",	PIXPACK(0x111111), "Darken deco color."},
-	{"SMDG", "DEFAULT_DECOUR_SMDG",	PIXPACK(0x00FF00), "Smudge tool, blends decoration color."}
+	{"SMDG", "DEFAULT_DECOUR_SMDG",	PIXPACK(0x00FF00), "Smudge tool, blends surrounding deco together."}
 };
 
 #endif

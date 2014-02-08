@@ -7307,7 +7307,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	int grid_offset_x;
 	int window_offset_x;
 	int onleft_button_offset_x;
-	char frametext[64];
+	//char frametext[64];
 
 	if (!deco_disablestuff && b) //If mouse is down, but a color isn't already being picked
 		can_select_color = 0;
@@ -7481,11 +7481,12 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 
 	//fillrect(vid_buf, 250, YRES+4, 40, 15, currR, currG, currB, currA);
 
-	drawrect(vid_buf, 295, YRES+5, 25, 12, 255, 255, 255, 255);
-	if(decobox_hidden)
-		drawtext(vid_buf, 297, YRES+5 +3, "Show", 255, 255, 255, 255);
+	drawrect(vid_buf, 294, YRES+1, 15, 14, 255, 255, 255, 255);
+	fillrect(vid_buf, 294, YRES+1, 15, 14, currR, currG, currB, currA);
+	if (decobox_hidden)
+		drawtext(vid_buf, 297, YRES+5, "\xCB", 255, 255, 255, 255);
 	else
-		drawtext(vid_buf, 297, YRES+5 +3, "Hide", 255, 255, 255, 255);
+		drawtext(vid_buf, 297, YRES+2, "\xCA", 255, 255, 255, 255);
 
 	if(can_select_color && !decobox_hidden && mx >= window_offset_x && my >= 2 && mx <= window_offset_x+255+4+10+5 && my <= 2+255+20)//in the main window
 	{
@@ -7560,7 +7561,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	else if (mx > XRES || my > YRES)//mouse outside normal drawing area
 	{
 		//hide/show button
-		if (b && !bq && mx >= 295 && mx <= 295+25 && my >= YRES+5 && my<= YRES+5+12)
+		if (b && !bq && mx >= 294 && mx <= 295+14 && my >= YRES+1 && my<= YRES+15)
 		{
 			decobox_hidden = !decobox_hidden;
 			zoom_en = 0;

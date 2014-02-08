@@ -737,8 +737,7 @@ void draw_tool_button(pixel *vid_buf, int x, int y, pixel color, std::string nam
 //draws walls and elements for menu
 int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 {
-	int i, j, c = 0;
-	pixel pc, gc;
+	int i, j;
 	if (x > XRES-26 || x < 0)
 		return 26;
 	if (current->GetType() == ELEMENT_TOOL)
@@ -956,6 +955,14 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+22)] = color;
 			}
 		}
+		else if (current->GetID() == DECO_ADD)
+			drawtext(vid_buf, x+12, y+5, "+", PIXR(decocolor), PIXG(decocolor), PIXB(decocolor), 255);
+		else if (current->GetID() == DECO_SUB)
+			drawtext(vid_buf, x+12, y+5, "-", PIXR(decocolor), PIXG(decocolor), PIXB(decocolor), 255);
+		else if (current->GetID() == DECO_MUL)
+			drawtext(vid_buf, x+12, y+4, "x", PIXR(decocolor), PIXG(decocolor), PIXB(decocolor), 255);
+		else if (current->GetID() == DECO_DIV)
+			drawtext(vid_buf, x+12, y+5, "/", PIXR(decocolor), PIXG(decocolor), PIXB(decocolor), 255);
 	}
 	else if (current->GetType() == GOL_TOOL)
 	{

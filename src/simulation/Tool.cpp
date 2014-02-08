@@ -249,7 +249,7 @@ Tool(DECO_TOOL, decoID, decoTypes[decoID].identifier)
 int DecoTool::DrawPoint(Brush* brush, Point position)
 {
 	unsigned int col = (ID == DECO_ERASE) ? PIXRGB(0, 0, 0) : decocolor;
-	globalSim->CreateDecoBrush(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID, col, true);
+	globalSim->CreateDecoBrush(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID, col);
 	return 0;
 }
 void DecoTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
