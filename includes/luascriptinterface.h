@@ -30,6 +30,8 @@ int simulation_createWallLine(lua_State * l);
 int simulation_createWallBox(lua_State * l);
 int simulation_floodWalls(lua_State * l);
 int simulation_clearSim(lua_State * l);
+int simulation_saveStamp(lua_State * l);
+int simulation_loadStamp(lua_State * l);
 int simulation_elementCount(lua_State* l);
 
 void initRendererAPI(lua_State * l);

@@ -1399,14 +1399,14 @@ int luatpt_setpause(lua_State* l)
 
 int luatpt_togglepause(lua_State* l)
 {
-	sys_pause=!sys_pause;
+	sys_pause = !sys_pause;
 	lua_pushnumber(l, sys_pause);
 	return 1;
 }
 
 int luatpt_togglewater(lua_State* l)
 {
-	water_equal_test=!water_equal_test;
+	water_equal_test = !water_equal_test;
 	lua_pushnumber(l, water_equal_test);
 	return 1;
 }
@@ -2354,17 +2354,14 @@ int luatpt_heat(lua_State* l)
 	legacy_enable = (heatstate==1?0:1);
 	return 0;
 }
+
 int luatpt_cmode_set(lua_State* l)
 {
 	int cmode = luaL_optint(l, 1, CM_FIRE);
-	/*if (cmode == -1) //TODO: Functions to set render, display, & color modes
-	{
-		lua_pushnumber(l, ngrav_enable);
-		return 1;
-	}*/
 	set_cmode(cmode);
 	return 0;
 }
+
 int luatpt_setfire(lua_State* l)
 {
 	int firesize = luaL_optint(l, 2, 4);
@@ -2372,6 +2369,7 @@ int luatpt_setfire(lua_State* l)
 	prepare_alpha(firesize, fireintensity);
 	return 0;
 }
+
 int luatpt_setdebug(lua_State* l)
 {
 	int debug = luaL_optint(l, 1, -1);
@@ -2383,6 +2381,7 @@ int luatpt_setdebug(lua_State* l)
 	debug_flags = debug;
 	return 0;
 }
+
 int luatpt_setfpscap(lua_State* l)
 {
 	int fpscap = luaL_optint(l, 1, -1);
@@ -2396,6 +2395,7 @@ int luatpt_setfpscap(lua_State* l)
 	limitFPS = fpscap;
 	return 0;
 }
+
 int luatpt_getscript(lua_State* l)
 {
 	char *fileid = NULL, *filedata = NULL, *fileuri = NULL, *fileauthor = NULL, *filename = NULL, *lastError = NULL, *luacommand = NULL;
@@ -2897,61 +2897,12 @@ int luatpt_floodfill(lua_State* l)
 
 int luatpt_save_stamp(lua_State* l)
 {
-	int x = luaL_optint(l,1,0);
-	int y = luaL_optint(l,2,0);
-	int w = luaL_optint(l,3,XRES);
-	int h = luaL_optint(l,4,YRES);
-	int saveas = luaL_optint(l,5,5);
-	int oldsave_as = save_as;
-	char *name;
-	save_as = saveas;
-	name = stamp_save(x, y, w, h);
-	save_as = oldsave_as;
-	lua_pushstring(l, name);
-	return 1;
+	return simulation_saveStamp(l);
 }
 
 int luatpt_load_stamp(lua_State* l)
 {
-	int stamp_size, i = -1, j, x, y, ret;
-	void *load_data;
-	char *filename;
-	if (lua_isnumber(l, 1))
-		i = luaL_optint(l, 1, -1);
-	x = luaL_optint(l,2,0);
-	y = luaL_optint(l,3,0);
-	if (i < 0 || i >= STAMP_MAX) //Check if it's a 10 digit stamp id
-	{
-		filename = (char*)luaL_optstring(l, 1, "");
-		for (j=0; j<STAMP_MAX; j++)
-			if (!strcmp(stamps[j].name, filename))
-			{
-				i = j;
-				break;
-			}
-	}
-	if (i < 0 || i >= STAMP_MAX) //Try loading the stamp from a filename
-	{
-		if (lua_isstring(l, 1))
-		{
-			load_data = file_load(filename, &stamp_size);
-			if (!load_data)
-				return luaL_error(l, "Invalid stamp: %s", filename);
-		}
-		else
-			return luaL_error(l, "Invalid stamp ID: %d", i);
-	}
-	else
-	{
-		load_data = stamp_load(i, &stamp_size, 0);
-	}
-	if (parse_save(load_data, stamp_size, 0, x, y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap))
-		lua_pushinteger(l, 1);
-	else
-		lua_pushnil(l);
-	if (load_data)
-		free(load_data);
-	return 1;
+	return simulation_loadStamp(l);
 }
 
 int luatpt_set_selected(lua_State* l)

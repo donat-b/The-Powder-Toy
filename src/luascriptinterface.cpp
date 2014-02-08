@@ -13,6 +13,7 @@
 #include "powder.h"
 #include "gravity.h"
 #include "powdergraphics.h"
+#include "save.h"
 
 #include "game/Brush.h"
 #include "game/Menus.h"
@@ -51,6 +52,8 @@ void initSimulationAPI(lua_State * l)
 		{"createWallBox", simulation_createWallBox},
 		{"floodWalls", simulation_floodWalls},
 		{"clearSim", simulation_clearSim},
+		{"saveStamp", simulation_saveStamp},
+		{"loadStamp", simulation_loadStamp},
 		{"elementCount", simulation_elementCount},
 		{NULL, NULL}
 	};
@@ -496,6 +499,63 @@ int simulation_clearSim(lua_State * l)
 {
 	clear_sim();
 	return 0;
+}
+
+int simulation_saveStamp(lua_State* l)
+{
+	int x = luaL_optint(l,1,0);
+	int y = luaL_optint(l,2,0);
+	int w = luaL_optint(l,3,XRES);
+	int h = luaL_optint(l,4,YRES);
+	int saveas = luaL_optint(l,5,5);
+	int oldsave_as = save_as;
+	char *name;
+	save_as = saveas;
+	name = stamp_save(x, y, w, h);
+	save_as = oldsave_as;
+	lua_pushstring(l, name);
+	return 1;
+}
+
+int simulation_loadStamp(lua_State* l)
+{
+	int stamp_size, i = -1, x, y;
+	void *load_data = NULL;
+	char *filename;
+	x = luaL_optint(l,2,0);
+	y = luaL_optint(l,3,0);
+
+	if (lua_isnumber(l, 1))
+	{
+		i = luaL_optint(l, 1, 0);
+		if (i < 0 || i >= stamp_count)
+			return luaL_error(l, "Invalid stamp ID: %d", i);
+		load_data = stamp_load(i, &stamp_size, 0);
+	}
+	else
+	{
+		filename = (char*)luaL_optstring(l, 1, "");
+		for (i=0; i<stamp_count; i++)
+			if (!strcmp(stamps[i].name, filename))
+			{
+				load_data = stamp_load(i, &stamp_size, 0);
+				break;
+			}
+		if (!load_data)
+		{
+			load_data = file_load(filename, &stamp_size);
+			if (!load_data)
+				return luaL_error(l, "Invalid stamp: %s", filename);
+		}
+	}
+
+	if (parse_save(load_data, stamp_size, 0, x, y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap))
+		lua_pushinteger(l, 1);
+	else
+		lua_pushnil(l);
+	if (load_data)
+		free(load_data);
+	return 1;
 }
 
 int simulation_elementCount(lua_State* l)
