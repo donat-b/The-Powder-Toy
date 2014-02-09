@@ -192,7 +192,7 @@ ToolTool::ToolTool(int toolID):
 }
 int ToolTool::DrawPoint(Brush* brush, Point position)
 {
-	globalSim->CreateToolBrush(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID);
+	globalSim->CreateToolBrush(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID, toolStrength);
 	return 0;
 }
 void ToolTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
@@ -208,11 +208,11 @@ void ToolTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 				}
 	}
 	else
-		globalSim->CreateToolLine(startPos.X, startPos.Y, endPos.X, endPos.Y, currentBrush->GetRadius().X, currentBrush->GetRadius().Y, ID);
+		globalSim->CreateToolLine(startPos.X, startPos.Y, endPos.X, endPos.Y, currentBrush->GetRadius().X, currentBrush->GetRadius().Y, ID, toolStrength);
 }
 void ToolTool::DrawRect(Brush* brush, Point startPos, Point endPos)
 {
-	globalSim->CreateToolBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID);
+	globalSim->CreateToolBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, toolStrength);
 }
 
 PropTool::PropTool():
@@ -248,24 +248,24 @@ Tool(DECO_TOOL, decoID, decoTypes[decoID].identifier)
 }
 int DecoTool::DrawPoint(Brush* brush, Point position)
 {
-	unsigned int col = (ID == DECO_ERASE) ? PIXRGB(0, 0, 0) : decocolor;
+	unsigned int col = (ID == DECO_CLEAR) ? PIXRGB(0, 0, 0) : decocolor;
 	globalSim->CreateDecoBrush(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID, col);
 	return 0;
 }
 void DecoTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 {
-	unsigned int col = (ID == DECO_ERASE) ? PIXRGB(0, 0, 0) : decocolor;
+	unsigned int col = (ID == DECO_CLEAR) ? PIXRGB(0, 0, 0) : decocolor;
 	globalSim->CreateDecoLine(startPos.X, startPos.Y, endPos.X, endPos.Y, brush->GetRadius().X, brush->GetRadius().Y, ID, col);
 }
 void DecoTool::DrawRect(Brush* brush, Point startPos, Point endPos)
 {
-	unsigned int col = (ID == DECO_ERASE) ? PIXRGB(0, 0, 0) : decocolor;
+	unsigned int col = (ID == DECO_CLEAR) ? PIXRGB(0, 0, 0) : decocolor;
 	globalSim->CreateDecoBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, col);
 }
 int DecoTool::FloodFill(Point position)
 {
 	PropertyValue col;
-	col.UInteger = (ID == DECO_ERASE) ? PIXRGB(0, 0, 0) : decocolor;
+	col.UInteger = (ID == DECO_CLEAR) ? PIXRGB(0, 0, 0) : decocolor;
 	return globalSim->FloodProp(position.X, position.Y, UInteger, col, offsetof(particle, dcolour));
 }
 Tool* DecoTool::Sample(Point position)

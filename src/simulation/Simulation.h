@@ -71,10 +71,10 @@ public:
 	void CreateWallBox(int x1, int y1, int x2, int y2, int wall);
 	int FloodWalls(int x, int y, int wall, int replace);
 
-	int CreateTool(int x, int y, int tool);
-	void CreateToolBrush(int x, int y, int rx, int ry, int tool);
-	void CreateToolLine(int x1, int y1, int x2, int y2, int rx, int ry, int tool);
-	void CreateToolBox(int x1, int y1, int x2, int y2, int tool);
+	int CreateTool(int x, int y, int tool, float strength);
+	void CreateToolBrush(int x, int y, int rx, int ry, int tool, float strength);
+	void CreateToolLine(int x1, int y1, int x2, int y2, int rx, int ry, int tool, float strength);
+	void CreateToolBox(int x1, int y1, int x2, int y2, int tool, float strength);
 
 	int CreateProp(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset);
 	void CreatePropBrush(int x, int y, int rx, int ry, PropertyType propType, PropertyValue propValue, size_t propOffset);

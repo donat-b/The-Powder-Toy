@@ -881,7 +881,7 @@ int Simulation::FloodWalls(int x, int y, int wall, int replace)
 	return 1;
 }
 
-int Simulation::CreateTool(int x, int y, int tool)
+int Simulation::CreateTool(int x, int y, int tool, float strength)
 {
 	if (!InBounds(x, y))
 		return -2;
@@ -894,11 +894,11 @@ int Simulation::CreateTool(int x, int y, int tool)
 		{
 			float heatchange;
 			if ((r&0xFF) == PT_PUMP || (r&0xFF) == PT_GPMP)
-				heatchange = toolStrength*.1f;
+				heatchange = strength*.1f;
 			else if ((r&0xFF) == PT_ANIM)
-				heatchange = toolStrength;
+				heatchange = strength;
 			else
-				heatchange = toolStrength*2.0f;
+				heatchange = strength*2.0f;
 
 			if (tool == TOOL_HEAT)
 			{
@@ -917,33 +917,33 @@ int Simulation::CreateTool(int x, int y, int tool)
 	}
 	else if (tool == TOOL_AIR)
 	{
-		pv[y/CELL][x/CELL] += toolStrength*.05f;
+		pv[y/CELL][x/CELL] += strength*.05f;
 		return -1;
 	}
-	else if (tool == TOOL_VACUUM)
+	else if (tool == TOOL_VAC)
 	{
-		pv[y/CELL][x/CELL] -= toolStrength*.05f;
+		pv[y/CELL][x/CELL] -= strength*.05f;
 		return -1;
 	}
 	else if (tool == TOOL_PGRV)
 	{
-		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = toolStrength*5.0f;
+		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = strength*5.0f;
 		return -1;
 	}
 	else if (tool == TOOL_NGRV)
 	{
-		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = toolStrength*-5.0f;
+		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = strength*-5.0f;
 		return -1;
 	}
 	return -1;
 }
 
-void Simulation::CreateToolBrush(int x, int y, int rx, int ry, int tool)
+void Simulation::CreateToolBrush(int x, int y, int rx, int ry, int tool, float strength)
 {
 	if (rx<=0) //workaround for rx == 0 crashing. todo: find a better fix later.
 	{
 		for (int j = y - ry; j <= y + ry; j++)
-			CreateTool(x, j, tool);
+			CreateTool(x, j, tool, strength);
 	}
 	else
 	{
@@ -969,16 +969,16 @@ void Simulation::CreateToolBrush(int x, int y, int rx, int ry, int tool)
 				jmax = 2*y - tempy;
 			for (j = tempy; j <= jmax; j++)
 			{
-				CreateTool(i, j, tool);
+				CreateTool(i, j, tool, strength);
 				//don't create twice in the vertical center line
 				if (i != x)
-					CreateTool(2*x-i, j, tool);
+					CreateTool(2*x-i, j, tool, strength);
 			}
 		}
 	}
 }
 
-void Simulation::CreateToolLine(int x1, int y1, int x2, int y2, int rx, int ry, int tool)
+void Simulation::CreateToolLine(int x1, int y1, int x2, int y2, int rx, int ry, int tool, float strength)
 {
 	int x, y, dx, dy, sy;
 	bool reverseXY = abs(y2-y1) > abs(x2-x1);
@@ -1012,9 +1012,9 @@ void Simulation::CreateToolLine(int x1, int y1, int x2, int y2, int rx, int ry, 
 	for (x=x1; x<=x2; x++)
 	{
 		if (reverseXY)
-			CreateToolBrush(y, x, rx, ry, tool);
+			CreateToolBrush(y, x, rx, ry, tool, strength);
 		else
-			CreateToolBrush(x, y, rx, ry, tool);
+			CreateToolBrush(x, y, rx, ry, tool, strength);
 		e += de;
 		if (e >= 0.5f)
 		{
@@ -1022,16 +1022,16 @@ void Simulation::CreateToolLine(int x1, int y1, int x2, int y2, int rx, int ry, 
 			if (!(rx+ry) && ((y1<y2) ? (y<=y2) : (y>=y2)))
 			{
 				if (reverseXY)
-					CreateToolBrush(y, x, rx, ry, tool);
+					CreateToolBrush(y, x, rx, ry, tool, strength);
 				else
-					CreateToolBrush(x, y, rx, ry, tool);
+					CreateToolBrush(x, y, rx, ry, tool, strength);
 			}
 			e -= 1.0f;
 		}
 	}
 }
 
-void Simulation::CreateToolBox(int x1, int y1, int x2, int y2, int tool)
+void Simulation::CreateToolBox(int x1, int y1, int x2, int y2, int tool, float strength)
 {
 	if (x1 > x2)
 	{
@@ -1047,7 +1047,7 @@ void Simulation::CreateToolBox(int x1, int y1, int x2, int y2, int tool)
 	}
 	for (int i = x1; i <= x2; i++)
 		for (int j = y1; j <= y2; j++)
-			CreateTool(i, j, tool);
+			CreateTool(i, j, tool, strength);
 }
 
 int Simulation::CreateProp(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset)
@@ -1258,13 +1258,13 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 	case DECO_DRAW:
 		parts[rp>>8].dcolour = color;
 		break;
-	case DECO_ERASE:
+	case DECO_CLEAR:
 		parts[rp>>8].dcolour = 0;
 		break;
 	case DECO_ADD:
-	case DECO_SUB:
-	case DECO_MUL:
-	case DECO_DIV:
+	case DECO_SUBTRACT:
+	case DECO_MULTIPLY:
+	case DECO_DIVIDE:
 		if (!parts[rp>>8].dcolour)
 			return;
 		cola = COLA(color)/255.0f;
@@ -1278,19 +1278,19 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 			colg += (COLG(color)*strength)*cola;
 			colb += (COLB(color)*strength)*cola;
 		}
-		else if (tool == DECO_SUB)
+		else if (tool == DECO_SUBTRACT)
 		{
 			colr -= (COLR(color)*strength)*cola;
 			colg -= (COLG(color)*strength)*cola;
 			colb -= (COLB(color)*strength)*cola;
 		}
-		else if (tool == DECO_MUL)
+		else if (tool == DECO_MULTIPLY)
 		{
 			colr *= 1.0f+(COLR(color)/255.0f*strength)*cola;
 			colg *= 1.0f+(COLG(color)/255.0f*strength)*cola;
 			colb *= 1.0f+(COLB(color)/255.0f*strength)*cola;
 		}
-		else if (tool == DECO_DIV)
+		else if (tool == DECO_DIVIDE)
 		{
 			colr /= 1.0f+(COLR(color)/255.0f*strength)*cola;
 			colg /= 1.0f+(COLG(color)/255.0f*strength)*cola;
@@ -1307,7 +1307,7 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 
 		parts[rp>>8].dcolour = COLRGB(tr, tg, tb);
 		break;
-	case DECO_LIGH:
+	case DECO_LIGHTEN:
 		if (!parts[rp>>8].dcolour)
 			return;
 		tr = (parts[rp>>8].dcolour>>16)&0xFF;
@@ -1315,7 +1315,7 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 		tb = (parts[rp>>8].dcolour)&0xFF;
 		parts[rp>>8].dcolour = ((parts[rp>>8].dcolour&0xFF000000)|(clamp_flt(tr+(255-tr)*0.02+1, 0,255)<<16)|(clamp_flt(tg+(255-tg)*0.02+1, 0,255)<<8)|clamp_flt(tb+(255-tb)*0.02+1, 0,255));
 		break;
-	case DECO_DARK:
+	case DECO_DARKEN:
 		if (!parts[rp>>8].dcolour)
 			return;
 		tr = (parts[rp>>8].dcolour>>16)&0xFF;
@@ -1323,7 +1323,7 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 		tb = (parts[rp>>8].dcolour)&0xFF;
 		parts[rp>>8].dcolour = ((parts[rp>>8].dcolour&0xFF000000)|(clamp_flt(tr-(tr)*0.02, 0,255)<<16)|(clamp_flt(tg-(tg)*0.02, 0,255)<<8)|clamp_flt(tb-(tb)*0.02, 0,255));
 		break;
-	case DECO_SMDG:
+	case DECO_SMUDGE:
 		if (x >= CELL && x < XRES-CELL && y >= CELL && y < YRES-CELL)
 		{
 			int rx, ry, num = 0, ta = 0;

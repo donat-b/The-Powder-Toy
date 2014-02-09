@@ -931,20 +931,20 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 		{
 			for (i=1; i<27; i++)
 			{
-				if (current->GetID() == DECO_LIGH)
+				if (current->GetID() == DECO_LIGHTEN)
 					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(color)-10*j, PIXG(color)-10*j, PIXB(color)-10*j);
-				else if (current->GetID() == DECO_DARK)
+				else if (current->GetID() == DECO_DARKEN)
 					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(color)+10*j, PIXG(color)+10*j, PIXB(color)+10*j);
-				else if (current->GetID() == DECO_SMDG)
+				else if (current->GetID() == DECO_SMUDGE)
 					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(color), PIXG(color)-5*i, PIXB(color)+5*i);
-				else if (current->GetID() == DECO_DRAW || current->GetID() == DECO_ERASE)
+				else if (current->GetID() == DECO_DRAW || current->GetID() == DECO_CLEAR)
 					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(decocolor), PIXG(decocolor), PIXB(decocolor));
 				else
 					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = color;
 			}
 		}
 
-		if (current->GetID() == DECO_ERASE)
+		if (current->GetID() == DECO_CLEAR)
 		{
 			color = PIXRGB((PIXR((decocolor))+127)%256, (PIXG((decocolor))+127)%256, (PIXB((decocolor))+127)%256);
 			for (j=4; j<12; j++)
@@ -957,11 +957,11 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 		}
 		else if (current->GetID() == DECO_ADD)
 			drawtext(vid_buf, x+12, y+5, "+", PIXR(decocolor), PIXG(decocolor), PIXB(decocolor), 255);
-		else if (current->GetID() == DECO_SUB)
+		else if (current->GetID() == DECO_SUBTRACT)
 			drawtext(vid_buf, x+12, y+5, "-", PIXR(decocolor), PIXG(decocolor), PIXB(decocolor), 255);
-		else if (current->GetID() == DECO_MUL)
+		else if (current->GetID() == DECO_MULTIPLY)
 			drawtext(vid_buf, x+12, y+4, "x", PIXR(decocolor), PIXG(decocolor), PIXB(decocolor), 255);
-		else if (current->GetID() == DECO_DIV)
+		else if (current->GetID() == DECO_DIVIDE)
 			drawtext(vid_buf, x+12, y+5, "/", PIXR(decocolor), PIXG(decocolor), PIXB(decocolor), 255);
 	}
 	else if (current->GetType() == GOL_TOOL)
@@ -3993,11 +3993,11 @@ void create_decoration(int x, int y, int r, int g, int b, int a, int click, int 
 	{
 		parts[rp>>8].dcolour = ((a<<24)|(r<<16)|(g<<8)|b);
 	}
-	else if (tool == DECO_ERASE)
+	else if (tool == DECO_CLEAR)
 	{
 		parts[rp>>8].dcolour = 0;
 	}
-	else if (tool == DECO_LIGH)
+	else if (tool == DECO_LIGHTEN)
 	{//maybe get a better lighten/darken?
 		if (parts[rp>>8].dcolour == 0)
 			return;
@@ -4006,7 +4006,7 @@ void create_decoration(int x, int y, int r, int g, int b, int a, int click, int 
 		tb = (parts[rp>>8].dcolour)&0xFF;
 		parts[rp>>8].dcolour = ((parts[rp>>8].dcolour&0xFF000000)|(clamp_flt(tr+(255-tr)*0.02+1, 0,255)<<16)|(clamp_flt(tg+(255-tg)*0.02+1, 0,255)<<8)|clamp_flt(tb+(255-tb)*0.02+1, 0,255));
 	}
-	else if (tool == DECO_DARK)
+	else if (tool == DECO_DARKEN)
 	{
 		if (parts[rp>>8].dcolour == 0)
 			return;
@@ -4015,7 +4015,7 @@ void create_decoration(int x, int y, int r, int g, int b, int a, int click, int 
 		tb = (parts[rp>>8].dcolour)&0xFF;
 		parts[rp>>8].dcolour = ((parts[rp>>8].dcolour&0xFF000000)|(clamp_flt(tr-(tr)*0.02, 0,255)<<16)|(clamp_flt(tg-(tg)*0.02, 0,255)<<8)|clamp_flt(tb-(tb)*0.02, 0,255));
 	}
-	else if (tool == DECO_SMDG)
+	else if (tool == DECO_SMUDGE)
 	{
 		int rx, ry, num = 0, ta = 0;
 		for (rx=-2; rx<3; rx++)

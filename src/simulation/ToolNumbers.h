@@ -6,7 +6,7 @@
 #define TOOL_HEAT	0
 #define TOOL_COOL	1
 #define TOOL_AIR	2
-#define TOOL_VACUUM	3
+#define TOOL_VAC	3
 #define TOOL_PGRV	4
 #define TOOL_NGRV	5
 #define TOOL_WIND	6
@@ -41,16 +41,16 @@ static toolType toolTypes[] =
 	{"SIGN", "DEFAULT_TOOL_SIGN", PIXPACK(0x808080), "Sign. Displays text. Click on a sign to edit it or anywhere else to place a new one."}
 };
 
-#define DECO_DRAW	0
-#define DECO_ERASE	1
-#define DECO_ADD	2
-#define DECO_SUB	3
-#define DECO_MUL	4
-#define DECO_DIV	5
-#define DECO_LIGH	6
-#define DECO_DARK	7
-#define DECO_SMDG	8
-#define DECOCOUNT	9
+#define DECO_DRAW		0
+#define DECO_CLEAR		1
+#define DECO_ADD		2
+#define DECO_SUBTRACT	3
+#define DECO_MULTIPLY	4
+#define DECO_DIVIDE		5
+#define DECO_SMUDGE		6
+#define DECO_LIGHTEN	7
+#define DECO_DARKEN		8
+#define DECOCOUNT		9
 
 struct decoType
 {
@@ -63,15 +63,15 @@ typedef struct decoType decoType;
 
 static decoType decoTypes[] =
 {
-	{"SET", "DEFAULT_DECOUR_SET",	PIXPACK(0xFF0000), "Draw decoration."},
-	{"CLR", "DEFAULT_DECOUR_CLR",	PIXPACK(0x000000), "Erase decoration."},
-	{"ADD", "DEFAULT_DECOUR_ADD",	PIXPACK(0x323232), "Color blending: Add."},
-	{"SUB", "DEFAULT_DECOUR_SUB",	PIXPACK(0x323232), "Color blending: Subtract."},
-	{"MUL", "DEFAULT_DECOUR_MUL",	PIXPACK(0x323232), "Color blending: Multiply."},
-	{"DIV", "DEFAULT_DECOUR_DIV",	PIXPACK(0x323232), "Color blending: Divide."},
-	{"LIGH", "DEFAULT_DECOUR_LIGH",	PIXPACK(0xDDDDDD), "Lighten deco color."},
-	{"DARK", "DEFAULT_DECOUR_DARK",	PIXPACK(0x111111), "Darken deco color."},
-	{"SMDG", "DEFAULT_DECOUR_SMDG",	PIXPACK(0x00FF00), "Smudge tool, blends surrounding deco together."}
+	{"SET", "DEFAULT_DECOR_SET",	PIXPACK(0xFF0000), "Draw decoration."},
+	{"CLR", "DEFAULT_DECOR_CLR",	PIXPACK(0x000000), "Erase decoration."},
+	{"ADD", "DEFAULT_DECOR_ADD",	PIXPACK(0x323232), "Color blending: Add."},
+	{"SUB", "DEFAULT_DECOR_SUB",	PIXPACK(0x323232), "Color blending: Subtract."},
+	{"MUL", "DEFAULT_DECOR_MUL",	PIXPACK(0x323232), "Color blending: Multiply."},
+	{"DIV", "DEFAULT_DECOR_DIV",	PIXPACK(0x323232), "Color blending: Divide."},
+	{"SMDG", "DEFAULT_DECOR_SMDG",	PIXPACK(0x00FF00), "Smudge tool, blends surrounding deco together."},
+	{"LIGH", "DEFAULT_DECOR_LIGH",	PIXPACK(0xDDDDDD), "Lighten deco color."},
+	{"DARK", "DEFAULT_DECOR_DARK",	PIXPACK(0x111111), "Darken deco color."}
 };
 
 #endif

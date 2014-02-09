@@ -17,8 +17,10 @@
 
 #include "game/Brush.h"
 #include "game/Menus.h"
+#include "graphics/ARGBColour.h"
 #include "simulation/Simulation.h"
 #include "simulation/WallNumbers.h"
+#include "simulation/ToolNumbers.h"
 #include "simulation/Tool.h"
 
 /*
@@ -51,6 +53,13 @@ void initSimulationAPI(lua_State * l)
 		{"createWallLine", simulation_createWallLine},
 		{"createWallBox", simulation_createWallBox},
 		{"floodWalls", simulation_floodWalls},
+		{"toolBrush", simulation_toolBrush},
+		{"toolLine", simulation_toolLine},
+		{"toolBox", simulation_toolBox},
+		{"decoBrush", simulation_decoBrush},
+		{"decoLine", simulation_decoLine},
+		{"decoBox", simulation_decoBox},
+		{"floodDeco", simulation_floodDeco},
 		{"clearSim", simulation_clearSim},
 		{"saveStamp", simulation_saveStamp},
 		{"loadStamp", simulation_loadStamp},
@@ -72,6 +81,24 @@ void initSimulationAPI(lua_State * l)
 	SETCONST(l, MAX_TEMP);
 	SETCONST(l, MIN_TEMP);
 
+	SETCONST(l, TOOL_HEAT);
+	SETCONST(l, TOOL_COOL);
+	SETCONST(l, TOOL_AIR);
+	SETCONST(l, TOOL_VAC);
+	SETCONST(l, TOOL_PGRV);
+	SETCONST(l, TOOL_NGRV);
+	SETCONST(l, TOOL_WIND);
+	SETCONST(l, TOOL_PROP);
+
+	SETCONST(l, DECO_DRAW);
+	SETCONST(l, DECO_CLEAR);
+	SETCONST(l, DECO_ADD);
+	SETCONST(l, DECO_SUBTRACT);
+	SETCONST(l, DECO_MULTIPLY);
+	SETCONST(l, DECO_DIVIDE);
+	SETCONST(l, DECO_LIGHTEN);
+	SETCONST(l, DECO_DARKEN);
+	SETCONST(l, DECO_SMUDGE);
 }
 
 int simulation_partNeighbours(lua_State * l)
@@ -493,6 +520,149 @@ int simulation_floodWalls(lua_State * l)
 	int ret = globalSim->FloodWalls(x, y, c, bm);
 	lua_pushinteger(l, ret);
 	return 1;
+}
+
+int simulation_toolBrush(lua_State * l)
+{
+	int x = luaL_optint(l,1,-1);
+	int y = luaL_optint(l,2,-1);
+	int rx = luaL_optint(l,3,5);
+	int ry = luaL_optint(l,4,5);
+	int tool = luaL_optint(l,5,TOOL_HEAT);
+	int brush = luaL_optint(l,6,CIRCLE_BRUSH), oldBrush = currentBrush->GetShape();
+	float strength = luaL_optnumber(l,7,1.0f);
+	if (tool < 0 || tool >= TOOL_PROP)
+			return luaL_error(l, "Invalid tool id '%d'", tool);
+	if (brush < 0 || brush >= BRUSH_NUM)
+		return luaL_error(l, "Invalid brush id '%d'", brush);
+
+	currentBrush->SetShape(brush);
+	globalSim->CreateToolBrush(x, y, rx, ry, tool, strength);
+	currentBrush->SetShape(oldBrush);
+	lua_pushinteger(l, 0);
+	return 1;
+}
+
+int simulation_toolLine(lua_State * l)
+{
+	int x1 = luaL_optint(l,1,-1);
+	int y1 = luaL_optint(l,2,-1);
+	int x2 = luaL_optint(l,3,-1);
+	int y2 = luaL_optint(l,4,-1);
+	int rx = luaL_optint(l,5,5);
+	int ry = luaL_optint(l,6,5);
+	int tool = luaL_optint(l,7,TOOL_HEAT);
+	int brush = luaL_optint(l,8,CIRCLE_BRUSH), oldBrush = currentBrush->GetShape();
+	float strength = luaL_optnumber(l,9,1.0f);
+	if (tool < 0 || tool >= TOOL_PROP)
+			return luaL_error(l, "Invalid tool id '%d'", tool);
+	if (brush < 0 || brush >= BRUSH_NUM)
+		return luaL_error(l, "Invalid brush id '%d'", brush);
+
+	currentBrush->SetShape(brush);
+	globalSim->CreateToolLine(x1, y1, x2, y2, rx, ry, tool, strength);
+	currentBrush->SetShape(oldBrush);
+	return 0;
+}
+
+int simulation_toolBox(lua_State * l)
+{
+	int x1 = luaL_optint(l,1,-1)/CELL;
+	int y1 = luaL_optint(l,2,-1)/CELL;
+	int x2 = luaL_optint(l,3,-1)/CELL;
+	int y2 = luaL_optint(l,4,-1)/CELL;
+	int tool = luaL_optint(l,5,TOOL_HEAT);
+	float strength = luaL_optnumber(l,6,1.0f);
+	if (tool < 0 || tool >= TOOL_PROP)
+			return luaL_error(l, "Invalid tool id '%d'", tool);
+
+	globalSim->CreateToolBox(x1, y1, x2, y2, tool, strength);
+	return 0;
+}
+
+int simulation_decoBrush(lua_State * l)
+{
+	int x = luaL_optint(l,1,-1);
+	int y = luaL_optint(l,2,-1);
+	int rx = luaL_optint(l,3,5);
+	int ry = luaL_optint(l,4,5);
+	int r = luaL_optint(l,5,255);
+	int g = luaL_optint(l,6,255);
+	int b = luaL_optint(l,7,255);
+	int a = luaL_optint(l,8,255);
+	int tool = luaL_optint(l,9,DECO_DRAW);
+	int brush = luaL_optint(l,10,CIRCLE_BRUSH), oldBrush = currentBrush->GetShape();
+	if (tool < 0 || tool >= DECOCOUNT)
+			return luaL_error(l, "Invalid tool id '%d'", tool);
+	if (brush < 0 || brush >= BRUSH_NUM)
+		return luaL_error(l, "Invalid brush id '%d'", brush);
+
+	unsigned int color = COLARGB(a, r, g, b);
+	currentBrush->SetShape(brush);
+	globalSim->CreateDecoBrush(x, y, rx, ry, tool, color);
+	currentBrush->SetShape(oldBrush);
+	return 0;
+}
+
+int simulation_decoLine(lua_State * l)
+{
+	int x1 = luaL_optint(l,1,-1);
+	int y1 = luaL_optint(l,2,-1);
+	int x2 = luaL_optint(l,3,-1);
+	int y2 = luaL_optint(l,4,-1);
+	int rx = luaL_optint(l,5,5);
+	int ry = luaL_optint(l,6,5);
+	int r = luaL_optint(l,7,255);
+	int g = luaL_optint(l,8,255);
+	int b = luaL_optint(l,9,255);
+	int a = luaL_optint(l,10,255);
+	int tool = luaL_optint(l,11,DECO_DRAW);
+	int brush = luaL_optint(l,12,CIRCLE_BRUSH), oldBrush = currentBrush->GetShape();
+	if (tool < 0 || tool >= DECOCOUNT)
+			return luaL_error(l, "Invalid tool id '%d'", tool);
+	if (brush < 0 || brush >= BRUSH_NUM)
+		return luaL_error(l, "Invalid brush id '%d'", brush);
+
+	unsigned int color = COLARGB(a, r, g, b);
+	currentBrush->SetShape(brush);
+	globalSim->CreateDecoLine(x1, y1, x2, y2, rx, ry, tool, color);
+	currentBrush->SetShape(oldBrush);
+	return 0;
+}
+
+int simulation_decoBox(lua_State * l)
+{
+	int x1 = luaL_optint(l,1,-1);
+	int y1 = luaL_optint(l,2,-1);
+	int x2 = luaL_optint(l,3,5);
+	int y2 = luaL_optint(l,4,5);
+	int r = luaL_optint(l,5,255);
+	int g = luaL_optint(l,6,255);
+	int b = luaL_optint(l,7,255);
+	int a = luaL_optint(l,8,255);
+	int tool = luaL_optint(l,9,DECO_DRAW);
+	if (tool < 0 || tool >= DECOCOUNT)
+			return luaL_error(l, "Invalid tool id '%d'", tool);
+
+	unsigned int color = COLARGB(a, r, g, b);
+	globalSim->CreateDecoBox(x1, y1, x2, y2, tool, color);
+	return 0;
+}
+
+int simulation_floodDeco(lua_State * l)
+{
+	int x = luaL_optint(l,1,-1);
+	int y = luaL_optint(l,2,-1);
+	int r = luaL_optint(l,3,255);
+	int g = luaL_optint(l,4,255);
+	int b = luaL_optint(l,5,255);
+	int a = luaL_optint(l,6,255);
+
+	PropertyValue color;
+	color.UInteger = COLARGB(a, r, g, b);
+	globalSim->FloodProp(x, y, UInteger, color, offsetof(particle, dcolour));
+	//globalSim->FloodDeco(x, y, -1, color);
+	return 0;
 }
 
 int simulation_clearSim(lua_State * l)

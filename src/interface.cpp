@@ -3038,7 +3038,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 			{
 				drawrect(vid_buf, presetx-1, y-1, 29, 17, 255, 55, 55, 255);
 				std::stringstream identifier;
-				identifier << "DEFAULT_DECOUR_COLOUR_" << colorlist[n-DECO_PRESET_START].descs;
+				identifier << "DEFAULT_DECOR_COLOUR_" << colorlist[n-DECO_PRESET_START].descs;
 				over =  new Tool(DECO_TOOL, n, identifier.str());
 			}
 			draw_tool_button(vid_buf, presetx, y, colorlist[n-DECO_PRESET_START].colour, "");
@@ -3377,9 +3377,9 @@ void menu_select_element(int b, Tool* over)
 				decocolor = newDecoColor;
 			else
 			{
-				if (activeTools[0]->GetIdentifier() != "DEFAULT_DECOUR_SET")
+				if (activeTools[0]->GetIdentifier() != "DEFAULT_DECOR_SET")
 				{
-					activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOUR_SET");
+					activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOR_SET");
 				}
 			}
 			currR = PIXR(decocolor), currG = PIXG(decocolor), currB = PIXB(decocolor), currA = decocolor>>24;
@@ -7499,8 +7499,8 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 				currV = my - 5;
 				HSV_to_RGB(currH,currS,tv,&currR,&currG,&currB);
 				deco_disablestuff = 1;
-				if (activeTools[0]->GetIdentifier() != "DEFAULT_DECOUR_SET")
-					activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOUR_SET");
+				if (activeTools[0]->GetIdentifier() != "DEFAULT_DECOR_SET")
+					activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOR_SET");
 			}
 			HSV_to_RGB(currH,currS,tv,&cr,&cg,&cb);
 			//clearrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6,12,12);
@@ -7526,8 +7526,8 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 				currS = ts;
 				HSV_to_RGB(th,ts,currV,&currR,&currG,&currB);
 				deco_disablestuff = 1;
-				if (activeTools[0]->GetIdentifier() != "DEFAULT_DECOUR_SET")
-					activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOUR_SET");
+				if (activeTools[0]->GetIdentifier() != "DEFAULT_DECOR_SET")
+					activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOR_SET");
 			}
 			HSV_to_RGB(th,ts,currV,&cr,&cg,&cb);
 			//clearrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6,12,12);
