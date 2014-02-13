@@ -395,13 +395,11 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 			return;
 		}
 
-		if (sdl_key==SDLK_RETURN)
+		if (sdl_key == SDLK_RETURN)
 			break;
-		if (sdl_key==SDLK_ESCAPE)
+		if (sdl_key == SDLK_ESCAPE)
 		{
-			if (!ed.focus)
-				return;
-			ed.focus = 0;
+			return;
 		}
 	}
 
@@ -2872,11 +2870,9 @@ int save_name_ui(pixel *vid_buf)
 			free(old_vid);
 			return nd+1;
 		}
-		if (sdl_key==SDLK_ESCAPE)
+		if (sdl_key == SDLK_ESCAPE)
 		{
-			if (!ed.focus)
-				break;
-			ed.focus = 0;
+			break;
 		}
 	}
 	if (th) free(th);
@@ -4985,7 +4981,8 @@ int report_ui(pixel* vid_buf, char *save_id, bool bug)
 		if (!b)
 			break;
 	}
-	while (!sdl_poll()) {
+	while (!sdl_poll())
+	{
 		fillrect(vid_buf, 200, 150, (XRES+BARSIZE-400), (YRES+MENUSIZE-300), 0,0,0, 255);
 		drawrect(vid_buf, 200, 150, (XRES+BARSIZE-400), (YRES+MENUSIZE-300), 255, 255, 255, 255);
 
@@ -5048,6 +5045,11 @@ int report_ui(pixel* vid_buf, char *save_id, bool bug)
 #endif
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 		ui_edit_process(mx, my, b, bq, &ed);
+
+		if (sdl_key == SDLK_ESCAPE)
+		{
+			return 0;
+		}
 	}
 	return 0;
 }
@@ -7870,11 +7872,9 @@ int save_filename_ui(pixel *vid_buf)
 			}
 		}
 
-		if (sdl_key==SDLK_ESCAPE)
+		if (sdl_key == SDLK_ESCAPE)
 		{
-			if (!ed.focus)
-				break;
-			ed.focus = 0;
+			break;
 		}
 	}
 		
