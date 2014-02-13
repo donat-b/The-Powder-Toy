@@ -23,7 +23,7 @@ int GBMB_update(UPDATE_FUNC_ARGS)
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
 			{
-				r = ((pmap[y+ry][x+rx]&0xFF)==PT_PINV&&parts[pmap[y+ry][x+rx]>>8].life==10)?0:pmap[y+ry][x+rx];
+				r = pmap[y+ry][x+rx];
 				if(!r)
 					continue;
 				if((r&0xFF)!=PT_BOMB && (r&0xFF)!=PT_GBMB && !(ptypes[r&0xFF].properties&PROP_CLONE) && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE))

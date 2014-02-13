@@ -1006,7 +1006,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 				}
 
 				//Tmp2 (optional), 1 or 2 bytes
-				if(partsptr[i].tmp2)
+				if (partsptr[i].tmp2 && partsptr[i].type != PT_PINV)
 				{
 					fieldDesc |= 1 << 10;
 					partsData[partsDataLen++] = partsptr[i].tmp2;

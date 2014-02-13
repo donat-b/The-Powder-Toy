@@ -57,7 +57,7 @@ int CBNW_update(UPDATE_FUNC_ARGS)
 		for (ry=-1; ry<2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = ((pmap[y+ry][x+rx]&0xFF)==PT_PINV&&parts[pmap[y+ry][x+rx]>>8].life==10)?0:pmap[y+ry][x+rx];
+				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
 				if (ptypes[r&0xFF].properties&TYPE_PART && parts[i].tmp == 0 && !(rand()%83))

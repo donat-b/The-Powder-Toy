@@ -184,14 +184,15 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 		for (ry=-2; ry<3; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = ((pmap[y+ry][x+rx]&0xFF)==PT_PINV&&parts[pmap[y+ry][x+rx]>>8].life==10)?0:pmap[y+ry][x+rx];
+				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
 				rt = r&0xFF;
 
 				if (ptypes[rt].properties & PROP_INDESTRUCTIBLE)
 				{
-					parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/10, MIN_TEMP, MAX_TEMP);
+					if (sim->elements[rt].HeatConduct)
+						parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/10, MIN_TEMP, MAX_TEMP);
 					continue;
 				}
 				switch (rt)
@@ -239,7 +240,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 					sim->spark_conductive(r>>8, x+rx, y+ry);
 				}
 				pv[y/CELL][x/CELL] += powderful/400;
-				if (sim->elements[r&0xFF].HeatConduct)
+				if (sim->elements[rt].HeatConduct)
 					parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/1.3, MIN_TEMP, MAX_TEMP);
 			}
 	if (parts[i].tmp2 == 3)

@@ -32,7 +32,7 @@ int WARP_update(UPDATE_FUNC_ARGS)
 		ry = rand()%3-1;
 		if (BOUNDS_CHECK && (rx || ry))
 		{
-			r = ((pmap[y+ry][x+rx]&0xFF)==PT_PINV&&parts[pmap[y+ry][x+rx]>>8].life==10)?0:pmap[y+ry][x+rx];
+			r = pmap[y+ry][x+rx];
 			if (!r)
 				continue;
 			if ((r&0xFF)!=PT_WARP && (r&0xFF)!=PT_STKM && (r&0xFF)!=PT_STKM2 && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && !(ptypes[r&0xFF].properties&PROP_CLONE))
