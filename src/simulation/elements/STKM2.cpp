@@ -31,7 +31,9 @@ bool STKM2_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 
 void STKM2_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	sim->part_create(-3, x, y, PT_SPAWN2);
+	int id = sim->part_create(-3, x, y, PT_SPAWN2);
+	if (id >= 0)
+		player2.spawnID = id;
 }
 
 void STKM2_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)

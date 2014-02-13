@@ -1953,6 +1953,7 @@ int luatpt_fillrect(lua_State* l)
 	else if (a>255) a = 255;
 
 	fillrect(vid_buf, x, y, w, h, r, g, b, a);
+	return 0;
 }
 
 int luatpt_drawcircle(lua_State* l)

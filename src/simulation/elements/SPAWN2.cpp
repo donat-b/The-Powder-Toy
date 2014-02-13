@@ -27,6 +27,12 @@ bool SPAWN2_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 	return (sim->elementCount[t]<=0);
 }
 
+void SPAWN2_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
+{
+	if (player2.spawnID == i)
+		player2.spawnID = -1;
+}
+
 void SPAWN2_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_SPAWN2";
@@ -73,5 +79,6 @@ void SPAWN2_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = NULL;
 	elem->Graphics = NULL;
 	elem->Func_Create_Allowed = &SPAWN2_create_allowed;
+	elem->Func_ChangeType = &SPAWN2_ChangeType;
 	elem->Init = &SPAWN2_init_element;
 }

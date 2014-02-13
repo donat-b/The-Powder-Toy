@@ -1483,11 +1483,6 @@ void decrease_life(int i)
 			kill_part(i);
 			return;
 		}
-
-		if (parts[i].type == PT_SPAWN && !player.spwn)
-			create_part(-1, (int)parts[i].x, (int)parts[i].y, PT_STKM);
-		else if (parts[i].type == PT_SPAWN2 && !player2.spwn)
-			create_part(-1, (int)parts[i].x, (int)parts[i].y, PT_STKM2);
 	}
 }
 
@@ -2811,6 +2806,11 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 			}
 		}
 	}
+
+	if (!player.spwn && player.spawnID >= 0)
+		create_part(-1, (int)parts[player.spawnID].x, (int)parts[player.spawnID].y, PT_STKM);
+	else if (!player2.spwn && player2.spawnID >= 0)
+		create_part(-1, (int)parts[player2.spawnID].x, (int)parts[player2.spawnID].y, PT_STKM2);
 
 	update_particles_i(vid, 0, 1);
 	update_moving_solids();

@@ -2245,11 +2245,15 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					{
 						if (globalSim->elementCount[PT_SPAWN])
 							partsptr[newIndex].type = PT_NONE;
+						else
+							player.spawnID = newIndex;
 					}
 					else if (partsptr[newIndex].type == PT_SPAWN2)
 					{
 						if (globalSim->elementCount[PT_SPAWN2])
 							partsptr[newIndex].type = PT_NONE;
+						else
+							player2.spawnID = newIndex;
 					}
 					if (partsptr[newIndex].type == PT_SOAP)
 						partsptr[newIndex].ctype &= ~6; // delete all soap connections, but it looks like if tmp & tmp2 were saved to 3 bytes, connections would load properly
@@ -3181,6 +3185,20 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 				player2.rocketBoots = 0;
 				if (parts[i-1].ctype == OLD_SPC_AIR)
 					parts[i-1].ctype = SPC_AIR;
+			}
+			else if (parts[i-1].type == PT_SPAWN)
+			{
+				if (globalSim->elementCount[PT_SPAWN])
+					parts[i-1].type = PT_NONE;
+				else
+					player.spawnID = i-1;
+			}
+			else if (parts[i-1].type == PT_SPAWN2)
+			{
+				if (globalSim->elementCount[PT_SPAWN2])
+					parts[i-1].type = PT_NONE;
+				else
+					player2.spawnID = i-1;
 			}
 			else if (parts[i-1].type == PT_FIGH)
 			{

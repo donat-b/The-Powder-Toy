@@ -1268,9 +1268,9 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 		if (!parts[rp>>8].dcolour)
 			return;
 		cola = COLA(color)/255.0f;
-		colr = (parts[rp>>8].dcolour>>16)&0xFF;
-		colg = (parts[rp>>8].dcolour>>8)&0xFF;
-		colb = (parts[rp>>8].dcolour)&0xFF;
+		colr = (float)((parts[rp>>8].dcolour>>16)&0xFF);
+		colg = (float)((parts[rp>>8].dcolour>>8)&0xFF);
+		colb = (float)((parts[rp>>8].dcolour)&0xFF);
 
 		if (tool == DECO_ADD)
 		{

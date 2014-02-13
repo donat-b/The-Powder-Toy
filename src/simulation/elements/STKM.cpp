@@ -667,7 +667,9 @@ bool STKM_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 
 void STKM_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	sim->part_create(-3, x, y, PT_SPAWN);
+	int id = sim->part_create(-3, x, y, PT_SPAWN);
+	if (id >= 0)
+		player.spawnID = id;
 }
 
 void STKM_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
