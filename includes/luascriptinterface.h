@@ -36,9 +36,12 @@ int simulation_decoBrush(lua_State * l);
 int simulation_decoLine(lua_State * l);
 int simulation_decoBox(lua_State * l);
 int simulation_floodDeco(lua_State * l);
+int simulation_decoColor(lua_State * l);
 int simulation_clearSim(lua_State * l);
 int simulation_saveStamp(lua_State * l);
 int simulation_loadStamp(lua_State * l);
+int simulation_loadSave(lua_State * l);
+int simulation_adjustCoords(lua_State * l);
 int simulation_elementCount(lua_State* l);
 
 void initRendererAPI(lua_State * l);

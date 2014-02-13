@@ -2396,7 +2396,7 @@ GLfloat blurLineC[(((YRES*XRES)*2)*4)];
 GLfloat ablurLineV[(((YRES*XRES)*2))];
 GLfloat ablurLineC[(((YRES*XRES)*2)*4)];
 #endif
-void render_parts(pixel *vid)
+void render_parts(pixel *vid, Point mousePos)
 {
 	Simulation *sim = globalSim;
 	int deca, decr, decg, decb, cola, colr, colg, colb, firea, firer = 0, fireg = 0, fireb = 0, pixel_mode, q, i, t, nx, ny, x, y, caddress;
@@ -2743,10 +2743,10 @@ void render_parts(pixel *vid)
 					else
 						continue;
 
-					if (mousex>(nx-3) && mousex<(nx+3) && mousey<(ny+3) && mousey>(ny-3)) //If mouse is in the head
+					if (mousePos.X>nx-3 && mousePos.X<nx+3 && mousePos.Y<ny+3 && mousePos.Y>ny-3) //If mouse is in the head
 					{
 						sprintf(buff, "%3d", parts[i].life);  //Show HP
-						drawtext(vid, mousex-8-2*(parts[i].life<100)-2*(parts[i].life<10), mousey-12, buff, 255, 255, 255, 255);
+						drawtext(vid, mousePos.X-8-2*(parts[i].life<100)-2*(parts[i].life<10), mousePos.Y-12, buff, 255, 255, 255, 255);
 					}
 
 					if (colour_mode!=COLOUR_HEAT && !(finding & ~0x8))
@@ -3303,7 +3303,7 @@ void render_parts(pixel *vid)
 				}
 				if ((pixel_mode & EFFECT_DBGLINES) && DEBUG_MODE && !(display_mode&DISPLAY_PERS))
 				{
-					if (mousex==(nx) && mousey==(ny))//draw lines connecting wifi/portal channels
+					if (mousePos.X == nx && mousePos.Y == ny)//draw lines connecting wifi/portal channels
 					{
 						int z;
 						int type = parts[i].type, tmp = (int)((parts[i].temp-73.15f)/100+1), othertmp;
@@ -3679,9 +3679,9 @@ void render_before(pixel *part_vbuf)
 
 int persist_counter = 0;
 // draw the graphics that appear after update_particles is called
-void render_after(pixel *part_vbuf, pixel *vid_buf)
+void render_after(pixel *part_vbuf, pixel *vid_buf, Point mousePos)
 {
-	render_parts(part_vbuf); //draw particles
+	render_parts(part_vbuf, mousePos); //draw particles
 	draw_other(part_vbuf);
 	if (((WallTool*)activeTools[activeToolID])->GetID() == WL_GRAV)
 		draw_grav_zones(part_vbuf);
@@ -4111,7 +4111,7 @@ void render_signs(pixel *vid_buf)
 			{
 				bq = b;
 				mouse_get_state(&mx, &my);
-				mouse_coords_window_to_sim(&mx, &my, mx, my);
+				mouse_coords_window_to_sim(&mx, &my);
 				signs[i].x = mx;
 				signs[i].y = my;
 			}

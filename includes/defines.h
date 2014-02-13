@@ -275,8 +275,6 @@ extern int active_menu;
 extern int sys_pause;
 extern int framerender;
 
-extern int mousex, mousey;
-
 struct sign
 {
 	int x,y,ju;

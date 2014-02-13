@@ -8353,7 +8353,7 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 		}
 #endif
 		render_before(part_vbuf);
-		render_after(part_vbuf, vid_buf);
+		render_after(part_vbuf, vid_buf, Point(0,0));
 		if (old_menu)
 		{
 			for (i=0; i<SC_TOTAL; i++)
@@ -8760,19 +8760,24 @@ Uint8 mouse_get_state(int *x, int *y)
 	return sdl_b;
 }
 
-void mouse_coords_window_to_sim(int *sim_x, int *sim_y, int window_x, int window_y)
+void mouse_coords_window_to_sim(int *mouseX, int *mouseY)
 {
+	//adjust coords into the simulation area
+	if (*mouseX < 0)
+		*mouseX = 0;
+	else if (*mouseX >= XRES)
+		*mouseX = XRES-1;
+	if (*mouseY < 0)
+		*mouseY = 0;
+	else if (*mouseY >= YRES)
+		*mouseY = YRES-1;
+
 	//Change mouse coords to take zoom window into account
-	if (zoom_en && window_x>=zoom_wx && window_y>=zoom_wy
-		&& window_x<(zoom_wx+ZFACTOR*ZSIZE)
-		&& window_y<(zoom_wy+ZFACTOR*ZSIZE))
+	if (zoom_en && *mouseX >= zoom_wx && *mouseY >= zoom_wy
+		&& *mouseX < (zoom_wx+ZFACTOR*ZSIZE)
+		&& *mouseY < (zoom_wy+ZFACTOR*ZSIZE))
 	{
-		*sim_x = (((window_x-zoom_wx)/ZFACTOR)+zoom_x);
-		*sim_y = (((window_y-zoom_wy)/ZFACTOR)+zoom_y);
-	}
-	else
-	{
-		*sim_x = window_x;
-		*sim_y = window_y;
+		*mouseX = ((*mouseX-zoom_wx)/ZFACTOR)+zoom_x;
+		*mouseY = ((*mouseY-zoom_wy)/ZFACTOR)+zoom_y;
 	}
 }

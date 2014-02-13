@@ -315,7 +315,6 @@ int core_count()
 	return numCPU;
 }
 
-int mousex = 0, mousey = 0, lastx = 0, lasty = 0;  //They contain mouse position
 int kiosk_enable = 0;
 
 void sdl_seticon(void)
@@ -853,7 +852,7 @@ int main(int argc, char *argv[])
 			memset(vid_buf, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
 			draw_walls(vid_buf);
 			update_particles(vid_buf);
-			render_parts(vid_buf);
+			render_parts(vid_buf, Point(0,0));
 			render_fire(vid_buf);
 		}
 		
@@ -997,7 +996,7 @@ int main(int argc, char *argv[])
 	char *ver_data=NULL, *check_data=NULL, *tmp, *changelog, *autorun_result = NULL, signal_hooks = 0;
 	int i, j, bq, bc = 0, do_check=0, do_s_check=0, old_version=0, http_ret=0,http_s_ret=0, old_ver_len = 0, new_message_len=0, afk = 0, afkstart = 0;
 	int x, y, line_x, line_y, b = 0, lb = 0, lx = 0, ly = 0, lm = 0;//, tx, ty;
-	int da = 0, db = 0, it = 2047, mx, my;
+	int da = 0, db = 0, it = 2047, mx = 0, my = 0, lastx = 1, lasty = 0;
 	int load_mode=0, load_w=0, load_h=0, load_x=0, load_y=0, load_size=0;
 	void *load_data=NULL;
 	pixel *load_img=NULL;
@@ -1374,7 +1373,7 @@ int main(int argc, char *argv[])
 			#endif
 		}
 		
-		render_after(part_vbuf, vid_buf);
+		render_after(part_vbuf, vid_buf, Point(mx, my));
 		
 		if(debug_flags & (DEBUG_PERFORMANCE_CALC|DEBUG_PERFORMANCE_FRAME))
 		{
@@ -2318,9 +2317,10 @@ int main(int argc, char *argv[])
 		if (deco_disablestuff)
 			b = 0;
 
-		mouse_coords_window_to_sim(&x, &y, x, y);//change mouse position while it is in a zoom window
 		mx = x;
 		my = y;
+		mouse_coords_window_to_sim(&mx, &my);//change mouse position while it is in a zoom window
+
 		if (b && !bq && x>=(XRES-19-new_message_len) &&
 		        x<=(XRES-14) && y>=(YRES-37) && y<=(YRES-24) && svf_messages)
 		{
@@ -2779,7 +2779,7 @@ int main(int argc, char *argv[])
 					lb = 0;
 				}
 			}
-			else if (y<YRES && x<XRES)// mouse is in playing field
+			if ((y<YRES && x<XRES) || lb)// mouse is in playing field
 			{
 				int signi;
 				bool clickedSign = false;
@@ -2798,7 +2798,7 @@ int main(int argc, char *argv[])
 							{
 								int signx, signy, signw, signh;
 								get_sign_pos(signi, &signx, &signy, &signw, &signh);
-								if (x>=signx && x<=signx+signw && y>=signy && y<=signy+signh)
+								if (mx>=signx && mx<=signx+signw && my>=signy && my<=signy+signh)
 								{
 									if (signs[signi].text[1] == 'b')
 									{
@@ -2843,7 +2843,7 @@ int main(int argc, char *argv[])
 							}
 				}
 
-				//for the click functions, lx and ly, are the positions of where the FIRST click happened.  x,y are current mouse position.
+				//for the click functions, lx and ly, are the positions of where the FIRST click happened.  mx,my are current mouse position.
 				if (lb) //lb means you are holding mouse down
 				{
 					toolStrength = 1.0f;
@@ -2851,15 +2851,15 @@ int main(int argc, char *argv[])
 					{
 						if (sdl_mod & KMOD_ALT)
 						{
-							float snap_angle = floor(atan2((float)y-ly, (float)x-lx)/(M_PI*0.25)+0.5)*M_PI*0.25;
-							float line_mag = sqrtf(pow((float)x-lx,2.0f)+pow((float)y-ly,2.0f));
+							float snap_angle = floor(atan2((float)y-ly, (float)mx-lx)/(M_PI*0.25)+0.5)*M_PI*0.25;
+							float line_mag = sqrtf(pow((float)mx-lx,2.0f)+pow((float)my-ly,2.0f));
 							line_x = (int)(line_mag*cos(snap_angle)+lx+0.5f);
 							line_y = (int)(line_mag*sin(snap_angle)+ly+0.5f);
 						}
 						else
 						{
-							line_x = x;
-							line_y = y;
+							line_x = mx;
+							line_y = my;
 						}
 						xor_line(lx, ly, line_x, line_y, vid_buf);
 						//WIND tool works before you even draw the line while holding shift
@@ -2878,15 +2878,15 @@ int main(int argc, char *argv[])
 					{
 						if (sdl_mod & KMOD_ALT)
 						{
-							float snap_angle = floor((atan2((float)y-ly, x-lx)+M_PI*0.25)/(M_PI*0.5)+0.5)*M_PI*0.5 - M_PI*0.25;
-							float line_mag = sqrtf(pow((float)x-lx,2.0f)+pow((float)y-ly,2.0f));
+							float snap_angle = floor((atan2((float)y-ly, mx-lx)+M_PI*0.25)/(M_PI*0.5)+0.5)*M_PI*0.5 - M_PI*0.25;
+							float line_mag = sqrtf(pow((float)mx-lx,2.0f)+pow((float)my-ly,2.0f));
 							line_x = (int)(line_mag*cos(snap_angle)+lx+0.5f);
 							line_y = (int)(line_mag*sin(snap_angle)+ly+0.5f);
 						}
 						else
 						{
-							line_x = x;
-							line_y = y;
+							line_x = mx;
+							line_y = my;
 						}
 						xor_line(lx, ly, lx, line_y, vid_buf);
 						xor_line(lx, line_y, line_x, line_y, vid_buf);
@@ -2899,9 +2899,9 @@ int main(int argc, char *argv[])
 							toolStrength = 10.0f;
 						else if (sdl_mod & KMOD_CTRL)
 							toolStrength = .1f;
-						activeTool->DrawLine(currentBrush, Point(lx, ly), Point(x, y), true);
-						lx = x;
-						ly = y;
+						activeTool->DrawLine(currentBrush, Point(lx, ly), Point(mx, my), true);
+						lx = mx;
+						ly = my;
 					}
 				}
 				else if (!clickedSign) //it is the first click
@@ -2910,16 +2910,16 @@ int main(int argc, char *argv[])
 					//start line tool
 					if ((sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_CTRL)))
 					{
-						lx = x;
-						ly = y;
+						lx = mx;
+						ly = my;
 						lb = b;
 						lm = 1;//line
 					}
 					//start box tool
 					else if ((sdl_mod & (KMOD_CTRL)) && !(sdl_mod & (KMOD_SHIFT)))
 					{
-						lx = x;
-						ly = y;
+						lx = mx;
+						ly = my;
 						lb = b;
 						lm = 2;//box
 					}
@@ -2929,26 +2929,26 @@ int main(int argc, char *argv[])
 						if (!bq)
 							ctrlzSnapshot();
 
-						activeTool->FloodFill(Point(x, y));
-						lx = x;
-						ly = y;
+						activeTool->FloodFill(Point(mx, my));
+						lx = mx;
+						ly = my;
 						lb = 0;
 						lm = 0;
 					}
 					//sample
 					else if (((sdl_mod & (KMOD_ALT)) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL))) || b==SDL_BUTTON_MIDDLE)
 					{
-						activeTools[activeToolID] = activeTool->Sample(Point(x, y));
-						lx = x;
-						ly = y;
+						activeTools[activeToolID] = activeTool->Sample(Point(mx, my));
+						lx = mx;
+						ly = my;
 						lb = 0;
 						lm = 0;
 					}
 					else if (((ToolTool*)activeTool)->GetID() == TOOL_SIGN || MSIGN != -1) // if sign tool is selected or a sign is being moved
 					{
-						add_sign_ui(vid_buf, x, y);
-						lx = x;
-						ly = y;
+						add_sign_ui(vid_buf, mx, my);
+						lx = mx;
+						ly = my;
 						lb = b;
 						lm = 0;
 					}
@@ -2963,9 +2963,9 @@ int main(int argc, char *argv[])
 						else if (sdl_mod & KMOD_CTRL)
 							toolStrength = .1f;
 
-						activeTool->DrawPoint(currentBrush, Point(x, y));
-						lx = x;
-						ly = y;
+						activeTool->DrawPoint(currentBrush, Point(mx, my));
+						lx = mx;
+						ly = my;
 						lb = b;
 						lm = 0;
 					}
@@ -3026,8 +3026,6 @@ int main(int argc, char *argv[])
 		{
 			render_cursor(vid_buf, mx, my, activeTools[activeToolID], currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
 		}
-		mousex = mx;
-		mousey = my;
 #ifdef OGLR
 		draw_parts_fbo();
 #endif		
@@ -3147,7 +3145,7 @@ int main(int argc, char *argv[])
 			if (FPSB2 > maxfps)
 				maxfps = FPSB2;
 		}
-		if (lastx == mousex && lasty == mousey)
+		if (lastx == mx && lasty == my)
 		{
 			if (!afk)
 			{
@@ -3163,8 +3161,8 @@ int main(int argc, char *argv[])
 		}
 		if (afk && currentTime - afkstart > 30000)
 			afktime = currentTime - afkstart - 30000;
-		lastx = mousex;
-		lasty = mousey;
+		lastx = mx;
+		lasty = my;
 
 		if (autosave > 0 && frames%autosave == 0)
 		{

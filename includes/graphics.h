@@ -19,6 +19,7 @@
 #include <string>
 #include <SDL/SDL.h>
 #include "defines.h"
+#include "common/Point.h"
 
 #ifdef PIX16
 #define PIXELSIZE 2
@@ -203,11 +204,11 @@ void xor_rect(pixel *vid, int x, int y, int w, int h);
 
 void blend_line(pixel *vid, int x1, int y1, int x2, int y2, int r, int g, int b, int a);
 
-void render_parts(pixel *vid);
+void render_parts(pixel *vid, Point mousePos);
 
 void render_before(pixel *part_vbuf);
 
-void render_after(pixel *part_vbuf, pixel *vid_buf);
+void render_after(pixel *part_vbuf, pixel *vid_buf, Point mousePos);
 
 #ifdef OGLR
 void draw_parts_fbo();

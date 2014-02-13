@@ -60,10 +60,14 @@ void initSimulationAPI(lua_State * l)
 		{"decoLine", simulation_decoLine},
 		{"decoBox", simulation_decoBox},
 		{"floodDeco", simulation_floodDeco},
+		{"decoColor", simulation_decoColor},
+		{"decoColour", simulation_decoColor},
 		{"clearSim", simulation_clearSim},
 		{"saveStamp", simulation_saveStamp},
 		{"loadStamp", simulation_loadStamp},
-		{"elementCount", simulation_elementCount},
+		{"loadSave", simulation_loadSave},
+		{"loadStamp", simulation_loadStamp},
+		{"adjustCoords", simulation_adjustCoords},
 		{NULL, NULL}
 	};
 	luaL_register(l, "simulation", simulationAPIMethods);
@@ -665,6 +669,34 @@ int simulation_floodDeco(lua_State * l)
 	return 0;
 }
 
+int simulation_decoColor(lua_State * l)
+{
+	int acount = lua_gettop(l);
+	if (acount == 0)
+	{
+		lua_pushnumber(l, decocolor);
+		return 1;
+	}
+	else if (acount == 1)
+		decocolor = (unsigned int)luaL_optnumber(l, 1, 0xFFFF0000);
+	else
+	{
+		int r, g, b, a;
+		r = luaL_optint(l, 1, 255);
+		g = luaL_optint(l, 2, 255);
+		b = luaL_optint(l, 3, 255);
+		a = luaL_optint(l, 4, 255);
+
+		if (r < 0) r = 0; else if (r > 255) r = 255;
+		if (g < 0) g = 0; else if (g > 255) g = 255;
+		if (b < 0) b = 0; else if (b > 255) b = 255;
+		if (a < 0) a = 0; else if (a > 255) a = 255;
+
+		decocolor =  COLARGB(a, r, g, b);
+	}
+	return 0;
+}
+
 int simulation_clearSim(lua_State * l)
 {
 	clear_sim();
@@ -729,6 +761,29 @@ int simulation_loadStamp(lua_State* l)
 	if (load_data)
 		free(load_data);
 	return 1;
+}
+
+int simulation_loadSave(lua_State * l)
+{
+	int saveID = luaL_optint(l,1,0);
+	int instant = luaL_optint(l,2,0);
+	int history = luaL_optint(l,3,0); //Exact second a previous save was saved
+	char save_id[24], save_date[24];
+	sprintf(save_id, "%i", saveID);
+	sprintf(save_date, "%i", history);
+	
+	open_ui(vid_buf, save_id, save_date, instant);
+	return 0;
+}
+
+int simulation_adjustCoords(lua_State * l)
+{
+	int x = luaL_optint(l,1,0);
+	int y = luaL_optint(l,2,0);
+	mouse_coords_window_to_sim(&x, &y);
+	lua_pushinteger(l, x);
+	lua_pushinteger(l, y);
+	return 2;
 }
 
 int simulation_elementCount(lua_State* l)

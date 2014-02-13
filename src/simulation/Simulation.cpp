@@ -1297,7 +1297,7 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 			colb /= 1.0f+(COLB(color)/255.0f*strength)*cola;
 		}
 
-		tr = colr+.5f; tg = colg+.5f; tb = colb+.5f;
+		tr = int(colr+.5f); tg = int(colg+.5f); tb = int(colb+.5f);
 		if (tr > 255) tr = 255;
 		else if (tr < 0) tr = 0;
 		if (tg > 255) tg = 255;

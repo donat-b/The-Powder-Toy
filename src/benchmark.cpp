@@ -5,6 +5,7 @@
 #include "powdergraphics.h"
 #include "benchmark.h"
 #include "save.h"
+#include "common\Point.h"
 #include <math.h>
 
 char *benchmark_file = NULL;
@@ -126,7 +127,7 @@ void benchmark_run()
 					update_particles(vid_buf);
 					BENCHMARK_RUN()
 					{
-						render_parts(vid_buf);
+						render_parts(vid_buf, Point(0,0));
 					}
 				}
 				BENCHMARK_END()
@@ -142,7 +143,7 @@ void benchmark_run()
 					update_particles(vid_buf);
 					BENCHMARK_RUN()
 					{
-						render_parts(vid_buf);
+						render_parts(vid_buf, Point(0, 0));
 						render_fire(vid_buf);
 					}
 				}
