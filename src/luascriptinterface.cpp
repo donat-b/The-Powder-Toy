@@ -66,8 +66,15 @@ void initSimulationAPI(lua_State * l)
 		{"saveStamp", simulation_saveStamp},
 		{"loadStamp", simulation_loadStamp},
 		{"loadSave", simulation_loadSave},
-		{"loadStamp", simulation_loadStamp},
 		{"adjustCoords", simulation_adjustCoords},
+		{"prettyPowders", simulation_prettyPowders},
+		{"gravityGrid", simulation_gravityGrid},
+		{"edgeMode", simulation_edgeMode},
+		{"gravityMode", simulation_gravityMode},
+		{"airMode", simulation_airMode},
+		{"waterEqualization", simulation_waterEqualization},
+		{"waterEqualisation", simulation_waterEqualization},
+		{"elementCount", simulation_elementCount},
 		{NULL, NULL}
 	};
 	luaL_register(l, "simulation", simulationAPIMethods);
@@ -694,6 +701,8 @@ int simulation_decoColor(lua_State * l)
 
 		decocolor =  COLARGB(a, r, g, b);
 	}
+	currR = PIXR(decocolor), currG = PIXG(decocolor), currB = PIXB(decocolor), currA = decocolor>>24;
+	RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
 	return 0;
 }
 
@@ -786,6 +795,83 @@ int simulation_adjustCoords(lua_State * l)
 	return 2;
 }
 
+int simulation_prettyPowders(lua_State * l)
+{
+	int acount = lua_gettop(l);
+	if (acount == 0)
+	{
+		lua_pushnumber(l, pretty_powder);
+		return 1;
+	}
+	int prettyPowder = luaL_optint(l, 1, 0);
+	pretty_powder = prettyPowder;
+	return 0;
+}
+
+int simulation_gravityGrid(lua_State * l)
+{
+	int acount = lua_gettop(l);
+	if (acount == 0)
+	{
+		lua_pushnumber(l, drawgrav_enable);
+		return 1;
+	}
+	drawgrav_enable = luaL_optint(l, 1, 0);
+	return 0;
+}
+
+int simulation_edgeMode(lua_State * l)
+{
+	int acount = lua_gettop(l);
+	if (acount == 0)
+	{
+		lua_pushnumber(l, edgeMode);
+		return 1;
+	}
+	edgeMode = luaL_optint(l, 1, 0);
+	if (edgeMode == 1)
+		draw_bframe();
+	else
+		erase_bframe();
+	return 0;
+}
+
+int simulation_gravityMode(lua_State * l)
+{
+	int acount = lua_gettop(l);
+	if (acount == 0)
+	{
+		lua_pushnumber(l, gravityMode);
+		return 1;
+	}
+	gravityMode = luaL_optint(l, 1, 0);
+	return 0;
+}
+
+int simulation_airMode(lua_State * l)
+{
+	int acount = lua_gettop(l);
+	if (acount == 0)
+	{
+		lua_pushnumber(l, airMode);
+		return 1;
+	}
+	airMode = luaL_optint(l, 1, 0);
+	return 0;
+}
+
+int simulation_waterEqualization(lua_State * l)
+{
+	int acount = lua_gettop(l);
+	if (acount == 0)
+	{
+		lua_pushnumber(l, water_equal_test);
+		return 1;
+	}
+	water_equal_test = luaL_optint(l, 1, -1);
+	return 0;
+}
+
 int simulation_elementCount(lua_State* l)
 {
 	int element = luaL_checkint(l, 1);
@@ -808,9 +894,11 @@ void initRendererAPI(lua_State * l)
 	struct luaL_reg rendererAPIMethods [] = {
 		{"renderModes", renderer_renderModes},
 		{"displayModes", renderer_displayModes},
-		{"colourMode", renderer_colourMode},
-		{"colorMode", renderer_colourMode}, //Duplicate of above to make Americans happy
+		{"colorMode", renderer_colorMode},
+		{"colourMode", renderer_colorMode},
 		{"decorations", renderer_decorations},
+		{"grid", renderer_grid},
+		{"debugHUD", renderer_debugHUD},
 		{NULL, NULL}
 	};
 	luaL_register(l, "renderer", rendererAPIMethods);
@@ -939,7 +1027,7 @@ int renderer_displayModes(lua_State * l)
 	}
 }
 
-int renderer_colourMode(lua_State * l)
+int renderer_colorMode(lua_State * l)
 {
 	int args = lua_gettop(l);
 	if(args)
@@ -968,6 +1056,30 @@ int renderer_decorations(lua_State * l)
 		lua_pushboolean(l, decorations_enable);
 		return 1;
 	}
+}
+
+int renderer_grid(lua_State * l)
+{
+	int acount = lua_gettop(l);
+	if (acount == 0)
+	{
+		lua_pushnumber(l, GRID_MODE);
+		return 1;
+	}
+	GRID_MODE = luaL_optint(l, 1, 0);
+	return 0;
+}
+
+int renderer_debugHUD(lua_State * l)
+{
+	int acount = lua_gettop(l);
+	if (acount == 0)
+	{
+		lua_pushnumber(l, DEBUG_MODE);
+		return 1;
+	}
+	DEBUG_MODE = luaL_optint(l, 1, 0);
+	return 0;
 }
 
 /*

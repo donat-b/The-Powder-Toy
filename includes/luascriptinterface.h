@@ -42,13 +42,21 @@ int simulation_saveStamp(lua_State * l);
 int simulation_loadStamp(lua_State * l);
 int simulation_loadSave(lua_State * l);
 int simulation_adjustCoords(lua_State * l);
+int simulation_prettyPowders(lua_State * l);
+int simulation_gravityGrid(lua_State * l);
+int simulation_edgeMode(lua_State * l);
+int simulation_gravityMode(lua_State * l);
+int simulation_airMode(lua_State * l);
+int simulation_waterEqualization(lua_State * l);
 int simulation_elementCount(lua_State* l);
 
 void initRendererAPI(lua_State * l);
 int renderer_renderModes(lua_State * l);
 int renderer_displayModes(lua_State * l);
-int renderer_colourMode(lua_State * l);
+int renderer_colorMode(lua_State * l);
 int renderer_decorations(lua_State * l);
+int renderer_grid(lua_State * l);
+int renderer_debugHUD(lua_State * l);
 
 void initFileSystemAPI(lua_State * l);
 int fileSystem_list(lua_State * l);

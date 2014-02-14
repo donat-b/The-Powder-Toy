@@ -2919,34 +2919,7 @@ int luatpt_set_selected(lua_State* l)
 
 int luatpt_set_decocolor(lua_State* l)
 {
-	int acount = lua_gettop(l);
-	unsigned int color;
-	if (acount == 0)
-	{
-		lua_pushnumber(l, decocolor);
-		return 1;
-	}
-	else if (acount == 1)
-		color = (unsigned int)luaL_optnumber(l, 1, 0xFFFF0000);
-	else
-	{
-		int r, g, b, a;
-		r = luaL_optint(l, 1, 255);
-		g = luaL_optint(l, 2, 255);
-		b = luaL_optint(l, 3, 255);
-		a = luaL_optint(l, 4, 255);
-
-		if (r < 0) r = 0; if (r > 255) r = 255;
-		if (g < 0) g = 0; if (g > 255) g = 255;
-		if (b < 0) b = 0; if (b > 255) b = 255;
-		if (a < 0) a = 0; if (a > 255) a = 255;
-
-		color = (a << 24) + PIXRGB(r, g, b);
-	}
-	decocolor = color;
-	currR = PIXR(decocolor), currG = PIXG(decocolor), currB = PIXB(decocolor), currA = decocolor>>24;
-	RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
-	return 0;
+	return simulation_decoColor(l);
 }
 
 int luatpt_outside_airtemp(lua_State* l)
