@@ -24,8 +24,12 @@ struct Point
 	Point(int pointX, int pointY):
 		X(pointX),
 		Y(pointY)
-	{
-	}
+	{ }
+
+	Point():
+		X(0),
+		Y(0)
+	{ }
 
 	//some basic operator overloads
 	inline bool operator == (const Point& other) const
@@ -42,6 +46,16 @@ struct Point
 	{
 		X = other.X;
 		Y = other.Y;
+	}
+
+	inline Point operator + (const Point& other)
+	{
+		return Point(X+other.X, Y+other.Y);
+	}
+
+	inline Point operator - (const Point& other)
+	{
+		return Point(X-other.X, Y-other.Y);
 	}
 
 	inline void operator += (const Point& other)

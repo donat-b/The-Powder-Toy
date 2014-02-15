@@ -2862,10 +2862,18 @@ int main(int argc, char *argv[])
 					{
 						if (sdl_mod & KMOD_ALT)
 						{
-							float snap_angle = floor(atan2((float)y-ly, (float)mx-lx)/(M_PI*0.25)+0.5)*M_PI*0.25;
-							float line_mag = sqrtf(pow((float)mx-lx,2.0f)+pow((float)my-ly,2.0f));
-							line_x = (int)(line_mag*cos(snap_angle)+lx+0.5f);
-							line_y = (int)(line_mag*sin(snap_angle)+ly+0.5f);
+							Point point1 = Point(lx, ly), point2 = Point(mx, my);
+							Point diff = point2 - point1, line;
+							if (abs(diff.X / 2) > abs(diff.Y)) // vertical
+								line = point1 + Point(diff.X, 0);
+							else if(abs(diff.X) < abs(diff.Y / 2)) // horizontal
+								line = point1 + Point(0, diff.Y);
+							else if(diff.X * diff.Y > 0) // NW-SE
+								line = point1 + Point((diff.X + diff.Y)/2, (diff.X + diff.Y)/2);
+							else // SW-NE
+								line = point1 + Point((diff.X - diff.Y)/2, (diff.Y - diff.X)/2);
+							line_x = line.X;
+							line_y = line.Y;
 						}
 						else
 						{
@@ -2889,10 +2897,14 @@ int main(int argc, char *argv[])
 					{
 						if (sdl_mod & KMOD_ALT)
 						{
-							float snap_angle = floor((atan2((float)y-ly, mx-lx)+M_PI*0.25)/(M_PI*0.5)+0.5)*M_PI*0.5 - M_PI*0.25;
-							float line_mag = sqrtf(pow((float)mx-lx,2.0f)+pow((float)my-ly,2.0f));
-							line_x = (int)(line_mag*cos(snap_angle)+lx+0.5f);
-							line_y = (int)(line_mag*sin(snap_angle)+ly+0.5f);
+							Point point1 = Point(lx, ly), point2 = Point(mx, my);
+							Point diff = point2 - point1, line;
+							if (diff.X * diff.Y > 0) // NW-SE
+								line = point1 + Point((diff.X + diff.Y)/2, (diff.X + diff.Y)/2);
+							else // SW-NE
+								line = point1 + Point((diff.X - diff.Y)/2, (diff.Y - diff.X)/2);
+							line_x = line.X;
+							line_y = line.Y;
 						}
 						else
 						{
@@ -3035,7 +3047,10 @@ int main(int argc, char *argv[])
 
 		if (zoom_en!=1 && !load_mode && !save_mode && lm != 2)//draw normal cursor
 		{
-			render_cursor(vid_buf, mx, my, activeTools[activeToolID], currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
+			if (lm && (sdl_mod & KMOD_ALT))
+				render_cursor(vid_buf, line_x, line_y, activeTools[activeToolID], currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
+			else
+				render_cursor(vid_buf, mx, my, activeTools[activeToolID], currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
 		}
 #ifdef OGLR
 		draw_parts_fbo();
