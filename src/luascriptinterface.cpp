@@ -63,9 +63,12 @@ void initSimulationAPI(lua_State * l)
 		{"decoColor", simulation_decoColor},
 		{"decoColour", simulation_decoColor},
 		{"clearSim", simulation_clearSim},
+		{"resetTemp", simulation_resetTemp},
+		{"resetPressure", simulation_resetPressure},
 		{"saveStamp", simulation_saveStamp},
 		{"loadStamp", simulation_loadStamp},
 		{"loadSave", simulation_loadSave},
+		{"getSaveID", simulation_getSaveID},
 		{"adjustCoords", simulation_adjustCoords},
 		{"prettyPowders", simulation_prettyPowders},
 		{"gravityGrid", simulation_gravityGrid},
@@ -74,6 +77,7 @@ void initSimulationAPI(lua_State * l)
 		{"airMode", simulation_airMode},
 		{"waterEqualization", simulation_waterEqualization},
 		{"waterEqualisation", simulation_waterEqualization},
+		{"ambientAirTemp", simulation_ambientAirTemp},
 		{"elementCount", simulation_elementCount},
 		{NULL, NULL}
 	};
@@ -712,6 +716,51 @@ int simulation_clearSim(lua_State * l)
 	return 0;
 }
 
+
+int simulation_resetTemp(lua_State * l)
+{
+	bool onlyConductors = luaL_optint(l, 1, 0);
+	for (int i = 0; i < parts_lastActiveIndex; i++)
+	{
+		if (parts[i].type && (globalSim->elements[parts[i].type].HeatConduct || !onlyConductors))
+		{
+			parts[i].temp = globalSim->elements[parts[i].type].DefaultProperties.temp;
+		}
+	}
+	return 0;
+}
+
+int simulation_resetPressure(lua_State * l)
+{
+	int aCount = lua_gettop(l), width = XRES/CELL, height = YRES/CELL;
+	int x1 = abs(luaL_optint(l, 1, 0));
+	int y1 = abs(luaL_optint(l, 2, 0));
+	if (aCount > 2)
+	{
+		width = abs(luaL_optint(l, 3, XRES/CELL));
+		height = abs(luaL_optint(l, 4, YRES/CELL));
+	}
+	else if (aCount)
+	{
+		width = 1;
+		height = 1;
+	}
+	if(x1 > (XRES/CELL)-1)
+		x1 = (XRES/CELL)-1;
+	if(y1 > (YRES/CELL)-1)
+		y1 = (YRES/CELL)-1;
+	if(x1+width > (XRES/CELL)-1)
+		width = (XRES/CELL)-x1;
+	if(y1+height > (YRES/CELL)-1)
+		height = (YRES/CELL)-y1;
+	for (int nx = x1; nx<x1+width; nx++)
+		for (int ny = y1; ny<y1+height; ny++)
+		{
+			pv[ny][nx] = 0;
+		}
+	return 0;
+}
+
 int simulation_saveStamp(lua_State* l)
 {
 	int x = luaL_optint(l,1,0);
@@ -785,6 +834,16 @@ int simulation_loadSave(lua_State * l)
 	return 0;
 }
 
+int simulation_getSaveID(lua_State *l)
+{
+	if (svf_open)
+	{
+		lua_pushinteger(l, atoi(svf_id));
+		return 1;
+	}
+	return 0;
+}
+
 int simulation_adjustCoords(lua_State * l)
 {
 	int x = luaL_optint(l,1,0);
@@ -803,8 +862,7 @@ int simulation_prettyPowders(lua_State * l)
 		lua_pushnumber(l, pretty_powder);
 		return 1;
 	}
-	int prettyPowder = luaL_optint(l, 1, 0);
-	pretty_powder = prettyPowder;
+	pretty_powder = luaL_optint(l, 1, 0);
 	return 0;
 }
 
@@ -869,6 +927,18 @@ int simulation_waterEqualization(lua_State * l)
 		return 1;
 	}
 	water_equal_test = luaL_optint(l, 1, -1);
+	return 0;
+}
+
+int simulation_ambientAirTemp(lua_State * l)
+{
+	int acount = lua_gettop(l);
+	if (acount == 0)
+	{
+		lua_pushnumber(l, outside_temp);
+		return 1;
+	}
+	outside_temp = luaL_optnumber(l, 1, 295.15f);
 	return 0;
 }
 
