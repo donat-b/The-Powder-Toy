@@ -1525,7 +1525,7 @@ int graphics_drawText(lua_State * l)
 	int x, y, r, g, b, a;
 	x = lua_tointeger(l, 1);
 	y = lua_tointeger(l, 2);
-	text = (char*)lua_tostring(l, 3);
+	text = (char*)luaL_optstring(l, 3, "");
 	r = luaL_optint(l, 4, 255);
 	g = luaL_optint(l, 5, 255);
 	b = luaL_optint(l, 6, 255);

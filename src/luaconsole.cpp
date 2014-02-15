@@ -124,6 +124,8 @@ void luacon_open()
 		{"setwindowsize",&luatpt_setwindowsize},
 		{"watertest",&luatpt_togglewater},
 		{"screenshot",&luatpt_screenshot},
+		{"get_clipboard",&luatpt_getclip},
+		{"set_clipboard",&luatpt_setclip},
 		{"element",&luatpt_getelement},
 		{"element_func",&luatpt_element_func},
 		{"graphics_func",&luatpt_graphics_func},
@@ -2510,6 +2512,19 @@ int luatpt_screenshot(lua_State* l)
 	{
 		dump_frame(vid_buf, XRES, YRES, XRES+BARSIZE);
 	}
+	return 0;
+}
+
+int luatpt_getclip(lua_State* l)
+{
+	lua_pushstring(l, clipboard_pull_text());
+	return 1;
+}
+
+int luatpt_setclip(lua_State* l)
+{
+	luaL_checktype(l, 1, LUA_TSTRING);
+	clipboard_push_text((char*)luaL_optstring(l, 1, ""));
 	return 0;
 }
 
