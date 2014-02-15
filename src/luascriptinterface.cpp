@@ -716,7 +716,6 @@ int simulation_clearSim(lua_State * l)
 	return 0;
 }
 
-
 int simulation_resetTemp(lua_State * l)
 {
 	bool onlyConductors = luaL_optint(l, 1, 0);

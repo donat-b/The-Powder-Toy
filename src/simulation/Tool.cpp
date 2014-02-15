@@ -197,18 +197,9 @@ int ToolTool::DrawPoint(Brush* brush, Point position)
 }
 void ToolTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 {
-	if (ID == TOOL_WIND)
-	{
-		for (int j = -brush->GetRadius().Y; j <= brush->GetRadius().Y; j++)
-			for (int i = -brush->GetRadius().X; i <= brush->GetRadius().X; i++)
-				if (endPos.X+i>0 && endPos.Y+j>0 && endPos.X+i<XRES && endPos.Y+j<YRES && InCurrentBrush(i, j, brush->GetRadius().X, brush->GetRadius().Y))
-				{
-					vx[(endPos.Y+j)/CELL][(endPos.X+i)/CELL] += (endPos.X-startPos.X)*0.01f;
-					vy[(endPos.Y+j)/CELL][(endPos.X+i)/CELL] += (endPos.Y-startPos.Y)*0.01f;
-				}
-	}
-	else
-		globalSim->CreateToolLine(startPos.X, startPos.Y, endPos.X, endPos.Y, currentBrush->GetRadius().X, currentBrush->GetRadius().Y, ID, toolStrength);
+	if (ID == TOOL_WIND && !held)
+		return;
+	globalSim->CreateToolLine(startPos.X, startPos.Y, endPos.X, endPos.Y, currentBrush->GetRadius().X, currentBrush->GetRadius().Y, ID, toolStrength);
 }
 void ToolTool::DrawRect(Brush* brush, Point startPos, Point endPos)
 {
