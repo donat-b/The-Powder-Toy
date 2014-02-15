@@ -33,6 +33,7 @@ void initSimulationAPI(lua_State * l)
 {
 	//Methods
 	struct luaL_reg simulationAPIMethods [] = {
+		{"partNeighbors", simulation_partNeighbours},
 		{"partNeighbours", simulation_partNeighbours},
 		{"partChangeType", simulation_partChangeType},
 		{"partCreate", simulation_partCreate},
@@ -79,6 +80,10 @@ void initSimulationAPI(lua_State * l)
 		{"waterEqualisation", simulation_waterEqualization},
 		{"ambientAirTemp", simulation_ambientAirTemp},
 		{"elementCount", simulation_elementCount},
+		{"parts", simulation_parts},
+		{"pmap", simulation_pmap},
+		{"neighbors", simulation_neighbours},
+		{"neighbours", simulation_neighbours},
 		{NULL, NULL}
 	};
 	luaL_register(l, "simulation", simulationAPIMethods);
@@ -948,6 +953,95 @@ int simulation_elementCount(lua_State* l)
 		return luaL_error(l, "Invalid element ID (%d)", element);
 
 	lua_pushnumber(l, globalSim->elementCount[element]);
+	return 1;
+}
+
+int PartsClosure(lua_State * l)
+{
+	int i = lua_tointeger(l, lua_upvalueindex(1));
+	do
+	{
+		if(i >= NPART)
+			return 0;
+		else
+			i++;
+	}
+	while (!parts[i].type);
+	lua_pushnumber(l, i);
+	lua_replace(l, lua_upvalueindex(1));
+	lua_pushnumber(l, i);
+	return 1;
+}
+
+int simulation_parts(lua_State * l)
+{
+	lua_pushnumber(l, -1);
+	lua_pushcclosure(l, PartsClosure, 1);
+	return 1;
+}
+
+int simulation_pmap(lua_State * l)
+{
+	int x = luaL_checkint(l, 1);
+	int y = luaL_checkint(l, 2);
+	if(x < 0 || x >= XRES || y < 0 || y >= YRES)
+		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
+	int r = pmap[y][x];
+	if (!(r&0xFF))
+		return 0;
+	lua_pushnumber(l, r>>8);
+	return 1;
+}
+
+
+int NeighboursClosure(lua_State * l)
+{
+	int rx=lua_tointeger(l, lua_upvalueindex(1));
+	int ry=lua_tointeger(l, lua_upvalueindex(2));
+	int sx=lua_tointeger(l, lua_upvalueindex(3));
+	int sy=lua_tointeger(l, lua_upvalueindex(4));
+	int x=lua_tointeger(l, lua_upvalueindex(5));
+	int y=lua_tointeger(l, lua_upvalueindex(6));
+	int i = 0;
+	do
+	{
+		x++;
+		if (x > rx)
+		{
+			x = -rx;
+			y++;
+			if (y > ry)
+				return 0;
+		}
+		if(!(x && y) || sx+x<0 || sy+y<0 || sx+x>=XRES*CELL || sy+y>=YRES*CELL)
+		{
+			continue;
+		}
+		i = pmap[y+sx][x+sx];
+	} while (!(i&0xFF));
+	lua_pushnumber(l, x);
+	lua_replace(l, lua_upvalueindex(5));
+	lua_pushnumber(l, y);
+	lua_replace(l, lua_upvalueindex(6));
+	lua_pushnumber(l, i>>8);
+	lua_pushnumber(l, x+sx);
+	lua_pushnumber(l, y+sy);
+	return 3;
+}
+
+int simulation_neighbours(lua_State * l)
+{
+	int x=luaL_checkint(l, 1);
+	int y=luaL_checkint(l, 2);
+	int rx=luaL_optint(l, 3, 2);
+	int ry=luaL_optint(l, 4, 2);
+	lua_pushnumber(l, rx);
+	lua_pushnumber(l, ry);
+	lua_pushnumber(l, x);
+	lua_pushnumber(l, y);
+	lua_pushnumber(l, -rx-1);
+	lua_pushnumber(l, -ry);
+	lua_pushcclosure(l, NeighboursClosure, 6);
 	return 1;
 }
 
