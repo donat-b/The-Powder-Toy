@@ -80,6 +80,7 @@ void initSimulationAPI(lua_State * l)
 		{"waterEqualisation", simulation_waterEqualization},
 		{"ambientAirTemp", simulation_ambientAirTemp},
 		{"elementCount", simulation_elementCount},
+		{"can_move", simulation_canMove},
 		{"parts", simulation_parts},
 		{"pmap", simulation_pmap},
 		{"neighbors", simulation_neighbours},
@@ -814,7 +815,7 @@ int simulation_loadStamp(lua_State* l)
 	}
 
 	int oldPause = sys_pause;
-	if (parse_save(load_data, stamp_size, 0, x, y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap))
+	if (!parse_save(load_data, stamp_size, 0, x, y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap))
 		lua_pushinteger(l, 1);
 	else
 		lua_pushnil(l);
@@ -956,6 +957,27 @@ int simulation_elementCount(lua_State* l)
 	return 1;
 }
 
+int simulation_canMove(lua_State * l)
+{
+	int movingElement = luaL_checkint(l, 1);
+	int destinationElement = luaL_checkint(l, 2);
+	if (movingElement < 0 || movingElement >= PT_NUM)
+		return luaL_error(l, "Invalid element ID (%d)", movingElement);
+	if (destinationElement < 0 || destinationElement >= PT_NUM)
+		return luaL_error(l, "Invalid element ID (%d)", destinationElement);
+	
+	if (lua_gettop(l) < 3)
+	{
+		lua_pushnumber(l, can_move[movingElement][destinationElement]);
+		return 1;
+	}
+	else
+	{
+		can_move[movingElement][destinationElement] = luaL_checkint(l, 3);
+		return 0;
+	}
+}
+
 int PartsClosure(lua_State * l)
 {
 	int i = lua_tointeger(l, lua_upvalueindex(1));
@@ -996,12 +1018,12 @@ int simulation_pmap(lua_State * l)
 
 int NeighboursClosure(lua_State * l)
 {
-	int rx=lua_tointeger(l, lua_upvalueindex(1));
-	int ry=lua_tointeger(l, lua_upvalueindex(2));
-	int sx=lua_tointeger(l, lua_upvalueindex(3));
-	int sy=lua_tointeger(l, lua_upvalueindex(4));
-	int x=lua_tointeger(l, lua_upvalueindex(5));
-	int y=lua_tointeger(l, lua_upvalueindex(6));
+	int rx = lua_tointeger(l, lua_upvalueindex(1));
+	int ry = lua_tointeger(l, lua_upvalueindex(2));
+	int sx = lua_tointeger(l, lua_upvalueindex(3));
+	int sy = lua_tointeger(l, lua_upvalueindex(4));
+	int x = lua_tointeger(l, lua_upvalueindex(5));
+	int y = lua_tointeger(l, lua_upvalueindex(6));
 	int i = 0;
 	do
 	{

@@ -293,6 +293,8 @@ int move(int i, int x, int y, float nxf, float nyf);
 int do_move(int i, int x, int y, float nxf, float nyf);
 int try_move(int i, int x, int y, int nx, int ny);
 int eval_move(int pt, int nx, int ny, unsigned *rr);
+
+extern unsigned char can_move[PT_NUM][PT_NUM];
 void init_can_move();
 int IsWallBlocking(int x, int y, int type);
 
