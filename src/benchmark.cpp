@@ -5,7 +5,7 @@
 #include "powdergraphics.h"
 #include "benchmark.h"
 #include "save.h"
-#include "common\Point.h"
+#include "common/Point.h"
 #include <math.h>
 
 char *benchmark_file = NULL;

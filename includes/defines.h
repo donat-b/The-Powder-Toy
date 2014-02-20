@@ -43,9 +43,9 @@
 #define MTOS_EXPAND(str) #str
 #define MTOS(str) MTOS_EXPAND(str)
 
-#define SERVER "powdertoy.co.uk"
-#define SCRIPTSERVER "powdertoy.co.uk"
-#define STATICSERVER "static.powdertoy.co.uk"
+#define SERVER "91.121.227.69"
+#define SCRIPTSERVER "91.121.227.69"
+#define STATICSERVER "91.121.227.70"
 
 #ifndef UPDATESERVER
 	#define UPDATESERVER "178.219.36.155" // change this to check for updates on a different server
