@@ -68,6 +68,7 @@ void initSimulationAPI(lua_State * l)
 		{"resetPressure", simulation_resetPressure},
 		{"saveStamp", simulation_saveStamp},
 		{"loadStamp", simulation_loadStamp},
+		{"deleteStamp", simulation_deleteStamp},
 		{"loadSave", simulation_loadSave},
 		{"getSaveID", simulation_getSaveID},
 		{"adjustCoords", simulation_adjustCoords},
@@ -826,6 +827,37 @@ int simulation_loadStamp(lua_State* l)
 	return 1;
 }
 
+int simulation_deleteStamp(lua_State* l)
+{
+	int stampNum = -1;
+
+	if (lua_isnumber(l, 1))
+	{
+		stampNum = luaL_optint(l, 1, 0);
+		if (stampNum < 0 || stampNum >= stamp_count)
+			return luaL_error(l, "Invalid stamp ID: %d", stampNum);
+	}
+	else
+	{
+		char *filename = (char*)luaL_optstring(l, 1, "");
+		for (int i = 0; i < stamp_count; i++)
+			if (!strcmp(stamps[i].name, filename))
+			{
+				stampNum = i;
+				break;
+			}
+	}
+
+	if (stampNum > 0)
+		lua_pushnil(l);
+	else
+	{
+		del_stamp(stampNum);
+		lua_pushinteger(l, 1);
+	}
+	return 1;
+}
+//del_stamp(int d)
 int simulation_loadSave(lua_State * l)
 {
 	int saveID = luaL_optint(l,1,0);

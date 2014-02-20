@@ -993,11 +993,12 @@ local dataCmds = {
 	[128] = function()
 		local id = cByte()
 		conSend(130,string.char(id,49,tpt.set_pause()))
-		local n = "stamps/"..sim.saveStamp(0,0,611,383)..".stm"
+		local stampName = sim.saveStamp(0,0,611,383)
+		local n = "stamps/"..stampName..".stm"
 		local f = assert(io.open(n,"rb"))
 		local s = f:read"*a"
 		f:close()
-		os.remove(n)
+		sim.deleteStamp(stampName)
 		local d = #s
 		conSend(128,string.char(id,math.floor(d/65536),math.floor(d/256)%256,d%256)..s)
 		conSend(130,string.char(id,53,tpt.ambient_heat()))
@@ -1122,17 +1123,21 @@ local function sendStuff()
 		local id=sim.getSaveID()
 		if L.lastSave~=id then
 			L.lastSave=id
-			os.remove("stamps/tmp.stm") os.rename("stamps/"..sim.saveStamp(0,0,611,383)..".stm","stamps/tmp.stm")
+			local stampName = sim.saveStamp(0,0,611,383)
+			os.remove("stamps/tmp.stm") os.rename("stamps/"..stampName..".stm","stamps/tmp.stm")
 			conSend(69,string.char(math.floor(id/65536),math.floor(id/256)%256,id%256))
+			sim.deleteStamp(stampName)
 		end
 		L.browseMode=nil
 	elseif L.browseMode==2 then
 		L.sendScreen=true
 		L.browseMode=nil
 	elseif L.browseMode==3 and L.lastSave==sim.getSaveID() then
-		--save this as a stamp for reloading (unless an api function exists to do this)
-		os.remove("stamps/tmp.stm") os.rename("stamps/"..sim.saveStamp(0,0,611,383)..".stm","stamps/tmp.stm")
 		L.browseMode=nil
+		--save this as a stamp for reloading (unless an api function exists to do this)
+		local stampName = sim.saveStamp(0,0,611,383)
+		os.remove("stamps/tmp.stm") os.rename("stamps/"..stampName..".stm","stamps/tmp.stm")
+		sim.deleteStamp(stampName)
 	end
 	
 	--Send screen (or an area for known size) for stamps
@@ -1146,15 +1151,16 @@ local function sendStuff()
 			L.smoved=false
 			L.copying=false
 		end
-		local n = "stamps/"..sim.saveStamp(x,y,w,h)..".stm"
+		L.sendScreen=false
+		local stampName = sim.saveStamp(x,y,w,h)
+		local n = "stamps/"..stampName..".stm"
 		local f = assert(io.open(n,"rb"))
 		local s = f:read"*a"
 		f:close()
-		os.remove(n)
+		sim.deleteStamp(stampName)
 		local d = #s
 		local b1,b2,b3 = math.floor(x/16),((x%16)*16)+math.floor(y/256),(y%256)
 		conSend(66,string.char(b1,b2,b3,math.floor(d/65536),math.floor(d/256)%256,d%256)..s)
-		L.sendScreen=false
 	end
 	
 	--Check if custom modes were changed
@@ -1236,13 +1242,14 @@ local function mouseclicky(mousex,mousey,button,event,wheel)
 					conSend(67,string.char(math.floor(L.stampx/16),((L.stampx%16)*16)+math.floor(L.stampy/256),(L.stampy%256),math.floor(sx/16),((sx%16)*16)+math.floor(sy/256),(sy%256)))
 				end
 				local w,h = sx-L.stampx,sy-L.stampy
-				local stm = "stamps/"..sim.saveStamp(L.stampx,L.stampy,w,h)..".stm"
+				local stampName = sim.saveStamp(L.stampx,L.stampy,w,h)
+				local stm = "stamps/"..stampName..".stm"
 				sx,sy,L.stampx,L.stampy = math.ceil((sx+1)/4)*4,math.ceil((sy+1)/4)*4,math.floor(L.stampx/4)*4,math.floor(L.stampy/4)*4
 				w,h = sx-L.stampx, sy-L.stampy
 				local f = assert(io.open(stm,"rb"))
 				if L.copying then L.lastCopy = {data=f:read"*a",w=w,h=h} else L.lastStamp = {data=f:read"*a",w=w,h=h} end
 				f:close()
-				os.remove(stm)
+				sim.deleteStamp(stampName)
 			end
 			L.stamp=false
 			L.copying=false
