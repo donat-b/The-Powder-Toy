@@ -576,6 +576,14 @@ if jacobsmod then
 		end
 		return c
 	end
+	local modNameTable = {
+	["DEFAULT_WL_ERASE"] = 280,["DEFAULT_WL_CNDTW"] = 281,["DEFAULT_WL_EWALL"] = 282,["DEFAULT_WL_DTECT"] = 283,["DEFAULT_WL_STRM"] = 284,
+	["DEFAULT_WL_FAN"] = 285,["DEFAULT_WL_LIQD"] = 286,["DEFAULT_WL_ABSRB"] = 287,["DEFAULT_WL_WALL"] = 288,["DEFAULT_WL_AIR"] = 289,["DEFAULT_WL_POWDR"] = 290,
+	["DEFAULT_WL_CNDTR"] = 291,["DEFAULT_WL_EHOLE"] = 292,["DEFAULT_WL_GAS"] = 293,["DEFAULT_WL_GRVTY"] = 294,["DEFAULT_WL_ENRGY"] = 295,["DEFAULT_WL_ERASEA"] = 280
+	}
+	for k,v in pairs(modNameTable) do
+		eleNameTable[k] = v
+	end
 end
 local gravList= {[0]="Vertical",[1]="Off",[2]="Radial"}
 local airList= {[0]="On",[1]="Pressure Off",[2]="Velocity Off",[3]="Off",[4]="No Update"}
@@ -607,6 +615,7 @@ end
 local function createPartsAny(x,y,rx,ry,c,brush,user)
 	if c>=wallStart then
 		if c<= wallEnd then
+			if c == 284 then rx,ry = 0,0 end
 			sim.createWalls(x,y,rx,ry,c-wallStart,brush)
 		elseif c<=toolEnd then
 			if c>=toolStart then sim.toolBrush(x,y,rx,ry,c-toolStart,brush) end
@@ -624,6 +633,7 @@ local function createLineAny(x1,y1,x2,y2,rx,ry,c,brush,user)
 	if noShape[c] then return end
 	if c>=wallStart then
 		if c<= wallEnd then
+			if c == 284 then rx,ry = 0,0 end
 			sim.createWallLine(x1,y1,x2,y2,rx,ry,c-wallStart,brush)
 		elseif c<=toolEnd then
 			if c>=toolStart then local str=1.0 if user.drawtype==4 then if user.shift then str=10.0 elseif user.alt then str=0.1 end end sim.toolLine(x1,y1,x2,y2,rx,ry,c-toolStart,brush,str) end
@@ -1108,7 +1118,7 @@ local function sendStuff()
         L.mousex,L.mousey = nmx,nmy
 		local b1,b2,b3 = math.floor(L.mousex/16),((L.mousex%16)*16)+math.floor(L.mousey/256),(L.mousey%256)
 		conSend(32,string.char(b1,b2,b3))
-    end
+	end
 	local nbx,nby = tpt.brushx,tpt.brushy
 	if L.brushx~=nbx or L.brushy~=nby then
 		L.brushx,L.brushy = nbx,nby
@@ -1125,7 +1135,7 @@ local function sendStuff()
     elseif L.selr~=nselr then
 		L.selr=nselr
 		conSend(37,string.char(math.floor(128 + L.selr/256),L.selr%256))
-    end
+	end
     local ncol = sim.decoColour()
     if L.dcolour~=ncol then
 		L.dcolour=ncol
