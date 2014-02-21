@@ -33,6 +33,7 @@ local L = {mousex=0, mousey=0, brushx=0, brushy=0, sell=1, sela=296, selr=0, mBu
 shift=false, alt=false, ctrl=false, z=false, downInside=nil, skipClick=false, pauseNextFrame=false, copying=false, stamp=false, placeStamp=false, lastStamp=nil, lastCopy=nil, smoved=false, rotate=false, sendScreen=false}
 
 local tptversion = tpt.version.build
+local jacobsmod = tpt.version.jacob1s_mod~=nil
 math.randomseed(os.time())
 local username = tpt.get_name()
 if username=="" then error"Please Login" end
@@ -471,9 +472,9 @@ new=function(x,y,w,h)
 		self.scrollbar:process(mx,my,button,event,wheel)
 		local which = math.floor((my-self.y)/10)
 		if event==1 and which==0 then self.moving=true self.lastx=mx self.lasty=my self.relx=mx-self.x self.rely=my-self.y return true end
-		if which==self.shown_lines+1 then self.inputbox:setfocus(true) return true else self.inputbox:setfocus(false) end --trigger input_box
+		if event==1 and which==self.shown_lines+1 then self.inputbox:setfocus(true) return true elseif self.inputbox.focus then return true end --trigger input_box
 		if which>0 and which<self.shown_lines+1 and self.lines[which+self.scrollbar.pos] then self.lines[which+self.scrollbar.pos]:process(mx,my,button,event,wheel) end
-		return true
+		return event==1
 	end
 	--commands for chat window
 	chatcommands = {
@@ -1221,9 +1222,13 @@ local tpt_buttons = {
 	["newt"] = {x1=613, y1=49, x2=627, y2=63, f=function() conSend(54,tpt.newtonian_gravity()==0 and "\1" or "\0") end},
 	["ambh"] = {x1=613, y1=65, x2=627, y2=79, f=function() conSend(53,tpt.ambient_heat()==0 and "\1" or "\0") end},
 }
+if jacobsmod then
+	tpt_buttons["opts"] = {x1=470, y1=408, x2=484, y2=422, f=function() conSend(63) L.lastSave=nil end}
+	tpt_buttons["clear"] = {x1=486, y1=408, x2=502, y2=422, f=function() conSend(63) L.lastSave=nil end}
+end
 
 local function mouseclicky(mousex,mousey,button,event,wheel)
-	if chatwindow:process(mousex,mousey,button,event,wheel) then end--return false end
+	if chatwindow:process(mousex,mousey,button,event,wheel) then return false end
 	if L.skipClick then L.skipClick=false return true end
 	if L.chatHidden then showbutton:process(mousex,mousey,button,event,wheel) end
 	if mousex<612 and mousey<384 then mousex,mousey = sim.adjustCoords(mousex,mousey) end

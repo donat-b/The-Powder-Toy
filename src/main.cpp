@@ -2264,6 +2264,112 @@ int main(int argc, char *argv[])
 		bq = bc; // bq is previous mouse state
 		bc = b = mouse_get_state(&x, &y); // b is current mouse state
 
+		if (da)
+			switch (db)//various mouseover messages, da is the alpha
+			{
+			case 256:
+				drawtext(vid_buf, 16, YRES-24, "Add simulation tags", 255, 255, 255, da*5);
+				break;
+			case 257:
+				drawtext(vid_buf, 16, YRES-24, "Add and remove simulation tags", 255, 255, 255, da*5);
+				break;
+			case 258:
+				drawtext(vid_buf, 16, YRES-24, "Save the simulation under the current name", 255, 255, 255, da*5);
+				break;
+			case 259:
+				drawtext(vid_buf, 16, YRES-24, "Save the simulation under a new name", 255, 255, 255, da*5);
+				break;
+			case 260:
+				drawtext(vid_buf, 16, YRES-24, "Sign into the Simulation Server", 255, 255, 255, da*5);
+				break;
+			case 261:
+				drawtext(vid_buf, 16, YRES-24, "Sign into the Simulation Server under a new name", 255, 255, 255, da*5);
+				break;
+			case 262:
+				drawtext(vid_buf, 16, YRES-24, "Find & open a simulation", 255, 255, 255, da*5);
+				break;
+			case 263:
+				drawtext(vid_buf, 16, YRES-24, "Pause the simulation \bg(space)", 255, 255, 255, da*5);
+				break;
+			case 264:
+				drawtext(vid_buf, 16, YRES-24, "Resume the simulation \bg(space)", 255, 255, 255, da*5);
+				break;
+			case 265:
+				drawtext(vid_buf, 16, YRES-24, "Reload the simulation \bg(ctrl+r)", 255, 255, 255, da*5);
+				break;
+			case 266:
+				drawtext(vid_buf, 16, YRES-24, "Erase all particles and walls", 255, 255, 255, da*5);
+				break;
+			case 267:
+				drawtext(vid_buf, 16, YRES-24, "Change display mode", 255, 255, 255, da*5);
+				break;
+			case 268:
+				drawtext(vid_buf, 16, YRES-24, "Annuit C\245ptis", 255, 255, 255, da*5);
+				break;
+			case 269:
+				drawtext(vid_buf, 16, YRES-24, "Click-and-drag to specify a rectangle to copy (right click = cancel)", 255, 216, 32, da*5);
+				break;
+			case 270:
+				drawtext(vid_buf, 16, YRES-24, "Simulation options", 255, 255, 255, da*5);
+				break;
+			case 271:
+				drawtext(vid_buf, 16, YRES-24, "You're a moderator", 255, 255, 255, da*5);
+				break;
+			case 272:
+				drawtext(vid_buf, 16, YRES-24, "Like/Dislike this save", 255, 255, 255, da*5);
+				break;
+			case 273:
+				drawtext(vid_buf, 16, YRES-24, "You like this", 255, 255, 255, da*5);
+				break;
+			case 274:
+				drawtext(vid_buf, 16, YRES-24, "You dislike this", 255, 255, 255, da*5);
+				break;
+			case 275:
+				drawtext(vid_buf, 16, YRES-24, "You cannot vote on your own save", 255, 255, 255, da*5);
+				break;
+			case 276:
+				drawtext(vid_buf, 16, YRES-24, "Open a simulation from your hard drive \bg(ctrl+o)", 255, 255, 255, da*5);
+				break;
+			case 277:
+				drawtext(vid_buf, 16, YRES-24, "Save the simulation to your hard drive", 255, 255, 255, da*5);
+				break;
+			case 278: //Fix for Ctrl + X showing copy message
+				drawtext(vid_buf, 16, YRES-24, "Click-and-drag to specify a rectangle to copy and then cut (right click = cancel)", 255, 216, 32, da*5);
+				break;
+			case 279:
+				drawtext(vid_buf, 16, YRES-24, "Report bugs, feedback, or suggestions to jacob1", 255, 255, 255, da*5);
+				break;
+			default:
+				drawtext(vid_buf, 16, YRES-24, (char *)ptypes[db].descs, 255, 255, 255, da*5);
+			}
+		if (itc)//message in the middle of the screen, such as view mode changes
+		{
+			itc--;
+			drawtext_outline(vid_buf, (XRES-textwidth(itc_msg))/2, ((YRES/2)-10), itc_msg, 255, 255, 255, itc>51?255:itc*5, 0, 0, 0, itc>51?255:itc*5);
+		}
+		if (it)//intro message
+		{
+			it--;
+			drawtext(vid_buf, 16, 20, it_msg, 255, 255, 255, it>51?255:it*5);
+		}
+
+		if (old_version)
+		{
+			clearrect(vid_buf, XRES-21-old_ver_len, YRES-24, old_ver_len+9, 17);
+			drawtext(vid_buf, XRES-16-old_ver_len, YRES-19, old_ver_msg, 255, 216, 32, 255);
+			drawrect(vid_buf, XRES-19-old_ver_len, YRES-22, old_ver_len+5, 13, 255, 216, 32, 255);
+		}
+
+		if (svf_messages)
+		{
+			sprintf(new_message_msg, "You have %d new message%s, Click to view", svf_messages, (svf_messages>1)?"s":"");
+			new_message_len = textwidth(new_message_msg);
+
+			clearrect(vid_buf, XRES-21-new_message_len, YRES-39, new_message_len+9, 17);
+			drawtext(vid_buf, XRES-16-new_message_len, YRES-34, new_message_msg, 255, 186, 32, 255);
+			drawrect(vid_buf, XRES-19-new_message_len, YRES-37, new_message_len+5, 13, 255, 186, 32, 255);
+		}
+
 #ifdef LUACONSOLE
 		if(bc && bq){
 			if(!luacon_mouseevent(x, y, bc, LUACON_MPRESS, sdl_wheel)){
@@ -3057,112 +3163,6 @@ int main(int argc, char *argv[])
 #endif		
 		if (zoom_en)
 			render_zoom(vid_buf);
-
-		if (da)
-			switch (db)//various mouseover messages, da is the alpha
-			{
-			case 256:
-				drawtext(vid_buf, 16, YRES-24, "Add simulation tags", 255, 255, 255, da*5);
-				break;
-			case 257:
-				drawtext(vid_buf, 16, YRES-24, "Add and remove simulation tags", 255, 255, 255, da*5);
-				break;
-			case 258:
-				drawtext(vid_buf, 16, YRES-24, "Save the simulation under the current name", 255, 255, 255, da*5);
-				break;
-			case 259:
-				drawtext(vid_buf, 16, YRES-24, "Save the simulation under a new name", 255, 255, 255, da*5);
-				break;
-			case 260:
-				drawtext(vid_buf, 16, YRES-24, "Sign into the Simulation Server", 255, 255, 255, da*5);
-				break;
-			case 261:
-				drawtext(vid_buf, 16, YRES-24, "Sign into the Simulation Server under a new name", 255, 255, 255, da*5);
-				break;
-			case 262:
-				drawtext(vid_buf, 16, YRES-24, "Find & open a simulation", 255, 255, 255, da*5);
-				break;
-			case 263:
-				drawtext(vid_buf, 16, YRES-24, "Pause the simulation \bg(space)", 255, 255, 255, da*5);
-				break;
-			case 264:
-				drawtext(vid_buf, 16, YRES-24, "Resume the simulation \bg(space)", 255, 255, 255, da*5);
-				break;
-			case 265:
-				drawtext(vid_buf, 16, YRES-24, "Reload the simulation \bg(ctrl+r)", 255, 255, 255, da*5);
-				break;
-			case 266:
-				drawtext(vid_buf, 16, YRES-24, "Erase all particles and walls", 255, 255, 255, da*5);
-				break;
-			case 267:
-				drawtext(vid_buf, 16, YRES-24, "Change display mode", 255, 255, 255, da*5);
-				break;
-			case 268:
-				drawtext(vid_buf, 16, YRES-24, "Annuit C\245ptis", 255, 255, 255, da*5);
-				break;
-			case 269:
-				drawtext(vid_buf, 16, YRES-24, "Click-and-drag to specify a rectangle to copy (right click = cancel)", 255, 216, 32, da*5);
-				break;
-			case 270:
-				drawtext(vid_buf, 16, YRES-24, "Simulation options", 255, 255, 255, da*5);
-				break;
-			case 271:
-				drawtext(vid_buf, 16, YRES-24, "You're a moderator", 255, 255, 255, da*5);
-				break;
-			case 272:
-				drawtext(vid_buf, 16, YRES-24, "Like/Dislike this save", 255, 255, 255, da*5);
-				break;
-			case 273:
-				drawtext(vid_buf, 16, YRES-24, "You like this", 255, 255, 255, da*5);
-				break;
-			case 274:
-				drawtext(vid_buf, 16, YRES-24, "You dislike this", 255, 255, 255, da*5);
-				break;
-			case 275:
-				drawtext(vid_buf, 16, YRES-24, "You cannot vote on your own save", 255, 255, 255, da*5);
-				break;
-			case 276:
-				drawtext(vid_buf, 16, YRES-24, "Open a simulation from your hard drive \bg(ctrl+o)", 255, 255, 255, da*5);
-				break;
-			case 277:
-				drawtext(vid_buf, 16, YRES-24, "Save the simulation to your hard drive", 255, 255, 255, da*5);
-				break;
-			case 278: //Fix for Ctrl + X showing copy message
-				drawtext(vid_buf, 16, YRES-24, "Click-and-drag to specify a rectangle to copy and then cut (right click = cancel)", 255, 216, 32, da*5);
-				break;
-			case 279:
-				drawtext(vid_buf, 16, YRES-24, "Report bugs, feedback, or suggestions to jacob1", 255, 255, 255, da*5);
-				break;
-			default:
-				drawtext(vid_buf, 16, YRES-24, (char *)ptypes[db].descs, 255, 255, 255, da*5);
-			}
-		if (itc)//message in the middle of the screen, such as view mode changes
-		{
-			itc--;
-			drawtext_outline(vid_buf, (XRES-textwidth(itc_msg))/2, ((YRES/2)-10), itc_msg, 255, 255, 255, itc>51?255:itc*5, 0, 0, 0, itc>51?255:itc*5);
-		}
-		if (it)//intro message
-		{
-			it--;
-			drawtext(vid_buf, 16, 20, it_msg, 255, 255, 255, it>51?255:it*5);
-		}
-
-		if (old_version)
-		{
-			clearrect(vid_buf, XRES-21-old_ver_len, YRES-24, old_ver_len+9, 17);
-			drawtext(vid_buf, XRES-16-old_ver_len, YRES-19, old_ver_msg, 255, 216, 32, 255);
-			drawrect(vid_buf, XRES-19-old_ver_len, YRES-22, old_ver_len+5, 13, 255, 216, 32, 255);
-		}
-		
-		if (svf_messages)
-		{
-			sprintf(new_message_msg, "You have %d new message%s, Click to view", svf_messages, (svf_messages>1)?"s":"");
-			new_message_len = textwidth(new_message_msg);
-			
-			clearrect(vid_buf, XRES-21-new_message_len, YRES-39, new_message_len+9, 17);
-			drawtext(vid_buf, XRES-16-new_message_len, YRES-34, new_message_msg, 255, 186, 32, 255);
-			drawrect(vid_buf, XRES-19-new_message_len, YRES-37, new_message_len+5, 13, 255, 186, 32, 255);
-		}
 
 		if (elapsedTime != currentTime && main_loop == 2)
 		{
