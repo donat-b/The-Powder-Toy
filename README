@@ -661,11 +661,10 @@ possible crash when pasting text in linux.
 -------------------------------------Bugs-------------------------------------
 ------------------------------------------------------------------------------
 when using console, particles may not be killed properly (ChangeType function not called)
-TPTMP: clear sim button not in right place
-TPTMP: deco erase sent as smudge, other deco problems
+TPTMP: view modes sent when typing in deco box
 TPTMP: wall drawing from mod to tpt not sent correctly
-TPTMP: /sync doesn't work correctly
-TPTMP: .tmp.stm left over
+TPTMP: /sync doesn't work correctly (probably fixed already)
+TPTMP: .tmp.stm left over (probably fixed already)
 TPTMP: brush size not synced correctly at start
 TPTMP suggestion: don't pause game until server sends back pause command (better / slower pause syncing)
 TPTMP suggestion: key repeat
