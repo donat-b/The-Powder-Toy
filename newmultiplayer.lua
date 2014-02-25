@@ -755,6 +755,7 @@ local function playerMouseMove(id)
 	end
 end
 local function loadStamp(size,x,y,reset)
+	debug.sethook(nil, "", 0)
 	con.socket:settimeout(3)
 	local s = con.socket:receive(size)
 	con.socket:settimeout(0)
