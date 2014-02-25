@@ -1595,16 +1595,15 @@ int main(int argc, char *argv[])
 			ptsaveOpenID = 0;
 		}
 #ifdef LUACONSOLE
-		if(sdl_key){
-			if(!luacon_keyevent(sdl_key, sdl_mod, LUACON_KDOWN))
+		if (!deco_disablestuff)
+		{
+			if (sdl_key && !luacon_keyevent(sdl_key, sdl_mod, LUACON_KDOWN))
 				sdl_key = 0;
-		}
-		if(sdl_rkey){
-			if(!luacon_keyevent(sdl_rkey, sdl_mod, LUACON_KUP))
+			if (sdl_rkey && !luacon_keyevent(sdl_rkey, sdl_mod, LUACON_KUP))
 				sdl_rkey = 0;
 		}
 #endif
-		if (!deco_disablestuff && sys_shortcuts==1)//all shortcuts can be disabled by python scripts
+		if (!deco_disablestuff && sys_shortcuts==1)//all shortcuts can be disabled by lua scripts
 		{
 			if (load_mode != 1)
 				stickmen_keys();

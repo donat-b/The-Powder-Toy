@@ -29,7 +29,7 @@ if MANAGER_EXISTS then using_manager=true else MANAGER_PRINT=print end
 local PORT = 34403 --Change 34403 to your desired port
 local KEYBOARD = 1 --only change if you have issues. Only other option right now is 2(finnish).
 --Local player vars we need to keep
-local L = {mousex=0, mousey=0, brushx=0, brushy=0, sell=1, sela=296, selr=0, mButt=0, mEvent=0, dcolour=0, stick2=false, chatHidden=false, flashChat=false,
+local L = {mousex=0, mousey=0, brushx=0, brushy=0, sell=1, sela=296, selr=0, mButt=0, mEvent=0, dcolour=0, stick2=false, chatHidden=true, flashChat=false,
 shift=false, alt=false, ctrl=false, z=false, downInside=nil, skipClick=false, pauseNextFrame=false, copying=false, stamp=false, placeStamp=false, lastStamp=nil, lastCopy=nil, smoved=false, rotate=false, sendScreen=false}
 
 local tptversion = tpt.version.build
@@ -676,14 +676,14 @@ local function rectSnapCoords(x1,y1,x2,y2)
 	ny = math.floor(lineMag*math.sin(snapAngle)+y1+0.5);
 	return nx,ny
 end
-local renModes = {[-16715152]=1,[4278252144]=1,[67171201]=2,[62338]=4,[62344]=8,[62340]=16,[16774016]=32,[1]=4278252144,[2]=67171201,[4]=62338,[8]=62344,[16]=62340,[32]=16774016}
+local renModes = {[0xff00f270]=1,[-16715152]=1,[0x0400f381]=2,[0xf382]=4,[0xf388]=8,[0xf384]=16,[0xfff380]=32,[1]=0xff00f270,[2]=0x0400f381,[4]=0xf382,[8]=0xf388,[16]=0xf384,[32]=0xfff380}
 local function getViewModes()
 	local t={0,0,0}
 	for k,v in pairs(ren.displayModes()) do
 		t[1] = t[1]+v
 	end
 	for k,v in pairs(ren.renderModes()) do
-		t[2] = t[2]+renModes[v]
+		t[2] = t[2]+(renModes[v] or 0)
 	end
 	t[3] = ren.colorMode()
 	return t
@@ -758,12 +758,16 @@ local function loadStamp(size,x,y,reset)
 	con.socket:settimeout(3)
 	local s = con.socket:receive(size)
 	con.socket:settimeout(0)
-	local f = io.open(".tmp.stm","wb")
-	f:write(s)
-	f:close()
+	if s then
+		local f = io.open(".tmp.stm","wb")
+		f:write(s)
+		f:close()
+	end
 	if reset then sim.clearSim() end
-	sim.loadStamp(".tmp.stm",x,y)
-	os.remove".tmp.stm"
+	if s then
+		sim.loadStamp(".tmp.stm",x,y)
+		os.remove".tmp.stm"
+	end
 end
 
 local dataCmds = {
@@ -1246,7 +1250,7 @@ local tpt_buttons = {
 	["ambh"] = {x1=613, y1=65, x2=627, y2=79, f=function() conSend(53,tpt.ambient_heat()==0 and "\1" or "\0") end},
 }
 if jacobsmod then
-	tpt_buttons["opts"] = {x1=470, y1=408, x2=484, y2=422, f=function() conSend(63) L.lastSave=nil end}
+	tpt_buttons["opts"] = {x1=470, y1=408, x2=484, y2=422, f=function() L.checkOpt=true end}
 	tpt_buttons["clear"] = {x1=486, y1=408, x2=502, y2=422, f=function() conSend(63) L.lastSave=nil end}
 end
 
@@ -1340,7 +1344,11 @@ local function mouseclicky(mousex,mousey,button,event,wheel)
 		if event==1 then
 			for k,v in pairs(tpt_buttons) do
 				if mousex>=v.x1 and mousex<=v.x2 and mousey>=v.y1 and mousey<=v.y2 then
-					L.downInside = k
+					if jacobsmod and tpt_buttons[k].y1 == 408 then
+						return tpt_buttons[k].f()~=false
+					else
+						L.downInside = k
+					end
 					break
 				end
 			end
@@ -1469,3 +1477,4 @@ tpt.register_keypress(keyclicky)
 tpt.register_mouseclick(mouseclicky)
 tpt.register_step(step)
 chatwindow:addline("TPTMP v0.5: Type '/connect' to join server.",200,200,200)
+L.flashChat = false

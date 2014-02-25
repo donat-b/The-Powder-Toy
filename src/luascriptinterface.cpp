@@ -1188,8 +1188,6 @@ int renderer_renderModes(lua_State * l)
 		for(i = 1; i <= size; i++)
 		{
 			lua_rawgeti(l, 1, i);
-			luaL_checktype(l, -1, LUA_TNUMBER);
-			error_ui(vid_buf, lua_tointeger(l, -1), "asdf");
 			render_modes[i-1] = lua_tointeger(l, -1);
 			lua_pop(l, 1);
 		}
