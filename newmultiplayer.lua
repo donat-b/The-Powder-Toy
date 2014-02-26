@@ -1148,7 +1148,9 @@ local function sendStuff()
     end
 	
 	--Tell others to open this save ID, or send screen if opened local browser
-	if L.browseMode==1 then
+	if jacobsmod and L.browseMode and L.browseMode > 3 then
+		L.browseMode = L.browseMode - 3
+	elseif L.browseMode==1 then
 		local id=sim.getSaveID()
 		if L.lastSave~=id then
 			L.lastSave=id
@@ -1193,7 +1195,9 @@ local function sendStuff()
 	end
 	
 	--Check if custom modes were changed
-	if L.checkRen then
+	if jacobsmod and L.checkRen == 2 then
+		L.checkRen = true
+	elseif L.checkRen then
 		L.checkRen=false
 		local t,send=getViewModes(),false
 		for k,v in pairs(t) do
@@ -1241,18 +1245,20 @@ end
 --some button locations that emulate tpt, return false will disable button
 local tpt_buttons = {
 	["open"] = {x1=1, y1=408, x2=17, y2=422, f=function() if not L.ctrl then L.browseMode=1 else L.browseMode=2 end L.lastSave=sim.getSaveID() end},
-	["rload"] = {x1=19, y1=408, x2=355, y2=422, f=function() if L.lastSave then if L.ctrl then infoText:reset("If you re-opened the save, please type /sync") else conSend(70) end else infoText:reset("Reloading local saves is not synced currently. Type /sync") end end},
+	["rload"] = {x1=19, y1=408, x2=355, y2=422, firstClick = true, f=function() if L.lastSave then if L.ctrl then infoText:reset("If you re-opened the save, please type /sync") else conSend(70) end else infoText:reset("Reloading local saves is not synced currently. Type /sync") end end},
 	["clear"] = {x1=470, y1=408, x2=486, y2=422, f=function() conSend(63) L.lastSave=nil end},
 	["opts"] = {x1=581, y1=408, x2=595, y2=422, f=function() L.checkOpt=true end},
 	["disp"] = {x1=597, y1=408, x2=611, y2=422, f=function() L.checkRen=true L.pModes=getViewModes() end},
-	["pause"] = {x1=613, y1=408, x2=627, y2=422, f=function() conSend(49,tpt.set_pause()==0 and "\1" or "\0") end},
-	["deco"] = {x1=613, y1=33, x2=627, y2=47, f=function() conSend(51,tpt.decorations_enable()==0 and "\1" or "\0") end},
+	["pause"] = {x1=613, y1=408, x2=627, y2=422, firstClick = true, f=function() conSend(49,tpt.set_pause()==0 and "\1" or "\0") end},
+	["deco"] = {x1=613, y1=33, x2=627, y2=47, f=function() print("..") conSend(51,tpt.decorations_enable()==0 and "\1" or "\0") end},
 	["newt"] = {x1=613, y1=49, x2=627, y2=63, f=function() conSend(54,tpt.newtonian_gravity()==0 and "\1" or "\0") end},
 	["ambh"] = {x1=613, y1=65, x2=627, y2=79, f=function() conSend(53,tpt.ambient_heat()==0 and "\1" or "\0") end},
 }
 if jacobsmod then
 	tpt_buttons["opts"] = {x1=470, y1=408, x2=484, y2=422, f=function() L.checkOpt=true end}
-	tpt_buttons["clear"] = {x1=486, y1=408, x2=502, y2=422, f=function() conSend(63) L.lastSave=nil end}
+	tpt_buttons["clear"] = {x1=486, y1=408, x2=502, y2=422, firstClick = true, f=function() conSend(63) L.lastSave=nil end}
+	tpt_buttons["disp"] = {x1=597, y1=408, x2=611, y2=422, firstClick = true, f=function() L.checkRen=2 L.pModes=getViewModes() end}
+	tpt_buttons["open"] = {x1=1, y1=408, x2=17, y2=422, firstClick = true, f=function() if not L.ctrl then L.browseMode=4 else L.browseMode=5 end L.lastSave=sim.getSaveID() end}
 end
 
 local function mouseclicky(mousex,mousey,button,event,wheel)
@@ -1345,7 +1351,7 @@ local function mouseclicky(mousex,mousey,button,event,wheel)
 		if event==1 then
 			for k,v in pairs(tpt_buttons) do
 				if mousex>=v.x1 and mousex<=v.x2 and mousey>=v.y1 and mousey<=v.y2 then
-					if jacobsmod and tpt_buttons[k].y1 == 408 then
+					if jacobsmod and tpt_buttons[k].firstClick then
 						return tpt_buttons[k].f()~=false
 					else
 						L.downInside = k
@@ -1356,7 +1362,7 @@ local function mouseclicky(mousex,mousey,button,event,wheel)
 		--Up inside the button we started with
 		elseif event==2 and L.downInside then
 			local butt = tpt_buttons[L.downInside]
-			if mousex>=butt.x1 and mousex<=butt.x2 and mousey>=butt.y1 and mousey<=butt.y2 then
+			if (jacobsmod and not butt.firstClick) or (mousex>=butt.x1 and mousex<=butt.x2 and mousey>=butt.y1 and mousey<=butt.y2) then
 				L.downInside = nil
 				return butt.f()~=false
 			end
