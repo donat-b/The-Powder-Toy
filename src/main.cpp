@@ -3032,7 +3032,7 @@ int main(int argc, char *argv[])
 						ly = my;
 					}
 				}
-				else if (!clickedSign) //it is the first click
+				else if (!clickedSign && !bq) //it is the first click
 				{
 					toolStrength = 1.0f;
 					//start line tool
@@ -3170,7 +3170,7 @@ int main(int argc, char *argv[])
 			if (FPSB2 > maxfps)
 				maxfps = FPSB2;
 		}
-		if (lastx == mx && lasty == my)
+		if (lastx == x && lasty == y)
 		{
 			if (!afk)
 			{
@@ -3186,8 +3186,8 @@ int main(int argc, char *argv[])
 		}
 		if (afk && currentTime - afkstart > 30000)
 			afktime = currentTime - afkstart - 30000;
-		lastx = mx;
-		lasty = my;
+		lastx = x;
+		lasty = y;
 
 		if (autosave > 0 && frames%autosave == 0)
 		{
@@ -3196,7 +3196,7 @@ int main(int argc, char *argv[])
 		if (hud_enable)
 		{
 			SetLeftHudText(FPSB2, it);
-			SetRightHudText(x, y);
+			SetRightHudText(mx, my);
 
 			DrawHud(it);
 

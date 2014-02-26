@@ -87,7 +87,7 @@ void SetRightHudText(int x, int y)
 				}
 				else if (currentHud[14] && currentHud[11] && ((cr&0xFF)==PT_PIPE || (cr&0xFF)==PT_PPIP) && globalSim->IsElement(parts[cr>>8].tmp&0xFF))
 				{
-					sprintf(nametext, "PIPE (%s), ", ptypes[parts[cr>>8].tmp&0xFF].name);
+					sprintf(nametext, "%s (%s), ", globalSim->elements[cr&0xFF].Name.c_str(), ptypes[parts[cr>>8].tmp&0xFF].name);
 				}
 				else if (currentHud[11])
 				{
