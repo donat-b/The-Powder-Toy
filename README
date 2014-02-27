@@ -662,10 +662,9 @@ possible crash when pasting text in linux.
 ------------------------------------------------------------------------------
 when using console, particles may not be killed properly (ChangeType function not called)
 TPTMP: wall brush size from mod to tpt not sent correctly
-TPTMP: /sync doesn't work correctly
-TPTMP: sending screen doesn't seem to work half the time (probably due to mod saves)
-TPTMP: loading saves from mod seems to try to send it as a stamp?
+TPTMP: sending stamp with 'k' shouldn't clear the screen, slowness when doing ctrl+x in mod
 TPTMP: brush size not synced correctly at start
+TPTMP: error when clicking sign tool
 TPTMP suggestion: don't pause game until server sends back pause command (better / slower pause syncing)
 TPTMP suggestion: key repeat
 //None (at least that I know of)

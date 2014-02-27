@@ -770,6 +770,14 @@ local function loadStamp(size,x,y,reset)
 		os.remove".tmp.stm"
 	end
 end
+local function saveStamp(x, y, w, h)
+	local stampName = sim.saveStamp(x, y, w, h)
+	if jacobsmod and not stampName then
+		stampName = sim.saveStamp(x, y, w, h, 3)
+	end
+	local fullName = "stamps/"..stampName..".stm"
+	return stampName, fullName
+end
 
 local dataCmds = {
 	[16] = function()
@@ -1022,9 +1030,8 @@ local dataCmds = {
 	[128] = function()
 		local id = cByte()
 		conSend(130,string.char(id,49,tpt.set_pause()))
-		local stampName = sim.saveStamp(0,0,611,383)
-		local n = "stamps/"..stampName..".stm"
-		local f = assert(io.open(n,"rb"))
+		local stampName,fullName = saveStamp(0,0,611,383)
+		local f = assert(io.open(fullName,"rb"))
 		local s = f:read"*a"
 		f:close()
 		sim.deleteStamp(stampName)
@@ -1157,8 +1164,8 @@ local function sendStuff()
 		if L.lastSave~=id then
 			L.lastSave=id
 			--save a backup for the reload button
-			local stampName = sim.saveStamp(0,0,611,383)
-			os.remove("stamps/tmp.stm") os.rename("stamps/"..stampName..".stm","stamps/tmp.stm")
+			local stampName,fullName = saveStamp(0,0,611,383)
+			os.remove("stamps/tmp.stm") os.rename(fullName,"stamps/tmp.stm")
 			conSend(69,string.char(math.floor(id/65536),math.floor(id/256)%256,id%256))
 			sim.deleteStamp(stampName)
 		end
@@ -1170,8 +1177,8 @@ local function sendStuff()
 	elseif L.browseMode==3 and L.lastSave==sim.getSaveID() then
 		L.browseMode=nil
 		--save this as a stamp for reloading (unless an api function exists to do this)
-		local stampName = sim.saveStamp(0,0,611,383)
-		os.remove("stamps/tmp.stm") os.rename("stamps/"..stampName..".stm","stamps/tmp.stm")
+		local stampName,fullName = saveStamp(0,0,611,383)
+		os.remove("stamps/tmp.stm") os.rename(fullName,"stamps/tmp.stm")
 		sim.deleteStamp(stampName)
 	end
 	
@@ -1187,9 +1194,8 @@ local function sendStuff()
 			L.copying=false
 		end
 		L.sendScreen=false
-		local stampName = sim.saveStamp(x,y,w,h)
-		local n = "stamps/"..stampName..".stm"
-		local f = assert(io.open(n,"rb"))
+		local stampName,fullName = saveStamp(x,y,w,h)
+		local f = assert(io.open(fullName,"rb"))
 		local s = f:read"*a"
 		f:close()
 		sim.deleteStamp(stampName)
@@ -1288,11 +1294,10 @@ local function mouseclicky(mousex,mousey,button,event,wheel)
 					conSend(67,string.char(math.floor(L.stampx/16),((L.stampx%16)*16)+math.floor(L.stampy/256),(L.stampy%256),math.floor(sx/16),((sx%16)*16)+math.floor(sy/256),(sy%256)))
 				end
 				local w,h = sx-L.stampx,sy-L.stampy
-				local stampName = sim.saveStamp(L.stampx,L.stampy,w,h)
-				local stm = "stamps/"..stampName..".stm"
+				local stampName,fullName = saveStamp(L.stampx,L.stampy,w,h)
 				sx,sy,L.stampx,L.stampy = math.ceil((sx+1)/4)*4,math.ceil((sy+1)/4)*4,math.floor(L.stampx/4)*4,math.floor(L.stampy/4)*4
 				w,h = sx-L.stampx, sy-L.stampy
-				local f = assert(io.open(stm,"rb"))
+				local f = assert(io.open(fullName,"rb"))
 				if L.copying then L.lastCopy = {data=f:read"*a",w=w,h=h} else L.lastStamp = {data=f:read"*a",w=w,h=h} end
 				f:close()
 				sim.deleteStamp(stampName)
