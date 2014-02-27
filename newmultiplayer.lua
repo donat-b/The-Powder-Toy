@@ -542,8 +542,8 @@ local function newFadeText(text,frames,x,y,r,g,b,noremove)
 	return t
 end
 --Some text locations for repeated usage
-local infoText = newFadeText("",30,350,370,255,255,255,true)
-local cmodeText = newFadeText("",120,350,180,255,255,255,true)
+local infoText = newFadeText("",150,245,370,255,255,255,true)
+local cmodeText = newFadeText("",120,250,180,255,255,255,true)
 
 local showbutton = ui_button.new(613,118,15,15,function() L.chatHidden=false L.flashChat=false end,"<<")
 local flashCount=0
@@ -756,18 +756,20 @@ local function playerMouseMove(id)
 end
 local function loadStamp(size,x,y,reset)
 	debug.sethook(nil, "", 0)
-	con.socket:settimeout(3)
+	con.socket:settimeout(4)
 	local s = con.socket:receive(size)
 	con.socket:settimeout(0)
 	if s then
 		local f = io.open(".tmp.stm","wb")
 		f:write(s)
 		f:close()
-	end
-	if reset then sim.clearSim() end
-	if s then
-		sim.loadStamp(".tmp.stm",x,y)
+		if reset then sim.clearSim() end
+		if not sim.loadStamp(".tmp.stm",x,y) then
+			infoText:reset("Error loading stamp")
+		end
 		os.remove".tmp.stm"
+	else
+		infoText:reset("Error loading empty stamp")
 	end
 end
 local function saveStamp(x, y, w, h)
@@ -1024,7 +1026,9 @@ local dataCmds = {
 	[70] = function()
 		local id = cByte()
 		sim.clearSim()
-		sim.loadStamp("stamps/tmp.stm",0,0)
+		if not sim.loadStamp("stamps/tmp.stm",0,0) then
+			infoText:reset("Error reloading save from "..con.members[id].name)
+		end
 	end,
 	--A request to sync a player, from server, send screen, and various settings
 	[128] = function()
@@ -1045,6 +1049,7 @@ local dataCmds = {
 		conSend(130,string.char(id,59,sim.airMode()))
 		conSend(130,string.char(id,68,sim.edgeMode()))
 		conSend(64,string.char(unpack(getViewModes())))
+		conSend(34,string.char(tpt.brushx,tpt.brushy))
 	end,
 	--Recieve sync stamp
 	[129] = function()
@@ -1183,7 +1188,9 @@ local function sendStuff()
 	end
 	
 	--Send screen (or an area for known size) for stamps
-	if L.sendScreen then
+	if jacobsmod and L.sendScreen == 2 then
+		L.sendScreen = true
+	elseif L.sendScreen then
 		local x,y,w,h = 0,0,611,383
 		if L.smoved then
 			local stm
@@ -1261,7 +1268,7 @@ local tpt_buttons = {
 	["opts"] = {x1=581, y1=408, x2=595, y2=422, f=function() L.checkOpt=true end},
 	["disp"] = {x1=597, y1=408, x2=611, y2=422, f=function() L.checkRen=true L.pModes=getViewModes() end},
 	["pause"] = {x1=613, y1=408, x2=627, y2=422, firstClick = true, f=function() conSend(49,tpt.set_pause()==0 and "\1" or "\0") end},
-	["deco"] = {x1=613, y1=33, x2=627, y2=47, f=function() print("..") conSend(51,tpt.decorations_enable()==0 and "\1" or "\0") end},
+	["deco"] = {x1=613, y1=33, x2=627, y2=47, f=function() conSend(51,tpt.decorations_enable()==0 and "\1" or "\0") end},
 	["newt"] = {x1=613, y1=49, x2=627, y2=63, f=function() conSend(54,tpt.newtonian_gravity()==0 and "\1" or "\0") end},
 	["ambh"] = {x1=613, y1=65, x2=627, y2=79, f=function() conSend(53,tpt.ambient_heat()==0 and "\1" or "\0") end},
 }
@@ -1314,7 +1321,7 @@ local function mouseclicky(mousex,mousey,button,event,wheel)
 				if stm then
 					if not stm.data then
 						--unknown stamp, send full screen on next step, how can we read last created stamp, timestamps on files?
-						L.sendScreen=true
+						L.sendScreen = (jacobsmod and 2 or true)
 					else
 						--send the stamp
 						if L.smoved then

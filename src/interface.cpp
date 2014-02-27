@@ -1761,7 +1761,7 @@ void prop_edit_ui(pixel *vid_buf)
 	int x0=(XRES-xsize)/2,y0=(YRES-MENUSIZE-ysize)/2,b=1,bq,mx,my;
 	ui_list ed;
 	ui_edit ed2;
-	PropTool* propTool = (PropTool*)GetToolFromIdentifier("DEFAULT_TOOL_PROP");
+	PropTool* propTool = (PropTool*)GetToolFromIdentifier("DEFAULT_UI_PROPERTY");
 	bool name = false;
 
 	ed.x = x0+8;
