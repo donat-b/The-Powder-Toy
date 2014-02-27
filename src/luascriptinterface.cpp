@@ -791,14 +791,7 @@ int simulation_loadStamp(lua_State* l)
 	x = luaL_optint(l,2,0);
 	y = luaL_optint(l,3,0);
 
-	if (lua_isnumber(l, 1))
-	{
-		i = luaL_optint(l, 1, 0);
-		if (i < 0 || i >= stamp_count)
-			return luaL_error(l, "Invalid stamp ID: %d", i);
-		load_data = stamp_load(i, &stamp_size, 0);
-	}
-	else
+	if (lua_isstring(l, 1)) //Load from 10 char name, or full filename
 	{
 		filename = (char*)luaL_optstring(l, 1, "");
 		for (i=0; i<stamp_count; i++)
@@ -808,11 +801,14 @@ int simulation_loadStamp(lua_State* l)
 				break;
 			}
 		if (!load_data)
-		{
 			load_data = file_load(filename, &stamp_size);
-			if (!load_data)
-				return luaL_error(l, "Invalid stamp: %s", filename);
-		}
+	}
+	if (!load_data && lua_isnumber(l, 1))
+	{
+		i = luaL_optint(l, 1, 0);
+		if (i < 0 || i >= stamp_count)
+			return luaL_error(l, "Invalid stamp ID: %d", i);
+		load_data = stamp_load(i, &stamp_size, 0);
 	}
 
 	int oldPause = sys_pause;
@@ -843,20 +839,22 @@ int simulation_deleteStamp(lua_State* l)
 	}
 	if (stampNum < 0)
 	{
-		luaL_checkint(l, 0);
+		luaL_checkint(l, 1);
 		stampNum = luaL_optint(l, 1, -1);
 		if (stampNum < 0 || stampNum >= stamp_count)
 			return luaL_error(l, "Invalid stamp ID: %d", stampNum);
 	}
 
 	if (stampNum < 0)
-		lua_pushnil(l);
+	{
+		lua_pushnumber(l, -1);
+		return 1;
+	}
 	else
 	{
 		del_stamp(stampNum);
-		lua_pushinteger(l, 1);
+		return 0;
 	}
-	return 1;
 }
 //del_stamp(int d)
 int simulation_loadSave(lua_State * l)
