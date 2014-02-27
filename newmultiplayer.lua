@@ -542,8 +542,8 @@ local function newFadeText(text,frames,x,y,r,g,b,noremove)
 	return t
 end
 --Some text locations for repeated usage
-local infoText = newFadeText("",30,245,370,255,255,255,true)
-local cmodeText = newFadeText("",120,250,180,255,255,255,true)
+local infoText = newFadeText("",30,350,370,255,255,255,true)
+local cmodeText = newFadeText("",120,350,180,255,255,255,true)
 
 local showbutton = ui_button.new(613,118,15,15,function() L.chatHidden=false L.flashChat=false end,"<<")
 local flashCount=0
@@ -1149,11 +1149,14 @@ local function sendStuff()
 	
 	--Tell others to open this save ID, or send screen if opened local browser
 	if jacobsmod and L.browseMode and L.browseMode > 3 then
+		--hacky hack
 		L.browseMode = L.browseMode - 3
 	elseif L.browseMode==1 then
+		--loaded online save
 		local id=sim.getSaveID()
 		if L.lastSave~=id then
 			L.lastSave=id
+			--save a backup for the reload button
 			local stampName = sim.saveStamp(0,0,611,383)
 			os.remove("stamps/tmp.stm") os.rename("stamps/"..stampName..".stm","stamps/tmp.stm")
 			conSend(69,string.char(math.floor(id/65536),math.floor(id/256)%256,id%256))
@@ -1161,6 +1164,7 @@ local function sendStuff()
 		end
 		L.browseMode=nil
 	elseif L.browseMode==2 then
+		--loaded local save (should probably clear sim first instead?)
 		L.sendScreen=true
 		L.browseMode=nil
 	elseif L.browseMode==3 and L.lastSave==sim.getSaveID() then
@@ -1191,6 +1195,7 @@ local function sendStuff()
 		sim.deleteStamp(stampName)
 		local d = #s
 		local b1,b2,b3 = math.floor(x/16),((x%16)*16)+math.floor(y/256),(y%256)
+		conSend(67,string.char(math.floor(x/16),((x%16)*16)+math.floor(y/256),(y%256),math.floor((x+w)/16),(((x+w)%16)*16)+math.floor((y+h)/256),((y+h)%256)))
 		conSend(66,string.char(b1,b2,b3,math.floor(d/65536),math.floor(d/256)%256,d%256)..s)
 	end
 	
@@ -1271,6 +1276,7 @@ local function mouseclicky(mousex,mousey,button,event,wheel)
 			--initial stamp coords
 			L.stampx,L.stampy = mousex,mousey
 		elseif event==2 then
+			--stamp has been saved, make our own copy
 			if button==1 then
 				--save stamp ourself for data, delete it
 				local sx,sy = mousex,mousey
@@ -1278,6 +1284,7 @@ local function mouseclicky(mousex,mousey,button,event,wheel)
 				if sy<L.stampy then L.stampy,sy=sy,L.stampy end
 				--cheap cut hook to send a clear
 				if L.copying==1 then
+					--maybe this is ctrl+x? 67 is clear area
 					conSend(67,string.char(math.floor(L.stampx/16),((L.stampx%16)*16)+math.floor(L.stampy/256),(L.stampy%256),math.floor(sx/16),((sx%16)*16)+math.floor(sy/256),(sy%256)))
 				end
 				local w,h = sx-L.stampx,sy-L.stampy

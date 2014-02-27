@@ -831,13 +831,7 @@ int simulation_deleteStamp(lua_State* l)
 {
 	int stampNum = -1;
 
-	if (lua_isnumber(l, 1))
-	{
-		stampNum = luaL_optint(l, 1, 0);
-		if (stampNum < 0 || stampNum >= stamp_count)
-			return luaL_error(l, "Invalid stamp ID: %d", stampNum);
-	}
-	else
+	if (lua_isstring(l, 1))
 	{
 		char *filename = (char*)luaL_optstring(l, 1, "");
 		for (int i = 0; i < stamp_count; i++)
@@ -847,8 +841,15 @@ int simulation_deleteStamp(lua_State* l)
 				break;
 			}
 	}
+	if (stampNum < 0)
+	{
+		luaL_checkint(l, 0);
+		stampNum = luaL_optint(l, 1, -1);
+		if (stampNum < 0 || stampNum >= stamp_count)
+			return luaL_error(l, "Invalid stamp ID: %d", stampNum);
+	}
 
-	if (stampNum > 0)
+	if (stampNum < 0)
 		lua_pushnil(l);
 	else
 	{
