@@ -517,7 +517,7 @@ new=function(x,y,w,h)
 	list = function(self,msg,args)
 		local list = ""
 		for name in pairs(chatcommands) do
-			list=list..name..","
+			list=list..name..", "
 		end
 		self:addline("Commands: "..list:sub(1,#list-2))
 	end,
@@ -1301,6 +1301,9 @@ if jacobsmod then
 end
 
 local function mouseclicky(mousex,mousey,button,event,wheel)
+	print("moo")
+	asdf = asdf["asdf"]
+	print("moo2")
 	if chatwindow:process(mousex,mousey,button,event,wheel) then return false end
 	if L.skipClick then L.skipClick=false return true end
 	if L.chatHidden then showbutton:process(mousex,mousey,button,event,wheel) end

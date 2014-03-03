@@ -825,11 +825,11 @@ int luacon_keyevent(int key, int modifier, int event)
 				c--;
 				i--;
 			}
-			lua_pop(l, 1);
 			error = (char*)luacon_geterror();
 			tolog = (char*)malloc(strlen(error) + 15);
 			sprintf(tolog, "In key event: %s", error);
 			luacon_log(tolog);
+			lua_pop(l, 1);
 		}
 		else
 		{
@@ -884,6 +884,7 @@ int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
 			error = (char*)luacon_geterror();
 			tolog = (char*)malloc(strlen(error) + 17);
 			sprintf(tolog, "In mouse event: %s", error);
+			luacon_log(tolog);
 			lua_pop(l, 1);
 		}
 		else
