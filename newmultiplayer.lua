@@ -303,7 +303,7 @@ new=function(x,y,w,h)
 		local newstr
 		if nkey==275 then self:movecursor(1) self.t:update(nil,self.cursor) return end --right
 		if nkey==276 then self:movecursor(-1) self.t:update(nil,self.cursor) return end --left
-		if nkey==8 then newstr=self.t.text:sub(1,self.cursor-1) .. self.t.text:sub(self.cursor+1) self:movecursor(-1) --back
+		if nkey==8 and self.cursor > 0 then newstr=self.t.text:sub(1,self.cursor-1) .. self.t.text:sub(self.cursor+1) self:movecursor(-1) --back
 		elseif nkey==127 then newstr=self.t.text:sub(1,self.cursor) .. self.t.text:sub(self.cursor+2) --delete
 		else 
 			if nkey<32 or nkey>=127 then return end --normal key
@@ -499,9 +499,27 @@ new=function(x,y,w,h)
 	end,
 	join = function(self,msg,args)
 		if args[1] then joinChannel(args[1]) end
+		self:addline("joined channel "..args[1])
 	end,
 	sync = function(self,msg,args)
 		if con.connected then L.sendScreen=true end --need to send 67 clear screen
+		self:addline("Synced screen to server")
+	end,
+	help = function(self,msg,args)
+		if not args[1] then self:addline("/help <command>, type /list for a list of commands") end
+		if args[1] == "connect" then self:addline("(/connect [ip] [port]) -- connect to a TPT multiplayer server, or no args to connect to the default one")
+		elseif args[1] == "send" then self:addline("(/send <something> <somethingelse>") -- send a raw command
+		elseif args[1] == "quit" then self:addline("(/quit, no arguments) -- quit the game")
+		elseif args[1] == "join" then self:addline("(/join <channel> -- joins a room on the server")
+		elseif args[1] == "sync" then self:addline("(/sync, no arguments) -- syncs your screen to everyone else in the room")
+		end
+	end,
+	list = function(self,msg,args)
+		local list = ""
+		for name in pairs(chatcommands) do
+			list=list..name..","
+		end
+		self:addline("Commands: "..list:sub(1,#list-2))
 	end,
 	}
 	function chat:textprocess(key,nkey,modifier,event)
@@ -514,7 +532,6 @@ new=function(x,y,w,h)
 				local args = getArgs(rest)
 				if chatcommands[cmd] then
 					chatcommands[cmd](self,msg,args)
-					self:addline("Executed "..cmd.." "..rest)
 				else
 					self:addline("No such command: "..cmd.." "..rest,200,200,0)
 				end
@@ -1250,8 +1267,12 @@ local function updatePlayers()
 	L.stick2=false
 end
 
+local pressedKeys
 local function step()
-	
+	if pressedKeys and pressedKeys["repeat"] < socket.gettime() then
+		chatwindow:textprocess(pressedKeys["key"],pressedKeys["nkey"],pressedKeys["modifier"],pressedKeys["event"])
+		pressedKeys["repeat"] = socket.gettime()+.05
+	end
 	if not L.chatHidden then chatwindow:draw() else showbutton:draw() end
 	drawStuff()
 	sendStuff()
@@ -1483,6 +1504,11 @@ local keyunpressfuncs = {
 	[308] = function() L.alt=false conSend(36,string.char(32)) end,
 }
 local function keyclicky(key,nkey,modifier,event)
+	if event == 1 then
+		pressedKeys = {["repeat"] = socket.gettime()+.3, ["key"] = key, ["nkey"] = nkey, ["modifier"] = modifier, ["event"] = event}
+	elseif event == 2 and pressedKeys and nkey == pressedKeys["nkey"] then
+		pressedKeys = nil
+	end
 	local check = chatwindow:textprocess(key,nkey,modifier,event)
 	if check~=false then return true end
 	--MANAGER_PRINT(nkey)
