@@ -1100,7 +1100,7 @@ local function drawStuff()
 			local x,y = user.mousex,user.mousey
 			local brx,bry=user.brushx,user.brushy
 			local brush,drawBrush=user.brush,true
-			tpt.drawtext(x,y,("%s %dx%d"):format(user.name,brx,bry),0,255,0,192)
+			gfx.drawText(x,y,("%s %dx%d"):format(user.name,brx,bry),0,255,0,192)
 			if user.drawtype then
 				if user.drawtype==1 then
 					if user.alt then x,y = lineSnapCoords(user.pmx,user.pmy,x,y) end

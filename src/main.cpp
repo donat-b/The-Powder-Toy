@@ -2231,35 +2231,6 @@ int main(int argc, char *argv[])
 		}
 #endif
 
-		if (sdl_wheel)
-		{
-			if (sdl_zoom_trig)//zoom window change
-			{
-				ZSIZE += sdl_wheel;
-				if (ZSIZE>60)
-					ZSIZE = 60;
-				if (ZSIZE<2)
-					ZSIZE = 2;
-				ZFACTOR = 256/ZSIZE;
-				//sdl_wheel = 0;
-			}
-			else //change brush size
-			{
-				if (!(sdl_mod & (KMOD_SHIFT|KMOD_CTRL)))
-				{
-					currentBrush->ChangeRadius(Point(sdl_wheel, sdl_wheel));
-				}
-				else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL)))
-				{
-					currentBrush->ChangeRadius(Point(sdl_wheel, 0));
-				}
-				else if (sdl_mod & (KMOD_CTRL) && !(sdl_mod & (KMOD_SHIFT)))
-				{
-					currentBrush->ChangeRadius(Point(0, sdl_wheel));
-				}
-			}
-		}
-
 		bq = bc; // bq is previous mouse state
 		bc = b = mouse_get_state(&x, &y); // b is current mouse state
 
@@ -2370,23 +2341,52 @@ int main(int argc, char *argv[])
 		}
 
 #ifdef LUACONSOLE
-		if(bc && bq){
-			if(!luacon_mouseevent(x, y, bc, LUACON_MPRESS, sdl_wheel)){
+		if(bc && bq)
+		{
+			if(!luacon_mouseevent(x, y, bc, LUACON_MPRESS, 0))
 				b = 0;
-			}
 		}
-		else if(bc && !bq){
-			if(!luacon_mouseevent(x, y, bc, LUACON_MDOWN, sdl_wheel)){
+		else if(bc && !bq)
+		{
+			if(!luacon_mouseevent(x, y, bc, LUACON_MDOWN, 0))
 				b = 0;
-			}
 		}
-		else if(!bc && bq){
-			if(!luacon_mouseevent(x, y, bq, LUACON_MUP, sdl_wheel)){
+		else if(!bc && bq)
+		{
+			if(!luacon_mouseevent(x, y, bq, LUACON_MUP, 0))
 				b = 0;
-			}
 		}
-		else if (sdl_wheel){
-			luacon_mouseevent(x, y, bq, 0, sdl_wheel);
+		if (sdl_wheel)
+			if (!luacon_mouseevent(x, y, bq, 0, sdl_wheel))
+				sdl_wheel = 0;
+
+		if (sdl_wheel)
+		{
+			if (sdl_zoom_trig)//zoom window change
+			{
+				ZSIZE += sdl_wheel;
+				if (ZSIZE>60)
+					ZSIZE = 60;
+				if (ZSIZE<2)
+					ZSIZE = 2;
+				ZFACTOR = 256/ZSIZE;
+				//sdl_wheel = 0;
+			}
+			else //change brush size
+			{
+				if (!(sdl_mod & (KMOD_SHIFT|KMOD_CTRL)))
+				{
+					currentBrush->ChangeRadius(Point(sdl_wheel, sdl_wheel));
+				}
+				else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL)))
+				{
+					currentBrush->ChangeRadius(Point(sdl_wheel, 0));
+				}
+				else if (sdl_mod & (KMOD_CTRL) && !(sdl_mod & (KMOD_SHIFT)))
+				{
+					currentBrush->ChangeRadius(Point(0, sdl_wheel));
+				}
+			}
 		}
 		
 		luacon_step(x, y, activeTools[0]->GetIdentifier(), activeTools[1]->GetIdentifier(), activeTools[2]->GetIdentifier(), currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
