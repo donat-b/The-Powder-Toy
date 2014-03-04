@@ -1301,9 +1301,6 @@ if jacobsmod then
 end
 
 local function mouseclicky(mousex,mousey,button,event,wheel)
-	print("moo")
-	asdf = asdf["asdf"]
-	print("moo2")
 	if chatwindow:process(mousex,mousey,button,event,wheel) then return false end
 	if L.skipClick then L.skipClick=false return true end
 	if L.chatHidden then showbutton:process(mousex,mousey,button,event,wheel) end

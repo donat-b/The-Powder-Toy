@@ -4631,7 +4631,7 @@ void render_cursor(pixel *vid, int x, int y, Tool* tool, int rx, int ry)
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	}
 #else
-	int i,j,c;
+	int i,j;
 	if ((sdl_mod & KMOD_CTRL) && (sdl_mod & KMOD_SHIFT) && (tool->GetType() != TOOL_TOOL || ((ToolTool*)tool)->GetID() == TOOL_PROP))
 	{
 		for (i = -5; i < 6; i++)
@@ -4677,29 +4677,12 @@ void render_cursor(pixel *vid, int x, int y, Tool* tool, int rx, int ry)
 	}
 	else //wall cursor
 	{
-		int tc;
-		c = (rx/CELL) * CELL;
-		x = (x/CELL) * CELL;
-		y = (y/CELL) * CELL;
-
-		tc = !((c%(CELL*2))==0);
-
-		x -= c/2;
-		y -= c/2;
-
-		x += tc*(CELL/2);
-		y += tc*(CELL/2);
-
-		for (i=0; i<CELL+c; i++)
-		{
-			xor_pixel(x+i, y, vid);
-			xor_pixel(x+i, y+CELL+c-1, vid);
-		}
-		for (i=1; i<CELL+c-1; i++)
-		{
-			xor_pixel(x, y+i, vid);
-			xor_pixel(x+CELL+c-1, y+i, vid);
-		}
+		int wallx = (x/CELL)*CELL, wally = (y/CELL)*CELL;
+		int wallrx = (rx/CELL)*CELL, wallry = (ry/CELL)*CELL;
+		xor_line(wallx-wallrx, wally-wallry, wallx+wallrx+CELL-1, wally-wallry, vid);
+		xor_line(wallx-wallrx, wally+wallry+CELL-1, wallx+wallrx+CELL-1, wally+wallry+CELL-1, vid);
+		xor_line(wallx-wallrx, wally-wallry+1, wallx-wallrx, wally+wallry+CELL-2, vid);
+		xor_line(wallx+wallrx+CELL-1, wally-wallry+1, wallx+wallrx+CELL-1, wally+wallry+CELL-2, vid);
 	}
 #endif
 }

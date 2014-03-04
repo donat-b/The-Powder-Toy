@@ -132,9 +132,9 @@ int WallTool::DrawPoint(Brush* brush, Point position)
 {
 	int rx = brush->GetRadius().X/CELL;
 	int ry = brush->GetRadius().Y/CELL;
-	int x = position.X/CELL-rx/2;
-	int y = position.Y/CELL-ry/2;
-	globalSim->CreateWallBox(x, y, x+rx, y+ry, ID);
+	int x = position.X/CELL;
+	int y = position.Y/CELL;
+	globalSim->CreateWallBox(x-rx, y-ry, x+rx, y+ry, ID);
 	return 1;
 }
 void WallTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
@@ -155,9 +155,7 @@ void WallTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 	}
 	else
 	{
-		int rx = brush->GetRadius().X/CELL;
-		int ry = brush->GetRadius().Y/CELL;
-		globalSim->CreateWallLine(startPos.X/CELL-rx/2, startPos.Y/CELL-ry/2, endPos.X/CELL-rx/2, endPos.Y/CELL-ry/2, rx, ry, ID);
+		globalSim->CreateWallLine(startPos.X/CELL, startPos.Y/CELL, endPos.X/CELL, endPos.Y/CELL, brush->GetRadius().X/CELL, brush->GetRadius().Y/CELL, ID);
 	}
 }
 void WallTool::DrawRect(Brush* brush, Point startPos, Point endPos)

@@ -512,7 +512,7 @@ int simulation_createWallLine(lua_State * l)
 	if (c < 0 || c >= WALLCOUNT)
 		return luaL_error(l, "Unrecognised wall id '%d'", c);
 
-	globalSim->CreateWallLine(x1-rx, y1-rx, x2-rx, y2-rx, rx*2, ry*2, c);
+	globalSim->CreateWallLine(x1, y1, x2, y2, rx, ry, c);
 	return 0;
 }
 
