@@ -661,7 +661,6 @@ possible crash when pasting text in linux.
 -------------------------------------Bugs-------------------------------------
 ------------------------------------------------------------------------------
 when using console, particles may not be killed properly (ChangeType function not called)
-TPTMP: brush shape maybe not drawn correctly
 //None (at least that I know of)
 
 

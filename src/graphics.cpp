@@ -1450,7 +1450,7 @@ void drawcircle(pixel* vid, int x, int y, int rx, int ry, int r, int g, int b, i
 	for (i = x - rx; i <= x; i++)
 	{
 		oldy = tempy;
-		while (InCurrentBrush(i-x,tempy-y,rx,ry))
+		while (pow(i-x, 2.0)*pow(ry, 2.0)+pow(tempy-y, 2.0)*pow(rx, 2.0) <= pow(rx, 2.0)*pow(ry, 2.0))
 			tempy = tempy - 1;
 		tempy = tempy + 1;
 		if (oldy != tempy)
@@ -1481,7 +1481,7 @@ void fillcircle(pixel* vid, int x, int y, int rx, int ry, int r, int g, int b, i
 	for (i = x - rx; i <= x; i++)
 	{
 		oldy = tempy;
-		while (InCurrentBrush(i-x,tempy-y,rx,ry))
+		while (pow(i-x, 2.0)*pow(ry, 2.0)+pow(tempy-y, 2.0)*pow(rx, 2.0) <= pow(rx, 2.0)*pow(ry, 2.0))
 			tempy = tempy - 1;
 		tempy = tempy + 1;
 		jmax = 2*y - tempy;
