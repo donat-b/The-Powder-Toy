@@ -528,4 +528,5 @@ void gravity_mask()
 		c_mask_el = c_mask_el->next;	
 	}
 	mask_free(t_mask_el);
+	gravity_cleared = 1;
 }
