@@ -201,7 +201,7 @@ void pushParticle(Simulation *sim, int i, int count, int original)
 				}
 				else if ((r&0xFF) == PT_PRTI) //Pass particles into PRTI for a pipe speed increase
 				{
-					PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, i);
+					PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, r>>8);
 					int slot = PRTI_ElementDataContainer::GetSlot(-rx, -ry);
 					particle *storePart = channel->AllocParticle(slot);
 					if (storePart)
@@ -228,7 +228,7 @@ void pushParticle(Simulation *sim, int i, int count, int original)
 		}
 		else if ((r&0xFF) == PT_PRTI) //Pass particles into PRTI for a pipe speed increase
 		{
-			PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, i);
+			PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, r>>8);
 			int slot = PRTI_ElementDataContainer::GetSlot(-pos_1_rx[coords], -pos_1_ry[coords]);
 			particle *storePart = channel->AllocParticle(slot);
 			if (storePart)

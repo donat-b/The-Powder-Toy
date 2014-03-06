@@ -662,6 +662,7 @@ possible crash when pasting text in linux.
 ------------------------------------------------------------------------------
 when using console, particles may not be killed properly (ChangeType function not called)
 TPTMP: brush shape maybe not drawn correctly
+GRAV wall areas may not update when walls deleted
 //None (at least that I know of)
 
 
