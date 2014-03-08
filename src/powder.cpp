@@ -608,6 +608,8 @@ int try_move(int i, int x, int y, int nx, int ny)
 			if (s && !(ptypes[s&0xFF].properties&PROP_NEUTPENETRATE))
 				return 1; // if the element currently underneath neutron isn't NEUTPENETRATE, don't move anything except the neutron
 			// if nothing is currently underneath neutron, only move target particle
+			if (bmap[y/CELL][x/CELL] == WL_ALLOWENERGY)
+				return 1; // do not drag target particle into an energy only wall
 			if (s)
 			{
 				pmap[ny][nx] = (s&~(0xFF))|parts[s>>8].type;
