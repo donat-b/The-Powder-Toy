@@ -177,7 +177,7 @@ void SetRightHudText(int x, int y)
 				sprintf(tempstring,"pavg[0]: %f, pavg[1]: %f, ",parts[cr>>8].pavg[0],parts[cr>>8].pavg[1]);
 				strappend(heattext,tempstring);
 			}
-			if (currentHud[45] && ((cr&0xFF)==PT_PHOT || (cr&0xFF)==PT_BIZR || (cr&0xFF)==PT_BIZRG || (cr&0xFF)==PT_BIZRS || ((cr&0xFF)==PT_FILT && parts[cr>>8].ctype)))
+			if (currentHud[45] && ((cr&0xFF)==PT_PHOT || (cr&0xFF)==PT_BIZR || (cr&0xFF)==PT_BIZRG || (cr&0xFF)==PT_BIZRS || (cr&0xFF)==PT_FILT || (cr&0xFF)==PT_BRAY))
 				wavelength_gfx = parts[cr>>8].ctype;
 		}
 		else if (wl && currentHud[48])

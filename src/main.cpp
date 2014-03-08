@@ -2114,11 +2114,15 @@ int main(int argc, char *argv[])
 				vector2d translate = v2d_zero;
 				void *ndata;
 				bool doTransform = true;
-				if (sdl_key=='r'&&(sdl_mod & (KMOD_CTRL))&&(sdl_mod & (KMOD_SHIFT)))
+				if (sdl_key=='r' && (sdl_mod & (KMOD_CTRL)) && (sdl_mod & (KMOD_SHIFT)))
+				{
+					transform = m2d_new(1,0,0,-1); //vertical invert
+				}
+				else if (sdl_key=='r' && (sdl_mod & (KMOD_SHIFT)))
 				{
 					transform = m2d_new(-1,0,0,1); //horizontal invert
 				}
-				else if (sdl_key=='r'&&(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)))
+				else if (sdl_key=='r'&& (sdl_mod & KMOD_CTRL))
 				{
 					transform = m2d_new(0,1,-1,0); //rotate anticlockwise 90 degrees
 				}
