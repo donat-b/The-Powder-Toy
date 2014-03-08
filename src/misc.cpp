@@ -776,7 +776,7 @@ void strappend(char *dst, char *src)
 	*d = 0;
 }
 
-void *file_load(char *fn, int *size)
+void *file_load(const char *fn, int *size)
 {
 	FILE *f = fopen(fn, "rb");
 	void *s;

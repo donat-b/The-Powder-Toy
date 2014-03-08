@@ -75,9 +75,9 @@ int luacon_elementread(lua_State* l);
 int luacon_elementwrite(lua_State* l);
 int luacon_transitionread(lua_State* l);
 int luacon_transitionwrite(lua_State* l);
-int luacon_particle_getproperty(char * key, int * format);
-int luacon_transition_getproperty(char * key, int * format);
-int luacon_element_getproperty(char * key, int * format, unsigned int * modified_stuff);
+int luacon_particle_getproperty(const char * key, int * format);
+int luacon_transition_getproperty(const char * key, int * format);
+int luacon_element_getproperty(const char * key, int * format, unsigned int * modified_stuff);
 int process_command_lua(pixel *vid_buf, char *command, char **result);
 void lua_hook(lua_State *L, lua_Debug *ar);
 

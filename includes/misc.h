@@ -74,7 +74,7 @@ void strcaturl(char *dst, char *src);
 void strappend(char *dst, char *src);
 
 int file_exists(char *filename);
-void *file_load(char *fn, int *size);
+void *file_load(const char *fn, int *size);
 
 void clipboard_push_text(char * text);
 

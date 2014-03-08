@@ -795,13 +795,12 @@ int simulation_loadStamp(lua_State* l)
 {
 	int stamp_size, i = -1, x, y;
 	void *load_data = NULL;
-	char *filename;
 	x = luaL_optint(l,2,0);
 	y = luaL_optint(l,3,0);
 
 	if (lua_isstring(l, 1)) //Load from 10 char name, or full filename
 	{
-		filename = (char*)luaL_optstring(l, 1, "");
+		const char* filename = luaL_optstring(l, 1, "");
 		for (i=0; i<stamp_count; i++)
 			if (!strcmp(stamps[i].name, filename))
 			{
@@ -837,7 +836,7 @@ int simulation_deleteStamp(lua_State* l)
 
 	if (lua_isstring(l, 1))
 	{
-		char *filename = (char*)luaL_optstring(l, 1, "");
+		const char* filename = luaL_optstring(l, 1, "");
 		for (int i = 0; i < stamp_count; i++)
 			if (!strcmp(stamps[i].name, filename))
 			{
@@ -864,7 +863,7 @@ int simulation_deleteStamp(lua_State* l)
 		return 0;
 	}
 }
-//del_stamp(int d)
+
 int simulation_loadSave(lua_State * l)
 {
 	int saveID = luaL_optint(l,1,0);
@@ -1546,9 +1545,8 @@ void initGraphicsAPI(lua_State * l)
 
 int graphics_textSize(lua_State * l)
 {
-    char * text;
     int width, height;
-	text = (char*)luaL_optstring(l, 1, "");
+	char* text = (char*)luaL_optstring(l, 1, "");
 	textsize(text, &width, &height);
 
 	lua_pushinteger(l, width);
@@ -1558,11 +1556,10 @@ int graphics_textSize(lua_State * l)
 
 int graphics_drawText(lua_State * l)
 {
-	char * text;
 	int x, y, r, g, b, a;
 	x = lua_tointeger(l, 1);
 	y = lua_tointeger(l, 2);
-	text = (char*)luaL_optstring(l, 3, "");
+	const char* text = luaL_optstring(l, 3, "");
 	r = luaL_optint(l, 4, 255);
 	g = luaL_optint(l, 5, 255);
 	b = luaL_optint(l, 6, 255);
