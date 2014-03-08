@@ -125,10 +125,12 @@ void initSimulationAPI(lua_State * l)
 
 int simulation_partNeighbours(lua_State * l)
 {
-	int ids = 0;
-	if(lua_gettop(l) == 4)
+	int id = 0;
+	lua_newtable(l);
+	int x = lua_tointeger(l, 1), y = lua_tointeger(l, 2), r = lua_tointeger(l, 3), rx, ry, n;
+	if(lua_gettop(l) == 5) // this is one more than the number of arguments because a table has just been pushed onto the stack with lua_newtable(l);
 	{
-		int x = lua_tointeger(l, 1), y = lua_tointeger(l, 2), r = lua_tointeger(l, 3), t = lua_tointeger(l, 4), rx, ry, n;
+		int t = lua_tointeger(l, 4);
 		for (rx = -r; rx <= r; rx++)
 			for (ry = -r; ry <= r; ry++)
 				if (x+rx >= 0 && y+ry >= 0 && x+rx < XRES && y+ry < YRES && (rx || ry))
@@ -136,15 +138,14 @@ int simulation_partNeighbours(lua_State * l)
 					n = pmap[y+ry][x+rx];
 					if(n && (n&0xFF) == t)
 					{
-						ids++;
 						lua_pushinteger(l, n>>8);
+						lua_rawseti(l, -2, id++);
 					}
 				}
 
 	}
 	else
 	{
-		int x = lua_tointeger(l, 1), y = lua_tointeger(l, 2), r = lua_tointeger(l, 3), rx, ry, n;
 		for (rx = -r; rx <= r; rx++)
 			for (ry = -r; ry <= r; ry++)
 				if (x+rx >= 0 && y+ry >= 0 && x+rx < XRES && y+ry < YRES && (rx || ry))
@@ -152,12 +153,12 @@ int simulation_partNeighbours(lua_State * l)
 					n = pmap[y+ry][x+rx];
 					if(n)
 					{
-						ids++;
 						lua_pushinteger(l, n>>8);
+						lua_rawseti(l, -2, id++);
 					}
 				}
 	}
-	return ids;
+	return 1;
 }
 
 int simulation_partChangeType(lua_State * l)
@@ -196,7 +197,10 @@ int simulation_partID(lua_State * l)
 	amalgam = pmap[y][x];
 	if(!amalgam)
 		amalgam = photons[y][x];
-	lua_pushinteger(l, amalgam >> 8);
+	if (!amalgam)
+		lua_pushnil(l);
+	else
+		lua_pushinteger(l, amalgam >> 8);
 	return 1;
 }
 
@@ -237,10 +241,14 @@ int simulation_partProperty(lua_State * l)
 
 int simulation_partKill(lua_State * l)
 {
-	if(lua_gettop(l)==2)
+	if (lua_gettop(l) == 2)
 		delete_part(lua_tointeger(l, 1), lua_tointeger(l, 2), 0);
 	else
-		kill_part(lua_tointeger(l, 1));
+	{
+		int i = lua_tointeger(l, 1);
+		if (i>=0 && i<NPART)
+			kill_part(lua_tointeger(l, 1));
+	}
 	return 0;
 }
 
@@ -1066,11 +1074,11 @@ int NeighboursClosure(lua_State * l)
 			if (y > ry)
 				return 0;
 		}
-		if(!(x && y) || sx+x<0 || sy+y<0 || sx+x>=XRES*CELL || sy+y>=YRES*CELL)
+		if(!(x || y) || sx+x<0 || sy+y<0 || sx+x>=XRES*CELL || sy+y>=YRES*CELL)
 		{
 			continue;
 		}
-		i = pmap[y+sx][x+sx];
+		i = pmap[y+sy][x+sx];
 	} while (!(i&0xFF));
 	lua_pushnumber(l, x);
 	lua_replace(l, lua_upvalueindex(5));
@@ -1540,7 +1548,7 @@ int graphics_textSize(lua_State * l)
 {
     char * text;
     int width, height;
-	text = (char*)lua_tostring(l, 1);
+	text = (char*)luaL_optstring(l, 1, "");
 	textsize(text, &width, &height);
 
 	lua_pushinteger(l, width);
