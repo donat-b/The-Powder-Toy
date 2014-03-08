@@ -3707,8 +3707,32 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 	}
 }
 
+SDLKey MapNumpad(SDLKey key)
+{
+	switch(key)
+	{
+	case SDLK_KP8:
+		return SDLK_UP;
+	case SDLK_KP2:
+		return SDLK_DOWN;
+	case SDLK_KP6:
+		return SDLK_RIGHT;
+	case SDLK_KP4:
+		return SDLK_LEFT;
+	case SDLK_KP7:
+		return SDLK_HOME;
+	case SDLK_KP1:
+		return SDLK_END;
+	default:
+		return key;
+	}
+}
+
 int EventProcess(SDL_Event event)
 {
+	if(event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
+		if(!(event.key.keysym.mod&KMOD_NUM))
+			event.key.keysym.sym = MapNumpad(event.key.keysym.sym);
 	switch (event.type)
 	{
 	case SDL_KEYDOWN:
