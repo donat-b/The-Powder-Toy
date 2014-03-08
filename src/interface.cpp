@@ -7320,6 +7320,16 @@ void init_color_boxes()
 	box_A.focus = 0;
 }
 
+void decoration_textbox_color(ui_edit* textbox, int *color, int *color2)
+{
+	*color = atoi((*textbox).str);
+	if (*color > 255) *color = 255;
+	if (*color < 0) *color = 0;
+	*color2 = *color;
+	RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
+	(*textbox).focus = 0;
+}
+
 int currR = 255, currG = 0, currB = 0, currA = 255;
 int currH = 0, currS = 255, currV = 255;
 int on_left = 1, decobox_hidden = 0;
@@ -7451,12 +7461,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 		deco_disablestuff = 1;
 		if(sdl_key == SDLK_RETURN)
 		{
-			cr = atoi(box_R.str);
-			if (cr > 255) cr = 255;
-			if (cr < 0) cr = 0;
-			currR = cr;
-			RGB_to_HSV(currR,currG,currB,&currH,&currS,&currV);
-			box_R.focus = 0;
+			decoration_textbox_color(&box_R, &cr, &currR);
 		}
 	}
 	if(!box_G.focus)
@@ -7466,12 +7471,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 		deco_disablestuff = 1;
 		if(sdl_key == SDLK_RETURN)
 		{
-			cg = atoi(box_G.str);
-			if (cg > 255) cg = 255;
-			if (cg < 0) cg = 0;
-			currG = cg;
-			RGB_to_HSV(currR,currG,currB,&currH,&currS,&currV);
-			box_G.focus = 0;
+			decoration_textbox_color(&box_G, &cg, &currG);
 		}
 	}
 	if(!box_B.focus)
@@ -7481,12 +7481,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 		deco_disablestuff = 1;
 		if(sdl_key == SDLK_RETURN)
 		{
-			cb = atoi(box_B.str);
-			if (cb > 255) cb = 255;
-			if (cb < 0) cb = 0;
-			currB = cb;
-			RGB_to_HSV(currR,currG,currB,&currH,&currS,&currV);
-			box_B.focus = 0;
+			decoration_textbox_color(&box_B, &cb, &currB);
 		}
 	}
 	if(!box_A.focus)
@@ -7496,12 +7491,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 		deco_disablestuff = 1;
 		if(sdl_key == SDLK_RETURN)
 		{
-			ca = atoi(box_A.str);
-			if (ca > 255) ca = 255;
-			if (ca < 0) ca = 0;
-			currA = ca;
-			//RGB_to_HSV(currR,currG,currB,&currH,&currS,&currV);
-			box_A.focus = 0;
+			decoration_textbox_color(&box_A, &ca, &currA);
 		}
 	}
 
@@ -7609,7 +7599,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 					parts[i].animations[numframes] = parts[i].animations[numframes-1];
 			}
 	}
-	if (sdl_key==SDLK_LEFT && framenum > 0)
+	else if (sdl_key==SDLK_LEFT && framenum > 0)
 	{
 		int i;
 		framenum--;
@@ -7617,7 +7607,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 			if (parts[i].type == PT_ANIM)
 				parts[i].tmp2 = framenum;
 	}
-	if (sdl_key==SDLK_DELETE && numframes > 0)
+	else if (sdl_key==SDLK_DELETE && numframes > 0)
 	{
 		int i;
 		numframes--;
@@ -7637,6 +7627,45 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 			}
 		if (framenum >= numframes)
 			framenum--;
+	}
+	else if (sdl_key == SDLK_TAB)
+	{
+		if (box_R.focus)
+		{
+			box_R.focus = box_R.cursorstart = 0;
+			decoration_textbox_color(&box_R, &cr, &currR);
+
+			box_G.focus = 1;
+			box_G.cursorstart = 0;
+			box_G.cursor = strlen(box_G.str);
+		}
+		else if (box_G.focus)
+		{
+			box_G.focus = box_G.cursorstart = 0;
+			decoration_textbox_color(&box_G, &cg, &currG);
+
+			box_B.focus = 1;
+			box_B.cursorstart = 0;
+			box_B.cursor = strlen(box_B.str);
+		}
+		else if (box_B.focus)
+		{
+			box_B.focus = box_B.cursorstart = 0;
+			decoration_textbox_color(&box_B, &cb, &currB);
+
+			box_A.focus = 1;
+			box_A.cursorstart = 0;
+			box_A.cursor = strlen(box_A.str);
+		}
+		else if (box_A.focus)
+		{
+			box_A.focus = box_A.cursorstart = 0;
+			decoration_textbox_color(&box_A, &ca, &currA);
+
+			box_R.focus = 1;
+			box_R.cursorstart = 0;
+			box_R.cursor = strlen(box_R.str);
+		}
 	}
 	if (sdl_zoom_trig)
 		decobox_hidden = 1;
