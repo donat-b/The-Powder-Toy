@@ -29,6 +29,8 @@ SIMULATION API
 
 */
 
+const int particlePropertiesCount = 12;
+
 void initSimulationAPI(lua_State * l)
 {
 	//Methods
@@ -121,6 +123,13 @@ void initSimulationAPI(lua_State * l)
 	SETCONST(l, DECO_LIGHTEN);
 	SETCONST(l, DECO_DARKEN);
 	SETCONST(l, DECO_SMUDGE);
+
+	const char* propertyList[] = {"FIELD_TYPE", "FIELD_LIFE", "FIELD_CTYPE", "FIELD_X", "FIELD_Y", "FIELD_VX", "FIELD_VY", "FIELD_TEMP", "FIELD_FLAGS", "FIELD_TMP", "FIELD_TMP2", "FIELD_DCOLOUR"};
+	for (int i = 0; i < particlePropertiesCount; i++)
+	{
+		lua_pushinteger(l, i);
+		lua_setfield(l, -2, propertyList[i]);
+	}
 }
 
 int simulation_partNeighbours(lua_State * l)
@@ -236,7 +245,77 @@ int simulation_partPosition(lua_State * l)
 
 int simulation_partProperty(lua_State * l)
 {
-	return luaL_error(l, "Not implemented, bug jacob1 to put this in");
+	//TODO: this function needs StructProperty or something similar :|
+	int argCount = lua_gettop(l);
+	int particleID = luaL_checkinteger(l, 1);
+	int offset, format;
+
+	if (particleID < 0 || particleID >= NPART || !parts[particleID].type)
+	{
+		if(argCount == 3)
+		{
+			lua_pushnil(l);
+			return 1;
+		}
+		else
+			return 0;
+	}
+
+	//Get field
+	if (lua_type(l, 2) == LUA_TNUMBER)
+	{
+		int fieldID = lua_tointeger(l, 2);
+		if (fieldID < 0 || fieldID >= particlePropertiesCount)
+			return luaL_error(l, "Invalid field ID (%d)", fieldID);
+
+		const char* propertyList[] = {"type", "life", "ctype", "x", "y", "vx", "vy", "temp", "flags", "tmp", "tmp2", "dcolour"};
+		offset = luacon_particle_getproperty(propertyList[fieldID], &format);
+	}
+	else if (lua_type(l, 2) == LUA_TSTRING)
+	{
+		const char* fieldName = lua_tostring(l, 2);
+		offset = luacon_particle_getproperty(fieldName, &format);
+		if (offset == -1)
+			return luaL_error(l, "Unknown field (%s)", fieldName);
+	}
+	else
+		return luaL_error(l, "Field ID must be an name (string) or identifier (integer)");
+
+	if (argCount == 3)
+	{
+		//Set
+		switch(format)
+		{
+		case 0:
+			*((int*)(((unsigned char*)&parts[particleID])+offset)) = lua_tointeger(l, 3);
+			break;
+		case 1:
+			*((float*)(((unsigned char*)&parts[particleID])+offset)) = lua_tonumber(l, 3);
+			break;
+		case 2:
+			globalSim->part_change_type_force(particleID, lua_tointeger(l, 3));
+			break;
+		}
+		return 0;
+	}
+	else
+	{
+		//Get
+		switch(format)
+		{
+		case 0:
+		case 2:
+			lua_pushnumber(l, *((int*)(((unsigned char*)&parts[particleID])+offset)));
+			break;
+		case 1:
+			lua_pushnumber(l, *((float*)(((unsigned char*)&parts[particleID])+offset)));
+			break;
+		default:
+			lua_pushnil(l);
+			break;
+		}
+		return 1;
+	}
 }
 
 int simulation_partKill(lua_State * l)

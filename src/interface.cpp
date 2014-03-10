@@ -7115,7 +7115,7 @@ int console_ui(pixel *vid_buf)
 	console_set_history_X(currentcommand, currentcommand_result, divideX);
 
 	for (i = 0; i < 80; i++) //make background at top slightly darker
-		fillrect(old_buf, -1, -1+i, XRES+BARSIZE, 2, 0, 0, 0, 160-(i*2));
+		fillrect(old_buf, -1, -1+i, XRES+BARSIZE+1, 2, 0, 0, 0, 160-(i*2));
 
 	while (!sdl_poll())
 	{
@@ -7147,7 +7147,7 @@ int console_ui(pixel *vid_buf)
 
 		//draw most of the things to the screen
 		memcpy(vid_buf,old_buf,(XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
-		fillrect(vid_buf, -1, -1, XRES+BARSIZE, 208+commandHeight, 0, 0, 0, 190);
+		fillrect(vid_buf, -1, -1, XRES+BARSIZE+1, 208+commandHeight, 0, 0, 0, 190);
 		blend_line(vid_buf, 0, 207+commandHeight, XRES+BARSIZE-1, 207+commandHeight, 228, 228, 228, 255);
 		blend_line(vid_buf, divideX, 0, divideX, 207+commandHeight, 255, 255, 255, 155+50*draggingDivindingLine);
 #if defined(LUACONSOLE)

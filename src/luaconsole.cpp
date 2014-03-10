@@ -1776,6 +1776,7 @@ int luatpt_get_property(lua_State* l)
 		case 1:
 			tempfloat = *((float*)(((unsigned char*)&parts[i])+offset));
 			lua_pushnumber(l, tempfloat);
+			break;
 		}
 		return 1;
 	}
