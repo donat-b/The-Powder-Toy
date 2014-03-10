@@ -348,6 +348,7 @@ int luacon_partread(lua_State* l)
 	switch(format)
 	{
 	case 0:
+	case 2:
 		tempinteger = *((int*)(((char*)&parts[i])+offset));
 		lua_pushnumber(l, tempinteger);
 		break;
@@ -384,6 +385,8 @@ int luacon_partwrite(lua_State* l)
 	case 1:
 		*((float*)(((char*)&parts[i])+offset)) = luaL_optnumber(l, 3, 0);
 		break;
+	case 2:
+		globalSim->part_change_type_force(i, luaL_optinteger(l, 3, 0));
 	}
 	return 1;
 }
@@ -413,7 +416,7 @@ int luacon_particle_getproperty(const char * key, int * format)
 	int offset;
 	if (!strcmp(key, "type")) {
 		offset = offsetof(particle, type);
-		*format = 0;
+		*format = 2;
 	} else if (!strcmp(key, "life")) {
 		offset = offsetof(particle, life);
 		*format = 0;
@@ -1646,7 +1649,7 @@ int luatpt_set_property(lua_State* l)
 		else
 			t = luaL_optint(l, 2, 0);
 
-		if (!strcmp(prop,"type") && (t<0 || t>=PT_NUM || !ptypes[t].enabled))
+		if (format == 2 && (t<0 || t>=PT_NUM || !ptypes[t].enabled))
 			return luaL_error(l, "Unrecognised element number '%d'", t);
 	}
 	else
@@ -1682,8 +1685,10 @@ int luatpt_set_property(lua_State* l)
 				{
 					if (format == 1)
 						*((float*)(((unsigned char*)&parts[i])+offset)) = f;
-					else
+					else if (format == 0)
 						*((int*)(((unsigned char*)&parts[i])+offset)) = t;
+					else if (format == 2)
+						globalSim->part_change_type_force(i, t);
 				}
 			}
 		}
@@ -1711,8 +1716,10 @@ int luatpt_set_property(lua_State* l)
 
 		if (format == 1)
 			*((float*)(((unsigned char*)&parts[i])+offset)) = f;
-		else
+		else if (format == 0)
 			*((int*)(((unsigned char*)&parts[i])+offset)) = t;
+		else if (format == 2)
+			globalSim->part_change_type_force(i, t);
 	}
 	return 0;
 }
@@ -1762,6 +1769,7 @@ int luatpt_get_property(lua_State* l)
 		switch(format)
 		{
 		case 0:
+		case 2:
 			tempinteger = *((int*)(((unsigned char*)&parts[i])+offset));
 			lua_pushnumber(l, tempinteger);
 			break;

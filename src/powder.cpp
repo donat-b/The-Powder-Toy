@@ -637,9 +637,9 @@ int try_move(int i, int x, int y, int nx, int ny)
 int OutOfBounds(int x, int y)
 {
 	if (edgeMode != 3)
-		return (x < CELL || x > XRES-CELL || y < CELL || y > YRES-CELL);
+		return (x < CELL || x >= XRES-CELL || y < CELL || y >= YRES-CELL);
 	else
-		return (x < 0 || x > XRES || y < 0 || y > YRES);
+		return (x < 0 || x >= XRES || y < 0 || y >= YRES);
 }
 
 // try to move particle, and if successful call move() to update variables

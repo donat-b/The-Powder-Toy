@@ -19,6 +19,7 @@
 #include "interface.h"
 #include "powder.h"
 #include "console.h"
+#include "simulation/Simulation.h"
 #include "simulation/WallNumbers.h"
 
 char console_more=0;
@@ -396,7 +397,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 							for (i=0; i<NPART; i++)
 							{
 								if (parts[i].type)
-									parts[i].type = j;
+									globalSim->part_change_type_force(i, j);
 							}
 					}
 					else if (console_parse_type(console4, &j, console_error) && j != 0
@@ -405,7 +406,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 						for (i=0; i<NPART; i++)
 						{
 							if (parts[i].type == j)
-								parts[i].type = k;
+								globalSim->part_change_type_force(i, k);
 						}
 					}
 					else
@@ -413,7 +414,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 						if (console_parse_partref(console4, &i, console_error) && j != 0
 					        && console_parse_type(console5, &j, console_error))
 						{
-							parts[i].type = j;
+							globalSim->part_change_type_force(i, j);
 						}
 					}
 				}

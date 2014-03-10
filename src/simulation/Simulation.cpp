@@ -306,8 +306,11 @@ bool Simulation::part_change_type(int i, int x, int y, int t)//changes the type 
 
 	parts[i].type = t;
 	pmap_remove(i, x, y);
-	pmap_add(i, x, y, t);
-	if (t) elementCount[t]++;
+	if (t)
+	{
+		pmap_add(i, x, y, t);
+		elementCount[t]++;
+	}
 	if (elements[oldType].Func_ChangeType)
 	{
 		(*(elements[oldType].Func_ChangeType))(this, i, x, y, oldType, t);
@@ -317,6 +320,42 @@ bool Simulation::part_change_type(int i, int x, int y, int t)//changes the type 
 		(*(elements[t].Func_ChangeType))(this, i, x, y, oldType, t);
 	}
 	return true;
+}
+
+//Used by lua to change type and delete any particle specific info, and also keep pmap / elementCount up to date
+void Simulation::part_change_type_force(int i, int t)
+{
+	int x = (int)(parts[i].x), y = (int)(parts[i].y);
+	if (t<0 || t>=PT_NUM)
+		return;
+	/*if (elements[t].Func_Create_Allowed)
+	{
+		if (!(*(elements[t].Func_Create_Allowed))(this, i, x, y, t))
+		{
+			part_kill(i);
+			return;
+		}
+	}*/
+
+	int oldType = parts[i].type;
+	if (oldType) elementCount[oldType]--;
+	delete_part_info(i);
+	parts[i].type = t;
+	pmap_remove(i, x, y);
+	if (t)
+	{
+		pmap_add(i, x, y, t);
+		elementCount[t]++;
+	}
+
+	if (elements[oldType].Func_ChangeType)
+	{
+		(*(elements[oldType].Func_ChangeType))(this, i, x, y, oldType, t);
+	}
+	if (elements[t].Func_ChangeType)
+	{
+		(*(elements[t].Func_ChangeType))(this, i, x, y, oldType, t);
+	}
 }
 
 void Simulation::part_kill(int i)//kills particle number i
@@ -333,7 +372,8 @@ void Simulation::part_kill(int i)//kills particle number i
 	}
 	delete_part_info(i);
 
-	pmap_remove(i, x, y);
+	if (x>=0 && y>=0 && x<XRES && y<YRES)
+		pmap_remove(i, x, y);
 	if (t == PT_NONE) // TODO: remove this? (//This shouldn't happen anymore, but it's here just in case)
 		return;
 	if (t) elementCount[t]--;
