@@ -2311,7 +2311,7 @@ int main(int argc, char *argv[])
 				drawtext(vid_buf, 16, YRES-24, "Click-and-drag to specify a rectangle to copy and then cut (right click = cancel)", 255, 216, 32, da*5);
 				break;
 			case 279:
-				drawtext(vid_buf, 16, YRES-24, "Report bugs, feedback, or suggestions to jacob1", 255, 255, 255, da*5);
+				drawtext(vid_buf, 16, YRES-24, "Report bugs and feedback to jacob1", 255, 255, 255, da*5);
 				break;
 			default:
 				drawtext(vid_buf, 16, YRES-24, (char *)ptypes[db].descs, 255, 255, 255, da*5);

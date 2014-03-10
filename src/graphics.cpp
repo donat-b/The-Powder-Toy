@@ -2658,19 +2658,19 @@ void render_parts(pixel *vid, Point mousePos)
 
 				if (finding && !(finding & 0x8))
 				{
-					if ((finding & 0x1) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[0])->GetID()) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[0])->GetID() == parts[i].ctype)))
+					if ((finding & 0x1) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[0])->GetID() == parts[i].type) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[0])->GetID() == parts[i].ctype)))
 					{
 						colr = firer = 255;
 						colg = colb = fireg = fireb = 0;
 						cola = firea = 255;
 					}
-					else if ((finding & 0x2) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[1])->GetID()) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[1])->GetID() == parts[i].ctype)))
+					else if ((finding & 0x2) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[1])->GetID() == parts[i].type) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[1])->GetID() == parts[i].ctype)))
 					{
 						colb = fireb = 255;
 						colr = colg = firer = fireg = 0;
 						cola = firea = 255;
 					}
-					else if ((finding & 0x4) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[2])->GetID()) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[2])->GetID() == parts[i].ctype)))
+					else if ((finding & 0x4) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[2])->GetID() == parts[i].type) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[2])->GetID() == parts[i].ctype)))
 					{
 						colg = fireg = 255;
 						colr = colb = firer = fireb = 0;
@@ -3720,11 +3720,11 @@ void draw_find() //Find just like how my lua script did it, it will find everyth
 	fillrect(vid_buf, -1, -1, XRES+1, YRES+1, 0, 0, 0, 230); //Dim everything
 	for (i = 0; i <= parts_lastActiveIndex; i++) //Color particles
 	{
-		if ((finding & 0x1) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[0])->GetID()) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[0])->GetID() == parts[i].ctype)))
+		if ((finding & 0x1) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[0])->GetID() == parts[i].type) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[0])->GetID() == parts[i].ctype)))
 			drawpixel(vid_buf, (int)(parts[i].x+.5f), (int)(parts[i].y+.5f), 255, 0, 0, 255);
-		else if ((finding & 0x2) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[1])->GetID()) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[1])->GetID() == parts[i].ctype)))
+		else if ((finding & 0x2) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[1])->GetID() == parts[i].type) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[1])->GetID() == parts[i].ctype)))
 			drawpixel(vid_buf, (int)(parts[i].x+.5f), (int)(parts[i].y+.5f), 0, 0, 255, 255);
-		else if ((finding & 0x4) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[2])->GetID()) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[2])->GetID() == parts[i].ctype)))
+		else if ((finding & 0x4) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[2])->GetID() == parts[i].type) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[2])->GetID() == parts[i].ctype)))
 			drawpixel(vid_buf, (int)(parts[i].x+.5f), (int)(parts[i].y+.5f), 0, 255, 0, 255);
 	}
 	for (y=0; y<YRES/CELL; y++) //Color walls
