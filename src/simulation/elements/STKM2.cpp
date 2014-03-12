@@ -26,7 +26,7 @@ int STKM2_update(UPDATE_FUNC_ARGS)
 
 bool STKM2_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 {
-	return !player2.spwn;
+	return globalSim->elementCount[PT_STKM2]<=0;
 }
 
 void STKM2_create(ELEMENT_CREATE_FUNC_ARGS)
@@ -41,11 +41,6 @@ void STKM2_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
 	if (to==PT_STKM2)
 	{
 		STKM_init_legs(&player2, i);
-		player2.spwn = 1;
-	}
-	else
-	{
-		player2.spwn = 0;
 	}
 }
 

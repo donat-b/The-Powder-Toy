@@ -481,6 +481,7 @@ new=function(x,y,w,h)
 	chatcommands = {
 	connect = function(self,msg,args)
 		if not issocket then self:addline("No luasockets found") return end
+		tpt.version.minor = 0
 		local s,r = connectToMniip(args[1],tonumber(args[2]))
 		if not s then self:addline(r) end
 	end,
@@ -1299,7 +1300,7 @@ local tpt_buttons = {
 	["ambh"] = {x1=613, y1=65, x2=627, y2=79, f=function() conSend(53,tpt.ambient_heat()==0 and "\1" or "\0") end},
 }
 if jacobsmod then
-	tpt_buttons["tab"] = {x1=613, y1=1, x2=627, y2=16, firstClick = true, f=function() L.tabs = not L.tabs end}
+	tpt_buttons["tab"] = {x1=613, y1=1, x2=627, y2=15, firstClick = true, f=function() L.tabs = not L.tabs end}
 	tpt_buttons["opts"] = {x1=470, y1=408, x2=484, y2=422, f=function() L.checkOpt=true end}
 	tpt_buttons["clear"] = {x1=486, y1=408, x2=502, y2=422, firstClick = true, f=function() conSend(63) L.lastSave=nil end}
 	tpt_buttons["disp"] = {x1=597, y1=408, x2=611, y2=422, firstClick = true, f=function() L.checkRen=2 L.pModes=getViewModes() end}
@@ -1395,7 +1396,7 @@ local function mouseclicky(mousex,mousey,button,event,wheel)
 	--Click inside button first
 	if button==1 then
 		if event==1 then
-			if jacobsmod and (L.tabs or L.ctrl) and mousex>=613 and mousex<=627 and mousey<=143 then
+			if jacobsmod and (L.tabs or L.ctrl) and mousex>=613 and mousex<=627 and mousey >=17 and mousey<=143 then
 				L.sendScreen = 2
 			end
 			for k,v in pairs(tpt_buttons) do

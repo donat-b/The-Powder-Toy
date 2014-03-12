@@ -662,7 +662,7 @@ int STKM_graphics(GRAPHICS_FUNC_ARGS)
 
 bool STKM_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 {
-	return !player.spwn;
+	return globalSim->elementCount[PT_STKM]<=0;
 }
 
 void STKM_create(ELEMENT_CREATE_FUNC_ARGS)
@@ -677,11 +677,6 @@ void STKM_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
 	if (to==PT_STKM)
 	{
 		STKM_init_legs(&player, i);
-		player.spwn = 1;
-	}
-	else
-	{
-		player.spwn = 0;
 	}
 }
 

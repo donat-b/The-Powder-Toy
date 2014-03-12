@@ -388,8 +388,6 @@ void clear_sim()
 	make_kernel();
 	memset(photons, 0, sizeof(photons));
 	memset(gol2, 0, sizeof(gol2));
-	player.spwn = 0;
-	player2.spwn = 0;
 	emp_decor = 0;
 	memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
 	memset(fire_r, 0, sizeof(fire_r));
@@ -1693,10 +1691,10 @@ int main(int argc, char *argv[])
 			if (sdl_key=='s')
 			{
 				//if stkm2 is out, you must be holding right ctrl, else just either ctrl
-				if ((player2.spwn && (sdl_mod&KMOD_RCTRL)) || (!player2.spwn && (sdl_mod&KMOD_CTRL)))
+				if ((globalSim->elementCount[PT_STKM2]>0 && (sdl_mod&KMOD_RCTRL)) || (globalSim->elementCount[PT_STKM2]<=0 && (sdl_mod&KMOD_CTRL)))
 					tab_save(tab_num, 1);
 				//if stkm2 is out, you must be holding left ctrl, else not be holding ctrl at all
-				else if ((player2.spwn && (sdl_mod&KMOD_LCTRL)) || (!player2.spwn && !(sdl_mod&KMOD_CTRL)))
+				else if ((globalSim->elementCount[PT_STKM2]>0 && (sdl_mod&KMOD_LCTRL)) || (globalSim->elementCount[PT_STKM2]<=0 && !(sdl_mod&KMOD_CTRL)))
 				{
 					if (it > 50)
 						it = 50;
@@ -1882,7 +1880,7 @@ int main(int argc, char *argv[])
 					}
 				}
 			}
-			if ((sdl_key=='d' && ((sdl_mod & (KMOD_CTRL)) || !player2.spwn)) || sdl_key == SDLK_F3)
+			if ((sdl_key=='d' && ((sdl_mod & (KMOD_CTRL)) || globalSim->elementCount[PT_STKM2]<=0)) || sdl_key == SDLK_F3)
 			{
 				DEBUG_MODE = !DEBUG_MODE;
 				SetCurrentHud();
@@ -1989,7 +1987,7 @@ int main(int argc, char *argv[])
 				}
 			}
 
-			if (sdl_key=='w' && (!player2.spwn || (sdl_mod & (KMOD_CTRL)))) //Gravity, by Moach
+			if (sdl_key=='w' && (globalSim->elementCount[PT_STKM2]<=0 || (sdl_mod & (KMOD_CTRL)))) //Gravity, by Moach
 			{
 				++gravityMode; // cycle gravity mode
 				itc = 51;
@@ -3220,7 +3218,7 @@ int main(int argc, char *argv[])
 		sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf, XRES+BARSIZE);
 
 		//Setting an element for the stick man
-		if (player.spwn==0)
+		if (globalSim->elementCount[PT_STKM]<=0)
 		{
 			int sr = ((ElementTool*)activeTools[1])->GetID();
 			if ((sr>0 && sr<PT_NUM && ptypes[sr].enabled && ptypes[sr].falldown>0) || sr == PT_NEUT || sr == PT_PHOT || sr == PT_LIGH)
@@ -3228,7 +3226,7 @@ int main(int argc, char *argv[])
 			else
 				player.elem = PT_DUST;
 		}
-		if (player2.spwn==0)
+		if (globalSim->elementCount[PT_STKM2]<=0)
 		{
 			int sr = ((ElementTool*)activeTools[1])->GetID();
 			if ((sr>0 && sr<PT_NUM && ptypes[sr].enabled && ptypes[sr].falldown>0) || sr == PT_NEUT || sr == PT_PHOT || sr == PT_LIGH)

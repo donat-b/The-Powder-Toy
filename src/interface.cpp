@@ -3723,6 +3723,12 @@ SDLKey MapNumpad(SDLKey key)
 		return SDLK_HOME;
 	case SDLK_KP1:
 		return SDLK_END;
+	case SDLK_KP_PERIOD:
+		return SDLK_DELETE;
+	case SDLK_KP0:
+	case SDLK_KP3:
+	case SDLK_KP9:
+		return SDLK_UNKNOWN;
 	default:
 		return key;
 	}
@@ -3731,8 +3737,12 @@ SDLKey MapNumpad(SDLKey key)
 int EventProcess(SDL_Event event)
 {
 	if(event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
-		if ((!(event.key.keysym.mod&KMOD_NUM)) ^ (!!(event.key.keysym.mod&KMOD_SHIFT)))
+	{
+		if (event.key.keysym.unicode == 0)
 		{
+			// If unicode is zero, this could be a numpad key with numlock off, or numlock on and shift on (unicode is set to 0 by SDL or the OS in these circumstances. If numlock is on, unicode is the relevant digit character).
+			// For some unknown reason, event.key.keysym.mod seems to be unreliable on some computers (keysum.mod&KEY_MOD_NUM is opposite to the actual value), so check keysym.unicode instead.
+			// Note: unicode is always zero for SDL_KEYUP events, so this translation won't always work properly for keyup events.
 			SDLKey newKey = MapNumpad(event.key.keysym.sym);
 			if (newKey != event.key.keysym.sym)
 			{
@@ -3740,6 +3750,7 @@ int EventProcess(SDL_Event event)
 				event.key.keysym.unicode = 0;
 			}
 		}
+	}
 	switch (event.type)
 	{
 	case SDL_KEYDOWN:

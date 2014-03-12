@@ -2203,14 +2203,13 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					}
 
 					// no more particle properties to load, so we can change type here without messing up loading
-					if ((player.spwn == 1 && partsptr[newIndex].type==PT_STKM) || (player2.spwn == 1 && partsptr[newIndex].type==PT_STKM2))
+					if ((globalSim->elementCount[PT_STKM]>=0 && partsptr[newIndex].type==PT_STKM) || (globalSim->elementCount[PT_STKM2]>0 && partsptr[newIndex].type==PT_STKM2))
 					{
 						partsptr[newIndex].type = PT_NONE;
 					}
 					else if (partsptr[newIndex].type == PT_STKM)
 					{
 						STKM_init_legs(&player, newIndex);
-						player.spwn = 1;
 						player.elem = PT_DUST;
 						player.rocketBoots = 0;
 						if (parts[newIndex].ctype == OLD_SPC_AIR)
@@ -2219,7 +2218,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					else if (partsptr[newIndex].type == PT_STKM2)
 					{
 						STKM_init_legs(&player2, newIndex);
-						player2.spwn = 1;
 						player2.elem = PT_DUST;
 						player2.rocketBoots = 0;
 						if (parts[newIndex].ctype == OLD_SPC_AIR)
@@ -3164,14 +3162,13 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 		// no more particle properties to load, so we can change type here without messing up loading
 		if (i && i<=NPART)
 		{
-			if ((player.spwn == 1 && ty==PT_STKM) || (player2.spwn == 1 && ty==PT_STKM2))
+			if ((globalSim->elementCount[PT_STKM]>0 && ty==PT_STKM) || (globalSim->elementCount[PT_STKM2]>0 && ty==PT_STKM2))
 			{
 				parts[i-1].type = PT_NONE;
 			}
 			else if (parts[i-1].type == PT_STKM)
 			{
 				STKM_init_legs(&player, i-1);
-				player.spwn = 1;
 				player.elem = PT_DUST;
 				player.rocketBoots = 0;
 				if (parts[i-1].ctype == OLD_SPC_AIR)
@@ -3180,7 +3177,6 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 			else if (parts[i-1].type == PT_STKM2)
 			{
 				STKM_init_legs(&player2, i-1);
-				player2.spwn = 1;
 				player2.elem = PT_DUST;
 				player2.rocketBoots = 0;
 				if (parts[i-1].ctype == OLD_SPC_AIR)

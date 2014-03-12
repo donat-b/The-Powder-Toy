@@ -34,9 +34,9 @@ int FIGH_update(UPDATE_FUNC_ARGS)
 	parts[i].tmp2 = 0; //0 - stay in place, 1 - seek a stick man
 
 	//Set target coords
-	if (player2.spwn)
+	if (globalSim->elementCount[PT_STKM2]>0)
 	{
-		if (player.spwn && (pow(player.legs[2]-x, 2) + pow(player.legs[3]-y, 2)) <=
+		if (globalSim->elementCount[PT_STKM]>0 && (pow(player.legs[2]-x, 2) + pow(player.legs[3]-y, 2)) <=
 			(pow(player2.legs[2]-x, 2) + pow(player2.legs[3]-y, 2)))
 		{
 			tarx = (unsigned int)player.legs[2];
@@ -49,7 +49,7 @@ int FIGH_update(UPDATE_FUNC_ARGS)
 		}
 		parts[i].tmp2 = 1;
 	}
-	else if (player.spwn)
+	else if (globalSim->elementCount[PT_STKM]>0)
 	{
 		tarx = (unsigned int)player.legs[2];
 		tary = (unsigned int)player.legs[3];

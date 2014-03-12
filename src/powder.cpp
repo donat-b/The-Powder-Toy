@@ -2809,9 +2809,9 @@ void update_particles(pixel *vid)//doesn't update the particles themselves, but 
 		}
 	}
 
-	if (!player.spwn && player.spawnID >= 0)
+	if (globalSim->elementCount[PT_STKM]<=0 && player.spawnID >= 0)
 		create_part(-1, (int)parts[player.spawnID].x, (int)parts[player.spawnID].y, PT_STKM);
-	else if (!player2.spwn && player2.spawnID >= 0)
+	else if (globalSim->elementCount[PT_STKM2]<=0 && player2.spawnID >= 0)
 		create_part(-1, (int)parts[player2.spawnID].x, (int)parts[player2.spawnID].y, PT_STKM2);
 
 	update_particles_i(vid, 0, 1);

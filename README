@@ -47,6 +47,7 @@ GIGATeun - GRVI (gravitons)
 
 mniip - hosts the update server
 iam4722202468 - made the bug font icon
+cracker64 - made TPTMP
 
 
 
@@ -654,6 +655,16 @@ Fix local saving not working when not logged in. Simulation api functions for
 drawing particles / walls (intended for the next version really ...). Fix
 possible crash when pasting text in linux.
 
+Version 27.0 3/12/14
+TPT multiplayer script by cracker64 embeded inside. Works much better than
+the original, but still has some major syncing bugs and crashes. Add in all
+missing lua api functions, except for interface. Add ADD/SUB/MUL/DIV deco
+tools, fix deco tool drawing bugs. Fix all STKM spawning / life bugs for real
+this time. PINV bugfixes. Fix mouse handling bugs involving the zoom window
+and the screen edges. Wall brush sizes redone to match tpt++. Fix PPIP in HUD,
+and PIPE -> PRTI transfer bug. Fix FIND. Lots of Lua api fixes, updates from
+tpt++, and other generic bug fixes.
+
 
 
 
@@ -681,7 +692,6 @@ Medium future TODO:
 make open ui more colorful like tpt++, also fix cut off description in save uploading ui
 make buttons look clicked when pressed, moving mouse away will not do clicks, like tpt++ (redo interface)
 loading circle in save browser?
-https://github.com/FacialTurd/The-Powder-Toy/commit/6e7a5488b561aee4f3b5e3b22ff1b7851c3921ef "SPWN not creating when redoing" -> will do later with the elementCount variable
 redo some sign things and remove regex
 Add avatars in game
 Ability to follow users using jacksonmj's website
