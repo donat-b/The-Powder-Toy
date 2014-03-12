@@ -25,6 +25,7 @@
 local issocket,socket = pcall(require,"socket")
 if not sim.loadSave then error"Tpt version not supported" end
 if MANAGER_EXISTS then using_manager=true else MANAGER_PRINT=print end
+local hooks_enabled = false --hooks only enabled once you maximize the button
 
 local PORT = 34403 --Change 34403 to your desired port
 local KEYBOARD = 1 --only change if you have issues. Only other option right now is 2(finnish).
@@ -416,7 +417,7 @@ new=function(x,y,w,h)
 	chat.lines = {}
 	chat.scrollbar = ui_scrollbar.new(chat.x2-2,chat.y+11,chat.h-22,0,chat.shown_lines)
 	chat.inputbox = ui_inputbox.new(x,chat.y2-10,w,10)
-	chat.minimize = ui_button.new(chat.x2-15,chat.y,15,10,function() chat.moving=false chat.inputbox:setfocus(false) L.chatHidden=true end,"->")
+	chat.minimize = ui_button.new(chat.x2-15,chat.y,15,10,function() chat.moving=false chat.inputbox:setfocus(false) L.chatHidden=true end,">>")
 	chat:drawadd(function(self)
 		tpt.drawtext(self.x+85,self.y+2,"TPT Multiplayer")
 		tpt.drawline(self.x+1,self.y+10,self.x2-1,self.y+10,120,120,120)
@@ -498,8 +499,10 @@ new=function(x,y,w,h)
 		con.members = {}
 	end,
 	join = function(self,msg,args)
-		if args[1] then joinChannel(args[1]) end
-		self:addline("joined channel "..args[1])
+		if args[1] then
+			joinChannel(args[1])
+			self:addline("joined channel "..args[1])
+		end
 	end,
 	sync = function(self,msg,args)
 		if con.connected then L.sendScreen=true end --need to send 67 clear screen
@@ -562,7 +565,7 @@ end
 local infoText = newFadeText("",150,245,370,255,255,255,true)
 local cmodeText = newFadeText("",120,250,180,255,255,255,true)
 
-local showbutton = ui_button.new(613,118,15,15,function() L.chatHidden=false L.flashChat=false end,"<<")
+local showbutton = ui_button.new(613,using_manager and 119 or 136,14,14,function() if not hooks_enabled then enableMultiplayer() end L.chatHidden=false L.flashChat=false end,"<<")
 local flashCount=0
 showbutton.drawbox = true showbutton:drawadd(function(self) if L.flashChat then self.almostselected=true flashCount=flashCount+1 if flashCount%25==0 then self.invert=not self.invert end end end)
 local chatwindow = ui_chatbox.new(100,100,250,200)
@@ -1269,16 +1272,18 @@ end
 
 local pressedKeys
 local function step()
-	if pressedKeys and pressedKeys["repeat"] < socket.gettime() then
-		chatwindow:textprocess(pressedKeys["key"],pressedKeys["nkey"],pressedKeys["modifier"],pressedKeys["event"])
-		pressedKeys["repeat"] = socket.gettime()+.05
-	end
 	if not L.chatHidden then chatwindow:draw() else showbutton:draw() end
-	drawStuff()
-	sendStuff()
-	if L.pauseNextFrame then L.pauseNextFrame=false tpt.set_pause(1) end
-	connectThink()
-	updatePlayers()
+	if hooks_enabled then
+		if pressedKeys and pressedKeys["repeat"] < socket.gettime() then
+			chatwindow:textprocess(pressedKeys["key"],pressedKeys["nkey"],pressedKeys["modifier"],pressedKeys["event"])
+			pressedKeys["repeat"] = socket.gettime()+.05
+		end
+		drawStuff()
+		sendStuff()
+		if L.pauseNextFrame then L.pauseNextFrame=false tpt.set_pause(1) end
+		connectThink()
+		updatePlayers()
+	end
 end
 
 --some button locations that emulate tpt, return false will disable button
@@ -1301,9 +1306,9 @@ if jacobsmod then
 end
 
 local function mouseclicky(mousex,mousey,button,event,wheel)
+	if L.chatHidden then showbutton:process(mousex,mousey,button,event,wheel) end
 	if chatwindow:process(mousex,mousey,button,event,wheel) then return false end
 	if L.skipClick then L.skipClick=false return true end
-	if L.chatHidden then showbutton:process(mousex,mousey,button,event,wheel) end
 	if mousex<612 and mousey<384 then mousex,mousey = sim.adjustCoords(mousex,mousey) end
 	if L.stamp and button>0 and button~=2 then
 		if event==1 and button==1 then
@@ -1525,8 +1530,12 @@ local function keyclicky(key,nkey,modifier,event)
 	if ret~= nil then return ret end
 end
 
-tpt.register_keypress(keyclicky)
-tpt.register_mouseclick(mouseclicky)
+function enableMultiplayer()
+	tpt.register_keypress(keyclicky)
+	chatwindow:addline("TPTMP v0.5: Type '/connect' to join server.",200,200,200)
+	L.flashChat = false
+	hooks_enabled = true
+	enableMultiplayer = nil
+end
 tpt.register_step(step)
-chatwindow:addline("TPTMP v0.5: Type '/connect' to join server.",200,200,200)
-L.flashChat = false
+tpt.register_mouseclick(mouseclicky)
