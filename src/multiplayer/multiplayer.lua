@@ -23,7 +23,7 @@
 --Cleared everything
 
 local issocket,socket = pcall(require,"socket")
-if not sim.loadSave then error"Tpt version not supported" end
+if not sim.deleteStamp then error"Tpt version not supported" end
 if MANAGER_EXISTS then using_manager=true else MANAGER_PRINT=print end
 local hooks_enabled = false --hooks only enabled once you maximize the button
 
@@ -1299,6 +1299,7 @@ local tpt_buttons = {
 	["ambh"] = {x1=613, y1=65, x2=627, y2=79, f=function() conSend(53,tpt.ambient_heat()==0 and "\1" or "\0") end},
 }
 if jacobsmod then
+	tpt_buttons["tab"] = {x1=613, y1=1, x2=627, y2=16, firstClick = true, f=function() infoText:reset("Tabs not supported currently") return false end}
 	tpt_buttons["opts"] = {x1=470, y1=408, x2=484, y2=422, f=function() L.checkOpt=true end}
 	tpt_buttons["clear"] = {x1=486, y1=408, x2=502, y2=422, firstClick = true, f=function() conSend(63) L.lastSave=nil end}
 	tpt_buttons["disp"] = {x1=597, y1=408, x2=611, y2=422, firstClick = true, f=function() L.checkRen=2 L.pModes=getViewModes() end}
@@ -1306,8 +1307,8 @@ if jacobsmod then
 end
 
 local function mouseclicky(mousex,mousey,button,event,wheel)
-	if L.chatHidden then showbutton:process(mousex,mousey,button,event,wheel) end
-	if chatwindow:process(mousex,mousey,button,event,wheel) then return false end
+	if L.chatHidden then showbutton:process(mousex,mousey,button,event,wheel) if not hooks_enabled then return true end
+	elseif chatwindow:process(mousex,mousey,button,event,wheel) then return false end
 	if L.skipClick then L.skipClick=false return true end
 	if mousex<612 and mousey<384 then mousex,mousey = sim.adjustCoords(mousex,mousey) end
 	if L.stamp and button>0 and button~=2 then
@@ -1441,8 +1442,8 @@ local keypressfuncs = {
 	[57] = function() conSend(48,"\8") end,
 	
 	--replace mode, TODO: implement
-	[59] = function() infoText:reset("Replace mode not supported currently") return false end,
-	[277] = function() infoText:reset("Replace mode not supported currently") return false end,
+	[59] = function() if con.connected then infoText:reset("Replace mode not supported currently") return false end end,
+	[277] = function() if con.connected then infoText:reset("Replace mode not supported currently") return false end end,
 	
 	--= key, pressure/spark reset
 	[61] = function() if L.ctrl then conSend(60) else conSend(61) end end,
@@ -1468,11 +1469,17 @@ local keypressfuncs = {
 	--L , last Stamp
 	[108] = function () if L.lastStamp then L.placeStamp=true end end,
 
+	--N , newtonian gravity or new save
+	[110] = function () if jacobsmod and L.ctrl then infoText:reset("Tabs not supported currently") return false --[[conSend(63) L.lastSave=nil--]] else conSend(54,tpt.newtonian_gravity()==0 and "\1" or "\0") end end,
+
 	--R , for stamp rotate
-	[114] = function() if L.placeStamp then L.smoved=true if L.shift then return end L.rotate=not L.rotate end end,
+	[114] = function() if L.placeStamp then L.smoved=true if L.shift then return end L.rotate=not L.rotate else conSend(70) end end,
 
 	--S, stamp
 	[115] = function() if L.lastStick2 and not L.ctrl then return end L.stamp=true end,
+
+	--T, tabs
+	[116] = function() if jacobsmod then infoText:reset("Tabs not supported currently") return false end end,
 
 	--U, ambient heat toggle
 	[117] = function() conSend(53,tpt.ambient_heat()==0 and "\1" or "\0") end,
@@ -1495,6 +1502,9 @@ local keypressfuncs = {
 	[275] = function() if L.placeStamp then L.smoved=true end end,
 	[276] = function() if L.placeStamp then L.smoved=true end end,
 
+	--F5 , save reload
+	[286] = function() conSend(70) end,
+
 	--SHIFT,CTRL,ALT
 	[304] = function() L.shift=true conSend(36,string.char(17)) end,
 	[306] = function() L.ctrl=true conSend(36,string.char(1)) end,
@@ -1510,7 +1520,7 @@ local keyunpressfuncs = {
 }
 local function keyclicky(key,nkey,modifier,event)
 	if event == 1 then
-		pressedKeys = {["repeat"] = socket.gettime()+.3, ["key"] = key, ["nkey"] = nkey, ["modifier"] = modifier, ["event"] = event}
+		pressedKeys = {["repeat"] = socket.gettime()+.4, ["key"] = key, ["nkey"] = nkey, ["modifier"] = modifier, ["event"] = event}
 	elseif event == 2 and pressedKeys and nkey == pressedKeys["nkey"] then
 		pressedKeys = nil
 	end
@@ -1533,7 +1543,6 @@ end
 function enableMultiplayer()
 	tpt.register_keypress(keyclicky)
 	chatwindow:addline("TPTMP v0.5: Type '/connect' to join server.",200,200,200)
-	L.flashChat = false
 	hooks_enabled = true
 	enableMultiplayer = nil
 end
