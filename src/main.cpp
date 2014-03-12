@@ -1282,6 +1282,7 @@ int main(int argc, char *argv[])
 	{
 		luacon_log(autorun_result);
 	}
+	luacon_openmultiplayer();
 #endif
 	for (i = 0; i < 10; i++)
 	{

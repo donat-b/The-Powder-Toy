@@ -321,6 +321,11 @@ tpt.partsdata = nil");
 	lua_sethook(l, &lua_hook, LUA_MASKCOUNT, 4000000);
 }
 
+void luacon_openmultiplayer()
+{
+	luaopen_multiplayer(l);
+}
+
 #ifndef FFI
 int luacon_partread(lua_State* l)
 {

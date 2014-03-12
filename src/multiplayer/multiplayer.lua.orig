@@ -1,0 +1,12 @@
+#include "luaconsole.h"
+
+#ifdef LUACONSOLE
+
+void luaopen_multiplayer(lua_State *l)
+{
+	int multiplayer_luac_sz = /*#SIZE*/;
+	const char* multiplayer_luac = /*#DATA*/;
+	luaL_loadbuffer(l, multiplayer_luac, multiplayer_luac_sz, "@multiplayer.lua");
+	lua_pcall(l, 0, 0, 0);
+}
+#endif
