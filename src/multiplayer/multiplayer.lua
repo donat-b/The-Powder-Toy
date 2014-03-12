@@ -37,7 +37,13 @@ local tptversion = tpt.version.build
 local jacobsmod = tpt.version.jacob1s_mod~=nil
 math.randomseed(os.time())
 local username = tpt.get_name()
-if username=="" then error"Please Login" end
+if username=="" then
+	if jacobsmod then
+		username = "Guest"..math.random(10000,99999)
+	else
+		error("Please Login")
+	end
+end
 local con = {connected = false,
 		 socket = nil,
 		 members = nil,

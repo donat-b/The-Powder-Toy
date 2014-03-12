@@ -2203,7 +2203,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					}
 
 					// no more particle properties to load, so we can change type here without messing up loading
-					if ((globalSim->elementCount[PT_STKM]>=0 && partsptr[newIndex].type==PT_STKM) || (globalSim->elementCount[PT_STKM2]>0 && partsptr[newIndex].type==PT_STKM2))
+					if ((globalSim->elementCount[PT_STKM]>0 && partsptr[newIndex].type==PT_STKM) || (globalSim->elementCount[PT_STKM2]>0 && partsptr[newIndex].type==PT_STKM2))
 					{
 						partsptr[newIndex].type = PT_NONE;
 					}
