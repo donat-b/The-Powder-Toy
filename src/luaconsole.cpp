@@ -1624,10 +1624,6 @@ int luatpt_set_property(lua_State* l)
 	size_t offset;
 	acount = lua_gettop(l);
 	prop = luaL_optstring(l, 1, "");
-	i = abs(luaL_optint(l, 3, -1)); //x coord or particle index, depending on arguments
-	y = abs(luaL_optint(l, 4, -1));
-	w = abs(luaL_optint(l, 5, -1));
-	h = abs(luaL_optint(l, 6, -1));
 
 	offset = luacon_particle_getproperty(prop, &format);
 	if (offset == -1)
@@ -1658,15 +1654,22 @@ int luatpt_set_property(lua_State* l)
 		if (!console_parse_type(name, &t, NULL))
 			return luaL_error(l, "Unrecognised element '%s'", name);
 	}
-	if (i == -1 || (w != -1 && h != -1))
+	if (!lua_isnumber(l, 3) || acount >= 6)
 	{
 		// Got a region
-		if(i == -1)
+		if (acount < 6)
 		{
 			i = 0;
 			y = 0;
 			w = XRES;
 			h = YRES;
+		}
+		else
+		{
+			i = abs(luaL_checkint(l, 3));
+			y = abs(luaL_checkint(l, 4));
+			w = abs(luaL_checkint(l, 5));
+			h = abs(luaL_checkint(l, 6));
 		}
 		if (i>=XRES || y>=YRES)
 			return luaL_error(l, "Coordinates out of range (%d,%d)", i, y);
@@ -1695,9 +1698,11 @@ int luatpt_set_property(lua_State* l)
 	}
 	else
 	{
+		i = abs(luaL_checkint(l, 3));
 		// Got coords or particle index
-		if (i != -1 && y != -1)
+		if (lua_isnumber(l, 4))
 		{
+			y = abs(luaL_checkint(l, 4));
 			if (i>=XRES || y>=YRES)
 				return luaL_error(l, "Coordinates out of range (%d,%d)", i, y);
 			r = pmap[y][i];
