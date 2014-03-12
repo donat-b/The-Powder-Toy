@@ -3731,8 +3731,15 @@ SDLKey MapNumpad(SDLKey key)
 int EventProcess(SDL_Event event)
 {
 	if(event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
-		if(!(event.key.keysym.mod&KMOD_NUM))
-			event.key.keysym.sym = MapNumpad(event.key.keysym.sym);
+		if ((!(event.key.keysym.mod&KMOD_NUM)) ^ (!!(event.key.keysym.mod&KMOD_SHIFT)))
+		{
+			SDLKey newKey = MapNumpad(event.key.keysym.sym);
+			if (newKey != event.key.keysym.sym)
+			{
+				event.key.keysym.sym = newKey;
+				event.key.keysym.unicode = 0;
+			}
+		}
 	switch (event.type)
 	{
 	case SDL_KEYDOWN:

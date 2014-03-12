@@ -2248,10 +2248,10 @@ int main(int argc, char *argv[])
 				drawtext(vid_buf, 16, YRES-24, "Add and remove simulation tags", 255, 255, 255, da*5);
 				break;
 			case 258:
-				drawtext(vid_buf, 16, YRES-24, "Save the simulation under the current name", 255, 255, 255, da*5);
+				drawtext(vid_buf, 16, YRES-24, "Upload the simulation under the current name", 255, 255, 255, da*5);
 				break;
 			case 259:
-				drawtext(vid_buf, 16, YRES-24, "Save the simulation under a new name", 255, 255, 255, da*5);
+				drawtext(vid_buf, 16, YRES-24, "Upload the simulation under a new name", 255, 255, 255, da*5);
 				break;
 			case 260:
 				drawtext(vid_buf, 16, YRES-24, "Sign into the Simulation Server", 255, 255, 255, da*5);
