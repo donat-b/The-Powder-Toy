@@ -31,7 +31,7 @@ local PORT = 34403 --Change 34403 to your desired port
 local KEYBOARD = 1 --only change if you have issues. Only other option right now is 2(finnish).
 --Local player vars we need to keep
 local L = {mousex=0, mousey=0, brushx=0, brushy=0, sell=1, sela=296, selr=0, mButt=0, mEvent=0, dcolour=0, stick2=false, chatHidden=true, flashChat=false,
-shift=false, alt=false, ctrl=false, z=false, downInside=nil, skipClick=false, pauseNextFrame=false, copying=false, stamp=false, placeStamp=false, lastStamp=nil, lastCopy=nil, smoved=false, rotate=false, sendScreen=false}
+shift=false, alt=false, ctrl=false, tabs = false, z=false, downInside=nil, skipClick=false, pauseNextFrame=false, copying=false, stamp=false, placeStamp=false, lastStamp=nil, lastCopy=nil, smoved=false, rotate=false, sendScreen=false}
 
 local tptversion = tpt.version.build
 local jacobsmod = tpt.version.jacob1s_mod~=nil
@@ -1299,7 +1299,7 @@ local tpt_buttons = {
 	["ambh"] = {x1=613, y1=65, x2=627, y2=79, f=function() conSend(53,tpt.ambient_heat()==0 and "\1" or "\0") end},
 }
 if jacobsmod then
-	tpt_buttons["tab"] = {x1=613, y1=1, x2=627, y2=16, firstClick = true, f=function() infoText:reset("Tabs not supported currently") return false end}
+	tpt_buttons["tab"] = {x1=613, y1=1, x2=627, y2=16, firstClick = true, f=function() L.tabs = not L.tabs end}
 	tpt_buttons["opts"] = {x1=470, y1=408, x2=484, y2=422, f=function() L.checkOpt=true end}
 	tpt_buttons["clear"] = {x1=486, y1=408, x2=502, y2=422, firstClick = true, f=function() conSend(63) L.lastSave=nil end}
 	tpt_buttons["disp"] = {x1=597, y1=408, x2=611, y2=422, firstClick = true, f=function() L.checkRen=2 L.pModes=getViewModes() end}
@@ -1395,6 +1395,9 @@ local function mouseclicky(mousex,mousey,button,event,wheel)
 	--Click inside button first
 	if button==1 then
 		if event==1 then
+			if jacobsmod and (L.tabs or L.ctrl) and mousex>=613 and mousex<=627 and mousey<=143 then
+				L.sendScreen = 2
+			end
 			for k,v in pairs(tpt_buttons) do
 				if mousex>=v.x1 and mousex<=v.x2 and mousey>=v.y1 and mousey<=v.y2 then
 					if jacobsmod and tpt_buttons[k].firstClick then
@@ -1470,7 +1473,7 @@ local keypressfuncs = {
 	[108] = function () if L.lastStamp then L.placeStamp=true end end,
 
 	--N , newtonian gravity or new save
-	[110] = function () if jacobsmod and L.ctrl then infoText:reset("Tabs not supported currently") return false --[[conSend(63) L.lastSave=nil--]] else conSend(54,tpt.newtonian_gravity()==0 and "\1" or "\0") end end,
+	[110] = function () if jacobsmod and L.ctrl then L.sendScreen=2 L.lastSave=nil else conSend(54,tpt.newtonian_gravity()==0 and "\1" or "\0") end end,
 
 	--R , for stamp rotate
 	[114] = function() if L.placeStamp then L.smoved=true if L.shift then return end L.rotate=not L.rotate else conSend(70) end end,
@@ -1479,7 +1482,7 @@ local keypressfuncs = {
 	[115] = function() if L.lastStick2 and not L.ctrl then return end L.stamp=true end,
 
 	--T, tabs
-	[116] = function() if jacobsmod then infoText:reset("Tabs not supported currently") return false end end,
+	[116] = function() if jacobsmod then L.tabs = not L.tabs end end,
 
 	--U, ambient heat toggle
 	[117] = function() conSend(53,tpt.ambient_heat()==0 and "\1" or "\0") end,
