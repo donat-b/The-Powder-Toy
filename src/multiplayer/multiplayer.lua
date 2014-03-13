@@ -61,6 +61,8 @@ local function joinChannel(chan)
 end
 local function connectToMniip(ip,port)
 	if con.connected then return false,"Already connected" end
+	local newusername = tpt.get_name()
+	if newusername~="" then username = newusername end
 	ip = ip or "pwc-servers.com"
 	port = port or PORT
 	local sock = socket.tcp()
@@ -531,7 +533,7 @@ new=function(x,y,w,h)
 		if L.chatHidden then return false end
 		local text = self.inputbox:textprocess(key,nkey,modifier,event)
 		if type(text)=="boolean" then return text end
-		if text then
+		if text and text~="" then
 			local cmd = text:match("^/([^%s]+)")
 			if cmd then
 				local rest=text:sub(#cmd+3)
@@ -1473,7 +1475,7 @@ local keypressfuncs = {
 	--[100] = function() conSend(55) end,
 	
 	--F , frame step
-	[102] = function() conSend(50) end,
+	[102] = function() if not jacobsmod or not L.ctrl then conSend(50) end end,
 
 	--I , invert pressure
 	[105] = function() conSend(62) end,
