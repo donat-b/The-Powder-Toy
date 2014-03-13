@@ -72,6 +72,7 @@ void initSimulationAPI(lua_State * l)
 		{"loadStamp", simulation_loadStamp},
 		{"deleteStamp", simulation_deleteStamp},
 		{"loadSave", simulation_loadSave},
+		{"reloadSave", simulation_reloadSave},
 		{"getSaveID", simulation_getSaveID},
 		{"adjustCoords", simulation_adjustCoords},
 		{"prettyPowders", simulation_prettyPowders},
@@ -953,6 +954,13 @@ int simulation_loadSave(lua_State * l)
 	sprintf(save_date, "%i", history);
 	
 	open_ui(vid_buf, save_id, save_date, instant);
+	return 0;
+}
+
+int simulation_reloadSave(lua_State * l)
+{
+	parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+	ctrlzSnapshot();
 	return 0;
 }
 

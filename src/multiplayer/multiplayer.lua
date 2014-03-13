@@ -46,7 +46,7 @@ local function conSend(cmd,msg,endNull)
 	if endNull then msg = msg.."\0" end
 	if cmd then msg = string.char(cmd)..msg end
 	--print("sent "..msg)
-	con.socket:settimeout(2.9)
+	con.socket:settimeout(10)
 	con.socket:send(msg)
 	con.socket:settimeout(0)
 end
@@ -780,7 +780,7 @@ local function playerMouseMove(id)
 	end
 end
 local function loadStamp(size,x,y,reset)
-	con.socket:settimeout(2.9)
+	con.socket:settimeout(10)
 	local s = con.socket:receive(size)
 	con.socket:settimeout(0)
 	if s then
@@ -1475,7 +1475,7 @@ local keypressfuncs = {
 	--[100] = function() conSend(55) end,
 	
 	--F , frame step
-	[102] = function() if not jacobsmod or not L.ctrl then conSend(50) end end,
+	[102] = function() if not jacobsmod or (not L.ctrl and not L.shift) then conSend(50) end end,
 
 	--I , invert pressure
 	[105] = function() conSend(62) end,
@@ -1564,6 +1564,7 @@ function enableMultiplayer()
 	chatwindow:addline("TPTMP v0.6: Type '/connect' to join server.",200,200,200)
 	hooks_enabled = true
 	enableMultiplayer = nil
+	debug.sethook(nil,"",0)
 end
 tpt.register_step(step)
 tpt.register_mouseclick(mouseclicky)

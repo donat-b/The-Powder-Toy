@@ -189,10 +189,14 @@ void luacon_open()
 	lua_setfield(l, tptProperties, "mousex");
 	lua_pushinteger(l, 0);
 	lua_setfield(l, tptProperties, "mousey");
-	lua_pushinteger(l, 0);
+	lua_pushstring(l, "DEFAULT_PT_DUST");
 	lua_setfield(l, tptProperties, "selectedl");
-	lua_pushinteger(l, 0);
+	lua_pushstring(l, "DEFAULT_PT_NONE");
 	lua_setfield(l, tptProperties, "selectedr");
+	lua_pushstring(l, "DEFAULT_PT_NONE");
+	lua_setfield(l, tptProperties, "selecteda");
+	lua_pushstring(l, "DEFAULT_PT_NONE");
+	lua_setfield(l, tptProperties, "selectedreplace");
 	
 	lua_newtable(l);
 	tptPropertiesVersion = lua_gettop(l);
@@ -881,6 +885,7 @@ int luacon_step(int mx, int my, std::string selectedl, std::string selectedr, st
 	lua_pushinteger(l, bsy);
 	lua_pushinteger(l, bsx);
 	lua_pushstring(l, selecteda.c_str());
+	lua_pushstring(l, selecteda.c_str());
 	lua_pushstring(l, selectedr.c_str());
 	lua_pushstring(l, selectedl.c_str());
 	lua_pushinteger(l, my);
@@ -890,6 +895,7 @@ int luacon_step(int mx, int my, std::string selectedl, std::string selectedr, st
 	lua_setfield(l, tptProperties, "selectedl");
 	lua_setfield(l, tptProperties, "selectedr");
 	lua_setfield(l, tptProperties, "selecteda");
+	lua_setfield(l, tptProperties, "selectedreplace");
 	lua_setfield(l, tptProperties, "brushx");
 	lua_setfield(l, tptProperties, "brushy");
 	lua_getglobal(l, "simulation");

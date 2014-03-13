@@ -1705,18 +1705,15 @@ int main(int argc, char *argv[])
 			{
 				if ((sdl_mod & (KMOD_CTRL)) && load_mode != 1)
 				{
-					if (strncmp(svf_id, "", 8))
-					{
-						parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-						ctrlzSnapshot();
-					}
+					parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+					ctrlzSnapshot();
 				}
 				else if (!(sdl_mod & (KMOD_CTRL|KMOD_SHIFT)))
 					GENERATION = 0;
 			}
 			else if (sdl_key == SDLK_F5)
 			{
-				if (load_mode != 1 && strncmp(svf_id, "", 8))
+				if (load_mode != 1)
 				{
 					parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 					ctrlzSnapshot();
