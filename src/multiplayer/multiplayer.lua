@@ -1490,7 +1490,7 @@ local keypressfuncs = {
 	[110] = function () if jacobsmod and L.ctrl then L.sendScreen=2 L.lastSave=nil else conSend(54,tpt.newtonian_gravity()==0 and "\1" or "\0") end end,
 
 	--R , for stamp rotate
-	[114] = function() if L.placeStamp then L.smoved=true if L.shift then return end L.rotate=not L.rotate elseif jacobsmod and L.ctl then conSend(70) end end,
+	[114] = function() if L.placeStamp then L.smoved=true if L.shift then return end L.rotate=not L.rotate elseif jacobsmod and L.ctrl then conSend(70) end end,
 
 	--S, stamp
 	[115] = function() if L.lastStick2 and not L.ctrl then return end L.stamp=true end,
