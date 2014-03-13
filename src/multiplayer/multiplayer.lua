@@ -23,7 +23,7 @@
 --Cleared everything
 
 local issocket,socket = pcall(require,"socket")
-if not sim.deleteStamp then error"Tpt version not supported" end
+if not sim.loadStamp then error"Tpt version not supported" end
 if MANAGER_EXISTS then using_manager=true else MANAGER_PRINT=print end
 local hooks_enabled = false --hooks only enabled once you maximize the button
 
@@ -807,6 +807,13 @@ local function saveStamp(x, y, w, h)
 	local fullName = "stamps/"..stampName..".stm"
 	return stampName, fullName
 end
+local function deleteStamp(name)
+	if sim.deleteStamp then
+		sim.deleteStamp(name)
+	else
+		os.remove("stamps/"..name..".stm")
+	end
+end
 
 local dataCmds = {
 	[16] = function()
@@ -1065,7 +1072,7 @@ local dataCmds = {
 		local f = assert(io.open(fullName,"rb"))
 		local s = f:read"*a"
 		f:close()
-		sim.deleteStamp(stampName)
+		deleteStamp(stampName)
 		local d = #s
 		conSend(128,string.char(id,math.floor(d/65536),math.floor(d/256)%256,d%256)..s)
 		conSend(130,string.char(id,53,tpt.ambient_heat()))
@@ -1199,7 +1206,7 @@ local function sendStuff()
 			local stampName,fullName = saveStamp(0,0,611,383)
 			os.remove("stamps/tmp.stm") os.rename(fullName,"stamps/tmp.stm")
 			conSend(69,string.char(math.floor(id/65536),math.floor(id/256)%256,id%256))
-			sim.deleteStamp(stampName)
+			deleteStamp(stampName)
 		end
 		L.browseMode=nil
 	elseif L.browseMode==2 then
@@ -1211,7 +1218,7 @@ local function sendStuff()
 		--save this as a stamp for reloading (unless an api function exists to do this)
 		local stampName,fullName = saveStamp(0,0,611,383)
 		os.remove("stamps/tmp.stm") os.rename(fullName,"stamps/tmp.stm")
-		sim.deleteStamp(stampName)
+		deleteStamp(stampName)
 	end
 	
 	--Send screen (or an area for known size) for stamps
@@ -1232,7 +1239,7 @@ local function sendStuff()
 		local f = assert(io.open(fullName,"rb"))
 		local s = f:read"*a"
 		f:close()
-		sim.deleteStamp(stampName)
+		deleteStamp(stampName)
 		local d = #s
 		local b1,b2,b3 = math.floor(x/16),((x%16)*16)+math.floor(y/256),(y%256)
 		conSend(67,string.char(math.floor(x/16),((x%16)*16)+math.floor(y/256),(y%256),math.floor((x+w)/16),(((x+w)%16)*16)+math.floor((y+h)/256),((y+h)%256)))
@@ -1341,7 +1348,7 @@ local function mouseclicky(mousex,mousey,button,event,wheel)
 				local f = assert(io.open(fullName,"rb"))
 				if L.copying then L.lastCopy = {data=f:read"*a",w=w,h=h} else L.lastStamp = {data=f:read"*a",w=w,h=h} end
 				f:close()
-				sim.deleteStamp(stampName)
+				deleteStamp(stampName)
 			end
 			L.stamp=false
 			L.copying=false
@@ -1529,10 +1536,12 @@ local keyunpressfuncs = {
 	[308] = function() L.alt=false conSend(36,string.char(32)) end,
 }
 local function keyclicky(key,nkey,modifier,event)
-	if event == 1 then
-		pressedKeys = {["repeat"] = socket.gettime()+.4, ["key"] = key, ["nkey"] = nkey, ["modifier"] = modifier, ["event"] = event}
-	elseif event == 2 and pressedKeys and nkey == pressedKeys["nkey"] then
-		pressedKeys = nil
+	if chatwindow.inputbox.focus then
+		if event == 1 then
+			pressedKeys = {["repeat"] = socket.gettime()+.6, ["key"] = key, ["nkey"] = nkey, ["modifier"] = modifier, ["event"] = event}
+		elseif event == 2 and pressedKeys and nkey == pressedKeys["nkey"] then
+			pressedKeys = nil
+		end
 	end
 	local check = chatwindow:textprocess(key,nkey,modifier,event)
 	if check~=false then return true end
@@ -1558,3 +1567,4 @@ function enableMultiplayer()
 end
 tpt.register_step(step)
 tpt.register_mouseclick(mouseclicky)
+
