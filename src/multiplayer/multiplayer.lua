@@ -1,8 +1,9 @@
+
 --Cracker64's Powder Toy Multiplayer
 --I highly recommend to use my Autorun Script Manager
---VER 0.52 UPDATE http://pastebin.com/raw.php?i=Dk5Kx4JV
+--VER 0.6 UPDATE http://pastebin.com/raw.php?i=Dk5Kx4JV
  
---Version 0.52
+--Version 0.6
 
 --TODO's
 --Support replace mode
@@ -13,14 +14,9 @@
 -------------------------------------------------------
 
 --CHANGES:
---Use newer api functions, option menu settings sync when closed.
---Stamp functions sync, using a stamp from 'k' will send full screen, alt snap
---Lots of new api functions, nearly everything syncs
---Most things synced.  Awaiting new tpt api functions for full sync
---It connects to server! and chat
---Basic inputbox
---Basic chat box, moving window
---Cleared everything
+--More colors!
+--ESC key will unfocus, then minimize chat
+--Changes from jacob, including: Support jacobsMod, keyrepeat
 
 local issocket,socket = pcall(require,"socket")
 if not sim.loadStamp then error"Tpt version not supported" end
@@ -38,11 +34,7 @@ local jacobsmod = tpt.version.jacob1s_mod~=nil
 math.randomseed(os.time())
 local username = tpt.get_name()
 if username=="" then
-	if jacobsmod then
-		username = "Guest"..math.random(10000,99999)
-	else
-		error("Please Login")
-	end
+	username = "Guest"..math.random(10000,99999)
 end
 local con = {connected = false,
 		 socket = nil,
@@ -54,7 +46,9 @@ local function conSend(cmd,msg,endNull)
 	if endNull then msg = msg.."\0" end
 	if cmd then msg = string.char(cmd)..msg end
 	--print("sent "..msg)
+	con.socket:settimeout(2.9)
 	con.socket:send(msg)
+	con.socket:settimeout(0)
 end
 local function joinChannel(chan)
 	conSend(16,chan,true)
@@ -133,8 +127,8 @@ local function getArgs(msg)
 end
 
 --get different lists for other language keyboards
-local keyboardshift = { {before=" qwertyuiopasdfghjklzxcvbnm1234567890-=.,/`|;'[]\\",after=" QWERTYUIOPASDFGHJKLZXCVBNM!@#$%^&*()_+><?~\\:\"{}|",},{before=" qwertyuiopasdfghjklzxcvbnm1234567890+,.-'¿¿¿¿¿¿¿¿¿¿¿¿¿¿<",after=" QWERTYUIOPASDFGHJKLZXCVBNM!\"#¿¿¿¿¿¿¿%&/()=?;:_*`^>",}  }
-local keyboardaltrg = { {nil},{before=" qwertyuiopasdfghjklzxcvbnm1234567890+,.-'¿¿¿¿¿¿¿<",after=" qwertyuiopasdfghjklzxcvbnm1@¿¿¿¿¿¿¿$¿6{[]}\\,.-'~|",},}
+local keyboardshift = { {before=" qwertyuiopasdfghjklzxcvbnm1234567890-=.,/`|;'[]\\",after=" QWERTYUIOPASDFGHJKLZXCVBNM!@#$%^&*()_+><?~\\:\"{}|",},{before=" qwertyuiopasdfghjklzxcvbnm1234567890+,.-'߿߿߿߿߿߿߿<",after=" QWERTYUIOPASDFGHJKLZXCVBNM!\"#߿߿߿ߥ&/()=?;:_*`^>",}  }
+local keyboardaltrg = { {nil},{before=" qwertyuiopasdfghjklzxcvbnm1234567890+,.-'߿߿߿߼",after=" qwertyuiopasdfghjklzxcvbnm1@߿߿߿ߤ߶{[]}\\,.-'~|",},}
 
 local function shift(s)
 	if keyboardshift[KEYBOARD]~=nil then
@@ -303,23 +297,24 @@ new=function(x,y,w,h)
 		if self.cursor<0 then self.cursor = 0 return end
 	end
 	function intext:textprocess(key,nkey,modifier,event)
-		local modi = (modifier%1024)
-		if not self.focus then return false end
+		if not self.focus then return end
 		if event~=1 then return end
+		if nkey==27 then self:setfocus(false) return true end
 		if nkey==13 then local text=self.t.text self.cursor=0 self.t.text="" return text end --enter
+		if nkey==275 then self:movecursor(1) self.t:update(nil,self.cursor) return true end --right
+		if nkey==276 then self:movecursor(-1) self.t:update(nil,self.cursor) return true end --left
+		local modi = (modifier%1024)
 		local newstr
-		if nkey==275 then self:movecursor(1) self.t:update(nil,self.cursor) return end --right
-		if nkey==276 then self:movecursor(-1) self.t:update(nil,self.cursor) return end --left
 		if nkey==8 and self.cursor > 0 then newstr=self.t.text:sub(1,self.cursor-1) .. self.t.text:sub(self.cursor+1) self:movecursor(-1) --back
 		elseif nkey==127 then newstr=self.t.text:sub(1,self.cursor) .. self.t.text:sub(self.cursor+2) --delete
 		else 
-			if nkey<32 or nkey>=127 then return end --normal key
+			if nkey<32 or nkey>=127 then return true end --normal key
 			local addkey = (modi==1 or modi==2) and shift(key) or key
 			if (math.floor(modi/512))==1 then addkey=altgr(key) end
 			newstr = self.t.text:sub(1,self.cursor) .. addkey .. self.t.text:sub(self.cursor+1)
 			self.t:update(newstr,self.cursor+1)
 			self:movecursor(1)
-			return
+			return true
 		end
 		if newstr then
 			self.t:update(newstr,self.cursor)
@@ -489,7 +484,7 @@ new=function(x,y,w,h)
 		if not issocket then self:addline("No luasockets found") return end
 		tpt.version.minor = 0
 		local s,r = connectToMniip(args[1],tonumber(args[2]))
-		if not s then self:addline(r) end
+		if not s then self:addline(r,255,50,50) end
 	end,
 	send = function(self,msg,args)
 		if tonumber(args[1]) and args[2] then
@@ -501,19 +496,19 @@ new=function(x,y,w,h)
 	end,
 	quit = function(self,msg,args)
 		con.socket:close()
-		self:addline("Disconnected")
+		self:addline("Disconnected",255,50,50)
 		con.connected = false
 		con.members = {}
 	end,
 	join = function(self,msg,args)
 		if args[1] then
 			joinChannel(args[1])
-			self:addline("joined channel "..args[1])
+			self:addline("joined channel "..args[1],50,255,50)
 		end
 	end,
 	sync = function(self,msg,args)
 		if con.connected then L.sendScreen=true end --need to send 67 clear screen
-		self:addline("Synced screen to server")
+		self:addline("Synced screen to server",255,255,50)
 	end,
 	help = function(self,msg,args)
 		if not args[1] then self:addline("/help <command>, type /list for a list of commands") end
@@ -535,6 +530,7 @@ new=function(x,y,w,h)
 	function chat:textprocess(key,nkey,modifier,event)
 		if L.chatHidden then return false end
 		local text = self.inputbox:textprocess(key,nkey,modifier,event)
+		if type(text)=="boolean" then return text end
 		if text then
 			local cmd = text:match("^/([^%s]+)")
 			if cmd then
@@ -542,20 +538,20 @@ new=function(x,y,w,h)
 				local args = getArgs(rest)
 				if chatcommands[cmd] then
 					chatcommands[cmd](self,msg,args)
+					--self:addline("Executed "..cmd.." "..rest)
 				else
-					self:addline("No such command: "..cmd.." "..rest,200,200,0)
+					self:addline("No such command: "..cmd.." "..rest,255,50,50)
 				end
 			else
 				--normal chat
 				if con.connected then
 					conSend(19,text,true)
-					self:addline(username .. ": ".. text,230,230,230)
+					self:addline(username .. ": ".. text,200,200,200)
 				else
-					self:addline("Not connected to server!",200,200,0)
+					self:addline("Not connected to server!",255,50,50)
 				end
 			end
 		end
-		if text==false then return false end
 	end
 	return chat
 end
@@ -782,8 +778,7 @@ local function playerMouseMove(id)
 	end
 end
 local function loadStamp(size,x,y,reset)
-	debug.sethook(nil, "", 0)
-	con.socket:settimeout(4)
+	con.socket:settimeout(2.9)
 	local s = con.socket:receive(size)
 	con.socket:settimeout(0)
 	if s then
@@ -827,16 +822,16 @@ local dataCmds = {
 			local name = con.members[id].name
 			table.insert(peeps,name)
 		end
-		chatwindow:addline("Online: "..table.concat(peeps," "))
+		chatwindow:addline("Online: "..table.concat(peeps," "),255,255,50)
 	end,
 	[17]= function()
 		local id = cByte()
 		con.members[id] ={name=conGetNull(),mousex=0,mousey=0,brushx=4,brushy=4,brush=0,selectedl=1,selectedr=0,selecteda=296,dcolour={0,0,0,0},lbtn=false,abtn=false,rbtn=false,ctrl=false,shift=false,alt=false}
-		chatwindow:addline(con.members[id].name.." has joined")
+		chatwindow:addline(con.members[id].name.." has joined",100,255,100)
 	end,
 	[18] = function()
 		local id = cByte()
-		chatwindow:addline(con.members[id].name.." has left")
+		chatwindow:addline(con.members[id].name.." has left",255,255,100)
 		con.members[id]=nil
 	end,
 	[19] = function()
@@ -1443,6 +1438,9 @@ local keypressfuncs = {
 	--TAB
 	[9] = function() conSend(35) end,
 	
+	--ESC
+	[27] = function() if not L.chatHidden then L.chatHidden = true return false end end,
+	
 	--space, pause toggle
 	[32] = function() conSend(49,tpt.set_pause()==0 and "\1" or "\0") end,
 		
@@ -1490,7 +1488,7 @@ local keypressfuncs = {
 	[110] = function () if jacobsmod and L.ctrl then L.sendScreen=2 L.lastSave=nil else conSend(54,tpt.newtonian_gravity()==0 and "\1" or "\0") end end,
 
 	--R , for stamp rotate
-	[114] = function() if L.placeStamp then L.smoved=true if L.shift then return end L.rotate=not L.rotate else conSend(70) end end,
+	[114] = function() if L.placeStamp then L.smoved=true if L.shift then return end L.rotate=not L.rotate elseif jacobsmod and L.ctl then conSend(70) end end,
 
 	--S, stamp
 	[115] = function() if L.lastStick2 and not L.ctrl then return end L.stamp=true end,
@@ -1520,7 +1518,7 @@ local keypressfuncs = {
 	[276] = function() if L.placeStamp then L.smoved=true end end,
 
 	--F5 , save reload
-	[286] = function() conSend(70) end,
+	[286] = function() if jacobs_mod then conSend(70) end end,
 
 	--SHIFT,CTRL,ALT
 	[304] = function() L.shift=true conSend(36,string.char(17)) end,
@@ -1537,14 +1535,14 @@ local keyunpressfuncs = {
 }
 local function keyclicky(key,nkey,modifier,event)
 	if chatwindow.inputbox.focus then
-		if event == 1 then
+		if event == 1 and nkey~=27 then
 			pressedKeys = {["repeat"] = socket.gettime()+.6, ["key"] = key, ["nkey"] = nkey, ["modifier"] = modifier, ["event"] = event}
 		elseif event == 2 and pressedKeys and nkey == pressedKeys["nkey"] then
 			pressedKeys = nil
 		end
 	end
 	local check = chatwindow:textprocess(key,nkey,modifier,event)
-	if check~=false then return true end
+	if type(check)=="boolean" then return not check end
 	--MANAGER_PRINT(nkey)
 	local ret
 	if event==1 then
@@ -1561,7 +1559,7 @@ end
 
 function enableMultiplayer()
 	tpt.register_keypress(keyclicky)
-	chatwindow:addline("TPTMP v0.5: Type '/connect' to join server.",200,200,200)
+	chatwindow:addline("TPTMP v0.6: Type '/connect' to join server.",200,200,200)
 	hooks_enabled = true
 	enableMultiplayer = nil
 end
