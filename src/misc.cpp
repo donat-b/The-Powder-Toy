@@ -308,7 +308,6 @@ void save_presets(int do_update)
 		cJSON_AddNumberToObject(root, "EXPL_unlocked", 1);
 	if (old_menu)
 		cJSON_AddNumberToObject(root, "old_menu", 1);
-	cJSON_AddNumberToObject(root, "save_as", save_as);
 	cJSON_AddNumberToObject(root, "drawgrav_enable", drawgrav_enable);
 	cJSON_AddNumberToObject(root, "edgeMode", edgeMode);
 	if (finding & 0x8)
@@ -607,7 +606,6 @@ void load_presets(void)
 		else if(tmpobj = cJSON_GetObjectItem(root, "Scale")) sdl_scale = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "Debug mode")) DEBUG_MODE = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "heatmode")) heatmode = tmpobj->valueint;
-		//if(tmpobj = cJSON_GetObjectItem(root, "save_as")) save_as = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "autosave")) autosave = tmpobj->valueint;
 		//if(tmpobj = cJSON_GetObjectItem(root, "sl")) sl = su = tmpobj->valueint;
 		//if(tmpobj = cJSON_GetObjectItem(root, "sr")) sr = tmpobj->valueint;

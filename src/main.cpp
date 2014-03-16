@@ -245,7 +245,7 @@ int lowesttemp = MIN_TEMP;
 int heatmode = 0;
 int maxframes = 25;
 int secret_els = 0;
-int save_as = 5;
+int save_as = 2;
 int tab_num = 1;
 int num_tabs = 1;
 int show_tabs = 0;
@@ -416,6 +416,7 @@ void clear_sim()
 	memset(msvy, 0, sizeof(msvy));
 	memset(msrotation, 0, sizeof(msrotation));
 	memset(newmsrotation, 0, sizeof(newmsrotation));
+	player.spawnID = player2.spawnID = -1;
 	finding &= 0x8;
 	mod_save = MOD_SAVE_VERSION;
 	if(edgeMode == 1)
@@ -534,9 +535,14 @@ int clipboard_length = 0;
 char* stamp_save(int x, int y, int w, int h)
 {
 	FILE *f;
-	int n;
 	char fn[64], sn[16];
-	void *s=build_save(&n, x, y, w, h, bmap, vx, vy, pv, fvx, fvy, signs, parts, (sdl_mod & KMOD_SHIFT));
+	int n, saveAs = save_as;
+	void *s;
+	if (check_save(saveAs, x, y, w, h, 0))
+	{
+		saveAs = 0;
+	}
+	s = build_save(&n, x, y, w, h, bmap, vx, vy, pv, fvx, fvy, signs, parts, (sdl_mod & KMOD_SHIFT), saveAs);
 	if (!s)
 		return NULL;
 
@@ -574,14 +580,12 @@ char* stamp_save(int x, int y, int w, int h)
 void tab_save(int num, char reloadButton)
 {
 	FILE *f;
-	int fileSize, oldsave_as = save_as;
+	int fileSize;
 	char fileName[64];
 	void *saveData;
 
 	//build the tab
-	save_as = 3;
-	saveData = build_save(&fileSize, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, 2);
-	save_as = oldsave_as;
+	saveData = build_save(&fileSize, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, 2, 0);
 	if (!saveData)
 		return;
 
@@ -2135,14 +2139,11 @@ int main(int argc, char *argv[])
 
 				if (doTransform)
 				{
-					int old_save_as = save_as;
-					save_as = 3;
 					ndata = transform_save(load_data, &load_size, transform, translate);
 					if (ndata!=load_data) free(load_data);
 					free(load_img);
 					load_data = ndata;
 					load_img = prerender_save(load_data, load_size, &load_w, &load_h);
-					save_as = old_save_as;
 				}
 			}
 			if (sdl_key=='x'&&(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)))
@@ -2717,38 +2718,26 @@ int main(int argc, char *argv[])
 				{
 					if (copy_mode==1)//CTRL-C, copy
 					{
-						int oldsave_as = save_as;
-						save_as = 3;
 						if (clipboard_data)
 							free(clipboard_data);
-						clipboard_data=build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts, (sdl_mod & KMOD_SHIFT));
+						clipboard_data = build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts, (sdl_mod & KMOD_SHIFT), 0);
 						if (clipboard_data)
 							clipboard_ready = 1;
-						save_as = oldsave_as;
 					}
 					else if (copy_mode==2)//CTRL-X, cut
 					{
-						int oldsave_as = save_as;
-						save_as = 3;
 						if (clipboard_data)
 							free(clipboard_data);
-						clipboard_data=build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts, (sdl_mod & KMOD_SHIFT));
+						clipboard_data = build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts, (sdl_mod & KMOD_SHIFT), 0);
 						if (clipboard_data)
 						{
 							clipboard_ready = 1;
 							clear_area(save_x, save_y, save_w, save_h);
 						}
-						save_as = oldsave_as;
 					}
 					else//normal save
 					{
-						int oldsave_as = save_as;
-						if (check_save(save_as%3, save_x, save_y, save_w, save_h, 0))
-						{
-							save_as = 3;
-						}
 						stamp_save(save_x, save_y, save_w, save_h);
-						save_as = oldsave_as;
 					}
 				}
 				copy_mode = 0;
@@ -2830,7 +2819,7 @@ int main(int argc, char *argv[])
 							if (!svf_open || !svf_own || x>51)
 							{
 								if (save_name_ui(vid_buf)) {
-									if (!execute_save(vid_buf) && svf_id[0]) {
+									if (!execute_save(vid_buf, save_as) && svf_id[0]) {
 										copytext_ui(vid_buf, "Save ID", "Saved successfully!", svf_id);
 									}
 									else
@@ -2842,20 +2831,20 @@ int main(int argc, char *argv[])
 							}
 							else
 							{
-								int oldsave_as = save_as;
+								int saveAs = save_as;
 								int can_publish = check_save(2, 0, 0, XRES, YRES, 0);
 								if (can_publish)
 								{
-									svf_publish = 0;
+									//svf_publish = 0;
 									svf_modsave = 1;
-									save_as = 3;
+									saveAs = 0;
 								}
-								else
+								else if (!svf_modsave)
 								{
 									svf_modsave = 0;
-									save_as = 5;
+									saveAs = 2;
 								}
-								if (execute_save(vid_buf))
+								if (execute_save(vid_buf, saveAs))
 								{
 									itc = 200;
 									strcpy(itc_msg, "Error Saving");
@@ -2865,8 +2854,6 @@ int main(int argc, char *argv[])
 									itc = 200;
 									strcpy(itc_msg, "Saved Successfully");
 								}
-								save_as = oldsave_as;
-
 							}
 							while (!sdl_poll())
 								if (!mouse_get_state(&x, &y))

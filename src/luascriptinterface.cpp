@@ -861,12 +861,7 @@ int simulation_saveStamp(lua_State* l)
 	int y = luaL_optint(l,2,0);
 	int w = luaL_optint(l,3,XRES);
 	int h = luaL_optint(l,4,YRES);
-	int saveas = luaL_optint(l,5,5);
-	int oldsave_as = save_as;
-	char *name;
-	save_as = saveas;
-	name = stamp_save(x, y, w, h);
-	save_as = oldsave_as;
+	char *name = stamp_save(x, y, w, h);
 	lua_pushstring(l, name);
 	return 1;
 }

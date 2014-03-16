@@ -3191,15 +3191,6 @@ void menu_draw_text(Tool* lastOver, int i)
 			else
 				sprintf(favtext, "%smanual: %iC - %iC",fav[toolID-FAV_START].description,lowesttemp-273,highesttemp-273);
 		}
-		/*else if (toolID == FAV_SAVE)
-		{
-			if (save_as%3 == 0)
-				strappend(favtext, "Jacob's Mod ver. " MTOS(MOD_VERSION));
-			else if (save_as%3 == 1)
-				strappend(favtext, "Powder Toy beta ver. " MTOS(BETA_VERSION));
-			else
-				strappend(favtext, "Powder Toy release ver. " MTOS(RELEASE_VERSION));
-		}*/
 		else if (toolID == FAV_AUTOSAVE)
 		{
 			if (!autosave)
@@ -3284,14 +3275,6 @@ void menu_select_element(int b, Tool* over)
 				ms_rotation = !ms_rotation;
 			else if (toolID == FAV_HEAT)
 				heatmode = (heatmode + 1)%3;
-			/*else if (toolID == FAV_SAVE)
-			{
-				save_as = 3+(save_as + 1)%3;
-#ifndef BETA
-				if (save_as%3 == 1)
-					save_as++;
-#endif
-			}*/
 			else if (toolID == FAV_LUA)
 #ifdef LUACONSOLE
 				addluastuff();
@@ -6466,34 +6449,31 @@ int execute_tagop(pixel *vid_buf, char *op, char *tag)
 	return 0;
 }
 
-int execute_save(pixel *vid_buf)
+int execute_save(pixel *vid_buf, int saveAs)
 {
-	int status, oldsave_as = save_as;
+	int status;
 	char *result;
 
 	char *names[] = {"Name","Description", "Data:save.bin", "Thumb:thumb.bin", "Publish", "ID", NULL};
 	char *uploadparts[6];
 	int plens[6];
 
-	/*if (save_as == 3 && !check_save(2,0,0,XRES,YRES,0))
+	/*if (saveAs == 0 && !check_save(2,0,0,XRES,YRES,0))
 	{
 		if (confirm_ui(vid_buf, "Save as official version?", "This save doesn't use any mod elements, and could be opened by everyone and have a correct thumbnail if it was saved as the official version. Click cancel to save like this anyway, incase you used some mod features", "OK"))
 		{
-			oldsave_as = save_as;
-			save_as = 5;
+			saveAs = 2;
 		}
 	}*/
-	if (save_as != 4 && !svf_modsave)
+	if (saveAs != 1 && !svf_modsave)
 	{
-		oldsave_as = save_as;
-		save_as = 5;
+		saveAs = 2;
 	}
 	else if (svf_modsave)
 	{
-		oldsave_as = save_as;
-		save_as = 3;
+		saveAs = 0;
 	}
-	if (svf_publish == 1 && save_as != 5)
+	if (svf_publish == 1 && saveAs != 2)
 	{
 		error_ui(vid_buf, 0, "You must save this as the non beta version");
 		return 1;
@@ -6505,7 +6485,7 @@ int execute_save(pixel *vid_buf)
 	plens[0] = strlen(svf_name);
 	uploadparts[1] = svf_description;
 	plens[1] = strlen(svf_description);
-	uploadparts[2] = (char*)build_save(plens+2, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, (save_as == 3 && (sdl_mod & KMOD_SHIFT)));
+	uploadparts[2] = (char*)build_save(plens+2, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, (saveAs == 0 && (sdl_mod & KMOD_SHIFT)), saveAs);
 	if (!uploadparts[2])
 	{
 		error_ui(vid_buf, 0, "Error creating save");
@@ -6537,7 +6517,6 @@ int execute_save(pixel *vid_buf)
 	if (uploadparts[3])
 		free(uploadparts[3]);
 
-	save_as = oldsave_as;
 	if (status!=200)
 	{
 		error_ui(vid_buf, status, http_ret_text(status));
@@ -7799,20 +7778,17 @@ int save_filename_ui(pixel *vid_buf)
 	int ysize = 64+(YRES/3);
 	float ca = 0;
 	int x0=(XRES+BARSIZE-xsize)/2,y0=(YRES+MENUSIZE-ysize)/2,b=1,bq,mx,my;
-	int idtxtwidth, nd=0, imgw, imgh, save_size;
+	int imgw, imgh, save_size;
 	void *save_data;
 	char *savefname = NULL;
 	char *filename = NULL;
 	pixel *old_vid=(pixel *)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
-	pixel *save_tmp;
 	pixel *save_data_image;
 	pixel *save = NULL;//calloc((XRES/3)*(YRES/3), PIXELSIZE);
 	ui_edit ed;
-	int official_save = check_save(2,0,0,XRES,YRES,0), oldsave_as = save_as;
-	if (official_save)
-		save_as = 3;
+	int official_save = (!check_save(2,0,0,XRES,YRES,0))*2;
 
-	save_data = build_save(&save_size, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, (save_as == 3 && (sdl_mod & KMOD_SHIFT)));
+	save_data = build_save(&save_size, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, (!official_save && (sdl_mod & KMOD_SHIFT)), official_save);
 	if (!save_data)
 	{
 		error_ui(vid_buf, 0, "Unable to create save file");
@@ -7962,7 +7938,6 @@ savefin:
 	free(save);
 	if(filename) free(filename);
 	if(savefname) free(savefname);
-	save_as = oldsave_as;
 	return 0;
 }
 

@@ -24,6 +24,7 @@
 #include "BSON.h"
 #include "hmap.h"
 #include "interface.h"
+#include "luaconsole.h"
 
 #include "game/Menus.h"
 #include "simulation/Simulation.h"
@@ -54,21 +55,18 @@ pixel *prerender_save(void *save, int size, int *width, int *height)
 	return NULL;
 }
 
-void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, int tab)
+void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, int tab, int saveAs)
 {
-	if (save_as < 3) //No more PSv format anymore
+	if (check_save(saveAs, orig_x0, orig_y0, orig_w, orig_h, 1))
 		return NULL;
-
-	if (check_save(save_as%3, orig_x0, orig_y0, orig_w, orig_h, 1))
-		return NULL;
-	if (save_as%3 == 1) //Beta
+	if (saveAs == 1) //Beta
 		saveversion = BETA_VERSION;
-	else if (save_as%3 == 2) //Release
+	else if (saveAs == 2) //Release
 		saveversion = RELEASE_VERSION;
 	else //Mod
 		saveversion = SAVE_VERSION;
 
-	return build_save_OPS(size, orig_x0, orig_y0, orig_w, orig_h, bmap, vx, vy, pv, fvx, fvy, signs, partsptr, tab);
+	return build_save_OPS(size, orig_x0, orig_y0, orig_w, orig_h, bmap, vx, vy, pv, fvx, fvy, signs, partsptr, tab, saveAs);
 }
 
 int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, unsigned pmap[YRES][XRES])
@@ -692,7 +690,7 @@ fin:
 	return vidBuf;
 }
 
-void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* o_partsptr, int tab)
+void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* o_partsptr, int tab, int saveAs)
 {
 	particle *partsptr = (particle*)o_partsptr;
 	unsigned char *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *pressData = NULL, *vxData = NULL, *vyData = NULL, *finalData = NULL, *outputData = NULL, *soapLinkData = NULL;
@@ -1027,7 +1025,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 					partsData[partsDataLen++] = ((int)partsptr[i].pavg[1])>>8;
 				}
 
-				if (save_as == 3)
+				if (saveAs == 0)
 				{
 					//Instantly activated electronics
 					if (partsptr[i].flags)
@@ -1246,7 +1244,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 
 	outputData[0] = 'O';
 	outputData[1] = 'P';
-	if (save_as == 3)
+	if (saveAs == 0)
 		outputData[2] = 'J';
 	else
 		outputData[2] = 'S';
@@ -1744,11 +1742,12 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			if(bson_iterator_type(&iter)==BSON_INT)
 			{
-				char modver[32];
+				char* modver = (char*)calloc(32, sizeof(char));
 				mod_save = modsave = bson_iterator_int(&iter);
 				sprintf(modver, "Made in jacob1's mod version %d", modsave);
+				//TODO: don't use lua logging
 				if (!strcmp(svf_user,"jacob1") && replace == 1)
-					info_ui(vid_buf,"Mod",modver);
+					luacon_log(modver);
 			}
 			else
 			{
@@ -3609,7 +3608,7 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 			vyn[ny][nx] = vel.y;
 			pvn[ny][nx] = pvo[y][x];
 		}
-	ndata = build_save(size,0,0,nw,nh,bmapn,vxn,vyn,pvn,fvxn,fvyn,signst,partst, (sdl_mod & KMOD_RCTRL));
+	ndata = build_save(size,0,0,nw,nh,bmapn,vxn,vyn,pvn,fvxn,fvyn,signst,partst, (sdl_mod & KMOD_RCTRL), 0);
 	free(bmapo);
 	free(bmapn);
 	free(partst);

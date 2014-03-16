@@ -299,10 +299,13 @@ new=function(x,y,w,h)
 		if self.cursor<0 then self.cursor = 0 return end
 	end
 	function intext:textprocess(key,nkey,modifier,event)
-		if not self.focus then return end
 		if event~=1 then return end
+		if not self.focus then
+			if nkey==13 then self:setfocus(true) return true end
+			return
+		end
 		if nkey==27 then self:setfocus(false) return true end
-		if nkey==13 then local text=self.t.text self.cursor=0 self.t.text="" return text end --enter
+		if nkey==13 then local text=self.t.text if text == "" then self:setfocus(false) return true else self.cursor=0 self.t.text="" return text end end --enter
 		if nkey==275 then self:movecursor(1) self.t:update(nil,self.cursor) return true end --right
 		if nkey==276 then self:movecursor(-1) self.t:update(nil,self.cursor) return true end --left
 		local modi = (modifier%1024)
@@ -472,7 +475,7 @@ new=function(x,y,w,h)
 			return true
 		end
 		if self.moving and event==2 then self.moving=false return true end
-		if mx<self.x or mx>self.x2 or my<self.y or my>self.y2 then self.inputbox:setfocus(false) return false end
+		if mx<self.x or mx>self.x2 or my<self.y or my>self.y2 then self.inputbox:setfocus(false) return false elseif event==1 and not self.inputbox.focus then self.inputbox:setfocus(true) end
 		self.scrollbar:process(mx,my,button,event,wheel)
 		local which = math.floor((my-self.y)/10)
 		if event==1 and which==0 then self.moving=true self.lastx=mx self.lasty=my self.relx=mx-self.x self.rely=my-self.y return true end
@@ -798,9 +801,6 @@ local function loadStamp(size,x,y,reset)
 end
 local function saveStamp(x, y, w, h)
 	local stampName = sim.saveStamp(x, y, w, h)
-	if jacobsmod and not stampName then
-		stampName = sim.saveStamp(x, y, w, h, 3)
-	end
 	local fullName = "stamps/"..stampName..".stm"
 	return stampName, fullName
 end
@@ -1537,7 +1537,7 @@ local keyunpressfuncs = {
 }
 local function keyclicky(key,nkey,modifier,event)
 	if chatwindow.inputbox.focus then
-		if event == 1 and nkey~=27 then
+		if event == 1 and nkey~=13 and nkey~=27 then
 			pressedKeys = {["repeat"] = socket.gettime()+.6, ["key"] = key, ["nkey"] = nkey, ["modifier"] = modifier, ["event"] = event}
 		elseif event == 2 and pressedKeys and nkey == pressedKeys["nkey"] then
 			pressedKeys = nil
