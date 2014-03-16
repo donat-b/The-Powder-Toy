@@ -3008,6 +3008,14 @@ int main(int argc, char *argv[])
 						xor_line(line_x, line_y, line_x, ly, vid_buf);
 						xor_line(line_x, ly, lx, ly, vid_buf);
 					}
+					//flood fill
+					else if (lm == 3)
+					{
+						if (!((sdl_mod&KMOD_CTRL) && (sdl_mod&KMOD_SHIFT)))
+							lb = 0;
+						else
+							activeTool->FloodFill(Point(mx, my));
+					}
 					else if (!lm) //while mouse is held down, it draws lines between previous and current positions
 					{
 						if (sdl_mod & KMOD_SHIFT)
@@ -3022,50 +3030,36 @@ int main(int argc, char *argv[])
 				else if (!clickedSign && !bq) //it is the first click
 				{
 					toolStrength = 1.0f;
+					lx = mx;
+					ly = my;
+					lb = b;
+					lm = 0;
 					//start line tool
 					if ((sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_CTRL)))
 					{
-						lx = mx;
-						ly = my;
-						lb = b;
 						lm = 1;//line
 					}
 					//start box tool
 					else if ((sdl_mod & (KMOD_CTRL)) && !(sdl_mod & (KMOD_SHIFT)))
 					{
-						lx = mx;
-						ly = my;
-						lb = b;
 						lm = 2;//box
 					}
 					//flood fill
 					else if ((sdl_mod & (KMOD_CTRL)) && (sdl_mod & (KMOD_SHIFT)) && (((ToolTool*)activeTool)->GetID() == -1 || ((ToolTool*)activeTool)->GetID() == TOOL_PROP))
 					{
-						if (!bq)
-							ctrlzSnapshot();
-
+						ctrlzSnapshot();
 						activeTool->FloodFill(Point(mx, my));
-						lx = mx;
-						ly = my;
-						lb = 0;
-						lm = 0;
+						lm = 3;
 					}
 					//sample
 					else if (((sdl_mod & (KMOD_ALT)) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL))) || b==SDL_BUTTON_MIDDLE)
 					{
 						activeTools[activeToolID] = activeTool->Sample(Point(mx, my));
-						lx = mx;
-						ly = my;
 						lb = 0;
-						lm = 0;
 					}
 					else if (((ToolTool*)activeTool)->GetID() == TOOL_SIGN || MSIGN != -1) // if sign tool is selected or a sign is being moved
 					{
 						add_sign_ui(vid_buf, mx, my);
-						lx = mx;
-						ly = my;
-						lb = b;
-						lm = 0;
 					}
 					else //normal click, spawn element
 					{
@@ -3079,17 +3073,13 @@ int main(int argc, char *argv[])
 							toolStrength = .1f;
 
 						activeTool->DrawPoint(currentBrush, Point(mx, my));
-						lx = mx;
-						ly = my;
-						lb = b;
-						lm = 0;
 					}
 				}
 			}
 		}
 		else
 		{
-			if (lb && lm) //lm is box/line tool
+			if (lb && lm && lm != 3) //lm is box/line tool
 			{
 				ctrlzSnapshot();
 				activeToolID = ((lb&1) || lb == 2) ? 0 : 1;
