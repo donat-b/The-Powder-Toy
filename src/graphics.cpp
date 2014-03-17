@@ -4475,7 +4475,7 @@ void render_zoom(pixel *img) //draws the zoom box
 	pixel pix;
 	drawrect(img, zoom_wx-2, zoom_wy-2, ZSIZE*ZFACTOR+2, ZSIZE*ZFACTOR+2, 192, 192, 192, 255);
 	drawrect(img, zoom_wx-1, zoom_wy-1, ZSIZE*ZFACTOR, ZSIZE*ZFACTOR, 0, 0, 0, 255);
-	clearrect(img, zoom_wx, zoom_wy, ZSIZE*ZFACTOR, ZSIZE*ZFACTOR);
+	clearrect(img, zoom_wx-1, zoom_wy-1, ZSIZE*ZFACTOR+1, ZSIZE*ZFACTOR+1);
 	for (j=0; j<ZSIZE; j++)
 		for (i=0; i<ZSIZE; i++)
 		{
