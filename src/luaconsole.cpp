@@ -759,7 +759,7 @@ int luacon_elementwrite(lua_State* l)
 	if (modified_stuff)
 	{
 		if (modified_stuff & LUACON_EL_MODIFIED_MENUS)
-			menu_count();
+			FillMenus();
 		if (modified_stuff & LUACON_EL_MODIFIED_CANMOVE)
 			init_can_move();
 		if (modified_stuff & LUACON_EL_MODIFIED_GRAPHICS)
@@ -2692,7 +2692,7 @@ int luatpt_clear_sim(lua_State* l)
 int luatpt_reset_elements(lua_State* l)
 {
 	globalSim->InitElements();
-	menu_count();
+	FillMenus();
 	init_can_move();
 	memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
 	return 0;

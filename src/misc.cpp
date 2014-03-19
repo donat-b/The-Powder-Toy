@@ -618,7 +618,7 @@ void load_presets(void)
 		//if(tmpobj = cJSON_GetObjectItem(root, "realistic")) { realistic = tmpobj->valueint; if (realistic) ptypes[PT_FIRE].hconduct = 1; }
 		if(tmpobj = cJSON_GetObjectItem(root, "cracker_unlocked")) { unlockedstuff |= 0x01; menuSections[SC_CRACKER]->enabled = true; }
 		if(tmpobj = cJSON_GetObjectItem(root, "show_votes")) unlockedstuff |= 0x08;
-		if(tmpobj = cJSON_GetObjectItem(root, "EXPL_unlocked")) { unlockedstuff |= 0x10; ptypes[PT_EXPL].menu = 1; ptypes[PT_EXPL].enabled = 1; globalSim->elements[PT_EXPL].MenuVisible = 1; globalSim->elements[PT_EXPL].Enabled = 1; menu_count(); }
+		if(tmpobj = cJSON_GetObjectItem(root, "EXPL_unlocked")) { unlockedstuff |= 0x10; ptypes[PT_EXPL].menu = 1; ptypes[PT_EXPL].enabled = 1; globalSim->elements[PT_EXPL].MenuVisible = 1; globalSim->elements[PT_EXPL].Enabled = 1; FillMenus(); }
 		if(tmpobj = cJSON_GetObjectItem(root, "old_menu")) old_menu = 1;
 		if(tmpobj = cJSON_GetObjectItem(root, "drawgrav_enable")) drawgrav_enable = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "edgeMode")) edgeMode = tmpobj->valueint;

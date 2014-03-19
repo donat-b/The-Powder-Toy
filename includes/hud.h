@@ -8,8 +8,8 @@ void HudDefaults();
 void SetCurrentHud();
 
 void SetRightHudText(int x, int y);
-void SetLeftHudText(float FPSB2, int it);
-void DrawHud(int it);
+void SetLeftHudText(float FPSB2);
+void DrawHud(int introTextAlpha, int qTipAlpha);
 void DrawPhotonWavelengths(pixel *vid, int x, int y, int h, int wl);
 
 void DrawRecordsInfo();
@@ -38,7 +38,7 @@ static hud hud_menu[] =
 	{"VERS", PIXPACK(0x000000), 1, "The version number"},
 	{"BLD",  PIXPACK(0x000000), 1, "The current build number"},
 	{"FPS",  PIXPACK(0x000000), 1, "Show the current frames per second"},
-	{"FPS#", PIXPACK(0x000000), 1, "Show FPS to"},
+	{"FPS#", PIXPACK(0x000000), 1, "Show FPS to "},
 	{"PART", PIXPACK(0x000000), 1, "The number of particles on the screen"},
 	{"GEN",  PIXPACK(0x000000), 1, "The current life generation"},
 	{"GRAV", PIXPACK(0x000000), 1, "Shows the current gravity mode, changed by pressing w"},
@@ -55,26 +55,26 @@ static hud hud_menu[] =
 	{"CELC", PIXPACK(0x000000), 2, "Show temperatures in Celsius"},
 	{"FARH", PIXPACK(0x000000), 2, "Show temperatures in Fahrenheit"},
 	{"KELV", PIXPACK(0x000000), 2, "Show temperatures in Kelvin"},
-	{"TEM#", PIXPACK(0x000000), 2, "Show all temperatures to"},
+	{"TEM#", PIXPACK(0x000000), 2, "Show all temperatures to "},
 	{"LIFE", PIXPACK(0x000000), 2, "Show a particle's life value"},
 	{"TMP",  PIXPACK(0x000000), 2, "Show a particle's tmp value"},
 	{"TMP2", PIXPACK(0x000000), 2, "Show a particle's tmp2 value"},
 	{"CORD", PIXPACK(0x000000), 2, "Show a particle's exact coordinates"},
-	{"CRD#", PIXPACK(0x000000), 2, "Show x and y coordinates to"},
+	{"CRD#", PIXPACK(0x000000), 2, "Show x and y coordinates to "},
 	{"VEL",  PIXPACK(0x000000), 2, "Show a particle's x and y velocities"},
-	{"VEL#", PIXPACK(0x000000), 2, "Show x and y velocities to"},
+	{"VEL#", PIXPACK(0x000000), 2, "Show x and y velocities to "},
 	{"PRES", PIXPACK(0x000000), 2, "Show the pressure"},
-	{"PRS#", PIXPACK(0x000000), 2, "Show pressure to"},
+	{"PRS#", PIXPACK(0x000000), 2, "Show pressure to "},
 	
 	//28
 	{"INDX", PIXPACK(0x000000), 3, "The index of a particle"},
 	{"MCRD", PIXPACK(0x000000), 3, "Shows the mouse coordinates"},
 	{"GRAV", PIXPACK(0x000000), 3, "Shows the gravity at a spot if Newtonian gravity is enabled"},
-	{"GRV#", PIXPACK(0x000000), 3, "Show gravity to"},
+	{"GRV#", PIXPACK(0x000000), 3, "Show gravity to "},
 	{"PRES", PIXPACK(0x000000), 3, "Show the pressure"},
-	{"PRS#", PIXPACK(0x000000), 3, "Show pressure to"},
+	{"PRS#", PIXPACK(0x000000), 3, "Show pressure to "},
 	{"AMB",  PIXPACK(0x000000), 3, "Show the ambient heat"},
-	{"AMB#", PIXPACK(0x000000), 3, "Show ambient heat to"},
+	{"AMB#", PIXPACK(0x000000), 3, "Show ambient heat to "},
 
 	//36
 	{"DAY",  PIXPACK(0x000000), 1, "Show the weekday, month, and day"},
@@ -83,10 +83,10 @@ static hud hud_menu[] =
 	{"TIME", PIXPACK(0x000000), 1, "The time played since The Powder Toy was started"},
 	{"TTME", PIXPACK(0x000000), 1, "The total time played ever"},
 	{"AFPS", PIXPACK(0x000000), 1, "Show the average FPS"},
-	{"AFS#", PIXPACK(0x000000), 1, "Show the average FPS to"},
+	{"AFS#", PIXPACK(0x000000), 1, "Show the average FPS to "},
 	//43
 	{"VEL",	 PIXPACK(0x000000), 3, "Show the velocity"},
-	{"VEL#", PIXPACK(0x000000), 3, "Show velocity to"},
+	{"VEL#", PIXPACK(0x000000), 3, "Show velocity to "},
 	{"PHOT", PIXPACK(0x000000), 2, "Show the color of PHOT, FILT, and BIZR wavelengths"},
 	{"DECO", PIXPACK(0x000000), 2, "Show the decoration color"},
 	{"FLAG", PIXPACK(0x000000), 2, "Show the flags (mostly unused)"},

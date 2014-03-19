@@ -56,5 +56,6 @@ extern MenuSection* menuSections[SC_TOTAL];
 void InitMenusections();
 void ClearMenusections();
 int GetNumMenus();
+void FillMenus();
 
 #endif

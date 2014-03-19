@@ -20,7 +20,6 @@ char tempstring[256] = "";
 char timeinfotext[512] = "";
 char infotext[512] = "";
 int wavelength_gfx = 0;
-int quickoptionsToolTipFadeInvert, it_invert = 0;
 
 int normalHud[HUD_OPTIONS];
 int debugHud[HUD_OPTIONS];
@@ -44,22 +43,24 @@ void SetCurrentHud()
 
 void SetRightHudText(int x, int y)
 {
+	int mx = x, my = y;
+	mouse_coords_window_to_sim(&mx, &my);
 	sprintf(heattext,"");
 	sprintf(coordtext,"");
 	if (y>=0 && y<YRES && x>=0 && x<XRES)
 	{
 		int cr,wl = 0; //cr is particle under mouse, for drawing HUD information
 		char nametext[50] = "";
-		if (photons[y][x]) {
-			cr = photons[y][x];
+		if (photons[my][mx]) {
+			cr = photons[my][mx];
 		} else {
-			cr = pmap[y][x];
+			cr = pmap[my][mx];
 			if ((cr&0xFF) == PT_PINV && parts[cr>>8].tmp2)
 				cr = parts[cr>>8].tmp2;
 		}
 		if (!cr || !currentHud[10])
 		{
-			wl = bmap[y/CELL][x/CELL];
+			wl = bmap[my/CELL][mx/CELL];
 		}
 		sprintf(heattext,""); sprintf(tempstring,"");
 		if (cr)
@@ -242,7 +243,7 @@ void SetRightHudText(int x, int y)
 	}
 }
 
-void SetLeftHudText(float FPSB2, int it)
+void SetLeftHudText(float FPSB2)
 {
 #ifdef BETA
 	if (currentHud[0] && currentHud[1])
@@ -345,21 +346,17 @@ void SetLeftHudText(float FPSB2, int it)
 		uitext[strlen(uitext)-1] = 0;
 }
 
-void DrawHud(int it)
+void DrawHud(int introTextAlpha, int qTipAlpha)
 {
 	int heatlength = textwidth(heattext);
 	int coordlength = textwidth(coordtext);
 	int heatx, heaty, alpha;
-	quickoptionsToolTipFadeInvert = 255 - (quickoptionsToolTipFade*20);
-	it_invert = 50 - it;
-	if(it_invert < 0)
-		it_invert = 0;
-	if(it_invert > 50)
-		it_invert = 50;
+	int introTextInvert = std::max(std::min(250 - introTextAlpha, 250), 0);
+
 	if (strlen(uitext) > 0)
 	{
-		fillrect(vid_buf, 12, 12, textwidth(uitext)+8, 15, 0, 0, 0, (int)(it_invert*2.5));
-		drawtext(vid_buf, 16, 16, uitext, 32, 216, 255, it_invert * 4);
+		fillrect(vid_buf, 12, 12, textwidth(uitext)+8, 15, 0, 0, 0, (int)(introTextInvert/2));
+		drawtext(vid_buf, 16, 16, uitext, 32, 216, 255, (int)(introTextInvert*.8));
 	}
 	if (sdl_zoom_trig||zoom_en)
 	{
@@ -374,6 +371,7 @@ void DrawHud(int it)
 	{
 		heatx = XRES-16-heatlength;
 		heaty = 16;
+		int quickoptionsToolTipFadeInvert = std::min(285 - qTipAlpha, 255);
 		alpha = (int)(quickoptionsToolTipFadeInvert*0.5);
 	}
 	if (strlen(heattext) > 0)

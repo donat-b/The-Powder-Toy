@@ -219,7 +219,6 @@ extern int ngrav_enable;
 extern char edgeMode;
 extern int limitFPS;
 extern int water_equal_test;
-extern int quickoptionsToolTipFade;
 extern int finding;
 extern int locked;
 extern int highesttemp;
@@ -313,8 +312,6 @@ extern int GENERATION;
 extern sign signs[MAXSIGNS];
 extern stamp stamps[STAMP_MAX];
 extern int stamp_count;
-extern int itc;
-extern char itc_msg[128];
 
 extern int ptsaveOpenID;
 extern int saveURIOpen;

@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sstream>
 #include <bzlib.h>
 #include <math.h>
 #include <time.h>
@@ -62,6 +63,7 @@
 #include "update.h"
 
 #include "game/Menus.h"
+#include "game/ToolTip.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/ToolNumbers.h"
@@ -135,115 +137,10 @@ int numframes = 0;
 int framenum = 0;
 int hud_menunum = 0;
 int has_quit = 0;
-int dae = 0;
 int dateformat = 7;
 int show_ids = 0;
 
 int drawgrav_enable = 0;
-
-#include <simulation/Simulation.h>
-#include <sstream>
-
-//TODO: just do tooltips and make things much simpler
-Tool* lastOver = NULL;
-
-//fills all the menus with Tool*s
-void menu_count()
-{
-	std::string tempActiveTools[3], decoActiveTools[3];
-	//active tools might not have been initialized at the start
-	if (activeTools[0])
-	{
-		for (int i = 0; i < 3; i++)
-			tempActiveTools[i] = activeTools[i]->GetIdentifier();
-		for (int i = 0; i < 3; i++)
-			decoActiveTools[i] = decoTools[i]->GetIdentifier();
-	}
-	//Clear all menusections
-	for (int i = 0; i < SC_TOTAL; i++)
-	{
-		menuSections[i]->ClearTools();
-	}
-	lastOver = NULL;
-
-	//Add all generic elements to menus
-	for (int i = 0; i < PT_NUM; i++)
-	{
-		if (globalSim->elements[i].Enabled && i != PT_LIFE)
-		{
-			if (globalSim->elements[i].MenuVisible || secret_els)
-			{
-				menuSections[globalSim->elements[i].MenuSection]->AddTool(new ElementTool(i));
-			}
-			else
-				menuSections[SC_OTHER]->AddTool(new ElementTool(i));
-		}
-	}
-
-	//Fill up LIFE menu
-	for (int i = 0; i < NGOL; i++)
-	{
-		menuSections[SC_LIFE]->AddTool(new GolTool(i));
-	}
-
-	//Fill up wall menu
-	for (int i = 0; i < WALLCOUNT; i++)
-	{
-		if (i == WL_STREAM)
-			menuSections[SC_WALL]->AddTool(new StreamlineTool());
-		else
-			menuSections[SC_WALL]->AddTool(new WallTool(i));
-	}
-
-	//Fill up tools menu
-	for (int i = 0; i < TOOLCOUNT; i++)
-	{
-		if (i == TOOL_PROP)
-			menuSections[SC_TOOL]->AddTool(new PropTool);
-		else
-			menuSections[SC_TOOL]->AddTool(new ToolTool(i));
-	}
-
-	//Fill up deco menu
-	for (int i = 0; i < DECOCOUNT; i++)
-	{
-		menuSections[SC_DECO]->AddTool(new DecoTool(i));
-	}
-
-	//Fill up fav. related menus somehow ...
-	menuSections[SC_FAV]->AddTool(new Tool(INVALID_TOOL, FAV_MORE, "DEFAULT_FAV_MORE"));
-	for (int i = 0; i < 18; i++)
-	{
-		menuSections[SC_FAV]->AddTool(new Tool(INVALID_TOOL, FAV_MORE-1, "DEFAULT_FAV_FAKE"));
-	}
-	for (int i = FAV_START+1; i < FAV_END; i++)
-	{
-		menuSections[SC_FAV2]->AddTool(new Tool(INVALID_TOOL, i, "DEFAULT_FAV_" + std::string(fav[i-FAV_START].name)));
-	}
-	for (int i = HUD_START; i < HUD_START+HUD_NUM; i++)
-	{
-		menuSections[SC_HUD]->AddTool(new Tool(INVALID_TOOL, i, "DEFAULT_FAV_" + std::string(hud_menu[i-HUD_START].name)));
-	}
-
-	//restore active tools
-	if (activeTools[0])
-	{
-		for (int i = 0; i < 3; i++)
-		{
-			Tool* temp = GetToolFromIdentifier(tempActiveTools[i]);
-			if (!temp)
-				temp = GetToolFromIdentifier("DEFAULT_PT_NONE");
-			activeTools[i] = temp;
-		}
-		for (int i = 0; i < 3; i++)
-		{
-			Tool* temp = GetToolFromIdentifier(decoActiveTools[i]);
-			if (!temp)
-				temp = GetToolFromIdentifier("DEFAULT_PT_NONE");
-			decoTools[i] = temp;
-		}
-	}
-}
 
 void get_sign_pos(int i, int *x0, int *y0, int *w, int *h)
 {
@@ -1500,6 +1397,7 @@ int int_pair_cmp (const void * a, const void * b)
 	return ( ap->first - bp->first );
 }
 
+#include "simulation/Simulation.h"
 void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRight)
 {
 	int windowHeight = 300, windowWidth = 240;
@@ -2883,18 +2781,25 @@ int save_name_ui(pixel *vid_buf)
 //calls menu_ui_v2 when needed, draws fav. menu on bottom
 void old_menu_v2(int active_menu, int x, int y, int b, int bq)
 {
-	if (active_menu > SC_FAV) {
+	if (active_menu > SC_FAV)
+	{
 		Tool *over = menu_draw(x, y, b, bq, active_menu);
 		if (over)
-			lastOver = over;
-		menu_draw_text(lastOver, active_menu);
-		menu_select_element(b, over);
-	} else {
+		{
+			int height = (int)(ceil((float)menuSections[active_menu]->tools.size()/16.0f)*18);
+			int textY = (((YRES/GetNumMenus())*active_menu)+((YRES/GetNumMenus())/2))-(height/2)+(FONT_H/2)+25+height;
+			menu_draw_text(over, textY);
+			menu_select_element(b, over);
+		}
+	}
+	else
+	{
 		Tool *over = menu_draw(x, y, b, bq, SC_FAV);
 		if (over)
-			lastOver = over;
-		menu_draw_text(lastOver, SC_FAV);
-		menu_select_element(b, over);
+		{
+			menu_draw_text(over, YRES-9);
+			menu_select_element(b, over);
+		}
 	}
 	int numMenus = GetNumMenus();
 	for (int i = 0; i < numMenus; i++)
@@ -2924,6 +2829,10 @@ void menu_ui_v2(pixel *vid_buf, int i)
 	memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 	active_menu = i;
 	sy = y = (((YRES/numMenus)*i)+((YRES/numMenus)/2))-(height/2)+(FONT_H/2)+6;
+	//wipe out existing toolTips, to prevent weirdness inside here
+	for (int i = toolTips.size()-1; i >= 0; i--)
+		delete toolTips[i];
+	toolTips.clear();
 
 	while (!sdl_poll())
 	{
@@ -2935,6 +2844,7 @@ void menu_ui_v2(pixel *vid_buf, int i)
 	{
 		bq = b;
 		b = mouse_get_state(&mx, &my);
+		DrawToolTips();
 		fillrect(vid_buf, (XRES-BARSIZE-width)-4, y-5, width+16, height+16+rows, 0, 0, 0, 100);
 		drawrect(vid_buf, (XRES-BARSIZE-width)-4, y-5, width+16, height+16+rows, 255, 255, 255, 255);
 		fillrect(vid_buf, (XRES-BARSIZE)+14, someStrangeYValue, 15, FONT_H+4, 0, 0, 0, 100);
@@ -2945,8 +2855,11 @@ void menu_ui_v2(pixel *vid_buf, int i)
 		
 		Tool *over = menu_draw(mx, my, b, bq, active_menu);
 		if (over)
-			lastOver = over;
-		menu_draw_text(lastOver, active_menu);
+		{
+			int height = (int)(ceil((float)menuSections[active_menu]->tools.size()/16.0f)*18);
+			int textY = (((YRES/GetNumMenus())*active_menu)+((YRES/GetNumMenus())/2))-(height/2)+(FONT_H/2)+25+height;
+			menu_draw_text(over, textY);
+		}
 
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 		memcpy(vid_buf, old_vid, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
@@ -2955,7 +2868,8 @@ void menu_ui_v2(pixel *vid_buf, int i)
 			break;
 		}
 
-		menu_select_element(b, over);
+		if (over)
+			menu_select_element(b, over);
 
 		if (sdl_key==SDLK_RETURN)
 			break;
@@ -2970,6 +2884,11 @@ void menu_ui_v2(pixel *vid_buf, int i)
 			break;
 	}
 	free(old_vid);
+
+	//wipe out existing toolTips again, to prevent them from persisting once interface closes
+	for (int i = toolTips.size()-1; i >= 0; i--)
+		delete toolTips[i];
+	toolTips.clear();
 }
 
 //current menu function
@@ -2977,10 +2896,10 @@ void menu_ui_v3(pixel *vid_buf, int i, int b, int bq, int mx, int my)
 {
 	Tool* over = menu_draw(mx, my, b, bq, i);
 	if (over)
-		lastOver = over;
-
-	menu_draw_text(lastOver, i);
-	menu_select_element(b, over);
+	{
+		menu_draw_text(over, YRES-9);
+		menu_select_element(b, over);
+	}
 }
 
 int scrollbar(int fwidth, int mx, int y)
@@ -3129,129 +3048,92 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 				fillrect(vid_buf, x+31-xoff, y, 27, 15, 0, 0, 255, 127);
 		}
 	}
-
-	if (over && dae < 51)
-		dae = dae + 2;
-	else if (dae)
-		dae = dae - 2; //Fade away element descriptions
-	if (dae > 51)
-		dae = 51;
-	if (dae < 0)
-		dae = 0;
 	return over;
 }
 
-void menu_draw_text(Tool* lastOver, int i)
+void menu_draw_text(Tool* over, int y)
 {
-	int sy = YRES+1, toolID;
-	if (lastOver)
-		toolID = lastOver->GetID();
-	if (old_menu && i < SC_FAV)
+	std::stringstream toolTip;
+	int toolID = over->GetID();
+	if (over->GetType() == ELEMENT_TOOL)
 	{
-		int height = (int)(ceil((float)menuSections[i]->tools.size()/16.0f)*18);
-		sy = (((YRES/GetNumMenus())*i)+((YRES/GetNumMenus())/2))-(height/2)+(FONT_H/2)+35+height;
-	}
-	drawtext(vid_buf, XRES-textwidth(menuSections[i]->name.c_str())-BARSIZE, sy-10, menuSections[i]->name.c_str(), 255, 255, 255, (51-dae)*5);
-	if (!lastOver)
-	{
-		//drawtext(vid_buf, XRES-textwidth(msections[i].name.c_str())-BARSIZE, sy-10, msections[i].name.c_str(), 255, 255, 255, (51-dae)*5);
-	}
-	else if (lastOver->GetType() == ELEMENT_TOOL)
-	{
-		drawtext(vid_buf, XRES-textwidth((char *)ptypes[toolID].descs)-BARSIZE, sy-10, (char *)ptypes[toolID].descs, 255, 255, 255, dae*5);
+		toolTip << ptypes[toolID].descs;
 	}
 	else if (toolID >= HUD_START && toolID < HUD_START+HUD_NUM)
 	{
 		if (!strstr(hud_menu[toolID-HUD_START].name,"#"))
-			drawtext(vid_buf, XRES-textwidth((char *)hud_menu[toolID-HUD_START].description)-BARSIZE, sy-10, (char *)hud_menu[toolID-HUD_START].description, 255, 255, 255, dae*5);
+			toolTip << hud_menu[toolID-HUD_START].description;
 		else
 		{
-			char description[512] = "";
-			sprintf(description,"%s %i decimal places",hud_menu[toolID-HUD_START].description,currentHud[toolID-HUD_REALSTART]);
-			drawtext(vid_buf, XRES-textwidth(description)-BARSIZE, sy-10, description, 255, 255, 255, dae*5);
+			toolTip << hud_menu[toolID-HUD_START].description << currentHud[toolID-HUD_REALSTART] << " decimal places";
 		}
 	}
 	else if (toolID >= FAV_START && toolID < FAV_END)
 	{
-		char favtext[512] = "";
-		sprintf(favtext, fav[toolID-FAV_START].description);
+		toolTip << fav[toolID-FAV_START].description;
 		if (toolID == FAV_ROTATE)
 		{
 			if (ms_rotation)
-				strappend(favtext, "on");
+				toolTip << "on";
 			else
-				strappend(favtext, "off");
+				toolTip << "off";
 		}
 		if (toolID == FAV_HEAT)
 		{
 			if (!heatmode)
-				strappend(favtext, "normal: -273.15C - 9725.85C");
+				toolTip << "normal: -273.15C - 9725.85C";
 			else if (heatmode == 1)
-				sprintf(favtext, "%sautomatic: %iC - %iC",fav[toolID-FAV_START].description,lowesttemp-273,highesttemp-273);
+				toolTip << "automatic: " << lowesttemp-273 << "C - " << highesttemp-273 << "C";
 			else
-				sprintf(favtext, "%smanual: %iC - %iC",fav[toolID-FAV_START].description,lowesttemp-273,highesttemp-273);
+				toolTip << "manual: " << lowesttemp-273 << "C - " << highesttemp-273 << "C";
 		}
 		else if (toolID == FAV_AUTOSAVE)
 		{
 			if (!autosave)
-				strappend(favtext, "off");
+				toolTip << "off";
 			else
-				sprintf(favtext, "%severy %d seconds",fav[toolID-FAV_START].description, autosave);
+				toolTip << "every " << autosave << " seconds";
 		}
 		else if (toolID == FAV_REAL)
 		{
 			if (realistic)
-				strappend(favtext, "on");
+				toolTip << "on";
 			else
-				strappend(favtext, "off");
+				toolTip << "off";
 		}
 		else if (toolID == FAV_FIND2)
 		{
 			if (finding &0x8)
-				strappend(favtext, "on");
+				toolTip << "on";
 			else
-				strappend(favtext, "off");
+				toolTip << "off";
 		}
 		else if (toolID == FAV_DATE)
 		{
 			char *time;
-			converttotime("1300000000",&time, -1, -1, -1);
-			strappend(favtext, time);
+			converttotime("1300000000", &time, -1, -1, -1);
+			toolTip << time;
 		}
-		drawtext(vid_buf, XRES-textwidth(favtext)-BARSIZE, sy-10, favtext, 255, 255, 255, dae*5);
 	}
-	else if (lastOver->GetType() == GOL_TOOL)
-	{
-		drawtext(vid_buf, XRES-textwidth((char *)golTypes[toolID].description.c_str())-BARSIZE, sy-10, (char *)golTypes[toolID].description.c_str(), 255, 255, 255, dae*5);
-	}
-	else if (toolID >= DECO_PRESET_START && toolID < DECO_PRESET_START + NUM_COLOR_PRESETS)
-	{
-		drawtext(vid_buf, XRES-textwidth((char *)colorlist[toolID-DECO_PRESET_START].descs)-BARSIZE, sy-10, (char *)colorlist[toolID-DECO_PRESET_START].descs, 255, 255, 255, dae*5);
-	}
-	else if (lastOver->GetType() == WALL_TOOL)
-	{
-		drawtext(vid_buf, XRES-textwidth((char *)wallTypes[toolID].descs.c_str())-BARSIZE, sy-10, (char *)wallTypes[toolID].descs.c_str(), 255, 255, 255, dae*5);
-	}
-	else if (lastOver->GetType() == TOOL_TOOL)
-	{
-		drawtext(vid_buf, XRES-textwidth((char *)toolTypes[toolID].descs.c_str())-BARSIZE, sy-10, (char *)toolTypes[toolID].descs.c_str(), 255, 255, 255, dae*5);
-	}
-	else if (lastOver->GetType() == DECO_TOOL)
-	{
-		drawtext(vid_buf, XRES-textwidth((char *)decoTypes[toolID].descs.c_str())-BARSIZE, sy-10, (char *)decoTypes[toolID].descs.c_str(), 255, 255, 255, dae*5);
-	}
+	else if (over->GetType() == GOL_TOOL)
+		toolTip << golTypes[toolID].description;
+	else if (over->GetType() >= DECO_PRESET_START && toolID < DECO_PRESET_START + NUM_COLOR_PRESETS)
+		toolTip << colorlist[toolID-DECO_PRESET_START].descs;
+	else if (over->GetType() == WALL_TOOL)
+		toolTip << wallTypes[toolID].descs;
+	else if (over->GetType() == TOOL_TOOL)
+		toolTip << toolTypes[toolID].descs;
+	else if (over->GetType() == DECO_TOOL)
+		toolTip << decoTypes[toolID].descs;
+	if (toolTip.str().size())
+		UpdateToolTip(toolTip.str(), Point(XRES-textwidth(toolTip.str().c_str())-BARSIZE, y), ELEMENTTIP, 15);
 }
 
 void menu_select_element(int b, Tool* over)
 {
-	//these are click events, b=1 is left click, b=4 is right
-	//h has the value of the element it is over, and -1 if not over an element
-	int toolID;
-	if (over)
-		toolID = over->GetID();
+	int toolID = over->GetID();
 	if (b==1 && over)
 	{
-		int j;
 		if (toolID >= FAV_START && toolID <= FAV_END)
 		{
 			if (toolID == FAV_MORE)
@@ -3314,7 +3196,7 @@ void menu_select_element(int b, Tool* over)
 			else if (toolID == FAV_SECR)
 			{
 				secret_els = !secret_els;
-				menu_count();
+				FillMenus();
 			}
 		}
 		else if (toolID >= HUD_START && toolID < HUD_START+HUD_NUM)
@@ -3398,13 +3280,11 @@ void menu_select_element(int b, Tool* over)
 
 				activeTools[0] = over;
 				activeToolID = 0;
-				dae = 51;
 			}
 		}
 	}
 	if (b==4 && over)
 	{
-		int j;
 		if (toolID >= FAV_START && toolID <= FAV_END)
 		{
 			if (toolID == FAV_HEAT)
@@ -3449,7 +3329,6 @@ void menu_select_element(int b, Tool* over)
 			{
 				activeTools[1] = over;
 				activeToolID = 1;
-				dae = 51;
 				while (pos < last)
 				{
 					favMenu[pos] = favMenu[pos+1];
@@ -3464,13 +3343,12 @@ void menu_select_element(int b, Tool* over)
 
 char tabNames[10][255];
 pixel* tabThumbnails[10];
-int quickoptionsToolTipFade = 0, quickoptionsThumbnailFade = 0;
+int quickoptionsThumbnailFade = 0;
 int clickedQuickoption = -1, hoverQuickoption = -1;
 void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 {
 	int i = 0;
-	char isQuickoptionClicked = 0, *quickoptionsToolTip = "";
-	int quickoptionsToolTipY = 0;
+	char isQuickoptionClicked = 0;
 	//normal quickoptions
 	if (!show_tabs && !(sdl_mod & KMOD_CTRL))
 	{
@@ -3491,11 +3369,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 				}
 				if(x >= (XRES+BARSIZE)-16 && x <= (XRES+BARSIZE)-2 && y >= (i*16)+1 && y <= (i*16)+15)
 				{
-					quickoptionsToolTipFade += 2;
-					if(quickoptionsToolTipFade > 12)
-						quickoptionsToolTipFade = 12;
-					quickoptionsToolTip = (char*)quickmenu[i].name;
-					quickoptionsToolTipY = (i*16)+5;
+					UpdateToolTip(quickmenu[i].name, Point((XRES - 5) - textwidth(quickmenu[i].name), (i*16)+5), QTIP, 15);
 
 					if (b == 1 && !bq)
 					{
@@ -3543,26 +3417,21 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 			}
 			if(x >= (XRES+BARSIZE)-16 && x <= (XRES+BARSIZE)-2 && y >= (i*16)+1 && y <= (i*16)+15)
 			{
-				quickoptionsToolTipFade += 2;
-				if(quickoptionsToolTipFade > 12)
-					quickoptionsToolTipFade = 12;
-
 				if (i == 0)
-					quickoptionsToolTip = (char*)quickmenu[i].name;
+					UpdateToolTip(quickmenu[i].name, Point((XRES - 5) - textwidth(quickmenu[i].name), (i*16)+5), QTIP, 15);
 				else if (i == num_tabs + 1)
-					quickoptionsToolTip = "Add tab \bg(ctrl+n)";
+					UpdateToolTip("Add tab \bg(ctrl+n)", Point((XRES - 5) - textwidth("Add tab \bg(ctrl+n)"), (i*16)+5), QTIP, 15);
 				else if (tab_num == i)
 				{
 					if (strlen(svf_name))
-						quickoptionsToolTip = svf_name;
+						UpdateToolTip(svf_name, Point((XRES - 5) - textwidth(svf_name), (i*16)+5), QTIP, 15);
 					else if (strlen(svf_filename))
-						quickoptionsToolTip = svf_filename;
+						UpdateToolTip(svf_filename, Point((XRES - 5) - textwidth(svf_filename), (i*16)+5), QTIP, 15);
 					else
-						quickoptionsToolTip = "Untitled Simulation (current)";
+						UpdateToolTip("Untitled Simulation (current)", Point((XRES - 5) - textwidth("Untitled Simulation (current)"), (i*16)+5), QTIP, 15);
 				}
 				else
-					quickoptionsToolTip = tabNames[i-1];
-				quickoptionsToolTipY = (i*16)+5;
+					UpdateToolTip(tabNames[i-1], Point((XRES - 5) - textwidth(tabNames[i-1]), (i*16)+5), QTIP, 15);
 
 				if (i > 0 && i <= num_tabs && tab_num != i)
 				{
@@ -3676,12 +3545,6 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 		}
 	}
 
-	if (quickoptionsToolTipFade && quickoptionsToolTip)
-	{
-		//drawtext_outline(vid_buf, (XRES - 5) - textwidth(quickoptionsToolTip), quickoptionsToolTipY, quickoptionsToolTip, 255, 255, 255, quickoptionsToolTipFade*20, 0, 0, 0, quickoptionsToolTipFade*15);
-		drawtext(vid_buf, (XRES - 5) - textwidth(quickoptionsToolTip), quickoptionsToolTipY, quickoptionsToolTip, 255, 255, 255, quickoptionsToolTipFade*20);
-		quickoptionsToolTipFade--;
-	}
 	if (quickoptionsThumbnailFade && tabThumbnails[hoverQuickoption-1])
 	{
 		drawrect(vid_buf, (XRES+BARSIZE)/3-1, YRES/3-1, (XRES+BARSIZE)/3+2, YRES/3+1, 0, 0, 255, quickoptionsThumbnailFade*21);
@@ -3983,8 +3846,7 @@ void set_cmode(int cm) // sets to given view mode
 	free(display_modes);
 	display_modes = (unsigned int*)calloc(1, sizeof(unsigned int));
 	display_modes[0] = 0;
-	
-	itc = 51;
+
 	if (cmode==CM_VEL)
 	{
 		free(render_modes);
@@ -3996,7 +3858,7 @@ void set_cmode(int cm) // sets to given view mode
 		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
 		display_modes[0] = DISPLAY_AIRV;
 		display_modes[1] = 0;
-		strcpy(itc_msg, "Velocity Display");
+		UpdateToolTip("Velocity Display", Point(XCNTR-textwidth("Velocity Display")/2, YCNTR-10), INFOTIP, 255);
 	}
 	else if (cmode==CM_PRESS)
 	{
@@ -4009,7 +3871,7 @@ void set_cmode(int cm) // sets to given view mode
 		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
 		display_modes[0] = DISPLAY_AIRP;
 		display_modes[1] = 0;
-		strcpy(itc_msg, "Pressure Display");
+		UpdateToolTip("Pressure Display", Point(XCNTR-textwidth("Pressure Display")/2, YCNTR-10), INFOTIP, 255);
 	}
 	else if (cmode==CM_PERS)
 	{
@@ -4023,7 +3885,7 @@ void set_cmode(int cm) // sets to given view mode
 		display_modes[0] = DISPLAY_PERS;
 		display_modes[1] = 0;
 		memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
-		strcpy(itc_msg, "Persistent Display");
+		UpdateToolTip("Persistent Display", Point(XCNTR-textwidth("Persistent Display")/2, YCNTR-10), INFOTIP, 255);
 	}
 	else if (cmode==CM_FIRE)
 	{
@@ -4036,7 +3898,7 @@ void set_cmode(int cm) // sets to given view mode
 		memset(fire_r, 0, sizeof(fire_r));
 		memset(fire_g, 0, sizeof(fire_g));
 		memset(fire_b, 0, sizeof(fire_b));
-		strcpy(itc_msg, "Fire Display");
+		UpdateToolTip("Fire Display", Point(XCNTR-textwidth("Fire Display")/2, YCNTR-10), INFOTIP, 255);
 	}
 	else if (cmode==CM_BLOB)
 	{
@@ -4049,17 +3911,17 @@ void set_cmode(int cm) // sets to given view mode
 		memset(fire_r, 0, sizeof(fire_r));
 		memset(fire_g, 0, sizeof(fire_g));
 		memset(fire_b, 0, sizeof(fire_b));
-		strcpy(itc_msg, "Blob Display");
+		UpdateToolTip("Blob Display", Point(XCNTR-textwidth("Blob Display")/2, YCNTR-10), INFOTIP, 255);
 	}
 	else if (cmode==CM_HEAT)
 	{
 		colour_mode = COLOUR_HEAT;
-		strcpy(itc_msg, "Heat Display");
 		free(display_modes);
 		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
 		display_mode |= DISPLAY_AIRH;
 		display_modes[0] = DISPLAY_AIRH;
 		display_modes[1] = 0;
+		UpdateToolTip("Heat Display", Point(XCNTR-textwidth("Heat Display")/2, YCNTR-10), INFOTIP, 255);
 	}
 	else if (cmode==CM_FANCY)
 	{
@@ -4078,21 +3940,21 @@ void set_cmode(int cm) // sets to given view mode
 		memset(fire_r, 0, sizeof(fire_r));
 		memset(fire_g, 0, sizeof(fire_g));
 		memset(fire_b, 0, sizeof(fire_b));
-		strcpy(itc_msg, "Fancy Display");
+		UpdateToolTip("Fancy Display", Point(XCNTR-textwidth("Fancy Display")/2, YCNTR-10), INFOTIP, 255);
 	}
 	else if (cmode==CM_NOTHING)
 	{
-		strcpy(itc_msg, "Nothing Display");
+		UpdateToolTip("Nothing Display", Point(XCNTR-textwidth("Nothing Display")/2, YCNTR-10), INFOTIP, 255);
 	}
 	else if (cmode==CM_GRAD)
 	{
 		colour_mode = COLOUR_GRAD;
-		strcpy(itc_msg, "Heat Gradient Display");
+		UpdateToolTip("Heat Gradient Display", Point(XCNTR-textwidth("Heat Gradient Display")/2, YCNTR-10), INFOTIP, 255);
 	}
 	else if (cmode==CM_LIFE)
 	{
 		colour_mode = COLOUR_LIFE;
-		strcpy(itc_msg, "Life Gradient Display");
+		UpdateToolTip("Life Gradient Display", Point(XCNTR-textwidth("Life Gradient Display")/2, YCNTR-10), INFOTIP, 255);
 	}
 	else if (cmode==CM_CRACK)
 	{
@@ -4105,11 +3967,12 @@ void set_cmode(int cm) // sets to given view mode
 		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
 		display_modes[0] = DISPLAY_AIRC;
 		display_modes[1] = 0;
-		strcpy(itc_msg, "Alternate Velocity Display");
+		UpdateToolTip("Alternate Velocity Display", Point(XCNTR-textwidth("Alternate Velocity Display")/2, YCNTR-10), INFOTIP, 255);
 	}
 	else //if no special text given, it will display this.
 	{
-		strcpy(itc_msg, "Error: Incorrect Display Number");
+		//implying this could ever happen
+		UpdateToolTip("Error: Incorrect Display Number", Point(XCNTR-textwidth("Error: Incorrect Display Number")/2, YCNTR-10), INFOTIP, 255);
 	}
 
 	update_display_modes();// Update render_mode and display_mode from the relevant arrays

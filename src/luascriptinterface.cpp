@@ -2187,7 +2187,7 @@ int elements_loadDefault(lua_State * l)
 		initElementsAPI(l);
 	}
 
-	menu_count();
+	FillMenus();
 	init_can_move();
 	memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
 	return 0;
@@ -2300,7 +2300,7 @@ int elements_element(lua_State * l)
 			lua_pop(l, 1);
 
 		Simulation_Compat_CopyData(globalSim);
-		menu_count();
+		FillMenus();
 		init_can_move();
 		graphicscache[id].isready = 0;
 
@@ -2352,7 +2352,7 @@ int elements_property(lua_State * l)
 			if (modifiedStuff)
 			{
 				if (modifiedStuff & LUACON_EL_MODIFIED_MENUS)
-					menu_count();
+					FillMenus();
 				if (modifiedStuff & LUACON_EL_MODIFIED_CANMOVE)
 					init_can_move();
 				if (modifiedStuff & LUACON_EL_MODIFIED_GRAPHICS)

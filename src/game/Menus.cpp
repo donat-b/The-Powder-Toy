@@ -1,6 +1,10 @@
 
 #include "Menus.h"
 #include "simulation/Tool.h"
+#include "simulation/WallNumbers.h"
+#include "simulation/ToolNumbers.h"
+#include "simulation/GolNumbers.h"
+#include "hud.h"
 
 void MenuSection::ClearTools()
 {
@@ -51,4 +55,104 @@ int GetNumMenus()
 		if (menuSections[j]->enabled)
 			total++;
 	return total;
+}
+
+#include <simulation/Simulation.h>
+#include <sstream>
+
+//fills all the menus with Tool*s
+void FillMenus()
+{
+	std::string tempActiveTools[3], decoActiveTools[3];
+	//active tools might not have been initialized at the start
+	if (activeTools[0])
+	{
+		for (int i = 0; i < 3; i++)
+			tempActiveTools[i] = activeTools[i]->GetIdentifier();
+		for (int i = 0; i < 3; i++)
+			decoActiveTools[i] = decoTools[i]->GetIdentifier();
+	}
+	//Clear all menusections
+	for (int i = 0; i < SC_TOTAL; i++)
+	{
+		menuSections[i]->ClearTools();
+	}
+
+	//Add all generic elements to menus
+	for (int i = 0; i < PT_NUM; i++)
+	{
+		if (globalSim->elements[i].Enabled && i != PT_LIFE)
+		{
+			if (globalSim->elements[i].MenuVisible || secret_els)
+			{
+				menuSections[globalSim->elements[i].MenuSection]->AddTool(new ElementTool(i));
+			}
+			else
+				menuSections[SC_OTHER]->AddTool(new ElementTool(i));
+		}
+	}
+
+	//Fill up LIFE menu
+	for (int i = 0; i < NGOL; i++)
+	{
+		menuSections[SC_LIFE]->AddTool(new GolTool(i));
+	}
+
+	//Fill up wall menu
+	for (int i = 0; i < WALLCOUNT; i++)
+	{
+		if (i == WL_STREAM)
+			menuSections[SC_WALL]->AddTool(new StreamlineTool());
+		else
+			menuSections[SC_WALL]->AddTool(new WallTool(i));
+	}
+
+	//Fill up tools menu
+	for (int i = 0; i < TOOLCOUNT; i++)
+	{
+		if (i == TOOL_PROP)
+			menuSections[SC_TOOL]->AddTool(new PropTool);
+		else
+			menuSections[SC_TOOL]->AddTool(new ToolTool(i));
+	}
+
+	//Fill up deco menu
+	for (int i = 0; i < DECOCOUNT; i++)
+	{
+		menuSections[SC_DECO]->AddTool(new DecoTool(i));
+	}
+
+	//Fill up fav. related menus somehow ...
+	menuSections[SC_FAV]->AddTool(new Tool(INVALID_TOOL, FAV_MORE, "DEFAULT_FAV_MORE"));
+	for (int i = 0; i < 18; i++)
+	{
+		menuSections[SC_FAV]->AddTool(new Tool(INVALID_TOOL, FAV_MORE-1, "DEFAULT_FAV_FAKE"));
+	}
+	for (int i = FAV_START+1; i < FAV_END; i++)
+	{
+		menuSections[SC_FAV2]->AddTool(new Tool(INVALID_TOOL, i, "DEFAULT_FAV_" + std::string(fav[i-FAV_START].name)));
+	}
+	for (int i = HUD_START; i < HUD_START+HUD_NUM; i++)
+	{
+		menuSections[SC_HUD]->AddTool(new Tool(INVALID_TOOL, i, "DEFAULT_FAV_" + std::string(hud_menu[i-HUD_START].name)));
+	}
+
+	//restore active tools
+	if (activeTools[0])
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			Tool* temp = GetToolFromIdentifier(tempActiveTools[i]);
+			if (!temp)
+				temp = GetToolFromIdentifier("DEFAULT_PT_NONE");
+			activeTools[i] = temp;
+		}
+		for (int i = 0; i < 3; i++)
+		{
+			Tool* temp = GetToolFromIdentifier(decoActiveTools[i]);
+			if (!temp)
+				temp = GetToolFromIdentifier("DEFAULT_PT_NONE");
+			decoTools[i] = temp;
+		}
+	}
 }

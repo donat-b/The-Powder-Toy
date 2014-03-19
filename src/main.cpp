@@ -67,6 +67,7 @@
 
 #include "game/Brush.h"
 #include "game/Menus.h"
+#include "game/ToolTip.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
 #include "simulation/ToolNumbers.h"
@@ -777,10 +778,6 @@ char http_proxy_string[256] = "";
 
 unsigned char last_major=0, last_minor=0, last_build=0, update_flag=0;
 
-char *tag = "(c) 2008-9 Stanislaw Skowronek";
-int itc = 0;
-char itc_msg[128] = "[?]";
-
 #if defined WIN32
 	#define UPDATE_ARCH "Windows32"
 #elif defined LIN32
@@ -990,6 +987,7 @@ void ctrlzSnapshot()
 			cb_emap[cby][cbx] = emap[cby][cbx];
 		}
 }
+
 int main(int argc, char *argv[])
 {
 	pixel *part_vbuf; //Extra video buffer
@@ -998,7 +996,7 @@ int main(int argc, char *argv[])
 	char *ver_data=NULL, *check_data=NULL, *tmp, *changelog, *autorun_result = NULL, signal_hooks = 0;
 	int i, j, bq, bc = 0, do_check=0, do_s_check=0, old_version=0, http_ret=0,http_s_ret=0, old_ver_len = 0, new_message_len=0, afk = 0, afkstart = 0;
 	int x, y, line_x, line_y, b = 0, lb = 0, lx = 0, ly = 0, lm = 0;//, tx, ty;
-	int da = 0, db = 0, it = 2047, mx = 0, my = 0, lastx = 1, lasty = 0;
+	int mx = 0, my = 0, lastx = 1, lasty = 0;
 	int load_mode=0, load_w=0, load_h=0, load_x=0, load_y=0, load_size=0;
 	void *load_data=NULL;
 	pixel *load_img=NULL;
@@ -1051,7 +1049,7 @@ int main(int argc, char *argv[])
 	numCores = core_count();
 #endif
 	InitMenusections();
-	menu_count();
+	FillMenus();
 	activeTools[0] = GetToolFromIdentifier("DEFAULT_PT_DUST");
 	activeTools[1] = GetToolFromIdentifier("DEFAULT_PT_NONE");
 	activeTools[2] = GetToolFromIdentifier("DEFAULT_PT_NONE");
@@ -1210,7 +1208,7 @@ int main(int argc, char *argv[])
 #endif
 				puts("Got ptsave:id");
 				saveURIOpen = tempSaveID;
-				it = 0;
+				UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 0);
 			}
 			break;
 		}
@@ -1309,6 +1307,8 @@ int main(int argc, char *argv[])
 		benchmark_run();
 		exit(0);
 	}
+
+	UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 10235);
 
 	while (!sdl_poll()) //the main loop
 	{
@@ -1434,9 +1434,9 @@ int main(int argc, char *argv[])
 				}
 				else
 				{
-					strcpy(itc_msg, "Error, could not find update server. Press Ctrl+u to go check for a newer version manually on the tpt website");
-					itc = 500;
-					it = 0;
+					UpdateToolTip("Error, could not find update server. Press Ctrl+u to go check for a newer version manually on the tpt website",
+							   Point(XCNTR-textwidth("Error, could not find update server. Press Ctrl+u to go check for a newer version manually on the tpt website")/2, YCNTR-10), INFOTIP, 2500);
+					UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 0);
 				}
 				http_ver_check = NULL;
 			}
@@ -1446,7 +1446,7 @@ int main(int argc, char *argv[])
 		{
 			//Clear all settings and simulation data
 			NewSim();
-			it=0;
+			UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 0);
 			
 			svf_last = saveDataOpen;
 			svf_lsize = saveDataOpenSize;
@@ -1667,8 +1667,7 @@ int main(int argc, char *argv[])
 					load_data = NULL;
 					load_img = NULL;
 				}
-				if (it > 50)
-					it = 50;
+				UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
 				if (sdl_key=='k' && stamps[1].name[0])
 				{
 					int reorder = 1;
@@ -1700,8 +1699,7 @@ int main(int argc, char *argv[])
 				//if stkm2 is out, you must be holding left ctrl, else not be holding ctrl at all
 				else if ((globalSim->elementCount[PT_STKM2]>0 && (sdl_mod&KMOD_LCTRL)) || (globalSim->elementCount[PT_STKM2]<=0 && !(sdl_mod&KMOD_CTRL)))
 				{
-					if (it > 50)
-						it = 50;
+					UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
 					save_mode = 1;
 				}
 			}
@@ -1918,9 +1916,10 @@ int main(int argc, char *argv[])
 				if (sdl_mod & KMOD_CTRL)
 				{
 					decorations_enable = !decorations_enable;
-					itc = 51;
-					if (decorations_enable) strcpy(itc_msg, "Decorations layer: On");
-					else strcpy(itc_msg, "Decorations layer: Off");
+					if (decorations_enable)
+						UpdateToolTip("Decorations layer: On", Point(XCNTR-textwidth("Decorations layer: On")/2, YCNTR-10), INFOTIP, 255);
+					else
+						UpdateToolTip("Decorations layer: Off", Point(XCNTR-textwidth("Decorations layer: Off")/2, YCNTR-10), INFOTIP, 255);
 				}
 				else if (active_menu == SC_DECO)
 				{
@@ -1991,20 +1990,19 @@ int main(int argc, char *argv[])
 			if (sdl_key=='w' && (globalSim->elementCount[PT_STKM2]<=0 || (sdl_mod & (KMOD_CTRL)))) //Gravity, by Moach
 			{
 				++gravityMode; // cycle gravity mode
-				itc = 51;
 
 				switch (gravityMode)
 				{
 				default:
 					gravityMode = 0;
 				case 0:
-					strcpy(itc_msg, "Gravity: Vertical");
+					UpdateToolTip("Gravity: Vertical", Point(XCNTR-textwidth("Gravity: Vertical")/2, YCNTR-10), INFOTIP, 255);
 					break;
 				case 1:
-					strcpy(itc_msg, "Gravity: Off");
+					UpdateToolTip("Gravity: Off", Point(XCNTR-textwidth("Gravity: Off")/2, YCNTR-10), INFOTIP, 255);
 					break;
 				case 2:
-					strcpy(itc_msg, "Gravity: Radial");
+					UpdateToolTip("Gravity: Radial", Point(XCNTR-textwidth("Gravity: Radial")/2, YCNTR-10), INFOTIP, 255);
 					break;
 
 				}
@@ -2012,26 +2010,25 @@ int main(int argc, char *argv[])
 			if (sdl_key=='y')
 			{
 				++airMode;
-				itc = 52;
 
 				switch (airMode)
 				{
 				default:
 					airMode = 0;
 				case 0:
-					strcpy(itc_msg, "Air: On");
+					UpdateToolTip("Air: On", Point(XCNTR-textwidth("Air: On")/2, YCNTR-10), INFOTIP, 255);
 					break;
 				case 1:
-					strcpy(itc_msg, "Air: Pressure Off");
+					UpdateToolTip("Air: Pressure Off", Point(XCNTR-textwidth("Air: Pressure Off")/2, YCNTR-10), INFOTIP, 255);
 					break;
 				case 2:
-					strcpy(itc_msg, "Air: Velocity Off");
+					UpdateToolTip("Air: Velocity Off", Point(XCNTR-textwidth("Air: Velocity Off")/2, YCNTR-10), INFOTIP, 255);
 					break;
 				case 3:
-					strcpy(itc_msg, "Air: Off");
+					UpdateToolTip("Air: Off", Point(XCNTR-textwidth("Air: Off")/2, YCNTR-10), INFOTIP, 255);
 					break;
 				case 4:
-					strcpy(itc_msg, "Air: No Update");
+					UpdateToolTip("Air: No Update", Point(XCNTR-textwidth("Air: No Update")/2, YCNTR-10), INFOTIP, 255);
 					break;
 				}
 			}
@@ -2054,13 +2051,13 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key==SDLK_F1 || (sdl_key=='h' && (sdl_mod & KMOD_LCTRL)))
 			{
-				if(!it)
+				if (!GetToolTipAlpha(INTROTIP))
 				{
-					it = 8047;
+					UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 10235);
 				}
 				else
 				{
-					it = 0;
+					UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 0);
 				}
 			}
 			if (sdl_key=='n')
@@ -2235,94 +2232,7 @@ int main(int argc, char *argv[])
 		bq = bc; // bq is previous mouse state
 		bc = b = mouse_get_state(&x, &y); // b is current mouse state
 
-		if (da)
-			switch (db)//various mouseover messages, da is the alpha
-			{
-			case 256:
-				drawtext(vid_buf, 16, YRES-24, "Add simulation tags", 255, 255, 255, da*5);
-				break;
-			case 257:
-				drawtext(vid_buf, 16, YRES-24, "Add and remove simulation tags", 255, 255, 255, da*5);
-				break;
-			case 258:
-				drawtext(vid_buf, 16, YRES-24, "Upload the simulation under the current name", 255, 255, 255, da*5);
-				break;
-			case 259:
-				drawtext(vid_buf, 16, YRES-24, "Upload the simulation under a new name", 255, 255, 255, da*5);
-				break;
-			case 260:
-				drawtext(vid_buf, 16, YRES-24, "Sign into the Simulation Server", 255, 255, 255, da*5);
-				break;
-			case 261:
-				drawtext(vid_buf, 16, YRES-24, "Sign into the Simulation Server under a new name", 255, 255, 255, da*5);
-				break;
-			case 262:
-				drawtext(vid_buf, 16, YRES-24, "Find & open a simulation", 255, 255, 255, da*5);
-				break;
-			case 263:
-				drawtext(vid_buf, 16, YRES-24, "Pause the simulation \bg(space)", 255, 255, 255, da*5);
-				break;
-			case 264:
-				drawtext(vid_buf, 16, YRES-24, "Resume the simulation \bg(space)", 255, 255, 255, da*5);
-				break;
-			case 265:
-				drawtext(vid_buf, 16, YRES-24, "Reload the simulation \bg(ctrl+r)", 255, 255, 255, da*5);
-				break;
-			case 266:
-				drawtext(vid_buf, 16, YRES-24, "Erase all particles and walls", 255, 255, 255, da*5);
-				break;
-			case 267:
-				drawtext(vid_buf, 16, YRES-24, "Change display mode", 255, 255, 255, da*5);
-				break;
-			case 268:
-				drawtext(vid_buf, 16, YRES-24, "Annuit C\245ptis", 255, 255, 255, da*5);
-				break;
-			case 269:
-				drawtext(vid_buf, 16, YRES-24, "Click-and-drag to specify a rectangle to copy (right click = cancel)", 255, 216, 32, da*5);
-				break;
-			case 270:
-				drawtext(vid_buf, 16, YRES-24, "Simulation options", 255, 255, 255, da*5);
-				break;
-			case 271:
-				drawtext(vid_buf, 16, YRES-24, "You're a moderator", 255, 255, 255, da*5);
-				break;
-			case 272:
-				drawtext(vid_buf, 16, YRES-24, "Like/Dislike this save", 255, 255, 255, da*5);
-				break;
-			case 273:
-				drawtext(vid_buf, 16, YRES-24, "You like this", 255, 255, 255, da*5);
-				break;
-			case 274:
-				drawtext(vid_buf, 16, YRES-24, "You dislike this", 255, 255, 255, da*5);
-				break;
-			case 275:
-				drawtext(vid_buf, 16, YRES-24, "You cannot vote on your own save", 255, 255, 255, da*5);
-				break;
-			case 276:
-				drawtext(vid_buf, 16, YRES-24, "Open a simulation from your hard drive \bg(ctrl+o)", 255, 255, 255, da*5);
-				break;
-			case 277:
-				drawtext(vid_buf, 16, YRES-24, "Save the simulation to your hard drive", 255, 255, 255, da*5);
-				break;
-			case 278: //Fix for Ctrl + X showing copy message
-				drawtext(vid_buf, 16, YRES-24, "Click-and-drag to specify a rectangle to copy and then cut (right click = cancel)", 255, 216, 32, da*5);
-				break;
-			case 279:
-				drawtext(vid_buf, 16, YRES-24, "Report bugs and feedback to jacob1", 255, 255, 255, da*5);
-				break;
-			default:
-				drawtext(vid_buf, 16, YRES-24, (char *)ptypes[db].descs, 255, 255, 255, da*5);
-			}
-		if (itc)//message in the middle of the screen, such as view mode changes
-		{
-			itc--;
-			drawtext_outline(vid_buf, (XRES-textwidth(itc_msg))/2, ((YRES/2)-10), itc_msg, 255, 255, 255, itc>51?255:itc*5, 0, 0, 0, itc>51?255:itc*5);
-		}
-		if (it)//intro message
-		{
-			it--;
-			drawtext(vid_buf, 16, 20, it_msg, 255, 255, 255, it>51?255:it*5);
-		}
+		DrawToolTips();
 
 		if (old_version)
 		{
@@ -2401,14 +2311,18 @@ int main(int argc, char *argv[])
 
 			int hover = DrawMenus(vid_buf, active_menu, y);
 
-			if (hover >= 0 && ((hover != SC_DECO && !b) || (hover == SC_DECO && b && !bq)) && x>=XRES-2 && x<XRES+BARSIZE-1)
+			if (hover >= 0 && x>=XRES-2 && x<XRES+BARSIZE-1)
 			{
-				if (hover == SC_DECO && active_menu != SC_DECO)
-					last_active_menu = active_menu;
-				if (hover == SC_FAV)
-					active_menu = last_fav_menu;
-				else
-					active_menu = hover;
+				UpdateToolTip(menuSections[hover]->name, Point(XRES-5-textwidth(menuSections[hover]->name.c_str()), std::min(((y-8)/16)*16+12, YRES-9)), QTIP, 15);
+				if (((hover != SC_DECO && !b) || (hover == SC_DECO && b && !bq)))
+				{
+					if (hover == SC_DECO && active_menu != SC_DECO)
+						last_active_menu = active_menu;
+					if (hover == SC_FAV)
+						active_menu = last_fav_menu;
+					else
+						active_menu = hover;
+				}
 			}
 			menu_ui_v3(vid_buf, active_menu, b, bq, x, y); //draw the elements in the current menu
 		}
@@ -2493,111 +2407,99 @@ int main(int argc, char *argv[])
 		}
 		if (y > YRES+MENUSIZE-BARSIZE) //mouse checks for buttons at the bottom, to draw mouseover texts
 		{
-			if (x>=189 && x<=202 && svf_login && svf_open && svf_myvote==0)
+			std::string newToolTip = "";
+			if (x>=1 && x<=17)
 			{
-				db = svf_own ? 275 : 272;
-				if (da < 51)
-					da ++;
+				if(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
+					newToolTip = "Open a simulation from your hard drive \bg(ctrl+o)";
+				else
+					newToolTip = "Find & open a simulation";
 			}
-			else if (x>=204 && x<=217 && svf_login && svf_open && svf_myvote==0)
+			else if (x>=19 && x<=35)
 			{
-				db = svf_own ? 275 : 272;
-				if (da < 51)
-					da ++;
-			}
-			else if (x>=189 && x<=217 && svf_login && svf_open && svf_myvote!=0)
-			{
-				db = (svf_myvote==1) ? 273 : 274;
-				if (da < 51)
-					da ++;
-			}
-			else if (x>=219 && x<=((XRES+BARSIZE-(510-333))) && svf_open) //tags
-			{
-				db = svf_own ? 257 : 256;
-				if (da < 51)
-					da ++;
-			}
-			else if (x>=((XRES+BARSIZE-(510-335))) && x<((XRES+BARSIZE-(510-350)))) //bug reports
-			{
-				db = 279; // oh god, redo tooltips fast
-				if (da < 51)
-					da ++;
-			}
-			else if (x>=((XRES+BARSIZE-(510-351))) && x<((XRES+BARSIZE-(510-366))))
-			{
-				db = 270;
-				if (da < 51)
-					da ++;
-			}
-			else if (x>=((XRES+BARSIZE-(510-367))) && x<((XRES+BARSIZE-(510-383))))
-			{
-				db = 266;
-				if (da < 51)
-					da ++;
+				if (svf_open)
+					newToolTip = "Reload the simulation \bg(ctrl+r)";
 			}
 			else if (x>=37 && x<=187)
 			{
 				if(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
 				{
-					db = 277;
-					if (da < 51)
-						da ++;
+					newToolTip = "Save the simulation to your hard drive";
 				}
-				else if(svf_login)
+				else if (svf_login)
 				{
-					db = 259;
 					if (svf_open && svf_own && x<=55)
-						db = 258;
-					if (da < 51)
-						da ++;
+						newToolTip = "Upload the simulation under the current name";
+					else
+						newToolTip = "Upload the simulation under a new name";
 				}
+			}
+			if (x>=189 && x<=217)
+			{
+				if (svf_login && svf_open)
+				{
+					if (svf_myvote == 1)
+						newToolTip = "You like this";
+					else if (svf_myvote == -1)
+						newToolTip = "You dislike this";
+					else
+					{
+						if (svf_own)
+							newToolTip = "You cannot vote on your own save";
+						else if (x <= 202)
+							newToolTip = "Like this save";
+						else if (x >= 204)
+							newToolTip = "Dislike this save";
+					}
+				}
+			}
+			else if (x>=219 && x<=((XRES+BARSIZE-(510-333))))
+			{
+				if (svf_open)
+				{
+					if (svf_own)
+						newToolTip = "Add and remove simulation tags";
+					else
+						newToolTip = "Add simulation tags";
+				}
+			}
+			else if (x>=((XRES+BARSIZE-(510-335))) && x<((XRES+BARSIZE-(510-350))))
+			{
+				newToolTip = "Report bugs and feedback to jacob1";
+			}
+			else if (x>=((XRES+BARSIZE-(510-351))) && x<((XRES+BARSIZE-(510-366))))
+			{
+				newToolTip = "Simulation options";
+			}
+			else if (x>=((XRES+BARSIZE-(510-367))) && x<((XRES+BARSIZE-(510-383))))
+			{
+				newToolTip = "Erase all particles and walls";
 			}
 			else if (x>=((XRES+BARSIZE-(510-385))) && x<=((XRES+BARSIZE-(510-476))))
 			{
-				db = svf_login ? 261 : 260;
 				if (svf_admin)
-				{
-					db = 268;
-				}
+					newToolTip = "Annuit C\245ptis";
 				else if (svf_mod)
-				{
-					db = 271;
-				}
-				if (da < 51)
-					da ++;
-			}
-			else if (x>=1 && x<=17)
-			{
-				if(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
-					db = 276;
+					newToolTip = "You're a moderator";
+				else if (svf_login)
+					newToolTip = "Sign into the Simulation Server under a new name";
 				else
-					db = 262;
-				if (da < 51)
-					da ++;
-			}
-			else if (x>=((XRES+BARSIZE-(510-494))) && x<=((XRES+BARSIZE-(510-509))))
-			{
-				db = sys_pause ? 264 : 263;
-				if (da < 51)
-					da ++;
+					newToolTip = "Sign into the Simulation Server";
 			}
 			else if (x>=((XRES+BARSIZE-(510-476))) && x<=((XRES+BARSIZE-(510-491))))
 			{
-				db = 267;
-				if (da < 51)
-					da ++;
+				newToolTip = "Renderer options";
 			}
-			else if (x>=19 && x<=35 && svf_open)
+			else if (x>=((XRES+BARSIZE-(510-494))) && x<=((XRES+BARSIZE-(510-509))))
 			{
-				db = 265;
-				if (da < 51)
-					da ++;
+				if (sys_pause)
+					newToolTip = "Resume the simulation \bg(space)";
+				else
+					newToolTip = "Pause the simulation \bg(space)";
 			}
-			else if (da > 0)
-				da --;
+			if (newToolTip.length())
+				UpdateToolTip(newToolTip, Point(16, YRES-24), TOOLTIP, 15);
 		}
-		else if (da > 0)//fade away mouseover text
-			da --;
 		
 		if (!sdl_zoom_trig && zoom_en==1)
 			zoom_en = 0;
@@ -2747,8 +2649,7 @@ int main(int argc, char *argv[])
 		//there is a click
 		else if (b)
 		{
-			if (it > 50)
-				it = 50;
+			UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
 			if (y > YRES+MENUSIZE-BARSIZE)//check if mouse is on menu buttons
 			{
 				if (!lb && !bq)//mouse is NOT held down, so it is a first click
@@ -2824,8 +2725,7 @@ int main(int argc, char *argv[])
 									}
 									else
 									{
-										itc = 200;
-										strcpy(itc_msg, "Error Saving");
+										UpdateToolTip("Error Saving", Point(XCNTR-textwidth("Error Saving")/2, YCNTR-10), INFOTIP, 1000);
 									}
 								}
 							}
@@ -2846,13 +2746,11 @@ int main(int argc, char *argv[])
 								}
 								if (execute_save(vid_buf, saveAs))
 								{
-									itc = 200;
-									strcpy(itc_msg, "Error Saving");
+									UpdateToolTip("Error Saving", Point(XCNTR-textwidth("Error Saving")/2, YCNTR-10), INFOTIP, 1000);
 								}
 								else
 								{
-									itc = 200;
-									strcpy(itc_msg, "Saved Successfully");
+									UpdateToolTip("Saved Successfully", Point(XCNTR-textwidth("Saved Successfully")/2, YCNTR-10), INFOTIP, 1000);
 								}
 							}
 							while (!sdl_poll())
@@ -3120,11 +3018,10 @@ int main(int argc, char *argv[])
 			fillrect(vid_buf,savex-1,savey+saveh-1,savew+1,YRES-savey-saveh+1,0,0,0,100);
 			fillrect(vid_buf,savex+savew-1,-1,XRES-savex-savew+1,YRES+1,0,0,0,100);
 			xor_rect(vid_buf, savex, savey, savew, saveh);
-			da = 51;//draws mouseover text for the message
 			if (copy_mode != 2)
-				db = 269;//the save message
+				UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy (right click = cancel)", Point(16, YRES-24), TOOLTIP, 15);
 			else
-				db = 278;
+				UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy and then cut (right click = cancel)", Point(16, YRES-24), TOOLTIP, 15);
 		}
 
 		if (zoom_en!=1 && !load_mode && !save_mode && lm != 2)//draw normal cursor
@@ -3172,10 +3069,10 @@ int main(int argc, char *argv[])
 		}
 		if (hud_enable)
 		{
-			SetLeftHudText(FPSB2, it);
-			SetRightHudText(mx, my);
+			SetLeftHudText(FPSB2);
+			SetRightHudText(x, y);
 
-			DrawHud(it);
+			DrawHud(GetToolTipAlpha(INTROTIP), GetToolTipAlpha(QTIP));
 
 			if (drawinfo)
 				DrawRecordsInfo();
@@ -3232,6 +3129,9 @@ int main(int argc, char *argv[])
 #endif
 	ClearMenusections();
 	delete currentBrush;
+	for (int i = toolTips.size()-1; i >= 0; i--)
+		delete toolTips[i];
+	toolTips.clear();
 #ifdef PTW32_STATIC_LIB
 	pthread_win32_thread_detach_np();
 	pthread_win32_process_detach_np();

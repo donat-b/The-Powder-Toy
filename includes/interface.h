@@ -247,8 +247,6 @@ extern int currH;
 extern int currS;
 extern int currV;
 
-void menu_count(void);
-
 void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y);
 
 extern int propSelected;
@@ -315,7 +313,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int b, int bq, int mx, int my);
 class Tool;
 extern std::string favMenu[18];
 Tool* menu_draw(int mx, int my, int b, int bq, int i);
-void menu_draw_text(Tool* over, int i);
+void menu_draw_text(Tool* over, int y);
 void menu_select_element(int b, Tool* over);
 
 int EventProcess(SDL_Event event);
