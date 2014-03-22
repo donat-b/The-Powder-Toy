@@ -43,24 +43,24 @@ void SetCurrentHud()
 
 void SetRightHudText(int x, int y)
 {
-	int mx = x, my = y;
-	mouse_coords_window_to_sim(&mx, &my);
+	if (x >= 0 && x < XRES && y >= 0 && y < YRES)
+		mouse_coords_window_to_sim(&x, &y);
 	sprintf(heattext,"");
 	sprintf(coordtext,"");
 	if (y>=0 && y<YRES && x>=0 && x<XRES)
 	{
 		int cr,wl = 0; //cr is particle under mouse, for drawing HUD information
 		char nametext[50] = "";
-		if (photons[my][mx]) {
-			cr = photons[my][mx];
+		if (photons[y][x]) {
+			cr = photons[y][x];
 		} else {
-			cr = pmap[my][mx];
+			cr = pmap[y][x];
 			if ((cr&0xFF) == PT_PINV && parts[cr>>8].tmp2)
 				cr = parts[cr>>8].tmp2;
 		}
 		if (!cr || !currentHud[10])
 		{
-			wl = bmap[my/CELL][mx/CELL];
+			wl = bmap[y/CELL][x/CELL];
 		}
 		sprintf(heattext,""); sprintf(tempstring,"");
 		if (cr)
