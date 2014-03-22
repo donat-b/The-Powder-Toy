@@ -1728,7 +1728,11 @@ int main(int argc, char *argv[])
 					catalogue_ui(vid_buf);
 				}
 				else
+				{
 					old_menu = !old_menu;
+					if (old_menu)
+						UpdateToolTip("Experimental old menu activated, press 'o' to turn off", Point(XCNTR-textwidth("Experimental old menu activated, press 'o' to turn off")/2, YCNTR-10), INFOTIP, 500);
+				}
 			}
 			if(sdl_key=='e')
 			{
@@ -1991,46 +1995,49 @@ int main(int argc, char *argv[])
 			{
 				++gravityMode; // cycle gravity mode
 
+				std::string toolTip;
 				switch (gravityMode)
 				{
 				default:
 					gravityMode = 0;
 				case 0:
-					UpdateToolTip("Gravity: Vertical", Point(XCNTR-textwidth("Gravity: Vertical")/2, YCNTR-10), INFOTIP, 255);
+					toolTip = "Gravity: Vertical";
 					break;
 				case 1:
-					UpdateToolTip("Gravity: Off", Point(XCNTR-textwidth("Gravity: Off")/2, YCNTR-10), INFOTIP, 255);
+					toolTip = "Gravity: Off";
 					break;
 				case 2:
-					UpdateToolTip("Gravity: Radial", Point(XCNTR-textwidth("Gravity: Radial")/2, YCNTR-10), INFOTIP, 255);
+					toolTip = "Gravity: Radial";
 					break;
-
 				}
+				UpdateToolTip(toolTip, Point(XCNTR-textwidth(toolTip.c_str())/2, YCNTR-10), INFOTIP, 255);
 			}
 			if (sdl_key=='y')
 			{
 				++airMode;
 
+				std::string toolTip;
 				switch (airMode)
 				{
 				default:
 					airMode = 0;
 				case 0:
-					UpdateToolTip("Air: On", Point(XCNTR-textwidth("Air: On")/2, YCNTR-10), INFOTIP, 255);
+					toolTip = "Ait: On";
 					break;
 				case 1:
-					UpdateToolTip("Air: Pressure Off", Point(XCNTR-textwidth("Air: Pressure Off")/2, YCNTR-10), INFOTIP, 255);
+					toolTip = "Ait: Pressure Off";
 					break;
 				case 2:
-					UpdateToolTip("Air: Velocity Off", Point(XCNTR-textwidth("Air: Velocity Off")/2, YCNTR-10), INFOTIP, 255);
+					toolTip = "Ait: Velocity Off";
 					break;
 				case 3:
-					UpdateToolTip("Air: Off", Point(XCNTR-textwidth("Air: Off")/2, YCNTR-10), INFOTIP, 255);
+					toolTip = "Ait: Off";
 					break;
 				case 4:
-					UpdateToolTip("Air: No Update", Point(XCNTR-textwidth("Air: No Update")/2, YCNTR-10), INFOTIP, 255);
+					toolTip = "Ait: No Update";
 					break;
 				}
+				UpdateToolTip(toolTip, Point(XCNTR-textwidth(toolTip.c_str())/2, YCNTR-10), INFOTIP, 255);
 			}
 
 			if (sdl_key=='t')
@@ -2045,11 +2052,11 @@ int main(int argc, char *argv[])
 					aheat_enable = !aheat_enable;
 
 			}
-			if (sdl_key=='h' && !(sdl_mod & KMOD_LCTRL))
+			if (sdl_key=='h' && !(sdl_mod & KMOD_CTRL))
 			{
 				hud_enable = !hud_enable;
 			}
-			if (sdl_key==SDLK_F1 || (sdl_key=='h' && (sdl_mod & KMOD_LCTRL)))
+			if (sdl_key==SDLK_F1 || (sdl_key=='h' && (sdl_mod & KMOD_CTRL)))
 			{
 				if (!GetToolTipAlpha(INTROTIP))
 				{
@@ -2232,8 +2239,6 @@ int main(int argc, char *argv[])
 		bq = bc; // bq is previous mouse state
 		bc = b = mouse_get_state(&x, &y); // b is current mouse state
 
-		DrawToolTips();
-
 		if (old_version)
 		{
 			clearrect(vid_buf, XRES-21-old_ver_len, YRES-24, old_ver_len+9, 17);
@@ -2313,7 +2318,7 @@ int main(int argc, char *argv[])
 
 			if (hover >= 0 && x>=XRES-2 && x<XRES+BARSIZE-1)
 			{
-				UpdateToolTip(menuSections[hover]->name, Point(XRES-5-textwidth(menuSections[hover]->name.c_str()), std::min(((y-8)/16)*16+12, YRES-9)), QTIP, 15);
+				UpdateToolTip(menuSections[hover]->name, Point(XRES-5-textwidth(menuSections[hover]->name.c_str()), std::min(((y-8)/16)*16+12, YRES-9)), QTIP, -1);
 				if (((hover != SC_DECO && !b) || (hover == SC_DECO && b && !bq)))
 				{
 					if (hover == SC_DECO && active_menu != SC_DECO)
@@ -2498,7 +2503,7 @@ int main(int argc, char *argv[])
 					newToolTip = "Pause the simulation \bg(space)";
 			}
 			if (newToolTip.length())
-				UpdateToolTip(newToolTip, Point(16, YRES-24), TOOLTIP, 15);
+				UpdateToolTip(newToolTip, Point(16, YRES-24), TOOLTIP, -1);
 		}
 		
 		if (!sdl_zoom_trig && zoom_en==1)
@@ -3019,9 +3024,9 @@ int main(int argc, char *argv[])
 			fillrect(vid_buf,savex+savew-1,-1,XRES-savex-savew+1,YRES+1,0,0,0,100);
 			xor_rect(vid_buf, savex, savey, savew, saveh);
 			if (copy_mode != 2)
-				UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy (right click = cancel)", Point(16, YRES-24), TOOLTIP, 15);
+				UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy (right click = cancel)", Point(16, YRES-24), TOOLTIP, 255);
 			else
-				UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy and then cut (right click = cancel)", Point(16, YRES-24), TOOLTIP, 15);
+				UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy and then cut (right click = cancel)", Point(16, YRES-24), TOOLTIP, 255);
 		}
 
 		if (zoom_en!=1 && !load_mode && !save_mode && lm != 2)//draw normal cursor
@@ -3036,6 +3041,8 @@ int main(int argc, char *argv[])
 #endif		
 		if (zoom_en)
 			render_zoom(vid_buf);
+
+		DrawToolTips();
 
 		if (elapsedTime != currentTime && main_loop == 2)
 		{

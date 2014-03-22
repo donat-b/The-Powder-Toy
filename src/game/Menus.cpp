@@ -1,5 +1,7 @@
 
+#include <sstream>
 #include "Menus.h"
+#include "simulation/Simulation.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/ToolNumbers.h"
@@ -56,9 +58,6 @@ int GetNumMenus()
 			total++;
 	return total;
 }
-
-#include <simulation/Simulation.h>
-#include <sstream>
 
 //fills all the menus with Tool*s
 void FillMenus()

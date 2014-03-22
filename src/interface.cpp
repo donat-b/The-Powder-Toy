@@ -2077,7 +2077,6 @@ void login_ui(pixel *vid_buf)
 {
 	int x0=(XRES+BARSIZE-192)/2,y0=(YRES+MENUSIZE-80)/2,b=1,bq,mx,my,err;
 	ui_edit ed1,ed2;
-	char *res;
 	char passwordHash[33];
 	char totalHash[33];
 	char hashStream[99]; //not really a stream ...
@@ -2182,7 +2181,6 @@ void login_ui(pixel *vid_buf)
 		if(dataStatus == 200 && data)
 		{
 			cJSON *root, *tmpobj;//, *notificationarray, *notificationobj;
-			int i = 0;
 			if (root = cJSON_Parse((const char*)data))
 			{
 				tmpobj = cJSON_GetObjectItem(root, "Status");
@@ -2851,7 +2849,7 @@ void menu_ui_v2(pixel *vid_buf, int i)
 		drawrect(vid_buf, (XRES-BARSIZE)+13, someStrangeYValue, 16, FONT_H+4, 255, 255, 255, 255);
 		drawrect(vid_buf, (XRES-BARSIZE)+12, someStrangeYValue+1, 1, FONT_H+2, 0, 0, 0, 255);
 		if (i) //if not in walls
-			drawtext(vid_buf, 12, 12, "\bgPress 'o' to return to the old menu", 255, 255, 255, 255);
+			drawtext(vid_buf, 12, 12, "\bgPress 'o' to return to the original menu", 255, 255, 255, 255);
 		
 		Tool *over = menu_draw(mx, my, b, bq, active_menu);
 		if (over)
@@ -3126,7 +3124,7 @@ void menu_draw_text(Tool* over, int y)
 	else if (over->GetType() == DECO_TOOL)
 		toolTip << decoTypes[toolID].descs;
 	if (toolTip.str().size())
-		UpdateToolTip(toolTip.str(), Point(XRES-textwidth(toolTip.str().c_str())-BARSIZE, y), ELEMENTTIP, 15);
+		UpdateToolTip(toolTip.str(), Point(XRES-textwidth(toolTip.str().c_str())-BARSIZE, y), ELEMENTTIP, -1);
 }
 
 void menu_select_element(int b, Tool* over)
@@ -3369,7 +3367,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 				}
 				if(x >= (XRES+BARSIZE)-16 && x <= (XRES+BARSIZE)-2 && y >= (i*16)+1 && y <= (i*16)+15)
 				{
-					UpdateToolTip(quickmenu[i].name, Point((XRES - 5) - textwidth(quickmenu[i].name), (i*16)+5), QTIP, 15);
+					UpdateToolTip(quickmenu[i].name, Point((XRES - 5) - textwidth(quickmenu[i].name), (i*16)+6), QTIP, -1);
 
 					if (b == 1 && !bq)
 					{
@@ -3417,21 +3415,23 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 			}
 			if(x >= (XRES+BARSIZE)-16 && x <= (XRES+BARSIZE)-2 && y >= (i*16)+1 && y <= (i*16)+15)
 			{
+				std::string toolTip;
 				if (i == 0)
-					UpdateToolTip(quickmenu[i].name, Point((XRES - 5) - textwidth(quickmenu[i].name), (i*16)+5), QTIP, 15);
+					toolTip = quickmenu[i].name;
 				else if (i == num_tabs + 1)
-					UpdateToolTip("Add tab \bg(ctrl+n)", Point((XRES - 5) - textwidth("Add tab \bg(ctrl+n)"), (i*16)+5), QTIP, 15);
+					toolTip = "Add tab \bg(ctrl+n)";
 				else if (tab_num == i)
 				{
 					if (strlen(svf_name))
-						UpdateToolTip(svf_name, Point((XRES - 5) - textwidth(svf_name), (i*16)+5), QTIP, 15);
+						toolTip = svf_name;
 					else if (strlen(svf_filename))
-						UpdateToolTip(svf_filename, Point((XRES - 5) - textwidth(svf_filename), (i*16)+5), QTIP, 15);
+						toolTip = svf_filename;
 					else
-						UpdateToolTip("Untitled Simulation (current)", Point((XRES - 5) - textwidth("Untitled Simulation (current)"), (i*16)+5), QTIP, 15);
+						toolTip = "Untitled Simulation (current)";
 				}
 				else
-					UpdateToolTip(tabNames[i-1], Point((XRES - 5) - textwidth(tabNames[i-1]), (i*16)+5), QTIP, 15);
+					toolTip = tabNames[i-1];
+				UpdateToolTip(toolTip, Point((XRES - 5) - textwidth(toolTip.c_str()), (i*16)+6), QTIP, 15);
 
 				if (i > 0 && i <= num_tabs && tab_num != i)
 				{
@@ -3836,6 +3836,7 @@ void limit_fps()
 void set_cmode(int cm) // sets to given view mode
 {
 	int cmode = cm;
+	std::string toolTip = "Error: Incorrect Display Number";
 	colour_mode = COLOUR_DEFAULT;
 	
 	free(render_modes);
@@ -3858,7 +3859,7 @@ void set_cmode(int cm) // sets to given view mode
 		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
 		display_modes[0] = DISPLAY_AIRV;
 		display_modes[1] = 0;
-		UpdateToolTip("Velocity Display", Point(XCNTR-textwidth("Velocity Display")/2, YCNTR-10), INFOTIP, 255);
+		toolTip = "Velocity Display";
 	}
 	else if (cmode==CM_PRESS)
 	{
@@ -3871,7 +3872,7 @@ void set_cmode(int cm) // sets to given view mode
 		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
 		display_modes[0] = DISPLAY_AIRP;
 		display_modes[1] = 0;
-		UpdateToolTip("Pressure Display", Point(XCNTR-textwidth("Pressure Display")/2, YCNTR-10), INFOTIP, 255);
+		toolTip = "Pressure Display";
 	}
 	else if (cmode==CM_PERS)
 	{
@@ -3885,7 +3886,7 @@ void set_cmode(int cm) // sets to given view mode
 		display_modes[0] = DISPLAY_PERS;
 		display_modes[1] = 0;
 		memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
-		UpdateToolTip("Persistent Display", Point(XCNTR-textwidth("Persistent Display")/2, YCNTR-10), INFOTIP, 255);
+		toolTip = "Persistent Display";
 	}
 	else if (cmode==CM_FIRE)
 	{
@@ -3898,7 +3899,7 @@ void set_cmode(int cm) // sets to given view mode
 		memset(fire_r, 0, sizeof(fire_r));
 		memset(fire_g, 0, sizeof(fire_g));
 		memset(fire_b, 0, sizeof(fire_b));
-		UpdateToolTip("Fire Display", Point(XCNTR-textwidth("Fire Display")/2, YCNTR-10), INFOTIP, 255);
+		toolTip = "Fire Display";
 	}
 	else if (cmode==CM_BLOB)
 	{
@@ -3911,7 +3912,7 @@ void set_cmode(int cm) // sets to given view mode
 		memset(fire_r, 0, sizeof(fire_r));
 		memset(fire_g, 0, sizeof(fire_g));
 		memset(fire_b, 0, sizeof(fire_b));
-		UpdateToolTip("Blob Display", Point(XCNTR-textwidth("Blob Display")/2, YCNTR-10), INFOTIP, 255);
+		toolTip = "Blob Display";
 	}
 	else if (cmode==CM_HEAT)
 	{
@@ -3921,7 +3922,7 @@ void set_cmode(int cm) // sets to given view mode
 		display_mode |= DISPLAY_AIRH;
 		display_modes[0] = DISPLAY_AIRH;
 		display_modes[1] = 0;
-		UpdateToolTip("Heat Display", Point(XCNTR-textwidth("Heat Display")/2, YCNTR-10), INFOTIP, 255);
+		toolTip = "Heat Display";
 	}
 	else if (cmode==CM_FANCY)
 	{
@@ -3940,21 +3941,21 @@ void set_cmode(int cm) // sets to given view mode
 		memset(fire_r, 0, sizeof(fire_r));
 		memset(fire_g, 0, sizeof(fire_g));
 		memset(fire_b, 0, sizeof(fire_b));
-		UpdateToolTip("Fancy Display", Point(XCNTR-textwidth("Fancy Display")/2, YCNTR-10), INFOTIP, 255);
+		toolTip = "Fancy Display";
 	}
 	else if (cmode==CM_NOTHING)
 	{
-		UpdateToolTip("Nothing Display", Point(XCNTR-textwidth("Nothing Display")/2, YCNTR-10), INFOTIP, 255);
+		toolTip = "Nothing Display";
 	}
 	else if (cmode==CM_GRAD)
 	{
 		colour_mode = COLOUR_GRAD;
-		UpdateToolTip("Heat Gradient Display", Point(XCNTR-textwidth("Heat Gradient Display")/2, YCNTR-10), INFOTIP, 255);
+		toolTip = "Heat Gradient Display";
 	}
 	else if (cmode==CM_LIFE)
 	{
 		colour_mode = COLOUR_LIFE;
-		UpdateToolTip("Life Gradient Display", Point(XCNTR-textwidth("Life Gradient Display")/2, YCNTR-10), INFOTIP, 255);
+		toolTip = "Life Gradient Display";
 	}
 	else if (cmode==CM_CRACK)
 	{
@@ -3967,13 +3968,9 @@ void set_cmode(int cm) // sets to given view mode
 		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
 		display_modes[0] = DISPLAY_AIRC;
 		display_modes[1] = 0;
-		UpdateToolTip("Alternate Velocity Display", Point(XCNTR-textwidth("Alternate Velocity Display")/2, YCNTR-10), INFOTIP, 255);
+		toolTip = "Alternate Velocity Display";
 	}
-	else //if no special text given, it will display this.
-	{
-		//implying this could ever happen
-		UpdateToolTip("Error: Incorrect Display Number", Point(XCNTR-textwidth("Error: Incorrect Display Number")/2, YCNTR-10), INFOTIP, 255);
-	}
+	UpdateToolTip(toolTip, Point(XCNTR-textwidth(toolTip.c_str())/2, YCNTR-10), INFOTIP, 255);
 
 	update_display_modes();// Update render_mode and display_mode from the relevant arrays
 	save_presets(0);

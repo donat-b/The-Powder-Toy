@@ -170,6 +170,7 @@ int luatpt_load_stamp(lua_State* l);
 int luatpt_set_selected(lua_State* l);
 int luatpt_set_decocolor(lua_State* l);
 int luatpt_outside_airtemp(lua_State* l);
+int luatpt_oldmenu(lua_State* l);
 
 void set_map(int x, int y, int width, int height, float value, int map);
 void addluastuff();

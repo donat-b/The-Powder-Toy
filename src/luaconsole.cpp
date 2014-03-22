@@ -153,6 +153,7 @@ void luacon_open()
 		{"set_selected",&luatpt_set_selected},
 		{"set_decocol",&luatpt_set_decocolor},
 		{"outside_airtemp",&luatpt_outside_airtemp},
+		{"oldmenu", &luatpt_oldmenu},
 		{NULL,NULL}
 	};
 
@@ -2827,6 +2828,19 @@ int luatpt_set_decocolor(lua_State* l)
 int luatpt_outside_airtemp(lua_State* l)
 {
 	return simulation_ambientAirTemp(l);
+}
+
+int luatpt_oldmenu(lua_State *l)
+{
+	int acount = lua_gettop(l);
+	if (acount == 0)
+	{
+		lua_pushnumber(l, old_menu);
+		return 1;
+	}
+	int oldmenu = luaL_checkint(l, 1);
+	old_menu = oldmenu;
+	return 0;
 }
 
 void addluastuff()

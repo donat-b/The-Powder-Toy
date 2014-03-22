@@ -684,10 +684,8 @@ None (at least that I know of)
 ------------------------------------------------------------------------------
 Immediate TODO: '>' means currently being worked on/added next
 clean up simulation stuff and remove src/elements
-move menu_count to Menus.h (needs tooltips done first)
 Finish brushes (change all instances of rx and ry to the brush things)
 Redo fav menu ...
-Redo (Add) tooltips
 >Add things from tpt++ that look cool, and any new simulation changes it gets
 
 Medium future TODO:

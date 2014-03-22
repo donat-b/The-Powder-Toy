@@ -6,7 +6,7 @@
 #include "graphics.h"
 #include "common/Point.h"
 
-enum { TOOLTIP, ELEMENTTIP, INFOTIP, QTIP, INTROTIP };
+enum { TOOLTIP, ELEMENTTIP, INFOTIP, QTIP, INTROTIP, LUATIP };
 
 class ToolTip
 {
@@ -18,18 +18,20 @@ public:
 	ToolTip(std::string tip_, Point location_, int ID_, int alpha_):
 		tip(tip_),
 		location(location_),
-		ID(ID_),
-		alpha(alpha_)
+		ID(ID_)
 	{
-
+		if (alpha_ == -1)
+			alpha = 15;
+		else
+			alpha = alpha_;
 	}
 
 	void UpdateToolTip(std::string toolTip, Point location_, int alpha_)
 	{
 		tip = toolTip;
 		location = location_;
-		//alpha_ == 15 is used for fading in tooltips for some reason (gets reduced by 5 every frame in draw still)
-		if (alpha_ == 15 && alpha < 255)
+		//alpha_ == -1 is used for fading in tooltips for some reason (gets reduced by 5 every frame in draw still)
+		if (alpha_ == -1 && alpha < 255)
 		{
 			alpha += 15;
 			if (alpha > 255)

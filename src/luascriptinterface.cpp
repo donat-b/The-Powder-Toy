@@ -17,6 +17,7 @@
 
 #include "game/Brush.h"
 #include "game/Menus.h"
+#include "game/ToolTip.h"
 #include "graphics/ARGBColour.h"
 #include "simulation/Simulation.h"
 #include "simulation/WallNumbers.h"
@@ -1613,6 +1614,7 @@ void initGraphicsAPI(lua_State * l)
 		{"fillRect", graphics_fillRect},
 		{"drawCircle", graphics_drawCircle},
 		{"fillCircle", graphics_fillCircle},
+		{"toolTip", graphics_toolTip},
 		{NULL, NULL}
 	};
 	luaL_register(l, "graphics", graphicsAPIMethods);
@@ -1782,6 +1784,18 @@ int graphics_fillCircle(lua_State * l)
 	else if (a>255) a = 255;
 
 	fillcircle(vid_buf, x, y, w, h, r, g, b, a);
+	return 0;
+}
+
+int graphics_toolTip(lua_State *l)
+{
+	std::string toolTip = luaL_checklstring(l, 1, NULL);
+	int x = luaL_checkinteger(l, 2);
+	int y = luaL_checkinteger(l, 3);
+	int alpha = luaL_optint(l, 4, 255);
+	int ID = luaL_optint(l, 5, LUATIP);
+
+	UpdateToolTip(toolTip, Point(x, y), ID, alpha);
 	return 0;
 }
 
