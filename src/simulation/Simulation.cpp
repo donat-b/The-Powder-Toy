@@ -406,8 +406,8 @@ void Simulation::spark_all(int i, int x, int y)
 {
 	if (parts[i].type==PT_WIRE)
 		parts[i].ctype = PT_DUST;
-	else if (parts[i].type==PT_INST)
-		INST_flood_spark(this, x, y);
+	//else if (parts[i].type==PT_INST)
+	//	INST_flood_spark(this, x, y);
 	else
 		spark_conductive(i, x, y);
 }
