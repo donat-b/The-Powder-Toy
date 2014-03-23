@@ -18,6 +18,7 @@
 --ESC key will unfocus, then minimize chat
 --Changes from jacob, including: Support jacobsMod, keyrepeat
 
+if disableMultiplayer then disableMultiplayer() end -- if script already running, replace it
 local issocket,socket = pcall(require,"socket")
 if not sim.loadStamp then error"Tpt version not supported" end
 if MANAGER_EXISTS then using_manager=true else MANAGER_PRINT=print end
@@ -312,7 +313,16 @@ new=function(x,y,w,h)
 		local newstr
 		if nkey==8 and self.cursor > 0 then newstr=self.t.text:sub(1,self.cursor-1) .. self.t.text:sub(self.cursor+1) self:movecursor(-1) --back
 		elseif nkey==127 then newstr=self.t.text:sub(1,self.cursor) .. self.t.text:sub(self.cursor+2) --delete
-		else 
+		elseif nkey==9 then --tab complete
+					local nickstart,nickend,nick = self.t.text:sub(1,self.cursor+1):find("([^%s%c]+)"..(self.cursor == #self.t.text and "" or " ").."$")
+					if con.members and nick then
+						for k,v in pairs(con.members) do
+							if v.name:sub(1,#nick) == nick then
+								nick = v.name if nickstart == 1 then nick = nick..":" end newstr = self.t.text:sub(1,nickstart-1)..nick.." "..self.t.text:sub(nickend+1,#self.t.text) self.cursor = nickstart+#nick
+							end
+						end
+					end
+		else
 			if nkey<32 or nkey>=127 then return true end --normal key
 			local addkey = (modi==1 or modi==2) and shift(key) or key
 			if (math.floor(modi/512))==1 then addkey=altgr(key) end
@@ -474,10 +484,10 @@ new=function(x,y,w,h)
 			self.lasty=my-ay
 			return true
 		end
-		if self.moving and event==2 then self.moving=false return true end
-		if mx<self.x or mx>self.x2 or my<self.y or my>self.y2 then self.inputbox:setfocus(false) return false elseif event==1 and not self.inputbox.focus then self.inputbox:setfocus(true) end
-		self.scrollbar:process(mx,my,button,event,wheel)
 		local which = math.floor((my-self.y)/10)
+		if self.moving and event==2 then self.moving=false return true end
+		if mx<self.x or mx>self.x2 or my<self.y or my>self.y2 then self.inputbox:setfocus(false) return false elseif event==1 and which ~= 0 and not self.inputbox.focus then self.inputbox:setfocus(true) end
+		self.scrollbar:process(mx,my,button,event,wheel)
 		if event==1 and which==0 then self.moving=true self.lastx=mx self.lasty=my self.relx=mx-self.x self.rely=my-self.y return true end
 		if event==1 and which==self.shown_lines+1 then self.inputbox:setfocus(true) return true elseif self.inputbox.focus then return true end --trigger input_box
 		if which>0 and which<self.shown_lines+1 and self.lines[which+self.scrollbar.pos] then self.lines[which+self.scrollbar.pos]:process(mx,my,button,event,wheel) end
@@ -533,7 +543,7 @@ new=function(x,y,w,h)
 	end,
 	}
 	function chat:textprocess(key,nkey,modifier,event)
-		if L.chatHidden then return false end
+		if L.chatHidden then return nil end
 		local text = self.inputbox:textprocess(key,nkey,modifier,event)
 		if type(text)=="boolean" then return text end
 		if text and text~="" then
@@ -573,7 +583,10 @@ end
 local infoText = newFadeText("",150,245,370,255,255,255,true)
 local cmodeText = newFadeText("",120,250,180,255,255,255,true)
 
-local showbutton = ui_button.new(613,jacobsmod and tpt.oldmenu()~=0 and 360 or (using_manager and 119 or 136),14,14,function() if not hooks_enabled then enableMultiplayer() end L.chatHidden=false L.flashChat=false end,"<<")
+local showbutton = ui_button.new(613,using_manager and 119 or 136,14,14,function() if not hooks_enabled then enableMultiplayer() end L.chatHidden=false L.flashChat=false end,"<<")
+if jacobsmod and tpt.oldmenu()~=0 then
+	showbutton:onmove(0, 241)
+end
 local flashCount=0
 showbutton.drawbox = true showbutton:drawadd(function(self) if L.flashChat then self.almostselected=true flashCount=flashCount+1 if flashCount%25==0 then self.invert=not self.invert end end end)
 local chatwindow = ui_chatbox.new(100,100,250,200)
@@ -1487,10 +1500,12 @@ local keypressfuncs = {
 	[107] = function() L.lastStamp={data=nil} L.placeStamp=true end,
 
 	--L , last Stamp
-	[108] = function () if L.lastStamp then L.placeStamp=true end end,
+	[108] = function() if L.lastStamp then L.placeStamp=true end end,
 
 	--N , newtonian gravity or new save
-	[110] = function () if jacobsmod and L.ctrl then L.sendScreen=2 L.lastSave=nil else conSend(54,tpt.newtonian_gravity()==0 and "\1" or "\0") end end,
+	[110] = function() if jacobsmod and L.ctrl then L.sendScreen=2 L.lastSave=nil else conSend(54,tpt.newtonian_gravity()==0 and "\1" or "\0") end end,
+
+	[111] = function() if jacobsmod and not L.ctrl then if tpt.oldmenu()==0 then showbutton:onmove(0, 241) else showbutton:onmove(0, -241) end end end,
 
 	--R , for stamp rotate
 	[114] = function() if L.placeStamp then L.smoved=true if L.shift then return end L.rotate=not L.rotate elseif L.ctrl then conSend(70) end end,
@@ -1571,11 +1586,17 @@ local function keyclicky(key,nkey,modifier,event)
 	if ret~= nil then return ret end
 end
 
+function disableMultiplayer()
+	tpt.unregister_step(step)
+	tpt.unregister_mouseclick(mouseclicky)
+	enableMultiplayer, disableMultiplayer = nil, nil
+end
+
 function enableMultiplayer()
 	tpt.register_keypress(keyclicky)
 	chatwindow:addline("TPTMP v0.6: Type '/connect' to join server.",200,200,200)
 	hooks_enabled = true
-	enableMultiplayer = nil
+	enableMultiplayer, disableMultiplayer = nil, nil
 	debug.sethook(nil,"",0)
 	if jacobsmod then
 		--clear intro text tooltip

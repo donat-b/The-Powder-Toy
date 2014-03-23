@@ -2782,7 +2782,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 		}
 	for (y=by0; y<by0+bh; y++)
 		for (x=bx0; x<bx0+bw; x++)
-			if (d[(y-by0)*bw+(x-bx0)]==4||(ver>=44 && d[(y-by0)*bw+(x-bx0)]==WL_FAN))
+			if (d[(y-by0)*bw+(x-bx0)]==4||(ver>=44 && d[(y-by0)*bw+(x-bx0)]==O_WL_FAN))
 			{
 				if (p >= size)
 					goto corrupt;
@@ -2790,7 +2790,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 			}
 	for (y=by0; y<by0+bh; y++)
 		for (x=bx0; x<bx0+bw; x++)
-			if (d[(y-by0)*bw+(x-bx0)]==4||(ver>=44 && d[(y-by0)*bw+(x-bx0)]==WL_FAN))
+			if (d[(y-by0)*bw+(x-bx0)]==4||(ver>=44 && d[(y-by0)*bw+(x-bx0)]==O_WL_FAN))
 			{
 				if (p >= size)
 					goto corrupt;
