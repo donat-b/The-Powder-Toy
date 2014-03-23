@@ -1247,7 +1247,8 @@ int drawtextwrap(pixel *vid, int x, int y, int w, int h, const char *s, int r, i
 			}
 			else if (*s == '\x0F')
 			{
-				if(!s[1] || !s[2] || !s[3]) break;
+				if(!s[1] || !s[2] || !s[3])
+					goto textwrapend;
 				oR = r;
 				oG = g;
 				oB = b;
@@ -1823,7 +1824,7 @@ int textposxy(char *s, int width, int w, int h)
 				s += 4;
 				n += 4;
 				if (!*s)
-					break;
+					return n;
 			}
 			else if (*s == '\x0E')
 			{
@@ -3710,6 +3711,8 @@ void render_after(pixel *part_vbuf, pixel *vid_buf, Point mousePos)
 #endif
 	if (finding & 0x8)
 		draw_find();
+	if (zoom_en)
+		render_zoom(vid_buf);
 }
 
 void draw_find() //Find just like how my lua script did it, it will find everything and show it's exact spot, and not miss things under stacked particles

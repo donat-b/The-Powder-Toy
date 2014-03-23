@@ -1,4 +1,3 @@
-
 --Cracker64's Powder Toy Multiplayer
 --I highly recommend to use my Autorun Script Manager
 --VER 0.6 UPDATE http://pastebin.com/raw.php?i=Dk5Kx4JV
@@ -18,7 +17,8 @@
 --ESC key will unfocus, then minimize chat
 --Changes from jacob, including: Support jacobsMod, keyrepeat
 
-if disableMultiplayer then disableMultiplayer() end -- if script already running, replace it
+if TPTMP then if TPTMP.version <= 1 then TPTMP.disableMultiplayer() else error("newer version already running") end end -- if script already running, replace it
+TPTMP = {["version"] = 1} -- script version sent on connect to ensure server protocol is the same
 local issocket,socket = pcall(require,"socket")
 if not sim.loadStamp then error"Tpt version not supported" end
 if MANAGER_EXISTS then using_manager=true else MANAGER_PRINT=print end
@@ -37,10 +37,23 @@ local username = tpt.get_name()
 if username=="" then
 	username = "Guest"..math.random(10000,99999)
 end
+local chatwindow
 local con = {connected = false,
 		 socket = nil,
 		 members = nil,
 		 pingTime = os.time()+60}
+local function disconnected(reason)
+	if con.socket then
+		con.socket:close()
+	end
+	if reason then
+		chatwindow:addline(reason,255,50,50)
+	else
+		chatwindow:addline("Connection was closed",255,50,50)
+	end
+	con.connected = false
+	con.members = {}
+end
 local function conSend(cmd,msg,endNull)
 	if not con.connected then return false,"Not connected" end
 	msg = msg or ""
@@ -72,7 +85,7 @@ local function connectToMniip(ip,port)
 	if not s then return false,r end
 	sock:settimeout(0)
 	sock:setoption("keepalive",true)
-	sock:send(string.char(tpt.version.major)..string.char(tpt.version.minor)..username.."\0")
+	sock:send(string.char(tpt.version.major)..string.char(tpt.version.minor)..string.char(TPTMP.version)..username.."\0")
 	local c,r
 	while not c do
 	c,r = sock:receive(1)
@@ -101,10 +114,12 @@ end
 local function conGetNull()
 	con.socket:settimeout(nil)
 	local c,r = con.socket:receive(1)
+	if not c and r ~= "timeout" then disconnected() return nil end
 	local rstring=""
 	while c~="\0" do
 	rstring = rstring..c
 	c,r = con.socket:receive(1)
+	if not c and r ~= "timeout" then disconnected() return nil end
 	end
 	con.socket:settimeout(0)
 	return rstring
@@ -114,10 +129,12 @@ local function cChar()
 	con.socket:settimeout(nil)
 	local c,r = con.socket:receive(1)
 	con.socket:settimeout(0)
-	return c or error(r)
+	if not c then disconnected() end
+	return c
 end
 local function cByte()
-	return cChar():byte()
+	local byte = cChar()
+	return byte and byte:byte() or nil
 end
 --return table of arguments
 local function getArgs(msg)
@@ -314,15 +331,15 @@ new=function(x,y,w,h)
 		if nkey==8 and self.cursor > 0 then newstr=self.t.text:sub(1,self.cursor-1) .. self.t.text:sub(self.cursor+1) self:movecursor(-1) --back
 		elseif nkey==127 then newstr=self.t.text:sub(1,self.cursor) .. self.t.text:sub(self.cursor+2) --delete
 		elseif nkey==9 then --tab complete
-					local nickstart,nickend,nick = self.t.text:sub(1,self.cursor+1):find("([^%s%c]+)"..(self.cursor == #self.t.text and "" or " ").."$")
-					if con.members and nick then
-						for k,v in pairs(con.members) do
-							if v.name:sub(1,#nick) == nick then
-								nick = v.name if nickstart == 1 then nick = nick..":" end newstr = self.t.text:sub(1,nickstart-1)..nick.." "..self.t.text:sub(nickend+1,#self.t.text) self.cursor = nickstart+#nick
-							end
-						end
+			local nickstart,nickend,nick = self.t.text:sub(1,self.cursor+1):find("([^%s%c]+)"..(self.cursor == #self.t.text and "" or " ").."$")
+			if con.members and nick then
+				for k,v in pairs(con.members) do
+					if v.name:sub(1,#nick) == nick then
+						nick = v.name if nickstart == 1 then nick = nick..":" end newstr = self.t.text:sub(1,nickstart-1)..nick.." "..self.t.text:sub(nickend+1,#self.t.text) self.cursor = nickstart+#nick
 					end
-		else
+				end
+			end
+		else 
 			if nkey<32 or nkey>=127 then return true end --normal key
 			local addkey = (modi==1 or modi==2) and shift(key) or key
 			if (math.floor(modi/512))==1 then addkey=altgr(key) end
@@ -497,7 +514,6 @@ new=function(x,y,w,h)
 	chatcommands = {
 	connect = function(self,msg,args)
 		if not issocket then self:addline("No luasockets found") return end
-		tpt.version.minor = 0
 		local s,r = connectToMniip(args[1],tonumber(args[2]))
 		if not s then self:addline(r,255,50,50) end
 	end,
@@ -510,10 +526,7 @@ new=function(x,y,w,h)
 		end
 	end,
 	quit = function(self,msg,args)
-		con.socket:close()
-		self:addline("Disconnected",255,50,50)
-		con.connected = false
-		con.members = {}
+		disconnected("Disconnected")
 	end,
 	join = function(self,msg,args)
 		if args[1] then
@@ -528,10 +541,12 @@ new=function(x,y,w,h)
 	help = function(self,msg,args)
 		if not args[1] then self:addline("/help <command>, type /list for a list of commands") end
 		if args[1] == "connect" then self:addline("(/connect [ip] [port]) -- connect to a TPT multiplayer server, or no args to connect to the default one")
-		elseif args[1] == "send" then self:addline("(/send <something> <somethingelse>") -- send a raw command
+		--elseif args[1] == "send" then self:addline("(/send <something> <somethingelse>) -- send raw data to the server") -- send a raw command
 		elseif args[1] == "quit" then self:addline("(/quit, no arguments) -- quit the game")
 		elseif args[1] == "join" then self:addline("(/join <channel> -- joins a room on the server")
 		elseif args[1] == "sync" then self:addline("(/sync, no arguments) -- syncs your screen to everyone else in the room")
+		elseif args[1] == "me" then self:addline("(/me <message>) -- say something in 3rd person") -- send a raw command
+		elseif args[1] == "kick" then self:addline("(/kick <nick> <reason>) -- kick a user, only works if you have been in a channel the longest")
 		end
 	end,
 	list = function(self,msg,args)
@@ -540,6 +555,16 @@ new=function(x,y,w,h)
 			list=list..name..", "
 		end
 		self:addline("Commands: "..list:sub(1,#list-2))
+	end,
+	me = function(self, msg, args)
+		if not con.connected then return end
+		self:addline("* " .. username .. " ".. table.concat(args, " "),200,200,200)
+		conSend(20,table.concat(args, " "),true)
+	end,
+	kick = function(self, msg, args)
+		if not con.connected then return end
+		if not args[1] then self:addline("Need a nick! '/kick <nick> [reason]'") return end
+		conSend(21, args[1].."\0"..(args[2] or ""),true)
 	end,
 	}
 	function chat:textprocess(key,nkey,modifier,event)
@@ -583,13 +608,13 @@ end
 local infoText = newFadeText("",150,245,370,255,255,255,true)
 local cmodeText = newFadeText("",120,250,180,255,255,255,true)
 
-local showbutton = ui_button.new(613,using_manager and 119 or 136,14,14,function() if not hooks_enabled then enableMultiplayer() end L.chatHidden=false L.flashChat=false end,"<<")
+local showbutton = ui_button.new(613,using_manager and 119 or 136,14,14,function() if not hooks_enabled then TPTMP.enableMultiplayer() end L.chatHidden=false L.flashChat=false end,"<<")
 if jacobsmod and tpt.oldmenu()~=0 then
 	showbutton:onmove(0, 241)
 end
 local flashCount=0
 showbutton.drawbox = true showbutton:drawadd(function(self) if L.flashChat then self.almostselected=true flashCount=flashCount+1 if flashCount%25==0 then self.invert=not self.invert end end end)
-local chatwindow = ui_chatbox.new(100,100,250,200)
+chatwindow = ui_chatbox.new(100,100,250,200)
 chatwindow:setbackground(10,10,10,235) chatwindow.drawbackground=true
 
 local eleNameTable = {
@@ -852,6 +877,12 @@ local dataCmds = {
 	[19] = function()
 		chatwindow:addline(con.members[cByte()].name .. ": " .. conGetNull())
 	end,
+	[20] = function()
+		chatwindow:addline("* "..con.members[cByte()].name .. " " .. conGetNull())
+	end,
+	[22] = function()
+		chatwindow:addline("[SERVER] "..conGetNull(), cByte(), cByte(), cByte())
+	end,
 	--Mouse Position
 	[32] = function()
 		local id = cByte()
@@ -1104,7 +1135,7 @@ local dataCmds = {
 
 local function connectThink()
 	if not con.connected then return end
-	if not con.socket then chatwindow:addline("Disconnected") con.connected=false return end
+	if not con.socket then disconnected() return end
 	--read all messages
 	while 1 do
 		local s,r = con.socket:receive(1)
@@ -1112,7 +1143,10 @@ local function connectThink()
 			local cmd = string.byte(s)
 			--MANAGER_PRINT("GOT "..tostring(cmd))
 			if dataCmds[cmd] then dataCmds[cmd]() else MANAGER_PRINT("TPTMP: Unknown protocol "..tostring(cmd),255,20,20) end
-		else break end
+		else
+			if r ~= "timeout" then disconnected() end
+			break
+		end
 	end
 
 	--ping every minute
@@ -1300,7 +1334,7 @@ local function step()
 	if hooks_enabled then
 		if pressedKeys and pressedKeys["repeat"] < socket.gettime() then
 			chatwindow:textprocess(pressedKeys["key"],pressedKeys["nkey"],pressedKeys["modifier"],pressedKeys["event"])
-			pressedKeys["repeat"] = socket.gettime()+.05
+			pressedKeys["repeat"] = socket.gettime()+.075
 		end
 		drawStuff()
 		sendStuff()
@@ -1331,10 +1365,10 @@ if jacobsmod then
 end
 
 local function mouseclicky(mousex,mousey,button,event,wheel)
-	if mousex<612 and mousey<384 then mousex,mousey = sim.adjustCoords(mousex,mousey) end
 	if L.chatHidden then showbutton:process(mousex,mousey,button,event,wheel) if not hooks_enabled then return true end
 	elseif chatwindow:process(mousex,mousey,button,event,wheel) then return false end
 	if L.skipClick then L.skipClick=false return true end
+	if mousex<612 and mousey<384 then mousex,mousey = sim.adjustCoords(mousex,mousey) end
 	if L.stamp and button>0 and button~=2 then
 		if event==1 and button==1 then
 			--initial stamp coords
@@ -1477,7 +1511,10 @@ local keypressfuncs = {
 	
 	--= key, pressure/spark reset
 	[61] = function() if L.ctrl then conSend(60) else conSend(61) end end,
-
+	
+	--`, console
+	[96] = function() if not L.shift and con.connected then infoText:reset("Console does not sync, use shift+` to open instead") return false end end,
+	
 	--b , deco, pauses sim
 	[98] = function() if L.ctrl then conSend(51,tpt.decorations_enable()==0 and "\1" or "\0") else conSend(49,"\1") conSend(51,"\1") end end,
 
@@ -1492,7 +1529,7 @@ local keypressfuncs = {
 
 	--H , HUD and intro text
 	[104] = function() if L.ctrl and jacobsmod then return false end end,
-
+	
 	--I , invert pressure
 	[105] = function() conSend(62) end,
 	
@@ -1505,13 +1542,14 @@ local keypressfuncs = {
 	--N , newtonian gravity or new save
 	[110] = function() if jacobsmod and L.ctrl then L.sendScreen=2 L.lastSave=nil else conSend(54,tpt.newtonian_gravity()==0 and "\1" or "\0") end end,
 
+	--O, old menu in jacobs mod
 	[111] = function() if jacobsmod and not L.ctrl then if tpt.oldmenu()==0 then showbutton:onmove(0, 241) else showbutton:onmove(0, -241) end end end,
-
+	
 	--R , for stamp rotate
 	[114] = function() if L.placeStamp then L.smoved=true if L.shift then return end L.rotate=not L.rotate elseif L.ctrl then conSend(70) end end,
 
 	--S, stamp
-	[115] = function() if (L.lastStick2 or jacobsmod) and not L.ctrl then return end L.stamp=true end,
+	[115] = function() if (L.lastStick2 and not L.ctrl) or (jacobsmod and L.ctrl) then return end L.stamp=true end,
 
 	--T, tabs
 	[116] = function() if jacobsmod then L.tabs = not L.tabs end end,
@@ -1536,10 +1574,10 @@ local keypressfuncs = {
 	[274] = function() if L.placeStamp then L.smoved=true end end,
 	[275] = function() if L.placeStamp then L.smoved=true end end,
 	[276] = function() if L.placeStamp then L.smoved=true end end,
-
+	
 	--F1 , intro text
 	[282] = function() if jacobsmod then return false end end,
-
+	
 	--F5 , save reload
 	[286] = function() conSend(70) end,
 
@@ -1586,17 +1624,19 @@ local function keyclicky(key,nkey,modifier,event)
 	if ret~= nil then return ret end
 end
 
-function disableMultiplayer()
+function TPTMP.disableMultiplayer()
 	tpt.unregister_step(step)
 	tpt.unregister_mouseclick(mouseclicky)
-	enableMultiplayer, disableMultiplayer = nil, nil
+	tpt.unregister_keypress(keyclicky)
+	TPTMP = nil
+	disconnected("TPTMP unloaded")
 end
 
-function enableMultiplayer()
+function TPTMP.enableMultiplayer()
 	tpt.register_keypress(keyclicky)
 	chatwindow:addline("TPTMP v0.6: Type '/connect' to join server.",200,200,200)
 	hooks_enabled = true
-	enableMultiplayer, disableMultiplayer = nil, nil
+	TPTMP.enableMultiplayer = nil
 	debug.sethook(nil,"",0)
 	if jacobsmod then
 		--clear intro text tooltip
@@ -1605,4 +1645,3 @@ function enableMultiplayer()
 end
 tpt.register_step(step)
 tpt.register_mouseclick(mouseclicky)
-

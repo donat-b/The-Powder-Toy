@@ -3038,9 +3038,7 @@ int main(int argc, char *argv[])
 		}
 #ifdef OGLR
 		draw_parts_fbo();
-#endif		
-		if (zoom_en)
-			render_zoom(vid_buf);
+#endif
 
 		DrawToolTips();
 
