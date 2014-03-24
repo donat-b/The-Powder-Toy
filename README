@@ -668,6 +668,13 @@ tpt++, and other generic bug fixes.
 Version 27.1 3/13/14
 TPTMP updates to fix some syncing / other issues
 
+Version 27.2 3/23/14
+Fix random stickmen spawning. Fix flood fill only working on first click. Redo
+some stuff related to saving mod elements to be less annoying. Rewrite toolTips
+(work exactly the same). Update TPTMP to version .7 by cracker64. Fix glitches
+when sparks go through portal breaking some saves. Fix error when loading
+really old saves with FAN wall.
+
 
 
 
