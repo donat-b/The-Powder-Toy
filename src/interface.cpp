@@ -3115,7 +3115,7 @@ void menu_draw_text(Tool* over, int y)
 	}
 	else if (over->GetType() == GOL_TOOL)
 		toolTip << golTypes[toolID].description;
-	else if (over->GetType() >= DECO_PRESET_START && toolID < DECO_PRESET_START + NUM_COLOR_PRESETS)
+	else if (toolID >= DECO_PRESET_START && toolID < DECO_PRESET_START + NUM_COLOR_PRESETS)
 		toolTip << colorlist[toolID-DECO_PRESET_START].descs;
 	else if (over->GetType() == WALL_TOOL)
 		toolTip << wallTypes[toolID].descs;
