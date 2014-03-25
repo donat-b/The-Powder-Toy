@@ -102,7 +102,6 @@ local function connectToMniip(ip,port,nick)
 		end
 		if err=="This nick is already on the server" then
 			nick = nick:gsub("(.)$",function(s) local n=tonumber(s) if n and n+1 <= 9 then return n+1 else return n..'0' end end)
-			username = nick
 			return connectToMniip(ip,port,nick)
 		end
 		return false,err
@@ -112,6 +111,7 @@ local function connectToMniip(ip,port,nick)
 
 	con.socket = sock
 	con.connected = true
+	username = nick
 	return true
 end
 --get up to a null (\0)
@@ -584,17 +584,15 @@ new=function(x,y,w,h)
 				if chatcommands[cmd] then
 					chatcommands[cmd](self,msg,args)
 					--self:addline("Executed "..cmd.." "..rest)
-				else
-					self:addline("No such command: "..cmd.." "..rest,255,50,50)
+					return
 				end
+			end
+			--normal chat
+			if con.connected then
+				conSend(19,text,true)
+				self:addline(username .. ": ".. text,200,200,200)
 			else
-				--normal chat
-				if con.connected then
-					conSend(19,text,true)
-					self:addline(username .. ": ".. text,200,200,200)
-				else
-					self:addline("Not connected to server!",255,50,50)
-				end
+				self:addline("Not connected to server!",255,50,50)
 			end
 		end
 	end
@@ -1338,8 +1336,12 @@ local function step()
 	if not L.chatHidden then chatwindow:draw() else showbutton:draw() end
 	if hooks_enabled then
 		if pressedKeys and pressedKeys["repeat"] < socket.gettime() then
-			chatwindow:textprocess(pressedKeys["key"],pressedKeys["nkey"],pressedKeys["modifier"],pressedKeys["event"])
-			pressedKeys["repeat"] = socket.gettime()+.075
+			if pressedKeys["repeat"] < socket.gettime()-.05 then
+				pressedKeys = nil
+			else
+				chatwindow:textprocess(pressedKeys["key"],pressedKeys["nkey"],pressedKeys["modifier"],pressedKeys["event"])
+				pressedKeys["repeat"] = socket.gettime()+.065
+			end
 		end
 		drawStuff()
 		sendStuff()
