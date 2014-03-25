@@ -3711,8 +3711,6 @@ void render_after(pixel *part_vbuf, pixel *vid_buf, Point mousePos)
 #endif
 	if (finding & 0x8)
 		draw_find();
-	if (zoom_en)
-		render_zoom(vid_buf);
 }
 
 void draw_find() //Find just like how my lua script did it, it will find everything and show it's exact spot, and not miss things under stacked particles

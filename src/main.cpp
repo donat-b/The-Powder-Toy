@@ -1375,9 +1375,19 @@ int main(int argc, char *argv[])
 				debug_perf_time = ts.tv_nsec;
 			#endif
 		}
-		
+
 		render_after(part_vbuf, vid_buf, Point(mx, my));
 		
+		if (zoom_en!=1 && !load_mode && !save_mode && lm != 2)//draw normal cursor
+		{
+			if (lm && (sdl_mod & KMOD_ALT))
+				render_cursor(vid_buf, line_x, line_y, activeTools[activeToolID], currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
+			else
+				render_cursor(vid_buf, mx, my, activeTools[activeToolID], currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
+		}
+		if (zoom_en)
+			render_zoom(vid_buf);
+
 		if(debug_flags & (DEBUG_PERFORMANCE_CALC|DEBUG_PERFORMANCE_FRAME))
 		{
 			#ifdef WIN32
@@ -3029,13 +3039,6 @@ int main(int argc, char *argv[])
 				UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy and then cut (right click = cancel)", Point(16, YRES-24), TOOLTIP, 255);
 		}
 
-		if (zoom_en!=1 && !load_mode && !save_mode && lm != 2)//draw normal cursor
-		{
-			if (lm && (sdl_mod & KMOD_ALT))
-				render_cursor(vid_buf, line_x, line_y, activeTools[activeToolID], currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
-			else
-				render_cursor(vid_buf, mx, my, activeTools[activeToolID], currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
-		}
 #ifdef OGLR
 		draw_parts_fbo();
 #endif
