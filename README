@@ -675,6 +675,10 @@ some stuff related to saving mod elements to be less annoying. Rewrite toolTips
 when sparks go through portal breaking some saves. Fix error when loading
 really old saves with FAN wall.
 
+Version 27.2 (build 35) 3/25/14
+Fix mouse cursor not displaying in zoom window. Fix crash with deco presets in
+deco editor. Fix key repeat in TPTMP.
+
 
 
 
