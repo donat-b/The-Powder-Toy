@@ -1378,12 +1378,55 @@ int main(int argc, char *argv[])
 
 		render_after(part_vbuf, vid_buf, Point(mx, my));
 		
+		if (load_mode)//draw preview of stamp
+		{
+			draw_image(vid_buf, load_img, load_x, load_y, load_w, load_h, 128);
+			xor_rect(vid_buf, load_x, load_y, load_w, load_h);
+		}
+
+		if (save_mode)//draw dotted lines for selection
+		{
+			int savex = save_x, savey = save_y, savew = save_w, saveh = save_h;
+			if (savew < 0)
+			{
+				savex = savex + savew - 1;
+				savew = abs(savew) + 2;
+			}
+			if (saveh < 0)
+			{
+				savey = savey + saveh - 1;
+				saveh = abs(saveh) + 2;
+			}
+			fillrect(vid_buf,-1,-1,savex+1,YRES,0,0,0,100);
+			fillrect(vid_buf,savex-1,-1,savew+1,savey+1,0,0,0,100);
+			fillrect(vid_buf,savex-1,savey+saveh-1,savew+1,YRES-savey-saveh+1,0,0,0,100);
+			fillrect(vid_buf,savex+savew-1,-1,XRES-savex-savew+1,YRES+1,0,0,0,100);
+			xor_rect(vid_buf, savex, savey, savew, saveh);
+			if (copy_mode != 2)
+				UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy (right click = cancel)", Point(16, YRES-24), TOOLTIP, 255);
+			else
+				UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy and then cut (right click = cancel)", Point(16, YRES-24), TOOLTIP, 255);
+		}
+
 		if (zoom_en!=1 && !load_mode && !save_mode && lm != 2)//draw normal cursor
 		{
 			if (lm && (sdl_mod & KMOD_ALT))
 				render_cursor(vid_buf, line_x, line_y, activeTools[activeToolID], currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
 			else
 				render_cursor(vid_buf, mx, my, activeTools[activeToolID], currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
+
+			if (lb)
+			{
+				if (lm == 1)
+					xor_line(lx, ly, line_x, line_y, vid_buf);
+				else if (lm == 2)
+				{
+					xor_line(lx, ly, lx, line_y, vid_buf);
+					xor_line(lx, line_y, line_x, line_y, vid_buf);
+					xor_line(line_x, line_y, line_x, ly, vid_buf);
+					xor_line(line_x, ly, lx, ly, vid_buf);
+				}
+			}
 		}
 		if (zoom_en)
 			render_zoom(vid_buf);
@@ -2032,19 +2075,19 @@ int main(int argc, char *argv[])
 				default:
 					airMode = 0;
 				case 0:
-					toolTip = "Ait: On";
+					toolTip = "Air: On";
 					break;
 				case 1:
-					toolTip = "Ait: Pressure Off";
+					toolTip = "Air: Pressure Off";
 					break;
 				case 2:
-					toolTip = "Ait: Velocity Off";
+					toolTip = "Air: Velocity Off";
 					break;
 				case 3:
-					toolTip = "Ait: Off";
+					toolTip = "Air: Off";
 					break;
 				case 4:
-					toolTip = "Ait: No Update";
+					toolTip = "Air: No Update";
 					break;
 				}
 				UpdateToolTip(toolTip, Point(XCNTR-textwidth(toolTip.c_str())/2, YCNTR-10), INFOTIP, 255);
@@ -2885,7 +2928,6 @@ int main(int argc, char *argv[])
 							line_x = mx;
 							line_y = my;
 						}
-						xor_line(lx, ly, line_x, line_y, vid_buf);
 						//WIND tool works before you even draw the line while holding shift
 						if (((ToolTool*)activeTool)->GetID() == TOOL_WIND)
 						{
@@ -2916,10 +2958,6 @@ int main(int argc, char *argv[])
 							line_x = mx;
 							line_y = my;
 						}
-						xor_line(lx, ly, lx, line_y, vid_buf);
-						xor_line(lx, line_y, line_x, line_y, vid_buf);
-						xor_line(line_x, line_y, line_x, ly, vid_buf);
-						xor_line(line_x, ly, lx, ly, vid_buf);
 					}
 					//flood fill
 					else if (lm == 3)
@@ -2943,8 +2981,8 @@ int main(int argc, char *argv[])
 				else if (!clickedSign && !bq) //it is the first click
 				{
 					toolStrength = 1.0f;
-					lx = mx;
-					ly = my;
+					lx = line_x = mx;
+					ly = line_y = my;
 					lb = b;
 					lm = 0;
 					//start line tool
@@ -3007,36 +3045,6 @@ int main(int argc, char *argv[])
 				lm = 0;
 			}
 			lb = 0;
-		}
-
-		if (load_mode)//draw preview of stamp
-		{
-			draw_image(vid_buf, load_img, load_x, load_y, load_w, load_h, 128);
-			xor_rect(vid_buf, load_x, load_y, load_w, load_h);
-		}
-
-		if (save_mode)//draw dotted lines for selection
-		{
-			int savex = save_x, savey = save_y, savew = save_w, saveh = save_h;
-			if (savew < 0)
-			{
-				savex = savex + savew - 1;
-				savew = abs(savew) + 2;
-			}
-			if (saveh < 0)
-			{
-				savey = savey + saveh - 1;
-				saveh = abs(saveh) + 2;
-			}
-			fillrect(vid_buf,-1,-1,savex+1,YRES,0,0,0,100);
-			fillrect(vid_buf,savex-1,-1,savew+1,savey+1,0,0,0,100);
-			fillrect(vid_buf,savex-1,savey+saveh-1,savew+1,YRES-savey-saveh+1,0,0,0,100);
-			fillrect(vid_buf,savex+savew-1,-1,XRES-savex-savew+1,YRES+1,0,0,0,100);
-			xor_rect(vid_buf, savex, savey, savew, saveh);
-			if (copy_mode != 2)
-				UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy (right click = cancel)", Point(16, YRES-24), TOOLTIP, 255);
-			else
-				UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy and then cut (right click = cancel)", Point(16, YRES-24), TOOLTIP, 255);
 		}
 
 #ifdef OGLR

@@ -1319,8 +1319,9 @@ void draw_svf_ui(pixel *vid_buf, int alternate)// all the buttons at the bottom
 	{
 		drawtext(vid_buf, XRES-45+BARSIZE/*463*/, YRES+(MENUSIZE-14), "\xC9", 35, 127, 232, 255);
 		drawtext(vid_buf, XRES-45+BARSIZE/*463*/, YRES+(MENUSIZE-14), "\xC7", 255, 255, 255, 255);
-	}//else if(amd)
-	//	drawtext(vid_buf, XRES-45/*465*/, YRES+(MENUSIZE-15), "\x97", 0, 230, 153, 255); Why is this here?
+	}
+	//else if (amd)
+	//	drawtext(vid_buf, XRES-45+BARSIZE/*463*/, YRES+(MENUSIZE-14), "\x97", 0, 230, 153, 255); //Why is this here?
 }
 
 void error_ui(pixel *vid_buf, int err, char *txt)
