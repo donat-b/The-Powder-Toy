@@ -1408,12 +1408,13 @@ int main(int argc, char *argv[])
 				UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy and then cut (right click = cancel)", Point(16, YRES-24), TOOLTIP, 255);
 		}
 
-		if (zoom_en!=1 && !load_mode && !save_mode && lm != 2)//draw normal cursor
+		if (zoom_en!=1 && !load_mode && !save_mode)//draw normal cursor
 		{
-			if (lm && (sdl_mod & KMOD_ALT))
-				render_cursor(vid_buf, line_x, line_y, activeTools[activeToolID], currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
-			else
-				render_cursor(vid_buf, mx, my, activeTools[activeToolID], currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
+			if (lm != 2)
+				if (lm && (sdl_mod & KMOD_ALT))
+					render_cursor(vid_buf, line_x, line_y, activeTools[activeToolID], currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
+				else
+					render_cursor(vid_buf, mx, my, activeTools[activeToolID], currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
 
 			if (lb)
 			{

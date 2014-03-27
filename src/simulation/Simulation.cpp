@@ -646,8 +646,8 @@ void Simulation::CreateBox(int x1, int y1, int x2, int y2, int c, int flags)
 		y2 = y1;
 		y1 = temp;
 	}
-	for (int i = x1; i <= x2; i++)
-		for (int j = y1; j <= y2; j++)
+	for (int j = y1; j <= y2; j++)
+		for (int i = x1; i <= x2; i++)
 			CreateParts(i, j, 0, 0, c, flags, false);
 }
 
@@ -860,8 +860,8 @@ void Simulation::CreateWallBox(int x1, int y1, int x2, int y2, int wall)
 		y2 = y1;
 		y1 = temp;
 	}
-	for (int i = x1; i <= x2; i++)
-		for (int j = y1; j <= y2; j++)
+	for (int j = y1; j <= y2; j++)
+		for (int i = x1; i <= x2; i++)
 			CreateWall(i, j, wall);
 }
 
@@ -1096,8 +1096,8 @@ void Simulation::CreateToolBox(int x1, int y1, int x2, int y2, int tool, float s
 		y2 = y1;
 		y1 = temp;
 	}
-	for (int i = x1; i <= x2; i++)
-		for (int j = y1; j <= y2; j++)
+	for (int j = y1; j <= y2; j++)
+		for (int i = x1; i <= x2; i++)
 			CreateTool(i, j, tool, strength);
 }
 
@@ -1231,8 +1231,8 @@ void Simulation::CreatePropBox(int x1, int y1, int x2, int y2, PropertyType prop
 		y2 = y1;
 		y1 = temp;
 	}
-	for (int i = x1; i <= x2; i++)
-		for (int j = y1; j <= y2; j++)
+	for (int j = y1; j <= y2; j++)
+		for (int i = x1; i <= x2; i++)
 			CreateProp(i, j, propType, propValue, propOffset);
 }
 
@@ -1517,8 +1517,8 @@ void Simulation::CreateDecoBox(int x1, int y1, int x2, int y2, int tool, unsigne
 		y2 = y1;
 		y1 = temp;
 	}
-	for (int i = x1; i <= x2; i++)
-		for (int j = y1; j <= y2; j++)
+	for (int j = y1; j <= y2; j++)
+		for (int i = x1; i <= x2; i++)
 			CreateDeco(i, j, tool, color);
 }
 
