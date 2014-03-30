@@ -2637,8 +2637,8 @@ int main(int argc, char *argv[])
 				}
 				else if (bq == 1)
 				{
-					parse_save(load_data, load_size, 0, load_x, load_y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 					ctrlzSnapshot();
+					parse_save(load_data, load_size, 0, load_x, load_y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 					free(load_data);
 					load_data = NULL;
 					free(load_img);
