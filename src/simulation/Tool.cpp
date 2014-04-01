@@ -28,6 +28,8 @@ int Tool::DrawPoint(Brush* brush, Point position)
 {
 	if (globalSim->elements[ID].Properties&PROP_MOVS)
 		create_moving_solid(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID);
+	//else if (GetID() == PT_CMD)
+	//	return globalSim->part_create(-1, position.X, position.Y, ID);
 	else
 		return globalSim->CreateParts(position.X, position.Y, brush->GetRadius().X, brush->GetRadius().Y, ID, get_brush_flags(), true);
 	return 0;
@@ -37,16 +39,22 @@ void Tool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 {
 	if (held && (globalSim->elements[ID].Properties&PROP_MOVS))
 		return;
+	//if (GetID() == PT_CMD)
+	//	return;
 	globalSim->CreateLine(startPos.X, startPos.Y, endPos.X, endPos.Y, currentBrush->GetRadius().X, currentBrush->GetRadius().Y, ID, get_brush_flags());
 }
 
 void Tool::DrawRect(Brush* brush, Point startPos, Point endPos)
 {
+	if (GetID() == PT_CMD)
+		return;
 	globalSim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, get_brush_flags());
 }
 
 int Tool::FloodFill(Point position)
 {
+	if (GetID() == PT_CMD)
+		return 0;
 	return globalSim->FloodParts(position.X, position.Y, ID, -1, get_brush_flags());
 }
 

@@ -264,19 +264,24 @@ void SetLeftHudText(float FPSB2)
 		sprintf(uitext,"");
 	if (currentHud[36] || currentHud[37] || currentHud[38])
 	{
-		time_t time2 = time(0);
-		char time[256], *timestr = "";
-		sprintf(time,"%i",time2);
-
-		if (strlen(uitext))
+		if (svf_banned)
+			strappend(uitext,"BANNED time, ");
+		else
 		{
-			uitext[strlen(uitext)-1] = ',';
-			strappend(uitext," ");
+			time_t time2 = time(0);
+			char time[256], *timestr = "";
+			sprintf(time,"%i",time2);
+
+			if (strlen(uitext))
+			{
+				uitext[strlen(uitext)-1] = ',';
+				strappend(uitext," ");
+			}
+			converttotime(time,&timestr,currentHud[36],currentHud[38],currentHud[37]);
+			strappend(uitext,timestr);
+			strappend(uitext,", ");
+			free(timestr);
 		}
-		converttotime(time,&timestr,currentHud[36],currentHud[38],currentHud[37]);
-		strappend(uitext,timestr);
-		strappend(uitext,", ");
-		free(timestr);
 	}
 	if (currentHud[2])
 	{

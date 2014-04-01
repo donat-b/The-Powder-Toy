@@ -33,7 +33,10 @@ int MOVS_update(UPDATE_FUNC_ARGS)
 	{
 		if (rand()%500<1)
 		{
-			kill_part(i);
+			if (parts[i].type == PT_COCO)
+				part_change_type(i,x,y,PT_COCJ);
+			else
+				kill_part(i);
 			return 1;
 		}
 	}
@@ -51,10 +54,17 @@ int MOVS_update(UPDATE_FUNC_ARGS)
 		kill_part(i);
 		return 1;
 	}
+	if (parts[i].type == PT_COCO && !tmp && !tmp2)
+		tmp2 = 1;
 	type = pmap[y+1][x]&0xFF;
 	//bottom side collision
 	if (tmp2 > 0 && type && y+1 < YRES && ((type != parts[i].type && !eval_move(parts[i].type,x,y+1,NULL)) || (type == parts[i].type && parts[pmap[y+1][x]>>8].tmp2 != bn)))
 	{
+		if (parts[i].type == PT_COCO)
+		{
+			part_change_type(i,x,y,PT_COCJ);
+			return 1;
+		}
 		parts[i].vy -= tmp2*bounce;
 		newmsrotation[bn] -= tmp/50000;
 	}

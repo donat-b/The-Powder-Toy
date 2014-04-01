@@ -319,6 +319,7 @@ void save_presets(int do_update)
 	cJSON_AddNumberToObject(root, "doUpdates2", doUpdates);
 	cJSON_AddNumberToObject(root, "WindowX", savedWindowX);
 	cJSON_AddNumberToObject(root, "WindowY", savedWindowY);
+	cJSON_AddNumberToObject(root, "BATT", svf_banned);
 	
 	outputdata = cJSON_Print(root);
 	cJSON_Delete(root);
@@ -631,6 +632,7 @@ void load_presets(void)
 		if(tmpobj = cJSON_GetObjectItem(root, "doUpdates2")) doUpdates = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "WindowX")) savedWindowX = tmpobj->valueint;
 		if(tmpobj = cJSON_GetObjectItem(root, "WindowY")) savedWindowY = tmpobj->valueint;
+		//if(tmpobj = cJSON_GetObjectItem(root, "BATT")) svf_banned = tmpobj->valueint;
 
 		cJSON_Delete(root);
 		free(prefdata);

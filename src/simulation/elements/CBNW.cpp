@@ -109,6 +109,10 @@ int CBNW_update(UPDATE_FUNC_ARGS)
 						return 1;
 					}
 				}
+				else if ((r&0xFF)==PT_DIRT && !(rand()%100))
+				{
+					part_change_type(i,x,y,PT_MUD);
+				}
 			}
 	return 0;
 }

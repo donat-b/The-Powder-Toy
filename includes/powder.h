@@ -248,6 +248,7 @@ extern int wire_placed;
 extern int force_stacking_check;
 extern int ppip_changed;
 
+extern playerst playerw;
 extern playerst player;
 extern playerst player2;
 
