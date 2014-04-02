@@ -914,8 +914,6 @@ void BlueScreen(char * detailMessage)
 		" http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11117\n"
 		" OR either my 'post bugs here' save / my 'Jacob1s Mod detector' save\n\n"
 		"Note: TPT will now restart and reload your work";
-	if (globalSim->thanksobama)
-		errorHelp = "\nTPT has crashed. THANKS OBAMA!";
 	int positionX = (XRES+BARSIZE)/2-textwidth(errorHelp)/2-50, positionY = (YRES+MENUSIZE)/2-100;
 
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 17, 114, 169, 210);
@@ -931,8 +929,6 @@ void BlueScreen(char * detailMessage)
 			if(event.type == SDL_QUIT)
 			{
 				char *exename;
-				if (globalSim->thanksobama)
-					exit(0);
 				sys_pause = 1;
 				tab_save(tab_num, 0);
 				exename = exe_name();

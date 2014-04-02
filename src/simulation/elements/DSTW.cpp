@@ -62,12 +62,6 @@ int DSTW_update(UPDATE_FUNC_ARGS)
 						return 1;
 					}
 					break;
-				case PT_DIRT:
-					if (rand()%100)
-					{
-						part_change_type(i,x,y,PT_MUD);
-					}
-					break;
 				default:
 					continue;
 				}

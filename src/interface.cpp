@@ -81,7 +81,6 @@ char *shift_1="~!@#$%^&*()_+{}|:\"<>?";
 
 int svf_messages = 0;
 int svf_login = 0;
-int svf_banned = 0;
 int svf_admin = 0;
 int svf_mod = 0;
 char svf_user[64] = "";
@@ -1279,9 +1278,7 @@ void draw_svf_ui(pixel *vid_buf, int alternate)// all the buttons at the bottom
 
 	//the login button
 	drawtext(vid_buf, XRES-122+BARSIZE/*388*/, YRES+(MENUSIZE-13), "\x84", 255, 255, 255, 255);
-	if (svf_banned)
-		drawtext(vid_buf, XRES-104+BARSIZE/*406*/, YRES+(MENUSIZE-12), "BANNED", 255, 255, 255, 255);
-	else if (svf_login)
+	if (svf_login)
 		drawtextmax(vid_buf, XRES-104+BARSIZE/*406*/, YRES+(MENUSIZE-12), 66, svf_user, 255, 255, 255, 255);
 	else
 		drawtext(vid_buf, XRES-104+BARSIZE/*406*/, YRES+(MENUSIZE-12), "[sign in]", 255, 255, 255, 255);
@@ -2678,10 +2675,7 @@ int save_name_ui(pixel *vid_buf)
 
 		drawrect(vid_buf, x0, y0, 420, 110+YRES/4, 192, 192, 192, 255); // rectangle around entire thing
 		clearrect(vid_buf, x0, y0, 420, 110+YRES/4);
-		if (svf_banned)
-			drawtext(vid_buf, x0+8, y0+8, "You are BANNED, uploading this will make it permanent", 255, 255, 255, 255);
-		else
-			drawtext(vid_buf, x0+8, y0+8, "New simulation name:", 255, 255, 255, 255);
+		drawtext(vid_buf, x0+8, y0+8, "New simulation name:", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+10, y0+23, "\x82", 192, 192, 192, 255);
 		drawrect(vid_buf, x0+8, y0+20, 176, 16, 192, 192, 192, 255); //rectangle around title box
 
@@ -3748,22 +3742,18 @@ void stickmen_keys()
 	if (sdl_key == SDLK_RIGHT)
 	{
 		player.comm = (int)(player.comm)|0x02;  //Go right command
-		playerw.comm = (int)(playerw.comm)|0x02;  //Go right command
 	}
 	if (sdl_key == SDLK_LEFT)
 	{
 		player.comm = (int)(player.comm)|0x01;  //Go left command
-		playerw.comm = (int)(playerw.comm)|0x01;  //Go left command
 	}
 	if (sdl_key == SDLK_DOWN && ((int)(player.comm)&0x08)!=0x08)
 	{
 		player.comm = (int)(player.comm)|0x08;  //Use element command
-		playerw.comm = (int)(playerw.comm)|0x08;  //Use element command
 	}
 	if (sdl_key == SDLK_UP && ((int)(player.comm)&0x04)!=0x04)
 	{
 		player.comm = (int)(player.comm)|0x04;  //Jump command
-		playerw.comm = (int)(playerw.comm)|0x04;  //Jump command
 	}
 
 	if (sdl_key == SDLK_d)
@@ -3787,18 +3777,14 @@ void stickmen_keys()
 	{
 		player.pcomm = player.comm;  //Saving last movement
 		player.comm = (int)(player.comm)&12;  //Stop command
-		playerw.pcomm = playerw.comm;  //Saving last movement
-		playerw.comm = (int)(playerw.comm)&12;  //Stop command
 	}
 	if (sdl_rkey == SDLK_UP)
 	{
 		player.comm = (int)(player.comm)&11;
-		playerw.comm = (int)(playerw.comm)&11;
 	}
 	if (sdl_rkey == SDLK_DOWN)
 	{
 		player.comm = (int)(player.comm)&7;
-		playerw.comm = (int)(playerw.comm)&7;
 	}
 
 	if (sdl_rkey == SDLK_d || sdl_rkey == SDLK_a)
@@ -4327,10 +4313,7 @@ int search_ui(pixel *vid_buf)
 					}
 					else
 						j = i;
-					if (svf_banned)
-						drawtextmax(vid_buf, gx+(XRES/(GRID_X+1)-textwidth("BANNED"))/2, gy, XRES/(GRID_X+1)-5, "BANNED", j, j, i, 255);
-					else
-						drawtextmax(vid_buf, gx+(XRES/(GRID_X+1)-w)/2, gy, XRES/(GRID_X+1)-5, tag_names[pos], j, j, i, 255);
+					drawtextmax(vid_buf, gx+(XRES/(GRID_X+1)-w)/2, gy, XRES/(GRID_X+1)-5, tag_names[pos], j, j, i, 255);
 				}
 		}
 
@@ -4352,9 +4335,7 @@ int search_ui(pixel *vid_buf)
 					break;
 				gx = ((XRES/GRID_X)*gi) + (XRES/GRID_X-XRES/GRID_S)/2;
 				gy = ((((YRES-(MENUSIZE-20))+15)/GRID_Y)*gj) + ((YRES-(MENUSIZE-20))/GRID_Y-(YRES-(MENUSIZE-20))/GRID_S+10)/2 + 18;
-				if (svf_banned)
-					drawtext(vid_buf, gx+XRES/(GRID_S*2)-textwidth("BANNED")/2, gy+YRES/GRID_S+7, "BANNED", 192, 192, 192, 255);
-				else if (textwidth(search_names[pos]) > XRES/GRID_X-10)
+				if (textwidth(search_names[pos]) > XRES/GRID_X-10)
 				{
 					tmp = (char*)malloc(strlen(search_names[pos])+4);
 					strcpy(tmp, search_names[pos]);
@@ -4708,7 +4689,7 @@ int search_ui(pixel *vid_buf)
 				if (is_p1)
 				{
 					if (motdswap)
-						sprintf(server_motd,"BREAKING NEWS: STKW caught cheating on STKM with STK2!");
+						sprintf(server_motd,"Links: \bt{a:http://powdertoy.co.uk|Powder Toy main page}\bg, \bt{a:http://powdertoy.co.uk/Discussions/Categories/Index.html|Forums}\bg, \bt{a:https://github.com/FacialTurd/The-Powder-Toy/tree/develop|TPT latest github}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy/tree/c++|Jacob1's Mod github}");
 					motdswap = !motdswap;
 				}
 				ui_richtext_settext(server_motd, &motd);
@@ -5061,11 +5042,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	drawtext(vid_buf, 50+(XRES/4)-textwidth("Loading...")/2, 50+(YRES/4), "Loading...", 255, 255, 255, 128);
 
 	ui_edit_init(&ed, 57+(XRES/2)+1, YRES+MENUSIZE-83, XRES+BARSIZE-114-((XRES/2)+1), 14);
-	if (svf_banned)
-		ed.def = "You are BANNED and cannot comment";
-	else
-		ed.def = "Add comment";
-	ed.focus = (svf_login&&!svf_banned)?1:0;
+	ed.def = "Add comment";
+	ed.focus = svf_login?1:0;
 	ed.multiline = 1;
 	ed.resizable = 1;
 	ed.limit = 1023;
@@ -5532,10 +5510,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				ed.y = YRES+MENUSIZE-71-ui_edit_draw(vid_buf, &ed);
 
 				drawrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 255);
-				if (svf_banned)
-					drawtext(vid_buf, XRES+BARSIZE-90, YRES+MENUSIZE-63, "BANNED", 255, 255, 255, 255);
-				else
-					drawtext(vid_buf, XRES+BARSIZE-90, YRES+MENUSIZE-63, "Submit", 255, 255, 255, 255);
+				drawtext(vid_buf, XRES+BARSIZE-90, YRES+MENUSIZE-63, "Submit", 255, 255, 255, 255);
 			}
 
 			//Save ID text and copybox

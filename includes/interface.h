@@ -179,7 +179,6 @@ extern char *shift_0;
 extern char *shift_1;
 extern int svf_messages;
 extern int svf_login;
-extern int svf_banned;
 extern int svf_admin;
 extern int svf_mod;
 extern char svf_user[64];

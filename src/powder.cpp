@@ -45,7 +45,6 @@ int force_stacking_check = 0;//whether to force a check for excessively stacked 
 
 playerst player;
 playerst player2;
-playerst playerw;
 
 particle *parts;
 particle *cb_parts;
@@ -299,11 +298,6 @@ void init_can_move()
 	can_move[PT_THDR][PT_THDR] = 2;
 	can_move[PT_EMBR][PT_EMBR] = 2;
 	can_move[PT_TRON][PT_SWCH] = 3;
-
-	can_move[PT_STKM][PT_STKW] = 2;
-	can_move[PT_STKW][PT_STKM] = 2;
-	can_move[PT_LOLZ][PT_LOLZ2] = 2;
-	can_move[PT_LOLZ2][PT_LOLZ] = 2;
 }
 
 /*

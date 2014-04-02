@@ -39,7 +39,6 @@ public:
 	Element elements[PT_NUM];
 	ElementDataContainer *elementData[PT_NUM];
 	int pfree;
-	bool thanksobama;
 	
 
 

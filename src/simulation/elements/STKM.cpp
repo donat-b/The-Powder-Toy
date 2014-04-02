@@ -48,26 +48,16 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS)
 	//Death
 	if (parts[i].life<1 || (pv[y/CELL][x/CELL]>=4.5f && playerp->elem != SPC_AIR) ) //If his HP is less than 0 or there is very big wind...
 	{
-		for (r=-2; r<=2; r++)
+		for (r=-2; r<=1; r++)
 		{
-			for (int r2=-2; r2<=2; r2++)
-			{
-				for (int asdf=1; asdf<5; asdf++)
-				{
-					int blood = sim->part_create(-3, x+r, y+r2, PT_BLOD);
-					if (blood >= 0)
-					{
-						parts[blood].vx = rand()%30-15;
-						parts[blood].vy = rand()%30-15;
-					}
-				}
-			}
+			sim->part_create(-1, x+r, y-2, playerp->elem);
+			sim->part_create(-1, x+r+1, y+2, playerp->elem);
+			sim->part_create(-1, x-2, y+r+1, playerp->elem);
+			sim->part_create(-1, x+2, y+r, playerp->elem);
 		}
 		kill_part(i);  //Kill him
 		return 1;
 	}
-	if (!(rand()%1000))
-		sim->part_create(-1, x, y+5, PT_POOP);
 
 	//Follow gravity
 	gvx = gvy = 0.0f;
@@ -559,10 +549,6 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS)
 	STKM_interact(sim, playerp, i, (int)(playerp->legs[12]+0.5), (int)playerp->legs[13]);
 	if (!parts[i].type)
 		return 1;
-	if (parts[i].type == PT_STKW && parts[pmap[y][x]>>8].type == PT_STKM)
-	{
-		sim->part_create(-3, x, y, PT_LOVE);
-	}
 
 	parts[i].ctype = playerp->elem;
 	return 0;

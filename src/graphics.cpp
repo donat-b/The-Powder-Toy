@@ -2741,8 +2741,6 @@ void render_parts(pixel *vid, Point mousePos)
 						cplayer = &player2;
 					else if(t==PT_FIGH)
 						cplayer = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get(parts[i].tmp);
-					else if(t==PT_STKW)
-						cplayer = &playerw;
 					else
 						continue;
 
@@ -2815,12 +2813,6 @@ void render_parts(pixel *vid, Point mousePos)
 					if (t==PT_STKM2)
 					{
 						legr = 100;
-						legg = 100;
-						legb = 255;
-					}
-					else if (t == PT_STKW)
-					{
-						legr = 255;
 						legg = 100;
 						legb = 255;
 					}

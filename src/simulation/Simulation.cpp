@@ -39,8 +39,7 @@ Simulation *globalSim = NULL; // TODO: remove this global variable
 
 Simulation::Simulation() :
 	pfree(-1),
-	lightning_recreate(0),
-	thanksobama(false)
+	lightning_recreate(0)
 {
 	memset(elementData, 0, sizeof(elementData));
 	Clear();

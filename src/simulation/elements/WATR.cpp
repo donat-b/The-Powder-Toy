@@ -51,10 +51,6 @@ int WATR_update(UPDATE_FUNC_ARGS)
 				{
 					part_change_type(i,x,y,PT_SLTW);
 				}
-				else if ((r&0xFF)==PT_DIRT && !(rand()%100))
-				{
-					part_change_type(i,x,y,PT_MUD);
-				}
 				/*if ((r&0xFF)==PT_CNCT && !(rand()%100))	Concrete+Water to paste, not very popular
 				{
 					part_change_type(i,x,y,PT_PSTE);
