@@ -50,6 +50,17 @@ iam4722202468 - made the bug font icon
 cracker64 - made TPTMP, and hosts the TPTMP server
 
 
+2014 April fools joke element suggestions:
+therocketeer - DKLQ (dinosaur knee liquid)
+CatAnimation - BLOD/COCO/COCJ/LOLZ2
+Darthanihlus- POOP
+cracker64 - CMD
+bowserinator - DMD2/BDMD (breakable diamond)
+Kikinicij - BATT (ban all the things)
+Nakriollag- DIMT
+
+
+
 
 ------------------------------------------------------------------------------
 ---------------------------------Explanations---------------------------------
@@ -678,6 +689,22 @@ really old saves with FAN wall.
 Version 27.2 (build 35) 3/25/14
 Fix mouse cursor not displaying in zoom window. Fix crash with deco presets in
 deco editor. Fix key repeat in TPTMP.
+
+Version 27.3 3/31/14
+TPT element suggestions get ignored far too often, that needs to changed. If
+enough people suggest an element, it must be good, and therefore should be added.
+That's why this version adds 15 NEW ELEMENTS! That more then doubles the current
+mod elements. I've added long suggested elements such as breakable diamond (DMD2),
+broken diamond (BDMD), DIRT, MUD, POOP, and blood (BLOD). I've also added some
+gems that never got noticed, such as dinosaur knee liquid (DKLQ, thanks to
+therocketeer), coconut (COCO), and disappearing metal (DIMT). Also included: COCJ,
+LOLZ2, BATT, CMD, OBMA, and STKW. Special thanks to CatAnimation for suggesting
+many of these useful elements. ... Oh, and I fixed the zoom window bugs.
+
+Version 27.3 (build 37) 4/2/14
+Remove april fools joke (15 elements from last version). Bug fixes in the last
+version: fix cursor lines / stamps not appearing in zoom window, Fix particle
+order issues with box drawing, Save ctrl+z snapshot before pasting stamps.
 
 
 

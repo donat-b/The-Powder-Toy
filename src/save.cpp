@@ -92,6 +92,11 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 int fix_type(int type, int version, int modver)
 {
 	int max = 161;
+	if (modver == 18)
+	{
+		if (type >= 190 && type <= 204)
+			return PT_LOLZ;
+	}
 	if (version >= 89 || modver >= 16)
 		max = 177;
 	else if (version >= 87)
