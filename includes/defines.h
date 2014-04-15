@@ -96,6 +96,7 @@ extern unsigned char ZSIZE;
 #define CELL    4
 #define ISTP    (CELL/2)
 #define CFDS	(4.0f/CELL)
+#define SIM_MAXVELOCITY 1e4f
 
 #define AIR_TSTEPP 0.3f
 #define AIR_TSTEPV 0.4f
