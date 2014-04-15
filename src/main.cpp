@@ -1458,7 +1458,7 @@ int main(int argc, char *argv[])
 		}
 
 		memset(vid_buf+((XRES+BARSIZE)*YRES), 0, (PIXELSIZE*(XRES+BARSIZE))*MENUSIZE);//clear menu areas
-		clearrect(vid_buf, XRES-1, 0, BARSIZE+1, YRES);
+		clearrect(vid_buf, XRES, 1, BARSIZE, YRES-1);
 
 		draw_svf_ui(vid_buf, sdl_mod & (KMOD_LCTRL|KMOD_RCTRL));
 		
@@ -1603,7 +1603,7 @@ int main(int argc, char *argv[])
 				}
 				http_session_check = NULL;
 			} else {
-				clearrect(vid_buf, XRES-125+BARSIZE/*385*/, YRES+(MENUSIZE-16), 91, 14);
+				clearrect(vid_buf, XRES-124+BARSIZE/*385*/, YRES+(MENUSIZE-15), 90, 13);
 				drawrect(vid_buf, XRES-125+BARSIZE/*385*/, YRES+(MENUSIZE-16), 91, 14, 255, 255, 255, 255);
 				drawtext(vid_buf, XRES-122+BARSIZE/*388*/, YRES+(MENUSIZE-13), "\x84", 255, 255, 255, 255);
 				if (username_flash>30) {
@@ -2295,7 +2295,7 @@ int main(int argc, char *argv[])
 
 		if (old_version)
 		{
-			clearrect(vid_buf, XRES-21-old_ver_len, YRES-24, old_ver_len+9, 17);
+			clearrect(vid_buf, XRES-20-old_ver_len, YRES-23, old_ver_len+8, 16);
 			drawtext(vid_buf, XRES-16-old_ver_len, YRES-19, old_ver_msg, 255, 216, 32, 255);
 			drawrect(vid_buf, XRES-19-old_ver_len, YRES-22, old_ver_len+5, 13, 255, 216, 32, 255);
 		}
@@ -2305,7 +2305,7 @@ int main(int argc, char *argv[])
 			sprintf(new_message_msg, "You have %d new message%s, Click to view", svf_messages, (svf_messages>1)?"s":"");
 			new_message_len = textwidth(new_message_msg);
 
-			clearrect(vid_buf, XRES-21-new_message_len, YRES-39, new_message_len+9, 17);
+			clearrect(vid_buf, XRES-20-new_message_len, YRES-38, new_message_len+8, 16);
 			drawtext(vid_buf, XRES-16-new_message_len, YRES-34, new_message_msg, 255, 186, 32, 255);
 			drawrect(vid_buf, XRES-19-new_message_len, YRES-37, new_message_len+5, 13, 255, 186, 32, 255);
 		}

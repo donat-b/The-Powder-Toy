@@ -235,7 +235,7 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 		b = mouse_get_state(&mx, &my);
 
 		drawrect(vid_buf, x0, y0, 217, 80, 192, 192, 192, 255);
-		clearrect(vid_buf, x0, y0, 217, 80);
+		clearrect(vid_buf, x0+1, y0+1, 216, 79);
 		drawtext(vid_buf, x0+8, y0+8, nm ? "New sign:" : "Edit sign:", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12, y0+23, "\xA1", 32, 64, 128, 255);
 		drawtext(vid_buf, x0+12, y0+23, "\xA0", 255, 255, 255, 255);
@@ -921,7 +921,7 @@ void ui_list_process(pixel * vid_buf, int mx, int my, int mb, ui_list *ed)
 				clearScreen(1.0f);
 #endif
 				sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
-				clearrect(vid_buf, ed->x-2, ystart-2, ed->w+4, (ed->count*16)+4);
+				clearrect(vid_buf, ed->x-1, ystart-1, ed->w+3, (ed->count*16)+3);
 
 				if(!selected && mb)
 					break;
@@ -1353,7 +1353,7 @@ void error_ui(pixel *vid_buf, int err, char *txt)
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 
-		clearrect(vid_buf, x0-2, y0-2, 244, 52+textheight);
+		clearrect(vid_buf, x0-1, y0-1, 243, 51+textheight);
 		drawrect(vid_buf, x0, y0, 240, 48+textheight, 192, 192, 192, 255);
 		if (err)
 			drawtext(vid_buf, x0+8, y0+8, "HTTP error:", 255, 64, 32, 255);
@@ -1421,7 +1421,7 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 
-		clearrect(vid_buf, x0-2, y0-2, windowWidth+4, windowHeight+4);
+		clearrect(vid_buf, x0-1, y0-1, windowWidth+3, windowHeight+3);
 		drawrect(vid_buf, x0, y0, windowWidth, windowHeight, 192, 192, 192, 255);
 		
 		drawtext(vid_buf, x0+8, y0+8, "\xE6 Element Search", 255, 255, 255, 255);
@@ -1610,7 +1610,7 @@ char *input_ui(pixel *vid_buf, char *title, char *prompt, char *text, char *shad
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 
-		clearrect(vid_buf, x0-2, y0-2, xsize+4, ysize+4);
+		clearrect(vid_buf, x0-1, y0-1, xsize+3, ysize+3);
 		drawrect(vid_buf, x0, y0, xsize, ysize, 192, 192, 192, 255);
 		drawtext(vid_buf, x0+8, y0+8, title, 160, 160, 255, 255);
 		drawtext(vid_buf, x0+8, y0+26, prompt, 255, 255, 255, 255);
@@ -1697,7 +1697,7 @@ void prop_edit_ui(pixel *vid_buf)
 
 		if (o_vid_buf)
 			memcpy(vid_buf, o_vid_buf, ((YRES+MENUSIZE) * (XRES+BARSIZE)) * PIXELSIZE);
-		clearrect(vid_buf, x0-2, y0-2, xsize+4, ysize+4);
+		clearrect(vid_buf, x0-1, y0-1, xsize+4, ysize+3);
 		drawrect(vid_buf, x0, y0, xsize, ysize, 192, 192, 192, 255);
 		drawtext(vid_buf, x0+8, y0+8, "Change particle property", 160, 160, 255, 255);
 		//drawtext(vid_buf, x0+8, y0+26, prompt, 255, 255, 255, 255);
@@ -1883,7 +1883,7 @@ void info_ui(pixel *vid_buf, char *top, char *txt)
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 
-		clearrect(vid_buf, x0-2, y0-2, 244, 64);
+		clearrect(vid_buf, x0-1, y0-1, 243, 63);
 		drawrect(vid_buf, x0, y0, 240, 60, 192, 192, 192, 255);
 		drawtext(vid_buf, x0+8, y0+8, top, 160, 160, 255, 255);
 		drawtext(vid_buf, x0+8, y0+26, txt, 255, 255, 255, 255);
@@ -1916,7 +1916,7 @@ void info_box(pixel *vid_buf, char *msg)
 	int w = textwidth(msg)+16;
 	int x0=(XRES-w)/2,y0=(YRES-24)/2;
 	
-	clearrect(vid_buf, x0-2, y0-2, w+4, 28);
+	clearrect(vid_buf, x0-1, y0-1, w+3, 27);
 	drawrect(vid_buf, x0, y0, w, 24, 192, 192, 192, 255);
 	drawtext(vid_buf, x0+8, y0+8, msg, 192, 192, 240, 255);
 #ifndef RENDERER
@@ -1932,7 +1932,7 @@ void info_box_overlay(pixel *vid_buf, char *msg)
 	int w = textwidth(msg)+16;
 	int x0=(XRES-w)/2,y0=(YRES-24)/2;
 	
-	clearrect(vid_buf, x0-2, y0-2, w+4, 28);
+	clearrect(vid_buf, x0-1, y0-1, w+3, 27);
 	drawrect(vid_buf, x0, y0, w, 24, 192, 192, 192, 255);
 	drawtext(vid_buf, x0+8, y0+8, msg, 192, 192, 240, 255);
 }
@@ -1976,7 +1976,7 @@ void copytext_ui(pixel *vid_buf, char *top, char *txt, char *copytxt)
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 
-		clearrect(vid_buf, x0-2, y0-2, xsize+4, ysize+4);
+		clearrect(vid_buf, x0-1, y0-1, xsize+3, ysize+3);
 		drawrect(vid_buf, x0, y0, xsize, ysize, 192, 192, 192, 255);
 		drawtext(vid_buf, x0+8, y0+8, top, 160, 160, 255, 255);
 		drawtext(vid_buf, x0+8, y0+26, txt, 255, 255, 255, 255);
@@ -2032,7 +2032,7 @@ int confirm_ui(pixel *vid_buf, char *top, char *msg, char *btn)
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 
-		clearrect(vid_buf, x0-2, y0-2, 244, 52+textheight);
+		clearrect(vid_buf, x0-1, y0-1, 243, 51+textheight);
 		drawrect(vid_buf, x0, y0, 240, 48+textheight, 192, 192, 192, 255);
 		drawtext(vid_buf, x0+8, y0+8, top, 255, 216, 32, 255);
 		drawtextwrap(vid_buf, x0+8, y0+26, 224, 0, msg, 255, 255, 255, 255);
@@ -2109,7 +2109,7 @@ void login_ui(pixel *vid_buf)
 		b = mouse_get_state(&mx, &my);
 
 		drawrect(vid_buf, x0, y0, 192, 80, 192, 192, 192, 255);
-		clearrect(vid_buf, x0, y0, 192, 80);
+		clearrect(vid_buf, x0+1, y0+1, 191, 79);
 		drawtext(vid_buf, x0+8, y0+8, "Server login:", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12, y0+23, "\x8B", 32, 64, 128, 255);
 		drawtext(vid_buf, x0+12, y0+23, "\x8A", 255, 255, 255, 255);
@@ -2290,7 +2290,7 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 
-		clearrect(vid_buf, -1, -1, XRES+BARSIZE+1, YRES+MENUSIZE+1);
+		clearrect(vid_buf, 0, 0, XRES+BARSIZE, YRES+MENUSIZE);
 		k = stamp_page*per_page;//0;
 		r = -1;
 		d = -1;
@@ -2472,7 +2472,7 @@ void tag_list_ui(pixel *vid_buf)
 		op = tag = NULL;
 
 		drawrect(vid_buf, x0, y0, 192, 256, 192, 192, 192, 255);
-		clearrect(vid_buf, x0, y0, 192, 256);
+		clearrect(vid_buf, x0+1, y0+1, 191, 255);
 		drawtext(vid_buf, x0+8, y0+8, "Manage tags:    \bgTags are only to \nbe used to improve search results", 255, 255, 255, 255);
 		p = svf_tags;
 		s = svf_tags[0] ? ' ' : 0;
@@ -2674,7 +2674,7 @@ int save_name_ui(pixel *vid_buf)
 		b = mouse_get_state(&mx, &my);
 
 		drawrect(vid_buf, x0, y0, 420, 110+YRES/4, 192, 192, 192, 255); // rectangle around entire thing
-		clearrect(vid_buf, x0, y0, 420, 110+YRES/4);
+		clearrect(vid_buf, x0+1, y0+1, 419, 109+YRES/4);
 		drawtext(vid_buf, x0+8, y0+8, "New simulation name:", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+10, y0+23, "\x82", 192, 192, 192, 255);
 		drawrect(vid_buf, x0+8, y0+20, 176, 16, 192, 192, 192, 255); //rectangle around title box
@@ -3996,7 +3996,7 @@ char *download_ui(pixel *vid_buf, char *uri, int *len)
 
 		http_async_get_length(http, &total, &done);
 
-		clearrect(vid_buf, x0-2, y0-2, 244, 64);
+		clearrect(vid_buf, x0-1, y0-1, 243, 63);
 		drawrect(vid_buf, x0, y0, 240, 60, 192, 192, 192, 255);
 		drawtext(vid_buf, x0+8, y0+8, "Please wait", 255, 216, 32, 255);
 		drawtext(vid_buf, x0+8, y0+26, "Downloading update...", 255, 255, 255, 255);
@@ -4158,7 +4158,7 @@ int search_ui(pixel *vid_buf)
 		else if (mmt<TIMEOUT)
 			mmt++;
 
-		clearrect(vid_buf, -1, -1, (XRES+BARSIZE)+1, YRES+MENUSIZE+1);
+		clearrect(vid_buf, 0, 0, XRES+BARSIZE, YRES+MENUSIZE);
 
 		memcpy(vid_buf, v_buf, ((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 
@@ -4480,7 +4480,7 @@ int search_ui(pixel *vid_buf)
 			if (gx+w>=XRES-2) gx=XRES-3-w;
 			if (gy<32) gy=32;
 			if (gy+h>=YRES+(MENUSIZE-2)) gy=YRES+(MENUSIZE-3)-h;
-			clearrect(vid_buf, gx-2, gy-3, w+4, h);
+			clearrect(vid_buf, gx-1, gy-2, w+3, h-1);
 			drawrect(vid_buf, gx-2, gy-3, w+4, h, 160, 160, 192, 255);
 			if (search_thumbs[mp]){
 				if(mp != nmp && bthumb_rsdata){
@@ -5375,7 +5375,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				int commentNum = 0;
 				ccy = 0;
 				info->comments[0].y = 72+comment_scroll;
-				clearrect(vid_buf, 50+(XRES/2)+1, 50, XRES+BARSIZE-100-((XRES/2)+1), YRES+MENUSIZE-100);
+				clearrect(vid_buf, 52+(XRES/2), 51, XRES+BARSIZE-100-((XRES/2)+2), YRES+MENUSIZE-101);
 				for (cc=0; cc<info->comment_count; cc++)
 				{
 					 //Try not to draw off the screen
@@ -5707,7 +5707,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		downloadDone = saveDone+infoDone;
 		if(downloadTotal>downloadDone)
 		{
-			clearrect(vid_buf, 51, (YRES/2)+37, (XRES)/2, 14);
+			clearrect(vid_buf, 52, (YRES/2)+38, (XRES)/2-1, 13);
 			fillrect(vid_buf, 51, (YRES/2)+38, (int)((((float)XRES-2)/2.0f)*((float)downloadDone/(float)downloadTotal)), 12, 255, 200, 0, 255);
 			if(((float)downloadDone/(float)downloadTotal)>0.5f)
 				drawtext(vid_buf, 51+(((XRES/2)-textwidth("Downloading"))/2), (YRES/2)+40, "Downloading", 0, 0, 0, 255);
@@ -7702,7 +7702,7 @@ int save_filename_ui(pixel *vid_buf)
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 
-		clearrect(vid_buf, x0-2, y0-2, xsize+4, ysize+4);
+		clearrect(vid_buf, x0-1, y0-1, xsize+3, ysize+3);
 		drawrect(vid_buf, x0, y0, xsize, ysize, 192, 192, 192, 255);
 		drawtext(vid_buf, x0+8, y0+8, "Filename:", 255, 255, 255, 255);
 		drawrect(vid_buf, x0+8, y0+20, xsize-16, 16, 255, 255, 255, 180);
@@ -7848,8 +7848,8 @@ void catalogue_ui(pixel * vid_buf)
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 		sprintf(savetext, "Found %d save%s", rescount, rescount==1?"":"s");
-		clearrect(vid_buf, x0-2, y0-2, xsize+4, ysize+4);
-		clearrect(vid_buf2, x0-2, y0-2, xsize+4, ysize+4);
+		clearrect(vid_buf, x0-1, y0-1, xsize+3, ysize+3);
+		clearrect(vid_buf2, x0-1, y0-1, xsize+3, ysize+3);
 		drawrect(vid_buf, x0, y0, xsize, ysize, 192, 192, 192, 255);
 		drawtext(vid_buf, x0+8, y0+8, "Saves", 255, 216, 32, 255);
 		drawtext(vid_buf, x0+xsize-8-textwidth(savetext), y0+8, savetext, 255, 216, 32, 255);
@@ -8276,7 +8276,7 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 		}
 		draw_svf_ui(vid_buf, sdl_mod & (KMOD_LCTRL|KMOD_RCTRL));
 		
-		clearrect(vid_buf, xcoord-2, ycoord-2, xsize+4, ysize+4);
+		clearrect(vid_buf, xcoord-1, ycoord-1, xsize+3, ysize+3);
 		drawrect(vid_buf, xcoord, ycoord, xsize, ysize, 192, 192, 192, 255);
 		
 		changed = 0;
@@ -8540,7 +8540,7 @@ void simulation_ui(pixel * vid_buf)
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 
-		clearrect(vid_buf, x0-2, y0-2, xsize+4, ysize+4);
+		clearrect(vid_buf, x0-1, y0-1, xsize+3, ysize+3);
 		drawrect(vid_buf, x0, y0, xsize, ysize, 192, 192, 192, 255);
 		drawtext(vid_buf, x0+8, y0+8, "Simulation options", 255, 216, 32, 255);
 

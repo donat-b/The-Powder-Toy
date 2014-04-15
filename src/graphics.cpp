@@ -1582,8 +1582,24 @@ void clearrect(pixel *vid, int x, int y, int w, int h)
 	fillrect(vid, x, y, w, h, 0, 0, 0, 255);
 #else
 	int i;
-	for (i=1; i<h; i++)
-		memset(vid+(x+1+(XRES+BARSIZE)*(y+i)), 0, PIXELSIZE*(w-1));
+
+	if (x+w > XRES+BARSIZE) w = XRES+BARSIZE-x;
+	if (y+h > YRES+MENUSIZE) h = YRES+MENUSIZE-y;
+	if (x<0)
+	{
+		w += x;
+		x = 0;
+	}
+	if (y<0)
+	{
+		h += y;
+		y = 0;
+	}
+	if (w<0 || h<0)
+		return;
+
+	for (i=0; i<h; i++)
+		memset(vid+(x+(XRES+BARSIZE)*(y+i)), 0, PIXELSIZE*w);
 #endif
 }
 //draws a line of dots, where h is the height. (why is this even here)
@@ -4055,7 +4071,7 @@ void render_signs(pixel *vid_buf)
 		{
 			char buff[256];  //Buffer
 			get_sign_pos(i, &x, &y, &w, &h);
-			clearrect(vid_buf, x, y, w, h);
+			clearrect(vid_buf, x+1, y+1, w-1, h-1);
 			drawrect(vid_buf, x, y, w, h, 192, 192, 192, 255);
 
 			//Displaying special information
@@ -4476,7 +4492,7 @@ void render_zoom(pixel *img) //draws the zoom box
 	pixel pix;
 	drawrect(img, zoom_wx-2, zoom_wy-2, ZSIZE*ZFACTOR+2, ZSIZE*ZFACTOR+2, 192, 192, 192, 255);
 	drawrect(img, zoom_wx-1, zoom_wy-1, ZSIZE*ZFACTOR, ZSIZE*ZFACTOR, 0, 0, 0, 255);
-	clearrect(img, zoom_wx-1, zoom_wy-1, ZSIZE*ZFACTOR+1, ZSIZE*ZFACTOR+1);
+	clearrect(img, zoom_wx, zoom_wy, ZSIZE*ZFACTOR, ZSIZE*ZFACTOR);
 	for (j=0; j<ZSIZE; j++)
 		for (i=0; i<ZSIZE; i++)
 		{
