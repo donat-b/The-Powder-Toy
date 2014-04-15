@@ -2333,6 +2333,8 @@ int elements_element(lua_State * l)
 			lua_setfield(l, -2, propertyList[i]);
 			i++;
 		}
+		lua_pushstring(l, globalSim->elements[id].Identifier.c_str());
+		lua_setfield(l, -2, "Identifier");
 		return 1;
 	}
 	return 0;
@@ -2428,6 +2430,11 @@ int elements_property(lua_State * l)
 		if(offset != -1)
 		{
 			elements_writeProperty(l, id, format, offset);
+			return 1;
+		}
+		else if(!strcmp(propertyName, "Identifier"))
+		{
+			lua_pushstring(l, globalSim->elements[id].Identifier.c_str());
 			return 1;
 		}
 		else
