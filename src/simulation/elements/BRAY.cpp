@@ -18,15 +18,17 @@
 int BRAY_graphics(GRAPHICS_FUNC_ARGS)
 {
 	int x, trans = 255;
-	if(cpart->tmp==0)
+	if (cpart->tmp == 0)
 	{
 		trans = cpart->life * 7;
 		if (trans>255) trans = 255;
-		if (cpart->ctype) {
+		if (cpart->ctype&0x3FFFFFFF)
+		{
 			*colg = 0;
 			*colb = 0;
 			*colr = 0;
-			for (x=0; x<12; x++) {
+			for (x=0; x<12; x++)\
+			{
 				*colr += (cpart->ctype >> (x+18)) & 1;
 				*colb += (cpart->ctype >>  x)     & 1;
 			}
@@ -38,15 +40,17 @@ int BRAY_graphics(GRAPHICS_FUNC_ARGS)
 			*colb *= x;
 		}
 	}
-	else if(cpart->tmp==1)
+	else if(cpart->tmp == 1)
 	{
 		trans = cpart->life/4;
 		if (trans>255) trans = 255;
-		if (cpart->ctype) {
+		if (cpart->ctype&0x3FFFFFFF)
+		{
 			*colg = 0;
 			*colb = 0;
 			*colr = 0;
-			for (x=0; x<12; x++) {
+			for (x=0; x<12; x++)
+			{
 				*colr += (cpart->ctype >> (x+18)) & 1;
 				*colb += (cpart->ctype >>  x)     & 1;
 			}
@@ -58,7 +62,7 @@ int BRAY_graphics(GRAPHICS_FUNC_ARGS)
 			*colb *= x;
 		}
 	}
-	else if(cpart->tmp==2)
+	else if (cpart->tmp == 2)
 	{
 		trans = cpart->life*100;
 		if (trans>255) trans = 255;

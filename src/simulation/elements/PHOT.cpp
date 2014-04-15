@@ -103,6 +103,8 @@ void PHOT_create(ELEMENT_CREATE_FUNC_ARGS)
 	float a = (rand()%8) * 0.78540f;
 	sim->parts[i].vx = 3.0f*cosf(a);
 	sim->parts[i].vy = 3.0f*sinf(a);
+	if ((pmap[y][x]&0xFF) == PT_FILT)
+		parts[i].ctype = interactWavelengths(&parts[pmap[y][x]>>8], parts[i].ctype);
 }
 
 void PHOT_init_element(ELEMENT_INIT_FUNC_ARGS)
