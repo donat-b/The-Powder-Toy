@@ -16,11 +16,12 @@
 #include "simulation/ElementsCommon.h"
 
 int NPTCT_update(UPDATE_FUNC_ARGS);
+int FIRE_update(UPDATE_FUNC_ARGS);
 
 int SPRK_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, nearp, pavg, ct = parts[i].ctype, sender, receiver, rd = 2;
-	update_PYRO(UPDATE_FUNC_SUBCALL_ARGS);
+	FIRE_update(UPDATE_FUNC_SUBCALL_ARGS);
 
 	if (parts[i].life<=0)
 	{

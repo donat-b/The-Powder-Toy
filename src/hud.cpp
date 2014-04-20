@@ -331,12 +331,10 @@ void SetLeftHudText(float FPSB2)
 		sprintf(tempstring, "[GRID: %d] ", GRID_MODE);
 		strappend(uitext, tempstring);
 	}
-	if (active_menu == SC_DECO && ISANIM)
+	if (active_menu == SC_DECO && globalSim->elementCount[PT_ANIM] > 0)
 	{
 		sprintf(tempstring,"[Frame %i/%i] ",framenum+1,maxframes);
 		strappend(uitext, tempstring);
-		if (!sys_pause && !framerender)
-			ISANIM = 0;
 	}
 #ifdef INTERNAL
 	if (vs)

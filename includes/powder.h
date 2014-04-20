@@ -93,8 +93,6 @@ class Simulation;
 
 #include "simulation/Particle.h"
 
-int graphics_DEFAULT(GRAPHICS_FUNC_ARGS);
-
 void TRON_init_graphics();
 
 struct playerst
@@ -111,12 +109,6 @@ struct playerst
 };
 typedef struct playerst playerst;
 
-int update_PYRO(UPDATE_FUNC_ARGS);
-
-int update_MISC(UPDATE_FUNC_ARGS);
-int update_legacy_PYRO(UPDATE_FUNC_ARGS);
-int update_legacy_all(UPDATE_FUNC_ARGS);
-int update_POWERED(UPDATE_FUNC_ARGS);
 int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS);
 void STKM_init_legs(playerst* playerp, int i);
 void STKM_interact(Simulation* sim, playerst* playerp, int i, int x, int y);
@@ -244,7 +236,6 @@ static fav_menu fav[] =
 #define CHANNELS ((int)(MAX_TEMP-73)/100+2)
 extern const particle emptyparticle;
 
-extern int wire_placed;
 extern int force_stacking_check;
 extern int ppip_changed;
 

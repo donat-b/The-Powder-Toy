@@ -153,6 +153,8 @@ void create_line_par(Simulation *sim, int x1, int y1, int x2, int y2, int c, int
 	}
 }
 
+int FIRE_update(UPDATE_FUNC_ARGS);
+
 int LIGH_update(UPDATE_FUNC_ARGS)
 {
 	/*
@@ -172,7 +174,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 	*/
 	int r,rx,ry,rt, multipler, powderful=(int)(parts[i].temp*(1+parts[i].life/40)*LIGHTING_POWER), near;
 	float angle, angle2=-1;
-	update_PYRO(UPDATE_FUNC_SUBCALL_ARGS);
+	FIRE_update(UPDATE_FUNC_SUBCALL_ARGS);
 	if (aheat_enable)
 	{
 		hv[y/CELL][x/CELL]+=powderful/50;

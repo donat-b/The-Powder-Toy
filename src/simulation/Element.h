@@ -125,4 +125,9 @@ public:
 
 };
 
+//defined in ElementFunctions.cpp
+int update_legacy_all(UPDATE_FUNC_ARGS);
+int graphics_DEFAULT(GRAPHICS_FUNC_ARGS);
+int update_POWERED(UPDATE_FUNC_ARGS);
+
 #endif

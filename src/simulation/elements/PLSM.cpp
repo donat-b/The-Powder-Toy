@@ -15,6 +15,8 @@
 
 #include "simulation/ElementsCommon.h"
 
+int FIRE_update(UPDATE_FUNC_ARGS);
+
 int PLSM_graphics(GRAPHICS_FUNC_ARGS)
 {
 	int caddress = (int)restrict_flt(restrict_flt((float)cpart->life, 0.0f, 200.0f)*3, 0.0f, (200.0f*3)-3);
@@ -81,7 +83,7 @@ void PLSM_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = &update_PYRO;
+	elem->Update = &FIRE_update;
 	elem->Graphics = &PLSM_graphics;
 	elem->Func_Create = &PLSM_create;
 	elem->Init = &PLSM_init_element;

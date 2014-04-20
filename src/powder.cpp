@@ -39,8 +39,6 @@ part_type ptypes[PT_NUM];
 part_transition ptransitions[PT_NUM];
 unsigned int platent[PT_NUM];
 
-int wire_placed = 0;
-
 int force_stacking_check = 0;//whether to force a check for excessively stacked particles
 
 playerst player;
@@ -74,12 +72,6 @@ int GRAV_B2;
 int GSPEED = 1;
 int GENERATION = 0;
 int CGOL = 0;
-int ISGOL = 0;
-int ISLOVE = 0;
-int ISLOLZ = 0;
-int ISGRAV = 0;
-int ISWIRE = 0;
-int ISANIM = 0;
 
 int love[XRES/9][YRES/9];
 int lolz[XRES/9][YRES/9];
@@ -1203,7 +1195,6 @@ void stacking_check()
 void GRAV_update()
 {
 	int q;
-	ISGRAV = 0;
 	GRAV ++;
 	GRAV_R = 60;
 	GRAV_G = 0;
@@ -1250,8 +1241,6 @@ void GRAV_update()
 void LOVELOLZ_update()
 {
 	int nx, nnx, ny, nny, r, rt;
-	ISLOVE = 0;
-	ISLOLZ = 0;
 	for (ny=0; ny<YRES-4; ny++)
 	{
 		for (nx=0; nx<XRES-4; nx++)
@@ -1321,7 +1310,6 @@ void LOVELOLZ_update()
 void WIRE_update()
 {
 	int nx, ny, r;
-	wire_placed = 0;
 	for (nx=0; nx<XRES; nx++)
 	{
 		for (ny=0; ny<YRES; ny++)
@@ -1329,8 +1317,8 @@ void WIRE_update()
 			r = pmap[ny][nx];
 			if (!r)
 				continue;
-			if(parts[r>>8].type==PT_WIRE)
-				parts[r>>8].tmp=parts[r>>8].ctype;
+			if(parts[r>>8].type == PT_WIRE)
+				parts[r>>8].tmp = parts[r>>8].ctype;
 		}
 	}
 }
@@ -1352,7 +1340,7 @@ void PPIP_update()
 void LIFE_update()
 {
 	int i, nx, ny, nnx, nny, r, rt, z, golnum, neighbors, createdsomething = 0;
-	CGOL=0, ISGOL = 0;
+	CGOL=0;
 	for (ny=CELL; ny<YRES-CELL; ny++)
 	{//go through every particle and set neighbor map
 		for (nx=CELL; nx<XRES-CELL; nx++)
@@ -1941,24 +1929,24 @@ void update_particles_i(pixel *vid, int start, int inc)
 	int surround[8];
 	float pGravX, pGravY, pGravD;
 	
-	if (sys_pause&&!framerender)//do nothing if paused
+	if (sys_pause && !framerender)//do nothing if paused
 		return;
 	
 	stacking_check();
 
-	if (ISGRAV==1) //crappy grav color handling, i will change this someday
+	if (globalSim->elementCount[PT_GRAV] > 0) //crappy grav color handling, i will change this someday
 		GRAV_update();
 
-	if (ISLOVE==1||ISLOLZ==1) //LOVE and LOLZ element handling
+	if (globalSim->elementCount[PT_LOVE] > 0 || globalSim->elementCount[PT_LOLZ] > 0) //LOVE and LOLZ element handling
 		LOVELOLZ_update();
 
-	if(wire_placed == 1)
+	if(globalSim->elementCount[PT_WIRE] > 0)
 		WIRE_update();
 
 	if (ppip_changed)
 		PPIP_update();
 
-	if (ISGOL==1&&++CGOL>=GSPEED) //GSPEED is frames per generation
+	if (globalSim->elementCount[PT_LIFE] > 0 && ++CGOL >= GSPEED) //GSPEED is frames per generation
 		LIFE_update();
 
 	for (t=1; t<PT_NUM; t++)
@@ -2126,15 +2114,6 @@ void update_particles_i(pixel *vid, int start, int inc)
 					goto killed;
 			}
 
-			if (t==PT_LIFE)
-			{
-				parts[i].temp = restrict_flt(parts[i].temp-50.0f, MIN_TEMP, MAX_TEMP);
-				ISGOL=1;//means there is a life particle on screen
-			}
-			if (t==PT_WIRE)
-			{
-				wire_placed = 1;
-			}
 			//spark updates from walls
 			if ((ptypes[t].properties&PROP_CONDUCTS) || t==PT_SPRK)
 			{

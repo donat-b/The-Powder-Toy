@@ -292,13 +292,6 @@ typedef struct stamp stamp;
 
 extern int frameidx;
 extern int MSIGN;
-extern int CGOL;
-extern int ISGOL;
-extern int ISLOVE;
-extern int ISLOLZ;
-extern int ISGRAV;
-extern int ISWIRE;
-extern int ISANIM;
 extern int GSPEED;
 extern int love[XRES/9][YRES/9];
 extern int lolz[XRES/9][YRES/9];

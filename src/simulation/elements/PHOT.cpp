@@ -15,6 +15,8 @@
 
 #include "simulation/ElementsCommon.h"
 
+int FIRE_update(UPDATE_FUNC_ARGS);
+
 int PHOT_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
@@ -25,7 +27,7 @@ int PHOT_update(UPDATE_FUNC_ARGS)
 		return 1;
 	}
 	if (parts[i].temp > 506.0f)
-		if (!(rand()%10)) update_PYRO(UPDATE_FUNC_SUBCALL_ARGS);
+		if (!(rand()%10)) FIRE_update(UPDATE_FUNC_SUBCALL_ARGS);
 
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)

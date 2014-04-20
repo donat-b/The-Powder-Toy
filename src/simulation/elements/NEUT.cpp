@@ -35,6 +35,7 @@ int DeutExplosion(Simulation *sim, int n, int x, int y, float temp, int t)
 	return 0;
 }
 
+int FIRE_update(UPDATE_FUNC_ARGS);
 
 int NEUT_update(UPDATE_FUNC_ARGS)
 {
@@ -75,7 +76,7 @@ int NEUT_update(UPDATE_FUNC_ARGS)
 							parts[r>>8].vy = 0.25f*parts[r>>8].vy + parts[i].vy;
 						}
 						pv[y/CELL][x/CELL] += 10.0f * CFDS; //Used to be 2, some people said nukes weren't powerful enough
-						update_PYRO(UPDATE_FUNC_SUBCALL_ARGS);
+						FIRE_update(UPDATE_FUNC_SUBCALL_ARGS);
 					}
 					break;
 #ifdef SDEUT

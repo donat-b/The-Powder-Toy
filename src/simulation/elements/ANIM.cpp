@@ -67,7 +67,6 @@ int ANIM_update(UPDATE_FUNC_ARGS)
 					}
 				}
 	}
-	ISANIM = 1;
 	return 0;
 }
 

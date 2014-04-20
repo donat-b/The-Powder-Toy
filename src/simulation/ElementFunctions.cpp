@@ -1,6 +1,169 @@
-#include "simulation/ElementsCommon.h"
+#include "ElementsCommon.h"
 
-int update_POWERED(UPDATE_FUNC_ARGS) {
+// Interactions which only occur when legacy_enable is on
+int update_legacy_all(UPDATE_FUNC_ARGS)
+{
+	int r, rx, ry;
+	int t = parts[i].type;
+	if (!legacy_enable)
+		return 0;
+	if (t==PT_WTRV)
+	{
+		for (rx=-2; rx<3; rx++)
+			for (ry=-2; ry<3; ry++)
+				if (x+rx>=0 && y+ry>0 &&
+						x+rx<XRES && y+ry<YRES && (rx || ry))
+				{
+					r = pmap[y+ry][x+rx];
+					if (!r)
+						continue;
+					if (((r&0xFF)==PT_WATR||(r&0xFF)==PT_DSTW||(r&0xFF)==PT_SLTW) && 1>(rand()%1000))
+					{
+						part_change_type(i,x,y,PT_WATR);
+						part_change_type(r>>8,x+rx,y+ry,PT_WATR);
+					}
+					if (((r&0xFF)==PT_ICEI || (r&0xFF)==PT_SNOW) && 1>(rand()%1000))
+					{
+						part_change_type(i,x,y,PT_WATR);
+						if (1>(rand()%1000))
+							part_change_type(r>>8,x+rx,y+ry,PT_WATR);
+					}
+				}
+	}
+	else if (t==PT_WATR)
+	{
+		for (rx=-2; rx<3; rx++)
+			for (ry=-2; ry<3; ry++)
+				if (x+rx>=0 && y+ry>0 &&
+						x+rx<XRES && y+ry<YRES && (rx || ry))
+				{
+					r = pmap[y+ry][x+rx];
+					if (!r)
+						continue;
+					if (((r&0xFF)==PT_FIRE || (r&0xFF)==PT_LAVA) && 1>(rand()%10))
+					{
+						part_change_type(i,x,y,PT_WTRV);
+					}
+				}
+	}
+	else if (t==PT_SLTW)
+	{
+		for (rx=-2; rx<3; rx++)
+			for (ry=-2; ry<3; ry++)
+				if (x+rx>=0 && y+ry>0 &&
+						x+rx<XRES && y+ry<YRES && (rx || ry))
+				{
+					r = pmap[y+ry][x+rx];
+					if (!r)
+						continue;
+					if (((r&0xFF)==PT_FIRE || (r&0xFF)==PT_LAVA) && 1>(rand()%10))
+					{
+						if (rand()%4==0) part_change_type(i,x,y,PT_SALT);
+						else part_change_type(i,x,y,PT_WTRV);
+					}
+				}
+	}
+	else if (t==PT_DSTW)
+	{
+		for (rx=-2; rx<3; rx++)
+			for (ry=-2; ry<3; ry++)
+				if (x+rx>=0 && y+ry>0 &&
+						x+rx<XRES && y+ry<YRES && (rx || ry))
+				{
+					r = pmap[y+ry][x+rx];
+					if (!r)
+						continue;
+					if (((r&0xFF)==PT_FIRE || (r&0xFF)==PT_LAVA) && 1>(rand()%10))
+					{
+						part_change_type(i,x,y,PT_WTRV);
+					}
+				}
+	}
+	else if (t==PT_ICEI)
+	{
+		for (rx=-2; rx<3; rx++)
+			for (ry=-2; ry<3; ry++)
+				if (BOUNDS_CHECK && (rx || ry))
+				{
+					r = pmap[y+ry][x+rx];
+					if (!r)
+						continue;
+					if (((r&0xFF)==PT_WATR || (r&0xFF)==PT_DSTW) && 1>(rand()%1000))
+					{
+						part_change_type(i,x,y,PT_ICEI);
+						part_change_type(r>>8,x+rx,y+ry,PT_ICEI);
+					}
+				}
+	}
+	else if (t==PT_SNOW)
+	{
+		for (rx=-2; rx<3; rx++)
+			for (ry=-2; ry<3; ry++)
+				if (BOUNDS_CHECK && (rx || ry))
+				{
+					r = pmap[y+ry][x+rx];
+					if (!r)
+						continue;
+					if (((r&0xFF)==PT_WATR || (r&0xFF)==PT_DSTW) && 1>(rand()%1000))
+					{
+						part_change_type(i,x,y,PT_ICEI);
+						part_change_type(r>>8,x+rx,y+ry,PT_ICEI);
+					}
+					if (((r&0xFF)==PT_WATR || (r&0xFF)==PT_DSTW) && 15>(rand()%1000))
+						part_change_type(i,x,y,PT_WATR);
+				}
+	}
+
+	if (t == PT_WTRV)
+	{
+		if (pv[y/CELL][x/CELL] > 4.0f)
+			part_change_type(i,x,y,PT_DSTW);
+	}
+	else if (t == PT_OIL)
+	{
+		if (pv[y/CELL][x/CELL] < -6.0f)
+			part_change_type(i,x,y,PT_GAS);
+	}
+	else if (t == PT_GAS)
+	{
+		if (pv[y/CELL][x/CELL] > 6.0f)
+			part_change_type(i,x,y,PT_OIL);
+	}
+	else if (t == PT_DESL)
+	{
+		if (pv[y/CELL][x/CELL] > 12.0f)
+		{
+			part_change_type(i,x,y,PT_FIRE);
+			parts[i].life = rand()%50+120;
+		}
+	}
+	return 0;
+}
+
+int graphics_DEFAULT(GRAPHICS_FUNC_ARGS)
+{
+	int t = cpart->type;
+	if (ptypes[t].properties & PROP_RADIOACTIVE)
+		*pixel_mode |= PMODE_GLOW;
+	if (ptypes[t].properties & TYPE_LIQUID)
+	{
+		*pixel_mode |= PMODE_BLUR;
+	}
+	if (ptypes[t].properties & TYPE_GAS)
+	{
+		*pixel_mode &= ~PMODE;
+		*pixel_mode |= FIRE_BLEND;
+		*firer = *colr/2;
+		*fireg = *colg/2;
+		*fireb = *colb/2;
+		*firea = 125;
+		*pixel_mode |= DECO_FIRE;
+	}
+	return 1;
+}
+
+int update_POWERED(UPDATE_FUNC_ARGS)
+{
 	int r, rx, ry;
 	if ((parts[i].type == PT_PPTI || parts[i].type == PT_PPTO) && parts[i].tmp2>0 && parts[i].tmp2!=10)
 		parts[i].tmp2--;
@@ -17,7 +180,7 @@ int update_POWERED(UPDATE_FUNC_ARGS) {
 				{
 					if ((r&0xFF)==parts[i].type && parts[i].type == PT_SWCH)
 					{
-						if (parts[i].life>=10&&parts[r>>8].life<10&&parts[r>>8].life>0)
+						if (parts[i].life>=10&&parts[r>>8].life>0&&parts[r>>8].life<10)
 							parts[i].life = 9;
 						else if (parts[i].life==0&&parts[r>>8].life>=10)
 						{
@@ -131,7 +294,7 @@ int update_POWERED(UPDATE_FUNC_ARGS) {
 					}
 					if ((r&0xFF)==parts[i].type && parts[i].type != PT_SWCH)
 					{
-						if (parts[i].life==10&&parts[r>>8].life<10&&parts[r>>8].life>0)
+						if (parts[i].life==10&&parts[r>>8].life>0&&parts[r>>8].life<10)
 							parts[i].life = 9;
 						else if (parts[i].life==0&&parts[r>>8].life==10)
 							parts[i].life = 10;
@@ -140,3 +303,4 @@ int update_POWERED(UPDATE_FUNC_ARGS) {
 			}
 	return 0;
 }
+

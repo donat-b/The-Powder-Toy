@@ -16,6 +16,11 @@
 #include "simulation/ElementsCommon.h"
 #include "simulation/GolNumbers.h"
 
+int LIFE_update(UPDATE_FUNC_ARGS)
+{
+	parts[i].temp = restrict_flt(parts[i].temp-50.0f, MIN_TEMP, MAX_TEMP);
+}
+
 int LIFE_graphics(GRAPHICS_FUNC_ARGS)
 {
 	pixel pc;
@@ -126,7 +131,7 @@ void LIFE_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = NULL;
+	elem->Update = &LIFE_update;
 	elem->Graphics = &LIFE_graphics;
 	elem->Func_Create = &LIFE_create;
 	elem->Init = &LIFE_init_element;

@@ -15,6 +15,8 @@
 
 #include "simulation/ElementsCommon.h"
 
+int FIRE_update(UPDATE_FUNC_ARGS);
+
 int LAVA_graphics(GRAPHICS_FUNC_ARGS)
 {
 	*colr = cpart->life * 2 + 0xE0;
@@ -82,7 +84,7 @@ void LAVA_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = &update_PYRO;
+	elem->Update = &FIRE_update;
 	elem->Graphics = &LAVA_graphics;
 	elem->Func_Create = &LAVA_create;
 	elem->Init = &LAVA_init_element;
