@@ -516,14 +516,14 @@ int simulation_createParts(lua_State * l)
 	int rx = luaL_optint(l,3,5);
 	int ry = luaL_optint(l,4,5);
 	int c = luaL_optint(l,5,((ElementTool*)activeTools[0])->GetID());
-	int brush = luaL_optint(l,6,CIRCLE_BRUSH), oldBrush = currentBrush->GetShape();
+	int brush = luaL_optint(l,6,CIRCLE_BRUSH);
 	int flags = luaL_optint(l,7,get_brush_flags());
 	if (brush < 0 || brush >= BRUSH_NUM)
 		return luaL_error(l, "Invalid brush id '%d'", brush);
 
-	currentBrush->SetShape(brush);
-	int ret = globalSim->CreateParts(x, y, rx, ry, c, flags, true);
-	currentBrush->SetShape(oldBrush);
+	Brush* tempBrush = new Brush(Point(rx, ry), brush);
+	int ret = globalSim->CreateParts(x, y, c, flags, true, tempBrush);
+	delete tempBrush;
 	lua_pushinteger(l, ret);
 	return 1;
 }
@@ -537,14 +537,14 @@ int simulation_createLine(lua_State * l)
 	int rx = luaL_optint(l,5,5);
 	int ry = luaL_optint(l,6,5);
 	int c = luaL_optint(l,7,((ElementTool*)activeTools[0])->GetID());
-	int brush = luaL_optint(l,8,CIRCLE_BRUSH), oldBrush = currentBrush->GetShape();
+	int brush = luaL_optint(l,8,CIRCLE_BRUSH);
 	int flags = luaL_optint(l,9,get_brush_flags());
 	if (brush < 0 || brush >= BRUSH_NUM)
 		return luaL_error(l, "Invalid brush id '%d'", brush);
 
-	currentBrush->SetShape(brush);
-	globalSim->CreateLine(x1, y1, x2, y2, rx, ry, c, flags);
-	currentBrush->SetShape(oldBrush);
+	Brush* tempBrush = new Brush(Point(rx, ry), brush);
+	globalSim->CreateLine(x1, y1, x2, y2, c, flags, tempBrush);
+	delete tempBrush;
 	return 0;
 }
 
@@ -640,16 +640,16 @@ int simulation_toolBrush(lua_State * l)
 	int rx = luaL_optint(l,3,5);
 	int ry = luaL_optint(l,4,5);
 	int tool = luaL_optint(l,5,TOOL_HEAT);
-	int brush = luaL_optint(l,6,CIRCLE_BRUSH), oldBrush = currentBrush->GetShape();
+	int brush = luaL_optint(l,6,CIRCLE_BRUSH);
 	float strength = luaL_optnumber(l,7,1.0f);
 	if (tool < 0 || tool >= TOOL_PROP)
 			return luaL_error(l, "Invalid tool id '%d'", tool);
 	if (brush < 0 || brush >= BRUSH_NUM)
 		return luaL_error(l, "Invalid brush id '%d'", brush);
 
-	currentBrush->SetShape(brush);
-	globalSim->CreateToolBrush(x, y, rx, ry, tool, strength);
-	currentBrush->SetShape(oldBrush);
+	Brush* tempBrush = new Brush(Point(rx, ry), brush);
+	globalSim->CreateToolBrush(x, y, tool, strength, tempBrush);
+	delete tempBrush;
 	lua_pushinteger(l, 0);
 	return 1;
 }
@@ -663,16 +663,16 @@ int simulation_toolLine(lua_State * l)
 	int rx = luaL_optint(l,5,5);
 	int ry = luaL_optint(l,6,5);
 	int tool = luaL_optint(l,7,TOOL_HEAT);
-	int brush = luaL_optint(l,8,CIRCLE_BRUSH), oldBrush = currentBrush->GetShape();
+	int brush = luaL_optint(l,8,CIRCLE_BRUSH);
 	float strength = luaL_optnumber(l,9,1.0f);
 	if (tool < 0 || tool >= TOOL_PROP)
 			return luaL_error(l, "Invalid tool id '%d'", tool);
 	if (brush < 0 || brush >= BRUSH_NUM)
 		return luaL_error(l, "Invalid brush id '%d'", brush);
 
-	currentBrush->SetShape(brush);
-	globalSim->CreateToolLine(x1, y1, x2, y2, rx, ry, tool, strength);
-	currentBrush->SetShape(oldBrush);
+	Brush* tempBrush = new Brush(Point(rx, ry), brush);
+	globalSim->CreateToolLine(x1, y1, x2, y2, tool, strength, tempBrush);
+	delete tempBrush;
 	return 0;
 }
 
@@ -702,16 +702,16 @@ int simulation_decoBrush(lua_State * l)
 	int b = luaL_optint(l,7,255);
 	int a = luaL_optint(l,8,255);
 	int tool = luaL_optint(l,9,DECO_DRAW);
-	int brush = luaL_optint(l,10,CIRCLE_BRUSH), oldBrush = currentBrush->GetShape();
+	int brush = luaL_optint(l,10,CIRCLE_BRUSH);
 	if (tool < 0 || tool >= DECOCOUNT)
 			return luaL_error(l, "Invalid tool id '%d'", tool);
 	if (brush < 0 || brush >= BRUSH_NUM)
 		return luaL_error(l, "Invalid brush id '%d'", brush);
 
 	unsigned int color = COLARGB(a, r, g, b);
-	currentBrush->SetShape(brush);
-	globalSim->CreateDecoBrush(x, y, rx, ry, tool, color);
-	currentBrush->SetShape(oldBrush);
+	Brush* tempBrush = new Brush(Point(rx, ry), brush);
+	globalSim->CreateDecoBrush(x, y, tool, color, tempBrush);
+	delete tempBrush;
 	return 0;
 }
 
@@ -728,16 +728,16 @@ int simulation_decoLine(lua_State * l)
 	int b = luaL_optint(l,9,255);
 	int a = luaL_optint(l,10,255);
 	int tool = luaL_optint(l,11,DECO_DRAW);
-	int brush = luaL_optint(l,12,CIRCLE_BRUSH), oldBrush = currentBrush->GetShape();
+	int brush = luaL_optint(l,12,CIRCLE_BRUSH);
 	if (tool < 0 || tool >= DECOCOUNT)
 			return luaL_error(l, "Invalid tool id '%d'", tool);
 	if (brush < 0 || brush >= BRUSH_NUM)
 		return luaL_error(l, "Invalid brush id '%d'", brush);
 
 	unsigned int color = COLARGB(a, r, g, b);
-	currentBrush->SetShape(brush);
-	globalSim->CreateDecoLine(x1, y1, x2, y2, rx, ry, tool, color);
-	currentBrush->SetShape(oldBrush);
+	Brush* tempBrush = new Brush(Point(rx, ry), brush);
+	globalSim->CreateDecoLine(x1, y1, x2, y2, tool, color, tempBrush);
+	delete tempBrush;
 	return 0;
 }
 

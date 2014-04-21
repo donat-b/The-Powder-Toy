@@ -722,11 +722,11 @@ order issues with box drawing, Save ctrl+z snapshot before pasting stamps.
 -------------------------------------TODO-------------------------------------
 ------------------------------------------------------------------------------
 Immediate TODO: '>' means currently being worked on/added next
-Finish brushes (change all instances of rx and ry to the brush things)
-Redo fav menu ...
+>Redo fav menu ...
 >Add things from tpt++ that look cool, and any new simulation changes it gets
 
 Medium future TODO:
+Do something about the massively repeated drawing code in Simulation.cpp
 make open ui more colorful like tpt++, also fix cut off description in save uploading ui
 make buttons look clicked when pressed, moving mouse away will not do clicks, like tpt++ (redo interface)
 loading circle in save browser?

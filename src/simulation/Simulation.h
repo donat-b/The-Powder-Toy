@@ -30,6 +30,7 @@
 #define ST PT_NUM
 
 class ElementDataContainer;
+class Brush;
 
 class Simulation
 {
@@ -60,9 +61,9 @@ public:
 	bool spark_conductive_attempt(int i, int x, int y);
 
 	int lightning_recreate; //timer for when LIGH can be created again
-	int CreateParts(int x, int y, int rx, int ry, int c, int flags, bool fill);
+	int CreateParts(int x, int y, int c, int flags, bool fill, Brush* brush = NULL);
 	int CreatePartFlags(int x, int y, int c, int flags);
-	void CreateLine(int x1, int y1, int x2, int y2, int rx, int ry, int c, int flags);
+	void CreateLine(int x1, int y1, int x2, int y2, int c, int flags, Brush* brush = NULL);
 	void CreateBox(int x1, int y1, int x2, int y2, int c, int flags);
 	int FloodFillPmapCheck(int x, int y, int type);
 	int FloodParts(int x, int y, int fullc, int replace, int flags);
@@ -73,20 +74,20 @@ public:
 	int FloodWalls(int x, int y, int wall, int replace);
 
 	int CreateTool(int x, int y, int tool, float strength);
-	void CreateToolBrush(int x, int y, int rx, int ry, int tool, float strength);
-	void CreateToolLine(int x1, int y1, int x2, int y2, int rx, int ry, int tool, float strength);
+	void CreateToolBrush(int x, int y, int tool, float strength, Brush* brush);
+	void CreateToolLine(int x1, int y1, int x2, int y2, int tool, float strength, Brush* brush);
 	void CreateToolBox(int x1, int y1, int x2, int y2, int tool, float strength);
 
 	int CreateProp(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset);
-	void CreatePropBrush(int x, int y, int rx, int ry, PropertyType propType, PropertyValue propValue, size_t propOffset);
-	void CreatePropLine(int x1, int y1, int x2, int y2, int rx, int ry, PropertyType propType, PropertyValue propValue, size_t propOffset);
+	void CreatePropBrush(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset, Brush* brush);
+	void CreatePropLine(int x1, int y1, int x2, int y2, PropertyType propType, PropertyValue propValue, size_t propOffset, Brush* brush);
 	void CreatePropBox(int x1, int y1, int x2, int y2, PropertyType propType, PropertyValue propValue, size_t propOffset);
 	int FloodPropHelper(int x, int y, int partType, PropertyType propType, PropertyValue propValue, size_t propOffset, char * bitmap);
 	int FloodProp(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset);
 
 	void CreateDeco(int x, int y, int tool, unsigned int color);
-	void CreateDecoBrush(int x, int y, int rx, int ry, int tool, unsigned int color);
-	void CreateDecoLine(int x1, int y1, int x2, int y2, int rx, int ry, int tool, unsigned int color);
+	void CreateDecoBrush(int x, int y, int tool, unsigned int color, Brush* brush);
+	void CreateDecoLine(int x1, int y1, int x2, int y2, int tool, unsigned int color, Brush* brush);
 	void CreateDecoBox(int x1, int y1, int x2, int y2, int tool, unsigned int color);
 	void FloodDeco(int x, int y, unsigned int color, unsigned int replace);
 

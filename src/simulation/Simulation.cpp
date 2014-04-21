@@ -459,9 +459,13 @@ bool Simulation::spark_conductive_attempt(int i, int x, int y)
  *
  */
 
-int Simulation::CreateParts(int x, int y, int rx, int ry, int c, int flags, bool fill)
+int Simulation::CreateParts(int x, int y, int c, int flags, bool fill, Brush* brush)
 {
-	int f = 0;
+	int f = 0, rx = 0, ry = 0, shape = CIRCLE_BRUSH;
+	if (brush)
+	{
+		rx = brush->GetRadius().X, ry = brush->GetRadius().Y, shape = brush->GetShape();
+	}
 
 	if (c == PT_LIGH)
 	{
@@ -497,18 +501,18 @@ int Simulation::CreateParts(int x, int y, int rx, int ry, int c, int flags, bool
 		// jmax is the largest y value that is still inside the brush
 
 		//For triangle brush, start at the very bottom
-		if (currentBrush->GetShape() == TRI_BRUSH)
+		if (brush->GetShape() == TRI_BRUSH)
 			tempy = y + ry;
 		for (i = x - rx; i <= x; i++)
 		{
 			oldy = tempy;
-			while (InCurrentBrush(i-x,tempy-y,rx,ry))
+			while (brush->IsInside(i-x,tempy-y))
 				tempy = tempy - 1;
 			tempy = tempy + 1;
 			if (fill)
 			{
 				//If triangle brush, create parts down to the bottom always; if not go down to the bottom border
-				if (currentBrush->GetShape() == TRI_BRUSH)
+				if (brush->GetShape() == TRI_BRUSH)
 					jmax = y + ry;
 				else
 					jmax = 2*y - tempy;
@@ -524,12 +528,12 @@ int Simulation::CreateParts(int x, int y, int rx, int ry, int c, int flags, bool
 			}
 			else
 			{
-				if ((oldy != tempy && currentBrush->GetShape() != SQUARE_BRUSH) || i == x-rx)
+				if ((oldy != tempy && brush->GetShape() != SQUARE_BRUSH) || i == x-rx)
 					oldy--;
 				for (j = tempy; j <= oldy+1; j++)
 				{
 					int i2 = 2*x-i, j2 = 2*y-j;
-					if (currentBrush->GetShape() == TRI_BRUSH)
+					if (brush->GetShape() == TRI_BRUSH)
 						j2 = y+ry;
 					if (CreatePartFlags(i, j, c, flags))
 						f = 1;
@@ -578,7 +582,7 @@ int Simulation::CreatePartFlags(int x, int y, int c, int flags)
 	return 0;
 }
 
-void Simulation::CreateLine(int x1, int y1, int x2, int y2, int rx, int ry, int c, int flags)
+void Simulation::CreateLine(int x1, int y1, int x2, int y2, int c, int flags, Brush* brush)
 {
 	int x, y, dx, dy, sy;
 	bool reverseXY = abs(y2-y1) > abs(x2-x1), fill = true;
@@ -612,20 +616,20 @@ void Simulation::CreateLine(int x1, int y1, int x2, int y2, int rx, int ry, int 
 	for (x=x1; x<=x2; x++)
 	{
 		if (reverseXY)
-			CreateParts(y, x, rx, ry, c, flags, fill);
+			CreateParts(y, x, c, flags, fill, brush);
 		else
-			CreateParts(x, y, rx, ry, c, flags, fill);
+			CreateParts(x, y, c, flags, fill, brush);
 		e += de;
 		fill = false;
 		if (e >= 0.5f)
 		{
 			y += sy;
-			if (!(rx+ry) && ((y1<y2) ? (y<=y2) : (y>=y2)))
+			if (!(brush->GetRadius().X+brush->GetRadius().Y) && ((y1<y2) ? (y<=y2) : (y>=y2)))
 			{
 				if (reverseXY)
-					CreateParts(y, x, rx, ry, c, flags, fill);
+					CreateParts(y, x, c, flags, fill, brush);
 				else
-					CreateParts(x, y, rx, ry, c, flags, fill);
+					CreateParts(x, y, c, flags, fill, brush);
 			}
 			e -= 1.0f;
 		}
@@ -648,7 +652,7 @@ void Simulation::CreateBox(int x1, int y1, int x2, int y2, int c, int flags)
 	}
 	for (int j = y1; j <= y2; j++)
 		for (int i = x1; i <= x2; i++)
-			CreateParts(i, j, 0, 0, c, flags, false);
+			CreateParts(i, j, c, flags, false);
 }
 
 //used for element and prop tool floodfills
@@ -725,7 +729,7 @@ int Simulation::FloodParts(int x, int y, int fullc, int replace, int flags)
 			// fill span
 			for (x=x1; x<=x2; x++)
 			{
-				if (CreateParts(x, y, 0, 0, fullc, flags, true));
+				if (CreateParts(x, y, fullc, flags, true));
 					created_something = 1;
 			}
 
@@ -978,9 +982,10 @@ int Simulation::CreateTool(int x, int y, int tool, float strength)
 	return -1;
 }
 
-void Simulation::CreateToolBrush(int x, int y, int rx, int ry, int tool, float strength)
+void Simulation::CreateToolBrush(int x, int y, int tool, float strength, Brush* brush)
 {
-	if (rx<=0) //workaround for rx == 0 crashing. todo: find a better fix later.
+	int rx = brush->GetRadius().X, ry = brush->GetRadius().Y;
+	if (rx <= 0) //workaround for rx == 0 crashing. todo: find a better fix later.
 	{
 		for (int j = y - ry; j <= y + ry; j++)
 			CreateTool(x, j, tool, strength);
@@ -992,18 +997,18 @@ void Simulation::CreateToolBrush(int x, int y, int rx, int ry, int tool, float s
 		// jmax is the largest y value that is still inside the brush (bottom border of brush)
 
 		//For triangle brush, start at the very bottom
-		if (currentBrush->GetShape() == TRI_BRUSH)
+		if (brush->GetShape() == TRI_BRUSH)
 			tempy = y + ry;
 		for (i = x - rx; i <= x; i++)
 		{
 			oldy = tempy;
 			//loop up until it finds a point not in the brush
-			while (InCurrentBrush(i-x,tempy-y,rx,ry))
+			while (brush->IsInside(i-x,tempy-y))
 				tempy = tempy - 1;
 			tempy = tempy + 1;
 
 			//If triangle brush, create parts down to the bottom always; if not go down to the bottom border
-			if (currentBrush->GetShape() == TRI_BRUSH)
+			if (brush->GetShape() == TRI_BRUSH)
 				jmax = y + ry;
 			else
 				jmax = 2*y - tempy;
@@ -1018,13 +1023,14 @@ void Simulation::CreateToolBrush(int x, int y, int rx, int ry, int tool, float s
 	}
 }
 
-void Simulation::CreateToolLine(int x1, int y1, int x2, int y2, int rx, int ry, int tool, float strength)
+void Simulation::CreateToolLine(int x1, int y1, int x2, int y2, int tool, float strength, Brush* brush)
 {
 	if (tool == TOOL_WIND)
 	{
+		int rx = brush->GetRadius().X, ry = brush->GetRadius().Y;
 		for (int j = -ry; j <= ry; j++)
 			for (int i = -rx; i <= rx; i++)
-				if (x2+i>0 && y2+j>0 && x2+i<XRES && y2+j<YRES && InCurrentBrush(i, j, rx, ry))
+				if (x2+i>0 && y2+j>0 && x2+i<XRES && y2+j<YRES && brush->IsInside(i, j))
 				{
 					vx[(y2+j)/CELL][(x2+i)/CELL] += (x2-x1)*0.01f;
 					vy[(y2+j)/CELL][(x2+i)/CELL] += (y2-y1)*0.01f;
@@ -1063,19 +1069,19 @@ void Simulation::CreateToolLine(int x1, int y1, int x2, int y2, int rx, int ry, 
 	for (x=x1; x<=x2; x++)
 	{
 		if (reverseXY)
-			CreateToolBrush(y, x, rx, ry, tool, strength);
+			CreateToolBrush(y, x, tool, strength, brush);
 		else
-			CreateToolBrush(x, y, rx, ry, tool, strength);
+			CreateToolBrush(x, y, tool, strength, brush);
 		e += de;
 		if (e >= 0.5f)
 		{
 			y += sy;
-			if (!(rx+ry) && ((y1<y2) ? (y<=y2) : (y>=y2)))
+			if (!(brush->GetRadius().X+brush->GetRadius().Y) && ((y1<y2) ? (y<=y2) : (y>=y2)))
 			{
 				if (reverseXY)
-					CreateToolBrush(y, x, rx, ry, tool, strength);
+					CreateToolBrush(y, x, tool, strength, brush);
 				else
-					CreateToolBrush(x, y, rx, ry, tool, strength);
+					CreateToolBrush(x, y, tool, strength, brush);
 			}
 			e -= 1.0f;
 		}
@@ -1123,8 +1129,9 @@ int Simulation::CreateProp(int x, int y, PropertyType propType, PropertyValue pr
 	return -1;
 }
 
-void Simulation::CreatePropBrush(int x, int y, int rx, int ry, PropertyType propType, PropertyValue propValue, size_t propOffset)
+void Simulation::CreatePropBrush(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset, Brush* brush)
 {
+	int rx = brush->GetRadius().X, ry = brush->GetRadius().Y;
 	if (rx <= 0) //workaround for rx == 0 crashing. todo: find a better fix later.
 	{
 		for (int j = y - ry; j <= y + ry; j++)
@@ -1137,18 +1144,18 @@ void Simulation::CreatePropBrush(int x, int y, int rx, int ry, PropertyType prop
 		// jmax is the largest y value that is still inside the brush (bottom border of brush)
 
 		//For triangle brush, start at the very bottom
-		if (currentBrush->GetShape() == TRI_BRUSH)
+		if (brush->GetShape() == TRI_BRUSH)
 			tempy = y + ry;
 		for (i = x - rx; i <= x; i++)
 		{
 			oldy = tempy;
 			//loop up until it finds a point not in the brush
-			while (InCurrentBrush(i - x, tempy - y, rx, ry))
+			while (brush->IsInside(i - x, tempy - y))
 				tempy = tempy - 1;
 			tempy = tempy + 1;
 
 			//If triangle brush, create parts down to the bottom always; if not go down to the bottom border
-			if (currentBrush->GetShape() == TRI_BRUSH)
+			if (brush->GetShape() == TRI_BRUSH)
 				jmax = y + ry;
 			else
 				jmax = 2 * y - tempy;
@@ -1164,7 +1171,7 @@ void Simulation::CreatePropBrush(int x, int y, int rx, int ry, PropertyType prop
 	}
 }
 
-void Simulation::CreatePropLine(int x1, int y1, int x2, int y2, int rx, int ry, PropertyType propType, PropertyValue propValue, size_t propOffset)
+void Simulation::CreatePropLine(int x1, int y1, int x2, int y2, PropertyType propType, PropertyValue propValue, size_t propOffset, Brush* brush)
 {
 	int x, y, dx, dy, sy;
 	bool reverseXY = abs(y2 - y1) > abs(x2 - x1);
@@ -1198,19 +1205,19 @@ void Simulation::CreatePropLine(int x1, int y1, int x2, int y2, int rx, int ry, 
 	for (x = x1; x <= x2; x++)
 	{
 		if (reverseXY)
-			CreatePropBrush(y, x, rx, ry, propType, propValue, propOffset);
+			CreatePropBrush(y, x, propType, propValue, propOffset, brush);
 		else
-			CreatePropBrush(x, y, rx, ry, propType, propValue, propOffset);
+			CreatePropBrush(x, y, propType, propValue, propOffset, brush);
 		e += de;
 		if (e >= 0.5f)
 		{
 			y += sy;
-			if (!(rx + ry) && ((y1<y2) ? (y <= y2) : (y >= y2)))
+			if (!(brush->GetRadius().X +  brush->GetRadius().Y) && ((y1<y2) ? (y <= y2) : (y >= y2)))
 			{
 				if (reverseXY)
-					CreatePropBrush(y, x, rx, ry, propType, propValue, propOffset);
+					CreatePropBrush(y, x, propType, propValue, propOffset, brush);
 				else
-					CreatePropBrush(x, y, rx, ry, propType, propValue, propOffset);
+					CreatePropBrush(x, y, propType, propValue, propOffset, brush);
 			}
 			e -= 1.0f;
 		}
@@ -1409,9 +1416,10 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 	}
 }
 
-void Simulation::CreateDecoBrush(int x, int y, int rx, int ry, int tool, unsigned int color)
+void Simulation::CreateDecoBrush(int x, int y, int tool, unsigned int color, Brush* brush)
 {
-	if (rx<=0) //workaround for rx == 0 crashing. todo: find a better fix later.
+	int rx = brush->GetRadius().X, ry = brush->GetRadius().Y;
+	if (rx <= 0) //workaround for rx == 0 crashing. todo: find a better fix later.
 	{
 		for (int j = y - ry; j <= y + ry; j++)
 			CreateDeco(x, j, tool, color);
@@ -1423,18 +1431,18 @@ void Simulation::CreateDecoBrush(int x, int y, int rx, int ry, int tool, unsigne
 		// jmax is the largest y value that is still inside the brush (bottom border of brush)
 
 		//For triangle brush, start at the very bottom
-		if (currentBrush->GetShape() == TRI_BRUSH)
+		if (brush->GetShape() == TRI_BRUSH)
 			tempy = y + ry;
 		for (i = x - rx; i <= x; i++)
 		{
 			oldy = tempy;
 			//loop up until it finds a point not in the brush
-			while (InCurrentBrush(i-x,tempy-y,rx,ry))
+			while (brush->IsInside(i-x,tempy-y))
 				tempy = tempy - 1;
 			tempy = tempy + 1;
 
 			//If triangle brush, create parts down to the bottom always; if not go down to the bottom border
-			if (currentBrush->GetShape() == TRI_BRUSH)
+			if (brush->GetShape() == TRI_BRUSH)
 				jmax = y + ry;
 			else
 				jmax = 2*y - tempy;
@@ -1450,7 +1458,7 @@ void Simulation::CreateDecoBrush(int x, int y, int rx, int ry, int tool, unsigne
 	}
 }
 
-void Simulation::CreateDecoLine(int x1, int y1, int x2, int y2, int rx, int ry, int tool, unsigned int color)
+void Simulation::CreateDecoLine(int x1, int y1, int x2, int y2, int tool, unsigned int color, Brush* brush)
 {
 	int x, y, dx, dy, sy;
 	bool reverseXY = abs(y2-y1) > abs(x2-x1);
@@ -1484,19 +1492,19 @@ void Simulation::CreateDecoLine(int x1, int y1, int x2, int y2, int rx, int ry, 
 	for (x=x1; x<=x2; x++)
 	{
 		if (reverseXY)
-			CreateDecoBrush(y, x, rx, ry, tool, color);
+			CreateDecoBrush(y, x, tool, color, brush);
 		else
-			CreateDecoBrush(x, y, rx, ry, tool, color);
+			CreateDecoBrush(x, y, tool, color, brush);
 		e += de;
 		if (e >= 0.5f)
 		{
 			y += sy;
-			if (!(rx+ry) && ((y1<y2) ? (y<=y2) : (y>=y2)))
+			if (!(brush->GetRadius().X+brush->GetRadius().Y) && ((y1<y2) ? (y<=y2) : (y>=y2)))
 			{
 				if (reverseXY)
-					CreateDecoBrush(y, x, rx, ry, tool, color);
+					CreateDecoBrush(y, x, tool, color, brush);
 				else
-					CreateDecoBrush(x, y, rx, ry, tool, color);
+					CreateDecoBrush(x, y, tool, color, brush);
 			}
 			e -= 1.0f;
 		}

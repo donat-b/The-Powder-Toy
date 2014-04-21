@@ -352,7 +352,7 @@ int INST_flood_spark(Simulation *sim, int x, int y);
 
 int flood_water(int x, int y, int i, int originaly, int check);
 
-void create_moving_solid(int x, int y, int rx, int ry, int type);
+void create_moving_solid(int x, int y, int type, Brush* brush);
 
 void orbitalparts_get(int block1, int block2, int resblock1[], int resblock2[]);
 void orbitalparts_set(int *block1, int *block2, int resblock1[], int resblock2[]);

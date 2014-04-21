@@ -41,7 +41,7 @@ public:
 
 	virtual int DrawPoint(Brush* brush, Point position);
 	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
+	virtual void DrawRect(Point startPos, Point endPos);
 	virtual int FloodFill(Point position);
 	virtual Tool* Sample(Point position);
 };
@@ -61,7 +61,7 @@ public:
 
 	virtual int DrawPoint(Brush* brush, Point position);
 	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
+	virtual void DrawRect(Point startPos, Point endPos);
 	virtual int FloodFill(Point position);
 };
 
@@ -73,7 +73,7 @@ public:
 
 	virtual int DrawPoint(Brush* brush, Point position);
 	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
+	virtual void DrawRect(Point startPos, Point endPos);
 	virtual int FloodFill(Point position);
 };
 
@@ -95,7 +95,7 @@ public:
 
 	virtual int DrawPoint(Brush* brush, Point position);
 	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
+	virtual void DrawRect(Point startPos, Point endPos);
 	virtual int FloodFill(Point position)  { return 0; }
 };
 
@@ -107,7 +107,7 @@ public:
 
 	virtual int DrawPoint(Brush* brush, Point position);
 	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
+	virtual void DrawRect(Point startPos, Point endPos);
 	virtual int FloodFill(Point position);
 
 	PropertyType propType;
@@ -123,7 +123,7 @@ public:
 
 	virtual int DrawPoint(Brush* brush, Point position);
 	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
+	virtual void DrawRect(Point startPos, Point endPos);
 	virtual int FloodFill(Point position);
 	virtual Tool* Sample(Point position);
 };

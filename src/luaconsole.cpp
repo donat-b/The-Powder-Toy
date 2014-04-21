@@ -2777,14 +2777,14 @@ int luatpt_create_parts(lua_State* l)
 	int fill = luaL_optint(l,6,1);
 	int brush = luaL_optint(l,7,CIRCLE_BRUSH);
 	int flags = luaL_optint(l,8,get_brush_flags());
-	int ret, oldbrush = currentBrush->GetShape();
+	int ret;
 	if (x < 0 || x > XRES || y < 0 || y > YRES)
 		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
 	if (c < 0 || c >= PT_NUM && !ptypes[c].enabled)
 		return luaL_error(l, "Unrecognised element number '%d'", c);
-	currentBrush->SetShape(brush);
-	ret = globalSim->CreateParts(x, y, rx, ry, c, flags, fill);
-	currentBrush->SetShape(oldbrush);
+	Brush* tempBrush = new Brush(Point(rx, ry), brush);
+	ret = globalSim->CreateParts(x, y, c, flags, fill, tempBrush);
+	delete tempBrush;
 	lua_pushinteger(l, ret);
 	return 1;
 }

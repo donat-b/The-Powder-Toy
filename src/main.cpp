@@ -1057,7 +1057,7 @@ int main(int argc, char *argv[])
 	decoTools[1] = GetToolFromIdentifier("DEFAULT_DECOR_CLR");
 	decoTools[2] = GetToolFromIdentifier("DEFAULT_PT_NONE");
 	*regularTools = *activeTools;
-	currentBrush = new Brush(Point(5, 5), CIRCLE_BRUSH);
+	Brush* currentBrush = new Brush(Point(5, 5), CIRCLE_BRUSH);
 
 	cb_parts = (particle*)calloc(sizeof(particle), NPART);
 	init_can_move();
@@ -1412,9 +1412,9 @@ int main(int argc, char *argv[])
 		{
 			if (lm != 2)
 				if (lm && (sdl_mod & KMOD_ALT))
-					render_cursor(vid_buf, line_x, line_y, activeTools[activeToolID], currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
+					render_cursor(vid_buf, line_x, line_y, activeTools[activeToolID], currentBrush);
 				else
-					render_cursor(vid_buf, mx, my, activeTools[activeToolID], currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
+					render_cursor(vid_buf, mx, my, activeTools[activeToolID], currentBrush);
 
 			if (lb)
 			{
@@ -2934,7 +2934,7 @@ int main(int argc, char *argv[])
 						{
 							for (j = -currentBrush->GetRadius().Y; j <= currentBrush->GetRadius().Y; j++)
 								for (i = -currentBrush->GetRadius().X; i <= currentBrush->GetRadius().X; i++)
-									if (lx+i>0 && ly+j>0 && lx+i<XRES && ly+j<YRES && InCurrentBrush(i, j, currentBrush->GetRadius().X, currentBrush->GetRadius().Y))
+									if (lx+i>0 && ly+j>0 && lx+i<XRES && ly+j<YRES && currentBrush->IsInside(i, j))
 									{
 										vx[(ly+j)/CELL][(lx+i)/CELL] += (line_x-lx)*0.002f;
 										vy[(ly+j)/CELL][(lx+i)/CELL] += (line_y-ly)*0.002f;
@@ -3042,7 +3042,7 @@ int main(int argc, char *argv[])
 				if (lm == 1)
 					activeTool->DrawLine(currentBrush, Point(lx, ly), Point(line_x, line_y), false);
 				else if (lm == 2)
-					activeTool->DrawRect(currentBrush, Point(lx, ly), Point(line_x, line_y));
+					activeTool->DrawRect(Point(lx, ly), Point(line_x, line_y));
 				lm = 0;
 			}
 			lb = 0;

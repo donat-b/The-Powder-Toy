@@ -2969,9 +2969,9 @@ int flood_water(int x, int y, int i, int originaly, int check)
 	return 1;
 }
 
-void create_moving_solid(int x, int y, int rx, int ry, int type)
+void create_moving_solid(int x, int y, int type, Brush* brush)
 {
-	int index, i, j;
+	int index, i, j, rx = brush->GetRadius().X, ry = brush->GetRadius().Y;
 	//max of 255 moving solids for now
 	if (numballs >= 255)
 		return;
@@ -2993,7 +2993,7 @@ void create_moving_solid(int x, int y, int rx, int ry, int type)
 
 	for (j=-ry; j<=ry; j++)
 		for (i=-rx; i<=rx; i++)
-			if (InCurrentBrush(i ,j ,rx ,ry) && (i || j))
+			if (brush->IsInside(i ,j) && (i || j))
 			{
 				index = create_part(-2, x+i, y+j, type);
 				if (index < 0)

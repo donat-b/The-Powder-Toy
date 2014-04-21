@@ -64,7 +64,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 			nearp = nearest_part(i, PT_ETRD, -1);
 			if (nearp!=-1&&parts_avg(i, nearp, PT_INSL)!=PT_INSL)
 			{
-				sim->CreateLine(x, y, (int)(parts[nearp].x+0.5f), (int)(parts[nearp].y+0.5f), 0, 0, PT_PLSM, 0);
+				sim->CreateLine(x, y, (int)(parts[nearp].x+0.5f), (int)(parts[nearp].y+0.5f), PT_PLSM, 0);
 				part_change_type(i, x, y, ct);
 				ct = parts[i].ctype = PT_NONE;
 				parts[i].life = 20;

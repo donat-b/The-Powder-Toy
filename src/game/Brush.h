@@ -25,10 +25,7 @@ public:
 	Point GetRadius() { return radius; }
 	void SetShape(int shape_) { shape = shape_; }
 	int GetShape() { return shape; }
-	//bool InBrush(int x, int y);
+	bool IsInside(int x, int y);
 };
-
-extern Brush* currentBrush;
-int InCurrentBrush(int i, int j, int rx, int ry);
 
 #endif

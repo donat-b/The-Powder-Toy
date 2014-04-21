@@ -2,7 +2,7 @@
 #include <algorithm>
 #include "Brush.h"
 
-/*bool Brush::InBrush(int x, int y)
+bool Brush::IsInside(int x, int y)
 {
 	switch (shape)
 	{
@@ -19,7 +19,7 @@
 		return 0;
 		break;
 	}
-}*/
+}
 
 void Brush::SetRadius(Point radius_)
 {
@@ -35,25 +35,3 @@ void Brush::ChangeRadius(Point change)
 	radius.X = std::min(1180, std::max(0, radius.X));
 	radius.Y = std::min(1180, std::max(0, radius.Y));
 }
-
-//TODO: remove
-int InCurrentBrush(int i, int j, int rx, int ry)
-{
-	switch (currentBrush->GetShape())
-	{
-	case CIRCLE_BRUSH:
-		return (pow(i, 2.0)*pow(ry, 2.0)+pow(j, 2.0)*pow(rx, 2.0)<=pow(rx, 2.0)*pow(ry, 2.0));
-		break;
-	case SQUARE_BRUSH:
-		return (abs(i) <= rx && abs(j) <= ry);
-		break;
-	case TRI_BRUSH:
-		return ((abs((rx+2*i)*ry+rx*j) + abs(2*rx*(j-ry)) + abs((rx-2*i)*ry+rx*j))<=(4*rx*ry));
-		break;
-	default:
-		return 0;
-		break;
-	}
-}
-
-Brush* currentBrush;

@@ -4605,8 +4605,9 @@ corrupt:
 }
 
 //draws the cursor
-void render_cursor(pixel *vid, int x, int y, Tool* tool, int rx, int ry)
+void render_cursor(pixel *vid, int x, int y, Tool* tool, Brush* brush)
 {
+	int rx = brush->GetRadius().X, ry = brush->GetRadius().Y;
 #ifdef OGLR
 	int i;
 	if (tool->GetType() == ELEMENT_TOOL || tool->GetType() == GOL_TOOL || tool->GetType() == TOOL_TOOL || tool->GetType() == DECO_TOOL)
@@ -4620,7 +4621,7 @@ void render_cursor(pixel *vid, int x, int y, Tool* tool, int rx, int ry)
 		x *= sdl_scale;
 		ry *= sdl_scale;
 		rx *= sdl_scale;
-		if (currentBrush->GetShape() == SQUARE_BRUSH)
+		if (brush->GetShape() == SQUARE_BRUSH)
 		{
 			glVertex2f(x-rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)-ry+1);
 			glVertex2f(x+rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)-ry+1);
@@ -4628,7 +4629,7 @@ void render_cursor(pixel *vid, int x, int y, Tool* tool, int rx, int ry)
 			glVertex2f(x-rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)+ry+1);
 			glVertex2f(x-rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)-ry+1);
 		}
-		else if (currentBrush->GetShape() == CIRCLE_BRUSH)
+		else if (brush->GetShape() == CIRCLE_BRUSH)
 		{
 			for (i = 0; i < 360; i++)
 			{
@@ -4636,7 +4637,7 @@ void render_cursor(pixel *vid, int x, int y, Tool* tool, int rx, int ry)
 			  glVertex2f((cos(degInRad)*rx)+x, (sin(degInRad)*ry)+/*(YRES+MENUSIZE)*sdl_scale-*/y);
 			}
 		}
-		else if (currentBrush->GetShape() == TRI_BRUSH)
+		else if (brush->GetShape() == TRI_BRUSH)
 		{
 			glVertex2f(x+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)-ry-1);
 			glVertex2f(x+rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)+ry-1);
@@ -4658,7 +4659,16 @@ void render_cursor(pixel *vid, int x, int y, Tool* tool, int rx, int ry)
 			if (j != 0)
 				xor_pixel(x, y+j, vid);
 	}
-	else if (tool->GetType() == ELEMENT_TOOL || tool->GetType() == GOL_TOOL || tool->GetType() == TOOL_TOOL || tool->GetType() == DECO_TOOL)
+	else if (tool->GetType() == WALL_TOOL)
+	{
+		int wallx = (x/CELL)*CELL, wally = (y/CELL)*CELL;
+		int wallrx = (rx/CELL)*CELL, wallry = (ry/CELL)*CELL;
+		xor_line(wallx-wallrx, wally-wallry, wallx+wallrx+CELL-1, wally-wallry, vid);
+		xor_line(wallx-wallrx, wally+wallry+CELL-1, wallx+wallrx+CELL-1, wally+wallry+CELL-1, vid);
+		xor_line(wallx-wallrx, wally-wallry+1, wallx-wallrx, wally+wallry+CELL-2, vid);
+		xor_line(wallx+wallrx+CELL-1, wally-wallry+1, wallx+wallrx+CELL-1, wally+wallry+CELL-2, vid);
+	}
+	else
 	{
 		if (rx<=0)
 			for (j = y - ry; j <= y + ry; j++)
@@ -4666,20 +4676,20 @@ void render_cursor(pixel *vid, int x, int y, Tool* tool, int rx, int ry)
 		else
 		{
 			int tempy = y, i, j, oldy;
-			if (currentBrush->GetShape() == TRI_BRUSH)
+			if (brush->GetShape() == TRI_BRUSH)
 				tempy = y + ry;
 			for (i = x - rx; i <= x; i++) {
 				oldy = tempy;
-				while (InCurrentBrush(i-x,tempy-y,rx,ry))
+				while (brush->IsInside(i-x,tempy-y))
 					tempy = tempy - 1;
 				tempy = tempy + 1;
-				if (oldy != tempy && currentBrush->GetShape() != SQUARE_BRUSH)
+				if (oldy != tempy && brush->GetShape() != SQUARE_BRUSH)
 					oldy--;
-				if (currentBrush->GetShape() == TRI_BRUSH)
+				if (brush->GetShape() == TRI_BRUSH)
 					oldy = tempy;
 				for (j = tempy; j <= oldy; j++) {
 					int i2 = 2*x-i, j2 = 2*y-j;
-					if (currentBrush->GetShape() == TRI_BRUSH)
+					if (brush->GetShape() == TRI_BRUSH)
 						j2 = y+ry;
 					xor_pixel(i, j, vid);
 					if (i2 != i)
@@ -4691,15 +4701,6 @@ void render_cursor(pixel *vid, int x, int y, Tool* tool, int rx, int ry)
 				}
 			}
 		}
-	}
-	else //wall cursor
-	{
-		int wallx = (x/CELL)*CELL, wally = (y/CELL)*CELL;
-		int wallrx = (rx/CELL)*CELL, wallry = (ry/CELL)*CELL;
-		xor_line(wallx-wallrx, wally-wallry, wallx+wallrx+CELL-1, wally-wallry, vid);
-		xor_line(wallx-wallrx, wally+wallry+CELL-1, wallx+wallrx+CELL-1, wally+wallry+CELL-1, vid);
-		xor_line(wallx-wallrx, wally-wallry+1, wallx-wallrx, wally+wallry+CELL-2, vid);
-		xor_line(wallx+wallrx+CELL-1, wally-wallry+1, wallx+wallrx+CELL-1, wally+wallry+CELL-2, vid);
 	}
 #endif
 }

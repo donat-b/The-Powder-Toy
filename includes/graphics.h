@@ -238,7 +238,8 @@ void render_zoom(pixel *img);
 
 int render_thumb(void *thumb, int size, int bzip2, pixel *vid_buf, int px, int py, int scl);
 
-void render_cursor(pixel *vid, int x, int y, Tool* t, int rx, int ry);
+class Brush;
+void render_cursor(pixel *vid, int x, int y, Tool* t, Brush* brush);
 
 int LoadWindowPosition(int scale);
 
