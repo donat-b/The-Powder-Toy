@@ -615,9 +615,9 @@ int try_move(int i, int x, int y, int nx, int ny)
 			return 1;
 		}
 
-		if (!OutOfBounds(nx, ny) && !OutOfBounds((int)(parts[e].x+x-nx), (int)(parts[e].y+y-ny)))
+		if (!OutOfBounds((int)(parts[e].x+0.5f)+x-nx, (int)(parts[e].y+0.5f)+y-ny))
 		{
-			if ((pmap[ny][nx]>>8)==e) pmap[ny][nx] = 0;
+			if (!OutOfBounds(nx, ny) && (pmap[ny][nx]>>8)==e) pmap[ny][nx] = 0;
 			parts[e].x += x-nx;
 			parts[e].y += y-ny;
 			pmap[(int)(parts[e].y+0.5f)][(int)(parts[e].x+0.5f)] = (e<<8)|parts[e].type;

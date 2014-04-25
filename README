@@ -712,8 +712,7 @@ order issues with box drawing, Save ctrl+z snapshot before pasting stamps.
 ------------------------------------------------------------------------------
 -------------------------------------Bugs-------------------------------------
 ------------------------------------------------------------------------------
-1325976 produces BHOL on top
-//None (at least that I know of)
+None (at least that I know of)
 
 
 
@@ -721,11 +720,8 @@ order issues with box drawing, Save ctrl+z snapshot before pasting stamps.
 ------------------------------------------------------------------------------
 -------------------------------------TODO-------------------------------------
 ------------------------------------------------------------------------------
-Immediate TODO: '>' means currently being worked on/added next
->Redo fav menu ...
->Add things from tpt++ that look cool, and any new simulation changes it gets
-
-Medium future TODO:
+TODO: '>' means currently being worked on/added next
+Redo fav menu ...
 Do something about the massively repeated drawing code in Simulation.cpp
 make open ui more colorful like tpt++, also fix cut off description in save uploading ui
 make buttons look clicked when pressed, moving mouse away will not do clicks, like tpt++ (redo interface)
@@ -733,8 +729,9 @@ loading circle in save browser?
 redo some sign things and remove regex
 Add avatars in game
 Ability to follow users using jacksonmj's website
+>Add things from tpt++ that look cool, and any new simulation changes it gets
 
-Far future TODO:
+Possible future plans:
 customizable settings menu completely, ability to add and read options. (also HUD option settings)
 Don't save lua code inside of INDI, since this isn't a lua script anymore
 CMND - command element to run old commands
