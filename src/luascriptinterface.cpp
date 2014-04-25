@@ -1950,7 +1950,7 @@ int elements_getProperty(char * key, int * format, unsigned int * modifiedStuff)
 	}
 	else if (!strcmp(key, "HotAir"))
 	{
-		offset = offsetof(Element, PressureAdd_NoAmbHeat);
+		offset = offsetof(Element, HotAir);
 		*format = 1;
 	}
 	else if (!strcmp(key, "Falldown"))

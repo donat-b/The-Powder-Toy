@@ -1562,7 +1562,7 @@ void Simulation_Compat_CopyData(Simulation* sim)
 		ptypes[t].collision = sim->elements[t].Collision;
 		ptypes[t].gravity = sim->elements[t].Gravity;
 		ptypes[t].diffusion = sim->elements[t].Diffusion;
-		ptypes[t].hotair = sim->elements[t].PressureAdd_NoAmbHeat;
+		ptypes[t].hotair = sim->elements[t].HotAir;
 		ptypes[t].falldown = sim->elements[t].Falldown;
 		ptypes[t].flammable = sim->elements[t].Flammable;
 		ptypes[t].explosive = sim->elements[t].Explosive;

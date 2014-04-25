@@ -53,7 +53,7 @@ void WTRV_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Collision = -0.1f;
 	elem->Gravity = -0.1f;
 	elem->Diffusion = 0.75f;
-	elem->PressureAdd_NoAmbHeat = 0.0003f	* CFDS;
+	elem->HotAir = 0.0003f	* CFDS;
 	elem->Falldown = 0;
 
 	elem->Flammable = 0;

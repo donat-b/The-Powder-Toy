@@ -31,7 +31,7 @@ void MWAX_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Collision = 0.0f;
 	elem->Gravity = 0.15f;
 	elem->Diffusion = 0.00f;
-	elem->PressureAdd_NoAmbHeat = 0.000001f* CFDS;
+	elem->HotAir = 0.000001f* CFDS;
 	elem->Falldown = 2;
 
 	elem->Flammable = 5;

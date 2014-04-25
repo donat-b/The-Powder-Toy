@@ -64,7 +64,7 @@ void AMTR_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Collision = 0.00f;
 	elem->Gravity = 0.10f;
 	elem->Diffusion = 1.00f;
-	elem->PressureAdd_NoAmbHeat = 0.0000f * CFDS;
+	elem->HotAir = 0.0000f * CFDS;
 	elem->Falldown = 0;
 
 	elem->Flammable = 0;

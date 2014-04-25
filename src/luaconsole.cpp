@@ -596,7 +596,7 @@ int luacon_element_getproperty(const char * key, int * format, unsigned int * mo
 	}
 	else if (!strcmp(key, "hotair"))
 	{
-		offset = offsetof(Element, PressureAdd_NoAmbHeat);
+		offset = offsetof(Element, HotAir);
 		*format = 1;
 	}
 	else if (!strcmp(key, "falldown"))

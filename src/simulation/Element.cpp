@@ -32,7 +32,7 @@ Element::Element():
 	Collision(0.0f),
 	Gravity(0.0f),
 	Diffusion(0.00f),
-	PressureAdd_NoAmbHeat(0.00f),
+	HotAir(0.00f),
 	Falldown(0),
 	Flammable(0),
 	Explosive(0),

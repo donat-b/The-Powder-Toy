@@ -56,7 +56,7 @@ public:
 	float Collision;
 	float Gravity;
 	float Diffusion;
-	float PressureAdd_NoAmbHeat;
+	float HotAir;
 	int Falldown;
 
 	int Flammable;

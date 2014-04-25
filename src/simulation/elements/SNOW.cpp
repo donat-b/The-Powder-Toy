@@ -33,7 +33,7 @@ void SNOW_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Collision = -0.1f;
 	elem->Gravity = 0.05f;
 	elem->Diffusion = 0.01f;
-	elem->PressureAdd_NoAmbHeat = -0.00005f* CFDS;
+	elem->HotAir = -0.00005f* CFDS;
 	elem->Falldown = 1;
 
 	elem->Flammable = 0;

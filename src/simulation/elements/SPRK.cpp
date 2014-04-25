@@ -385,7 +385,7 @@ void SPRK_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Collision = 0.0f;
 	elem->Gravity = 0.0f;
 	elem->Diffusion = 0.00f;
-	elem->PressureAdd_NoAmbHeat = 0.001f	* CFDS;
+	elem->HotAir = 0.001f	* CFDS;
 	elem->Falldown = 0;
 
 	elem->Flammable = 0;
