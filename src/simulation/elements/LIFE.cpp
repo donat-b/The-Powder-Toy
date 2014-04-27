@@ -15,6 +15,7 @@
 
 #include "simulation/ElementsCommon.h"
 #include "simulation/GolNumbers.h"
+#include "LIFE.h"
 
 int LIFE_update(UPDATE_FUNC_ARGS)
 {
@@ -135,4 +136,10 @@ void LIFE_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Graphics = &LIFE_graphics;
 	elem->Func_Create = &LIFE_create;
 	elem->Init = &LIFE_init_element;
+
+	if (sim->elementData[t])
+	{
+		delete sim->elementData[t];
+	}
+	sim->elementData[t] = new LIFE_ElementDataContainer;
 }

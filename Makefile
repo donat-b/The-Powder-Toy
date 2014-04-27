@@ -1,5 +1,5 @@
 SOURCES := $(wildcard src/*.cpp src/*/*.cpp src/*/*/*.cpp src/socket/*.c)
-HEADERS := $(wildcard includes/*.h src/*/*.h src/socket/*.h)
+HEADERS := $(wildcard includes/*.h src/*/*.h src/simulation/elements/*.h src/socket/*.h)
 OBJS := $(patsubst src/%.c,build/obj/%.o,$(patsubst src/%.cpp,build/obj/%.o,$(SOURCES)))
 
 CFLAGS := -w -Iincludes/ -Isrc/ -D_GNU_SOURCE

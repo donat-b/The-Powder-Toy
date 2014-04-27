@@ -33,6 +33,8 @@
 #include "simulation/ToolNumbers.h"
 #include "simulation/GolNumbers.h"
 #include "simulation/elements/FIGH.h"
+#include "simulation/elements/PPIP.h"
+#include "simulation/elements/LIFE.h"
 
 int saveversion;
 int mod_save;
@@ -76,8 +78,8 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 	{
 		return 1;
 	}
-	force_stacking_check = 1;//check for excessive stacking of particles next time update_particles is run
-	ppip_changed = 1;
+	globalSim->forceStackingCheck = 1;//check for excessive stacking of particles next time update_particles is run
+	((PPIP_ElementDataContainer*)globalSim->elementData[PT_PPIP])->ppip_changed = 1;
 	if(saveData[0] == 'O' && saveData[1] == 'P' && (saveData[2] == 'S' || saveData[2] == 'J'))
 	{
 		return parse_save_OPS(save, size, replace, x0, y0, bmap, vx, vy, pv, fvx, fvy, signs, partsptr, pmap);
@@ -2815,7 +2817,6 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 				//TODO: Possibly some server side translation
 				j = PT_DUST;//goto corrupt;
 			}
-			gol[y][x]=0;
 			if (j)
 			{
 				if (modver > 0 && modver <= 5)

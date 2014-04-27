@@ -14,6 +14,7 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "simulation/elements/PPIP.h"
 #include "simulation/elements/PRTI.h"
 
 #define PFLAG_NORMALSPEED 0x00010000
@@ -38,9 +39,7 @@
 signed char pos_1_rx[] = {-1,-1,-1, 0, 0, 1, 1, 1};
 signed char pos_1_ry[] = {-1, 0, 1,-1, 1,-1, 0, 1};
 
-int ppip_changed = 0;
-
-void PPIP_flood_trigger(int x, int y, int sparkedBy)
+void PPIP_flood_trigger(Simulation* sim, int x, int y, int sparkedBy)
 {
 	int coord_stack_limit = XRES*YRES;
 	unsigned short (*coord_stack)[2];
@@ -90,7 +89,7 @@ void PPIP_flood_trigger(int x, int y, int sparkedBy)
 		for (x=x1; x<=x2; x++)
 		{
 			if (!(parts[pmap[y][x]>>8].tmp & prop))
-				ppip_changed = 1;
+				((PPIP_ElementDataContainer*)sim->elementData[PT_PPIP])->ppip_changed = 1;
 			parts[pmap[y][x]>>8].tmp |= prop;
 		}
 
@@ -251,9 +250,11 @@ void pushParticle(Simulation *sim, int i, int count, int original)
 	return;
 }
 
+void detach(int i);
+
 int PIPE_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, np, change = 0;
+	int r, rx, ry, np;
 	int rnd, rndstore;
 	if ((parts[i].tmp&0xFF)>=PT_NUM || !sim->elements[parts[i].tmp&0xFF].Enabled)
 		parts[i].tmp &= ~0xFF; 

@@ -92,36 +92,6 @@ static golType golTypes[NGOL] =
 	{"BRAN",	"DEFAULT_PT_LIFE_BRAN",	PIXPACK(0xCCCC00), "Brian 6: B246/S6/3"}
 };
 
-static int grule[NGOL+1][10] =
-{
-//	 0,1,2,3,4,5,6,7,8,STATES    live=1  spawn=2 spawn&live=3   States are kind of how long until it dies, normal ones use two states(living,dead) for others the intermediate states live but do nothing
-	{0,0,0,0,0,0,0,0,0,2},//blank
-	{0,0,1,3,0,0,0,0,0,2},//GOL
-	{0,0,1,3,0,0,2,0,0,2},//HLIF
-	{0,0,0,2,3,3,1,1,0,2},//ASIM
-	{0,1,1,2,0,1,2,0,0,2},//2x2
-	{0,0,0,3,1,0,3,3,3,2},//DANI
-	{0,1,0,3,0,3,0,2,1,2},//AMOE
-	{0,0,1,2,1,1,2,0,2,2},//MOVE
-	{0,0,1,3,0,2,0,2,1,2},//PGOL
-	{0,0,0,2,0,3,3,3,3,2},//DMOE
-	{0,0,0,3,3,0,0,0,0,2},//34
-	{0,0,0,2,2,3,0,0,0,2},//LLIF
-	{0,0,1,3,0,1,3,3,3,2},//STAN
-	{0,0,2,0,0,0,0,0,0,2},//SEED
-	{0,1,1,3,1,1,0,0,0,2},//MAZE
-	{0,0,1,3,0,1,1,3,3,2},//COAG
-	{0,0,1,1,3,3,2,2,2,2},//WALL
-	{0,3,0,0,0,0,0,0,0,2},//GNAR
-	{0,3,0,3,0,3,0,3,0,2},//REPL
-	{1,0,0,2,2,3,1,1,3,2},//MYST
-	{0,0,0,3,1,1,0,2,1,4},//LOTE
-	{0,1,1,2,1,0,0,0,0,3},//FRG2
-	{0,0,2,1,1,1,1,2,2,6},//STAR
-	{0,1,1,2,2,0,0,0,0,3},//FROG
-	{0,0,2,0,2,0,3,0,0,3},//BRAN
-};
-
 static int oldgolTypes[NGOL] =
 {
 	GT_GOL,

@@ -14,6 +14,65 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "simulation/ElementDataContainer.h"
+
+static bool lolzrule[9][9] =
+{
+	{0,0,0,0,0,0,0,0,0},
+	{1,0,0,0,0,0,1,0,0},
+	{1,0,0,0,0,0,1,0,0},
+	{1,0,0,1,1,0,0,1,0},
+	{1,0,1,0,0,1,0,1,0},
+	{1,0,1,0,0,1,0,1,0},
+	{0,1,0,1,1,0,0,1,0},
+	{0,1,0,0,0,0,0,1,0},
+	{0,1,0,0,0,0,0,1,0},
+};
+
+class LOLZ_ElementDataContainer : public ElementDataContainer
+{
+	bool lolz[XRES/9][YRES/9];
+public:
+	LOLZ_ElementDataContainer()
+	{
+		memset(lolz, false, sizeof(lolz));
+	}
+	virtual void Simulation_BeforeUpdate(Simulation *sim)
+	{
+		if (sim->elementCount[PT_LOLZ] <= 0)
+			return;
+		//set lolz to true in any grid space with an LOLZ in it
+		memset(lolz, false, sizeof(lolz));
+		for (int x = 9; x < ((XRES-4)/9)*9; x++)
+			for (int y = 9; y < (int)((YRES-4)/9)*9; y++)
+				if (pmap[y][x] && parts[pmap[y][x]>>8].type == PT_LOLZ)
+					lolz[x/9][y/9] = true;
+
+		//create the correct pattern in any grid space that had LOLZ
+		for (int x = 9; x < ((XRES-4)/9)*9; x+=9)
+			for (int y = 9; y < (int)((YRES-4)/9)*9; y+=9)
+				if (lolz[x/9][y/9])
+					for (int nx = 0; nx < 9; nx++)
+						for (int ny = 0; ny < 9; ny++)
+						{
+							int rt = pmap[y+ny][x+nx];
+							if (!rt && lolzrule[ny][nx])
+								sim->part_create(-1, x+nx, y+ny, PT_LOLZ);
+							else if (!rt)
+								continue;
+							else if (parts[rt>>8].type == PT_LOLZ && !lolzrule[ny][nx])
+								sim->part_kill(rt>>8);
+						}
+	}
+};
+
+int LOLZ_update(UPDATE_FUNC_ARGS)
+{
+	//kill any out of range LOLZ
+	if (x<9 || y<9 || x>=(int)((XRES-4)/9)*9 || y>=(int)((YRES-4)/9)*9)
+		kill_part(i);
+	return 0;
+}
 
 void LOLZ_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
@@ -58,7 +117,13 @@ void LOLZ_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = NULL;
+	elem->Update = &LOLZ_update;
 	elem->Graphics = NULL;
 	elem->Init = &LOLZ_init_element;
+
+	if (sim->elementData[t])
+	{
+		delete sim->elementData[t];
+	}
+	sim->elementData[t] = new LOLZ_ElementDataContainer;
 }

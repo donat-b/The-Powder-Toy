@@ -14,6 +14,7 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "PPIP.h"
 
 int PIPE_update(UPDATE_FUNC_ARGS);
 int PIPE_graphics(GRAPHICS_FUNC_ARGS);
@@ -66,4 +67,10 @@ void PPIP_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &PIPE_update;
 	elem->Graphics = &PIPE_graphics;
 	elem->Init = &PPIP_init_element;
+
+	if (sim->elementData[t])
+	{
+		delete sim->elementData[t];
+	}
+	sim->elementData[t] = new PPIP_ElementDataContainer;
 }

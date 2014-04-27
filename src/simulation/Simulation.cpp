@@ -38,10 +38,12 @@
 
 Simulation *globalSim = NULL; // TODO: remove this global variable
 
-Simulation::Simulation() :
+Simulation::Simulation():
+	currentTick(0),
 	pfree(-1),
 	parts_lastActiveIndex(NPART-1),
-	lightning_recreate(0)
+	forceStackingCheck(false),
+	lightningRecreate(0)
 {
 	memset(elementData, 0, sizeof(elementData));
 	Clear();
@@ -482,9 +484,9 @@ void Simulation::Update()
 {
 	RecalcFreeParticles();
 
-	//update wallmaps
 	if (!sys_pause || framerender)
 	{
+		//update wallmaps
 		for (int y = 0; y < YRES/CELL; y++)
 		{
 			for (int x = 0; x < XRES/CELL; x++)
@@ -502,10 +504,106 @@ void Simulation::Update()
 		else if (globalSim->elementCount[PT_STKM2] <= 0 && player2.spawnID >= 0)
 			create_part(-1, (int)parts[player2.spawnID].x, (int)parts[player2.spawnID].y, PT_STKM2);
 
-		update_particles_i();
+		//check for excessive stacked particles, create BHOL if found
+		if (forceStackingCheck || !(rand()%10))
+		{
+			bool excessive_stacking_found = false;
+			forceStackingCheck = 0;
+			for (int y = 0; y < YRES; y++)
+			{
+				for (int x = 0; x < XRES; x++)
+				{
+					//Use a threshold, since some particle stacking can be normal (e.g. BIZR + FILT)
+					//Setting pmap_count[y][x] > NPART means BHOL will form in that spot
+					if (pmap_count[y][x] > 5)
+					{
+						if (bmap[y/CELL][x/CELL] == WL_EHOLE)
+						{
+							//Allow more stacking in E-hole
+							if (pmap_count[y][x] > 1500)
+							{
+								pmap_count[y][x] = pmap_count[y][x] + NPART;
+								excessive_stacking_found = true;
+							}
+						}
+						//Random chance to turn into BHOL that increases with the amount of stacking, up to a threshold where it is certain to turn into BHOL
+						else if (pmap_count[y][x] > 1500 || (rand()%1600) <= pmap_count[y][x]+100)
+						{
+							pmap_count[y][x] = pmap_count[y][x] + NPART;
+							excessive_stacking_found = true;
+						}
+					}
+				}
+			}
+			if (excessive_stacking_found)
+			{
+				for (int i = 0; i <= globalSim->parts_lastActiveIndex; i++)
+				{
+					if (parts[i].type)
+					{
+						int t = parts[i].type;
+						int x = (int)(parts[i].x+0.5f);
+						int y = (int)(parts[i].y+0.5f);
+						if (x >= 0 && y >= 0 && x < XRES && y < YRES && !(ptypes[t].properties&TYPE_ENERGY))
+						{
+							if (pmap_count[y][x] >= NPART)
+							{
+								if (pmap_count[y][x] > NPART)
+								{
+									create_part(i, x, y, PT_NBHL);
+									parts[i].temp = MAX_TEMP;
+									parts[i].tmp = pmap_count[y][x] - NPART;//strength of grav field
+									if (parts[i].tmp > 51200)
+										parts[i].tmp = 51200;
+									pmap_count[y][x] = NPART;
+								}
+								else
+								{
+									kill_part(i);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		//For elements with extra data, run special update functions
+		//This does things like LIFE recalculation and LOLZ patterns
+		for (int t = 1; t < PT_NUM; t++)
+		{
+			if (globalSim->elementData[t])
+			{
+				globalSim->elementData[t]->Simulation_BeforeUpdate(globalSim);
+			}
+		}
+
+		//lightning recreation time
+		if (globalSim->lightningRecreate)
+			globalSim->lightningRecreate--;
+
+		//the main particle loop function, goes over all particles.
+		for (int i = 0; i <= globalSim->parts_lastActiveIndex; i++)
+			if (parts[i].type)
+			{
+				if (!globalSim->UpdateParticle(i))
+				{
+					if (globalSim->elements[parts[i].type].Properties&PROP_MOVS)
+					{
+						int bn = parts[i].tmp2;
+						if (bn >= 0 && bn < 256 && msindex[bn])
+						{
+							msvx[bn] = msvx[bn] + parts[i].vx;
+							msvy[bn] = msvy[bn] + parts[i].vy;
+						}
+					}
+				}
+			}
 
 		//update moving solid info
 		update_moving_solids();
+
+		currentTick++;
 	}
 
 	//in automatic heat mode, update highest and lowest temperature points (maybe could be moved)
@@ -1380,13 +1478,13 @@ int Simulation::CreateParts(int x, int y, int c, int flags, bool fill, Brush* br
 
 	if (c == PT_LIGH)
 	{
-		if (lightning_recreate > 0)
+		if (lightningRecreate > 0)
 			return 0;
 		int newlife = rx + ry;
 		if (newlife > 55)
 			newlife = 55;
 		c = c|newlife<<8;
-		lightning_recreate = newlife/4;
+		lightningRecreate = newlife/4;
 		rx = ry = 0;
 	}
 	else if (c == PT_STKM || c == PT_STKM2 || c == PT_FIGH)

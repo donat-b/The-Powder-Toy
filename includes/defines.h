@@ -292,17 +292,11 @@ typedef struct stamp stamp;
 
 extern int frameidx;
 extern int MSIGN;
-extern int GSPEED;
-extern int love[XRES/9][YRES/9];
-extern int lolz[XRES/9][YRES/9];
-extern unsigned char gol[YRES][XRES];
-extern short gol2[YRES][XRES][9];
 extern int console_mode;
 extern bool REPLACE_MODE;
 extern bool SPECIFIC_DELETE;
 extern int GRID_MODE;
 extern int DEBUG_MODE;
-extern int GENERATION;
 extern sign signs[MAXSIGNS];
 extern stamp stamps[STAMP_MAX];
 extern int stamp_count;

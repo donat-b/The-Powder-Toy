@@ -71,6 +71,7 @@
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
 #include "simulation/ToolNumbers.h"
+#include "simulation/elements/LIFE.h"
 
 pixel *vid_buf;
 
@@ -387,7 +388,6 @@ void clear_sim()
 	memset(fvy, 0, sizeof(fvy));
 	make_kernel();
 	memset(photons, 0, sizeof(photons));
-	memset(gol2, 0, sizeof(gol2));
 	emp_decor = 0;
 	memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
 	memset(fire_r, 0, sizeof(fire_r));
@@ -1034,7 +1034,6 @@ int main(int argc, char *argv[])
 	memcpy(currentHud,normalHud,sizeof(currentHud));
 
 	gravity_init();
-	GSPEED = 1;
 
 	/* Set 16-bit stereo audio at 22Khz */
 	fmt.freq = 22050;
@@ -1764,7 +1763,7 @@ int main(int argc, char *argv[])
 					ctrlzSnapshot();
 				}
 				else if (!(sdl_mod & (KMOD_CTRL|KMOD_SHIFT)))
-					GENERATION = 0;
+					((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->golGeneration = 0;
 			}
 			else if (sdl_key == SDLK_F5)
 			{
@@ -2245,7 +2244,8 @@ int main(int argc, char *argv[])
 							emap[cby][cbx] = cb_emap[cby][cbx];
 						}
 
-					force_stacking_check = 1;//check for excessive stacking of particles next time update_particles is run
+					//check for excessive stacking of particles next time UpdateParticles is run
+					globalSim->forceStackingCheck = true;
 					globalSim->recountElements();
 				}
 				else

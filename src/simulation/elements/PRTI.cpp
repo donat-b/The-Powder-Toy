@@ -26,6 +26,8 @@
 const int portal_rx[8] = {-1, 0, 1, 1, 1, 0,-1,-1};
 const int portal_ry[8] = {-1,-1,-1, 0, 1, 1, 1, 0};
 
+void detach(int i);
+
 int PRTI_update(UPDATE_FUNC_ARGS)
 {
 	if (!sim->elementData[PT_PRTI])

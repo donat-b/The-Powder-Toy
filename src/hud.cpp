@@ -12,6 +12,7 @@
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/GolNumbers.h"
+#include "simulation/elements/LIFE.h"
 
 char uitext[512] = "";
 char heattext[256] = "";
@@ -290,7 +291,7 @@ void SetLeftHudText(float FPSB2)
 	}
 	if (currentHud[5])
 	{
-		sprintf(tempstring,"Generation:%d ",GENERATION);
+		sprintf(tempstring,"Generation:%d ", ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->golGeneration);
 		strappend(uitext,tempstring);
 	}
 	if (currentHud[6])

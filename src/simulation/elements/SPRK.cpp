@@ -224,7 +224,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 					if (parts[i].life == 3 && pavg!=PT_INSL)
 					{
 						if (sender == PT_NSCN || sender == PT_PSCN || sender == PT_INST)
-							PPIP_flood_trigger(x+rx, y+ry, sender);
+							PPIP_flood_trigger(sim, x+rx, y+ry, sender);
 					}
 					break;
 				case PT_NTCT:

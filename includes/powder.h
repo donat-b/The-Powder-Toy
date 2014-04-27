@@ -112,7 +112,7 @@ typedef struct playerst playerst;
 int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS);
 void STKM_init_legs(playerst* playerp, int i);
 void STKM_interact(Simulation* sim, playerst* playerp, int i, int x, int y);
-void PPIP_flood_trigger(int x, int y, int sparkedBy);
+void PPIP_flood_trigger(Simulation* sim, int x, int y, int sparkedBy);
 
 struct part_type
 {
@@ -164,31 +164,6 @@ extern unsigned int platent[PT_NUM];
 
 extern part_transition ptransitions[PT_NUM];
 
-static int loverule[9][9] =
-{
-	{0,0,1,1,0,0,0,0,0},
-	{0,1,0,0,1,1,0,0,0},
-	{1,0,0,0,0,0,1,0,0},
-	{1,0,0,0,0,0,0,1,0},
-	{0,1,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,1,0},
-	{1,0,0,0,0,0,1,0,0},
-	{0,1,0,0,1,1,0,0,0},
-	{0,0,1,1,0,0,0,0,0},
-};
-static int lolzrule[9][9] =
-{
-	{0,0,0,0,0,0,0,0,0},
-	{1,0,0,0,0,0,1,0,0},
-	{1,0,0,0,0,0,1,0,0},
-	{1,0,0,1,1,0,0,1,0},
-	{1,0,1,0,0,1,0,1,0},
-	{1,0,1,0,0,1,0,1,0},
-	{0,1,0,1,1,0,0,1,0},
-	{0,1,0,0,0,0,0,1,0},
-	{0,1,0,0,0,0,0,1,0},
-};
-
 #define FAV_START 300
 #define FAV_MORE 300
 #define FAV_BACK 301
@@ -236,9 +211,6 @@ static fav_menu fav[] =
 #define CHANNELS ((int)(MAX_TEMP-73)/100+2)
 extern const particle emptyparticle;
 
-extern int force_stacking_check;
-extern int ppip_changed;
-
 extern playerst player;
 extern playerst player2;
 
@@ -261,14 +233,6 @@ extern unsigned cb_pmap[YRES][XRES];
 extern int pmap_count[YRES][XRES];
 
 extern unsigned photons[YRES][XRES];
-
-extern int GRAV;
-extern int GRAV_R;
-extern int GRAV_G;
-extern int GRAV_B;
-extern int GRAV_R2;
-extern int GRAV_G2;
-extern int GRAV_B2;
 
 extern int msindex[256];
 extern int msnum[256];
@@ -297,7 +261,6 @@ static void create_gain_photon(int pp);
 
 void kill_part(int i);
 
-void detach(int i);
 int interactWavelengths(particle* cpart, int origWl);
 int getWavelengths(particle* cpart);
 
@@ -321,29 +284,11 @@ int parts_avg(int ci, int ni, int t);
 
 int nearest_part(int ci, int t, int max_d);
 
-void stacking_check();
-
-void GRAV_update();
-
-void LOVELOLZ_update();
-
-void WIRE_update();
-
-void PPIP_update();
-
-void LIFE_update();
-
-void WIFI_update();
-
 void decrease_life(int i);
 
 int transfer_heat(int i, int surround[8]);
 
 void particle_transitions(int i, int* t);
-
-void update_particles_i();
-
-void update_particles(pixel *vid);
 
 void update_moving_solids();
 

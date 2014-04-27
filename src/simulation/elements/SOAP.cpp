@@ -35,6 +35,23 @@ void attach(int i1, int i2)
 	}
 }
 
+void detach(int i)
+{
+	if ((parts[i].ctype&2) == 2)
+	{
+		if ((parts[parts[i].tmp].ctype&4) == 4)
+			parts[parts[i].tmp].ctype ^= 4;
+	}
+
+	if ((parts[i].ctype&4) == 4)
+	{
+		if ((parts[parts[i].tmp2].ctype&2) == 2)
+			parts[parts[i].tmp2].ctype ^= 2;
+	}
+
+	parts[i].ctype = 0;
+}
+
 #define SOAP_FREEZING 248.15f
 
 int SOAP_update(UPDATE_FUNC_ARGS)

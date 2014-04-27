@@ -35,12 +35,15 @@ class Brush;
 class Simulation
 {
 public:
+	unsigned int currentTick;
+
 	particle parts[NPART];
 	int elementCount[PT_NUM];
 	Element elements[PT_NUM];
 	ElementDataContainer *elementData[PT_NUM];
 	int pfree;
 	int parts_lastActiveIndex;
+	bool forceStackingCheck;
 	
 
 
@@ -65,7 +68,7 @@ public:
 	void spark_conductive(int i, int x, int y);
 	bool spark_conductive_attempt(int i, int x, int y);
 
-	int lightning_recreate; //timer for when LIGH can be created again
+	int lightningRecreate; //timer for when LIGH can be created again
 	int CreateParts(int x, int y, int c, int flags, bool fill, Brush* brush = NULL);
 	int CreatePartFlags(int x, int y, int c, int flags);
 	void CreateLine(int x1, int y1, int x2, int y2, int c, int flags, Brush* brush = NULL);
