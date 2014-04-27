@@ -4,7 +4,7 @@
 #include "simulation/Simulation.h"
 #include "simulation/ElementDataContainer.h"
 
-static int grule[NGOL+1][10] =
+static char grule[NGOL+1][10] =
 {
 //	 0,1,2,3,4,5,6,7,8,STATES    live=1  spawn=2 spawn&live=3   States are kind of how long until it dies, normal ones use two states(living,dead) for others the intermediate states live but do nothing
 	{0,0,0,0,0,0,0,0,0,2},//blank
@@ -97,7 +97,7 @@ public:
 								if (!rt || (rt&0xFF) == PT_LIFE)
 								{
 									//the total neighbor count is in 0
-									gol2[ady][adx][0] ++;
+									gol2[ady][adx][0]++;
 									//insert golnum into neighbor table
 									for (int i = 1; i < 9; i++)
 									{
@@ -106,7 +106,7 @@ public:
 											gol2[ady][adx][i] = (golnum<<4)+1;
 											break;
 										}
-										else if((gol2[ady][adx][i]>>4)==golnum)
+										else if( (gol2[ady][adx][i]>>4) == golnum)
 										{
 											gol2[ady][adx][i]++;
 											break;
@@ -144,7 +144,7 @@ public:
 							if (!gol2[ny][nx][i])
 								break;
 							golnum = (gol2[ny][nx][i]>>4);
-							if (grule[golnum][neighbors]>=2 && (gol2[ny][nx][i]&0xF)>=(neighbors%2)+neighbors/2)
+							if (grule[golnum][neighbors] >= 2 && (gol2[ny][nx][i]&0xF) >= (neighbors%2)+neighbors/2)
 							{
 								if (golnum < creategol)
 									creategol = golnum;
@@ -155,7 +155,7 @@ public:
 								createdSomething = true;
 					}
 					//subtract 1 because it counted itself
-					else if (grule[golnum][neighbors-1]==0 || grule[golnum][neighbors-1]==2)
+					else if (grule[golnum][neighbors-1] == 0 || grule[golnum][neighbors-1] == 2)
 					{
 						if (parts[r>>8].tmp == grule[golnum][9]-1)
 							parts[r>>8].tmp--;

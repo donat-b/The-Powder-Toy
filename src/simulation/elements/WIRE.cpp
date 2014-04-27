@@ -51,7 +51,7 @@ int WIRE_update(UPDATE_FUNC_ARGS)
 				}
 				else if ((r&0xFF) == PT_NSCN && parts[i].tmp == 1)
 					sim->spark_conductive_attempt(r>>8, x+rx, y+ry);
-				else if ((r&0xFF) == PT_WIRE && (((r>>8) > i)? parts[r>>8].ctype == 1 : parts[r>>8].tmp == 1) && !parts[i].tmp)
+				else if ((r&0xFF) == PT_WIRE && ((r>>8) > i ? parts[r>>8].ctype == 1 : parts[r>>8].tmp == 1) && !parts[i].tmp)
 					count++;
 			}
 		}

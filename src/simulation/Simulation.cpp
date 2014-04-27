@@ -419,7 +419,7 @@ void Simulation::RecalcFreeParticles()
 	{
 		if (parts[i].flags&FLAG_DISAPPEAR)
 		{
-			kill_part(i);
+			part_kill(i);
 		}
 		if (parts[i].type)
 		{
@@ -432,19 +432,19 @@ void Simulation::RecalcFreeParticles()
 			{
 				if (t == PT_PINV && (parts[i].tmp2>>8) >= i)
 					parts[i].tmp2 = 0;
-				if (ptypes[t].properties & TYPE_ENERGY)
+				if (elements[t].Properties & TYPE_ENERGY)
 					photons[y][x] = t|(i<<8);
 				else
 				{
 					// Particles are sometimes allowed to go inside INVS and FILT
 					// To make particles collide correctly when inside these elements, these elements must not overwrite an existing pmap entry from particles inside them
-					if (!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT && !(ptypes[t].properties&PROP_MOVS) && (pmap[y][x]&0xFF) != PT_PINV))
+					if (!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT && !(elements[t].Properties&PROP_MOVS) && (pmap[y][x]&0xFF) != PT_PINV))
 						pmap[y][x] = t|(i<<8);
 					else if ((pmap[y][x]&0xFF) == PT_PINV)
 						parts[pmap[y][x]>>8].tmp2 = t|(i<<8);
 					// Count number of particles at each location, for excess stacking check
 					// (does not include energy particles or THDR - currently no limit on stacking those)
-					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM && !(ptypes[t].properties&PROP_MOVS))
+					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM && !(elements[t].Properties&PROP_MOVS))
 						pmap_count[y][x]++;
 				}
 			}
@@ -499,15 +499,15 @@ void Simulation::Update()
 		}
 
 		//create stickmen if the current one has been deleted
-		if (globalSim->elementCount[PT_STKM] <= 0 && player.spawnID >= 0)
-			create_part(-1, (int)parts[player.spawnID].x, (int)parts[player.spawnID].y, PT_STKM);
-		else if (globalSim->elementCount[PT_STKM2] <= 0 && player2.spawnID >= 0)
-			create_part(-1, (int)parts[player2.spawnID].x, (int)parts[player2.spawnID].y, PT_STKM2);
+		if (elementCount[PT_STKM] <= 0 && player.spawnID >= 0)
+			part_create(-1, (int)parts[player.spawnID].x, (int)parts[player.spawnID].y, PT_STKM);
+		else if (elementCount[PT_STKM2] <= 0 && player2.spawnID >= 0)
+			part_create(-1, (int)parts[player2.spawnID].x, (int)parts[player2.spawnID].y, PT_STKM2);
 
 		//check for excessive stacked particles, create BHOL if found
 		if (forceStackingCheck || !(rand()%10))
 		{
-			bool excessive_stacking_found = false;
+			bool excessiveStackingFound = false;
 			forceStackingCheck = 0;
 			for (int y = 0; y < YRES; y++)
 			{
@@ -523,34 +523,34 @@ void Simulation::Update()
 							if (pmap_count[y][x] > 1500)
 							{
 								pmap_count[y][x] = pmap_count[y][x] + NPART;
-								excessive_stacking_found = true;
+								excessiveStackingFound = true;
 							}
 						}
 						//Random chance to turn into BHOL that increases with the amount of stacking, up to a threshold where it is certain to turn into BHOL
 						else if (pmap_count[y][x] > 1500 || (rand()%1600) <= pmap_count[y][x]+100)
 						{
 							pmap_count[y][x] = pmap_count[y][x] + NPART;
-							excessive_stacking_found = true;
+							excessiveStackingFound = true;
 						}
 					}
 				}
 			}
-			if (excessive_stacking_found)
+			if (excessiveStackingFound)
 			{
-				for (int i = 0; i <= globalSim->parts_lastActiveIndex; i++)
+				for (int i = 0; i <= parts_lastActiveIndex; i++)
 				{
 					if (parts[i].type)
 					{
 						int t = parts[i].type;
 						int x = (int)(parts[i].x+0.5f);
 						int y = (int)(parts[i].y+0.5f);
-						if (x >= 0 && y >= 0 && x < XRES && y < YRES && !(ptypes[t].properties&TYPE_ENERGY))
+						if (x >= 0 && y >= 0 && x < XRES && y < YRES && !(elements[t].Properties&TYPE_ENERGY))
 						{
 							if (pmap_count[y][x] >= NPART)
 							{
 								if (pmap_count[y][x] > NPART)
 								{
-									create_part(i, x, y, PT_NBHL);
+									part_create(i, x, y, PT_NBHL);
 									parts[i].temp = MAX_TEMP;
 									parts[i].tmp = pmap_count[y][x] - NPART;//strength of grav field
 									if (parts[i].tmp > 51200)
@@ -559,7 +559,7 @@ void Simulation::Update()
 								}
 								else
 								{
-									kill_part(i);
+									part_kill(i);
 								}
 							}
 						}
@@ -572,23 +572,23 @@ void Simulation::Update()
 		//This does things like LIFE recalculation and LOLZ patterns
 		for (int t = 1; t < PT_NUM; t++)
 		{
-			if (globalSim->elementData[t])
+			if (elementData[t])
 			{
-				globalSim->elementData[t]->Simulation_BeforeUpdate(globalSim);
+				elementData[t]->Simulation_BeforeUpdate(this);
 			}
 		}
 
 		//lightning recreation time
-		if (globalSim->lightningRecreate)
-			globalSim->lightningRecreate--;
+		if (lightningRecreate)
+			lightningRecreate--;
 
 		//the main particle loop function, goes over all particles.
-		for (int i = 0; i <= globalSim->parts_lastActiveIndex; i++)
+		for (int i = 0; i <= parts_lastActiveIndex; i++)
 			if (parts[i].type)
 			{
-				if (!globalSim->UpdateParticle(i))
+				if (!UpdateParticle(i))
 				{
-					if (globalSim->elements[parts[i].type].Properties&PROP_MOVS)
+					if (elements[parts[i].type].Properties&PROP_MOVS)
 					{
 						int bn = parts[i].tmp2;
 						if (bn >= 0 && bn < 256 && msindex[bn])
@@ -1038,14 +1038,14 @@ bool Simulation::UpdateParticle(int i)
 				float nrx, nry, nn, ct1, ct2;
 				if (!get_normal_interp(REFRACT|t, parts[i].x, parts[i].y, parts[i].vx, parts[i].vy, &nrx, &nry))
 				{
-					kill_part(i);
+					part_kill(i);
 					return true;
 				}
 
 				r = get_wavelength_bin(&parts[i].ctype);
 				if (r == -1)
 				{
-					kill_part(i);
+					part_kill(i);
 					return true;
 				}
 				nn = GLASS_IOR - GLASS_DISP*(r-15)/15.0f;
@@ -1082,7 +1082,7 @@ bool Simulation::UpdateParticle(int i)
 			// cast coords as int then back to float for compatibility with existing saves
 			if (!do_move(i, x, y, (float)fin_x, (float)fin_y) && parts[i].type)
 			{
-				kill_part(i);
+				part_kill(i);
 				return true;
 			}
 		}
@@ -1095,7 +1095,7 @@ bool Simulation::UpdateParticle(int i)
 			parts[i].flags |= FLAG_STAGNANT;
 			if (t == PT_NEUT && !(rand()%10))
 			{
-				kill_part(i);
+				part_kill(i);
 				return true;
 			}
 			int r = pmap[fin_y][fin_x];
@@ -1107,7 +1107,7 @@ bool Simulation::UpdateParticle(int i)
 				parts[r>>8].tmp2 = parts[i].life;
 				parts[r>>8].pavg[0] = (float)parts[i].tmp;
 				parts[r>>8].pavg[1] = (float)parts[i].ctype;
-				kill_part(i);
+				part_kill(i);
 				return true;
 			}
 
@@ -1125,14 +1125,14 @@ bool Simulation::UpdateParticle(int i)
 			{
 				if (t != PT_NEUT)
 				{
-					kill_part(i);
+					part_kill(i);
 					return true;
 				}
 				return false;
 			}
 			if (!(parts[i].ctype&0x3FFFFFFF) && t == PT_PHOT)
 			{
-				kill_part(i);
+				part_kill(i);
 				return true;
 			}
 		}
@@ -1580,13 +1580,13 @@ int Simulation::CreatePartFlags(int x, int y, int c, int flags)
 		if (pmap[y][x])
 		{
 			delete_part(x, y, flags);
-			if (c!=0)
-				create_part(-2, x, y, c);
+			if (c != 0)
+				part_create(-2, x, y, c&0xFF, c>>8);
 		}
 	}
 	//normal draw
 	else
-		if (create_part(-2, x, y, c) == -1)
+		if (part_create(-2, x, y, c&0xFF, c>>8) == -1)
 			return 1;
 	return 0;
 }
