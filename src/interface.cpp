@@ -7447,7 +7447,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 		framenum++;
 		if (framenum > numframes)
 			numframes = framenum;
-		for (i = 0; i <= parts_lastActiveIndex; i++)
+		for (i = 0; i <= globalSim->parts_lastActiveIndex; i++)
 			if (parts[i].type == PT_ANIM)
 			{
 				parts[i].tmp2 = framenum;
@@ -7461,7 +7461,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	{
 		int i;
 		framenum--;
-		for (i = 0; i <= parts_lastActiveIndex; i++)
+		for (i = 0; i <= globalSim->parts_lastActiveIndex; i++)
 			if (parts[i].type == PT_ANIM)
 				parts[i].tmp2 = framenum;
 	}
@@ -7469,7 +7469,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	{
 		int i;
 		numframes--;
-		for (i = 0; i <= parts_lastActiveIndex; i++)
+		for (i = 0; i <= globalSim->parts_lastActiveIndex; i++)
 			if (parts[i].type == PT_ANIM)
 			{
 				int j;

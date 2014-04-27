@@ -379,7 +379,6 @@ void clear_sim()
 	for (i=0; i<NPART-1; i++)
 		parts[i].life = i+1;
 	parts[NPART-1].life = -1;
-	parts_lastActiveIndex = 0;
 	memset(pmap, 0, sizeof(pmap));
 	memset(pv, 0, sizeof(pv));
 	memset(vx, 0, sizeof(vx));
@@ -1360,7 +1359,7 @@ int main(int argc, char *argv[])
 			#endif
 		}
 		
-		update_particles(part_vbuf); //update everything
+		globalSim->Update(); //update everything
 			
 		if(debug_flags & (DEBUG_PERFORMANCE_CALC|DEBUG_PERFORMANCE_FRAME))
 		{
@@ -2229,7 +2228,7 @@ int main(int argc, char *argv[])
 
 					for (cbi=0; cbi<NPART; cbi++)
 						parts[cbi] = cb_parts[cbi];
-					parts_lastActiveIndex = NPART-1;
+					globalSim->parts_lastActiveIndex = NPART-1;
 
 					for (cby = 0; cby<YRES; cby++)
 						for (cbx = 0; cbx<XRES; cbx++)

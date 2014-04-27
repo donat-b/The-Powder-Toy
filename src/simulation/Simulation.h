@@ -40,6 +40,7 @@ public:
 	Element elements[PT_NUM];
 	ElementDataContainer *elementData[PT_NUM];
 	int pfree;
+	int parts_lastActiveIndex;
 	
 
 
@@ -54,6 +55,10 @@ public:
 	bool part_change_type(int i, int x, int y, int t);
 	void part_change_type_force(int i, int t);
 	void delete_part_info(int i);
+
+	void RecalcFreeParticles();
+	void Update();
+	bool UpdateParticle(int i);
 
 	void spark_all(int i, int x, int y);
 	bool spark_all_attempt(int i, int x, int y);

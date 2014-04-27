@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 #include "air.h"
 #include "powder.h"
 #include "gravity.h"
@@ -6,7 +7,7 @@
 #include "benchmark.h"
 #include "save.h"
 #include "common/Point.h"
-#include <math.h>
+#include "simulation/Simulation.h"
 
 char *benchmark_file = NULL;
 double benchmark_loops_multiply = 1.0; // Increase for more accurate results (particularly on fast computers)
@@ -76,7 +77,7 @@ void benchmark_run()
 						update_air();
 						if(aheat_enable)
 							update_airh();
-						update_particles(vid_buf);
+						globalSim->Update();
 					}
 				}
 				BENCHMARK_END()
@@ -99,7 +100,7 @@ void benchmark_run()
 					framerender = 0;
 					BENCHMARK_RUN()
 					{
-						update_particles(vid_buf);
+						globalSim->Update();
 					}
 				}
 				BENCHMARK_END()
@@ -111,7 +112,7 @@ void benchmark_run()
 					sys_pause = framerender = 0;
 					BENCHMARK_RUN()
 					{
-						update_particles(vid_buf);
+						globalSim->Update();
 					}
 				}
 				BENCHMARK_END()
@@ -124,7 +125,7 @@ void benchmark_run()
 					display_mode = 0;
 					render_mode = RENDER_BASC;
 					decorations_enable = 1;
-					update_particles(vid_buf);
+					globalSim->Update();
 					BENCHMARK_RUN()
 					{
 						render_parts(vid_buf, Point(0,0));
@@ -140,7 +141,7 @@ void benchmark_run()
 					display_mode = 0;
 					render_mode = RENDER_FIRE;
 					decorations_enable = 1;
-					update_particles(vid_buf);
+					globalSim->Update();
 					BENCHMARK_RUN()
 					{
 						render_parts(vid_buf, Point(0, 0));

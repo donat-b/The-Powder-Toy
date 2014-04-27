@@ -17,7 +17,7 @@
 
 int EMP_update(UPDATE_FUNC_ARGS)
 {
-	int r,rx,ry,t,n,nx,ny,ntype;
+	int r,rx,ry,t,ntype;
 	if (parts[i].life)
 		return 0;
 	for (rx=-2; rx<3; rx++)
@@ -38,7 +38,7 @@ ok:
 	emp_decor+=3;
 	if (emp_decor>40)
 		emp_decor=40;
-	for (r=0; r<=parts_lastActiveIndex; r++)
+	for (r = 0; r <= globalSim->parts_lastActiveIndex; r++)
 	{
 		t=parts[r].type;
 		rx=(int)parts[r].x;

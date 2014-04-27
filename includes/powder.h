@@ -249,7 +249,6 @@ extern int airMode;
 
 extern particle *parts;
 extern particle *cb_parts;
-extern int parts_lastActiveIndex;
 
 extern unsigned char bmap[YRES/CELL][XRES/CELL];
 extern unsigned char emap[YRES/CELL][XRES/CELL];
@@ -259,6 +258,7 @@ extern unsigned char cb_emap[YRES/CELL][XRES/CELL];
 
 extern unsigned pmap[YRES][XRES];
 extern unsigned cb_pmap[YRES][XRES];
+extern int pmap_count[YRES][XRES];
 
 extern unsigned photons[YRES][XRES];
 
@@ -278,6 +278,9 @@ extern float msrotation[256];
 extern float newmsrotation[256];
 extern int numballs;
 extern int ms_rotation;
+
+int get_normal_interp(int pt, float x0, float y0, float dx, float dy, float *nx, float *ny);
+int get_wavelength_bin(int *wm);
 
 int OutOfBounds(int x, int y);
 int move(int i, int x, int y, float nxf, float nyf);
@@ -338,7 +341,7 @@ int transfer_heat(int i, int surround[8]);
 
 void particle_transitions(int i, int* t);
 
-void update_particles_i(pixel *vid, int start, int inc);
+void update_particles_i();
 
 void update_particles(pixel *vid);
 

@@ -22,10 +22,9 @@ int LIGH_nearest_part(int ci, int max_d)
 	int distance = (int)((max_d!=-1)?max_d:MAX_DISTANCE);
 	int ndistance = 0;
 	int id = -1;
-	int i = 0;
 	int cx = (int)parts[ci].x;
 	int cy = (int)parts[ci].y;
-	for (i=0; i<=parts_lastActiveIndex; i++)
+	for (int i = 0; i <= globalSim->parts_lastActiveIndex; i++)
 	{
 		if (parts[i].type && !parts[i].life && i!=ci && parts[i].type!=PT_LIGH && parts[i].type!=PT_THDR && parts[i].type!=PT_NEUT && parts[i].type!=PT_PHOT)
 		{

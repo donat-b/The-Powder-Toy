@@ -1921,7 +1921,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			fprintf(stderr, "Not enough particle position data\n");
 			goto fail;
 		}
-		parts_lastActiveIndex = NPART-1;
+		globalSim->parts_lastActiveIndex = NPART-1;
 		freeIndicesCount = 0;
 		freeIndices = (int*)calloc(sizeof(int), NPART);
 		partsSimIndex = (unsigned*)calloc(NPART, sizeof(unsigned));
@@ -2744,7 +2744,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 	}
 	if (modver >= 3 && replace)
 		oldnumballs = 0;
-	parts_lastActiveIndex = NPART-1;
+	globalSim->parts_lastActiveIndex = NPART-1;
 	m = (int*)calloc(XRES*YRES, sizeof(int));
 
 	// make a catalog of free parts

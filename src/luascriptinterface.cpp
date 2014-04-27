@@ -815,7 +815,7 @@ int simulation_clearSim(lua_State * l)
 int simulation_resetTemp(lua_State * l)
 {
 	bool onlyConductors = luaL_optint(l, 1, 0);
-	for (int i = 0; i < parts_lastActiveIndex; i++)
+	for (int i = 0; i < globalSim->parts_lastActiveIndex; i++)
 	{
 		if (parts[i].type && (globalSim->elements[parts[i].type].HeatConduct || !onlyConductors))
 		{

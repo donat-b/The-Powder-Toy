@@ -2449,7 +2449,7 @@ void render_parts(pixel *vid, Point mousePos)
 			}
 	}
 #endif
-	for(i = 0; i<=parts_lastActiveIndex; i++) {
+	for(i = 0; i <= globalSim->parts_lastActiveIndex; i++) {
 		if (parts[i].type) {
 			t = parts[i].type;
 			if (t == PT_PINV && parts[i].tmp2 && (parts[i].tmp2>>8)<i)
@@ -3735,7 +3735,7 @@ void draw_find() //Find just like how my lua script did it, it will find everyth
 	if (finding == 8)
 		return;
 	fillrect(vid_buf, -1, -1, XRES+1, YRES+1, 0, 0, 0, 230); //Dim everything
-	for (i = 0; i <= parts_lastActiveIndex; i++) //Color particles
+	for (i = 0; i <= globalSim->parts_lastActiveIndex; i++) //Color particles
 	{
 		if ((finding & 0x1) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[0])->GetID() == parts[i].type) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[0])->GetID() == parts[i].ctype)))
 			drawpixel(vid_buf, (int)(parts[i].x+.5f), (int)(parts[i].y+.5f), 255, 0, 0, 255);
@@ -5318,14 +5318,14 @@ int draw_debug_info(pixel* vid, int lm, int lx, int ly, int cx, int cy, int line
 	if(debug_flags & DEBUG_PARTS)
 	{
 		int i = 0, x = 0, y = 0, lpx = 0, lpy = 0;
-		sprintf(infobuf, "%d/%d (%.2f%%)", parts_lastActiveIndex, NPART, (((float)parts_lastActiveIndex)/((float)NPART))*100.0f);
+		sprintf(infobuf, "%d/%d (%.2f%%)", globalSim->parts_lastActiveIndex, NPART, (((float)globalSim->parts_lastActiveIndex)/((float)NPART))*100.0f);
 		for(i = 0; i < NPART; i++){
 			if(parts[i].type){
 				drawpixel(vid, x, y, 255, 255, 255, 180);
 			} else {
 				drawpixel(vid, x, y, 0, 0, 0, 180);
 			}
-			if(i == parts_lastActiveIndex)
+			if(i == globalSim->parts_lastActiveIndex)
 			{
 				lpx = x;
 				lpy = y;
