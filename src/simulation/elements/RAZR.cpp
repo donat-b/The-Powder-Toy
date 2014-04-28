@@ -47,7 +47,7 @@ void RAZR_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Description = "Heavy silver particles, displaces everything.";
 
 	elem->State = ST_SOLID;
-	elem->Properties = TYPE_PART;
+	elem->Properties = TYPE_PART|PROP_DEADLY;
 
 	elem->LowPressureTransitionThreshold = IPL;
 	elem->LowPressureTransitionElement = NT;

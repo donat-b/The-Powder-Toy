@@ -268,6 +268,7 @@ void init_can_move()
 	can_move[PT_ELEC][PT_DEUT] = 1;
 	can_move[PT_SPNG][PT_SPNG] = 3;
 	can_move[PT_RAZR][PT_CNCT] = 1;
+	can_move[PT_RAZR][PT_GEL] = 1;
 	can_move[PT_THDR][PT_THDR] = 2;
 	can_move[PT_EMBR][PT_EMBR] = 2;
 	can_move[PT_TRON][PT_SWCH] = 3;
