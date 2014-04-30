@@ -97,7 +97,10 @@ int CRAY_update(UPDATE_FUNC_ARGS)
 										docontinue = 0;
 								}
 							} else if ((r&0xFF)==PT_FILT) { // get color if passed through FILT
-								colored = wavelengthToDecoColour(getWavelengths(&parts[r>>8]));
+								if (parts[r>>8].tmp == 0)
+								{
+									colored = wavelengthToDecoColour(getWavelengths(&parts[r>>8]));
+								}
 							} else if ((r&0xFF) == PT_CRAY || nostop) {
 								docontinue = 1;
 							} else if(destroy && r && ((r&0xFF) != PT_DMND)) {

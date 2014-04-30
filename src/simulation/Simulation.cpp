@@ -133,9 +133,12 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 			return -1;
 		if (parts[index].life!=0)
 			return -1;
-		if (p == -2 && type == PT_INST)
+		if (type == PT_INST)
 		{
-			INST_flood_spark(this, x, y);
+			if (p == -2)
+				INST_flood_spark(this, x, y);
+			else
+				spark_conductive(index, x, y);
 			return index;
 		}
 
