@@ -706,6 +706,12 @@ Remove april fools joke (15 elements from last version). Bug fixes in the last
 version: fix cursor lines / stamps not appearing in zoom window, Fix particle
 order issues with box drawing, Save ctrl+z snapshot before pasting stamps.
 
+Version 28.0 5/3/13
+More simulation rewrites/cleanups. Fix bug where things may stack and form
+BHOL at the top of the screen. RAZR goes through GEL and kills stickmen. Fix
+bug where CRAY wouldn't spark INST. Update TPTMP to point to new server and
+fix a few bugs / errors with it. Simulation updates and bugfixes from tpt++.
+
 
 
 
