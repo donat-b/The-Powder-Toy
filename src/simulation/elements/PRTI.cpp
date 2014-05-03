@@ -34,18 +34,17 @@ int PRTI_update(UPDATE_FUNC_ARGS)
 		return 0;
 	if (parts[i].type == PT_PPTI && parts[i].tmp2 < 10)
 		return 0;
-	int r, rx, ry, fe = 0;
-	int count = 0;
+	int fe = 0;
 	PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, i);
-	for (count=0; count<8; count++)
+	for (int count = 0; count < 8; count++)
 	{
 		if (channel->particleCount[count] >= channel->storageSize)
 			continue;
-		rx = portal_rx[count];
-		ry = portal_ry[count];
+		int rx = portal_rx[count];
+		int ry = portal_ry[count];
 		if (BOUNDS_CHECK && (rx || ry))
 		{
-			r = pmap[y+ry][x+rx];
+			int r = pmap[y+ry][x+rx];
 			if (!r)
 				fe = 1;
 			if (!r || (!(ptypes[r&0xFF].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY)) && (r&0xFF)!=PT_SPRK))
@@ -55,7 +54,7 @@ int PRTI_update(UPDATE_FUNC_ARGS)
 					continue;
 			}
 
-			if ((r&0xFF)==PT_STKM || (r&0xFF)==PT_STKM2 || (r&0xFF)==PT_FIGH)
+			if ((r&0xFF) == PT_STKM || (r&0xFF) == PT_STKM2 || (r&0xFF) == PT_FIGH)
 				continue;// Handling these is a bit more complicated, and is done in STKM_interact()
 
 			if ((r&0xFF) == PT_SOAP)
@@ -71,26 +70,37 @@ int PRTI_update(UPDATE_FUNC_ARGS)
 	{
 		int orbd[4] = {0, 0, 0, 0};	//Orbital distances
 		int orbl[4] = {0, 0, 0, 0};	//Orbital locations
-		if (!parts[i].life) parts[i].life = rand()*rand()*rand();
-		if (!parts[i].ctype) parts[i].ctype = rand()*rand()*rand();
+		if (!parts[i].life)
+			parts[i].life = rand()*rand()*rand();
+		if (!parts[i].ctype)
+			parts[i].ctype = rand()*rand()*rand();
 		orbitalparts_get(parts[i].life, parts[i].ctype, orbd, orbl);
-		for (r = 0; r < 4; r++) {
-			if (orbd[r]>1) {
+		for (int r = 0; r < 4; r++)
+		{
+			if (orbd[r] > 1)
+			{
 				orbd[r] -= 12;
-				if (orbd[r]<1) {
+				if (orbd[r] < 1)
+				{
 					orbd[r] = (rand()%128)+128;
 					orbl[r] = rand()%255;
-				} else {
+				}
+				else
+				{
 					orbl[r] += 2;
 					orbl[r] = orbl[r]%255;
 				}
-			} else {
+			}
+			else
+			{
 				orbd[r] = (rand()%128)+128;
 				orbl[r] = rand()%255;
 			}
 		}
 		orbitalparts_set(&parts[i].life, &parts[i].ctype, orbd, orbl);
-	} else {
+	}
+	else
+	{
 		parts[i].life = 0;
 		parts[i].ctype = 0;
 	}

@@ -30,28 +30,25 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 		return 0;
 	if (parts[i].type == PT_PPTO && parts[i].tmp2 < 10)
 		return 0;
-	int r, nnx, rx, ry, np, fe = 0;
-	int count = 0;
+	int fe = 0;
 	PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, i);
-	for (count=0; count<8; count++)
+	for (int count = 0; count < 8; count++)
 	{
-		//add -1,0,or 1 to count
-		int randomness = (count + rand()%3-1 + 4)%8;
-		rx = portal_rx[count];
-		ry = portal_ry[count];
+		int rx = portal_rx[count];
+		int ry = portal_ry[count];
 		if (BOUNDS_CHECK && (rx || ry))
 		{
 			if (!pmap[y+ry][x+rx])
-				fe = 1;
-			if (!channel->particleCount[randomness])
-				continue;
-			if (!pmap[y+ry][x+rx])
 			{
-				for (nnx =0 ; nnx<PortalChannel::storageSize; nnx++)
+				fe = 1;
+				for (int nnx = 0 ; nnx < PortalChannel::storageSize; nnx++)
 				{
-					if (!channel->portalp[randomness][nnx].type) continue;
+					//add -1,0,or 1 to count
+					int randomness = (count + rand()%3-1 + 4)%8;
+					if (!channel->portalp[randomness][nnx].type)
+						continue;
 					particle *storedPart = &(channel->portalp[randomness][nnx]);
-					if (storedPart->type==PT_SPRK)// TODO: make it look better, spark creation
+					if (storedPart->type == PT_SPRK)// TODO: make it look better, spark creation
 					{
 						if (pmap[y+1][x+1])
 							sim->spark_all_attempt(pmap[y+1][x+1]>>8, x+1, y+1);
@@ -75,20 +72,20 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 					}
 					else if (storedPart->type)
 					{
-						if (storedPart->type==PT_FIGH)
+						if (storedPart->type == PT_FIGH)
 						{
 							((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Free(storedPart->tmp);
 						}
-						np = sim->part_create(-1,x+rx,y+ry,storedPart->type);
-						if (np<0)
+						int np = sim->part_create(-1,x+rx,y+ry,storedPart->type);
+						if (np < 0)
 						{
-							if (storedPart->type==PT_FIGH)
+							if (storedPart->type == PT_FIGH)
 							{
 								((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->AllocSpecific(storedPart->tmp);
 							}
 							continue;
 						}
-						if (parts[np].type==PT_FIGH)
+						if (parts[np].type == PT_FIGH)
 						{
 							// Release the fighters[] element allocated by part_create, the one reserved when the fighter went into the portal will be used
 							((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Free(parts[np].tmp);
@@ -117,29 +114,41 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 			}
 		}
 	}
-	if (fe) {
+	if (fe)
+	{
 		int orbd[4] = {0, 0, 0, 0};	//Orbital distances
 		int orbl[4] = {0, 0, 0, 0};	//Orbital locations
-		if (!parts[i].life) parts[i].life = rand()*rand()*rand();
-		if (!parts[i].ctype) parts[i].ctype = rand()*rand()*rand();
+		if (!parts[i].life)
+			parts[i].life = rand()*rand()*rand();
+		if (!parts[i].ctype)
+			parts[i].ctype = rand()*rand()*rand();
 		orbitalparts_get(parts[i].life, parts[i].ctype, orbd, orbl);
-		for (r = 0; r < 4; r++) {
-			if (orbd[r]<254) {
+		for (int r = 0; r < 4; r++)
+		{
+			if (orbd[r] < 254)
+			{
 				orbd[r] += 16;
-				if (orbd[r]>254) {
+				if (orbd[r] > 254)
+				{
 					orbd[r] = 0;
 					orbl[r] = rand()%255;
-				} else {
+				}
+				else
+				{
 					orbl[r] += 1;
 					orbl[r] = orbl[r]%255;
 				}
-			} else {
+			}
+			else
+			{
 				orbd[r] = 0;
 				orbl[r] = rand()%255;
 			}
 		}
 		orbitalparts_set(&parts[i].life, &parts[i].ctype, orbd, orbl);
-	} else {
+	}
+	else
+	{
 		parts[i].life = 0;
 		parts[i].ctype = 0;
 	}
