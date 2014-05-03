@@ -76,7 +76,7 @@ local function joinChannel(chan)
 end
 local function connectToMniip(ip,port,nick)
 	if con.connected then return false,"Already connected" end
-	ip = ip or "pwc-servers.com"
+	ip = ip or "play.pwc-gaming.com"
 	port = port or PORT
 	local sock = socket.tcp()
 	sock:settimeout(10)
