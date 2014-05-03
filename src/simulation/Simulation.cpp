@@ -1046,7 +1046,7 @@ bool Simulation::UpdateParticle(int i)
 				}
 
 				r = get_wavelength_bin(&parts[i].ctype);
-				if (r == -1)
+				if (r == -1 || !(parts[i].ctype&0x3FFFFFFF))
 				{
 					part_kill(i);
 					return true;
