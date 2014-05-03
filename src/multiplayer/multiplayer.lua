@@ -533,6 +533,9 @@ new=function(x,y,w,h)
 	quit = function(self,msg,args)
 		disconnected("Disconnected")
 	end,
+	disconnect = function(self,msg,args)
+		disconnected("Disconnected")
+	end,
 	join = function(self,msg,args)
 		if args[1] then
 			joinChannel(args[1])
@@ -547,7 +550,7 @@ new=function(x,y,w,h)
 		if not args[1] then self:addline("/help <command>, type /list for a list of commands") end
 		if args[1] == "connect" then self:addline("(/connect [ip] [port]) -- connect to a TPT multiplayer server, or no args to connect to the default one")
 		--elseif args[1] == "send" then self:addline("(/send <something> <somethingelse>) -- send raw data to the server") -- send a raw command
-		elseif args[1] == "quit" then self:addline("(/quit, no arguments) -- quit the game")
+		elseif args[1] == "quit" or args[1] == "disconnect" then self:addline("(/quit, no arguments) -- quit the game")
 		elseif args[1] == "join" then self:addline("(/join <channel> -- joins a room on the server")
 		elseif args[1] == "sync" then self:addline("(/sync, no arguments) -- syncs your screen to everyone else in the room")
 		elseif args[1] == "me" then self:addline("(/me <message>) -- say something in 3rd person") -- send a raw command
@@ -1548,9 +1551,6 @@ local keypressfuncs = {
 
 	--N , newtonian gravity or new save
 	[110] = function() if jacobsmod and L.ctrl then L.sendScreen=2 L.lastSave=nil else conSend(54,tpt.newtonian_gravity()==0 and "\1" or "\0") end end,
-
-	--O, old menu in jacobs mod
-	[111] = function() if jacobsmod and not L.ctrl then if tpt.oldmenu()==0 then showbutton:onmove(0, 241) else showbutton:onmove(0, -241) end end end,
 	
 	--R , for stamp rotate
 	[114] = function() if L.placeStamp then L.smoved=true if L.shift then return end L.rotate=not L.rotate elseif L.ctrl then conSend(70) end end,
@@ -1608,6 +1608,8 @@ local keyunpressfuncs = {
 	[308] = function() L.alt=false conSend(36,string.char(32)) end,
 }
 local function keyclicky(key,nkey,modifier,event)
+	if jacobsmod and not L.ctrl and key == 'o' and event == 1 then if tpt.oldmenu()==0 then showbutton:onmove(0, 241) else showbutton:onmove(0, -241) end end
+	if not hooks_enabled then return end
 	if chatwindow.inputbox.focus then
 		if event == 1 and nkey~=13 and nkey~=27 then
 			pressedKeys = {["repeat"] = socket.gettime()+.6, ["key"] = key, ["nkey"] = nkey, ["modifier"] = modifier, ["event"] = event}
@@ -1640,8 +1642,7 @@ function TPTMP.disableMultiplayer()
 end
 
 function TPTMP.enableMultiplayer()
-	tpt.register_keypress(keyclicky)
-	chatwindow:addline("TPTMP v0.7: Type '/connect' to join server.",200,200,200)
+	chatwindow:addline("TPTMP v0.7: Type '/connect' to join server, or    /list for a list of commands.",200,200,200)
 	hooks_enabled = true
 	TPTMP.enableMultiplayer = nil
 	debug.sethook(nil,"",0)
@@ -1652,3 +1653,4 @@ function TPTMP.enableMultiplayer()
 end
 tpt.register_step(step)
 tpt.register_mouseclick(mouseclicky)
+tpt.register_keypress(keyclicky)
