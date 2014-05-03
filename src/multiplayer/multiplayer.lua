@@ -521,6 +521,7 @@ new=function(x,y,w,h)
 		local newname = tpt.get_name()
 		local s,r = connectToMniip(args[1],tonumber(args[2]), newname~="" and newname or username)
 		if not s then self:addline(r,255,50,50) end
+		pressedKeys = nil
 	end,
 	send = function(self,msg,args)
 		if tonumber(args[1]) and args[2] then
@@ -1544,7 +1545,7 @@ local keypressfuncs = {
 	[105] = function() conSend(62) end,
 	
 	--K , stamp menu, abort our known stamp, who knows what they picked, send full screen?
-	[107] = function() L.lastStamp={data=nil} L.placeStamp=true end,
+	[107] = function() L.lastStamp={data=nil,w=0,h=0} L.placeStamp=true end,
 
 	--L , last Stamp
 	[108] = function() if L.lastStamp then L.placeStamp=true end end,
