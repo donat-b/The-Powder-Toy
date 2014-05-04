@@ -39,13 +39,13 @@ void detach(int i)
 {
 	if ((parts[i].ctype&2) == 2)
 	{
-		if ((parts[parts[i].tmp].ctype&4) == 4)
+		if ((parts[parts[i].tmp].ctype&4) == 4 && parts[parts[i].tmp].type == PT_SOAP)
 			parts[parts[i].tmp].ctype ^= 4;
 	}
 
 	if ((parts[i].ctype&4) == 4)
 	{
-		if ((parts[parts[i].tmp2].ctype&2) == 2)
+		if ((parts[parts[i].tmp2].ctype&2) == 2 && parts[parts[i].tmp2].type == PT_SOAP)
 			parts[parts[i].tmp2].ctype ^= 2;
 	}
 
@@ -75,7 +75,7 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 				{
 					int target = i;
 					//break entire bubble in a loop
-					while((parts[target].ctype&6) != 6 && (parts[target].ctype&6))
+					while((parts[target].ctype&6) != 6 && (parts[target].ctype&6) && parts[target].type == PT_SOAP)
 					{
 						if (parts[target].ctype&2)
 						{
