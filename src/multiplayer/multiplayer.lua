@@ -1552,7 +1552,10 @@ local keypressfuncs = {
 
 	--N , newtonian gravity or new save
 	[110] = function() if jacobsmod and L.ctrl then L.sendScreen=2 L.lastSave=nil else conSend(54,tpt.newtonian_gravity()==0 and "\1" or "\0") end end,
-	
+
+	--O, old menu in jacobs mod
+	[111] = function() if jacobsmod and not L.ctrl then if tpt.oldmenu()==0 then showbutton:onmove(0, 241) else showbutton:onmove(0, -241) end end end,
+
 	--R , for stamp rotate
 	[114] = function() if L.placeStamp then L.smoved=true if L.shift then return end L.rotate=not L.rotate elseif L.ctrl then conSend(70) end end,
 
@@ -1609,8 +1612,10 @@ local keyunpressfuncs = {
 	[308] = function() L.alt=false conSend(36,string.char(32)) end,
 }
 local function keyclicky(key,nkey,modifier,event)
-	if jacobsmod and not L.ctrl and key == 'o' and event == 1 then if tpt.oldmenu()==0 then showbutton:onmove(0, 241) else showbutton:onmove(0, -241) end end
-	if not hooks_enabled then return end
+	if not hooks_enabled then
+		if jacobsmod and not L.ctrl and key == 'o' and event == 1 then if tpt.oldmenu()==0 then showbutton:onmove(0, 241) else showbutton:onmove(0, -241) end end
+		return
+	end
 	if chatwindow.inputbox.focus then
 		if event == 1 and nkey~=13 and nkey~=27 then
 			pressedKeys = {["repeat"] = socket.gettime()+.6, ["key"] = key, ["nkey"] = nkey, ["modifier"] = modifier, ["event"] = event}
