@@ -1654,7 +1654,7 @@ void Simulation::CreateLine(int x1, int y1, int x2, int y2, int c, int flags, Br
 		if (e >= 0.5f)
 		{
 			y += sy;
-			if (!(brush->GetRadius().X+brush->GetRadius().Y) && ((y1<y2) ? (y<=y2) : (y>=y2)))
+			if (!(brush && brush->GetRadius().X+brush->GetRadius().Y) && ((y1<y2) ? (y<=y2) : (y>=y2)))
 			{
 				if (reverseXY)
 					CreateParts(y, x, c, flags, fill, brush);
