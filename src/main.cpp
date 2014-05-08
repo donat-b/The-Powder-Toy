@@ -911,7 +911,7 @@ void BlueScreen(char * detailMessage)
 	SDL_Event event;
 	char * errorHelp = "An unrecoverable fault has occurred, please report this to jacob1:\n"
 		" http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11117\n"
-		" OR either my 'post bugs here' save / my 'Jacob1s Mod detector' save\n\n"
+		" OR the built in bug reporter.\n\n"
 		"Note: TPT will now restart and reload your work";
 	int positionX = (XRES+BARSIZE)/2-textwidth(errorHelp)/2-50, positionY = (YRES+MENUSIZE)/2-100;
 
