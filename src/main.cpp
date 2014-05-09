@@ -33,6 +33,7 @@
 #include <time.h>
 #include <pthread.h>
 #include <signal.h>
+#include <list>
 
 #ifdef WIN32
 #include <direct.h>
@@ -915,17 +916,30 @@ void BlueScreen(char * detailMessage)
 		"Note: TPT will now restart and reload your work";
 	int positionX = (XRES+BARSIZE)/2-textwidth(errorHelp)/2-50, positionY = (YRES+MENUSIZE)/2-100;
 
-	fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 17, 114, 169, 210);
+	fillrect(vid_buf, -1, -1, XRES+BARSIZE+1, YRES+MENUSIZE+1, 17, 114, 169, 210);
 	
 	drawtext(vid_buf, positionX, positionY, "ERROR", 255, 255, 255, 255);
 	drawtext(vid_buf, positionX, positionY + 14, detailMessage, 255, 255, 255, 255);
 	drawtext(vid_buf, positionX, positionY  + 28, errorHelp, 255, 255, 255, 255);
-	
+
+	pixel* vid_buf2 = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
+	memcpy(vid_buf2, vid_buf, (XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
+	std::vector<Point> food;
+	std::list<Point> tron;
+	int tronSize = 5, tronDirection = 2, score = 0;
+	char scoreString[20];
+	bool gameRunning = false, gameLost = false;
+	for (int i = 0; i < 10; i++)
+		food.push_back(Point(rand()%(XRES+BARSIZE-6)+3, rand()%(YRES+MENUSIZE-6)+3));
+	for (int i = 0; i < tronSize; i++)
+		tron.push_back(Point(20, 10+i));
+
 	//Death loop
 	while(1)
 	{
 		while (SDL_PollEvent(&event))
-			if(event.type == SDL_QUIT)
+		{
+			if (event.type == SDL_QUIT)
 			{
 				char *exename;
 				sys_pause = 1;
@@ -942,7 +956,78 @@ void BlueScreen(char * detailMessage)
 				}
 				exit(-1);
 			}
+			else if (event.type == SDL_KEYDOWN)
+			{
+				switch (event.key.keysym.sym)
+				{
+				case SDLK_UP:
+					if (tronDirection != 2)
+						tronDirection = 0;
+					break;
+				case SDLK_RIGHT:
+					if (tronDirection != 3)
+						tronDirection = 1;
+					break;
+				case SDLK_DOWN:
+					if (tronDirection != 0)
+						tronDirection = 2;
+					break;
+				case SDLK_LEFT:
+					if (tronDirection != 1)
+						tronDirection = 3;
+					break;
+				}
+				gameRunning = true;
+			}
+		}
+		if (gameRunning && !gameLost)
+		{
+			Point tronHead = ((Point)tron.back());
+			tronHead.X -= (tronDirection-2)%2;
+			tronHead.Y += (tronDirection-1)%2;
+			if (tronHead.X > 1 && tronHead.X < XRES+BARSIZE-2 && tronHead.Y > 1 & tronHead.Y < YRES+MENUSIZE-2)
+				tron.push_back(tronHead);
+			else
+				gameLost = true;
+
+			sprintf(scoreString, "Score: %i", score);
+			drawtext(vid_buf, XRES-BARSIZE-50, 10, scoreString, 255, 255, 255, 255);
+			for (std::vector<Point>::iterator iter = food.begin(); iter != food.end(); ++iter)
+			{
+				Point moo = (Point)*iter;
+				vid_buf[moo.X + moo.Y*(XRES+BARSIZE)] = PIXRGB(255, 0, 0);
+				vid_buf[moo.X + moo.Y*(XRES+BARSIZE)+1] = PIXRGB(100, 0, 0);
+				vid_buf[moo.X + moo.Y*(XRES+BARSIZE)-1] = PIXRGB(100, 0, 0);
+				vid_buf[moo.X + (moo.Y+1)*(XRES+BARSIZE)] = PIXRGB(100, 0, 0);
+				vid_buf[moo.X + (moo.Y-1)*(XRES+BARSIZE)] = PIXRGB(100, 0, 0);
+				if (tronHead.X >= moo.X - 3 && tronHead.X <= moo.X + 3 && tronHead.Y >= moo.Y - 3 && tronHead.Y <= moo.Y + 3)
+				{
+					food.erase(iter, iter+1);
+					food.push_back(Point(rand()%(XRES+BARSIZE-6)+3, rand()%(YRES+MENUSIZE-6)+3));
+					food.push_back(Point(rand()%(XRES+BARSIZE-6)+3, rand()%(YRES+MENUSIZE-6)+3));
+					tronSize += 20;
+					score++;
+					break;
+				}
+			}
+			if (!(rand()%20))
+				tronSize++;
+			int i = tronSize;
+			for (std::list<Point>::iterator iter = tron.begin(); iter != tron.end(); ++iter)
+			{
+				Point point = *iter;
+				vid_buf[point.X + point.Y*(XRES+BARSIZE)] = PIXRGB(0, 255-(int)(200.0f/tronSize*i), 0);
+				i--;
+				if (iter != --tron.end() && point == tronHead)
+					gameLost = true;
+			}
+			while (tron.size() > tronSize)
+				tron.pop_front();
+		}
 		sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf, XRES+BARSIZE);
+		if (gameRunning && !gameLost)
+			memcpy(vid_buf, vid_buf2, (XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
+		SDL_Delay(5);
 	}
 }
 
