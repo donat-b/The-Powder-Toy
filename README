@@ -716,6 +716,10 @@ Version 28.1 5/8/13
 Fix crash when using ETRD. Fix out of screen errors in TPTMP. Update
 Bluescreen message.
 
+Version 28.1 (build 40) 5/9/13
+Fix crash with Newtonian Gravity, by compiling on the update server instead of 
+on my new computer.
+
 
 
 

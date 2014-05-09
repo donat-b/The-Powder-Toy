@@ -8,9 +8,9 @@ LFLAGS := -lpthread -lSDL -lfftw3f -lm -lbz2 -lX11 -llua5.1 -lrt
 LFLAGS_X := -lm -lbz2 -lSDLmain
 LFLAGS_WIN := -lmingw32 -lgnurx -lws2_32 -lSDLmain -lpthread -lSDL -lfftw3f -lm -lbz2 -llua5.1
 LFLAGS_WINCROSSCOMPILE := -lmingw32 -Wl,-Bstatic -lfftw3f -lgnurx -lSDLmain -lSDL -lpthread -lm -lbz2 -llua5.1 -Wl,-Bdynamic -lws2_32 -lwinmm -ldxguid
-MFLAGS_SSE3 := -march=native -DX86 -DX86_SSE3 -msse3
-MFLAGS_SSE2 := -march=native -DX86 -DX86_SSE2 -msse2
-MFLAGS_SSE := -march=native -DX86 -DX86_SSE
+MFLAGS_SSE3 := -DX86 -DX86_SSE3 -msse3
+MFLAGS_SSE2 := --DX86 -DX86_SSE2 -msse2
+MFLAGS_SSE := -DX86 -DX86_SSE
 FLAGS_DBUG := -Wall -pg -g
 LINUX_TARG := powder-64-sse2 powder-sse powder-sse2
 WIN32_TARG := powder-sse.exe powder-sse2.exe
@@ -66,10 +66,10 @@ build/powder-sse3-opengl build/powder-64-sse3-opengl: CFLAGS += -DOGLR -DPIX32OG
 build/powdercrosscompile.exe build/powdercrosscompile-sse2.exe: CFLAGS += -DPTW32_STATIC_LIB -D_WIN32_WINNT=0x0500
 
 # SSE flags:
-build/powder-sse3 build/powder-sse3-opengl build/powder-64-sse3 build/powder-64-sse3-opengl build/powder-sse3.exe: CFLAGS += -march=native -DX86 -DX86_SSE3 -msse3
-build/powder-sse2 build/powder-64-sse2 build/powder-sse2.exe build/powdercrosscompile-sse2.exe: CFLAGS += -march=native -DX86 -DX86_SSE2 -msse2
-build/powder-sse build/powder-sse.exe: CFLAGS += -march=native -DX86 -DX86_SSE
-build/powder build/powder-64 build/powder-debug build/powder-64-debug build/powdercrosscompile.exe: CFLAGS += -march=native -DX86
+build/powder-sse3 build/powder-sse3-opengl build/powder-64-sse3 build/powder-64-sse3-opengl build/powder-sse3.exe: CFLAGS += -DX86 -DX86_SSE3 -msse3
+build/powder-sse2 build/powder-64-sse2 build/powder-sse2.exe build/powdercrosscompile-sse2.exe: CFLAGS += -DX86 -DX86_SSE2 -msse2
+build/powder-sse build/powder-sse.exe: CFLAGS += -DX86 -DX86_SSE
+build/powder build/powder-64 build/powder-debug build/powder-64-debug build/powdercrosscompile.exe: CFLAGS += -DX86
 
 # libs:
 build/powder build/powder-sse build/powder-sse2 build/powder-sse3 build/powder-debug build/powder-sse3-opengl build/powder-64 build/powder-64-sse2 build/powder-64-sse3 build/powder-64-debug build/powder-64-sse3-opengl: LIBS += $(LFLAGS)
