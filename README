@@ -712,6 +712,10 @@ BHOL at the top of the screen. RAZR goes through GEL and kills stickmen. Fix
 bug where CRAY wouldn't spark INST. Update TPTMP to point to new server and
 fix a few bugs / errors with it. Simulation updates and bugfixes from tpt++.
 
+Version 28.1 5/8/13
+Fix crash when using ETRD. Fix out of screen errors in TPTMP. Update
+Bluescreen message.
+
 
 
 
