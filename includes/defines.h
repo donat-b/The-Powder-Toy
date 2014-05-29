@@ -149,12 +149,15 @@ typedef unsigned int pixel;
 #define strcasecmp stricmp
 #endif
 
-#if defined(WIN32) && !defined(__GNUC__)
-#include <algorithm>
+#if defined(_MSC_VER)
+#if _MSC_VER < 1800
 #define fmin min
 #define fminf min
 #define fmax max
 #define fmaxf max
+#else
+#include <algorithm>
+#endif
 #endif
 //#if _MSC_VER
 //#define snprintf _snprintf

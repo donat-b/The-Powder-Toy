@@ -5,6 +5,8 @@
 #include <vector>
 #include "graphics.h"
 #include "common/Point.h"
+#undef min
+#undef max
 
 enum { TOOLTIP, ELEMENTTIP, INFOTIP, QTIP, INTROTIP, LUATIP };
 

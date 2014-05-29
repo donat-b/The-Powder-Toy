@@ -20,6 +20,7 @@
 int LIFE_update(UPDATE_FUNC_ARGS)
 {
 	parts[i].temp = restrict_flt(parts[i].temp-50.0f, MIN_TEMP, MAX_TEMP);
+	return 0;
 }
 
 int LIFE_graphics(GRAPHICS_FUNC_ARGS)
