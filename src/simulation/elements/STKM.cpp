@@ -663,7 +663,7 @@ int STKM_graphics(GRAPHICS_FUNC_ARGS)
 
 bool STKM_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 {
-	return globalSim->elementCount[PT_STKM]<=0;
+	return globalSim->elementCount[PT_STKM]<=0 && !player.spwn;
 }
 
 void STKM_create(ELEMENT_CREATE_FUNC_ARGS)

@@ -26,7 +26,7 @@ int STKM2_update(UPDATE_FUNC_ARGS)
 
 bool STKM2_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 {
-	return globalSim->elementCount[PT_STKM2]<=0;
+	return globalSim->elementCount[PT_STKM2]<=0 && !player2.spwn;
 }
 
 void STKM2_create(ELEMENT_CREATE_FUNC_ARGS)

@@ -76,6 +76,10 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 						{
 							((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Free(storedPart->tmp);
 						}
+						else if (storedPart->type == PT_STKM)
+							player.spwn = 0;
+						else if (storedPart->type == PT_STKM2)
+							player2.spwn = 0;
 						int np = sim->part_create(-1,x+rx,y+ry,storedPart->type);
 						if (np < 0)
 						{
@@ -83,6 +87,10 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 							{
 								((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->AllocSpecific(storedPart->tmp);
 							}
+							else if (parts[np].type == PT_STKM)
+								player.spwn = 1;
+							else if (parts[np].type == PT_STKM2)
+								player2.spwn = 1;
 							continue;
 						}
 						if (parts[np].type == PT_FIGH)

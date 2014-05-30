@@ -39,7 +39,7 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 						if (parts[r>>8].ctype == PT_INWR && rx && ry) // INWR doesn't spark from diagonals
 							continue;
 
-						//figure out where the copying will start/endpmap[yCurrent][xCurrent]&0xFF
+						//figure out where the copying will start/end
 						for (int xStep = rx*-1, yStep = ry*-1, xCurrent = x+xStep, yCurrent = y+yStep; ; xCurrent+=xStep, yCurrent+=yStep)
 						{
 							int rr = pmap[yCurrent][xCurrent];

@@ -420,6 +420,7 @@ void clear_sim()
 	memset(msrotation, 0, sizeof(msrotation));
 	memset(newmsrotation, 0, sizeof(newmsrotation));
 	player.spawnID = player2.spawnID = -1;
+	player.spwn = player2.spwn = 0;
 	finding &= 0x8;
 	mod_save = MOD_SAVE_VERSION;
 	if(edgeMode == 1)

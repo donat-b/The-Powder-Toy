@@ -726,7 +726,8 @@ on my new computer.
 ------------------------------------------------------------------------------
 -------------------------------------Bugs-------------------------------------
 ------------------------------------------------------------------------------
-None (at least that I know of)
+deco sample doesn't work with 1px brush
+//None (at least that I know of)
 
 
 
@@ -735,6 +736,7 @@ None (at least that I know of)
 -------------------------------------TODO-------------------------------------
 ------------------------------------------------------------------------------
 TODO: '>' means currently being worked on/added next
+>wall that blocks pressure but not particles
 Redo fav menu ...
 Do something about the massively repeated drawing code in Simulation.cpp
 make open ui more colorful like tpt++, also fix cut off description in save uploading ui

@@ -345,8 +345,8 @@ int eval_move(int pt, int nx, int ny, unsigned *rr)
 		{
 			int vx = (int)parts[pt].vx;
 			int vy = (int)parts[pt].vy;
-			parts[r>>8].x += vy;
-			parts[r>>8].x += vy;
+			parts[r>>8].x += vx;
+			parts[r>>8].y += vy;
 			result = 2;
 		}
 	}
