@@ -15,9 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef LUACONSOLE
 #include <math.h>
 
-#if defined(LIN32) || defined(LIN64)
+#if defined(LIN32) || defined(LIN64) || defined(MACOSX)
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif
@@ -31,7 +32,6 @@ extern "C"
 }
 
 #include "defines.h"
-#ifdef LUACONSOLE
 #include "powder.h"
 #include "gravity.h"
 #include "http.h"

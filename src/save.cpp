@@ -1749,12 +1749,16 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			if(bson_iterator_type(&iter)==BSON_INT)
 			{
-				char* modver = (char*)calloc(32, sizeof(char));
 				mod_save = modsave = bson_iterator_int(&iter);
-				sprintf(modver, "Made in jacob1's mod version %d", modsave);
+#ifdef LUACONSOLE
 				//TODO: don't use lua logging
-				if (!strcmp(svf_user,"jacob1") && replace == 1)
+				if (!strcmp(svf_user,"jacob1") && replace == 1 && log_history[19] == NULL)
+				{
+					char* modver = (char*)calloc(32, sizeof(char));
+					sprintf(modver, "Made in jacob1's mod version %d", modsave);
 					luacon_log(modver);
+				}
+#endif
 			}
 			else
 			{

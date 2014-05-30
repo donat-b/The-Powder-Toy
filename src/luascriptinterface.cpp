@@ -1,3 +1,5 @@
+#ifdef LUACONSOLE
+
 #include <dirent.h>
 #include <string>
 #ifdef WIN32
@@ -2464,3 +2466,5 @@ int elements_free(lua_State * l)
 
 	return 0;
 }
+
+#endif

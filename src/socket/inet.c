@@ -7,9 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "lua5.1/lua.h"
-#include "lua5.1/lauxlib.h"
-
+#include "luainc.h"
 #include "inet.h"
 
 /*=========================================================================*\

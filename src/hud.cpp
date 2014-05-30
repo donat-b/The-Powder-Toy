@@ -521,6 +521,7 @@ void DrawRecordsInfo()
 
 void DrawLuaLogs()
 {
+#ifdef LUACONSOLE
 	int i;
 	for (i = 0; i < 20; i++)
 	{
@@ -536,6 +537,7 @@ void DrawLuaLogs()
 			}
 		}
 	}
+#endif
 }
 
 void GetTimeString(int currtime, char *string, int length)

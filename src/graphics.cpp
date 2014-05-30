@@ -16,10 +16,19 @@
  */
 
 #include <math.h>
+#ifdef SDL_R_INC
+#include <SDL.h>
+#else
 #include <SDL/SDL.h>
+#endif
 #include <bzlib.h>
+#include <climits>
 #if defined(WIN32) || defined(LIN32) || defined(LIN64)
+#ifdef SDL_R_INC
+#include <SDL_syswm.h>
+#else
 #include <SDL/SDL_syswm.h>
+#endif
 #endif
 
 #if defined(OGLR)
@@ -48,9 +57,7 @@
 #include "font.h"
 #include "misc.h"
 #include "hmap.h"
-#ifdef LUACONSOLE
 #include "luaconsole.h"
-#endif
 #include "hud.h"
 
 #if defined(LIN32) || defined(LIN64)
@@ -3700,8 +3707,10 @@ void render_after(pixel *part_vbuf, pixel *vid_buf, Point mousePos)
 {
 	render_parts(part_vbuf, mousePos); //draw particles
 	draw_other(part_vbuf);
+#ifndef RENDERER
 	if (((WallTool*)activeTools[activeToolID])->GetID() == WL_GRAV)
 		draw_grav_zones(part_vbuf);
+#endif
 	if (vid_buf && (display_mode & DISPLAY_PERS))
 	{
 		if (!persist_counter)

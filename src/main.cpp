@@ -27,8 +27,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#ifdef SDL_R_INC
+#include <SDL.h>
+#include <SDL_audio.h>
+#else
 #include <SDL/SDL.h>
 #include <SDL/SDL_audio.h>
+#endif
 #include <bzlib.h>
 #include <time.h>
 #include <pthread.h>
@@ -58,10 +63,8 @@
 #include "update.h"
 #include "air.h"
 #include "console.h"
-#ifdef LUACONSOLE
 #include "luaconsole.h"
 #include "luascriptinterface.h"
-#endif
 #include "save.h"
 #include "hud.h"
 #include "benchmark.h"
@@ -234,7 +237,6 @@ int last_fav_menu = SC_FAV;
 int framerender = 0;
 int pretty_powder = 0;
 char edgeMode = 0;
-int amd = 1;
 int MSIGN =-1;
 int frameidx = 0;
 int limitFPS = 60;
@@ -805,6 +807,29 @@ char changelog_uri[] = "http://" UPDATESERVER "/jacob1/update.lua?Action=CheckVe
 char update_uri_alt[] = "http://" UPDATESERVERALT "/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
 char changelog_uri_alt[] = "http://" UPDATESERVERALT "/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
 
+void ctrlzSnapshot()
+{
+	int cbx, cby, cbi;
+
+	for (cbi=0; cbi<NPART; cbi++)
+		cb_parts[cbi] = parts[cbi];
+
+	for (cby = 0; cby<YRES; cby++)
+		for (cbx = 0; cbx<XRES; cbx++)
+			cb_pmap[cby][cbx] = pmap[cby][cbx];
+
+	for (cby = 0; cby<(YRES/CELL); cby++)
+		for (cbx = 0; cbx<(XRES/CELL); cbx++)
+		{
+			cb_vx[cby][cbx] = vx[cby][cbx];
+			cb_vy[cby][cbx] = vy[cby][cbx];
+			cb_pv[cby][cbx] = pv[cby][cbx];
+			cb_hv[cby][cbx] = hv[cby][cbx];
+			cb_bmap[cby][cbx] = bmap[cby][cbx];
+			cb_emap[cby][cbx] = emap[cby][cbx];
+		}
+}
+
 #ifdef RENDERER
 int main(int argc, char *argv[])
 {
@@ -814,6 +839,11 @@ int main(int argc, char *argv[])
 	unsigned char c[3];
 	char ppmfilename[256], ptifilename[256], ptismallfilename[256];
 	FILE *f;
+
+	//init some new c++ stuff
+	Simulation *mainSim = new Simulation();
+	mainSim->InitElements();
+	globalSim = mainSim;
 	
 	colour_mode = COLOUR_DEFAULT;
 	init_display_modes();
@@ -821,12 +851,8 @@ int main(int argc, char *argv[])
 
 	sys_pause = 1;
 	parts = (particle*)calloc(sizeof(particle), NPART);
-	for (i=0; i<NPART-1; i++)
-		parts[i].life = i+1;
-	parts[NPART-1].life = -1;
-	globalSim->pfree = 0;
-
 	pers_bg = (pixel*)calloc((XRES+BARSIZE)*YRES, PIXELSIZE);
+	clear_sim();
 	
 	prepare_alpha(CELL, 1.0f);
 	prepare_graphicscache();
@@ -841,23 +867,26 @@ int main(int argc, char *argv[])
 	sprintf(ptifilename, "%s.pti", argv[2]);
 	sprintf(ptismallfilename, "%s-small.pti", argv[2]);
 	
-	if(load_data && load_size){
+	if (load_data && load_size)
+	{
 		int parsestate = 0;
 		//parsestate = parse_save(load_data, load_size, 1, 0, 0);
 		parsestate = parse_save(load_data, load_size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 		
-		decorations_enable = 0;
-		for(i=0; i<30; i++){
+		//decorations_enable = 0;
+		render_before(vid_buf);
+		render_after(vid_buf, vid_buf, Point(0,0));
+		for (i=0; i<30; i++)
+		{
 			memset(vid_buf, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
-			draw_walls(vid_buf);
-			update_particles(vid_buf);
 			render_parts(vid_buf, Point(0,0));
 			render_fire(vid_buf);
 		}
+		render_before(vid_buf);
+		render_after(vid_buf, vid_buf, Point(0,0));
 		
-		render_signs(vid_buf);
-		
-		if(parsestate>0){
+		if (parsestate>0)
+		{
 			//return 0;
 			info_box(vid_buf, "Save file invalid or from newer version");
 		}
@@ -865,17 +894,19 @@ int main(int argc, char *argv[])
 		//Save PTi images
 		char * datares = NULL, *scaled_buf;
 		int res = 0, sw, sh;
-		datares = ptif_pack(vid_buf, XRES, YRES, &res);
-		if(datares!=NULL){
+		datares = (char*)ptif_pack(vid_buf, XRES, YRES, &res);
+		if (datares!=NULL)
+		{
 			f=fopen(ptifilename, "wb");
 			fwrite(datares, res, 1, f);
 			fclose(f);
 			free(datares);
 			datares = NULL;
 		}
-		scaled_buf = resample_img(vid_buf, XRES, YRES, XRES/GRID_Z, YRES/GRID_Z);
-		datares = ptif_pack(scaled_buf, XRES/GRID_Z, YRES/GRID_Z, &res);
-		if(datares!=NULL){
+		scaled_buf = (char*)resample_img(vid_buf, XRES, YRES, XRES/GRID_Z, YRES/GRID_Z);
+		datares = (char*)ptif_pack((pixel*)scaled_buf, XRES/GRID_Z, YRES/GRID_Z, &res);
+		if (datares!=NULL)
+		{
 			f=fopen(ptismallfilename, "wb");
 			fwrite(datares, res, 1, f);
 			fclose(f);
@@ -1047,29 +1078,6 @@ void SigHandler(int signal)
 		BlueScreen("Unexpected program abort");
 		break;
 	}
-}
-
-void ctrlzSnapshot()
-{
-	int cbx, cby, cbi;
-
-	for (cbi=0; cbi<NPART; cbi++)
-		cb_parts[cbi] = parts[cbi];
-
-	for (cby = 0; cby<YRES; cby++)
-		for (cbx = 0; cbx<XRES; cbx++)
-			cb_pmap[cby][cbx] = pmap[cby][cbx];
-
-	for (cby = 0; cby<(YRES/CELL); cby++)
-		for (cbx = 0; cbx<(XRES/CELL); cbx++)
-		{
-			cb_vx[cby][cbx] = vx[cby][cbx];
-			cb_vy[cby][cbx] = vy[cby][cbx];
-			cb_pv[cby][cbx] = pv[cby][cbx];
-			cb_hv[cby][cbx] = hv[cby][cbx];
-			cb_bmap[cby][cbx] = bmap[cby][cbx];
-			cb_emap[cby][cbx] = emap[cby][cbx];
-		}
 }
 
 int main(int argc, char *argv[])
@@ -1323,12 +1331,6 @@ int main(int argc, char *argv[])
 	prepare_graphicscache();
 	flm_data = generate_gradient(flm_data_colours, flm_data_pos, flm_data_points, 200);
 	plasma_data = generate_gradient(plasma_data_colours, plasma_data_pos, plasma_data_points, 200);
-
-	if (cpu_check())
-	{
-		error_ui(vid_buf, 0, "Unsupported CPU. Try another version.");
-		return 1;
-	}
 	
 	if(saveOpenError)
 	{
@@ -2413,6 +2415,7 @@ int main(int argc, char *argv[])
 		if (sdl_wheel)
 			if (!luacon_mouseevent(x, y, bq, 0, sdl_wheel))
 				sdl_wheel = 0;
+#endif
 
 		if (sdl_wheel)
 		{
@@ -2443,6 +2446,7 @@ int main(int argc, char *argv[])
 			}
 		}
 		
+#ifdef LUACONSOLE
 		luacon_step(x, y, activeTools[0]->GetIdentifier(), activeTools[1]->GetIdentifier(), activeTools[2]->GetIdentifier(), currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
 		readluastuff();
 #endif

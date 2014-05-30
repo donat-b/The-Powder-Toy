@@ -17,8 +17,7 @@
 /*=========================================================================*\
 * Standard include files
 \*=========================================================================*/
-#include "lua5.1/lua.h"
-#include "lua5.1/lauxlib.h"
+#include "luainc.h"
 
 #if !defined(LUA_VERSION_NUM) || (LUA_VERSION_NUM < 501)
 #include "compat-5.1.h"

@@ -181,7 +181,10 @@ void StreamlineTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool h
 {
 	globalSim->CreateWallLine(startPos.X/CELL, startPos.Y/CELL, endPos.X/CELL, endPos.Y/CELL, 0, 0, ID);
 }
-
+int StreamlineTool::FloodFill(Point position)
+{
+	return 0;
+}
 
 ToolTool::ToolTool(int toolID):
 	Tool(TOOL_TOOL, toolID, toolTypes[toolID].identifier)
@@ -202,6 +205,10 @@ void ToolTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 void ToolTool::DrawRect(Point startPos, Point endPos)
 {
 	globalSim->CreateToolBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, toolStrength);
+}
+int ToolTool::FloodFill(Point position)
+{
+	return 0;
 }
 
 PropTool::PropTool():

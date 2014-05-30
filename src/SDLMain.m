@@ -5,7 +5,11 @@
     Feel free to customize this file to suit your needs
 */
 
+#ifdef SDL_R_INC
+#include <SDL.h>
+#else
 #include <SDL/SDL.h>
+#endif
 #include "SDLMain.h"
 #include <sys/param.h> /* for MAXPATHLEN */
 #include <unistd.h>
@@ -233,7 +237,7 @@ static void CustomApplicationMain (int argc, char **argv)
 
 #endif
 
-void *file_load(char *fn, int *size);
+void *file_load(const char *fn, int *size);
 
 /*
  * Catch document open requests...this lets us notice files when the app
@@ -252,15 +256,15 @@ void *file_load(char *fn, int *size);
  */
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename
 {
-    /*const char *temparg;
+	const char *temparg;
     size_t arglen;
     char *arg;
     char **newargv;
 
-    if (!gFinderLaunch)
+	if (!gFinderLaunch) /* MacOS is passing command line args. */
         return FALSE;
 
-    if (gCalledAppMainline)
+	if (gCalledAppMainline) /* app has started, ignore this document. */
         return FALSE;
 
     temparg = [filename UTF8String];
@@ -281,8 +285,8 @@ void *file_load(char *fn, int *size);
     gArgv[gArgc++] = "open";
     gArgv[gArgc++] = arg;
     gArgv[gArgc] = NULL;
-    return TRUE;*/
-	const char * tempArg;
+	return TRUE;
+	/*const char * tempArg;
 	char * arg;
 	size_t argLen;
 	tempArg = [filename UTF8String];
@@ -292,13 +296,13 @@ void *file_load(char *fn, int *size);
         return FALSE;
 	SDL_strlcpy(arg, tempArg, argLen);
 	
-	saveDataOpen = file_load(arg, &saveDataOpenSize);
+	saveDataOpen = file_load((const char*)arg, &saveDataOpenSize);
 	if(saveDataOpen)
 		return TRUE;
 	
 	saveDataOpen = NULL;
 	saveDataOpenSize = 0;
-	return FALSE;
+	return FALSE;*/
 }
 
 - (void)handleGetURLEvent:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent

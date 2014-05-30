@@ -20,22 +20,6 @@
 #include <stdlib.h>
 #include <string>
 
-#if defined(WIN32) && !defined(__GNUC__)
-#define x86_cpuid(func,af,bf,cf,df) \
-	do {\
-	__asm mov	eax, func\
-	__asm cpuid\
-	__asm mov	af, eax\
-	__asm mov	bf, ebx\
-	__asm mov	cf, ecx\
-	__asm mov	df, edx\
-	} while(0)
-#else
-#define x86_cpuid(func,af,bf,cf,df) \
-__asm__ __volatile ("cpuid":\
-	"=a" (af), "=b" (bf), "=c" (cf), "=d" (df) : "a" (func));
-#endif
-
 static char hex[] = "0123456789ABCDEF";
 
 //Signum function
@@ -84,16 +68,16 @@ extern char *clipboard_text;
 
 int register_extension();
 
-int cpu_check(void);
-
 void HSV_to_RGB(int h,int s,int v,int *r,int *g,int *b);
 
 void RGB_to_HSV(int r,int g,int b,int *h,int *s,int *v);
 
+#ifdef __cplusplus
 class Tool;
 Tool* GetToolFromIdentifier(std::string identifier);
 
 std::string URLEncode(std::string source);
+#endif
 
 void membwand(void * dest, void * src, size_t destsize, size_t srcsize);
 // a b

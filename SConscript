@@ -1,0 +1,467 @@
+
+import os
+import subprocess
+import sys
+import platform
+import atexit
+import SCons.Util
+
+
+# because of an implementation detail commandlines are limited to 10000 characters on windows using mingw. the following fix was copied from
+# http://scons.org/wiki/LongCmdLinesOnWin32 and circumvents this issue.
+class ourSpawn:
+	def ourspawn(self, sh, escape, cmd, args, env):
+		newargs = ' '.join(args[1:])
+		cmdline = cmd + " " + newargs
+		startupinfo = subprocess.STARTUPINFO()
+		startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+		proc = subprocess.Popen(cmdline, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+			stderr=subprocess.PIPE, startupinfo=startupinfo, shell = False, env = env)
+		data, err = proc.communicate()
+		rv = proc.wait()
+		if rv:
+			print "====="
+			print err
+			print "====="
+		return rv
+def SetupSpawn(env):
+	buf = ourSpawn()
+	buf.ourenv = env
+	env['SPAWN'] = buf.ourspawn
+
+def FatalError(message):
+	print(message)
+	raise SystemExit(1)
+
+#wrapper around SCons' AddOption
+def AddSconsOption(name, default, hasArgs, help):
+	AddOption("--{0}".format(name), dest=name, action=(hasArgs and "store" or "store_true"), default=default, help=help)
+
+AddSconsOption("win", False, False, "Target Windows")
+AddSconsOption('lin', False, False, "Target Linux")
+AddSconsOption('mac', False, False, "Target Mac OS X")
+AddSconsOption('msvc', False, False, "Use the Microsoft Visual Studio compiler")
+AddSconsOption("tool", False, True, "Tool prefix appended before gcc/g++")
+
+AddSconsOption('64bit', False, False, "Compile a 64 bit binary")
+AddSconsOption('32bit', False, False, "Compile a 32 bit binary")
+AddSconsOption("universal", False, False, "compile universal binaries on Mac OS X")
+AddSconsOption('sse', False, False, "Enable SSE optimizations")
+AddSconsOption('sse2', False, False, "Enable SSE2 optimizations")
+AddSconsOption('sse3', False, False, "Enable SSE3 optimizations")
+AddSconsOption('native', False, False, "Enable optimizations specific to your cpu")
+AddSconsOption('release', True, False, "Enable loop / compiling optimizations")
+
+AddSconsOption('debugging', False, False, "Compile with debug symbols")
+AddSconsOption('static', False, False, "Compile statically")
+AddSconsOption('opengl', False, False, "Build with OpenGL interface support")
+AddSconsOption('renderer', False, False, "Build the save renderer")
+
+AddSconsOption("lua-dir", False, True, "Alternate directory containing lua.h")
+AddSconsOption("sdl-dir", False, True, "Alternate directory containing SDL.h")
+AddSconsOption('wall', False, False, "Error on all warnings")
+AddSconsOption('no-warnings', True, False, "Disable all compiler warnings")
+AddSconsOption('nolua', False, False, "Target Linux")
+AddSconsOption('nofft', False, False, "Target Mac OS X")
+AddSconsOption("output", False, True, "Executable output name")
+
+
+#detect platform automatically, but it can be overrided
+tool = GetOption('tool')
+isX86 = platform.machine() in ["AMD64", "i386", "i686", "x86", "x86_64"]
+platform = compilePlatform = platform.system()
+if GetOption("win"):
+	platform = "Windows"
+elif GetOption("lin"):
+	platform = "Linux"
+elif GetOption("mac"):
+	platform = "Darwin"
+elif compilePlatform not in ["Linux", "Windows", "Darwin"]:
+	FatalError("Unknown platform: {0}".format(platform))
+
+msvc = GetOption("msvc")
+if GetOption("msvc") and platform != "Windows":
+	FatalError("Error: --msvc only works on windows")
+
+#Create SCons Environment
+if platform == "Windows" and not GetOption("msvc"):
+	env = Environment(tools = ['mingw'], ENV = {'PATH' : os.environ['PATH']})
+else:
+	env = Environment(tools = ['default'], ENV = {'PATH' : os.environ['PATH']})
+
+#attempt to automatically find cross compiler
+if not tool and compilePlatform == "Linux" and compilePlatform != platform:
+	if platform == "Darwin":
+		crossList = ["i686-apple-darwin9", "i686-apple-darwin10"]
+	elif not GetOption('64bit'):
+		crossList = ["mingw32", "i386-mingw32msvc", "i486-mingw32msvc", "i586-mingw32msvc", "i686-mingw32msvc", "amd64-mingw32msvc"]
+	else:
+		crossList = ["x86_64-w64-mingw32", "i686-w64-mingw32"]
+	for i in crossList:
+		if WhereIs("{}-g++".format(i)):
+			env["ENV"]["PATH"] = "/usr/{0}/bin:{1}".format(i, os.environ['PATH'])
+			tool = i+"-"
+			break
+	if not tool:
+		print("Could not automatically find cross compiler, use --tool to specify manually")
+
+#set tool prefix
+#more things may to be set (http://clam-project.org/clam/trunk/CLAM/scons/sconstools/crossmingw.py), but this works for us
+if tool:
+	env['CC'] = tool+env['CC']
+	env['CXX'] = tool+env['CXX']
+	if platform == "Windows":
+		env['RC'] = tool+env['RC']
+	env['STRIP'] = tool+'strip'
+
+#copy environment variables because scons doesn't do this by default
+for var in ["CC","CXX","LD","LIBPATH"]:
+	if var in os.environ:
+		env[var] = os.environ[var]
+		print "copying enviroment variable {}={!r}".format(var,os.environ[var])
+# variables containing several space separated things
+for var in ["CFLAGS","CCFLAGS","CXXFLAGS","LINKFLAGS","CPPDEFINES","CPPPATH"]:
+	if var in os.environ:
+		if var in env:
+			env[var] += SCons.Util.CLVar(os.environ[var])
+		else:
+			env[var] = SCons.Util.CLVar(os.environ[var])
+		print "copying enviroment variable {}={!r}".format(var,os.environ[var])
+
+#add 32/64 bit defines before configuration
+if GetOption('64bit'):
+	env.Append(LINKFLAGS=['-m64'])
+	env.Append(CCFLAGS=['-m64'])
+	if platform == "Windows":
+		env.Append(CPPDEFINES=['__CRT__NO_INLINE'])
+		env.Append(LINKFLAGS=['-Wl,--stack=16777216'])
+	env.Append(CPPDEFINES=["_64BIT"])
+elif GetOption('32bit'):
+	env.Append(LINKFLAGS=['-m32'])
+	env.Append(CCFLAGS=['-m32'])
+	env.Append(CPPDEFINES=["_32BIT"])
+
+if GetOption('universal'):
+	if platform != "Darwin":
+		FatalError("Error: --universal only works on Mac OS X")
+	else:
+		env.Append(CCFLAGS=["-arch", "i386", "-arch", "x86_64"])
+		env.Append(LINKFLAGS=["-arch", "i386", "-arch", "x86_64"])
+
+env.Append(CPPPATH=['src/', 'includes/'])
+if GetOption("msvc"):
+	if GetOption("static"):
+		env.Append(LIBPATH=["StaticLibs/"])
+	else:
+		env.Append(LIBPATH=["Libraries/"])
+
+#Custom function to check for Mac OS X frameworks
+def CheckFramework(context, framework):
+	import SCons.Conftest
+	#Extreme hack, TODO: maybe think of a better one (like replicating CheckLib here) or at least just fix the message
+	ret = SCons.Conftest.CheckLib(context, ['m" -framework {}"'.format(framework)], autoadd = 0)
+	context.did_show_result = 1
+	if not ret:
+		context.env.Append(LINKFLAGS=["-framework", framework])
+		if framework != "Cocoa":
+			env.Append(CPPPATH=['/Library/Frameworks/{}.framework/Headers/'.format(framework)])
+	return not ret
+
+#function that finds libraries and appends them to LIBS
+def findLibs(env, conf):
+	#Windows specific libs
+	if platform == "Windows":
+		if msvc:
+			libChecks = ['shell32', 'wsock32', 'user32', 'Advapi32']
+			if GetOption('static'):
+				libChecks += ['msvcrt', 'dxguid']
+		else:
+			libChecks = ['mingw32', 'dxguid']
+
+		libChecks += ['ws2_32', 'gdi32', 'winmm']
+
+		for i in libChecks:
+			if not conf.CheckLib(i):
+				FatalError("Error: some windows libraries not found or not installed, make sure your compiler is set up correctly")
+
+		if not conf.CheckLib('SDLmain'):
+			FatalError("libSDLmain not found or not installed")
+
+	if platform != "Darwin":
+		#Look for SDL
+		if (GetOption("sdl-dir")):
+			if not conf.CheckCHeader(GetOption("sdl-dir") + '/SDL.h'):
+				FatalError("sdl headers not found or not installed")
+			else:
+				env.Append(CPPPATH=[GetOption("sdl-dir")])
+		else:
+			if not conf.CheckLib("SDL"):
+				FatalError("SDL development library not found or not installed")
+			if platform == "Linux" or compilePlatform == "Linux":
+				try:
+					env.ParseConfig('sdl-config --cflags')
+					env.ParseConfig('sdl-config --libs')
+				except:
+					pass
+	else:
+		if not conf.CheckFramework("SDL"):
+			FatalError("SDL framework not found or not installed")
+
+	#look for SDL.h
+	if not conf.CheckCHeader('SDL/SDL.h'):
+		if conf.CheckCHeader('SDL.h'):
+			env.Append(CPPDEFINES=["SDL_R_INCL"])
+		else:
+			FatalError("SDL.h not found")
+
+	if not GetOption('nolua') and not GetOption('renderer'):
+		#Look for Lua
+		if (GetOption("lua-dir")):
+			if not conf.CheckCHeader(GetOption("lua-dir") + '/lua.h'):
+				FatalError("lua5.1 headers not found or not installed")
+			else:
+				env.Append(CPPPATH=[GetOption("lua-dir")])
+		else:
+			if not conf.CheckLib(['lua5.1', 'lua-5.1', 'lua51', 'lua']):
+				if platform != "Darwin" or not conf.CheckFramework("Lua"):
+					FatalError("lua5.1 development library not found or not installed")
+			if platform == "Linux":
+				try:
+					env.ParseConfig('pkg-config --cflags lua5.1')
+					env.ParseConfig('pkg-config --libs lua5.1')
+				except:
+					pass
+
+		#Look for lua.h
+		if not conf.CheckCHeader('lua5.1/lua.h'):
+			if conf.CheckCHeader('lua.h'):
+				env.Append(CPPDEFINES=["LUA_R_INCL"])
+			else:
+				FatalError("lua.h not found")
+
+	#Look for fftw
+	if not GetOption('nofft') and not conf.CheckLib(['fftw3f', 'fftw3f-3', 'libfftw3f-3']):
+			FatalError("fftw3f development library not found or not installed")
+
+	#Look for bz2
+	if not conf.CheckLib(['bz2', 'libbz2']):
+		FatalError("bz2 development library not found or not installed")
+
+	#Check bz2 header too for some reason
+	if not conf.CheckCHeader("bzlib.h"):
+		FatalError("bzip2 headers not found")
+
+	#Look for libz
+	#if not conf.CheckLib('z'):
+	#	FatalError("libz not found or not installed")
+
+	#Look for pthreads
+	if not conf.CheckLib(['pthread', 'pthreadVC2']):
+		FatalError("pthreads development library not found or not installed")
+	
+	if msvc:
+		if not conf.CheckHeader('dirent.h') or not conf.CheckHeader('fftw3.h') or not conf.CheckHeader('pthread.h') or not conf.CheckHeader('sched.h') or not conf.CheckHeader('zlib.h'):
+			FatalError("Required headers not found")
+	else:
+		#Look for libm
+		if not conf.CheckLib('m'):
+			FatalError("libm not found or not installed")
+	
+	#Look for OpenGL libraries
+	if GetOption("opengl"):
+		if platform == "Linux":
+			if not conf.CheckLib('GL'):
+				FatalError("libGL not found or not installed")
+			try:
+				env.ParseConfig('pkg-config --libs glew gl glu')
+			except:
+				FatalError(sys.exc_info()[0])
+				
+		elif platform == "Windows":
+			if not conf.CheckLib('opengl32'):
+				FatalError("opengl32 not found or not installed")
+			if not conf.CheckLib('glew32'):
+				FatalError("glew32 not found or not installed")
+		elif platform == "Darwin":
+			if not conf.CheckFramework("OpenGL"):
+				FatalError("OpenGL framework not found or not installed")
+		
+	if platform == "Linux":
+		if not conf.CheckLib('X11'):
+			FatalError("X11 development library not found or not installed")
+
+		if not conf.CheckLib('rt'):
+			FatalError("librt not found or not installed")
+	elif platform == "Windows":
+		#Look for regex
+		if not conf.CheckLib(['gnurx', 'regex']):
+			FatalError("regex not found or not installed")
+	elif platform == "Darwin":
+		if not conf.CheckFramework("Cocoa"):
+			FatalError("Cocoa framework not found or not installed")
+
+if not GetOption("clean"):
+	conf = Configure(env)
+	conf.AddTest('CheckFramework', CheckFramework)
+	if not conf.CheckCC() or not conf.CheckCXX():
+		FatalError("compiler not correctly configured")
+	findLibs(env, conf)
+	env = conf.Finish()
+
+if not msvc:
+	if platform == "Windows":
+		env.Append(CCFLAGS=['-std=gnu++98'])
+	else:
+		env.Append(CXXFLAGS=['-std=c++98'])
+
+
+#Add platform specific flags and defines
+if platform == "Windows":
+	env.Append(CPPDEFINES=["WIN32", "_WIN32_WINNT=0x0500"])
+	if msvc:
+		env.Append(CCFLAGS=['/Gm', '/Zi', '/EHsc']) #enable minimal rebuild, enable exceptions
+		env.Append(LINKFLAGS=['/SUBSYSTEM:WINDOWS', '/OPT:REF', '/OPT:ICF'])
+		if GetOption('static'):
+			env.Append(CCFLAGS=['/GL']) #whole program optimization (linker may freeze indefinitely without this)
+			env.Append(LINKFLAGS=['/NODEFAULTLIB:LIBCMT.lib', '/LTCG'])
+		else:
+			env.Append(LINKFLAGS=['/NODEFAULTLIB:msvcrt.lib'])
+	else:
+		env.Append(LINKFLAGS=['-mwindows'])
+elif platform == "Linux":
+	env.Append(CPPDEFINES=["LIN64"])
+elif platform == "Darwin":
+	env.Append(CPPDEFINES=["MACOSX"])
+
+
+#Add architecture flags and defines
+if isX86:
+	env.Append(CPPDEFINES='X86')
+if GetOption('sse'):
+	if msvc:
+		env.Append(CCFLAGS='/arch:SSE')
+	else:
+		env.Append(CCFLAGS='-msse')
+	env.Append(CPPDEFINES='X86_SSE')
+if GetOption('sse2'):
+	if msvc:
+		env.Append(CCFLAGS='/arch:SSE2')
+	else:
+		env.Append(CCFLAGS='-msse')
+	env.Append(CPPDEFINES='X86_SSE2')
+if GetOption('sse3'):
+	if msvc:
+		env.Append(CCFLAGS='/arch:SSE3')
+	else:
+		env.Append(CCFLAGS='-msse')
+	env.Append(CPPDEFINES='X86_SSE3')
+if GetOption('native') and not msvc:
+	env.Append(CCFLAGS='-march=native')
+
+
+#Add optimization flags and defines
+if GetOption('debugging'):
+	if msvc:
+		env.Append(CCFLAGS=['/Od'])
+		if GetOption('static'):
+			env.Append(CCFLAGS=['/MTd'])
+		else:
+			env.Append(CCFLAGS=['/MDd'])
+	else:
+		env.Append(CCFLAGS=['-Wall', '-pg', '-g'])
+elif GetOption('release'):
+	if msvc:
+		env.Append(CCFLAGS=['/O2', '/fp:fast'])
+		if GetOption('static'):
+			env.Append(CCFLAGS=['/MT'])
+		else:
+			env.Append(CCFLAGS=['/MD'])
+	else:
+		env.Append(CCFLAGS=['-O3', '-ftree-vectorize', '-funsafe-math-optimizations', '-ffast-math', '-fomit-frame-pointer', '-funsafe-loop-optimizations'])
+
+if GetOption('static'):
+	if not msvc:
+		env.Append(CCFLAGS=['-static-libgcc'])
+		env.Append(LINKFLAGS=['-static-libgcc'])
+	if platform == "Windows":
+		env.Append(CPPDEFINES=['PTW32_STATIC_LIB'])
+		if not msvc:
+			env.Append(LINKFLAGS=['-Wl,-Bstatic'])
+
+
+#Add other flags and defines
+if not GetOption('nofft'):
+	env.Append(CPPDEFINES=["GRAVFFT"])
+if not GetOption('nolua') and not GetOption('renderer'):
+	env.Append(CPPDEFINES=["LUACONSOLE"])
+
+if GetOption('opengl'):
+	env.Append(CPPDEFINES=["OGLR", "PIX32OGL", "PIXALPHA"])
+if GetOption('renderer'):
+	env.Append(CPPDEFINES=["RENDERER"])
+
+if GetOption("wall"):
+	if msvc:
+		env.Append(CCFLAGS=['/WX'])
+	else:
+		env.Append(CCFLAGS=['-Werror'])
+elif GetOption("no-warnings"):
+	if msvc:
+		env.Append(CCFLAGS=['/W0'])
+	else:
+		env.Append(CCFLAGS=['-w'])
+
+
+#Generate list of sources to compile
+sources = Glob("src/*.cpp") + Glob("src/*/*.cpp") + Glob("src/*/*/*.cpp")
+if not GetOption('nolua') and not GetOption('renderer'):
+	sources += Glob("src/socket/*.c")
+
+if platform == "Windows" and not msvc:
+	sources += env.RES('src/Resources/powder-res.rc')
+	sources = filter(lambda source: not 'src\\gravity.cpp' in str(source), sources)
+	sources = filter(lambda source: not 'src/gravity.cpp' in str(source), sources)
+	envCopy = env.Clone()
+	envCopy.Append(CCFLAGS=['-mstackrealign'])
+	sources += envCopy.Object('src/gravity.cpp')
+elif platform == "Darwin":
+	sources += ["src/SDLMain.m"]
+
+
+#Program output name
+if GetOption('output'):
+	programName = GetOption('output')
+else:
+	programName = GetOption('renderer') and "render" or "powder"
+	if GetOption('64bit'):
+		programName += "64"
+	if isX86 and not GetOption('sse2') and not GetOption('sse3'):
+		programName += "-legacy"
+	if platform == "Windows":
+		programName = programName.capitalize()
+		programName += ".exe"
+	elif platform == "Darwin":
+		programName += "-x"
+
+#strip binary after compilation
+def strip():
+	global programName
+	global env
+	strip = "strip"
+	if 'STRIP' in env:
+		strip = env['STRIP']
+	try:
+		os.system("{0} {1}/{2}".format(strip, GetOption('builddir'), programName))
+	except:
+		print("Couldn't strip binary")
+if not GetOption("debugging") and not GetOption("clean") and not msvc:
+	atexit.register(strip)
+
+#Long command line fix for mingw on windows
+if compilePlatform == "Windows" and not msvc:
+	SetupSpawn(env)
+
+#Once we get here, finally compile
+env.Decider('MD5-timestamp')
+t = env.Program(target=programName, source=sources)
+Default(t)

@@ -826,34 +826,6 @@ int file_exists(char *filename)
 	return exists;
 }
 
-int cpu_check(void)
-{
-#ifdef MACOSX
-	return 0;
-#else
-#ifdef X86
-	unsigned af,bf,cf,df;
-	x86_cpuid(0, af, bf, cf, df);
-	if (bf==0x68747541 && cf==0x444D4163 && df==0x69746E65)
-		amd = 1;
-	x86_cpuid(1, af, bf, cf, df);
-#ifdef X86_SSE
-	if (!(df&(1<<25)))
-		return 1;
-#endif
-#ifdef X86_SSE2
-	if (!(df&(1<<26)))
-		return 1;
-#endif
-#ifdef X86_SSE3
-	if (!(cf&1))
-		return 1;
-#endif
-#endif
-#endif
-	return 0;
-}
-
 matrix2d m2d_multiply_m2d(matrix2d m1, matrix2d m2)
 {
 	matrix2d result = {
@@ -932,7 +904,7 @@ void clipboard_push_text(char * text)
 	if (PasteboardClear(newclipboard)!=noErr) return;
 	PasteboardSynchronize(newclipboard);
 
-	CFDataRef data = CFDataCreate(kCFAllocatorDefault, text, strlen(text));
+	CFDataRef data = CFDataCreate(kCFAllocatorDefault, (const UInt8*)text, strlen(text));
 	PasteboardPutItemFlavor(newclipboard, (PasteboardItemID)1, CFSTR("com.apple.traditional-mac-plain-text"), data, 0);
 #elif defined WIN32
 	if (OpenClipboard(NULL))

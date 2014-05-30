@@ -17,6 +17,7 @@
 #ifndef POINT_H
 #define POINT_H
 
+//Note: OS X defines a struct Point, any file that includes both this and a common mac header will error
 struct Point
 {
 	int X;
@@ -69,5 +70,5 @@ struct Point
 		X -= other.X;
 		Y -= other.Y;
 	}
-};
+}; typedef struct Point Point;
 #endif

@@ -23,9 +23,7 @@
 #include "misc.h"
 #include "gravity.h"
 #include "interface.h"
-#ifdef LUACONSOLE
 #include "luaconsole.h"
-#endif
 
 #include "game/Brush.h"
 #include "simulation/Simulation.h"

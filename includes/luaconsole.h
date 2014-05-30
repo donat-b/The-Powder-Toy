@@ -14,6 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+#ifdef LUACONSOLE
 #ifndef LUACONSOLEH
 #define LUACONSOLEH
 
@@ -28,9 +30,6 @@ extern "C" {
 #include <lua5.1/lua.h>
 #include <lua5.1/lauxlib.h>
 #include <lua5.1/lualib.h>
-//#include <luajit-2.0/lua.h>
-//#include <luajit-2.0/lauxlib.h>
-//#include <luajit-2.0/lualib.h>
 #endif
 #ifdef __cplusplus
 }
@@ -175,4 +174,5 @@ int luatpt_oldmenu(lua_State* l);
 void set_map(int x, int y, int width, int height, float value, int map);
 void addluastuff();
 void readluastuff();
+#endif
 #endif

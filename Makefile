@@ -2,7 +2,7 @@ SOURCES := $(wildcard src/*.cpp src/*/*.cpp src/*/*/*.cpp src/socket/*.c)
 HEADERS := $(wildcard includes/*.h src/*/*.h src/simulation/elements/*.h src/socket/*.h)
 OBJS := $(patsubst src/%.c,build/obj/%.o,$(patsubst src/%.cpp,build/obj/%.o,$(SOURCES)))
 
-CFLAGS := -w -Iincludes/ -Isrc/ -D_GNU_SOURCE
+CFLAGS := -w -Iincludes/ -Isrc/ -D_GNU_SOURCE -DLUACONSOLE -DGRAVFFT
 OFLAGS := -O3 -ffast-math -ftree-vectorize -funsafe-math-optimizations -fomit-frame-pointer -funsafe-loop-optimizations -Wunsafe-loop-optimizations
 LFLAGS := -lpthread -lSDL -lfftw3f -lm -lbz2 -lX11 -llua5.1 -lrt
 LFLAGS_X := -lm -lbz2 -lSDLmain

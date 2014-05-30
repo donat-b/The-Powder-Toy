@@ -6,8 +6,7 @@
 \*=========================================================================*/
 #include <string.h> 
 
-#include "lua5.1/lauxlib.h"
-
+#include "luainc.h"
 #include "auxiliar.h"
 #include "options.h"
 #include "inet.h"

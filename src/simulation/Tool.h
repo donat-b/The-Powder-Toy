@@ -20,10 +20,11 @@
 #include <iostream>
 #include "defines.h"
 //#include "Simulation.h" //TODO: make Simulation an arg later
-#include "common/Point.h"
+
 
 enum { ELEMENT_TOOL, WALL_TOOL, TOOL_TOOL, DECO_TOOL, GOL_TOOL, INVALID_TOOL };
 
+struct Point;
 class Brush;
 class Tool
 {
@@ -84,7 +85,7 @@ public:
 
 	virtual int DrawPoint(Brush* brush, Point position);
 	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual int FloodFill(Point position) { return 0; }
+	virtual int FloodFill(Point position);
 };
 
 class ToolTool : public Tool
@@ -96,7 +97,7 @@ public:
 	virtual int DrawPoint(Brush* brush, Point position);
 	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
 	virtual void DrawRect(Point startPos, Point endPos);
-	virtual int FloodFill(Point position)  { return 0; }
+	virtual int FloodFill(Point position);
 };
 
 class PropTool : public ToolTool

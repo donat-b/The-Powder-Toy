@@ -122,11 +122,6 @@ extern unsigned char ZSIZE;
 
 #define NGOL 24
 
-//#if defined(X86_SSE) || defined(X86_SSE2) || defined(X86_SSE3)
-#define GRAVFFT
-//#endif
-#define LUACONSOLE
-
 #ifdef PIX16
 typedef unsigned short pixel;
 #else
@@ -200,7 +195,6 @@ extern int saveDataOpenSize;
 #ifdef INTERNAL
 	extern int vs;
 #endif
-extern int amd;
 
 extern float FPSB2;
 extern int main_loop;
@@ -234,10 +228,12 @@ extern int save_as;
 extern int tab_num;
 extern int num_tabs;
 extern int show_tabs;
+#ifdef __cplusplus
 class Tool;
 extern Tool* activeTools[3];
 extern Tool* regularTools[3];
 extern Tool* decoTools[3];
+#endif
 extern int activeToolID;
 extern float toolStrength;
 extern int autosave;

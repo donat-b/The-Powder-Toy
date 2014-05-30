@@ -17,9 +17,17 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 #include <vector>
+#ifdef SDL_R_INC
+#include <SDL.h>
+#else
 #include <SDL/SDL.h>
-#if (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
+#endif
+#if defined(WIN32) || defined(LIN32) || defined(LIN64)
+#ifdef SDL_R_INC
+#include <SDL_syswm.h>
+#else
 #include <SDL/SDL_syswm.h>
+#endif
 #endif
 #include "graphics.h"
 

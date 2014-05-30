@@ -26,13 +26,21 @@
 ** [ MIT license: http://www.opensource.org/licenses/mit-license.php ]
 */
 
+#ifdef LUACONSOLE
+
 #define LUA_BITOP_VERSION	"1.0.2"
 
 extern "C"
 {
-#include "lua5.1/lua.h"
-#include "lua5.1/lauxlib.h"
-#include "lua5.1/lualib.h"
+#ifdef LUA_R_INCL
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
+#else
+#include <lua5.1/lua.h>
+#include <lua5.1/lauxlib.h>
+#include <lua5.1/lualib.h>
+#endif
 }
 
 #ifdef _MSC_VER
@@ -190,3 +198,4 @@ int luaopen_bit(lua_State *L)
   return 1;
 }
 
+#endif

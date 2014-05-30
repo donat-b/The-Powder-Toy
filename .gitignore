@@ -1,5 +1,7 @@
 powder.def
 powder.pref
+.sconsign.dblite
+config.log
 *.lua
 *.lib
 *.exe
@@ -39,4 +41,4 @@ powder.pref
 /includes/dirent.h
 /includes/zlib.h
 /includes/zconf.h
-
+/.sconf_temp/

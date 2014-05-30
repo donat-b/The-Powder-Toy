@@ -1,6 +1,5 @@
-#include "luaconsole.h"
-
 #ifdef LUACONSOLE
+#include "luaconsole.h"
 
 void luaopen_multiplayer(lua_State *l)
 {

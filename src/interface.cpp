@@ -15,9 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef MACOSX
-#include <CoreFoundation/CFString.h>
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,7 +30,7 @@
 #if defined(WIN32)
 #include <direct.h>
 #endif
-#if defined(LIN32) || defined(LIN64)
+#if defined(LIN32) || defined(LIN64) || defined(MACOSX)
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -50,9 +47,7 @@
 #include "interface.h"
 #include "misc.h"
 #include "console.h"
-#ifdef LUACONSOLE
 #include "luaconsole.h"
-#endif
 #include "gravity.h"
 #include "images.h"
 
@@ -3698,6 +3693,8 @@ int EventProcess(SDL_Event event)
 			}
 			break;
 		}
+#else
+		break;
 #endif
 	}
 	return 0;

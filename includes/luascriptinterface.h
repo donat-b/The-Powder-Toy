@@ -1,3 +1,4 @@
+#ifdef LUACONSOLE
 #ifndef LUASCRIPT_H
 #define LUASCRIPT_H
 
@@ -99,4 +100,5 @@ int elements_property(lua_State * l);
 int elements_loadDefault(lua_State * l);
 int elements_free(lua_State * l);
 
+#endif
 #endif
