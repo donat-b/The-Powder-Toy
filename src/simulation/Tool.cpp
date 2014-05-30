@@ -269,7 +269,7 @@ Tool* DecoTool::Sample(Point position)
 	if (position.Y < 0 || position.Y >= YRES || position.X < 0 || position.X >= XRES)
 		return this;
 
-	unsigned int tempcolor = vid_buf[(position.Y)*(XRES + BARSIZE) + (position.X)];
+	unsigned int tempcolor = sampleColor;
 	int cr = PIXR(tempcolor);
 	int cg = PIXG(tempcolor);
 	int cb = PIXB(tempcolor);

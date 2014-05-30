@@ -446,5 +446,6 @@ if compilePlatform == "Windows" and not msvc:
 
 #Once we get here, finally compile
 env.Decider('MD5-timestamp')
+SetOption('implicit_cache', 1)
 t = env.Program(target=programName, source=sources)
 Default(t)

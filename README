@@ -726,7 +726,8 @@ on my new computer.
 ------------------------------------------------------------------------------
 -------------------------------------Bugs-------------------------------------
 ------------------------------------------------------------------------------
-deco sample doesn't work with 1px brush
+Crash on linux when reloading tabs after crash
+Box brush graphics bugs
 //None (at least that I know of)
 
 

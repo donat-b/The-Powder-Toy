@@ -65,6 +65,7 @@
 #endif
 
 extern int emp_decor;
+extern pixel sampleColor;
 
 extern unsigned int *render_modes;
 extern unsigned int render_mode;

@@ -192,6 +192,7 @@ void main(void)\
 #endif
 
 int emp_decor = 0;
+pixel sampleColor = 0;
 int sandcolor = 0;
 int sandcolor_frame = 0;
 
@@ -3736,6 +3737,7 @@ void render_after(pixel *part_vbuf, pixel *vid_buf, Point mousePos)
 #endif
 	if (finding & 0x8)
 		draw_find();
+	sampleColor = vid_buf[(mousePos.Y)*(XRES + BARSIZE) + (mousePos.X)];
 }
 
 void draw_find() //Find just like how my lua script did it, it will find everything and show it's exact spot, and not miss things under stacked particles
