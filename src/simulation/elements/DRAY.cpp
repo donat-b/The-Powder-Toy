@@ -43,7 +43,7 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 						for (int xStep = rx*-1, yStep = ry*-1, xCurrent = x+xStep, yCurrent = y+yStep; ; xCurrent+=xStep, yCurrent+=yStep)
 						{
 							int rr = pmap[yCurrent][xCurrent];
-							if (((rr&0xFF) == ctype && (ctype != PT_LIFE || parts[rr>>8].ctype == ctypeExtra))
+							if ((!copyLength && (rr&0xFF) == ctype && (ctype != PT_LIFE || parts[rr>>8].ctype == ctypeExtra))
 									|| !(--partsRemaining && sim->InBounds(xCurrent+xStep, yCurrent+yStep)))
 							{
 								copyLength -= partsRemaining;
