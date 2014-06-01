@@ -754,5 +754,5 @@ customizable settings menu completely, ability to add and read options. (also HU
 Don't save lua code inside of INDI, since this isn't a lua script anymore
 CMND - command element to run old commands
 finish what was started and add ability for multiple Simulation*s to run at once?
-Things never backported: const* changes, lua panic, regex removal, old/lua syntax highlighting, png/bmp saving
+Things never backported: const* changes, lua panic, regex removal, old/lua syntax highlighting (https://github.com/simtr/The-Powder-Toy/commit/ecf1f0e3917386f087dbe569862bd6486a4b366a), png/bmp saving
 ability to hide certain saves (based on things like number of votes, unpublished / published, username, etc.)
