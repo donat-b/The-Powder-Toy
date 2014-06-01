@@ -28,6 +28,7 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 					if (!r)
 						continue;
 					if ((r&0xFF)==PT_SPRK && parts[r>>8].life==3) {
+						bool isBlackDeco = false;
 						int destroy = (parts[r>>8].ctype==PT_PSCN)?1:0;
 						int nostop = (parts[r>>8].ctype==PT_INST)?1:0;
 						for (docontinue = 1, nxx = 0, nyy = 0, nxi = rx*-1, nyi = ry*-1; docontinue; nyy+=nyi, nxx+=nxi) {
@@ -44,6 +45,8 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 									} else
 										parts[nr].ctype = colored;
 									parts[nr].temp = parts[i].temp;
+									if (isBlackDeco)
+										parts[nr].dcolour = 0xFF000000;
 								}
 							} else if (!destroy) {
 								if ((r&0xFF)==PT_BRAY)
@@ -64,16 +67,17 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 											docontinue = 0;//then stop it
 										}
 										break;
-									case 2:
+									case 2://red bray, stop
 									default:
 										docontinue = 0;
 										break;
-									case 1:
-										//if it hits one that already was a long life, reset it
+									case 1://if it hits one that already was a long life, reset it
 										parts[r>>8].life = 1020;
 										//docontinue = 1;
 										break;
 									}
+									if (isBlackDeco)
+										parts[nr].dcolour = 0xFF000000;
 								} else if ((r&0xFF)==PT_FILT) {//get color if passed through FILT
 									if (parts[r>>8].tmp != 6)
 									{
@@ -81,6 +85,7 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 										if (!colored)
 											break;
 									}
+									isBlackDeco = (parts[r>>8].dcolour==0xFF000000);
 									parts[r>>8].life = 4;
 								//this if prevents BRAY from stopping on certain materials
 								} else if ((r&0xFF)!=PT_STOR && (r&0xFF)!=PT_INWR && ((r&0xFF)!=PT_SPRK || parts[r>>8].ctype!=PT_INWR) && (r&0xFF)!=PT_ARAY && (r&0xFF)!=PT_WIFI && !((r&0xFF)==PT_SWCH && parts[r>>8].life>=10)) {
@@ -123,7 +128,9 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 									parts[r>>8].tmp = 2;
 									parts[r>>8].life = 1;
 									docontinue = 1;
-									//this if prevents red BRAY from stopping on certain materials
+									if (isBlackDeco)
+										parts[nr].dcolour = 0xFF000000;
+								//this if prevents red BRAY from stopping on certain materials
 								} else if ((r&0xFF)==PT_STOR || (r&0xFF)==PT_INWR || ((r&0xFF)==PT_SPRK && parts[r>>8].ctype==PT_INWR) || (r&0xFF)==PT_ARAY || (r&0xFF)==PT_WIFI || (r&0xFF)==PT_FILT || ((r&0xFF)==PT_SWCH && parts[r>>8].life>=10)) {
 									if((r&0xFF)==PT_STOR)
 									{
@@ -132,6 +139,7 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 									}
 									else if ((r&0xFF)==PT_FILT)
 									{
+										isBlackDeco = (parts[r>>8].dcolour==0xFF000000);
 										parts[r>>8].life = 2;
 									}
 									docontinue = 1;
