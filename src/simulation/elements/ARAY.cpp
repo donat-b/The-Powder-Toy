@@ -81,6 +81,7 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 										if (!colored)
 											break;
 									}
+									parts[r>>8].life = 4;
 								//this if prevents BRAY from stopping on certain materials
 								} else if ((r&0xFF)!=PT_STOR && (r&0xFF)!=PT_INWR && ((r&0xFF)!=PT_SPRK || parts[r>>8].ctype!=PT_INWR) && (r&0xFF)!=PT_ARAY && (r&0xFF)!=PT_WIFI && !((r&0xFF)==PT_SWCH && parts[r>>8].life>=10)) {
 									if ((nyy!=0 || nxx!=0) && (r&0xFF) != PT_WIRE)
@@ -128,6 +129,10 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 									{
 										parts[r>>8].tmp = 0;
 										parts[r>>8].life = 0;
+									}
+									else if ((r&0xFF)==PT_FILT)
+									{
+										parts[r>>8].life = 2;
 									}
 									docontinue = 1;
 								} else {
