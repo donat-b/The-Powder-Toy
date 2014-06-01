@@ -90,7 +90,6 @@ public:
 	void CreatePropBrush(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset, Brush* brush);
 	void CreatePropLine(int x1, int y1, int x2, int y2, PropertyType propType, PropertyValue propValue, size_t propOffset, Brush* brush);
 	void CreatePropBox(int x1, int y1, int x2, int y2, PropertyType propType, PropertyValue propValue, size_t propOffset);
-	int FloodPropHelper(int x, int y, int partType, PropertyType propType, PropertyValue propValue, size_t propOffset, char * bitmap);
 	int FloodProp(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset);
 
 	void CreateDeco(int x, int y, int tool, unsigned int color);

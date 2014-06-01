@@ -1710,12 +1710,12 @@ int Simulation::FloodParts(int x, int y, int fullc, int replace, int flags)
 	if (replace == -1)
 	{
 		//if initial flood point is out of bounds, do nothing
-		if (c != 0 && (x < CELL || x >= XRES-CELL || y < CELL || y >= YRES-CELL))
+		if (c != 0 && (x < CELL || x >= XRES-CELL || y < CELL || y >= YRES-CELL || c == PT_SPRK))
 			return 1;
-		if (c==0)
+		if (c == 0)
 		{
 			replace = pmap[y][x]&0xFF;
-			if(!replace && !(replace = photons[y][x]&0xFF))
+			if (!replace && !(replace = photons[y][x]&0xFF))
 			{
 				if (bmap[y/CELL][x/CELL])
 					return FloodWalls(x/CELL, y/CELL, WL_ERASE, -1);
@@ -2278,59 +2278,85 @@ void Simulation::CreatePropBox(int x1, int y1, int x2, int y2, PropertyType prop
 			CreateProp(i, j, propType, propValue, propOffset);
 }
 
-int Simulation::FloodPropHelper(int x, int y, int partType, PropertyType propType, PropertyValue propValue, size_t propOffset, char * bitmap)
-{
-	int x1, x2, dy = 1;
-	x1 = x2 = x;
-	while (x1 >= CELL)
-	{
-		if (!FloodFillPmapCheck(x1 - 1, y, partType) || bitmap[(y*XRES) + x1 - 1])
-		{
-			break;
-		}
-		x1--;
-	}
-	while (x2<XRES - CELL)
-	{
-		if (!FloodFillPmapCheck(x2 + 1, y, partType) || bitmap[(y*XRES) + x2 + 1])
-		{
-			break;
-		}
-		x2++;
-	}
-	for (x = x1; x <= x2; x++)
-	{
-		CreateProp(x, y, propType, propValue, propOffset);
-		bitmap[(y*XRES) + x] = 1;
-	}
-	if (y >= CELL + dy)
-		for (x = x1; x <= x2; x++)
-			if (FloodFillPmapCheck(x, y - dy, partType) && !bitmap[((y - dy)*XRES) + x])
-				if (!FloodPropHelper(x, y - dy, partType, propType, propValue, propOffset, bitmap))
-					return 0;
-	if (y<YRES - CELL - dy)
-		for (x = x1; x <= x2; x++)
-			if (FloodFillPmapCheck(x, y + dy, partType) && !bitmap[((y + dy)*XRES) + x])
-				if (!FloodPropHelper(x, y + dy, partType, propType, propValue, propOffset, bitmap))
-					return 0;
-	return 1;
-}
-
 int Simulation::FloodProp(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset)
 {
-	int r = 0;
-	char * bitmap = (char*)malloc(XRES*YRES); //Bitmap for checking
-	if (bitmap == 0)
-		return 0;
-	memset(bitmap, 0, XRES*YRES);
-	r = pmap[y][x];
+	int i, x1, x2, dy = 1;
+	int did_something = 0;
+	int r = pmap[y][x];
 	if (!r)
 		r = photons[y][x];
 	if (!r)
-		return 1;
-	FloodPropHelper(x, y, r & 0xFF, propType, propValue, propOffset, bitmap);
+		return 0;
+	int parttype = (r&0xFF);
+	char * bitmap = (char*)malloc(XRES*YRES); //Bitmap for checking
+	if (!bitmap) return -1;
+	memset(bitmap, 0, XRES*YRES);
+	try
+	{
+		CoordStack cs;
+		cs.push(x, y);
+		do
+		{
+			cs.pop(x, y);
+			x1 = x2 = x;
+			x1 = x2 = x;
+			while (x1>=CELL)
+			{
+				if (!FloodFillPmapCheck(x1-1, y, parttype) || bitmap[(y*XRES)+x1-1])
+					break;
+				x1--;
+			}
+			while (x2<XRES-CELL)
+			{
+				if (!FloodFillPmapCheck(x2+1, y, parttype) || bitmap[(y*XRES)+x2+1])
+					break;
+				x2++;
+			}
+			for (x=x1; x<=x2; x++)
+			{
+				i = pmap[y][x];
+				if (!i)
+					i = photons[y][x];
+				if (!i)
+					continue;
+				switch (propType) {
+					case Float:
+						*((float*)(((char*)&parts[i>>8])+propOffset)) = propValue.Float;
+						break;
+
+					case ParticleType:
+					case Integer:
+						*((int*)(((char*)&parts[i>>8])+propOffset)) = propValue.Integer;
+						break;
+
+					case UInteger:
+						*((unsigned int*)(((char*)&parts[i>>8])+propOffset)) = propValue.UInteger;
+						break;
+
+					default:
+						break;
+				}
+				bitmap[(y*XRES)+x] = 1;
+				did_something = 1;
+			}
+			if (y>=CELL+dy)
+				for (x=x1; x<=x2; x++)
+					if (FloodFillPmapCheck(x, y-dy, parttype) && !bitmap[((y-dy)*XRES)+x])
+						cs.push(x, y-dy);
+			if (y<YRES-CELL-dy)
+				for (x=x1; x<=x2; x++)
+					if (FloodFillPmapCheck(x, y+dy, parttype) && !bitmap[((y+dy)*XRES)+x])
+						cs.push(x, y+dy);
+		} while (cs.getSize()>0);
+	}
+	catch (std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
+		free(bitmap);
+		return -1;
+	}
 	free(bitmap);
-	return 0;
+	return did_something;
 }
 
 void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
