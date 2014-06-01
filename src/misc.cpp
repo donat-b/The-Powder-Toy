@@ -58,6 +58,8 @@ extern "C"
 {
 char * readUserPreferences();
 void writeUserPreferences(const char * prefData);
+char * readClipboard();
+void writeClipboard(const char * clipboardData);
 }
 #endif
 
@@ -916,14 +918,7 @@ void clipboard_push_text(char * text)
 	}
 	clipboardtext = mystrdup(text);
 #ifdef MACOSX
-	PasteboardRef newclipboard;
-
-	if (PasteboardCreate(kPasteboardClipboard, &newclipboard)!=noErr) return;
-	if (PasteboardClear(newclipboard)!=noErr) return;
-	PasteboardSynchronize(newclipboard);
-
-	CFDataRef data = CFDataCreate(kCFAllocatorDefault, (const UInt8*)text, strlen(text));
-	PasteboardPutItemFlavor(newclipboard, (PasteboardItemID)1, CFSTR("com.apple.traditional-mac-plain-text"), data, 0);
+	writeClipboard(text);
 #elif defined WIN32
 	if (OpenClipboard(NULL))
 	{
@@ -959,7 +954,10 @@ void clipboard_push_text(char * text)
 char * clipboard_pull_text()
 {
 #ifdef MACOSX
-	printf("Not implemented: get text from clipboard\n");
+	char * data = readClipboard();
+	if (!data)
+		return mystrdup("");
+	return mystrdup(data);
 #elif defined WIN32
 	if (OpenClipboard(NULL))
 	{
