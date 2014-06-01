@@ -237,8 +237,6 @@ static void CustomApplicationMain (int argc, char **argv)
 
 #endif
 
-void *file_load(const char *fn, int *size);
-
 /*
  * Catch document open requests...this lets us notice files when the app
  *  was launched by double-clicking a document, or when a document was
@@ -286,23 +284,6 @@ void *file_load(const char *fn, int *size);
     gArgv[gArgc++] = arg;
     gArgv[gArgc] = NULL;
 	return TRUE;
-	/*const char * tempArg;
-	char * arg;
-	size_t argLen;
-	tempArg = [filename UTF8String];
-	argLen = SDL_strlen(tempArg)+1;
-	arg = (char *) SDL_malloc(argLen);
-	if (arg == NULL)
-        return FALSE;
-	SDL_strlcpy(arg, tempArg, argLen);
-	
-	saveDataOpen = file_load((const char*)arg, &saveDataOpenSize);
-	if(saveDataOpen)
-		return TRUE;
-	
-	saveDataOpen = NULL;
-	saveDataOpenSize = 0;
-	return FALSE;*/
 }
 
 - (void)handleGetURLEvent:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent
@@ -383,7 +364,35 @@ void *file_load(const char *fn, int *size);
 
 @end
 
+char * readUserPreferences()
+{
+	NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 
+	NSString *prefDataNSString = [prefs stringForKey:@"powder.pref"];
+	const char *prefData = [prefDataNSString UTF8String];
+	if(prefData == NULL)
+		prefData = "";
+
+	char *prefDataCopy = calloc([prefDataNSString length]+1, 1);
+	SDL_strlcpy(prefDataCopy, prefData, [prefDataNSString length]+1);
+
+	[prefDataNSString release];
+	[prefs release];
+
+	return prefDataCopy;
+}
+
+void writeUserPreferences(const char * prefData)
+{
+	NSString *prefDataNSString = [NSString stringWithUTF8String:prefData];
+
+	NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+	[prefs setObject:prefDataNSString forKey:@"powder.pref"];
+	[prefs synchronize];
+
+	[prefDataNSString release];
+	[prefs release];
+}
 
 #ifdef main
 #  undef main

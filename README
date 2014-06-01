@@ -728,6 +728,7 @@ on my new computer.
 ------------------------------------------------------------------------------
 Crash on linux when reloading tabs after crash
 Box brush graphics bugs
+Mouse coords wrong when holding z (uses coords of top left corner)
 //None (at least that I know of)
 
 

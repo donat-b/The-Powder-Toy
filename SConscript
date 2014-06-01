@@ -318,6 +318,7 @@ elif platform == "Linux":
 	env.Append(CPPDEFINES="LIN64")
 elif platform == "Darwin":
 	env.Append(CPPDEFINES="MACOSX")
+	env.Append(LINKFLAGS="-headerpad_max_install_names")
 
 
 #Add architecture flags and defines
