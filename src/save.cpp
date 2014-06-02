@@ -432,6 +432,8 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 				if(wallData[y*blockW+x])
 				{
 					wt = change_wallpp(wallData[y*blockW+x]);
+					if (wt < 0 || wt >= WALLCOUNT)
+						continue;
 					pc = wallTypes[wt].colour;
 					gc = wallTypes[wt].eglow;
 					if (wallTypes[wt].drawstyle==1)
@@ -1840,17 +1842,22 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	if (wallData)
 	{
 		j = 0;
-		if(blockW * blockH > wallDataLen)
+		if (blockW * blockH > wallDataLen)
 		{
 			fprintf(stderr, "Not enough wall data\n");
 			goto fail;
 		}
-		for(x = 0; x < blockW; x++)
+		for (x = 0; x < blockW; x++)
 		{
-			for(y = 0; y < blockH; y++)
+			for (y = 0; y < blockH; y++)
 			{
 				if (wallData[y*blockW+x])
-					bmap[blockY+y][blockX+x] = change_wallpp(wallData[y*blockW+x]);
+				{
+					int wt = change_wallpp(wallData[y*blockW+x]);
+					if (wt < 0 || wt >= WALLCOUNT)
+						continue;
+					bmap[blockY+y][blockX+x] = wt;
+				}
 				if (wallData[y*blockW+x] == WL_FAN && fanData)
 				{
 					if(j+1 >= fanDataLen)
@@ -2429,9 +2436,11 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 	for (y=0; y<bh; y++)
 		for (x=0; x<bw; x++)
 		{
-			int wt = change_wall(d[p]);
+			int wt = change_wall(d[p++]);
 			if (c[4] >= 44)
 				wt = change_wallpp(wt);
+			if (wt < 0 || wt >= WALLCOUNT)
+				continue;
 			rx = x*CELL;
 			ry = y*CELL;
 			pc = wallTypes[wt].colour;
@@ -2493,7 +2502,6 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 			}
 			else if (wt==WL_FAN)
 				k++;
-			p++;
 		}
 	p += 2*k;
 	if (p>=size)
@@ -2800,6 +2808,8 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 				bmap[y][x] = change_wall(d[p]);
 				if (ver >= 44)
 					bmap[y][x] = change_wallpp(bmap[y][x]);
+				if (bmap[y][x] < 0 || bmap[y][x] >= WALLCOUNT)
+					bmap[y][x] = 0;
 			}
 
 			p++;
