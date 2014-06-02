@@ -82,7 +82,7 @@ void FillMenus()
 	{
 		if (globalSim->elements[i].Enabled && i != PT_LIFE)
 		{
-			if (globalSim->elements[i].MenuVisible || secret_els)
+			if ((globalSim->elements[i].MenuVisible || secret_els) && globalSim->elements[i].MenuSection >= 0 && globalSim->elements[i].MenuSection < SC_TOTAL && globalSim->elements[i].MenuSection != SC_FAV)
 			{
 				menuSections[globalSim->elements[i].MenuSection]->AddTool(new ElementTool(i));
 			}
