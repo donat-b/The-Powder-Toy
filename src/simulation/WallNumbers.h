@@ -39,10 +39,11 @@
 #define WL_ALLOWGAS		13
 #define WL_GRAV			14
 #define WL_ALLOWENERGY	15
-#define WL_ERASEALL		16
+#define WL_BLOCKAIR		16
+#define WL_ERASEALL		17
 #define WL_FANHELPER	255
 
-#define WALLCOUNT 17
+#define WALLCOUNT 18
 
 struct wallType
 {
@@ -73,6 +74,7 @@ static wallType wallTypes[] =
 	{"GAS WALL",		"DEFAULT_WL_GAS",	PIXPACK(0x579777), PIXPACK(0x000000), 1,  "Allows gases, blocks all other particles."},
 	{"GRAVITY WALL",	"DEFAULT_WL_GRVTY",	PIXPACK(0xFFEE00), PIXPACK(0xAA9900), 4,  "Gravity wall. Newtonian Gravity has no effect inside a box drawn with this."},
 	{"ENERGY WALL",		"DEFAULT_WL_ENRGY",	PIXPACK(0xFFAA00), PIXPACK(0xAA5500), 4,  "Allows energy particles, blocks all other particles."},
+	{"AIRBLOCK WALL",	"DEFAULT_WL_NOAIR",	PIXPACK(0xDCDCDC), PIXPACK(0x000000), 1,  "Allows all particles, but blocks air."},
 	{"ERASEALL",		"DEFAULT_WL_ERASEA",PIXPACK(0x808080), PIXPACK(0x000000), -1, "Erases walls, particles, and signs."}
 };
 

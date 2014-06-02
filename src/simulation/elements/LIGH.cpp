@@ -89,8 +89,6 @@ void create_line_par(Simulation *sim, int x1, int y1, int x2, int y2, int c, int
 {
 	int reverseXY=abs(y2-y1)>abs(x2-x1), back = 0, x, y, dx, dy, Ystep;
 	float e = 0.0f, de;
-	if (c==WL_EHOLE || c==WL_ALLOWGAS || c==WL_ALLOWALLELEC || c==WL_ALLOWSOLID || c==WL_ALLOWAIR || c==WL_WALL || c==WL_DESTROYALL || c==WL_ALLOWLIQUID || c==WL_FAN || c==WL_STREAM || c==WL_DETECT || c==WL_EWALL || c==WL_WALLELEC)
-		return; // this function only for particles, no walls
 	if (reverseXY)
 	{
 		y = x1;

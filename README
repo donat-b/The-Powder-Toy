@@ -726,10 +726,7 @@ on my new computer.
 ------------------------------------------------------------------------------
 -------------------------------------Bugs-------------------------------------
 ------------------------------------------------------------------------------
-Crash on linux when reloading tabs after crash
-Box brush graphics bugs
-Mouse coords wrong when holding z (uses coords of top left corner)
-//None (at least that I know of)
+None (at least that I know of)
 
 
 
@@ -738,7 +735,6 @@ Mouse coords wrong when holding z (uses coords of top left corner)
 -------------------------------------TODO-------------------------------------
 ------------------------------------------------------------------------------
 TODO: '>' means currently being worked on/added next
->wall that blocks pressure but not particles
 Redo fav menu ...
 Do something about the massively repeated drawing code in Simulation.cpp
 make open ui more colorful like tpt++, also fix cut off description in save uploading ui

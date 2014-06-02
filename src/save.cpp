@@ -198,6 +198,19 @@ int check_save(int save_as, int orig_x0, int orig_y0, int orig_w, int orig_h, in
 			}
 		}
 	}
+	for (int x = 0; x < XRES/CELL; x++)
+		for (int y = 0; y < YRES/CELL; y++)
+		{
+			if (bmap[y][x] == WL_BLOCKAIR)
+			{
+				if (give_warning)
+				{
+					char errortext[256] = "";
+					sprintf(errortext, "Found air blocking wall at X:%i Y:%i, cannot save", x*CELL, y*CELL);
+				}
+				return 1;
+			}
+		}
 	return 0;
 }
 
