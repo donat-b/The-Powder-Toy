@@ -1499,7 +1499,7 @@ int main(int argc, char *argv[])
 			if (lm != 2)
 				if (lm && (sdl_mod & KMOD_ALT))
 					render_cursor(vid_buf, line_x, line_y, activeTools[activeToolID], currentBrush);
-				else
+				else if ((x < XRES && y < YRES) || lb)
 					render_cursor(vid_buf, mx, my, activeTools[activeToolID], currentBrush);
 
 			if (lb)
