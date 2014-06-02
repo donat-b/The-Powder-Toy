@@ -1508,10 +1508,30 @@ int main(int argc, char *argv[])
 					xor_line(lx, ly, line_x, line_y, vid_buf);
 				else if (lm == 2)
 				{
-					xor_line(lx, ly, lx, line_y, vid_buf);
-					xor_line(lx, line_y, line_x, line_y, vid_buf);
-					xor_line(line_x, line_y, line_x, ly, vid_buf);
-					xor_line(line_x, ly, lx, ly, vid_buf);
+					int width = line_x-lx;
+					int height = line_y-ly;
+					Point pos = Point(lx, ly);
+					if (width < 0)
+					{
+						pos.X += width;
+						width *= -1;
+					}
+					if (height < 0)
+					{
+						pos.Y += height;
+						height *= -1;
+					}
+					xor_line(pos.X, pos.Y, pos.X+width, pos.Y, vid_buf);
+					if (height > 0)
+					{
+						xor_line(pos.X, pos.Y+height, pos.X+width, pos.Y+height, vid_buf);
+						if (height > 1)
+						{
+							xor_line(pos.X, pos.Y+1, pos.X, pos.Y+height-1, vid_buf);
+							if (width > 0)
+								xor_line(pos.X+width, pos.Y+1, pos.X+width, pos.Y+height-1, vid_buf);
+						}
+					}
 				}
 			}
 		}
@@ -2659,15 +2679,19 @@ int main(int argc, char *argv[])
 		//update coordinates for zoom window before it is placed
 		if (sdl_zoom_trig && zoom_en < 2)
 		{
-			x -= ZSIZE/2;
-			y -= ZSIZE/2;
-			if (x<0) x=0;
-			if (y<0) y=0;
-			if (x>XRES-ZSIZE) x=XRES-ZSIZE;
-			if (y>YRES-ZSIZE) y=YRES-ZSIZE;
-			zoom_x = x;
-			zoom_y = y;
-			zoom_wx = (x<XRES/2) ? XRES-ZSIZE*ZFACTOR : 0;
+			int zoomX = x-ZSIZE/2;
+			int zoomY = y-ZSIZE/2;
+			if (zoomX < 0)
+				zoomX = 0;
+			else if (zoomX > XRES-ZSIZE)
+				zoomX = XRES-ZSIZE;
+			if (zoomY < 0)
+				zoomY = 0;
+			else if (zoomY > YRES-ZSIZE)
+				zoomY = YRES-ZSIZE;
+			zoom_x = zoomX;
+			zoom_y = zoomY;
+			zoom_wx = (zoomX<XRES/2) ? XRES-ZSIZE*ZFACTOR : 0;
 			zoom_wy = 0;
 			zoom_en = 1;
 		}
