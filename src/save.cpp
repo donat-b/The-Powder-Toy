@@ -1231,7 +1231,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 		bson_append_string(&b, "ID", svf_id);
 		bson_append_string(&b, "description", svf_description);
 		bson_append_string(&b, "author", svf_author);
-		bson_append_string_n(&b, "tags", svf_tags, 256);
+		bson_append_string_n(&b, "tags", svf_tags, 255);
 		bson_append_int(&b, "myVote", svf_myvote);
 		bson_append_finish_object(&b);
 	}
@@ -1801,7 +1801,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					else if(!strcmp(bson_iterator_key(&saveInfoiter), "description") && bson_iterator_type(&saveInfoiter) == BSON_STRING)
 						strncpy(svf_description, bson_iterator_string(&saveInfoiter), 254);
 					else if(!strcmp(bson_iterator_key(&saveInfoiter), "author") && bson_iterator_type(&saveInfoiter) == BSON_STRING)
-						strncpy(svf_author, bson_iterator_string(&saveInfoiter), 254);
+						strncpy(svf_author, bson_iterator_string(&saveInfoiter), 63);
 					else if(!strcmp(bson_iterator_key(&saveInfoiter), "tags") && bson_iterator_type(&saveInfoiter) == BSON_STRING)
 						strncpy(svf_tags, bson_iterator_string(&saveInfoiter), 255);
 					else if(!strcmp(bson_iterator_key(&saveInfoiter), "myVote") && bson_iterator_type(&saveInfoiter) == BSON_INT)
