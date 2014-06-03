@@ -43,6 +43,7 @@ Joeboy25 - AMTR ctypes
 baizuo - Multiple element highlights
 The-Fall - GEL and SPNG can absorb water from more elements (ex. PSTE + SPNG -> CLST)
 GIGATeun - GRVI (gravitons)
+minecraft-physics - DRAY (duplicator ray)
 
 
 mniip - hosts the update server
@@ -53,11 +54,11 @@ cracker64 - made TPTMP, and hosts the TPTMP server
 2014 April fools joke element suggestions:
 therocketeer - DKLQ (dinosaur knee liquid)
 CatAnimation - BLOD/COCO/COCJ/LOLZ2
-Darthanihlus- POOP
+Darthanihlus - POOP
 cracker64 - CMD
 bowserinator - DMD2/BDMD (breakable diamond)
 Kikinicij - BATT (ban all the things)
-Nakriollag- DIMT
+Nakriollag - DIMT
 
 
 
@@ -719,6 +720,18 @@ Bluescreen message.
 Version 28.1 (build 40) 5/9/13
 Fix crash with Newtonian Gravity, by compiling on the update server instead of 
 on my new computer.
+
+Version 29.0 6/2/13
+New Element: DRAY. Replicates a line of particles in front of it. Modify with
+.tmp (copyLength), .tmp2 (spaces after copy), and .ctype (element to end copy
+with when .tmp isn't set). New Wall: AIRBLOCK. Allows all particles but not
+air. New build system: SCons. Also NEW: mac version, needs testing but will
+hopefully work on all OS X Versions 10.5+. Fix deco sample with small brush
+sizes. Fix incorrect coords when placing zoom window, hide cursor when mouse
+is in menus. Fix some crashes with invalid walls/menusections in lua. Update
+to latest tpt source, which includes: visual effect for BRAY through FILT,
+changes to deco on FILT/PHOT, less overpowered QRTZ bunkers, and fix for TNT
+floodfill crash.
 
 
 

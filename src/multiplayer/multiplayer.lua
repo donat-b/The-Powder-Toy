@@ -1,8 +1,8 @@
 --Cracker64's Powder Toy Multiplayer
 --I highly recommend to use my Autorun Script Manager
---VER 0.7 UPDATE http://pastebin.com/raw.php?i=Dk5Kx4JV
+--VER 0.71 UPDATE http://pastebin.com/raw.php?i=Dk5Kx4JV
  
---Version 0.7
+--Version 0.71
 
 --TODO's
 --Support replace mode
@@ -456,7 +456,7 @@ new=function(x,y,w,h)
 	chat.inputbox = ui_inputbox.new(x,chat.y2-10,w,10)
 	chat.minimize = ui_button.new(chat.x2-15,chat.y,15,10,function() chat.moving=false chat.inputbox:setfocus(false) L.chatHidden=true end,">>")
 	chat:drawadd(function(self)
-		tpt.drawtext(self.x+85,self.y+2,"TPT Multiplayer")
+		tpt.drawtext(self.x+55,self.y+2,"TPT Multiplayer, by cracker64")
 		tpt.drawline(self.x+1,self.y+10,self.x2-1,self.y+10,120,120,120)
 		self.scrollbar:draw()
 		local count=0
@@ -1648,7 +1648,7 @@ function TPTMP.disableMultiplayer()
 end
 
 function TPTMP.enableMultiplayer()
-	chatwindow:addline("TPTMP v0.7: Type '/connect' to join server, or    /list for a list of commands.",200,200,200)
+	chatwindow:addline("TPTMP v0.71: Type '/connect' to join server, or    /list for a list of commands.",200,200,200)
 	hooks_enabled = true
 	TPTMP.enableMultiplayer = nil
 	debug.sethook(nil,"",0)

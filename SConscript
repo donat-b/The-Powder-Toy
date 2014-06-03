@@ -35,7 +35,7 @@ def FatalError(message):
 
 #wrapper around SCons' AddOption
 def AddSconsOption(name, default, hasArgs, help):
-	AddOption("--{0}".format(name), dest=name, action=(hasArgs and "store" or "store_true"), default=default, help=help)
+	AddOption("--{0}".format(name), dest=name, action=("store" if hasArgs else "store_true"), default=default, help=help)
 
 AddSconsOption('win', False, False, "Target Windows")
 AddSconsOption('lin', False, False, "Target Linux")
@@ -435,7 +435,7 @@ def strip():
 	global programName
 	global env
 	try:
-		os.system("{0} {1}/{2}".format('STRIP' in env and env['STRIP'] or "strip", GetOption('builddir'), programName))
+		os.system("{0} {1}/{2}".format(env['STRIP'] if 'STRIP' in env else "strip", GetOption('builddir'), programName))
 	except:
 		print("Couldn't strip binary")
 if not GetOption('debugging') and not GetOption('clean') and not msvc:
