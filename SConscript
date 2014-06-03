@@ -173,13 +173,11 @@ def findLibs(env, conf):
 			libChecks = ['shell32', 'wsock32', 'user32', 'Advapi32']
 			if GetOption('static'):
 				libChecks += ['msvcrt', 'dxguid']
+			for i in libChecks:
+				if not conf.CheckLib(i):
+					FatalError("Error: some windows libraries not found or not installed, make sure your compiler is set up correctly")
 		else:
-			libChecks = ['mingw32', 'dxguid']
-
-		libChecks += ['ws2_32', 'gdi32', 'winmm']
-
-		for i in libChecks:
-			if not conf.CheckLib(i):
+			if not conf.CheckLib('mingw32') or not conf.CheckLib('ws2_32'):
 				FatalError("Error: some windows libraries not found or not installed, make sure your compiler is set up correctly")
 
 		if not conf.CheckLib('SDLmain'):
@@ -282,6 +280,10 @@ def findLibs(env, conf):
 		#Look for regex
 		if not conf.CheckLib(['gnurx', 'regex']):
 			FatalError("regex not found or not installed")
+
+		#These need to go last
+		if not conf.CheckLib('gdi32') or not conf.CheckLib('winmm') or (not msvc and not conf.CheckLib('dxguid')):
+			FatalError("Error: some windows libraries not found or not installed, make sure your compiler is set up correctly")
 	elif platform == "Darwin":
 		if not conf.CheckFramework("Cocoa"):
 			FatalError("Cocoa framework not found or not installed")
@@ -334,13 +336,13 @@ if GetOption('sse2'):
 	if msvc:
 		env.Append(CCFLAGS='/arch:SSE2')
 	else:
-		env.Append(CCFLAGS='-msse')
+		env.Append(CCFLAGS='-msse2')
 	env.Append(CPPDEFINES='X86_SSE2')
 if GetOption('sse3'):
 	if msvc:
 		env.Append(CCFLAGS='/arch:SSE3')
 	else:
-		env.Append(CCFLAGS='-msse')
+		env.Append(CCFLAGS='-msse3')
 	env.Append(CPPDEFINES='X86_SSE3')
 if GetOption('native') and not msvc:
 	env.Append(CCFLAGS='-march=native')
