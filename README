@@ -707,21 +707,21 @@ Remove april fools joke (15 elements from last version). Bug fixes in the last
 version: fix cursor lines / stamps not appearing in zoom window, Fix particle
 order issues with box drawing, Save ctrl+z snapshot before pasting stamps.
 
-Version 28.0 5/3/13
+Version 28.0 5/3/14
 More simulation rewrites/cleanups. Fix bug where things may stack and form
 BHOL at the top of the screen. RAZR goes through GEL and kills stickmen. Fix
 bug where CRAY wouldn't spark INST. Update TPTMP to point to new server and
 fix a few bugs / errors with it. Simulation updates and bugfixes from tpt++.
 
-Version 28.1 5/8/13
+Version 28.1 5/8/14
 Fix crash when using ETRD. Fix out of screen errors in TPTMP. Update
 Bluescreen message.
 
-Version 28.1 (build 40) 5/9/13
+Version 28.1 (build 40) 5/9/14
 Fix crash with Newtonian Gravity, by compiling on the update server instead of 
 on my new computer.
 
-Version 29.0 6/2/13
+Version 29.0 6/2/14
 New Element: DRAY. Replicates a line of particles in front of it. Modify with
 .tmp (copyLength), .tmp2 (spaces after copy), and .ctype (element to end copy
 with when .tmp isn't set). New Wall: AIRBLOCK. Allows all particles but not
@@ -732,6 +732,9 @@ is in menus. Fix some crashes with invalid walls/menusections in lua. Update
 to latest tpt source, which includes: visual effect for BRAY through FILT,
 changes to deco on FILT/PHOT, less overpowered QRTZ bunkers, and fix for TNT
 floodfill crash.
+
+Version 29.1 6/4/14
+Fix crash when using BRAY. Possibly fix bugs with setting scale.
 
 
 
