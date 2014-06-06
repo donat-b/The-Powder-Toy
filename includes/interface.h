@@ -22,7 +22,7 @@
 #else
 #include <SDL/SDL.h>
 #endif
-#if defined(WIN32) || defined(LIN32) || defined(LIN64)
+#if defined(WIN) || defined(LIN)
 #ifdef SDL_R_INC
 #include <SDL_syswm.h>
 #else
@@ -178,7 +178,7 @@ extern command_history *last_command_result;
 
 extern SDLMod sdl_mod;
 extern int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii, sdl_zoom_trig;
-#if (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
+#if defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
 extern SDL_SysWMinfo sdl_wminfo;
 extern Atom XA_CLIPBOARD, XA_TARGETS, XA_UTF8_STRING, XA_NET_FRAME_EXTENTS;
 #endif

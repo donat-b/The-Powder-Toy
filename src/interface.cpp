@@ -22,20 +22,20 @@
 #include <bzlib.h>
 #include <math.h>
 #include <time.h>
-#if defined(WIN32) && !defined(__GNUC__)
+#if defined(WIN) && !defined(__GNUC__)
 #include <io.h>
 #else
 #include <dirent.h>
 #endif
-#if defined(WIN32)
+#ifdef WIN
 #include <direct.h>
 #endif
-#if defined(LIN32) || defined(LIN64) || defined(MACOSX)
+#if defined(LIN) || defined(MACOSX)
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-#ifdef WIN32
+#ifdef WIN
 #include <SDL/SDL_syswm.h>
 #endif
 
@@ -66,7 +66,7 @@
 
 SDLMod sdl_mod;
 int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii, sdl_zoom_trig=0;
-#if (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
+#if defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
 SDL_SysWMinfo sdl_wminfo;
 Atom XA_CLIPBOARD, XA_TARGETS, XA_UTF8_STRING, XA_NET_FRAME_EXTENTS;
 #endif
@@ -3630,7 +3630,7 @@ int EventProcess(SDL_Event event)
 			has_quit = 1;
 		return 1;
 	case SDL_SYSWMEVENT:
-#if (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
+#if defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
 		if (event.syswm.msg->subsystem != SDL_SYSWM_X11)
 			break;
 		sdl_wminfo.info.x11.lock_func();
@@ -3671,7 +3671,7 @@ int EventProcess(SDL_Event event)
 			XSendEvent(sdl_wminfo.info.x11.display, xe.xselectionrequest.requestor, 0, 0, &xr);
 		}
 		sdl_wminfo.info.x11.unlock_func();
-#elif defined(WIN32)
+#elif WIN
 		switch (event.syswm.msg->msg)
 		{
 		case WM_USER+614:
@@ -6703,19 +6703,14 @@ int execute_vote(pixel *vid_buf, char *id, char *action)
 	return 1;
 }
 void open_link(char *uri) {
-#ifdef WIN32
+#ifdef WIN
 	ShellExecute(0, "OPEN", uri, NULL, NULL, 0);
 #elif MACOSX
 	char *cmd = (char*)malloc(7+strlen(uri));
 	strcpy(cmd, "open ");
 	strappend(cmd, uri);
 	system(cmd);
-#elif LIN32
-	char *cmd = (char*)malloc(11+strlen(uri));
-	strcpy(cmd, "xdg-open ");
-	strappend(cmd, uri);
-	system(cmd);
-#elif LIN64
+#elif LIN
 	char *cmd = (char*)malloc(11+strlen(uri));
 	strcpy(cmd, "xdg-open ");
 	strappend(cmd, uri);
@@ -7555,7 +7550,7 @@ savelist_e *get_local_saves(char *folder, char *search, int *results_ret)
 	savelist_e *new_savelist = NULL;
 	savelist_e *current_item = NULL, *new_item = NULL;
 	char *fname;
-#if defined(WIN32) && !defined(__GNUC__)
+#if defined(WIN) && !defined(__GNUC__)
 	struct _finddata_t current_file;
 	intptr_t findfile_handle;
 	char *filematch = (char*)malloc(strlen(folder)+4);
@@ -7606,7 +7601,7 @@ savelist_e *get_local_saves(char *folder, char *search, int *results_ret)
 			}
 		}
 	}
-#if defined(WIN32) && !defined(__GNUC__)
+#if defined(WIN) && !defined(__GNUC__)
 	while (_findnext(findfile_handle, &current_file) == 0);
 	_findclose(findfile_handle);
 #else
@@ -7736,7 +7731,7 @@ int save_filename_ui(pixel *vid_buf)
 				sprintf(filename, "%s%s%s.cps", LOCAL_SAVE_DIR, PATH_SEP, ed.str);
 				sprintf(savefname, "%s.cps", ed.str);
 			
-#ifdef WIN32
+#ifdef WIN
 				_mkdir(LOCAL_SAVE_DIR);
 #else
 				mkdir(LOCAL_SAVE_DIR, 0755);

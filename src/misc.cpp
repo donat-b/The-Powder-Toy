@@ -22,7 +22,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <sys/stat.h>
-#if defined WIN32
+#ifdef WIN
 #include <shlobj.h>
 #include <shlwapi.h>
 #include <windows.h>
@@ -35,7 +35,7 @@
 #endif
 #include <math.h>
 
-#if defined(LIN32) || defined(LIN64)
+#ifdef LIN
 #include "images.h"
 #endif
 #include "misc.h"
@@ -919,7 +919,7 @@ void clipboard_push_text(char * text)
 	clipboardtext = mystrdup(text);
 #ifdef MACOSX
 	writeClipboard(text);
-#elif defined WIN32
+#elif WIN
 	if (OpenClipboard(NULL))
 	{
 		HGLOBAL cbuffer;
@@ -936,7 +936,7 @@ void clipboard_push_text(char * text)
 		SetClipboardData(CF_TEXT, cbuffer);
 		CloseClipboard();
 	}
-#elif (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
+#elif defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
 	if (clipboard_text!=NULL) {
 		free(clipboard_text);
 		clipboard_text = NULL;
@@ -958,7 +958,7 @@ char * clipboard_pull_text()
 	if (!data)
 		return mystrdup("");
 	return mystrdup(data);
-#elif defined WIN32
+#elif WIN
 	if (OpenClipboard(NULL))
 	{
 		HANDLE cbuffer;
@@ -974,7 +974,7 @@ char * clipboard_pull_text()
 		//	return "";
 		//}
 	}
-#elif (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
+#elif defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
 	char *text = NULL;
 	Window selectionOwner;
 	sdl_wminfo.info.x11.lock_func();
@@ -1038,7 +1038,7 @@ char * clipboard_pull_text()
 
 int register_extension()
 {
-#if defined WIN32
+#ifdef WIN
 	int returnval;
 	LONG rresult;
 	HKEY newkey;
@@ -1205,7 +1205,7 @@ int register_extension()
 	if(protocolcommand) free(protocolcommand);
 	
 	return returnval;
-#elif defined(LIN32) || defined(LIN64)
+#elif LIN
 	char *currentfilename = exe_name();
 	FILE *f;
 	char *mimedata =

@@ -92,9 +92,9 @@ if not tool and compilePlatform == "Linux" and compilePlatform != platform:
 	if platform == "Darwin":
 		crossList = ["i686-apple-darwin9", "i686-apple-darwin10"]
 	elif not GetOption('64bit'):
-		crossList = ["mingw32", "i386-mingw32msvc", "i486-mingw32msvc", "i586-mingw32msvc", "i686-mingw32msvc", "amd64-mingw32msvc"]
+		crossList = ["mingw32", "i386-mingw32msvc", "i486-mingw32msvc", "i586-mingw32msvc", "i686-mingw32msvc"]
 	else:
-		crossList = ["x86_64-w64-mingw32", "i686-w64-mingw32"]
+		crossList = ["x86_64-w64-mingw32", "i686-w64-mingw32", "amd64-mingw32msvc"]
 	for i in crossList:
 		if WhereIs("{}-g++".format(i)):
 			env['ENV']['PATH'] = "/usr/{0}/bin:{1}".format(i, os.environ['PATH'])
@@ -126,18 +126,25 @@ for var in ["CFLAGS","CCFLAGS","CXXFLAGS","LINKFLAGS","CPPDEFINES","CPPPATH"]:
 			env[var] = SCons.Util.CLVar(os.environ[var])
 		print "copying enviroment variable {}={!r}".format(var,os.environ[var])
 
-#add 32/64 bit defines before configuration
-if GetOption('64bit'):
-	env.Append(LINKFLAGS='-m64')
-	env.Append(CCFLAGS='-m64')
+#Used for intro text / executable name, actual bit flags are only set if the --64bit/--32bit command line args are given
+def add32bitflags(env):
+	env.Append(CPPDEFINES='_32BIT')
+	env["BIT"] = 32
+def add64bitflags(env):
 	if platform == "Windows":
 		env.Append(CPPDEFINES='__CRT__NO_INLINE')
 		env.Append(LINKFLAGS='-Wl,--stack=16777216')
 	env.Append(CPPDEFINES='_64BIT')
+	env["BIT"] = 64
+#add 32/64 bit defines before configuration
+if GetOption('64bit'):
+	env.Append(LINKFLAGS='-m64')
+	env.Append(CCFLAGS='-m64')
+	add64bitflags(env)
 elif GetOption('32bit'):
 	env.Append(LINKFLAGS='-m32')
 	env.Append(CCFLAGS='-m32')
-	env.Append(CPPDEFINES='_32BIT')
+	add32bitflags(env)
 
 if GetOption('universal'):
 	if platform != "Darwin":
@@ -152,6 +159,31 @@ if GetOption("msvc"):
 		env.Append(LIBPATH='StaticLibs/')
 	else:
 		env.Append(LIBPATH='Libraries/')
+
+#Check 32/64 bit
+def CheckBit(context):
+	context.Message('Checking if 64 bit... ')
+	program = """#include <stdlib.h>
+	#include <stdio.h>
+	int main() {
+	    printf("%d", (int)sizeof(size_t));
+	    return 0;
+	}
+	"""
+	ret = context.TryCompile(program, '.c')
+	if ret == 0:
+	    return False
+	ret = context.TryRun(program, '.c')
+	if ret[1] == '':
+		return False
+	context.Result(int(ret[1]) == 8)
+	if int(ret[1]) == 8:
+		print("Adding 64 bit compile flags")
+		add64bitflags(context.env)
+	elif int(ret[1]) == 4:
+		print("Adding 32 bit compile flags")
+		add32bitflags(context.env)
+	return ret[1]
 
 #Custom function to check for Mac OS X frameworks
 def CheckFramework(context, framework):
@@ -291,8 +323,11 @@ def findLibs(env, conf):
 if not GetOption('clean'):
 	conf = Configure(env)
 	conf.AddTest('CheckFramework', CheckFramework)
+	conf.AddTest('CheckBit', CheckBit)
 	if not conf.CheckCC() or not conf.CheckCXX():
 		FatalError("compiler not correctly configured")
+	if isX86 and not GetOption('32bit') and not GetOption('64bit'):
+		conf.CheckBit()
 	findLibs(env, conf)
 	env = conf.Finish()
 
@@ -305,7 +340,7 @@ if not msvc:
 
 #Add platform specific flags and defines
 if platform == "Windows":
-	env.Append(CPPDEFINES=["WIN32", "_WIN32_WINNT=0x0500"])
+	env.Append(CPPDEFINES=["WIN", "_WIN32_WINNT=0x0501"])
 	if msvc:
 		env.Append(CCFLAGS=['/Gm', '/Zi', '/EHsc']) #enable minimal rebuild, enable exceptions
 		env.Append(LINKFLAGS=['/SUBSYSTEM:WINDOWS', '/OPT:REF', '/OPT:ICF'])
@@ -317,7 +352,7 @@ if platform == "Windows":
 	else:
 		env.Append(LINKFLAGS='-mwindows')
 elif platform == "Linux":
-	env.Append(CPPDEFINES="LIN64")
+	env.Append(CPPDEFINES="LIN")
 elif platform == "Darwin":
 	env.Append(CPPDEFINES="MACOSX")
 	env.Append(LINKFLAGS="-headerpad_max_install_names")
@@ -422,7 +457,7 @@ if GetOption('output'):
 	programName = GetOption('output')
 else:
 	programName = GetOption('renderer') and "render" or "powder"
-	if GetOption('64bit'):
+	if "BIT" in env and env["BIT"] == 64:
 		programName += "64"
 	if isX86 and not GetOption('sse2') and not GetOption('sse3'):
 		programName += "-legacy"

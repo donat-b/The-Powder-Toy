@@ -1,4 +1,4 @@
-#ifdef WIN32
+#ifdef WIN
 /*=========================================================================*\
 * Socket compatibilization module for Win32
 * LuaSocket toolkit

@@ -1,4 +1,4 @@
-#ifndef WIN32
+#ifndef WIN
 /*=========================================================================*\
 * Unix domain socket 
 * LuaSocket toolkit

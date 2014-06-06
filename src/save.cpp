@@ -1148,16 +1148,24 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 #else
 	bson_append_string(&b, "releaseType", "S");
 #endif
-#ifdef WIN32
+#ifdef WIN
+#ifdef _32BIT
 	bson_append_string(&b, "platform", "WIN32");
-#elif defined WIN64
+#elif _64BIT
 	bson_append_string(&b, "platform", "WIN64");
+#else
+	bson_append_string(&b, "platform", "WIN");
+#endif
 #elif defined MACOSX
 	bson_append_string(&b, "platform", "MACOSX");
-#elif defined LIN32
+#elif defined LIN
+#ifdef _32BIT
 	bson_append_string(&b, "platform", "LIN32");
-#elif defined LIN64
+#elif _64BIT
 	bson_append_string(&b, "platform", "LIN64");
+#else
+	bson_append_string(&b, "platform", "LIN");
+#endif
 #else
 	bson_append_string(&b, "platform", "UNKNOWN");
 #endif

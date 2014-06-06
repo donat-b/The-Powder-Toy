@@ -1,4 +1,4 @@
-#ifdef WIN32
+#ifdef WIN
 #ifndef WSOCKET_H
 #define WSOCKET_H
 /*=========================================================================*\

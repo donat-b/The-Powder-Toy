@@ -56,14 +56,14 @@ powder-sse3-opengl: build/powder-sse3-opengl
 powder-sse3-opengl: build/powder-sse3-opengl
 
 # general compiler flags
-build/powder build/powder-sse build/powder-sse2 build/powder-sse3 build/powder-sse3-opengl: CFLAGS += -m32 -DLIN32 $(OFLAGS)
-build/powder-debug: CFLAGS += -m32 -DLIN32 $(FLAGS_DBUG)
-build/powder-64: CFLAGS += -DINTERNAL -DLIN64 $(OFLAGS)
-build/powder-64-sse2 build/powder-64-sse3 build/powder-64-sse3-opengl: CFLAGS += -m64 -DLIN64 $(OFLAGS)
-build/powder-64-debug: CFLAGS += -m64 -DLIN64 $(FLAGS_DBUG)
-build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe build/powdercrosscompile.exe build/powdercrosscompile-sse2.exe: CFLAGS += -mwindows -DWIN32 $(OFLAGS)
+build/powder build/powder-sse build/powder-sse2 build/powder-sse3 build/powder-sse3-opengl: CFLAGS += -m32 -DLIN -D_32BIT $(OFLAGS)
+build/powder-debug: CFLAGS += -m32 -DLIN -D_32BIT $(FLAGS_DBUG)
+build/powder-64: CFLAGS += -DINTERNAL -DLIN -D_64BIT $(OFLAGS)
+build/powder-64-sse2 build/powder-64-sse3 build/powder-64-sse3-opengl: CFLAGS += -m64 -DLIN -D_64BIT $(OFLAGS)
+build/powder-64-debug: CFLAGS += -m64 -DLIN -D_64BIT $(FLAGS_DBUG)
+build/powder-sse.exe build/powder-sse2.exe build/powder-sse3.exe build/powdercrosscompile.exe build/powdercrosscompile-sse2.exe: CFLAGS += -mwindows -DWIN -D_32BIT $(OFLAGS)
 build/powder-sse3-opengl build/powder-64-sse3-opengl: CFLAGS += -DOGLR -DPIX32OGL -DPIXALPHA
-build/powdercrosscompile.exe build/powdercrosscompile-sse2.exe: CFLAGS += -DPTW32_STATIC_LIB -D_WIN32_WINNT=0x0500
+build/powdercrosscompile.exe build/powdercrosscompile-sse2.exe: CFLAGS += -DPTW32_STATIC_LIB -D_WIN32_WINNT=0x0501
 
 # SSE flags:
 build/powder-sse3 build/powder-sse3-opengl build/powder-64-sse3 build/powder-64-sse3-opengl build/powder-sse3.exe: CFLAGS += -DX86 -DX86_SSE3 -msse3

@@ -23,7 +23,7 @@
 #endif
 #include <bzlib.h>
 #include <climits>
-#if defined(WIN32) || defined(LIN32) || defined(LIN64)
+#if defined(WIN) || defined(LIN)
 #ifdef SDL_R_INC
 #include <SDL_syswm.h>
 #else
@@ -31,11 +31,11 @@
 #endif
 #endif
 
-#if defined(OGLR)
+#ifdef OGLR
 #ifdef MACOSX
 #include <OpenGL/gl3.h>
 #include <OpenGL/glu.h>
-#elif defined(WIN32)
+#elif WIN
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -60,7 +60,7 @@
 #include "luaconsole.h"
 #include "hud.h"
 
-#if defined(LIN32) || defined(LIN64)
+#ifdef LIN
 #include "images.h"
 #endif
 
@@ -4723,7 +4723,7 @@ int savedWindowY = INT_MAX;
 // Returns 0 if something went wrong: SDL_GetWMInfo failed or the loaded position was invalid
 int LoadWindowPosition(int scale)
 {
-#ifdef WIN32
+#ifdef WIN
 	SDL_SysWMinfo sysInfo;
 	SDL_VERSION(&sysInfo.version);
 	if (SDL_GetWMInfo(&sysInfo) > 0)
@@ -4782,7 +4782,7 @@ int LoadWindowPosition(int scale)
 // Returns 1 if the window position was saved
 int SaveWindowPosition()
 {
-#ifdef WIN32
+#ifdef WIN
 	SDL_SysWMinfo sysInfo;
 	SDL_VERSION(&sysInfo.version);
 	if (SDL_GetWMInfo(&sysInfo) > 0)
@@ -4796,7 +4796,7 @@ int SaveWindowPosition()
 
 		return 1;
 	}
-#elif (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
+#elif defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
 	SDL_SysWMinfo sysInfo;
 	SDL_VERSION(&sysInfo.version);
 	if (SDL_GetWMInfo(&sysInfo) > 0)
@@ -4844,12 +4844,12 @@ int sdl_opened = 0, size_error = 0;
 int sdl_open(void)
 {
 	//char screen_err = 0;
-#ifdef WIN32
+#ifdef WIN
 	SDL_SysWMinfo SysInfo;
 	HWND WindowHandle;
 	HICON hIconSmall;
 	HICON hIconBig;
-#elif defined(LIN32) || defined(LIN64)
+#elif LIN
 	SDL_Surface *icon;
 	char envStr[64];
 	sprintf(envStr, "SDL_VIDEO_WINDOW_POS=%i,%i", savedWindowX, savedWindowY);
@@ -4863,7 +4863,7 @@ int sdl_open(void)
 	}
 	size_error= 0;
 	
-#ifdef WIN32
+#ifdef WIN
 	SDL_VERSION(&SysInfo.version);
 	if(SDL_GetWMInfo(&SysInfo) <= 0) {
 	    printf("%s : %d\n", SDL_GetError(), SysInfo.window);
@@ -4874,7 +4874,7 @@ int sdl_open(void)
 	hIconBig = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(101), IMAGE_ICON, 32, 32, LR_SHARED);
 	SendMessage(WindowHandle, WM_SETICON, ICON_SMALL, (LPARAM)hIconSmall);
 	SendMessage(WindowHandle, WM_SETICON, ICON_BIG, (LPARAM)hIconBig);
-#elif defined(LIN32) || defined(LIN64)
+#elif LIN
 	icon = SDL_CreateRGBSurfaceFrom(app_icon, 16, 16, 32, 64, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
 	SDL_WM_SetIcon(icon, NULL);
 	SDL_FreeSurface(icon);
@@ -4905,7 +4905,7 @@ int sdl_open(void)
 	}
 	else
 	{
-#ifdef WIN32
+#ifdef WIN
 		status = glewInit();
 		if(status != GLEW_OK)
 		{
@@ -5090,7 +5090,7 @@ int sdl_open(void)
 	SDL_EnableUNICODE(1);
 	SDL_SetModState(sdl_mod);
 	//SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-#if (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
+#if defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 	SDL_VERSION(&sdl_wminfo.version);
 	SDL_GetWMInfo(&sdl_wminfo);
@@ -5100,7 +5100,7 @@ int sdl_open(void)
 	XA_UTF8_STRING = XInternAtom(sdl_wminfo.info.x11.display, "UTF8_STRING", 1);
 	XA_NET_FRAME_EXTENTS = XInternAtom(sdl_wminfo.info.x11.display, "_NET_FRAME_EXTENTS", 0);
 	sdl_wminfo.info.x11.unlock_func();
-#elif defined (WIN32)
+#elif WIN
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 #endif
 

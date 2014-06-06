@@ -40,14 +40,14 @@
 #include <signal.h>
 #include <list>
 
-#ifdef WIN32
+#ifdef WIN
 #include <direct.h>
 #else
 #include <sys/stat.h>
 #include <unistd.h>
 #endif
 
-#if defined(LIN32) || defined(LIN64)
+#ifdef LIN
 #include "images.h"
 #endif
 #include "defines.h"
@@ -186,14 +186,23 @@ static const char *it_msg =
 #ifdef X86_SSE3
 	"X86_SSE3 "
 #endif
-#ifdef LIN32
+#ifdef LIN
+#ifdef _32BIT
 	"LIN32 "
-#endif
-#ifdef LIN64
+#elif _64BIT
 	"LIN64 "
+#else
+	"LIN "
 #endif
-#ifdef WIN32
+#endif
+#ifdef WIN
+#ifdef _32BIT
 	"WIN32 "
+#elif _64BIT
+	"WIN64 "
+#else
+	"WIN "
+#endif
 #endif
 #ifdef MACOSX
 	"MACOSX "
@@ -299,7 +308,7 @@ int core_count()
 {
 	int numCPU = 1;
 #ifdef MT
-#ifdef WIN32
+#ifdef WIN
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo( &sysinfo );
 	numCPU = sysinfo.dwNumberOfProcessors;
@@ -324,7 +333,7 @@ int kiosk_enable = 0;
 
 void sdl_seticon(void)
 {
-#ifdef WIN32
+#ifdef WIN
 	//SDL_Surface *icon = SDL_CreateRGBSurfaceFrom(app_icon_w32, 32, 32, 32, 128, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
 	//SDL_WM_SetIcon(icon, NULL/*app_icon_mask*/);
 #else
@@ -550,7 +559,7 @@ char* stamp_save(int x, int y, int w, int h)
 	if (!s)
 		return NULL;
 
-#ifdef WIN32
+#ifdef WIN
 	_mkdir("stamps");
 #else
 	mkdir("stamps", 0755);
@@ -593,7 +602,7 @@ void tab_save(int num, char reloadButton)
 	if (!saveData)
 		return;
 
-#ifdef WIN32
+#ifdef WIN
 	_mkdir("tabs");
 #else
 	mkdir("tabs", 0755);
@@ -781,13 +790,23 @@ char http_proxy_string[256] = "";
 
 unsigned char last_major=0, last_minor=0, last_build=0, update_flag=0;
 
-#if defined WIN32
+#ifdef WIN
+#ifdef _32BIT
 	#define UPDATE_ARCH "Windows32"
-#elif defined LIN32
+#elif _64BIT
+	#define UPDATE_ARCH "Windows64"
+#else
+	#define UPDATE_ARCH "Unknown"
+#endif
+#elif LIN
+#ifdef _32BIT
 	#define UPDATE_ARCH "Linux32"
-#elif defined LIN64
+#elif _64BIT
 	#define UPDATE_ARCH "Linux64"
-#elif defined MACOSX
+#else
+	#define UPDATE_ARCH "Unknown"
+#endif
+#elif MACOSX
 	#define UPDATE_ARCH "MacOSX"
 #else
 	#define UPDATE_ARCH "Unknown"
@@ -979,7 +998,7 @@ void BlueScreen(char * detailMessage)
 				exename = exe_name();
 				if (exename)
 				{
-#ifdef WIN32
+#ifdef WIN
 					ShellExecute(NULL, "open", exename, NULL, NULL, SW_SHOWNORMAL);
 #else
 					execl(exename, "powder", NULL);
@@ -1286,7 +1305,7 @@ int main(int argc, char *argv[])
 			}
 			if(tempSaveID > 0)
 			{
-#ifdef WIN32
+#ifdef WIN
 				if (newprocess)
 				{
 					HWND modWindow = FindWindow(NULL, "Jacob1's Mod");
@@ -1437,29 +1456,29 @@ int main(int argc, char *argv[])
 		
 		if(debug_flags & (DEBUG_PERFORMANCE_CALC|DEBUG_PERFORMANCE_FRAME))
 		{
-			#ifdef WIN32
-			#elif defined(MACOSX)
-			#else
+#ifdef WIN
+#elif MACOSX
+#else
 				struct timespec ts;
 				clock_gettime(CLOCK_REALTIME, &ts);
 				debug_perf_time = ts.tv_nsec;
-			#endif
+#endif
 		}
 		
 		globalSim->Update(); //update everything
 			
 		if(debug_flags & (DEBUG_PERFORMANCE_CALC|DEBUG_PERFORMANCE_FRAME))
 		{
-			#ifdef WIN32
-			#elif defined(MACOSX)
-			#else
+#ifdef WIN
+#elif MACOSX
+#else
 				struct timespec ts;
 				clock_gettime(CLOCK_REALTIME, &ts);
 				
 				debug_perf_partitime[debug_perf_iend]  = ts.tv_nsec - debug_perf_time;
 				
 				debug_perf_time = ts.tv_nsec;
-			#endif
+#endif
 		}
 
 		render_after(part_vbuf, vid_buf, Point(mx, my));
@@ -1540,14 +1559,14 @@ int main(int argc, char *argv[])
 
 		if(debug_flags & (DEBUG_PERFORMANCE_CALC|DEBUG_PERFORMANCE_FRAME))
 		{
-			#ifdef WIN32
-			#elif defined(MACOSX)
-			#else
+#ifdef WIN
+#elif defined(MACOSX)
+#else
 				struct timespec ts;
 				clock_gettime(CLOCK_REALTIME, &ts);
 				
 				debug_perf_frametime[debug_perf_iend]  = ts.tv_nsec - debug_perf_time;
-			#endif
+#endif
 			debug_perf_iend++;
 			debug_perf_iend %= DEBUG_PERF_FRAMECOUNT;
 			debug_perf_istart++;
@@ -3274,7 +3293,7 @@ int main(int argc, char *argv[])
 		sprintf(name,"tabs%s%d.stm",PATH_SEP,i);
 		remove(name);
 	}
-#ifdef WIN32
+#ifdef WIN
 	_rmdir("tabs");
 #else
 	rmdir("tabs");

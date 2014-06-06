@@ -17,7 +17,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#ifndef WIN32
+#ifndef WIN
 #include <sys/param.h>
 #endif
 #if !defined(MACOSX) && !defined(BSD)
@@ -25,7 +25,7 @@
 #endif
 #include <string.h>
 
-#ifdef WIN32
+#ifdef WIN
 #include <windows.h>
 #else
 #include <unistd.h>
@@ -40,7 +40,7 @@
 
 char *exe_name(void)
 {
-#if defined WIN32
+#ifdef WIN
 	char *name= (char *)malloc(64);
 	DWORD max=64, res;
 	while ((res = GetModuleFileName(NULL, name, max)) >= max)
@@ -85,7 +85,7 @@ char *exe_name(void)
 int update_start(char *data, int len)
 {
 	char *self=exe_name(), *temp;
-#ifdef WIN32
+#ifdef WIN
 	char *p;
 #endif
 	FILE *f;
@@ -94,7 +94,7 @@ int update_start(char *data, int len)
 	if (!self)
 		return 1;
 
-#ifdef WIN32
+#ifdef WIN
 	temp = (char*)malloc(strlen(self)+12);
 	strcpy(temp, self);
 	p = temp + strlen(temp) - 4;
@@ -162,7 +162,7 @@ fail:
 
 int update_finish(void)
 {
-#ifdef WIN32
+#ifdef WIN
 	char *temp, *self=exe_name(), *p;
 	int timeout = 60, err;
 
@@ -197,7 +197,7 @@ int update_finish(void)
 
 void update_cleanup(void)
 {
-#ifdef WIN32
+#ifdef WIN
 	update_finish();
 #endif
 }

@@ -22,15 +22,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef WIN32
+#ifndef WIN
 #include <sys/param.h>
 #endif
 #if !defined(MACOSX) && !defined(BSD)
 #include <malloc.h>
 #endif
 #include <time.h>
-#ifdef WIN32
-#define _WIN32_WINNT 0x0501
+#ifdef WIN
 //#include <iphlpapi.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -49,7 +48,7 @@
 #include <http.h>
 #include <md5.h>
 
-#ifdef WIN32
+#ifdef WIN
 #define PERROR SOCKET_ERROR
 #define PERRNO WSAGetLastError()
 #define PEAGAIN WSAEWOULDBLOCK
@@ -160,7 +159,7 @@ static int resolve(char *dns, char *srv, struct sockaddr_in *addr)
 void http_init(char *proxy)
 {
 	char *host, *port;
-#ifdef WIN32
+#ifdef WIN
 	WSADATA wsadata;
 	if (!WSAStartup(MAKEWORD(2,2), &wsadata))
 		http_up = 1;
@@ -183,7 +182,7 @@ void http_init(char *proxy)
 
 void http_done(void)
 {
-#ifdef WIN32
+#ifdef WIN
 	WSACleanup();
 #endif
 	http_up = 0;
@@ -400,7 +399,7 @@ int http_async_req_status(void *ctx)
 	char *dns,*srv,buf[CHUNK];
 	int tmp, i;
 	time_t now = time(NULL);
-#ifdef WIN32
+#ifdef WIN
 	unsigned long tmp2;
 #endif
 
@@ -432,7 +431,7 @@ int http_async_req_status(void *ctx)
 			if (cx->fd == PERROR)
 				goto fail;
 			cx->fdhost = mystrdup(cx->host);
-#ifdef WIN32
+#ifdef WIN
 			tmp2 = 1;
 			if (ioctlsocket(cx->fd, FIONBIO, &tmp2) == SOCKET_ERROR)
 				goto fail;
@@ -446,7 +445,7 @@ int http_async_req_status(void *ctx)
 		}
 		if (!connect(cx->fd, (struct sockaddr *)&cx->addr, sizeof(cx->addr)))
 			cx->state = HTS_IDLE;
-#ifdef WIN32
+#ifdef WIN
 		else if (PERRNO==WSAEISCONN)
 			cx->state = HTS_IDLE;
 #endif
@@ -455,7 +454,7 @@ int http_async_req_status(void *ctx)
 			cx->state = HTS_IDLE;
 #endif
 		else if (PERRNO!=PEINPROGRESS && PERRNO!=PEALREADY
-#ifdef WIN32
+#ifdef WIN
 		         && PERRNO!=PEAGAIN && PERRNO!=WSAEINVAL
 #endif
 		        )
@@ -662,7 +661,7 @@ void http_async_get_length(void *ctx, int *total, int *done)
 
 void http_hackyclosefreezefix(void *ctx)
 {
-#ifdef LIN64
+#ifdef LIN
 	struct http_ctx *cx = (struct http_ctx*)ctx;
 	cx->state = HTS_DONE;
 #endif

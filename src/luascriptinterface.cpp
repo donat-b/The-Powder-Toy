@@ -2,7 +2,7 @@
 
 #include <dirent.h>
 #include <string>
-#ifdef WIN32
+#ifdef WIN
 #include <direct.h>
 #else
 #include <unistd.h>
@@ -1521,7 +1521,7 @@ int fileSystem_makeDirectory(lua_State * l)
 	const char * dirname = lua_tostring(l, 1);
 
 	int ret = 0;
-#ifdef WIN32
+#ifdef WIN
 	ret = _mkdir(dirname);
 #else
 	ret = mkdir(dirname, 0755);
@@ -1535,7 +1535,7 @@ int fileSystem_removeDirectory(lua_State * l)
 	const char * filename = lua_tostring(l, 1);
 
 	int ret = 0;
-#ifdef WIN32
+#ifdef WIN
 	ret = _rmdir(filename);
 #else
 	ret = rmdir(filename);
@@ -1549,7 +1549,7 @@ int fileSystem_removeFile(lua_State * l)
 	const char * filename = lua_tostring(l, 1);
 
 	int ret = 0;
-#ifdef WIN32
+#ifdef WIN
 	ret = _unlink(filename);
 #else
 	ret = unlink(filename);

@@ -18,11 +18,11 @@
 #ifdef LUACONSOLE
 #include <math.h>
 
-#if defined(LIN32) || defined(LIN64) || defined(MACOSX)
+#if defined(LIN) || defined(MACOSX)
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif
-#if defined(WIN32)
+#ifdef WIN
 #include <direct.h>
 #endif
 extern "C"
@@ -2376,7 +2376,7 @@ int luatpt_getscript(lua_State* l)
 	filename = (char*)malloc(strlen(fileauthor)+strlen(fileid)+strlen(PATH_SEP)+strlen(LOCAL_LUA_DIR)+6);
 	sprintf(filename, LOCAL_LUA_DIR PATH_SEP "%s_%s.lua", fileauthor, fileid);
 	
-#ifdef WIN32
+#ifdef WIN
 	_mkdir(LOCAL_LUA_DIR);
 #else
 	mkdir(LOCAL_LUA_DIR, 0755);

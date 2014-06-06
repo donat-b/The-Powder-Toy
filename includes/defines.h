@@ -17,7 +17,7 @@
 #ifndef DEFINE_H
 #define DEFINE_H
 
-#ifdef WIN32
+#ifdef WIN
 #define PATH_SEP "\\"
 #else
 #define PATH_SEP "/"
@@ -140,7 +140,7 @@ typedef unsigned int pixel;
 #define GLASS_IOR      1.9
 #define GLASS_DISP     0.07
 
-#ifdef WIN32
+#ifdef WIN
 #define strcasecmp stricmp
 #endif
 
@@ -162,7 +162,7 @@ typedef unsigned int pixel;
 #define TPT_INLINE
 #define TPT_GNU_INLINE
 #else
-#if defined(WIN32) && !defined(__GNUC__)
+#if defined(WIN) && !defined(__GNUC__)
 #define TPT_INLINE _inline
 #define TPT_GNU_INLINE
 #else
