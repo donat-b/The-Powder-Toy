@@ -5116,6 +5116,9 @@ int set_scale(int scale, int kiosk){
 	kiosk_enable = kiosk;
 
 	SaveWindowPosition();
+#ifdef LIN
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+#endif
 	if (!sdl_open() || (size_error && !confirm_ui(vid_buf, "Confirm Size Change", "Your screen is too large, press OK to keep the size change anyway", "OK")))
 	{
 		sdl_scale = old_scale;
