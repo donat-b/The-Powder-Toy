@@ -845,7 +845,7 @@ local function loadStamp(size,x,y,reset)
 	end
 end
 local function saveStamp(x, y, w, h)
-	local stampName = sim.saveStamp(x, y, w, h)
+	local stampName = sim.saveStamp(x, y, w, h) or "errorsavingstamp"
 	local fullName = "stamps/"..stampName..".stm"
 	return stampName, fullName
 end
