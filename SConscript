@@ -320,7 +320,7 @@ def findLibs(env, conf):
 		if not conf.CheckFramework("Cocoa"):
 			FatalError("Cocoa framework not found or not installed")
 
-if not GetOption('clean'):
+if not GetOption('clean') and not GetOption('help'):
 	conf = Configure(env)
 	conf.AddTest('CheckFramework', CheckFramework)
 	conf.AddTest('CheckBit', CheckBit)
@@ -475,7 +475,7 @@ def strip():
 		os.system("{0} {1}/{2}".format(env['STRIP'] if 'STRIP' in env else "strip", GetOption('builddir'), programName))
 	except:
 		print("Couldn't strip binary")
-if not GetOption('debugging') and not GetOption('clean') and not msvc:
+if not GetOption('debugging') and not GetOption('clean') and not GetOption('help') and not msvc:
 	atexit.register(strip)
 
 #Long command line fix for mingw on windows
