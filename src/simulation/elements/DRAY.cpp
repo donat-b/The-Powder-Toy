@@ -61,9 +61,9 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 							if (overwrite)
 								delete_part(xCopyTo, yCopyTo, 0);
 							if (type == PT_SPRK)
-								p = sim->part_create(-1, xCopyTo, yCopyTo, PT_METL, ctypeExtra);
+								p = sim->part_create(-1, xCopyTo, yCopyTo, PT_METL);
 							else
-								p = sim->part_create(-1, xCopyTo, yCopyTo, type, ctypeExtra);
+								p = sim->part_create(-1, xCopyTo, yCopyTo, type);
 							if (p >= 0)
 							{
 								if (type == PT_SPRK)

@@ -101,7 +101,7 @@ local function connectToMniip(ip,port,nick)
 		c,r = sock:receive(1)
 		end
 		if err=="This nick is already on the server" then
-			nick = nick:gsub("(.)$",function(s) local n=tonumber(s) if n and n+1 <= 9 then return n+1 else return n..'0' end end)
+			nick = nick:gsub("(.)$",function(s) local n=tonumber(s) if n and n+1 <= 9 then return n+1 else return nick:sub(-1)..'0' end end)
 			return connectToMniip(ip,port,nick)
 		end
 		return false,err
@@ -302,8 +302,12 @@ ui_inputbox = {
 new=function(x,y,w,h)
 	local intext=ui_box.new(x,y,w,h)
 	intext.cursor=0
+	intext.line=1
+	intext.currentline = ""
 	intext.focus=false
 	intext.t=ui_text.newscroll("",x+2,y+2,w-2,true)
+	intext.history={}
+	intext.max_history=200
 	intext:drawadd(function(self)
 		local cursoradjust=tpt.textwidth(self.t.text:sub(self.t.start,self.cursor))+2
 		tpt.drawline(self.x+cursoradjust,self.y,self.x+cursoradjust,self.y+10,255,255,255)
@@ -320,6 +324,22 @@ new=function(x,y,w,h)
 		if self.cursor>self.t.length then self.cursor = self.t.length end
 		if self.cursor<0 then self.cursor = 0 return end
 	end
+	function intext:addhistory(str)
+		self.history[#self.history+1] = str
+		if #self.history >= self.max_history then
+			table.remove(self.history, 1)
+		end
+	end
+	function intext:moveline(amt)
+		self.line = self.line+amt
+		local max = #self.currentline and #self.history+2 or #self.history+1
+		if self.line>max then self.line=max
+		elseif self.line<1 then self.line=1 end
+		local history = self.history[self.line] or ""
+		if self.line == #self.history+1 then history = self.currentline end
+		self.cursor = string.len(history)
+		self.t:update(history, self.cursor)
+	end
 	function intext:textprocess(key,nkey,modifier,event)
 		if event~=1 then return end
 		if not self.focus then
@@ -327,7 +347,9 @@ new=function(x,y,w,h)
 			return
 		end
 		if nkey==27 then self:setfocus(false) return true end
-		if nkey==13 then local text=self.t.text if text == "" then self:setfocus(false) return true else self.cursor=0 self.t.text="" return text end end --enter
+		if nkey==13 then local text=self.t.text if text == "" then self:setfocus(false) return true else self.cursor=0 self.t.text="" self:addhistory(text) self.line=#self.history+1 self.currentline = "" return text end end --enter
+		if nkey==273 then self:moveline(-1) return true end --up
+		if nkey==274 then self:moveline(1) return true end --down
 		if nkey==275 then self:movecursor(1) self.t:update(nil,self.cursor) return true end --right
 		if nkey==276 then self:movecursor(-1) self.t:update(nil,self.cursor) return true end --left
 		local modi = (modifier%1024)
@@ -348,6 +370,7 @@ new=function(x,y,w,h)
 			local addkey = (modi==1 or modi==2) and shift(key) or key
 			if (math.floor(modi/512))==1 then addkey=altgr(key) end
 			newstr = self.t.text:sub(1,self.cursor) .. addkey .. self.t.text:sub(self.cursor+1)
+			self.currentline = newstr
 			self.t:update(newstr,self.cursor+1)
 			self:movecursor(1)
 			return true
@@ -581,6 +604,7 @@ new=function(x,y,w,h)
 		local text = self.inputbox:textprocess(key,nkey,modifier,event)
 		if type(text)=="boolean" then return text end
 		if text and text~="" then
+
 			local cmd = text:match("^/([^%s]+)")
 			if cmd then
 				local rest=text:sub(#cmd+3)
@@ -634,7 +658,7 @@ local eleNameTable = {
 ["DEFAULT_WL_5"] = 285,["DEFAULT_WL_6"] = 286,["DEFAULT_WL_7"] = 287,["DEFAULT_WL_8"] = 288,["DEFAULT_WL_9"] = 289,["DEFAULT_WL_10"] = 290,
 ["DEFAULT_WL_11"] = 291,["DEFAULT_WL_12"] = 292,["DEFAULT_WL_13"] = 293,["DEFAULT_WL_14"] = 294,["DEFAULT_WL_15"] = 295,
 ["DEFAULT_UI_SAMPLE"] = 296,["DEFAULT_UI_SIGN"] = 297,["DEFAULT_UI_PROPERTY"] = 298,["DEFAULT_UI_WIND"] = 299,
-["DEFAULT_TOOL_HEAT"] = 300,["DEFAULT_TOOL_COOL"] = 301,["DEFAULT_TOOL_VAC"] = 302,["DEFAULT_TOOL_AIR"] = 303,["DEFAULT_TOOL_GRAV"] = 304,["DEFAULT_TOOL_NGRV"] = 305,
+["DEFAULT_TOOL_HEAT"] = 300,["DEFAULT_TOOL_COOL"] = 301,["DEFAULT_TOOL_VAC"] = 302,["DEFAULT_TOOL_AIR"] = 303,["DEFAULT_TOOL_PGRV"] = 304,["DEFAULT_TOOL_NGRV"] = 305,
 ["DEFAULT_DECOR_SET"] = 306,["DEFAULT_DECOR_ADD"] = 307,["DEFAULT_DECOR_SUB"] = 308,["DEFAULT_DECOR_MUL"] = 309,["DEFAULT_DECOR_DIV"] = 310,["DEFAULT_DECOR_SMDG"] = 311,["DEFAULT_DECOR_CLR"] = 312,["DEFAULT_DECOR_LIGH"] = 313, ["DEFAULT_DECOR_DARK"] = 314
 }
 local function convertDecoTool(c)
@@ -1555,7 +1579,7 @@ local keypressfuncs = {
 
 	--O, old menu in jacobs mod
 	[111] = function() if jacobsmod and not L.ctrl then if tpt.oldmenu()==0 then showbutton:onmove(0, 241) else showbutton:onmove(0, -241) end end end,
-
+	
 	--R , for stamp rotate
 	[114] = function() if L.placeStamp then L.smoved=true if L.shift then return end L.rotate=not L.rotate elseif L.ctrl then conSend(70) end end,
 
@@ -1660,3 +1684,4 @@ end
 tpt.register_step(step)
 tpt.register_mouseclick(mouseclicky)
 tpt.register_keypress(keyclicky)
+
