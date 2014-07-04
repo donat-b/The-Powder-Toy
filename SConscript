@@ -46,11 +46,12 @@ AddSconsOption("tool", False, True, "Tool prefix appended before gcc/g++")
 AddSconsOption('64bit', False, False, "Compile a 64 bit binary")
 AddSconsOption('32bit', False, False, "Compile a 32 bit binary")
 AddSconsOption("universal", False, False, "compile universal binaries on Mac OS X")
-AddSconsOption('sse', False, False, "Enable SSE optimizations")
-AddSconsOption('sse2', False, False, "Enable SSE2 optimizations")
+AddSconsOption('no-sse', False, False, "Disable SSE optimizations")
+AddSconsOption('sse', True, False, "Enable SSE optimizations (default)")
+AddSconsOption('sse2', True, False, "Enable SSE2 optimizations (default)")
 AddSconsOption('sse3', False, False, "Enable SSE3 optimizations")
 AddSconsOption('native', False, False, "Enable optimizations specific to your cpu")
-AddSconsOption('release', True, False, "Enable loop / compiling optimizations")
+AddSconsOption('release', True, False, "Enable loop / compiling optimizations (default)")
 
 AddSconsOption('debugging', False, False, "Compile with debug symbols")
 AddSconsOption('static', False, False, "Compile statically")
@@ -58,7 +59,7 @@ AddSconsOption('opengl', False, False, "Build with OpenGL interface support")
 AddSconsOption('renderer', False, False, "Build the save renderer")
 
 AddSconsOption('wall', False, False, "Error on all warnings")
-AddSconsOption('no-warnings', True, False, "Disable all compiler warnings")
+AddSconsOption('no-warnings', True, False, "Disable all compiler warnings (default)")
 AddSconsOption('nolua', False, False, "Disable Lua")
 AddSconsOption('nofft', False, False, "Disable FFT")
 AddSconsOption("output", False, True, "Executable output name")
@@ -361,24 +362,25 @@ elif platform == "Darwin":
 #Add architecture flags and defines
 if isX86:
 	env.Append(CPPDEFINES='X86')
-if GetOption('sse'):
-	if msvc:
-		env.Append(CCFLAGS='/arch:SSE')
-	else:
-		env.Append(CCFLAGS='-msse')
-	env.Append(CPPDEFINES='X86_SSE')
-if GetOption('sse2'):
-	if msvc:
-		env.Append(CCFLAGS='/arch:SSE2')
-	else:
-		env.Append(CCFLAGS='-msse2')
-	env.Append(CPPDEFINES='X86_SSE2')
-if GetOption('sse3'):
-	if msvc:
-		env.Append(CCFLAGS='/arch:SSE3')
-	else:
-		env.Append(CCFLAGS='-msse3')
-	env.Append(CPPDEFINES='X86_SSE3')
+if not GetOption('no-sse'):
+	if GetOption('sse'):
+		if msvc:
+			env.Append(CCFLAGS='/arch:SSE')
+		else:
+			env.Append(CCFLAGS='-msse')
+		env.Append(CPPDEFINES='X86_SSE')
+	if GetOption('sse2'):
+		if msvc:
+			env.Append(CCFLAGS='/arch:SSE2')
+		else:
+			env.Append(CCFLAGS='-msse2')
+		env.Append(CPPDEFINES='X86_SSE2')
+	if GetOption('sse3'):
+		if msvc:
+			env.Append(CCFLAGS='/arch:SSE3')
+		else:
+			env.Append(CCFLAGS='-msse3')
+		env.Append(CPPDEFINES='X86_SSE3')
 if GetOption('native') and not msvc:
 	env.Append(CCFLAGS='-march=native')
 
