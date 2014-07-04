@@ -1238,30 +1238,31 @@ void draw_svf_ui(pixel *vid_buf, int alternate)// all the buttons at the bottom
 	c = (svf_login && svf_open) ? 255 : 128;
 
 	//the vote buttons
-	drawrect(vid_buf, 189, YRES+(MENUSIZE-16), 14, 14, c, c, c, 255);
-	drawrect(vid_buf, 203, YRES+(MENUSIZE-16), 14, 14, c, c, c, 255);
+	drawrect(vid_buf, 189, YRES+(MENUSIZE-16), 38, 14, c, c, c, 255);
+	drawrect(vid_buf, 227, YRES+(MENUSIZE-16), 14, 14, c, c, c, 255);
 
 	if (svf_myvote==1 && (svf_login && svf_open))
 	{
-		fillrect(vid_buf, 189, YRES+(MENUSIZE-16), 14, 14, 0, 108, 10, 255);
+		fillrect(vid_buf, 189, YRES+(MENUSIZE-16), 38, 14, 0, 108, 10, 255);
 	}
 	else if (svf_myvote==-1 && (svf_login && svf_open))
 	{
-		fillrect(vid_buf, 203, YRES+(MENUSIZE-16), 14, 14, 108, 10, 0, 255);
+		fillrect(vid_buf, 227, YRES+(MENUSIZE-16), 14, 14, 108, 10, 0, 255);
 	}
 	drawtext(vid_buf, 192, YRES+(MENUSIZE-12), "\xCB", 0, 187, 18, c);
-	drawtext(vid_buf, 205, YRES+(MENUSIZE-14), "\xCA", 187, 40, 0, c);
+	drawtext(vid_buf, 205, YRES+(MENUSIZE-12), "Vote", 0, 187, 18, c);
+	drawtext(vid_buf, 229, YRES+(MENUSIZE-14), "\xCA", 187, 40, 0, c);
 
 	c = svf_open ? 255 : 128;
 
 	//the tags button
-	drawtext(vid_buf, 222, YRES+(MENUSIZE-15), "\x83", c, c, c, 255);
+	drawtext(vid_buf, 246, YRES+(MENUSIZE-15), "\x83", c, c, c, 255);
 	if (svf_tags[0])
-		drawtextmax(vid_buf, 240, YRES+(MENUSIZE-12), XRES+BARSIZE-421, svf_tags, c, c, c, 255);
+		drawtextmax(vid_buf, 264, YRES+(MENUSIZE-12), XRES+BARSIZE-445, svf_tags, c, c, c, 255);
 	else
-		drawtext(vid_buf, 240, YRES+(MENUSIZE-12), "[no tags set]", c, c, c, 255);
+		drawtext(vid_buf, 264, YRES+(MENUSIZE-12), "[no tags set]", c, c, c, 255);
 
-	drawrect(vid_buf, 219, YRES+(MENUSIZE-16), XRES+BARSIZE-396, 14, c, c, c, 255);
+	drawrect(vid_buf, 243, YRES+(MENUSIZE-16), XRES+BARSIZE-420, 14, c, c, c, 255);
 
 	//Report bugs
 	drawtext(vid_buf, XRES+BARSIZE-173, YRES+(MENUSIZE-14), "\xE7", 255, 255, 255, 255);

@@ -2621,7 +2621,7 @@ int main(int argc, char *argv[])
 						newToolTip = "Upload the simulation under a new name";
 				}
 			}
-			if (x>=189 && x<=217)
+			if (x>=189 && x<=241)
 			{
 				if (svf_login && svf_open)
 				{
@@ -2633,14 +2633,14 @@ int main(int argc, char *argv[])
 					{
 						if (svf_own)
 							newToolTip = "You cannot vote on your own save";
-						else if (x <= 202)
+						else if (x <= 226)
 							newToolTip = "Like this save";
-						else if (x >= 204)
+						else if (x >= 228)
 							newToolTip = "Dislike this save";
 					}
 				}
 			}
-			else if (x>=219 && x<=((XRES+BARSIZE-(510-333))))
+			else if (x>=243 && x<=((XRES+BARSIZE-(510-333))))
 			{
 				if (svf_open)
 				{
@@ -2845,14 +2845,14 @@ int main(int argc, char *argv[])
 			{
 				if (!lb && !bq)//mouse is NOT held down, so it is a first click
 				{
-					if (x>=189 && x<=202 && svf_login && svf_open && svf_myvote==0 && svf_own==0)
+					if (x>=189 && x<=226 && svf_login && svf_open && svf_myvote==0 && svf_own==0)
 					{
 						if (execute_vote(vid_buf, svf_id, "Up"))
 						{
 							svf_myvote = 1;
 						}
 					}
-					else if (x>=204 && x<=217 && svf_login && svf_open && svf_myvote==0 && svf_own==0)
+					else if (x>=228 && x<=241 && svf_login && svf_open && svf_myvote==0 && svf_own==0)
 					{
 						if (execute_vote(vid_buf, svf_id, "Down"))
 						{
@@ -2860,7 +2860,7 @@ int main(int argc, char *argv[])
 						}
 					}
 					//tags
-					else if (x>=219 && x<=(XRES+BARSIZE-(510-333)) && svf_open)
+					else if (x>=243 && x<=(XRES+BARSIZE-(510-333)) && svf_open)
 						tag_list_ui(vid_buf);
 					else if (x>=((XRES+BARSIZE-(510-335))) && x<((XRES+BARSIZE-(510-350))))
 						report_ui(vid_buf, NULL, true);
