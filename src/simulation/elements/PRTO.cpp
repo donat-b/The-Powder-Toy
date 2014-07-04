@@ -87,9 +87,9 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 							{
 								((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->AllocSpecific(storedPart->tmp);
 							}
-							else if (parts[np].type == PT_STKM)
+							else if (storedPart->type == PT_STKM)
 								player.spwn = 1;
-							else if (parts[np].type == PT_STKM2)
+							else if (storedPart->type == PT_STKM2)
 								player2.spwn = 1;
 							continue;
 						}
