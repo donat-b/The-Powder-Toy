@@ -88,6 +88,8 @@ int graphics_drawRect(lua_State * l);
 int graphics_fillRect(lua_State * l);
 int graphics_drawCircle(lua_State * l);
 int graphics_fillCircle(lua_State * l);
+int graphics_getColors(lua_State * l);
+int graphics_getHexColor(lua_State * l);
 int graphics_toolTip(lua_State * l);
 
 int elements_getProperty(char * key, int * format, unsigned int * modifiedStuff);

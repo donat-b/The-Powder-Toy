@@ -1616,6 +1616,8 @@ void initGraphicsAPI(lua_State * l)
 		{"fillRect", graphics_fillRect},
 		{"drawCircle", graphics_drawCircle},
 		{"fillCircle", graphics_fillCircle},
+		{"getColors", graphics_getColors},
+		{"getHexColor", graphics_getHexColor},
 		{"toolTip", graphics_toolTip},
 		{NULL, NULL}
 	};
@@ -1787,6 +1789,36 @@ int graphics_fillCircle(lua_State * l)
 
 	fillcircle(vid_buf, x, y, w, h, r, g, b, a);
 	return 0;
+}
+
+int graphics_getColors(lua_State * l)
+{
+	unsigned int color = lua_tointeger(l, 1);
+
+	int a = color >> 24;
+	int r = (color >> 16)&0xFF;
+	int g = (color >> 8)&0xFF;
+	int b = color&0xFF;
+
+	lua_pushinteger(l, r);
+	lua_pushinteger(l, g);
+	lua_pushinteger(l, b);
+	lua_pushinteger(l, a);
+	return 4;
+}
+
+int graphics_getHexColor(lua_State * l)
+{
+	int r = lua_tointeger(l, 1);
+	int g = lua_tointeger(l, 2);
+	int b = lua_tointeger(l, 3);
+	int a = 0;
+	if (lua_gettop(l) >= 4)
+		a = lua_tointeger(l, 4);
+	unsigned int color = (a<<24) + (r<<16) + (g<<8) + b;
+
+	lua_pushinteger(l, color);
+	return 1;
 }
 
 int graphics_toolTip(lua_State *l)
