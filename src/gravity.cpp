@@ -25,6 +25,7 @@
 
 #ifdef GRAVFFT
 #include <fftw3.h>
+int grav_fft_status = 0;
 #ifdef STATIC_LIBS
 FILE _iob[3];
 #endif
@@ -174,7 +175,8 @@ void* update_grav_async(void* unused)
 	//memset(th_gravx, 0, XRES*YRES*sizeof(float));
 	//memset(th_gravp, 0, XRES*YRES*sizeof(float));
 #ifdef GRAVFFT
-	grav_fft_init();
+	if (!grav_fft_status)
+		grav_fft_init();
 #endif
 	while(!thread_done){
 		if(!done){
@@ -233,7 +235,6 @@ void stop_grav_async()
 }
 
 #ifdef GRAVFFT
-int grav_fft_status = 0;
 float *th_ptgravx, *th_ptgravy, *th_gravmapbig, *th_gravxbig, *th_gravybig;
 fftwf_complex *th_ptgravxt, *th_ptgravyt, *th_gravmapbigt, *th_gravxbigt, *th_gravybigt;
 fftwf_plan plan_gravmap, plan_gravx_inverse, plan_gravy_inverse;
@@ -323,7 +324,6 @@ void update_grav()
 	if (memcmp(th_ogravmap, th_gravmap, sizeof(float)*(XRES/CELL)*(YRES/CELL))!=0)
 	{
 		th_gravchanged = 1;
-		if (!grav_fft_status) grav_fft_init();
 
 		//copy gravmap into padded gravmap array
 		for (y=0; y<YRES/CELL; y++)
