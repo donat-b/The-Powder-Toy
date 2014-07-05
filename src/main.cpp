@@ -2710,7 +2710,7 @@ int main(int argc, char *argv[])
 				zoomY = YRES-ZSIZE;
 			zoom_x = zoomX;
 			zoom_y = zoomY;
-			zoom_wx = (zoomX<XRES/2) ? XRES-ZSIZE*ZFACTOR : 0;
+			zoom_wx = (x<XRES/2) ? XRES-ZSIZE*ZFACTOR : 0;
 			zoom_wy = 0;
 			zoom_en = 1;
 		}

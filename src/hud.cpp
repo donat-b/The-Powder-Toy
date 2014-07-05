@@ -359,7 +359,7 @@ void DrawHud(int introTextAlpha, int qTipAlpha)
 	}
 	if (sdl_zoom_trig||zoom_en)
 	{
-		if (zoom_x<XRES/2)
+		if (zoom_wx)
 			heatx = XRES-16-heatlength;
 		else
 			heatx = 16;
@@ -381,7 +381,7 @@ void DrawHud(int introTextAlpha, int qTipAlpha)
 	}
 	if (DEBUG_MODE && strlen(coordtext) > 0)
 	{
-		if ((sdl_zoom_trig||zoom_en) && zoom_x>=XRES/2)
+		if ((sdl_zoom_trig||zoom_en) && !zoom_wx)
 		{
 			if (coordlength > heatlength)
 			{
