@@ -461,7 +461,7 @@ else:
 	programName = GetOption('renderer') and "render" or "powder"
 	if "BIT" in env and env["BIT"] == 64:
 		programName += "64"
-	if isX86 and not GetOption('sse2') and not GetOption('sse3'):
+	if isX86 and GetOption('no-sse'):
 		programName += "-legacy"
 	if platform == "Windows":
 		programName = programName.capitalize()

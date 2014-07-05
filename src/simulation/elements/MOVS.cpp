@@ -24,7 +24,7 @@ void rotate(float *x, float *y, float angle)
 
 int MOVS_update(UPDATE_FUNC_ARGS)
 {
-	int bn = parts[i].tmp2, type, bounce = 2;
+	int bn = parts[i].tmp2, type, bounce = 2, t = parts[i].type;
 	float tmp = parts[i].pavg[0], tmp2 = parts[i].pavg[1];
 	if (bn < 0 || bn > 255)
 		return 0;
@@ -53,28 +53,28 @@ int MOVS_update(UPDATE_FUNC_ARGS)
 	}
 	type = pmap[y+1][x]&0xFF;
 	//bottom side collision
-	if (tmp2 > 0 && type && y+1 < YRES && ((type != parts[i].type && !eval_move(parts[i].type,x,y+1,NULL)) || (type == parts[i].type && parts[pmap[y+1][x]>>8].tmp2 != bn)))
+	if (tmp2 > 0 && type && y+1 < YRES && ((type != t && !eval_move(t, x, y+1, NULL)) || (type == t && parts[pmap[y+1][x]>>8].tmp2 != bn) || IsWallBlocking(x, y+1, t)))
 	{
 		parts[i].vy -= tmp2*bounce;
 		newmsrotation[bn] -= tmp/50000;
 	}
 	type = pmap[y-1][x]&0xFF;
 	//top side collision
-	if (tmp2 < 0 && type && y-1 >= 0 && ((type != parts[i].type && !eval_move(parts[i].type,x,y-1,NULL)) || (type == parts[i].type && parts[pmap[y-1][x]>>8].tmp2 != bn)))
+	if (tmp2 < 0 && type && y-1 >= 0 && ((type != t && !eval_move(t, x, y-1, NULL)) || (type == t && parts[pmap[y-1][x]>>8].tmp2 != bn) || IsWallBlocking(x, y-1, t)))
 	{
 		parts[i].vy -= tmp2*bounce;
 		newmsrotation[bn] -= tmp/50000;
 	}
 	type = pmap[y][x+1]&0xFF;
 	//right side collision
-	if (tmp > 0 && type && x+1 < XRES && ((type != parts[i].type && !eval_move(parts[i].type,x+1,y,NULL)) || (type == parts[i].type && parts[pmap[y][x+1]>>8].tmp2 != bn)))
+	if (tmp > 0 && type && x+1 < XRES && ((type != t && !eval_move(t, x+1, y, NULL)) || (type == t && parts[pmap[y][x+1]>>8].tmp2 != bn) || IsWallBlocking(x+1, y, t)))
 	{
 		parts[i].vx -= tmp*bounce;
 		newmsrotation[bn] -= tmp/50000;
 	}
 	type = pmap[y][x-1]&0xFF;
 	//left side collision
-	if (tmp < 0 && type && x-1 >= 0 && ((type != parts[i].type && !eval_move(parts[i].type,x-1,y,NULL)) || (type == parts[i].type && parts[pmap[y][x-1]>>8].tmp2 != bn)))
+	if (tmp < 0 && type && x-1 >= 0 && ((type != t && !eval_move(t, x-1, y, NULL)) || (type == t && parts[pmap[y][x-1]>>8].tmp2 != bn) || IsWallBlocking(x-1, y, t)))
 	{
 		parts[i].vx -= tmp*bounce;
 		newmsrotation[bn] -= tmp/50000;

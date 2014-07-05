@@ -655,18 +655,18 @@ bool Simulation::UpdateParticle(int i)
 
 	//this kills any particle out of the screen, or in a wall where it isn't supposed to go
 	if (OutOfBounds(x, y) ||
-	    (  bmap[y/CELL][x/CELL] &&
-	       ( bmap[y/CELL][x/CELL] == WL_WALL ||
-	        (bmap[y/CELL][x/CELL] == WL_WALLELEC) ||
-	        (bmap[y/CELL][x/CELL] == WL_ALLOWAIR) ||
-	        (bmap[y/CELL][x/CELL] == WL_DESTROYALL) ||
-	        (bmap[y/CELL][x/CELL] == WL_ALLOWLIQUID && elements[t].Falldown != 2) ||
-	        (bmap[y/CELL][x/CELL] == WL_ALLOWSOLID && elements[t].Falldown != 1) ||
-	        (bmap[y/CELL][x/CELL] == WL_ALLOWGAS && !(elements[t].Properties&TYPE_GAS)) || //&&  elements[t].Falldown!=0 && t!=PT_FIRE && t!=PT_SMKE && t!=PT_HFLM) ||
-	        (bmap[y/CELL][x/CELL] == WL_ALLOWENERGY && !(elements[t].Properties&TYPE_ENERGY)) ||
-	        (bmap[y/CELL][x/CELL] == WL_DETECT && (t==PT_METL || t==PT_SPRK)) ||
-	        (bmap[y/CELL][x/CELL] == WL_EWALL && !emap[y/CELL][x/CELL])
-	      ) && (t!=PT_STKM) && (t!=PT_STKM2) && (t!=PT_FIGH)))
+		( bmap[y/CELL][x/CELL] &&
+		  ( bmap[y/CELL][x/CELL] == WL_WALL ||
+		   (bmap[y/CELL][x/CELL] == WL_WALLELEC) ||
+		   (bmap[y/CELL][x/CELL] == WL_ALLOWAIR) ||
+		   (bmap[y/CELL][x/CELL] == WL_DESTROYALL) ||
+		   (bmap[y/CELL][x/CELL] == WL_ALLOWLIQUID && elements[t].Falldown != 2) ||
+		   (bmap[y/CELL][x/CELL] == WL_ALLOWSOLID && elements[t].Falldown != 1) ||
+		   (bmap[y/CELL][x/CELL] == WL_ALLOWGAS && !(elements[t].Properties&TYPE_GAS)) || //&&  elements[t].Falldown!=0 && t!=PT_FIRE && t!=PT_SMKE && t!=PT_HFLM) ||
+		   (bmap[y/CELL][x/CELL] == WL_ALLOWENERGY && !(elements[t].Properties&TYPE_ENERGY)) ||
+		   (bmap[y/CELL][x/CELL] == WL_DETECT && (t==PT_METL || t==PT_SPRK)) ||
+		   (bmap[y/CELL][x/CELL] == WL_EWALL && !emap[y/CELL][x/CELL])
+		  ) && t!=PT_STKM && t!=PT_STKM2 && t!=PT_FIGH && !(elements[t].Properties&PROP_MOVS)))
 	{
 		part_kill(i);
 		return true;
