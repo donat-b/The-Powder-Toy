@@ -736,6 +736,12 @@ floodfill crash.
 Version 29.1 6/4/14
 Fix crash when using BRAY. Possibly fix bugs with setting scale.
 
+Version 29.2 7/5/14
+Fix scale setting issue on Linux. Update TPTMP to the latest version. Fix
+crash with portals. Simulation and interface updates from tpt++. Moving solids
+bounce off walls, go through loop edge mode, and are affected by different
+gravity modes. Fix zoom window being drawn on incorrect side sometimes.
+
 
 
 
