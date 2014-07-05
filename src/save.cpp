@@ -168,7 +168,7 @@ int check_save(int save_as, int orig_x0, int orig_y0, int orig_w, int orig_h, in
 				}
 				return 1;
 			}
-			if ((parts[i].type == PT_CLNE || parts[i].type == PT_PCLN || parts[i].type == PT_BCLN || parts[i].type == PT_PBCN || parts[i].type == PT_STOR || parts[i].type == PT_CONV || ((parts[i].type == PT_STKM || parts[i].type == PT_STKM2 || parts[i].type == PT_FIGH) && parts[i].ctype != SPC_AIR) || parts[i].type == PT_LAVA || parts[i].type == PT_SPRK || parts[i].type == PT_PSTN || parts[i].type == PT_CRAY) && invalid_element(save_as,parts[i].ctype))
+			if ((parts[i].type == PT_CLNE || parts[i].type == PT_PCLN || parts[i].type == PT_BCLN || parts[i].type == PT_PBCN || parts[i].type == PT_STOR || parts[i].type == PT_CONV || ((parts[i].type == PT_STKM || parts[i].type == PT_STKM2 || parts[i].type == PT_FIGH) && parts[i].ctype != SPC_AIR) || parts[i].type == PT_LAVA || parts[i].type == PT_SPRK || parts[i].type == PT_PSTN || parts[i].type == PT_CRAY || parts[i].type == PT_DTEC) && invalid_element(save_as,parts[i].ctype))
 			{
 				if (give_warning)
 				{

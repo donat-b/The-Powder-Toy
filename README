@@ -742,7 +742,8 @@ Fix crash when using BRAY. Possibly fix bugs with setting scale.
 ------------------------------------------------------------------------------
 -------------------------------------Bugs-------------------------------------
 ------------------------------------------------------------------------------
-None (at least that I know of)
+Can't draw particles when moving solids are on the screen
+//None (at least that I know of)
 
 
 

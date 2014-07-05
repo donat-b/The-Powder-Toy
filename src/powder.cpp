@@ -1570,7 +1570,19 @@ void update_moving_solids()
 	{
 		msvx[bn] = msvx[bn]/msnum[bn];
 		msvy[bn] = msvy[bn]/msnum[bn];
-		msvy[bn] = msvy[bn] + .2;
+		switch (gravityMode)
+		{
+		case 0:
+			msvy[bn] = msvy[bn] + .2;
+			break;
+		case 1:
+			break;
+		case 2:
+			float pGravD = 0.01f - hypotf((parts[msindex[bn]-1].x - XCNTR), (parts[msindex[bn]-1].y - YCNTR));
+			msvx[bn] = msvx[bn] + .2 * ((parts[msindex[bn]-1].x - XCNTR) / pGravD);
+			msvy[bn] = msvy[bn] + .2 * ((parts[msindex[bn]-1].y - YCNTR) / pGravD);
+			break;
+		}
 		msrotation[bn] = newmsrotation[bn];
 		if (!ms_rotation)
 		{
