@@ -622,19 +622,6 @@ int do_move(int i, int x, int y, float nxf, float nyf)
 	volatile float tmpx = nxf, tmpy = nyf;
 	int nx = (int)(tmpx+0.5f), ny = (int)(tmpy+0.5f), result;
 
-	if (edgeMode == 2)
-	{
-		if (nx < CELL)
-			nxf += XRES-CELL*2;
-		if (nx >= XRES-CELL)
-			nxf -= XRES-CELL*2;
-		if (ny < CELL)
-			nyf += YRES-CELL*2;
-		if (ny >= YRES-CELL)
-			nyf -= YRES-CELL*2;
-		nx = (int)(nxf+0.5f);
-		ny = (int)(nyf+0.5f);
-	}
 	if (parts[i].type == PT_NONE)
 		return 0;
 	result = try_move(i, x, y, nx, ny);
@@ -649,6 +636,21 @@ int move(int i, int x, int y, float nxf, float nyf)
 	// volatile to hopefully force truncation of floats in x87 registers by storing and reloading from memory, so that rounding issues don't cause particles to appear in the wrong pmap list. If using -mfpmath=sse or an ARM CPU, this may be unnecessary.
 	volatile float tmpx = nxf, tmpy = nyf;
 	int nx = (int)(tmpx+0.5f), ny = (int)(tmpy+0.5f), t = parts[i].type;
+
+	if (edgeMode == 2)
+	{
+		if (nx < CELL)
+			nxf += XRES-CELL*2;
+		if (nx >= XRES-CELL)
+			nxf -= XRES-CELL*2;
+		if (ny < CELL)
+			nyf += YRES-CELL*2;
+		if (ny >= YRES-CELL)
+			nyf -= YRES-CELL*2;
+		nx = (int)(nxf+0.5f);
+		ny = (int)(nyf+0.5f);
+	}
+
 	parts[i].x = nxf;
 	parts[i].y = nyf;
 	if (ny!=y || nx!=x)
@@ -1562,6 +1564,7 @@ void particle_transitions(int i, int *t)
 }
 
 void rotate(float *x, float *y, float angle);
+
 void update_moving_solids()
 {
 	if (numballs == 0)
@@ -1616,7 +1619,7 @@ void update_moving_solids()
 				parts[i].vx = msvx[bn];
 				parts[i].vy = msvy[bn];
 			}
-			if (parts[i].x<CELL || parts[i].x>=XRES-CELL || parts[i].y<CELL || parts[i].y>=YRES-CELL)//kill_part if particle is out of bounds
+			if (OutOfBounds((int)(parts[i].x+.5f), (int)(parts[i].y+.5f)))//kill_part if particle is out of bounds
 				kill_part(i);
 		}
 	}
