@@ -465,6 +465,8 @@ void Simulation::RecalcFreeParticles()
 			}
 			lastPartUsed = i;
 			NUM_PARTS++;
+			if (!sys_pause || framerender)
+				decrease_life(i); //decrease the life of certain elements by 1 every frame
 		}
 		else
 		{
@@ -474,8 +476,6 @@ void Simulation::RecalcFreeParticles()
 				parts[lastPartUnused].life = i;
 			lastPartUnused = i;
 		}
-		if (!sys_pause || framerender)
-			decrease_life(i); //decrease the life of certain elements by 1 every frame
 	}
 
 	if (lastPartUnused == -1)

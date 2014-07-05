@@ -1095,36 +1095,33 @@ void decrease_life(int i)
 {
 	int t;
 	unsigned int elem_properties;
-	if (parts[i].type)
-	{
-		t = parts[i].type;
+	t = parts[i].type;
 #ifdef OGLR
-		parts[i].lastX = parts[i].x;
-		parts[i].lastY = parts[i].y;
+	parts[i].lastX = parts[i].x;
+	parts[i].lastY = parts[i].y;
 #endif
-		if (t<0 || t>=PT_NUM)
+	if (t<0 || t>=PT_NUM)
+	{
+		kill_part(i);
+		return;
+	}
+	elem_properties = ptypes[t].properties;
+	if (parts[i].life>0 && (elem_properties&PROP_LIFE_DEC))
+	{
+		// automatically decrease life
+		parts[i].life--;
+		if (parts[i].life<=0 && (elem_properties&(PROP_LIFE_KILL_DEC|PROP_LIFE_KILL)))
 		{
+			// kill on change to no life
 			kill_part(i);
 			return;
 		}
-		elem_properties = ptypes[t].properties;
-		if (parts[i].life>0 && (elem_properties&PROP_LIFE_DEC))
-		{
-			// automatically decrease life
-			parts[i].life--;
-			if (parts[i].life<=0 && (elem_properties&(PROP_LIFE_KILL_DEC|PROP_LIFE_KILL)))
-			{
-				// kill on change to no life
-				kill_part(i);
-				return;
-			}
-		}
-		else if (parts[i].life<=0 && (elem_properties&PROP_LIFE_KILL))
-		{
-			// kill if no life
-			kill_part(i);
-			return;
-		}
+	}
+	else if (parts[i].life<=0 && (elem_properties&PROP_LIFE_KILL))
+	{
+		// kill if no life
+		kill_part(i);
+		return;
 	}
 }
 
