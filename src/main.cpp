@@ -187,21 +187,17 @@ static const char *it_msg =
 	"X86_SSE3 "
 #endif
 #ifdef LIN
-#ifdef _32BIT
-	"LIN32 "
-#elif _64BIT
+#ifdef _64BIT
 	"LIN64 "
 #else
-	"LIN "
+	"LIN32 "
 #endif
 #endif
 #ifdef WIN
-#ifdef _32BIT
-	"WIN32 "
-#elif _64BIT
+#ifdef _64BIT
 	"WIN64 "
 #else
-	"WIN "
+	"WIN32 "
 #endif
 #endif
 #ifdef MACOSX
@@ -791,20 +787,16 @@ char http_proxy_string[256] = "";
 unsigned char last_major=0, last_minor=0, last_build=0, update_flag=0;
 
 #ifdef WIN
-#ifdef _32BIT
-	#define UPDATE_ARCH "Windows32"
-#elif _64BIT
+#ifdef _64BIT
 	#define UPDATE_ARCH "Windows64"
 #else
-	#define UPDATE_ARCH "Unknown"
+	#define UPDATE_ARCH "Windows32"
 #endif
 #elif LIN
-#ifdef _32BIT
-	#define UPDATE_ARCH "Linux32"
-#elif _64BIT
+#ifdef _64BIT
 	#define UPDATE_ARCH "Linux64"
 #else
-	#define UPDATE_ARCH "Unknown"
+	#define UPDATE_ARCH "Linux32"
 #endif
 #elif MACOSX
 	#define UPDATE_ARCH "MacOSX"

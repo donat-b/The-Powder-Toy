@@ -129,7 +129,6 @@ for var in ["CFLAGS","CCFLAGS","CXXFLAGS","LINKFLAGS","CPPDEFINES","CPPPATH"]:
 
 #Used for intro text / executable name, actual bit flags are only set if the --64bit/--32bit command line args are given
 def add32bitflags(env):
-	env.Append(CPPDEFINES='_32BIT')
 	env["BIT"] = 32
 def add64bitflags(env):
 	if platform == "Windows":
@@ -327,7 +326,7 @@ if not GetOption('clean') and not GetOption('help'):
 	conf.AddTest('CheckBit', CheckBit)
 	if not conf.CheckCC() or not conf.CheckCXX():
 		FatalError("compiler not correctly configured")
-	if isX86 and not GetOption('32bit') and not GetOption('64bit'):
+	if platform == compilePlatform and isX86 and not GetOption('32bit') and not GetOption('64bit'):
 		conf.CheckBit()
 	findLibs(env, conf)
 	env = conf.Finish()
