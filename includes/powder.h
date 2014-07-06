@@ -194,7 +194,7 @@ static fav_menu fav[] =
 	{"MORE", PIXPACK(0xFF7F00), "Display different options"},
 	{"BACK", PIXPACK(0xFF7F00), "Go back to the favorites menu"},
 	//{"HUD",  PIXPACK(0x20D8FF), "Left click to toggle a different HUD. Now using the "},
-	{"FIND", PIXPACK(0xFF0000), "Finds the currently selected element on the screen and temporarily colors it red"},
+	{"FIND", PIXPACK(0xFF0000), "Highlights the currently selected element in red"},
 	{"INFO", PIXPACK(0x00FF00), "Displays statistics and records about The Powder Toy. Left click to toggle display"},
 	{"SPIN", PIXPACK(0x0010A0), "Makes moving solids rotate. Currently "},
 	{"HEAT", PIXPACK(0xFF00D4), "Changes heat display mode. Current mode: "},

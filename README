@@ -740,7 +740,11 @@ Version 29.2 7/5/14
 Fix scale setting issue on Linux. Update TPTMP to the latest version. Fix
 crash with portals. Simulation and interface updates from tpt++. Moving solids
 bounce off walls, go through loop edge mode, and are affected by different
-gravity modes. Fix zoom window being drawn on incorrect side sometimes.
+gravity modes. Fix zoom window being drawn on incorrect side sometimes. Fix
+fullscreen on mac (compiling change).
+
+Version 29.2 (build 44) 7/5/14
+Actually update TPTMP to version .72
 
 
 

@@ -32,7 +32,7 @@
 #define MOD_VERSION 29
 #define MOD_MINOR_VERSION 2
 #define MOD_SAVE_VERSION 19 //This is not the version number of my mod anymore, it's only changed when I change the saving code
-#define MOD_BUILD_VERSION 43 //For update checks
+#define MOD_BUILD_VERSION 44 //For update checks
 #define BETA_VERSION 89
 #define BETA_MINOR_VER 2
 #define RELEASE_VERSION 89
