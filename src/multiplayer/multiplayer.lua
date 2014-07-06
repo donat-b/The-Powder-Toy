@@ -1,8 +1,8 @@
 --Cracker64's Powder Toy Multiplayer
 --I highly recommend to use my Autorun Script Manager
---VER 0.71 UPDATE http://pastebin.com/raw.php?i=Dk5Kx4JV
+--VER 0.72 UPDATE http://pastebin.com/raw.php?i=Dk5Kx4JV
  
---Version 0.71
+--Version 0.72
 
 --TODO's
 --Support replace mode
@@ -1672,7 +1672,7 @@ function TPTMP.disableMultiplayer()
 end
 
 function TPTMP.enableMultiplayer()
-	chatwindow:addline("TPTMP v0.71: Type '/connect' to join server, or    /list for a list of commands.",200,200,200)
+	chatwindow:addline("TPTMP v0.72: Type '/connect' to join server, or    /list for a list of commands.",200,200,200)
 	hooks_enabled = true
 	TPTMP.enableMultiplayer = nil
 	debug.sethook(nil,"",0)
