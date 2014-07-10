@@ -1089,7 +1089,7 @@ int addchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a)
 int drawtext(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a)
 {
 	int sx = x;
-	int invert = 0;
+	bool highlight = false;
 	int oR = r, oG = g, oB = b;
 	for (; *s; s++)
 	{
@@ -1097,6 +1097,10 @@ int drawtext(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a
 		{
 			x = sx;
 			y += FONT_H+2;
+			if (highlight && (s[1] == '\n' || (s[1] == '\x01' && s[2] == '\n')))
+			{
+				fillrect(vid, x-1, y-3, font_data[font_ptrs[' ']]+1, FONT_H+3, 0, 0, 255, 127);
+			}
 		}
 		else if (*s == '\x0F')
 		{
@@ -1117,10 +1121,7 @@ int drawtext(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a
 		}
 		else if (*s == '\x01')
 		{
-			invert = !invert;
-			r = 255-r;
-			g = 255-g;
-			b = 255-b;
+			highlight = !highlight;
 		}
 		else if (*s == '\b')
 		{
@@ -1160,16 +1161,16 @@ int drawtext(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a
 				r = 100;
 				break;
 			}
-			if(invert)
-			{
-				r = 255-r;
-				g = 255-g;
-				b = 255-b;
-			}
 			s++;
 		}
 		else
+		{
+			if (highlight)
+			{
+				fillrect(vid, x-1, y-3, font_data[font_ptrs[(int)(*(unsigned char *)s)]]+1, FONT_H+3, 0, 0, 255, 127);
+			}
 			x = drawchar(vid, x, y, *(unsigned char *)s, r, g, b, a);
+		}
 	}
 	return x;
 }
@@ -1616,6 +1617,11 @@ void drawdots(pixel *vid, int x, int y, int h, int r, int g, int b, int a)
 	int i;
 	for (i=0; i<=h; i+=2)
 		drawpixel(vid, x, y+i, r, g, b, a);
+}
+
+int charwidth(unsigned char c)
+{
+	return font_data[font_ptrs[(int)c]];
 }
 
 int textwidth(const char *s)

@@ -170,6 +170,8 @@ void clearrect(pixel *vid, int x, int y, int w, int h);
 
 void drawdots(pixel *vid, int x, int y, int h, int r, int g, int b, int a);
 
+int charwidth(unsigned char c);
+
 int textwidth(const char *s);
 
 int drawtextmax(pixel *vid, int x, int y, int w, char *s, int r, int g, int b, int a);
