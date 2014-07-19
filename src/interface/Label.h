@@ -17,7 +17,8 @@ public:
 	int cursor, cursorStart;
 	int lastClick, numClicks, clickPosition;
 
-	void UpdateDisplayText(bool setHighlight = false, int mx = 0, int my = 0);
+	int UpdateCursor(int position);
+	void UpdateDisplayText(int mx = 0, int my = -1, bool firstClick = false);
 
 //public:
 	Label(std::string text, Point position, Point size, bool multiline = false);

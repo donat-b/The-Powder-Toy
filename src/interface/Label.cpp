@@ -2,6 +2,7 @@
 #include "Label.h"
 #include "graphics.h"
 #include "misc.h"
+#include <algorithm>
 
 Label::Label(std::string text, Point position, Point size, bool multiline):
 	text(text),
@@ -10,48 +11,104 @@ Label::Label(std::string text, Point position, Point size, bool multiline):
 	multiline(multiline),
 	cursor(0),
 	cursorStart(0),
+	clickPosition(0),
 	lastClick(0),
 	numClicks(0)
 {
 	UpdateDisplayText();
 }
 
-//ugly but all-in-one function that updates displayText with \n and \x01 and updates cursor position
-void Label::UpdateDisplayText(bool setHighlight, int mx, int my)
+void FindWordPosition(const char *s, int position, int *cursorStart, int *cursorEnd, const char* spaces)
 {
-	int posX = 0, posY = 12, wordStart = 0, sub = 0, cursorPos;
-	std::string tempText = text;
+	int wordLength = 0, totalLength = 0, strLength = strlen(s);
+	while (totalLength < strLength)
+	{
+		wordLength = strcspn(s, spaces);
+		if (totalLength + wordLength >= position)
+		{
+			*cursorStart = totalLength;
+			*cursorEnd = totalLength+wordLength;
+			return;
+		}
+		s += wordLength+1;
+		totalLength += wordLength+1;
+	}
+	*cursorStart = totalLength;
+	*cursorEnd = totalLength+wordLength;
+}
+
+int Label::UpdateCursor(int position)
+{
+	if (numClicks >= 2)
+	{
+		int start = 0, end = displayText.length();
+		const char *spaces = " .,!?\n";
+		if (numClicks == 3)
+			spaces = "\n";
+		FindWordPosition(displayText.c_str(), position, &start, &end, spaces);
+		if (start < clickPosition)
+		{
+			cursorStart = start;
+			FindWordPosition(displayText.c_str(), clickPosition, &start, &end, spaces);
+			cursor = end;
+		}
+		else
+		{
+			cursorStart = end;
+			FindWordPosition(displayText.c_str(), clickPosition, &start, &end, spaces);
+			cursor = start;
+		}
+	}
+	return position;
+}
+
+//all-in-one function that updates displayText with \r and \x01, updates cursor position, and cuts string where needed
+void Label::UpdateDisplayText(int mx, int my, bool firstClick)
+{
+	int posX = 0, posY = 12, wordStart = 0;
 	bool updatedCursor = false;
-	if (setHighlight)
-		tempText.insert(cursorStart, "\x01");
+	displayText = text;
+
 	if (my < 0)
 	{
-		cursorPos = cursor = 0;
+		cursor = 0;
 		updatedCursor = true;
 	}
-	for (int i = 0; i < tempText.length();)
+	for (int i = 0; i < displayText.length();)
 	{
-		int wordlen = tempText.substr(i).find_first_of(" .,!?\n");
+		//find end of word/line chars
+		int wordlen = displayText.substr(i).find_first_of(" .,!?\n");
 		if (wordlen == -1)
-			wordlen = tempText.length();
+			wordlen = displayText.length();
+
+		//if a word starts in the last 1/3 of the line, it will get put on the next line if it's too long
 		if (wordlen && posX > size.X*2/3)
 			wordStart = i;
 		else
 			wordStart = 0;
 
-		for (; --wordlen>=-1 && i < tempText.length(); i++)
+		//loop through a word
+		for (; --wordlen>=-1 && i < displayText.length(); i++)
 		{
-			switch (tempText[i])
+			switch (displayText[i])
 			{
 			case '\n':
-				posX = 0;
-				posY += 12;
-				wordStart = 0;
-				if (!updatedCursor && ((posX >= mx+3 && posY >= my) || (posY >= my+12)))
+				if (multiline)
 				{
-					cursorPos = i;
-					cursor = i-sub;
-					updatedCursor = true;
+					posX = 0;
+					posY += 12;
+					wordStart = 0;
+					if (!updatedCursor && ((posX >= mx+3 && posY >= my) || (posY >= my+12)))
+					{
+						cursor = i;
+						updatedCursor = true;
+					}
+				}
+				else
+				{
+					displayText = displayText.substr(0, i);
+					displayText.insert(i, "...");
+					i += 3;
 				}
 				break;
 			case '\x0F':
@@ -63,64 +120,79 @@ void Label::UpdateDisplayText(bool setHighlight, int mx, int my)
 				wordlen--;
 			case '\x0E':
 			case '\x01':
+			case '\r':
 				break;
 			default:
-				posX += charwidth(tempText[i]);
+				//normal character, add to the current width and check if it's too long
+				posX += charwidth(displayText[i]);
 				if (posX >= size.X)
 				{
-					int replacePos = i;
-					if (wordStart)
+					if (multiline)
 					{
-						replacePos = wordStart;
-						i = wordStart;
-						wordStart = 0;
+						//if it's too long, figure out where to put the newline (either current position or remembered word start position)
+						int replacePos = i;
+						if (wordStart)
+						{
+							replacePos = wordStart;
+							i = wordStart;
+							wordStart = 0;
+						}
+
+						//use \r instead of \n, that way it can be easily filtered out when copying without ugly hacks
+						displayText.insert(replacePos, "\r");
+						wordlen++;
+						posX = 0;
+						posY += 12;
 					}
-					if (tempText[replacePos] == ' ')
-						tempText[replacePos] = '\n';
 					else
-						tempText.insert(replacePos, "\n");
-					sub++;
-					wordlen++;
-					posX = 0;
-					posY += 12;
+					{
+						//for non multiline strings, cut it off here and delete the rest of the string
+						displayText = displayText.substr(0, i-1 > 0 ? i-1 : 0);
+						displayText.insert(i-1 > 0 ? i-1 : 0, "...");
+						i += 2;
+					}
 				}
+				//update cursor position, in multiple positions
 				if (!updatedCursor && !wordStart && ((posX >= mx+3 && posY >= my) || (posY >= my+12)))
 				{
-					cursorPos = i;
-					cursor = i-sub+(posX==0);
+					cursor = i+(posX==0);
 					updatedCursor = true;
 				}
 				break;
 			}
 		}
 	}
+	//if cursor position wasn't found, probably goes at the end
 	if (!updatedCursor)
+		cursor = displayText.length();
+
+	//update cursor and cursorStart and adjust for double / triple clicks
+	if (firstClick)
+		clickPosition = cursorStart = cursor;
+	UpdateCursor(cursor);
+
+	//insert \x01 where the cursor start / end are, to mark where to put highlight in drawtext
+	if (cursor != cursorStart || numClicks > 1)
 	{
-		cursorPos = tempText.length();
-		cursor = tempText.length()-sub;
+		displayText.insert(cursorStart, "\x01");
+		displayText.insert(cursor+(cursor>cursorStart), "\x01");
 	}
-	if (setHighlight)
-	{
-		if (cursor >= cursorStart)
-		{
-			cursor--;
-		}
-		tempText.insert(cursorPos, "\x01");
-	}
+
+	//multiline labels have their Y size set automatically
 	if (multiline)
 		size.Y = posY+2;
-	displayText = tempText;
 }
 
 void Label::OnMouseDown(int x, int y, unsigned char button)
 {
 	if (button == 1)
 	{
-		UpdateDisplayText(false, x, y);
-		cursorStart = cursor;
-
+		clicked = true;
 		numClicks++;
 		lastClick = SDL_GetTicks();
+
+		UpdateDisplayText(x, y, true);
+		//cursorStart = cursor;
 	}
 }
 
@@ -128,7 +200,8 @@ void Label::OnMouseUp(int x, int y, unsigned char button)
 {
 	if (button == 1)
 	{
-		UpdateDisplayText(true, x, y);
+		UpdateDisplayText(x, y);
+		clicked = false;
 	}
 }
 
@@ -136,7 +209,7 @@ void Label::OnMouseMoved(int x, int y, Point difference)
 {
 	if (clicked)
 	{
-		UpdateDisplayText(true, x, y);
+		UpdateDisplayText(x, y);
 	}
 }
 
@@ -148,7 +221,9 @@ void Label::OnKeyPress(int key, unsigned short character, unsigned char modifier
 	{
 		int start = cursor > cursorStart ? cursorStart : cursor;
 		int len = abs(cursor-cursorStart);
-		clipboard_push_text((char*)text.substr(start, len).c_str());
+		std::string copyStr = displayText.substr(start+1, len);
+		copyStr.erase(std::remove(copyStr.begin(), copyStr.end(), '\r'), copyStr.end());
+		clipboard_push_text((char*)copyStr.c_str());
 	}
 }
 
@@ -159,10 +234,8 @@ void Label::OnDraw(pixel* vid_buf)
 
 void Label::OnTick()
 {
-	if (numClicks && lastClick > SDL_GetTicks()+300)
+	if (!clicked && numClicks && lastClick+300 < SDL_GetTicks())
 		numClicks = 0;
-	//if (focus)
-		//cursor = textposxy(text.c_str(), size.X, x, y);
 }
 
 void InterfaceConvert(Label &label, int x, int y, int b, int bq, int sdl_key, unsigned char sdl_mod)
@@ -177,7 +250,6 @@ void InterfaceConvert(Label &label, int x, int y, int b, int bq, int sdl_key, un
 			label.focus = true;
 			if (!label.clicked)
 			{
-				label.clicked = true;
 				label.OnMouseDown(posX, posY, b);
 			}
 		}
@@ -188,7 +260,6 @@ void InterfaceConvert(Label &label, int x, int y, int b, int bq, int sdl_key, un
 	{
 		if (inside || label.clicked)
 			label.OnMouseUp(posX, posY, bq);
-		label.clicked = false;
 	}
 	if (lastx != x || lasty != y)
 		label.OnMouseMoved(posX, posY, Point(x-lastx, y-lasty));

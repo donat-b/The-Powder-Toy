@@ -1093,11 +1093,11 @@ int drawtext(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a
 	int oR = r, oG = g, oB = b;
 	for (; *s; s++)
 	{
-		if (*s == '\n')
+		if (*s == '\n' || *s == '\r')
 		{
 			x = sx;
 			y += FONT_H+2;
-			if (highlight && (s[1] == '\n' || (s[1] == '\x01' && s[2] == '\n')))
+			if (highlight && (s[1] == '\n' || s[1] == '\r' || (s[1] == '\x01' && (s[2] == '\n' || s[2] == '\r'))))
 			{
 				fillrect(vid, x-1, y-3, font_data[font_ptrs[' ']]+1, FONT_H+3, 0, 0, 255, 127);
 			}
