@@ -2077,12 +2077,15 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 								partsptr[newIndex].tmp |= (((unsigned)partsData[i++]) << 16);
 							}
 						}
-						if (modsave && (partsptr[newIndex].type == PT_PIPE || partsptr[newIndex].type == PT_PPIP))
-							partsptr[newIndex].tmp = fix_type(partsptr[newIndex].tmp&0xFF, saved_version, modsave)|(parts[newIndex].tmp&~0xFF);
-						if (modsave < 12 && (partsptr[newIndex].type == PT_VRSS || partsptr[newIndex].type == PT_VIRS || partsptr[newIndex].type == PT_VRSG))
+						if (modsave)
 						{
-							parts[i].pavg[0] = (float)(parts[i].tmp&0xFF);
-							parts[i].pavg[1] = (float)(parts[i].tmp>>8);
+							if (partsptr[newIndex].type == PT_PIPE || partsptr[newIndex].type == PT_PPIP)
+								partsptr[newIndex].tmp = fix_type(partsptr[newIndex].tmp&0xFF, saved_version, modsave)|(parts[newIndex].tmp&~0xFF);
+							if (modsave < 12 && (partsptr[newIndex].type == PT_VRSS || partsptr[newIndex].type == PT_VIRS || partsptr[newIndex].type == PT_VRSG))
+							{
+								parts[newIndex].pavg[0] = (float)(parts[newIndex].tmp&0xFF);
+								parts[newIndex].pavg[1] = (float)(parts[newIndex].tmp>>8);
+							}
 						}
 					}
 					
