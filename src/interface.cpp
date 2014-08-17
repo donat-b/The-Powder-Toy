@@ -8433,8 +8433,8 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 void simulation_ui(pixel * vid_buf)
 {
 	int xsize = 300;
-	int ysize = 316;
-	int x0=(XRES-xsize)/2,y0=(YRES-MENUSIZE-ysize)/2,b=1,bq,mx,my;
+	int ysize = 340;
+	int x0=(XRES-xsize)/2,y0=(YRES-ysize)/2,b=1,bq,mx,my;
 	int new_scale, new_kiosk, oldedgeMode = edgeMode;
 	ui_checkbox cb, cb2, cb3, cb4, cb5, cb6, cb7;
 	char * airModeList[] = {"On", "Pressure Off", "Velocity Off", "Off", "No Update"};
@@ -8568,13 +8568,17 @@ void simulation_ui(pixel * vid_buf)
 		draw_line(vid_buf, x0, y0+250, x0+xsize, y0+250, 150, 150, 150, XRES+BARSIZE);
 		
 		drawtext(vid_buf, x0+8, y0+256, "Large window", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+12+textwidth("Large window"), y0+256, "Double window size for small screens", 255, 255, 255, 180);
+		drawtext(vid_buf, x0+12+textwidth("Large window"), y0+256, "\bg- Double window size for small screens", 255, 255, 255, 180);
 		
 		drawtext(vid_buf, x0+8, y0+270, "Fullscreen", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+12+textwidth("Fullscreen"), y0+270, "Fill the entire screen", 255, 255, 255, 180);
+		drawtext(vid_buf, x0+12+textwidth("Fullscreen"), y0+270, "\bg- Fill the entire screen", 255, 255, 255, 180);
 
 		drawtext(vid_buf, x0+8, y0+284, "Fast Quit", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+12+textwidth("Fast Quit"), y0+284, "Hitting 'X' will always exit out of tpt", 255, 255, 255, 180);
+		drawtext(vid_buf, x0+12+textwidth("Fast Quit"), y0+284, "\bg- Hitting 'X' will always exit out of tpt", 255, 255, 255, 180);
+
+		drawtext(vid_buf, x0+12, y0+ysize-34, "Open Data Folder", 255, 255, 255, 255);
+		drawrect(vid_buf, x0+8, y0+ysize-38, 90, 16, 192, 192, 192, 255);
+		drawtext(vid_buf, x0+25+textwidth("Open Data Folder"), y0+ysize-34, "\bg- Open the data and preferences folder", 255, 255, 255, 180);
 
 		drawtext(vid_buf, x0+5, y0+ysize-11, "OK", 255, 255, 255, 255);
 		drawrect(vid_buf, x0, y0+ysize-16, xsize, 16, 192, 192, 192, 255);
@@ -8606,8 +8610,27 @@ void simulation_ui(pixel * vid_buf)
 		ui_list_process(vid_buf, mx, my, b, &list3);
 		ui_list_process(vid_buf, mx, my, b, &listUpdate);
 
-		if (b && !bq && mx>=x0 && mx<x0+xsize && my>=y0+ysize-16 && my<=y0+ysize)
-			break;
+		if (b && !bq)
+		{
+			if (mx>=x0 && mx<x0+xsize && my>=y0+ysize-16 && my<=y0+ysize)
+				break;
+			else if (mx>=x0+8 && mx<x0+98 && my>=y0+ysize-38 && my<=y0+ysize-22)
+			{
+				//one of these should always be defined
+#ifdef WIN
+				const char* openCommand = "start ";
+#elif MACOSX
+				const char* openCommand = "open ";
+//#elif LIN
+#else
+				const char* openCommand = "xdg-open ";
+#endif
+				char* workingDirectory = new char[FILENAME_MAX+strlen(openCommand)];
+				sprintf(workingDirectory, "%s\"%s\"", openCommand, getcwd(NULL, 0));
+				system(workingDirectory);
+				delete workingDirectory;
+			}
+		}
 
 		if (sdl_key==SDLK_RETURN)
 			break;
