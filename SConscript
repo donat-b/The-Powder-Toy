@@ -97,7 +97,7 @@ if not tool and compilePlatform == "Linux" and compilePlatform != platform:
 	else:
 		crossList = ["x86_64-w64-mingw32", "i686-w64-mingw32", "amd64-mingw32msvc"]
 	for i in crossList:
-		if WhereIs("{}-g++".format(i)):
+		if WhereIs("{0}-g++".format(i)):
 			env['ENV']['PATH'] = "/usr/{0}/bin:{1}".format(i, os.environ['PATH'])
 			tool = i+"-"
 			break
@@ -117,7 +117,7 @@ if tool:
 for var in ["CC","CXX","LD","LIBPATH"]:
 	if var in os.environ:
 		env[var] = os.environ[var]
-		print "copying enviroment variable {}={!r}".format(var,os.environ[var])
+		print "copying enviroment variable {0}={1!r}".format(var,os.environ[var])
 # variables containing several space separated things
 for var in ["CFLAGS","CCFLAGS","CXXFLAGS","LINKFLAGS","CPPDEFINES","CPPPATH"]:
 	if var in os.environ:
@@ -125,25 +125,25 @@ for var in ["CFLAGS","CCFLAGS","CXXFLAGS","LINKFLAGS","CPPDEFINES","CPPPATH"]:
 			env[var] += SCons.Util.CLVar(os.environ[var])
 		else:
 			env[var] = SCons.Util.CLVar(os.environ[var])
-		print "copying enviroment variable {}={!r}".format(var,os.environ[var])
+		print "copying enviroment variable {0}={1!r}".format(var,os.environ[var])
 
 #Used for intro text / executable name, actual bit flags are only set if the --64bit/--32bit command line args are given
 def add32bitflags(env):
 	env["BIT"] = 32
 def add64bitflags(env):
 	if platform == "Windows":
-		env.Append(CPPDEFINES='__CRT__NO_INLINE')
-		env.Append(LINKFLAGS='-Wl,--stack=16777216')
-	env.Append(CPPDEFINES='_64BIT')
+		env.Append(CPPDEFINES=['__CRT__NO_INLINE'])
+		env.Append(LINKFLAGS=['-Wl,--stack=16777216'])
+	env.Append(CPPDEFINES=['_64BIT'])
 	env["BIT"] = 64
 #add 32/64 bit defines before configuration
 if GetOption('64bit'):
-	env.Append(LINKFLAGS='-m64')
-	env.Append(CCFLAGS='-m64')
+	env.Append(LINKFLAGS=['-m64'])
+	env.Append(CCFLAGS=['-m64'])
 	add64bitflags(env)
 elif GetOption('32bit'):
-	env.Append(LINKFLAGS='-m32')
-	env.Append(CCFLAGS='-m32')
+	env.Append(LINKFLAGS=['-m32'])
+	env.Append(CCFLAGS=['-m32'])
 	add32bitflags(env)
 
 if GetOption('universal'):
@@ -156,9 +156,9 @@ if GetOption('universal'):
 env.Append(CPPPATH=['src/', 'includes/'])
 if GetOption("msvc"):
 	if GetOption("static"):
-		env.Append(LIBPATH='StaticLibs/')
+		env.Append(LIBPATH=['StaticLibs/'])
 	else:
-		env.Append(LIBPATH='Libraries/')
+		env.Append(LIBPATH=['Libraries/'])
 
 #Check 32/64 bit
 def CheckBit(context):
@@ -189,12 +189,12 @@ def CheckBit(context):
 def CheckFramework(context, framework):
 	import SCons.Conftest
 	#Extreme hack, TODO: maybe think of a better one (like replicating CheckLib here) or at least just fix the message
-	ret = SCons.Conftest.CheckLib(context, ['m" -framework {}"'.format(framework)], autoadd = 0)
+	ret = SCons.Conftest.CheckLib(context, ['m" -framework {0}"'.format(framework)], autoadd = 0)
 	context.did_show_result = 1
 	if not ret:
 		context.env.Append(LINKFLAGS=["-framework", framework])
 		if framework != "Cocoa":
-			env.Append(CPPPATH=['/Library/Frameworks/{}.framework/Headers/'.format(framework)])
+			env.Append(CPPPATH=['/Library/Frameworks/{0}.framework/Headers/'.format(framework)])
 	return not ret
 
 #function that finds libraries and appends them to LIBS
@@ -232,7 +232,7 @@ def findLibs(env, conf):
 	#look for SDL.h
 	if not conf.CheckCHeader('SDL/SDL.h'):
 		if conf.CheckCHeader('SDL.h'):
-			env.Append(CPPDEFINES=["SDL_R_INCL"])
+			env.Append(CPPDEFINES=['SDL_R_INCL'])
 		else:
 			FatalError("SDL.h not found")
 
@@ -345,17 +345,17 @@ if platform == "Windows":
 		env.Append(CCFLAGS=['/Gm', '/Zi', '/EHsc']) #enable minimal rebuild, enable exceptions
 		env.Append(LINKFLAGS=['/SUBSYSTEM:WINDOWS', '/OPT:REF', '/OPT:ICF'])
 		if GetOption('static'):
-			env.Append(CCFLAGS='/GL') #whole program optimization (linker may freeze indefinitely without this)
+			env.Append(CCFLAGS=['/GL']) #whole program optimization (linker may freeze indefinitely without this)
 			env.Append(LINKFLAGS=['/NODEFAULTLIB:LIBCMT.lib', '/LTCG'])
 		else:
-			env.Append(LINKFLAGS='/NODEFAULTLIB:msvcrt.lib')
+			env.Append(LINKFLAGS=['/NODEFAULTLIB:msvcrt.lib'])
 	else:
-		env.Append(LINKFLAGS='-mwindows')
+		env.Append(LINKFLAGS=['-mwindows'])
 elif platform == "Linux":
-	env.Append(CPPDEFINES="LIN")
+	env.Append(CPPDEFINES=['LIN'])
 elif platform == "Darwin":
-	env.Append(CPPDEFINES="MACOSX")
-	env.Append(LINKFLAGS="-headerpad_max_install_names")
+	env.Append(CPPDEFINES=['MACOSX'])
+	env.Append(LINKFLAGS=["-headerpad_max_install_names"]) #needed in some cross compiles
 
 
 #Add architecture flags and defines
@@ -364,77 +364,79 @@ if isX86:
 if not GetOption('no-sse'):
 	if GetOption('sse'):
 		if msvc:
-			env.Append(CCFLAGS='/arch:SSE')
+			env.Append(CCFLAGS=['/arch:SSE'])
 		else:
-			env.Append(CCFLAGS='-msse')
-		env.Append(CPPDEFINES='X86_SSE')
+			env.Append(CCFLAGS=['-msse'])
+		env.Append(CPPDEFINES=['X86_SSE'])
 	if GetOption('sse2'):
 		if msvc:
-			env.Append(CCFLAGS='/arch:SSE2')
+			env.Append(CCFLAGS=['/arch:SSE2'])
 		else:
-			env.Append(CCFLAGS='-msse2')
-		env.Append(CPPDEFINES='X86_SSE2')
+			env.Append(CCFLAGS=['-msse2'])
+		env.Append(CPPDEFINES=['X86_SSE2'])
 	if GetOption('sse3'):
 		if msvc:
-			env.Append(CCFLAGS='/arch:SSE3')
+			env.Append(CCFLAGS=['/arch:SSE3'])
 		else:
-			env.Append(CCFLAGS='-msse3')
-		env.Append(CPPDEFINES='X86_SSE3')
+			env.Append(CCFLAGS=['-msse3'])
+		env.Append(CPPDEFINES=['X86_SSE3'])
 if GetOption('native') and not msvc:
-	env.Append(CCFLAGS='-march=native')
+	env.Append(CCFLAGS=['-march=native'])
 
 
 #Add optimization flags and defines
 if GetOption('debugging'):
 	if msvc:
-		env.Append(CCFLAGS='/Od')
+		env.Append(CCFLAGS=['/Od'])
 		if GetOption('static'):
-			env.Append(CCFLAGS='/MTd')
+			env.Append(CCFLAGS=['/MTd'])
 		else:
-			env.Append(CCFLAGS='/MDd')
+			env.Append(CCFLAGS=['/MDd'])
 	else:
 		env.Append(CCFLAGS=['-Wall', '-pg', '-g'])
 elif GetOption('release'):
 	if msvc:
 		env.Append(CCFLAGS=['/O2', '/fp:fast'])
 		if GetOption('static'):
-			env.Append(CCFLAGS='/MT')
+			env.Append(CCFLAGS=['/MT'])
 		else:
-			env.Append(CCFLAGS='/MD')
+			env.Append(CCFLAGS=['/MD'])
 	else:
-		env.Append(CCFLAGS=['-O3', '-ftree-vectorize', '-funsafe-math-optimizations', '-ffast-math', '-fomit-frame-pointer', '-funsafe-loop-optimizations'])
+		env.Append(CCFLAGS=['-O3', '-ftree-vectorize', '-funsafe-math-optimizations', '-ffast-math', '-fomit-frame-pointer'])
+		if platform != "Darwin":
+			env.Append(CCFLAGS=['-funsafe-loop-optimizations'])
 
 if GetOption('static'):
 	if not msvc:
-		env.Append(CCFLAGS='-static-libgcc')
-		env.Append(LINKFLAGS='-static-libgcc')
+		env.Append(CCFLAGS=['-static-libgcc'])
+		env.Append(LINKFLAGS=['-static-libgcc'])
 	if platform == "Windows":
-		env.Append(CPPDEFINES='PTW32_STATIC_LIB')
+		env.Append(CPPDEFINES=['PTW32_STATIC_LIB'])
 		if not msvc:
-			env.Append(LINKFLAGS='-Wl,-Bstatic')
+			env.Append(LINKFLAGS=['-Wl,-Bstatic'])
 
 
 #Add other flags and defines
 if not GetOption('nofft'):
-	env.Append(CPPDEFINES="GRAVFFT")
+	env.Append(CPPDEFINES=['GRAVFFT'])
 if not GetOption('nolua') and not GetOption('renderer'):
-	env.Append(CPPDEFINES="LUACONSOLE")
+	env.Append(CPPDEFINES=['LUACONSOLE'])
 
 if GetOption('opengl'):
 	env.Append(CPPDEFINES=['OGLR', 'PIX32OGL', 'PIXALPHA'])
 if GetOption('renderer'):
-	env.Append(CPPDEFINES='RENDERER')
+	env.Append(CPPDEFINES=['RENDERER'])
 
 if GetOption("wall"):
 	if msvc:
-		env.Append(CCFLAGS='/WX')
+		env.Append(CCFLAGS=['/WX'])
 	else:
-		env.Append(CCFLAGS='-Werror')
+		env.Append(CCFLAGS=['-Werror'])
 elif GetOption("no-warnings"):
 	if msvc:
-		env.Append(CCFLAGS='/W0')
+		env.Append(CCFLAGS=['/W0'])
 	else:
-		env.Append(CCFLAGS='-w')
+		env.Append(CCFLAGS=['-w'])
 
 
 #Generate list of sources to compile
