@@ -8436,7 +8436,7 @@ void simulation_ui(pixel * vid_buf)
 	int xsize = 300;
 	int ysize = 340;
 	int x0=(XRES-xsize)/2,y0=(YRES-ysize)/2,b=1,bq,mx,my;
-	int new_scale, new_kiosk, oldedgeMode = edgeMode;
+	int new_scale, new_kiosk = 0, oldedgeMode = edgeMode;
 	ui_checkbox cb, cb2, cb3, cb4, cb5, cb6, cb7;
 	char * airModeList[] = {"On", "Pressure Off", "Velocity Off", "Off", "No Update"};
 	int airModeListCount = 5;
@@ -8643,7 +8643,12 @@ void simulation_ui(pixel * vid_buf)
 	legacy_enable = !cb.checked;
 	aheat_enable = cb5.checked;
 	new_scale = (cb3.checked)?2:1;
+#ifdef MACOSX
+	if (cb4.checked)
+		error_ui(vid_buf, 0, "Fullscreen doesn't work on OS X")
+#else
 	new_kiosk = (cb4.checked)?1:0;
+#endif
 	if(list.selected>=0 && list.selected<=4)
 		airMode = list.selected;
 	if(list2.selected>=0 && list2.selected<=2)

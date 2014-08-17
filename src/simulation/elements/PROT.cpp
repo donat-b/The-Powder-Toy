@@ -79,7 +79,7 @@ int PROT_update(UPDATE_FUNC_ARGS)
 	if (under)
 	{
 		//now changed so that PROT goes through portal, so only the WIFI part applies
-		if ((under&0xFF) == PT_WIFI || (under&0xFF) == PT_PRTI || (under&0xFF) == PT_PRTO)
+		if ((under&0xFF) == PT_WIFI /*|| (under&0xFF) == PT_PRTI || (under&0xFF) == PT_PRTO*/)
 		{
 			float change;
 			if (parts[i].temp<173.15f) change = -1000.0f;
