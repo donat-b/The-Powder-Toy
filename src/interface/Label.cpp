@@ -1,4 +1,4 @@
-
+#ifdef POTATO
 #include "Label.h"
 #include "graphics.h"
 #include "misc.h"
@@ -269,3 +269,4 @@ void InterfaceConvert(Label &label, int x, int y, int b, int bq, int sdl_key, un
 		label.OnKeyPress(sdl_key, sdl_key, sdl_mod);
 	label.OnTick();
 }
+#endif

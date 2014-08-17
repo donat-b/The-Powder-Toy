@@ -76,7 +76,6 @@
 #include "simulation/Tool.h"
 #include "simulation/ToolNumbers.h"
 #include "simulation/elements/LIFE.h"
-#include "interface/Label.h"
 
 pixel *vid_buf;
 
@@ -1408,9 +1407,6 @@ int main(int argc, char *argv[])
 
 	UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 10235);
 
-	Label* testlabel = new Label("1234567890123456\n\n\n78901234567890 1234\n\n5678.90 12345678\bt9012345 6789\x0F\xFF\x01\xFF.01234567890123\bo4567890123456789\x0F.0", Point(100,100), Point(100,14), true);
-	//Label* testlabel = new Label("1234567890123456\n\n\n78901234567890 1234\n\n5678.90 123456789012345 67890.12345678901234567890123456789.0", Point(100,100), Point(100,14), true);
-	//Label* testlabel = new Label("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890", Point(100,100), Point(100,14), true);
 	while (!sdl_poll()) //the main loop
 	{
 		main_loop = 2;
@@ -1478,8 +1474,6 @@ int main(int argc, char *argv[])
 		}
 
 		render_after(part_vbuf, vid_buf, Point(mx, my));
-		InterfaceConvert(*testlabel, mx, my, b, bq, sdl_key, sdl_mod);
-		testlabel->OnDraw(vid_buf);
 		
 		if (load_mode)//draw preview of stamp
 		{
