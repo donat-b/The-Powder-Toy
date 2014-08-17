@@ -10,10 +10,10 @@ bool Brush::IsInside(int x, int y)
 		return (pow(x, 2.0)*pow(radius.Y, 2.0)+pow(y, 2.0)*pow(radius.X, 2.0) <= pow(radius.X, 2.0)*pow(radius.Y, 2.0));
 		break;
 	case SQUARE_BRUSH:
-		return (abs(x) <= radius.X && abs(y) <= radius.Y);
+		return (fabs(x) <= radius.X && fabs(y) <= radius.Y);
 		break;
 	case TRI_BRUSH:
-		return ((abs((radius.X+2*x)*radius.Y+radius.X*y) + abs(2*radius.X*(y-radius.Y)) + abs((radius.X-2*x)*radius.Y+radius.X*y)) <= (4*radius.X*radius.Y));
+		return ((fabs((radius.X+2*x)*radius.Y+radius.X*y) + fabs(2*radius.X*(y-radius.Y)) + fabs((radius.X-2*x)*radius.Y+radius.X*y)) <= (4*radius.X*radius.Y));
 		break;
 	default:
 		return 0;

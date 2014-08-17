@@ -13,6 +13,7 @@ config.log
 *.out
 *.sh
 *.py
+*.png
 *The-Powder-Toy*
 *jacob1smod*
 /stamps/
