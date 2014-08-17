@@ -2344,6 +2344,11 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							partsptr[newIndex].ctype = 0;
 						}
 					}
+					if (saved_version < 90)
+					{
+						if (partsptr[newIndex].type == PT_PHOT)
+							partsptr[newIndex].flags |= FLAG_PHOTDECO;
+					}
 					//note: PSv was used in version 77.0 and every version before, add something in PSv too if the element is that old
 
 					globalSim->elementCount[partsptr[newIndex].type]++;
@@ -3327,6 +3332,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 						parts[i].flags |= FLAG_INSTACTV;
 				}
 			}
+			//PSv isn't used past version 77, but check version anyway ...
 			if (ver<81)
 			{
 				if (parts[i-1].type==PT_BOMB && parts[i-1].tmp!=0)
@@ -3364,6 +3370,10 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					parts[i-1].tmp = parts[i-1].ctype;
 					parts[i-1].ctype = 0;
 				}
+			}
+			if (ver<90 && parts[i-1].type == PT_PHOT)
+			{
+				parts[i-1].flags |= FLAG_PHOTDECO;
 			}
 
 			globalSim->elementCount[parts[i-1].type]++;

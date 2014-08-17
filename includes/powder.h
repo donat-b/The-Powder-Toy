@@ -80,10 +80,11 @@
 
 #define FLAG_STAGNANT	0x1
 #define FLAG_SKIPMOVE	0x2  // Skip movement for one frame
-#define FLAG_EXPLODE	0x4  // EXPL explosion
-#define FLAG_INSTACTV	0x8  // Instant activation for powered electronics
-#define FLAG_WATEREQUAL 0x10 // If a liquid was already checked during equalization
-#define FLAG_DISAPPEAR	0x20 // Will disappear on next frame no matter what
+#define FLAG_WATEREQUAL 0x4  // If a liquid was already checked during equalization
+#define FLAG_PHOTDECO	0x8  // compatibility with old saves (decorated photons), only applies to PHOT.
+#define FLAG_EXPLODE	0x10 // EXPL explosion
+#define FLAG_INSTACTV	0x20 // Instant activation for powered electronics
+#define FLAG_DISAPPEAR	0x40 // Will disappear on next frame no matter what
 
 class Simulation;
 #define UPDATE_FUNC_ARGS Simulation *sim, int i, int x, int y, int surround_space, int nt

@@ -29,6 +29,7 @@
 #endif
 #ifdef WIN
 #include <direct.h>
+#define getcwd _getcwd
 #endif
 #if defined(LIN) || defined(MACOSX)
 #include <sys/stat.h>
