@@ -162,7 +162,7 @@ void gravity_update_async()
 	}
 }
 
-void* update_grav_async(void* unused)
+TH_ENTRY_POINT void* update_grav_async(void* unused)
 {
 	int done = 0;
 	int thread_done = 0;
