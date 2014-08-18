@@ -359,13 +359,12 @@ conduct:
 
 int SPRK_graphics(GRAPHICS_FUNC_ARGS)
 {
-	*firea = 80;
+	*firea = 60;
 	
-	*firer = 170;
-	*fireg = 200;
-	*fireb = 220;
-	//*pixel_mode |= FIRE_ADD;
-	*pixel_mode |= FIRE_ADD;
+	*firer = *colr/2;
+	*fireg = *colg/2;
+	*fireb = *colb/2;
+	*pixel_mode |= FIRE_SPARK;
 	return 1;
 }
 

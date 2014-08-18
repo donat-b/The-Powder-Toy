@@ -3891,11 +3891,12 @@ void set_cmode(int cm) // sets to given view mode
 	else if (cmode==CM_FIRE)
 	{
 		free(render_modes);
-		render_modes = (unsigned int*)calloc(4, sizeof(unsigned int));
+		render_modes = (unsigned int*)calloc(5, sizeof(unsigned int));
 		render_modes[0] = RENDER_FIRE;
-		render_modes[1] = RENDER_EFFE;
-		render_modes[2] = RENDER_BASC;
-		render_modes[3] = 0;
+		render_modes[1] = RENDER_SPRK;
+		render_modes[2] = RENDER_EFFE;
+		render_modes[3] = RENDER_BASC;
+		render_modes[4] = 0;
 		memset(fire_r, 0, sizeof(fire_r));
 		memset(fire_g, 0, sizeof(fire_g));
 		memset(fire_b, 0, sizeof(fire_b));
@@ -3904,11 +3905,12 @@ void set_cmode(int cm) // sets to given view mode
 	else if (cmode==CM_BLOB)
 	{
 		free(render_modes);
-		render_modes = (unsigned int*)calloc(4, sizeof(unsigned int));
+		render_modes = (unsigned int*)calloc(5, sizeof(unsigned int));
 		render_modes[0] = RENDER_FIRE;
-		render_modes[1] = RENDER_EFFE;
-		render_modes[2] = RENDER_BLOB;
-		render_modes[3] = 0;
+		render_modes[1] = RENDER_SPRK;
+		render_modes[2] = RENDER_EFFE;
+		render_modes[3] = RENDER_BLOB;
+		render_modes[4] = 0;
 		memset(fire_r, 0, sizeof(fire_r));
 		memset(fire_g, 0, sizeof(fire_g));
 		memset(fire_b, 0, sizeof(fire_b));
@@ -3927,13 +3929,14 @@ void set_cmode(int cm) // sets to given view mode
 	else if (cmode==CM_FANCY)
 	{
 		free(render_modes);
-		render_modes = (unsigned int*)calloc(6, sizeof(unsigned int));
+		render_modes = (unsigned int*)calloc(7, sizeof(unsigned int));
 		render_modes[0] = RENDER_FIRE;
-		render_modes[1] = RENDER_GLOW;
-		render_modes[2] = RENDER_BLUR;
-		render_modes[3] = RENDER_EFFE;
-		render_modes[4] = RENDER_BASC;
-		render_modes[5] = 0;
+		render_modes[1] = RENDER_SPRK;
+		render_modes[2] = RENDER_GLOW;
+		render_modes[3] = RENDER_BLUR;
+		render_modes[4] = RENDER_EFFE;
+		render_modes[5] = RENDER_BASC;
+		render_modes[6] = 0;
 		free(display_modes);
 		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
 		display_modes[0] = DISPLAY_WARP;
@@ -8124,10 +8127,10 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 	ui_checkbox *display_cb;
 	ui_checkbox *colour_cb;
 
-	int render_optioncount = 7;
-	int render_options[] = {RENDER_EFFE, RENDER_GLOW, RENDER_FIRE, RENDER_BLUR, RENDER_BASC, RENDER_BLOB, RENDER_NONE};
-	int render_optionicons[] = {0xE1, 0xDF, 0x9B, 0xC4, 0xDB, 0xBF, 0xDB};
-	char * render_desc[] = {"Effects", "Glow", "Fire", "Blur", "Basic", "Blob", "None"};
+	int render_optioncount = 8;
+	int render_options[] = {RENDER_EFFE, RENDER_GLOW, RENDER_FIRE, RENDER_BLUR, RENDER_BASC, RENDER_BLOB, RENDER_SPRK, RENDER_NONE};
+	int render_optionicons[] = {0xE1, 0xDF, 0x9B, 0xC4, 0xDB, 0xBF, 0xDF, 0xDB};
+	char * render_desc[] = {"Effects", "Glow", "Fire", "Blur", "Basic", "Blob", "Spark", "None"};
 
 #ifdef OGLR
 	int display_optioncount = 7;

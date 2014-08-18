@@ -1244,6 +1244,7 @@ void initRendererAPI(lua_State * l)
 	//Display/Render/Colour modes
 	SETCONST(l, RENDER_EFFE);
 	SETCONST(l, RENDER_FIRE);
+	SETCONST(l, RENDER_SPRK);
 	SETCONST(l, RENDER_GLOW);
 	SETCONST(l, RENDER_BLUR);
 	SETCONST(l, RENDER_BLOB);

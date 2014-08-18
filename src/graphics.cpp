@@ -217,13 +217,14 @@ void init_display_modes()
 {
 	int i;
 	display_modes = (unsigned int*)calloc(1, sizeof(unsigned int));
-	render_modes = (unsigned int*)calloc(4, sizeof(unsigned int));
+	render_modes = (unsigned int*)calloc(5, sizeof(unsigned int));
 	
 	display_modes[0] = 0;
 	render_modes[0] = RENDER_FIRE;
-	render_modes[1] = RENDER_EFFE;
-	render_modes[2] = RENDER_BASC;
-	render_modes[3] = 0;
+	render_modes[1] = RENDER_SPRK;
+	render_modes[2] = RENDER_EFFE;
+	render_modes[3] = RENDER_BASC;
+	render_modes[4] = 0;
 	
 	update_display_modes();
 }
@@ -3402,6 +3403,23 @@ void render_parts(pixel *vid, Point mousePos)
 					fire_r[ny/CELL][nx/CELL] = firer;
 					fire_g[ny/CELL][nx/CELL] = fireg;
 					fire_b[ny/CELL][nx/CELL] = fireb;
+#endif
+				}
+				if(firea && (pixel_mode & FIRE_SPARK))
+				{
+#ifdef OGLR
+					smokeV[csmokeV++] = nx;
+					smokeV[csmokeV++] = ny;
+					smokeC[csmokeC++] = ((float)firer)/255.0f;
+					smokeC[csmokeC++] = ((float)fireg)/255.0f;
+					smokeC[csmokeC++] = ((float)fireb)/255.0f;
+					smokeC[csmokeC++] = ((float)firea)/255.0f;
+					csmoke++;
+#else
+					firea /= 4;
+					fire_r[ny/CELL][nx/CELL] = (firea*firer + (255-firea)*fire_r[ny/CELL][nx/CELL]) >> 8;
+					fire_g[ny/CELL][nx/CELL] = (firea*fireg + (255-firea)*fire_g[ny/CELL][nx/CELL]) >> 8;
+					fire_b[ny/CELL][nx/CELL] = (firea*fireb + (255-firea)*fire_b[ny/CELL][nx/CELL]) >> 8;
 #endif
 				}
 			}
