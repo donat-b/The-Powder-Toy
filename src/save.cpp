@@ -94,6 +94,8 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 int fix_type(int type, int version, int modver)
 {
 	int max = 161;
+	if (version >= 90)
+		max = 179;
 	if (modver == 18)
 	{
 		if (type >= 190 && type <= 204)
@@ -127,6 +129,11 @@ int fix_type(int type, int version, int modver)
 		else if (type > PT_NORMAL_NUM+9)
 			type -= 4;
 	}
+	if (modver && modver <= 20)
+	{
+		if (type >= PT_NORMAL_NUM+12 && type <= PT_NORMAL_NUM+13)
+			type -= 14;
+	}
 	return type;
 }
 
@@ -135,8 +142,8 @@ int invalid_element(int save_as, int el)
 	if (save_as > 0 && (el >= PT_NORMAL_NUM || el < 0 || ptypes[el].enabled == 0)) //Check for mod/disabled elements
 		return 1;
 #ifdef BETA
-	if (save_as > 1 && (el == PT_PROT || el == PT_VIRS || el == PT_VRSS || el == PT_VRSG))
-		return 1;
+	//if (save_as > 1 && (el == PT_PROT || el == PT_VIRS || el == PT_VRSS || el == PT_VRSG))
+	//	return 1;
 #endif
 	return 0;
 }
