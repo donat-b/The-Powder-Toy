@@ -8646,12 +8646,12 @@ void simulation_ui(pixel * vid_buf)
 	legacy_enable = !cb.checked;
 	aheat_enable = cb5.checked;
 	new_scale = (cb3.checked)?2:1;
-#ifdef MACOSX
+/*#ifdef MACOSX
 	if (cb4.checked)
-		error_ui(vid_buf, 0, "Fullscreen doesn't work on OS X")
-#else
+		error_ui(vid_buf, 0, "Fullscreen doesn't work on OS X");
+#else*/
 	new_kiosk = (cb4.checked)?1:0;
-#endif
+//#endif
 	if(list.selected>=0 && list.selected<=4)
 		airMode = list.selected;
 	if(list2.selected>=0 && list2.selected<=2)
