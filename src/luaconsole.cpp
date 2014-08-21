@@ -190,14 +190,6 @@ void luacon_open()
 	lua_setfield(l, tptProperties, "mousex");
 	lua_pushinteger(l, 0);
 	lua_setfield(l, tptProperties, "mousey");
-	lua_pushstring(l, "DEFAULT_PT_DUST");
-	lua_setfield(l, tptProperties, "selectedl");
-	lua_pushstring(l, "DEFAULT_PT_NONE");
-	lua_setfield(l, tptProperties, "selectedr");
-	lua_pushstring(l, "DEFAULT_PT_NONE");
-	lua_setfield(l, tptProperties, "selecteda");
-	lua_pushstring(l, "DEFAULT_PT_NONE");
-	lua_setfield(l, tptProperties, "selectedreplace");
 	
 	lua_newtable(l);
 	tptPropertiesVersion = lua_gettop(l);
@@ -324,6 +316,14 @@ tpt.partsdata = nil");
 		log_history_times[i] = 0;
 	}
 	lua_sethook(l, &lua_hook, LUA_MASKCOUNT, 4000000);
+
+	//make tpt.* a metatable
+	lua_newtable(l);
+	lua_pushcfunction(l, luacon_tptIndex);
+	lua_setfield(l, -2, "__index");
+	lua_pushcfunction(l, luacon_tptNewIndex);
+	lua_setfield(l, -2, "__newindex");
+	lua_setmetatable(l, -2);
 }
 
 void luacon_openmultiplayer()
@@ -769,6 +769,76 @@ int luacon_elementwrite(lua_State* l)
 	return 0;
 }
 
+int luacon_tptIndex(lua_State *l)
+{
+	std::string key = luaL_checkstring(l, 2);
+	if (!key.compare("selectedl"))
+		return lua_pushstring(l, activeTools[0]->GetIdentifier().c_str()), 1;
+	if (!key.compare("selectedr"))
+		return lua_pushstring(l, activeTools[1]->GetIdentifier().c_str()), 1;
+	if (!key.compare("selecteda"))
+		return lua_pushstring(l, activeTools[2]->GetIdentifier().c_str()), 1;
+	if (!key.compare("selectedreplace"))
+		return lua_pushstring(l, activeTools[2]->GetIdentifier().c_str()), 1;
+	if (!key.compare("brushx"))
+		return lua_pushnumber(l, currentBrush->GetRadius().X), 1;
+	if (!key.compare("brushy"))
+		return lua_pushnumber(l, currentBrush->GetRadius().Y), 1;
+	if (!key.compare("brushID"))
+		return lua_pushnumber(l, currentBrush->GetShape()), 1;
+
+	//if not a special key, return the value in the table
+	return lua_rawget(l, 1), 1;
+}
+
+int luacon_tptNewIndex(lua_State *l)
+{
+	std::string key = luaL_checkstring(l, 2);
+	if (!key.compare("selectedl"))
+	{
+		Tool* t = GetToolFromIdentifier(luaL_checkstring(l, 3));
+		if (t)
+			activeTools[0] = t;
+		else
+			luaL_error(l, "Invalid tool identifier: %s", lua_tostring(l, 3));
+	}
+	else if (!key.compare("selectedr"))
+	{
+		Tool* t = GetToolFromIdentifier(luaL_checkstring(l, 3));
+		if (t)
+			activeTools[1] = t;
+		else
+			luaL_error(l, "Invalid tool identifier: %s", lua_tostring(l, 3));
+	}
+	else if (!key.compare("selecteda"))
+	{
+		Tool* t = GetToolFromIdentifier(luaL_checkstring(l, 3));
+		if (t)
+			activeTools[2] = t;
+		else
+			luaL_error(l, "Invalid tool identifier: %s", lua_tostring(l, 3));
+	}
+	else if (!key.compare("selectedreplace"))
+	{
+		Tool* t = GetToolFromIdentifier(luaL_checkstring(l, 3));
+		if (t)
+			activeTools[2] = t;
+		else
+			luaL_error(l, "Invalid tool identifier: %s", lua_tostring(l, 3));
+	}
+	else if (!key.compare("brushx"))
+		currentBrush->SetRadius(Point(luaL_checkinteger(l, 3), currentBrush->GetRadius().Y));
+	else if (!key.compare("brushy"))
+		currentBrush->SetRadius(Point(currentBrush->GetRadius().X, luaL_checkinteger(l, 3)));
+	else if (!key.compare("brushID"))
+		currentBrush->SetShape(luaL_checkinteger(l, 3)%BRUSH_NUM);
+	else
+	{
+		//if not a special key, set a value in the table
+		return lua_rawset(l, 1), 1;
+	}
+}
+
 int luacon_keyevent(int key, int modifier, int event)
 {
 	int kycontinue = 1, i, j, c, callret;
@@ -880,25 +950,13 @@ int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
 	return mpcontinue;
 }
 
-int luacon_step(int mx, int my, std::string selectedl, std::string selectedr, std::string selecteda, int bsx, int bsy)
+int luacon_step(int mx, int my)
 {
 	int i, j, c, callret;
-	lua_pushinteger(l, bsy);
-	lua_pushinteger(l, bsx);
-	lua_pushstring(l, selecteda.c_str());
-	lua_pushstring(l, selecteda.c_str());
-	lua_pushstring(l, selectedr.c_str());
-	lua_pushstring(l, selectedl.c_str());
 	lua_pushinteger(l, my);
 	lua_pushinteger(l, mx);
 	lua_setfield(l, tptProperties, "mousex");
 	lua_setfield(l, tptProperties, "mousey");
-	lua_setfield(l, tptProperties, "selectedl");
-	lua_setfield(l, tptProperties, "selectedr");
-	lua_setfield(l, tptProperties, "selecteda");
-	lua_setfield(l, tptProperties, "selectedreplace");
-	lua_setfield(l, tptProperties, "brushx");
-	lua_setfield(l, tptProperties, "brushy");
 	lua_getglobal(l, "simulation");
 	lua_pushinteger(l, NUM_PARTS); lua_setfield(l, -2, "NUM_PARTS");
 	lua_pop(l, 1);

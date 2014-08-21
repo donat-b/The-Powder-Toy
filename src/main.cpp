@@ -259,6 +259,7 @@ int save_as = 2;
 int tab_num = 1;
 int num_tabs = 1;
 int show_tabs = 0;
+Brush* currentBrush;
 Tool* activeTools[3];
 Tool* regularTools[3];
 Tool* decoTools[3];
@@ -1160,7 +1161,7 @@ int main(int argc, char *argv[])
 	decoTools[1] = GetToolFromIdentifier("DEFAULT_DECOR_CLR");
 	decoTools[2] = GetToolFromIdentifier("DEFAULT_PT_NONE");
 	*regularTools = *activeTools;
-	Brush* currentBrush = new Brush(Point(5, 5), CIRCLE_BRUSH);
+	currentBrush = new Brush(Point(5, 5), CIRCLE_BRUSH);
 
 	cb_parts = (particle*)calloc(sizeof(particle), NPART);
 	init_can_move();
@@ -2479,7 +2480,7 @@ int main(int argc, char *argv[])
 		}
 		
 #ifdef LUACONSOLE
-		luacon_step(x, y, activeTools[0]->GetIdentifier(), activeTools[1]->GetIdentifier(), activeTools[2]->GetIdentifier(), currentBrush->GetRadius().X, currentBrush->GetRadius().Y);
+		luacon_step(x, y);
 		readluastuff();
 #endif
 		sdl_wheel = 0;

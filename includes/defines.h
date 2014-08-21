@@ -247,7 +247,6 @@ extern int realistic;
 extern int loop_time;
 extern int unlockedstuff;
 extern int old_menu;
-extern int loop_time;
 extern int mod_save;
 extern int decobox_hidden;
 
