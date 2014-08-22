@@ -746,6 +746,12 @@ fullscreen on mac (compiling change).
 Version 29.2 (build 44) 7/5/14
 Actually update TPTMP to version .72
 
+Version 29.3 8/21/14
+Fix possible crash when opening saves with VIRS. Lots of updates from tpt++,
+including: new spark graphics and render setting, "open data folder" button,
+re-enable deco on old PHOT, make tpt.selected* and tpt.brush* writable, and
+some crash fixes. Fix the mac version.
+
 
 
 

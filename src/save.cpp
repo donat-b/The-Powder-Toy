@@ -143,8 +143,8 @@ int invalid_element(int save_as, int el)
 	if (save_as > 0 && (el >= PT_NORMAL_NUM || el < 0 || ptypes[el].enabled == 0)) //Check for mod/disabled elements
 		return 1;
 #ifdef BETA
-	//if (save_as > 1 && (el == PT_PROT || el == PT_VIRS || el == PT_VRSS || el == PT_VRSG))
-	//	return 1;
+	if (save_as > 1 && (el == PT_GRVT || el == PT_DRAY))
+		return 1;
 #endif
 	return 0;
 }

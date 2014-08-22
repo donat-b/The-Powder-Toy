@@ -541,6 +541,8 @@ new=function(x,y,w,h)
 	chatcommands = {
 	connect = function(self,msg,args)
 		if not issocket then self:addline("No luasockets found") return end
+        tpt.version.major = 89
+		tpt.version.minor = 2
 		local newname = tpt.get_name()
 		local s,r = connectToMniip(args[1],tonumber(args[2]), newname~="" and newname or username)
 		if not s then self:addline(r,255,50,50) end
