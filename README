@@ -752,6 +752,9 @@ including: new spark graphics and render setting, "open data folder" button,
 re-enable deco on old PHOT, make tpt.selected* and tpt.brush* writable, and
 some crash fixes. Fix the mac version.
 
+Version 29.4 8/30/14
+Update version info to TPT version 90.2, allow GRVT and DRAY in saves.
+
 
 
 
@@ -759,6 +762,7 @@ some crash fixes. Fix the mac version.
 -------------------------------------Bugs-------------------------------------
 ------------------------------------------------------------------------------
 Can't draw particles when moving solids are on the screen
+can't use Command key as ctrl on OS X
 //None (at least that I know of)
 
 
