@@ -588,7 +588,7 @@ void load_presets(void)
 		{
 			if(tmpobj = cJSON_GetObjectItem(hudobj, "normal"))
 			{
-				count = fmin(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
+				count = std::min(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
 				for(i = 0; i < count; i++)
 				{
 					normalHud[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
@@ -596,7 +596,7 @@ void load_presets(void)
 			}
 			if(tmpobj = cJSON_GetObjectItem(hudobj, "debug"))
 			{
-				count = fmin(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
+				count = std::min(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
 				for(i = 0; i < count; i++)
 				{
 					debugHud[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
@@ -604,7 +604,7 @@ void load_presets(void)
 			}
 			if(tmpobj = cJSON_GetObjectItem(hudobj, "modnormal"))
 			{
-				count = fmin(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
+				count = std::min(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
 				for(i = 0; i < count; i++)
 				{
 					normalHud[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
@@ -612,7 +612,7 @@ void load_presets(void)
 			}
 			if(tmpobj = cJSON_GetObjectItem(hudobj, "moddebug"))
 			{
-				count = fmin(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
+				count = std::min(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
 				for(i = 0; i < count; i++)
 				{
 					debugHud[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
@@ -1338,10 +1338,10 @@ void RGB_to_HSV(int r,int g,int b,int *h,int *s,int *v)//convert 0-255 RGB value
 	rr = r/255.0f;//normalize values
 	gg = g/255.0f;
 	bb = b/255.0f;
-	a = fmin(rr,gg);
-	a = fmin(a,bb);
-	x = fmax(rr,gg);
-	x = fmax(x,bb);
+	a = std::min(rr,gg);
+	a = std::min(a,bb);
+	x = std::max(rr,gg);
+	x = std::max(x,bb);
 	if (a==x)//greyscale
 	{
 		*h = 0;

@@ -2826,8 +2826,8 @@ void menu_ui_v2(pixel *vid_buf, int i)
 	active_menu = i;
 	sy = y = (((YRES/numMenus)*i)+((YRES/numMenus)/2))-(height/2)+(FONT_H/2)+6;
 	//wipe out existing toolTips, to prevent weirdness inside here
-	for (int i = toolTips.size()-1; i >= 0; i--)
-		delete toolTips[i];
+	for (int j = toolTips.size()-1; j >= 0; j--)
+		delete toolTips[j];
 	toolTips.clear();
 
 	while (!sdl_poll())

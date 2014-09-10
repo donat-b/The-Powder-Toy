@@ -17,12 +17,12 @@
 
 int GRAV_graphics(GRAPHICS_FUNC_ARGS)
 {
-	int GRAV_R = std::abs(((int)sim->currentTick%120)-60.0f);
-	int GRAV_G = std::abs((((int)sim->currentTick+60)%120)-60.0f);
-	int GRAV_B = std::abs((((int)sim->currentTick+120)%120)-60.0f);
-	int GRAV_R2 = std::abs(((int)sim->currentTick%60)-30.0f);
-	int GRAV_G2 = std::abs((((int)sim->currentTick+30)%60)-30.0f);
-	int GRAV_B2 = std::abs((((int)sim->currentTick+60)%60)-30.0f);
+	int GRAV_R = (int)std::abs(((int)sim->currentTick%120)-60.0f);
+	int GRAV_G = (int)std::abs((((int)sim->currentTick + 60) % 120) - 60.0f);
+	int GRAV_B = (int)std::abs((((int)sim->currentTick + 120) % 120) - 60.0f);
+	int GRAV_R2 = (int)std::abs(((int)sim->currentTick % 60) - 30.0f);
+	int GRAV_G2 = (int)std::abs((((int)sim->currentTick + 30) % 60) - 30.0f);
+	int GRAV_B2 = (int)std::abs((((int)sim->currentTick + 60) % 60) - 30.0f);
 
 	*colr = 20;
 	*colg = 20;

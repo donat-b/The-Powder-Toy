@@ -892,8 +892,8 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 					if (r < 15) rd = 1;
 					if (g < 15) gd = 1;
 					if (b < 15) bd = 1;
-					rc = fmax(0,r); gc = fmax(0,g); bc = fmax(0,b);
-					rc = fmin(150,rc); gc = fmin(200,gc); bc = fmin(200,bc);
+					rc = std::max(0,r); gc = std::max(0,g); bc = std::max(0,b);
+					rc = std::min(150,rc); gc = std::min(200,gc); bc = std::min(200,bc);
 					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(rc, gc, bc);
 				}
 			}
@@ -1682,7 +1682,7 @@ int textnwidth(char *s, int n)
 		if (*s == '\x0F')
 		{
 			s += 3;
-			n = (int)fmin(1,n-3);
+			n = std::min(1,n-3);
 		}
 		else if (*s == '\x0E')
 		{
@@ -1730,7 +1730,7 @@ void textnpos(char *s, int n, int w, int *cx, int *cy)
 			else if (*s == '\x0F')
 			{
 				s += 3;
-				n = (int)fmin(1,n-3);
+				n = std::min(1,n-3);
 			}
 			else if (*s == '\x0E')
 			{
@@ -4084,12 +4084,12 @@ void create_decoration(int x, int y, int r, int g, int b, int a, int click, int 
 			}
 		if (num == 0)
 			return;
-		ta = fmin(255,(int)((float)ta/num+.5));
-		tr = fmin(255,(int)((float)tr/num+.5));
-		tg = fmin(255,(int)((float)tg/num+.5));
-		tb = fmin(255,(int)((float)tb/num+.5));
+		ta = std::min(255,(int)((float)ta/num+.5));
+		tr = std::min(255,(int)((float)tr/num+.5));
+		tg = std::min(255,(int)((float)tg/num+.5));
+		tb = std::min(255,(int)((float)tb/num+.5));
 		if (!parts[rp>>8].dcolour)
-			ta = fmax(0,ta-3);
+			ta = std::max(0,ta-3);
 		parts[rp>>8].dcolour = ((ta<<24)|(tr<<16)|(tg<<8)|tb);
 	}
 	if (parts[rp>>8].type == PT_ANIM)

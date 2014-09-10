@@ -777,9 +777,9 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 			wallData[(y-blockY)*blockW+(x-blockX)] = bmap[y][x];
 			if (tab)
 			{
-				float pres = fmax(-255,fmin(255,pv[y][x]))+256;
-				float velX = fmax(-255,fmin(255,vx[y][x]))+256;
-				float velY = fmax(-255,fmin(255,vy[y][x]))+256;
+				float pres = std::max(-255.0f,std::min(255.0f,pv[y][x]))+256.0f;
+				float velX = std::max(-255.0f,std::min(255.0f,vx[y][x]))+256.0f;
+				float velY = std::max(-255.0f,std::min(255.0f,vy[y][x]))+256.0f;
 				pressData[pressDataLen++] = (unsigned char)((int)(pres*128)&0xFF);
 				pressData[pressDataLen++] = (unsigned char)((int)(pres*128)>>8);
 

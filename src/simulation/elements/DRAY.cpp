@@ -69,8 +69,8 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 								if (type == PT_SPRK)
 									sim->part_change_type(p, xCopyTo, yCopyTo, PT_SPRK);
 								parts[p] = parts[pmap[yCurrent][xCurrent]>>8];
-								parts[p].x = xCopyTo;
-								parts[p].y = yCopyTo;
+								parts[p].x = (float)xCopyTo;
+								parts[p].y = (float)yCopyTo;
 								parts[p].animations = NULL;
 							}
 						}
