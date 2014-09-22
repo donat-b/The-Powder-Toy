@@ -37,16 +37,22 @@ void Tool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 {
 	if (held && (globalSim->elements[ID].Properties&PROP_MOVS))
 		return;
+	if (ID == PT_STKM || ID == PT_STKM2 || ID == PT_FIGH)
+		return;
 	globalSim->CreateLine(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, get_brush_flags(), brush);
 }
 
 void Tool::DrawRect(Point startPos, Point endPos)
 {
+	if (ID == PT_STKM || ID == PT_STKM2 || ID == PT_FIGH)
+		return;
 	globalSim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, get_brush_flags());
 }
 
 int Tool::FloodFill(Point position)
 {
+	if (ID == PT_STKM || ID == PT_STKM2 || ID == PT_FIGH)
+		return 0;
 	return globalSim->FloodParts(position.X, position.Y, ID, -1, get_brush_flags());
 }
 
