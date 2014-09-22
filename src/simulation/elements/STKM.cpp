@@ -646,6 +646,7 @@ void STKM_init_legs(playerst* playerp, int i)
 	playerp->comm = 0;
 	playerp->frames = 0;
 	playerp->pcomm = 0;
+	playerp->rocketBoots = false;
 }
 
 int STKM_update(UPDATE_FUNC_ARGS)

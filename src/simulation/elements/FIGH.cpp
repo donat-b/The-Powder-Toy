@@ -129,7 +129,6 @@ void FIGH_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
 			playerst* figh = ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Get(sim->parts[i].tmp);
 			figh->spwn = 1;
 			figh->elem = PT_DUST;
-			figh->rocketBoots = 0;
 			STKM_init_legs(figh, i);
 		}
 	}

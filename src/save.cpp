@@ -2256,7 +2256,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					{
 						STKM_init_legs(&player, newIndex);
 						player.elem = PT_DUST;
-						player.rocketBoots = 0;
 						if (parts[newIndex].ctype == OLD_SPC_AIR)
 							parts[newIndex].ctype = SPC_AIR;
 					}
@@ -2264,7 +2263,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					{
 						STKM_init_legs(&player2, newIndex);
 						player2.elem = PT_DUST;
-						player2.rocketBoots = 0;
 						if (parts[newIndex].ctype == OLD_SPC_AIR)
 							parts[newIndex].ctype = SPC_AIR;
 					}
@@ -2276,7 +2274,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							playerst* figh = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get(partsptr[newIndex].tmp);
 							figh->spwn = 1;
 							figh->elem = PT_DUST;
-							figh->rocketBoots = 0;
 							STKM_init_legs(figh, newIndex);
 							if (parts[newIndex].ctype == OLD_SPC_AIR)
 								parts[newIndex].ctype = SPC_AIR;
@@ -3222,7 +3219,6 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 			{
 				STKM_init_legs(&player, i-1);
 				player.elem = PT_DUST;
-				player.rocketBoots = 0;
 				if (parts[i-1].ctype == OLD_SPC_AIR)
 					parts[i-1].ctype = SPC_AIR;
 			}
@@ -3230,7 +3226,6 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 			{
 				STKM_init_legs(&player2, i-1);
 				player2.elem = PT_DUST;
-				player2.rocketBoots = 0;
 				if (parts[i-1].ctype == OLD_SPC_AIR)
 					parts[i-1].ctype = SPC_AIR;
 			}
@@ -3256,7 +3251,6 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					playerst* figh = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get(parts[i-1].tmp);
 					figh->spwn = 1;
 					figh->elem = PT_DUST;
-					figh->rocketBoots = 0;
 					STKM_init_legs(figh, i-1);
 					if (parts[i-1].ctype == OLD_SPC_AIR)
 						parts[i-1].ctype = SPC_AIR;
