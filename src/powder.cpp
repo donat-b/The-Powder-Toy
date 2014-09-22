@@ -31,6 +31,7 @@
 #include "simulation/WallNumbers.h"
 #include "simulation/ElementDataContainer.h"
 #include "simulation/elements/PRTI.h"
+#include "simulation/elements/FIGH.h"
 
 part_type ptypes[PT_NUM];
 part_transition ptransitions[PT_NUM];
@@ -639,16 +640,34 @@ int move(int i, int x, int y, float nxf, float nyf)
 
 	if (edgeMode == 2)
 	{
+		float diffx = 0.0f, diffy = 0.0f;
 		if (nx < CELL)
-			nxf += XRES-CELL*2;
+			diffx = XRES-CELL*2;
 		if (nx >= XRES-CELL)
-			nxf -= XRES-CELL*2;
+			diffx = -(XRES-CELL*2);
 		if (ny < CELL)
-			nyf += YRES-CELL*2;
+			diffy = YRES-CELL*2;
 		if (ny >= YRES-CELL)
-			nyf -= YRES-CELL*2;
+			diffy = -(YRES-CELL*2);
+		nxf += diffx;
+		nyf += diffy;
 		nx = (int)(nxf+0.5f);
 		ny = (int)(nyf+0.5f);
+
+		playerst* stickman = NULL;
+		if (t == PT_STKM)
+			stickman = &player;
+		else if (t == PT_STKM2)
+			stickman = &player2;
+		else if (t == PT_FIGH)
+			stickman = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get(parts[i].tmp);
+
+		if (stickman)
+			for (int i = 0; i < 16; i+=2)
+			{
+				stickman->legs[i] += diffx;
+				stickman->legs[i+1] += diffy;
+			}
 	}
 
 	parts[i].x = nxf;
