@@ -1,8 +1,8 @@
 --Cracker64's Powder Toy Multiplayer
 --I highly recommend to use my Autorun Script Manager
---VER 0.8 UPDATE http://pastebin.com/raw.php?i=Dk5Kx4JV
+--VER 0.81 UPDATE http://pastebin.com/raw.php?i=Dk5Kx4JV
 
-local versionstring = "0.8"
+local versionstring = "0.81"
 
 --TODO's
 --FIGH,STKM,STK2,LIGH need a few more creation adjustments
@@ -716,7 +716,7 @@ local function createBoxAny(x1,y1,x2,y2,c,user)
 	elseif c>=golStart then
 		c = 78+(c-golStart)*256
 	end
-	sim.createBox(x1,y1,x2,y2,c,user.replacemode)
+	sim.createBox(x1,y1,x2,y2,c,user and user.replacemode)
 end
 local function createPartsAny(x,y,rx,ry,c,brush,user)
 	if c>=wallStart then
