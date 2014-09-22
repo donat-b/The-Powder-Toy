@@ -2387,7 +2387,7 @@ int elements_property(lua_State * l)
 	luaL_checktype(l, 2, LUA_TSTRING);
 	propertyName = (char*)lua_tostring(l, 2);
 
-	if(id <= 0 || id >= PT_NUM || !globalSim->elements[id].Enabled)
+	if(id < 0 || id >= PT_NUM || !globalSim->elements[id].Enabled)
 		return luaL_error(l, "Invalid element");
 
 	if(args > 2)

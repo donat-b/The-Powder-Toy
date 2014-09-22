@@ -360,7 +360,7 @@ elif platform == "Darwin":
 
 #Add architecture flags and defines
 if isX86:
-	env.Append(CPPDEFINES='X86')
+	env.Append(CPPDEFINES=['X86'])
 if not GetOption('no-sse'):
 	if GetOption('sse'):
 		if msvc:

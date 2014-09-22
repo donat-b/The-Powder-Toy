@@ -1877,13 +1877,16 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='r') 
 			{
-				if ((sdl_mod & (KMOD_CTRL)) && load_mode != 1)
+				if (load_mode != 1)
 				{
-					parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-					ctrlzSnapshot();
+					if (sdl_mod & (KMOD_CTRL))
+					{
+						parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+						ctrlzSnapshot();
+					}
+					else if (!(sdl_mod & (KMOD_CTRL|KMOD_SHIFT)))
+						((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->golGeneration = 0;
 				}
-				else if (!(sdl_mod & (KMOD_CTRL|KMOD_SHIFT)))
-					((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->golGeneration = 0;
 			}
 			else if (sdl_key == SDLK_F5)
 			{
@@ -2298,7 +2301,7 @@ int main(int argc, char *argv[])
 				{
 					transform = m2d_new(-1,0,0,1); //horizontal invert
 				}
-				else if (sdl_key=='r'&& (sdl_mod & KMOD_CTRL))
+				else if (sdl_key=='r')
 				{
 					transform = m2d_new(0,1,-1,0); //rotate anticlockwise 90 degrees
 				}
