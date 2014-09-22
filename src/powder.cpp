@@ -649,25 +649,33 @@ int move(int i, int x, int y, float nxf, float nyf)
 			diffy = YRES-CELL*2;
 		if (ny >= YRES-CELL)
 			diffy = -(YRES-CELL*2);
-		nxf += diffx;
-		nyf += diffy;
-		nx = (int)(nxf+0.5f);
-		ny = (int)(nyf+0.5f);
+		if (diffx || diffy)
+		{
+			nxf += diffx;
+			nyf += diffy;
+			nx = (int)(nxf+0.5f);
+			ny = (int)(nyf+0.5f);
 
-		playerst* stickman = NULL;
-		if (t == PT_STKM)
-			stickman = &player;
-		else if (t == PT_STKM2)
-			stickman = &player2;
-		else if (t == PT_FIGH)
-			stickman = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get(parts[i].tmp);
+			//make sure there isn't something blocking it on the other side
+			if (!eval_move(t, nx, ny, NULL) || (t == PT_PHOT && pmap[ny][nx]))
+				return -1;
 
-		if (stickman)
-			for (int i = 0; i < 16; i+=2)
-			{
-				stickman->legs[i] += diffx;
-				stickman->legs[i+1] += diffy;
-			}
+			//adjust stickmen legs
+			playerst* stickman = NULL;
+			if (t == PT_STKM)
+				stickman = &player;
+			else if (t == PT_STKM2)
+				stickman = &player2;
+			else if (t == PT_FIGH)
+				stickman = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get(parts[i].tmp);
+
+			if (stickman)
+				for (int i = 0; i < 16; i+=2)
+				{
+					stickman->legs[i] += diffx;
+					stickman->legs[i+1] += diffy;
+				}
+		}
 	}
 
 	parts[i].x = nxf;
