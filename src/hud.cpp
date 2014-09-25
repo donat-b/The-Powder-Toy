@@ -85,7 +85,7 @@ void SetRightHudText(int x, int y)
 					if (parts[cr>>8].tmp>=0 && parts[cr>>8].tmp<=9)
 						sprintf(nametext, "FILT (%s), ", filtModes[parts[cr>>8].tmp]);
 					else
-						sprintf(nametext, "FILT (unknown mode), ", filtModes[parts[cr>>8].tmp]);
+						sprintf(nametext, "FILT (unknown mode), ");
 				}
 				else if (currentHud[14] && currentHud[11] && ((cr&0xFF)==PT_PIPE || (cr&0xFF)==PT_PPIP) && globalSim->IsElement(parts[cr>>8].tmp&0xFF))
 				{
