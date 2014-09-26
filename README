@@ -758,6 +758,12 @@ Update version info to TPT version 90.2, allow GRVT and DRAY in saves.
 Version 29.5 9/3/14
 Update TPTMP to version .8 (fixes TPTMP)
 
+Version 29.6 9/26/14
+Fix FIGH drawing. Fix loop edge mode, also stickmen now loop properly. Fix
+stickmen spawning with rocket boots. Stamps can be rotated without holding
+ctrl. Update TPTMP to version .82. Fix HUD issues with LAVA and FILT. Add a
+'rescan stamps' button in the save browser.
+
 
 
 

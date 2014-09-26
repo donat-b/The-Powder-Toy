@@ -100,7 +100,7 @@ void SetRightHudText(int x, int y)
 					}
 					if (!currentHud[12] && (tctype>=PT_NUM || tctype<0 || (cr&0xFF)==PT_PHOT))
 						tctype = 0;
-					if (globalSim->IsElement(tctype))
+					if (!tctype || globalSim->IsElement(tctype))
 						sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, ptypes[tctype].name);
 					else
 						sprintf(nametext, "%s (%d), ", ptypes[cr&0xFF].name, tctype);

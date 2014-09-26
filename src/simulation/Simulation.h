@@ -103,7 +103,7 @@ public:
 
 	bool IsElement(int t) const
 	{
-		return (t>=0 && t<PT_NUM && elements[t].Enabled);
+		return (t>0 && t<PT_NUM && elements[t].Enabled);
 	}
 	bool InBounds(int x, int y)
 	{
