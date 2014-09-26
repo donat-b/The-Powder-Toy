@@ -2291,6 +2291,8 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 		k = stamp_page*per_page;//0;
 		r = -1;
 		d = -1;
+		if (!stamps[k].name[0])
+			drawtext(vid_buf, (XRES-textwidth("Use 's' to save stamps"))/2, YRES/2-6, "Use 's' to save stamps", 255, 255, 255, 255);
 		for (j=0; j<GRID_Y; j++)
 			for (i=0; i<GRID_X; i++)
 			{
@@ -2372,6 +2374,8 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 			drawtext(vid_buf, XRES-15, YRES+MENUSIZE-14, "\x95", 255, 255, 255, 255);
 			drawrect(vid_buf, XRES-18, YRES+MENUSIZE-18, 16, 16, 255, 255, 255, 255);
 		}
+		drawtext(vid_buf, XRES-60, YRES+MENUSIZE-14, "Rescan", 255, 255, 255, 255);
+		drawrect(vid_buf, XRES-65, YRES+MENUSIZE-18, 40, 16, 255, 255, 255, 255);
 
 		if (b==1&&bq==0&&d!=-1)
 		{
@@ -2423,6 +2427,43 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 				stamp_page ++;
 			}
 			sdl_wheel = 0;
+		}
+		if (b && !bq && mx >= XRES-65 && mx <= XRES-25 && my >= YRES+MENUSIZE-18 && my < YRES+MENUSIZE-2 && confirm_ui(vid_buf, "Rescan stamps?", "Rescanning stamps will find all stamps in your stamps/ directory and overwrite stamps.def", "OK"))
+		{
+			DIR *directory;
+			struct dirent * entry;
+			directory = opendir("stamps");
+			if (directory != NULL)
+			{
+				std::string stampList = "";
+				while (entry = readdir(directory))
+				{
+					if (strstr(entry->d_name, ".stm") && strlen(entry->d_name) == 14)
+					{
+						char stampname[11];
+						strncpy(stampname, entry->d_name, 10);
+						stampList.insert(0, stampname);
+					}
+				}
+				closedir(directory);
+
+				FILE *f = fopen("stamps" PATH_SEP "stamps.def", "wb");
+				if (!f)
+				{
+					error_ui(vid_buf, 0, "Could not open stamps.def");
+				}
+				else
+				{
+					fwrite(stampList.c_str(), stampList.length(), 1, f);
+					fclose(f);
+
+					for (int i = 0; i < STAMP_MAX; i++)
+						if (stamps[i].thumb)
+							free(stamps[i].thumb);
+					stamp_init();
+					page_count = (stamp_count-1)/per_page+1;
+				}
+			}
 		}
 
 		if (sdl_key==SDLK_RETURN)

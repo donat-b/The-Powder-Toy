@@ -687,7 +687,7 @@ int tab_load(int tabNum)
 	return 0;
 }
 
-void stamp_init(void)
+void stamp_init()
 {
 	int i;
 	FILE *f;
@@ -1829,7 +1829,7 @@ int main(int argc, char *argv[])
 				else
 					framerender = 1;
 			}
-			if ((sdl_key=='l' || sdl_key=='k') && stamps[0].name[0])
+			if (sdl_key=='l' || sdl_key=='k')
 			{
 				if (load_mode)
 				{
@@ -1840,11 +1840,11 @@ int main(int argc, char *argv[])
 					load_img = NULL;
 				}
 				UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
-				if (sdl_key=='k' && stamps[1].name[0])
+				if (sdl_key=='k')
 				{
 					int reorder = 1;
 					j = stamp_ui(vid_buf, &reorder);
-					if (j>=0)
+					if (j >= 0)
 						load_data = stamp_load(j, &load_size, reorder);
 					else
 						load_data = NULL;

@@ -322,6 +322,7 @@ char* stamp_save(int x, int y, int w, int h);
 void tab_save(int num, char reloadButton);
 void *stamp_load(int i, int *size, int reorder);
 int tab_load(int tabNum);
+void stamp_init();
 void del_stamp(int d);
 void sdl_seticon(void);
 void play_sound(char *file);
