@@ -2439,11 +2439,7 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 				while (entry = readdir(directory))
 				{
 					if (strstr(entry->d_name, ".stm") && strlen(entry->d_name) == 14)
-					{
-						char stampname[11];
-						strncpy(stampname, entry->d_name, 10);
-						stampList.insert(0, stampname);
-					}
+						stampList.insert(0, entry->d_name, 10);
 				}
 				closedir(directory);
 
@@ -2460,6 +2456,7 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 					for (int i = 0; i < STAMP_MAX; i++)
 						if (stamps[i].thumb)
 							free(stamps[i].thumb);
+					stamp_count = 0;
 					stamp_init();
 					page_count = (stamp_count-1)/per_page+1;
 				}
