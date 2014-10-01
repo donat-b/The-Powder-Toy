@@ -8660,7 +8660,7 @@ void simulation_ui(pixel * vid_buf)
 			{
 				//one of these should always be defined
 #ifdef WIN
-				const char* openCommand = "start ";
+				const char* openCommand = "explorer ";
 #elif MACOSX
 				const char* openCommand = "open ";
 //#elif LIN
