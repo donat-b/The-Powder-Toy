@@ -77,6 +77,10 @@
 #include "simulation/ToolNumbers.h"
 #include "simulation/elements/LIFE.h"
 
+#ifdef NEWINTERFACE
+#include "interface/Engine.h"
+#endif
+
 pixel *vid_buf;
 
 #define NUM_SOUNDS 2
@@ -1915,6 +1919,10 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='1')
 			{
+#ifdef NEWINTERFACE
+				Engine* asdf = new Engine();
+				asdf->MainLoop();
+#endif
 				if (sdl_mod & (KMOD_CTRL))
 					display_mode = display_mode&DISPLAY_AIRV ? display_mode&!DISPLAY_AIRV:display_mode|DISPLAY_AIRV;
 				else

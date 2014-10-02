@@ -1,8 +1,9 @@
-#ifdef POTATO
+#ifdef NEWINTERFACE
+#include <algorithm>
 #include "Label.h"
 #include "graphics.h"
 #include "misc.h"
-#include <algorithm>
+#include "graphics/VideoBuffer.h"
 
 Label::Label(std::string text, Point position, Point size, bool multiline):
 	text(text),
@@ -13,7 +14,8 @@ Label::Label(std::string text, Point position, Point size, bool multiline):
 	cursorStart(0),
 	clickPosition(0),
 	lastClick(0),
-	numClicks(0)
+	numClicks(0),
+	focus(false)
 {
 	UpdateDisplayText();
 }
@@ -41,45 +43,47 @@ int Label::UpdateCursor(int position)
 {
 	if (numClicks >= 2)
 	{
-		int start = 0, end = displayText.length();
+		int start = 0, end = text.length();
 		const char *spaces = " .,!?\n";
 		if (numClicks == 3)
 			spaces = "\n";
-		FindWordPosition(displayText.c_str(), position, &start, &end, spaces);
+		FindWordPosition(text.c_str(), position, &start, &end, spaces);
 		if (start < clickPosition)
 		{
 			cursorStart = start;
-			FindWordPosition(displayText.c_str(), clickPosition, &start, &end, spaces);
+			FindWordPosition(text.c_str(), clickPosition, &start, &end, spaces);
 			cursor = end;
 		}
 		else
 		{
 			cursorStart = end;
-			FindWordPosition(displayText.c_str(), clickPosition, &start, &end, spaces);
+			FindWordPosition(text.c_str(), clickPosition, &start, &end, spaces);
 			cursor = start;
 		}
 	}
 	return position;
 }
 
-//all-in-one function that updates displayText with \r and \x01, updates cursor position, and cuts string where needed
-void Label::UpdateDisplayText(int mx, int my, bool firstClick)
+//all-in-one function that updates displayText with \r, updates cursor position, and cuts string where needed
+void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my)
 {
-	int posX = 0, posY = 12, wordStart = 0;
+	int posX = 0, posY = 12, wordStart = 0, cursorOffset = 0;
 	bool updatedCursor = false;
-	displayText = text;
 
-	if (my < 0)
+	//get back the original string by removing the inserted newlines
+	text.erase(std::remove(text.begin(), text.end(), '\r'), text.end());
+
+	if (updateCursor && my < -2)
 	{
 		cursor = 0;
 		updatedCursor = true;
 	}
-	for (int i = 0; i < displayText.length();)
+	for (int i = 0; i < text.length();)
 	{
 		//find end of word/line chars
-		int wordlen = displayText.substr(i).find_first_of(" .,!?\n");
+		int wordlen = text.substr(i).find_first_of(" .,!?\n");
 		if (wordlen == -1)
-			wordlen = displayText.length();
+			wordlen = text.length();
 
 		//if a word starts in the last 1/3 of the line, it will get put on the next line if it's too long
 		if (wordlen && posX > size.X*2/3)
@@ -88,9 +92,9 @@ void Label::UpdateDisplayText(int mx, int my, bool firstClick)
 			wordStart = 0;
 
 		//loop through a word
-		for (; --wordlen>=-1 && i < displayText.length(); i++)
+		for (; --wordlen>=-1 && i < text.length(); i++)
 		{
-			switch (displayText[i])
+			switch (text[i])
 			{
 			case '\n':
 				if (multiline)
@@ -98,7 +102,8 @@ void Label::UpdateDisplayText(int mx, int my, bool firstClick)
 					posX = 0;
 					posY += 12;
 					wordStart = 0;
-					if (!updatedCursor && ((posX >= mx+3 && posY >= my) || (posY >= my+12)))
+					//update cursor position (newline check)
+					if (updateCursor && !updatedCursor && ((posX >= mx+3 && posY >= my+2) || (posY >= my+14)))
 					{
 						cursor = i;
 						updatedCursor = true;
@@ -106,8 +111,8 @@ void Label::UpdateDisplayText(int mx, int my, bool firstClick)
 				}
 				else
 				{
-					displayText = displayText.substr(0, i);
-					displayText.insert(i, "...");
+					text = text.substr(0, i);
+					text.insert(i, "...");
 					i += 3;
 				}
 				break;
@@ -124,7 +129,7 @@ void Label::UpdateDisplayText(int mx, int my, bool firstClick)
 				break;
 			default:
 				//normal character, add to the current width and check if it's too long
-				posX += charwidth(displayText[i]);
+				posX += charwidth(text[i]);
 				if (posX >= size.X)
 				{
 					if (multiline)
@@ -139,21 +144,23 @@ void Label::UpdateDisplayText(int mx, int my, bool firstClick)
 						}
 
 						//use \r instead of \n, that way it can be easily filtered out when copying without ugly hacks
-						displayText.insert(replacePos, "\r");
+						text.insert(replacePos, "\r");
 						wordlen++;
+						if (!updatedCursor)
+							cursorOffset++;
 						posX = 0;
 						posY += 12;
 					}
 					else
 					{
 						//for non multiline strings, cut it off here and delete the rest of the string
-						displayText = displayText.substr(0, i-1 > 0 ? i-1 : 0);
-						displayText.insert(i-1 > 0 ? i-1 : 0, "...");
+						text = text.substr(0, i-1 > 0 ? i-1 : 0);
+						text.insert(i-1 > 0 ? i-1 : 0, "...");
 						i += 2;
 					}
 				}
-				//update cursor position, in multiple positions
-				if (!updatedCursor && !wordStart && ((posX >= mx+3 && posY >= my) || (posY >= my+12)))
+				//update cursor position
+				if (updateCursor && !updatedCursor && ((posX >= mx+3 && posY >= my+2) || (posY >= my+14)))
 				{
 					cursor = i+(posX==0);
 					updatedCursor = true;
@@ -162,37 +169,60 @@ void Label::UpdateDisplayText(int mx, int my, bool firstClick)
 			}
 		}
 	}
-	//if cursor position wasn't found, probably goes at the end
-	if (!updatedCursor)
-		cursor = displayText.length();
-
-	//update cursor and cursorStart and adjust for double / triple clicks
-	if (firstClick)
-		clickPosition = cursorStart = cursor;
-	UpdateCursor(cursor);
-
-	//insert \x01 where the cursor start / end are, to mark where to put highlight in drawtext
-	if (cursor != cursorStart || numClicks > 1)
+	if (updateCursor)
 	{
-		displayText.insert(cursorStart, "\x01");
-		displayText.insert(cursor+(cursor>cursorStart), "\x01");
+		//if cursor position wasn't found, probably goes at the end
+		if (!updatedCursor)
+			cursor = text.length();
+
+		//update cursor and cursorStart and adjust for double / triple clicks
+		if (firstClick)
+			clickPosition = cursorStart = cursor;
+		UpdateCursor(cursor);
 	}
+	//make sure cursor isn't out of bounds (for ctrl+a and shift+right)
+	if (cursor > text.length())
+		cursor = text.length();
+	if (cursorStart > text.length())
+		cursorStart = text.length();
 
 	//multiline labels have their Y size set automatically
 	if (multiline)
 		size.Y = posY+2;
 }
 
+//this function moves the cursor a certain amount, and checks at the end for special characters to move past like \r, \b, and \0F
+void Label::MoveCursor(int *cursor, int amount)
+{
+	int sign = isign(amount), offset = 0;
+	if (!amount)
+		return;
+
+	offset += amount;
+	//adjust for strange characters
+	if (text[*cursor+offset-1] == '\b' || text[*cursor+offset-1] == '\r')
+		offset += sign;
+	else if (*cursor+offset-3+(sign>0)*2 > 0 && text[*cursor+offset-3+(sign>0)*2] == '\x0F') //when moving right, check 1 behind, when moving left, check 3 behind
+		offset += sign*3;
+
+	//make sure it's in bounds
+	if (*cursor+offset < 0)
+		offset = -*cursor;
+	if (*cursor+offset > text.length())
+		offset = text.length()-*cursor;
+
+	*cursor += offset;
+}
+
 void Label::OnMouseDown(int x, int y, unsigned char button)
 {
 	if (button == 1)
 	{
-		clicked = true;
+		focus = true;
 		numClicks++;
 		lastClick = SDL_GetTicks();
 
-		UpdateDisplayText(x, y, true);
-		//cursorStart = cursor;
+		UpdateDisplayText(true, true, x, y);
 	}
 }
 
@@ -200,16 +230,16 @@ void Label::OnMouseUp(int x, int y, unsigned char button)
 {
 	if (button == 1)
 	{
-		UpdateDisplayText(x, y);
-		clicked = false;
+		UpdateDisplayText(true, false, x, y);
+		focus = false;
 	}
 }
 
 void Label::OnMouseMoved(int x, int y, Point difference)
 {
-	if (clicked)
+	if (focus)
 	{
-		UpdateDisplayText(x, y);
+		UpdateDisplayText(true, false, x, y);
 	}
 }
 
@@ -217,56 +247,78 @@ int lastx = 0;
 int lasty = 0;
 void Label::OnKeyPress(int key, unsigned short character, unsigned char modifiers)
 {
-	if (modifiers&KMOD_CTRL && character == 'c')
+	if (modifiers&KMOD_CTRL)
 	{
-		int start = cursor > cursorStart ? cursorStart : cursor;
-		int len = abs(cursor-cursorStart);
-		std::string copyStr = displayText.substr(start+1, len);
-		copyStr.erase(std::remove(copyStr.begin(), copyStr.end(), '\r'), copyStr.end());
-		clipboard_push_text((char*)copyStr.c_str());
+		switch (key)
+		{
+		case 'c':
+		{
+			int start = (cursor > cursorStart) ? cursorStart : cursor;
+			int len = abs(cursor-cursorStart);
+			std::string copyStr = text.substr(start, len);
+			copyStr.erase(std::remove(copyStr.begin(), copyStr.end(), '\r'), copyStr.end()); //strip special newlines
+			clipboard_push_text((char*)copyStr.c_str());
+			break;
+		}
+		case 'a':
+			//if (clicked)
+			{
+				cursorStart = 0;
+				cursor = clickPosition = text.length();
+			}
+			break;
+		case SDLK_LEFT:
+		{
+			int start, end;
+			FindWordPosition(text.c_str(), cursor-1, &start, &end, " .,!?\n");
+			MoveCursor(&cursor, start-cursor-(cursor > cursorStart));
+			break;
+		}
+		case SDLK_RIGHT:
+		{
+			int start, end;
+			FindWordPosition(text.c_str(), cursor+1, &start, &end, " .,!?\n");
+			MoveCursor(&cursor, end-cursor+!(cursor > cursorStart));
+			break;
+		}
+		}
+	}
+	if (modifiers&KMOD_SHIFT)
+	{
+		switch (key)
+		{
+		case SDLK_LEFT:
+			if (cursor)
+				MoveCursor(&cursor, -1);
+			break;
+		case SDLK_RIGHT:
+			if (cursor < text.length())
+				MoveCursor(&cursor, 1);
+			break;
+		}
 	}
 }
 
-void Label::OnDraw(pixel* vid_buf)
+void Label::OnDraw(VideoBuffer* vid)
 {
-	drawtext(vid_buf, position.X, position.Y, displayText.c_str(), 255, 255, 255, 100);//focus?255:100);
+	//at some point there will be a redraw variable so this isn't done every frame
+	std::string mootext = text;
+	if (cursor != cursorStart || numClicks > 1)
+	{
+		mootext.insert(cursorStart, "\x01");
+		mootext.insert(cursor+(cursor > cursorStart), "\x01");
+	}
+	if (ShowCursor())
+	{
+		mootext.insert(cursor+(cursor > cursorStart)*2/*+(cursor < cursorStart)*/, "\x02");
+	}
+	vid->DrawText(position.X+2, position.Y+3, mootext.c_str(), 255, 255, 255, 100);//focus?255:100);
 }
 
 void Label::OnTick()
 {
-	if (!clicked && numClicks && lastClick+300 < SDL_GetTicks())
+	if (!focus && numClicks && lastClick+300 < SDL_GetTicks())
 		numClicks = 0;
 }
 
-void InterfaceConvert(Label &label, int x, int y, int b, int bq, int sdl_key, unsigned char sdl_mod)
-{
-	int posX = x-label.position.X, posY = y-label.position.Y;
-	bool inside = posX >= 0 && posX < label.size.X && posY >= 0 && posY < label.size.Y;
-
-	if (b && !bq)
-	{
-		if (inside)
-		{
-			label.focus = true;
-			if (!label.clicked)
-			{
-				label.OnMouseDown(posX, posY, b);
-			}
-		}
-		else
-			label.focus = false;
-	}
-	else if (bq && !b)
-	{
-		if (inside || label.clicked)
-			label.OnMouseUp(posX, posY, bq);
-	}
-	if (lastx != x || lasty != y)
-		label.OnMouseMoved(posX, posY, Point(x-lastx, y-lasty));
-	lastx = x;
-	lasty = y;
-	if (sdl_key)
-		label.OnKeyPress(sdl_key, sdl_key, sdl_mod);
-	label.OnTick();
-}
 #endif

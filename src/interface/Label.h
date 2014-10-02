@@ -4,25 +4,32 @@
 #include <string>
 #include "common/Point.h"
 
+class VideoBuffer;
 class Label
 {
-public:
-	std::string text;
-	std::string displayText;
-	Point position;
-	Point size;
+private:
+	void UpdateCursorTemp(int x, int y);
+	int UpdateCursor(int position);
 	bool multiline;
 
-	bool focus, clicked;
+protected:
+	Point position;
+	Point size;
+
+	std::string text;
 	int cursor, cursorStart;
 	int lastClick, numClicks, clickPosition;
 
-	int UpdateCursor(int position);
-	void UpdateDisplayText(int mx = 0, int my = -1, bool firstClick = false);
+	void UpdateDisplayText(bool updateCursor = false, bool firstClick = false, int mx = 0, int my = 0);
+	void MoveCursor(int *cursor, int amount);
+	virtual bool ShowCursor() { return false; }
 
-//public:
+public:
 	Label(std::string text, Point position, Point size, bool multiline = false);
 
+	bool focus;
+	Point GetPosition() { return position; }
+	Point GetSize() { return size; }
 	void SetText(std::string text_);
 	std::string GetText();
 
@@ -30,10 +37,8 @@ public:
 	virtual void OnMouseUp(int x, int y, unsigned char button);
 	virtual void OnMouseMoved(int x, int y, Point difference);
 	virtual void OnKeyPress(int key, unsigned short character, unsigned char modifiers);
-	virtual void OnDraw(unsigned int* vid_buf);
+	virtual void OnDraw(VideoBuffer* vid);
 	virtual void OnTick();
 };
-
-void InterfaceConvert(Label &label, int x, int y, int b, int bq, int sdl_key, unsigned char sdl_mod);
 
 #endif
