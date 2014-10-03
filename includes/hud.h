@@ -33,7 +33,7 @@ static hud hud_menu[] =
 	{"UI",     PIXPACK(0x20D8FF), 0, "Change the HUD on the left"},
 	{"INFO",   PIXPACK(0xFFFFFF), 0, "Change the top right HUD with particle properties"},
 	{"CORD",   PIXPACK(0xFFFFFF), 0, "Change the bottom right HUD with corrdinate info"},
-	{"RSET",   PIXPACK(0xFF8A08), 0, "Resets the HUD's back to their default values"},
+	{"RSET",   PIXPACK(0xFF8A08), 0, "Resets the HUDs back to their default values"},
 
 	{"VERS", PIXPACK(0x000000), 1, "The version number"},
 	{"BLD",  PIXPACK(0x000000), 1, "The current build number"},

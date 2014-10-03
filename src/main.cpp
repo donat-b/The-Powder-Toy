@@ -2084,7 +2084,7 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key==SDLK_INSERT)
 				REPLACE_MODE = !REPLACE_MODE;
-			else if (sdl_key == SDLK_DELETE)
+			else if (sdl_key == SDLK_DELETE && active_menu != SC_DECO)
 				SPECIFIC_DELETE = !SPECIFIC_DELETE;
 			else if (sdl_key == SDLK_SEMICOLON)
 			{

@@ -79,36 +79,4 @@ void Window_::DoKeyRelease(int key, unsigned short character, unsigned char modi
 
 }
 
-/*int lastx, lasty;
-void InterfaceConvert(Label &label, int x, int y, int b, int bq, int sdl_key, unsigned char sdl_mod)
-{
-	int posX = x-label.position.X, posY = y-label.position.Y;
-	bool inside = posX >= 0 && posX < label.size.X && posY >= 0 && posY < label.size.Y;
-
-	if (b && !bq)
-	{
-		if (inside)
-		{
-			label.focus = true;
-			if (!label.clicked)
-			{
-				label.OnMouseDown(posX, posY, b);
-			}
-		}
-		else
-			label.focus = false;
-	}
-	else if (bq && !b)
-	{
-		if (inside || label.clicked)
-			label.OnMouseUp(posX, posY, bq);
-	}
-	if (lastx != x || lasty != y)
-		label.OnMouseMoved(posX, posY, Point(x-lastx, y-lasty));
-	lastx = x;
-	lasty = y;
-	if (sdl_key)
-		label.OnKeyPress(sdl_key, sdl_key, sdl_mod);
-	label.OnTick();
-}*/
 #endif

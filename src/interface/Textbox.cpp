@@ -13,6 +13,7 @@ Textbox::~Textbox()
 {
 }
 
+//deletes any highlighted text, returns true if there was something deleted (cancels backspace/delete action)
 bool Textbox::DeleteHighlight()
 {
 	if (cursor == cursorStart)
