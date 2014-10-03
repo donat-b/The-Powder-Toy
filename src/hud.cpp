@@ -28,8 +28,8 @@ int currentHud[HUD_OPTIONS];
 
 void HudDefaults()
 {
-	int defaultNormalHud[HUD_OPTIONS] = {0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,1,0,0,0,0,2,0,2,1,0,0,1,1,0,0};
-	int defaultDebugHud[HUD_OPTIONS] =  {0,0,1,2,1,0,0,0,1,0,1,1,1,0,1,1,0,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,1,0,0,0,0,4,0,4,1,0,0,1,1,1,0};
+	int defaultNormalHud[HUD_OPTIONS] = {0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,1,0,0,0,0,2,0,2,1,0,0,1,1,0,0,0};
+	int defaultDebugHud[HUD_OPTIONS] =  {0,0,1,2,1,0,0,0,1,0,1,1,1,0,1,1,0,0,4,1,0,0,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,1,0,0,0,0,4,0,4,1,0,0,1,1,1,0,0};
 	memcpy(normalHud, defaultNormalHud, sizeof(normalHud));
 	memcpy(debugHud, defaultDebugHud, sizeof(debugHud));
 }
@@ -224,12 +224,17 @@ void SetRightHudText(int x, int y)
 		}
 		if (currentHud[32])
 		{
-			sprintf(tempstring,"Pressure: %0.*f",currentHud[33],pv[y/CELL][x/CELL]);
+			sprintf(tempstring,"Pressure: %0.*f ",currentHud[33],pv[y/CELL][x/CELL]);
 			strappend(coordtext,tempstring);
 		}
 		if (currentHud[43])
 		{
-			sprintf(tempstring,"VX: %0.*f VY: %0.*f",currentHud[44],vx[y/CELL][x/CELL],currentHud[44],vy[y/CELL][x/CELL]);
+			sprintf(tempstring,"VX: %0.*f VY: %0.*f ",currentHud[44],vx[y/CELL][x/CELL],currentHud[44],vy[y/CELL][x/CELL]);
+			strappend(coordtext,tempstring);
+		}
+		if (currentHud[52])
+		{
+			sprintf(tempstring,"emap: %d",emap[y/CELL][x/CELL]);
 			strappend(coordtext,tempstring);
 		}
 		if (strlen(coordtext) > 0 && coordtext[strlen(coordtext)-1] == ' ')

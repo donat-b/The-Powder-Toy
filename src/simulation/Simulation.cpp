@@ -836,6 +836,7 @@ bool Simulation::UpdateParticle(int i)
 				if (emap[ny][nx] == 12 && !parts[i].life)
 				{
 					spark_conductive(i, x, y);
+					parts[i].life = 4;
 					t = PT_SPRK;
 				}
 			}

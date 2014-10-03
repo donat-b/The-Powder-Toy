@@ -94,12 +94,13 @@ static hud hud_menu[] =
 	{"LIFE", PIXPACK(0x000000), 2, "Show the name of life particles instead of LIFE([NAME])"},
 	{"FILT", PIXPACK(0x000000), 2, "Show FILT tmp modes in the HUD"},
 	{"PAVG", PIXPACK(0x000000), 2, "Show pavg[0] and pavg[1], used by VIRS and PIPE to store extra info"},
+	{"EMAP", PIXPACK(0x000000), 3, "Show the value of emap, used in conductive walls"},
 };
 
 #define HUD_START 400
 #define HUD_REALSTART 405
-#define HUD_NUM 57
-#define HUD_OPTIONS 52
+#define HUD_NUM 58
+#define HUD_OPTIONS 523
 
 extern int currentHud[HUD_OPTIONS];
 extern int normalHud[HUD_OPTIONS];
