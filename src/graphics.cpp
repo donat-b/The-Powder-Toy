@@ -16,6 +16,7 @@
  */
 
 #include <math.h>
+#include <sstream>
 #ifdef SDL_R_INC
 #include <SDL.h>
 #else
@@ -5275,6 +5276,8 @@ void loadShaders()
 	checkProgram(airProg_Cracker, "AC");
 }
 #endif
+
+float maxAverage = 0.0f; //for debug mode
 int draw_debug_info(pixel* vid, int lm, int lx, int ly, int cx, int cy, int line_x, int line_y)
 {
 	char infobuf[256];
@@ -5353,6 +5356,71 @@ int draw_debug_info(pixel* vid, int lm, int lx, int ly, int cx, int cy, int line
 			sprintf(infobuf, "%d", abs(line_y-ly));
 			drawtext_outline(vid, line_x+(lx<line_x?3:-textwidth(infobuf)-2), (line_y+ly)/2-3, infobuf, 255, 255, 255, 200, 0, 0, 0, 120);
 		}
+	}
+	if (debug_flags & DEBUG_ELEMENTPOPULATION)
+	{
+		int yBottom = YRES-10;
+		int xStart = 10;
+
+		std::string maxValString;
+		std::string halfValString;
+		std::stringstream numtostring;
+
+
+		float maxVal = 255;
+		float scale = 1.0f;
+		int bars = 0;
+		for (int i = 0; i < PT_NUM; i++)
+		{
+			if (globalSim->elements[i].Enabled)
+			{
+				if (maxVal < globalSim->elementCount[i])
+					maxVal = globalSim->elementCount[i];
+				bars++;
+			}
+		}
+		maxAverage = (maxAverage*(1.0f-0.015f)) + (0.015f*maxVal);
+		scale = 255.0f/maxAverage;
+
+		numtostring << maxAverage;
+		maxValString = numtostring.str();
+		numtostring.str("");
+		numtostring << maxAverage/2;
+		halfValString = numtostring.str();
+
+
+		fillrect(vid_buf, xStart-5, yBottom - 263, bars+10+textwidth(maxValString.c_str())+10, 255 + 13, 0, 0, 0, 180);
+
+		bars = 0;
+		for (int i = 0; i < PT_NUM; i++)
+		{
+			if (globalSim->elements[i].Enabled)
+			{
+				float count = globalSim->elementCount[i];
+				int barSize = (count * scale - 0.5f);
+				int barX = bars;//*2;
+
+				draw_line(vid_buf, xStart+barX, yBottom+3, xStart+barX, yBottom+2, PIXR(globalSim->elements[i].Colour), PIXG(globalSim->elements[i].Colour), PIXB(globalSim->elements[i].Colour), XRES+BARSIZE);
+				if (globalSim->elementCount[i])
+				{
+					if (barSize > 256)
+					{
+						barSize = 256;
+						blendpixel(vid_buf, xStart+barX, yBottom-barSize-3, PIXR(globalSim->elements[i].Colour), PIXG(globalSim->elements[i].Colour), PIXB(globalSim->elements[i].Colour), 255);
+						blendpixel(vid_buf, xStart+barX, yBottom-barSize-5, PIXR(globalSim->elements[i].Colour), PIXG(globalSim->elements[i].Colour), PIXB(globalSim->elements[i].Colour), 255);
+						blendpixel(vid_buf, xStart+barX, yBottom-barSize-7, PIXR(globalSim->elements[i].Colour), PIXG(globalSim->elements[i].Colour), PIXB(globalSim->elements[i].Colour), 255);
+					}
+					else
+						draw_line(vid_buf, xStart+barX, yBottom-barSize-3, xStart+barX, yBottom-barSize-2, 255, 255, 255, XRES+BARSIZE);
+					draw_line(vid_buf, xStart+barX, yBottom-barSize, xStart+barX, yBottom, PIXR(globalSim->elements[i].Colour), PIXG(globalSim->elements[i].Colour), PIXB(globalSim->elements[i].Colour), XRES+BARSIZE);
+				}
+				bars++;
+			}
+		}
+
+		drawtext(vid_buf, xStart + bars + 5, yBottom-5, "0", 255, 255, 255, 255);
+		drawtext(vid_buf, xStart + bars + 5, yBottom-132, halfValString.c_str(), 255, 255, 255, 255);
+		drawtext(vid_buf, xStart + bars + 5, yBottom-260, maxValString.c_str(), 255, 255, 255, 255);
 	}
 	if(debug_flags & DEBUG_PARTS)
 	{
