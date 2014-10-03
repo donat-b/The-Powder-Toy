@@ -2668,7 +2668,7 @@ int luatpt_maxframes(lua_State* l)
 
 int luatpt_createwall(lua_State* l)
 {
-	int acount, wx, wy, wt, width = 0, height = 0, nx, ny;
+	int acount, wx, wy, wt, width = 1, height = 1, nx, ny;
 	acount = lua_gettop(l);
 	wx = luaL_optint(l,1,-1);
 	wy = luaL_optint(l,2,-1);
