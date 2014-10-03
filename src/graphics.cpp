@@ -2757,7 +2757,7 @@ void render_parts(pixel *vid, Point mousePos)
 				//Pixel rendering
 				if (t==PT_SOAP) //pixel_mode & EFFECT_LINES, pointless to check if only soap has it ...
 				{
-					if ((parts[i].ctype&7) == 7)
+					if ((parts[i].ctype&7) == 7 && parts[i].tmp >= 0 && parts[i].tmp < NPART && parts[i].tmp2 >= 0 && parts[i].tmp2 < NPART)
 						draw_line(vid, nx, ny, (int)(parts[parts[i].tmp].x+0.5f), (int)(parts[parts[i].tmp].y+0.5f), colr, colg, colb, XRES+BARSIZE);
 				}
 				if(pixel_mode & PSPEC_STICKMAN)
