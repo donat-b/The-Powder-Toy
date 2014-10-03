@@ -851,7 +851,6 @@ ctrl. Update TPTMP to version .82. Fix HUD issues with LAVA and FILT. Add a
 -------------------------------------Bugs-------------------------------------
 ------------------------------------------------------------------------------
 Can't draw particles when moving solids are on the screen
-can't use Command key as ctrl on OS X
 //None (at least that I know of)
 
 

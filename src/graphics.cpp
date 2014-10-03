@@ -4685,7 +4685,7 @@ void render_cursor(pixel *vid, int x, int y, Tool* tool, Brush* brush)
 	}
 #else
 	int i,j;
-	if ((sdl_mod & KMOD_CTRL) && (sdl_mod & KMOD_SHIFT) && (tool->GetType() != TOOL_TOOL || ((ToolTool*)tool)->GetID() == TOOL_PROP))
+	if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (sdl_mod & KMOD_SHIFT) && (tool->GetType() != TOOL_TOOL || ((ToolTool*)tool)->GetID() == TOOL_PROP))
 	{
 		for (i = -5; i < 6; i++)
 			if (i != 0)

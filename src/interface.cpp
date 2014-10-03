@@ -588,7 +588,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			ed->cursorstart = ed->cursor;
 			break;
 		default:
-			if(sdl_mod & (KMOD_CTRL) && sdl_key=='c')//copy
+			if(sdl_mod & (KMOD_CTRL|KMOD_META) && sdl_key=='c')//copy
 			{
 				if (ed->highlightlength)
 				{
@@ -601,7 +601,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 					clipboard_push_text(ed->str);
 				break;
 			}
-			else if(sdl_mod & (KMOD_CTRL) && sdl_key=='v')//paste
+			else if(sdl_mod & (KMOD_CTRL|KMOD_META) && sdl_key=='v')//paste
 			{
 				char* paste = clipboard_pull_text();
 				if (!paste)
@@ -620,12 +620,12 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 				ed->cursorstart = ed->cursor;
 				break;
 			}
-			else if(sdl_mod & (KMOD_CTRL) && sdl_key=='a')//highlight all
+			else if(sdl_mod & (KMOD_CTRL|KMOD_META) && sdl_key=='a')//highlight all
 			{
 				ed->cursorstart = 0;
 				ed->cursor = l;
 			}
-			if ((sdl_mod & (KMOD_CTRL)) && (svf_admin || svf_mod))
+			if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (svf_admin || svf_mod))
 			{
 				if (ed->cursor > 1 && ed->str[ed->cursor-2] == '\b')
 					break;
@@ -814,7 +814,7 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 					ed->cursorstart++;
 			}
 		}
-		else if(sdl_mod & (KMOD_CTRL) && sdl_key=='c')//copy
+		else if(sdl_mod & (KMOD_CTRL|KMOD_META) && sdl_key=='c')//copy
 		{
 			if (ed->highlightlength)
 			{
@@ -826,7 +826,7 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 			else
 				clipboard_push_text(ed->str);
 		}
-		else if(sdl_mod & (KMOD_CTRL) && sdl_key=='a')//highlight all
+		else if(sdl_mod & (KMOD_CTRL|KMOD_META) && sdl_key=='a')//highlight all
 		{
 			ed->cursorstart = 0;
 			ed->cursor = l;
@@ -2379,7 +2379,7 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 
 		if (b==1&&bq==0&&d!=-1)
 		{
-			if (sdl_mod & KMOD_CTRL)
+			if (sdl_mod & (KMOD_CTRL|KMOD_META))
 			{
 				if (!stamps[d].dodelete)
 				{
@@ -2471,7 +2471,7 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 			break;
 		}
 	}
-	if (sdl_mod & KMOD_CTRL)
+	if (sdl_mod & (KMOD_CTRL|KMOD_META))
 		*reorder = 0;
 
 	while (!sdl_poll())
@@ -3061,9 +3061,9 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 			{
 				over = current;
 				//draw rectangles around hovered on tools
-				if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL) && ((ElementTool*)current)->GetID() >= 0)
+				if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL|KMOD_META) && ((ElementTool*)current)->GetID() >= 0)
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-				else if (sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL))
+				else if (sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL|KMOD_META))
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
 				else
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
@@ -3280,7 +3280,7 @@ void menu_select_element(int b, Tool* over)
 			currR = PIXR(decocolor), currG = PIXG(decocolor), currB = PIXB(decocolor), currA = decocolor>>24;
 			RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
 		}
-		else if ((sdl_mod & (KMOD_LALT)) && (sdl_mod & (KMOD_CTRL)) && ((ElementTool*)over)->GetID() >= 0)
+		else if ((sdl_mod & (KMOD_LALT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && ((ElementTool*)over)->GetID() >= 0)
 		{
 			activeTools[2] = over;
 		}
@@ -3291,7 +3291,7 @@ void menu_select_element(int b, Tool* over)
 				if (favMenu[j] == over->GetIdentifier())
 					pos = j; // If el is alredy on list, don't put it there twice
 			pos2 = pos;
-			if (sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL) && locked < 18 && pos < 18-locked)
+			if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && locked < 18 && pos < 18-locked)
 			{
 				lock = 1;
 			}
@@ -3304,7 +3304,7 @@ void menu_select_element(int b, Tool* over)
 			}
 			if (last != 0)
 				favMenu[last] = over->GetIdentifier();
-			if (sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL) && locked < 18 && pos2 <= 18-locked)
+			if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && locked < 18 && pos2 <= 18-locked)
 			{
 				locked = locked + 1;
 				save_presets(0);
@@ -3338,7 +3338,7 @@ void menu_select_element(int b, Tool* over)
 		else if (toolID >= HUD_START && toolID < HUD_START+HUD_NUM)
 		{
 		}
-		else if ((sdl_mod & (KMOD_LALT)) && (sdl_mod & (KMOD_CTRL)) && ((ElementTool*)over)->GetID() >= 0)
+		else if ((sdl_mod & (KMOD_LALT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && ((ElementTool*)over)->GetID() >= 0)
 		{
 			activeTools[2] = over;
 		}
@@ -3350,7 +3350,7 @@ void menu_select_element(int b, Tool* over)
 					pos = j; // If el is alredy on list, don't put it there twice
 			if (pos > 18-locked && locked != 18) lock = 1;
 			if (lock) last = 17;
-			if (pos > 17-locked && sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL) && locked > 0 && active_menu == SC_FAV)
+			if (pos > 17-locked && (sdl_mod & KMOD_SHIFT) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && locked > 0 && active_menu == SC_FAV)
 			{
 				std::string temp = favMenu[pos];
 				for (j = pos; j > 18-locked; j--)
@@ -3384,7 +3384,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 	int i = 0;
 	char isQuickoptionClicked = 0;
 	//normal quickoptions
-	if (!show_tabs && !(sdl_mod & KMOD_CTRL))
+	if (!show_tabs && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
 	{
 		while(quickmenu[i].icon!=NULL)
 		{
@@ -3495,7 +3495,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 		clickedQuickoption = -1;
 	if (clickedQuickoption >= 0 && !b && bq)
 	{
-		if (!show_tabs && !(sdl_mod & KMOD_CTRL))
+		if (!show_tabs && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
 		{
 			if (bq == 1)
 			{
@@ -3523,7 +3523,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 					tab_save(tab_num, 0);
 					num_tabs++;
 					tab_num = num_tabs;
-					if (sdl_mod & KMOD_CTRL)
+					if (sdl_mod & (KMOD_CTRL|KMOD_META))
 						NewSim();
 					tab_save(tab_num, 1);
 				}
@@ -3646,7 +3646,7 @@ int EventProcess(SDL_Event event)
 		{
 			sdl_wheel--;
 		}
-		if (event.key.keysym.sym=='q' && (sdl_mod & KMOD_CTRL))
+		if (event.key.keysym.sym=='q' && (sdl_mod & (KMOD_CTRL|KMOD_META)))
 		{
 			if (confirm_ui(vid_buf, "You are about to quit", "Are you sure you want to quit?", "Quit"))
 			{
@@ -4634,7 +4634,7 @@ int search_ui(pixel *vid_buf)
 		if ((b && !bq && mp!=-1 && !st && !uih) || do_open==1)
 		{
 			strcpy(search_expr, ed.str);
-			if (open_ui(vid_buf, search_ids[mp], search_dates[mp]?search_dates[mp]:NULL, sdl_mod&KMOD_CTRL) || do_open==1) {
+			if (open_ui(vid_buf, search_ids[mp], search_dates[mp]?search_dates[mp]:NULL, sdl_mod&(KMOD_CTRL|KMOD_META)) || do_open==1) {
 				goto finish;
 			}
 		}
@@ -5449,7 +5449,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							drawtext(vid_buf, 61+(XRES/2), ccy+60+comment_scroll, info->commentauthors[cc], r, g, bl, 255); //Draw author
 
 							if (b && !bq && mx > 61+(XRES/2) && mx < 61+(XRES/2)+textwidth(info->commentauthors[cc]) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll && my < YRES+MENUSIZE-76-ed.h+2)
-								if (sdl_mod & KMOD_CTRL) //open profile
+								if (sdl_mod & (KMOD_CTRL|KMOD_META)) //open profile
 								{
 									char link[128];
 									strcpy(link, "http://" SERVER "/User.html?Name=");
@@ -7488,7 +7488,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 				parts[i].tmp2 = framenum;
 				if (parts[i].ctype < numframes)
 					parts[i].ctype = numframes;
-				if (sdl_mod & (KMOD_CTRL))
+				if (sdl_mod & (KMOD_CTRL|KMOD_META))
 					parts[i].animations[numframes] = parts[i].animations[numframes-1];
 			}
 	}

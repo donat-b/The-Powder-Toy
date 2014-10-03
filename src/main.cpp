@@ -1793,7 +1793,7 @@ int main(int argc, char *argv[])
 					break;
 				}
 			}
-			if (sdl_key=='i' && (sdl_mod & KMOD_CTRL))
+			if (sdl_key=='i' && (sdl_mod & (KMOD_CTRL|KMOD_META)))
 			{
 				if(confirm_ui(vid_buf, "Install Powder Toy", "You are about to install The Powder Toy", "Install"))
 				{
@@ -1870,10 +1870,10 @@ int main(int argc, char *argv[])
 			if (sdl_key=='s')
 			{
 				//if stkm2 is out, you must be holding right ctrl, else just either ctrl
-				if ((globalSim->elementCount[PT_STKM2]>0 && (sdl_mod&KMOD_RCTRL)) || (globalSim->elementCount[PT_STKM2]<=0 && (sdl_mod&KMOD_CTRL)))
+				if ((globalSim->elementCount[PT_STKM2]>0 && (sdl_mod&KMOD_RCTRL)) || (globalSim->elementCount[PT_STKM2]<=0 && (sdl_mod&(KMOD_CTRL|KMOD_META))))
 					tab_save(tab_num, 1);
 				//if stkm2 is out, you must be holding left ctrl, else not be holding ctrl at all
-				else if ((globalSim->elementCount[PT_STKM2]>0 && (sdl_mod&KMOD_LCTRL)) || (globalSim->elementCount[PT_STKM2]<=0 && !(sdl_mod&KMOD_CTRL)))
+				else if ((globalSim->elementCount[PT_STKM2]>0 && (sdl_mod&(KMOD_LCTRL|KMOD_LMETA))) || (globalSim->elementCount[PT_STKM2]<=0 && !(sdl_mod&(KMOD_CTRL|KMOD_META))))
 				{
 					UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
 					save_mode = 1;
@@ -1883,12 +1883,12 @@ int main(int argc, char *argv[])
 			{
 				if (load_mode != 1)
 				{
-					if (sdl_mod & (KMOD_CTRL))
+					if (sdl_mod & (KMOD_CTRL|KMOD_META))
 					{
 						parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 						ctrlzSnapshot();
 					}
-					else if (!(sdl_mod & (KMOD_CTRL|KMOD_SHIFT)))
+					else if (!(sdl_mod & (KMOD_CTRL|KMOD_META|KMOD_SHIFT)))
 						((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->golGeneration = 0;
 				}
 			}
@@ -1902,7 +1902,7 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='o')
 			{
-				if  (sdl_mod & (KMOD_CTRL))
+				if  (sdl_mod & (KMOD_CTRL|KMOD_META))
 				{
 					catalogue_ui(vid_buf);
 				}
@@ -1923,21 +1923,21 @@ int main(int argc, char *argv[])
 				Engine* asdf = new Engine();
 				asdf->MainLoop();
 #endif
-				if (sdl_mod & (KMOD_CTRL))
+				if (sdl_mod & (KMOD_CTRL|KMOD_META))
 					display_mode = display_mode&DISPLAY_AIRV ? display_mode&!DISPLAY_AIRV:display_mode|DISPLAY_AIRV;
 				else
 					set_cmode(CM_VEL);
 			}
 			if (sdl_key=='2')
 			{
-				if (sdl_mod & (KMOD_CTRL))
+				if (sdl_mod & (KMOD_CTRL|KMOD_META))
 					display_mode = display_mode&DISPLAY_AIRP ? display_mode&!DISPLAY_AIRP:display_mode|DISPLAY_AIRP;
 				else
 					set_cmode(CM_PRESS);
 			}
 			if (sdl_key=='3')
 			{
-				if (sdl_mod & (KMOD_CTRL))
+				if (sdl_mod & (KMOD_CTRL|KMOD_META))
 				{
 					display_mode = display_mode&DISPLAY_PERS ? display_mode&!DISPLAY_PERS:display_mode|DISPLAY_PERS;
 					memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
@@ -1947,28 +1947,28 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='4')
 			{
-				if (sdl_mod & (KMOD_CTRL))
+				if (sdl_mod & (KMOD_CTRL|KMOD_META))
 					render_mode = render_mode&FIREMODE ? render_mode&~FIREMODE:render_mode|FIREMODE;
 				else
 					set_cmode(CM_FIRE);
 			}
 			if (sdl_key=='5')
 			{
-				if (sdl_mod & (KMOD_CTRL))
+				if (sdl_mod & (KMOD_CTRL|KMOD_META))
 					render_mode = render_mode&PMODE_BLOB ? render_mode&~PMODE_BLOB:render_mode|PMODE_BLOB;
 				else
 					set_cmode(CM_BLOB);
 			}
 			if (sdl_key=='6')
 			{
-				if (sdl_mod & (KMOD_CTRL))
+				if (sdl_mod & (KMOD_CTRL|KMOD_META))
 					colour_mode = colour_mode == COLOUR_HEAT ? 0:COLOUR_HEAT;
 				else
 					set_cmode(CM_HEAT);
 			}
 			if (sdl_key=='7')
 			{
-				if (sdl_mod & (KMOD_CTRL))
+				if (sdl_mod & (KMOD_CTRL|KMOD_META))
 					display_mode = display_mode&DISPLAY_WARP ? display_mode&!DISPLAY_WARP:display_mode|DISPLAY_WARP;
 				else
 					set_cmode(CM_FANCY);
@@ -1979,21 +1979,21 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='9')
 			{
-				if (sdl_mod & (KMOD_CTRL))
+				if (sdl_mod & (KMOD_CTRL|KMOD_META))
 					colour_mode = colour_mode == COLOUR_GRAD ? 0:COLOUR_GRAD;
 				else
 					set_cmode(CM_GRAD);
 			}
 			if (sdl_key=='0')
 			{
-				if (sdl_mod & (KMOD_CTRL))
+				if (sdl_mod & (KMOD_CTRL|KMOD_META))
 					display_mode = display_mode&DISPLAY_AIRC ? display_mode&!DISPLAY_AIRC:display_mode|DISPLAY_AIRC;
 				else
 				set_cmode(CM_CRACK);
 			}
 			if (sdl_key=='1'&& (sdl_mod & (KMOD_SHIFT)) && DEBUG_MODE)
 			{
-				if (sdl_mod & (KMOD_CTRL))
+				if (sdl_mod & (KMOD_CTRL|KMOD_META))
 					colour_mode = colour_mode == COLOUR_LIFE ? 0:COLOUR_LIFE;
 				else
 					set_cmode(CM_LIFE);
@@ -2018,15 +2018,15 @@ int main(int argc, char *argv[])
 				}
 				else
 				{
-					if (sdl_mod & (KMOD_LALT|KMOD_RALT) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL)))
+					if (sdl_mod & (KMOD_LALT|KMOD_RALT) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_META)))
 					{
 						currentBrush->ChangeRadius(Point(-1, -1));
 					}
-					else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL)))
+					else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
 					{
 						currentBrush->ChangeRadius(Point(-1, 0));
 					}
-					else if (sdl_mod & (KMOD_CTRL) && !(sdl_mod & (KMOD_SHIFT)))
+					else if (sdl_mod & (KMOD_CTRL|KMOD_META) && !(sdl_mod & (KMOD_SHIFT)))
 					{
 						currentBrush->ChangeRadius(Point(0, -1));
 					}
@@ -2048,15 +2048,15 @@ int main(int argc, char *argv[])
 				}
 				else
 				{
-					if (sdl_mod & (KMOD_LALT|KMOD_RALT) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL)))
+					if (sdl_mod & (KMOD_LALT|KMOD_RALT) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_META)))
 					{
 						currentBrush->ChangeRadius(Point(1, 1));
 					}
-					else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL)))
+					else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
 					{
 						currentBrush->ChangeRadius(Point(1, 0));
 					}
-					else if (sdl_mod & (KMOD_CTRL) && !(sdl_mod & (KMOD_SHIFT)))
+					else if (sdl_mod & (KMOD_CTRL|KMOD_META) && !(sdl_mod & (KMOD_SHIFT)))
 					{
 						currentBrush->ChangeRadius(Point(0, 1));
 					}
@@ -2066,7 +2066,7 @@ int main(int argc, char *argv[])
 					}
 				}
 			}
-			if ((sdl_key=='d' && ((sdl_mod & (KMOD_CTRL)) || globalSim->elementCount[PT_STKM2]<=0)) || sdl_key == SDLK_F3)
+			if ((sdl_key=='d' && ((sdl_mod & (KMOD_CTRL|KMOD_META)) || globalSim->elementCount[PT_STKM2]<=0)) || sdl_key == SDLK_F3)
 			{
 				DEBUG_MODE = !DEBUG_MODE;
 				SetCurrentHud();
@@ -2088,7 +2088,7 @@ int main(int argc, char *argv[])
 				SPECIFIC_DELETE = !SPECIFIC_DELETE;
 			else if (sdl_key == SDLK_SEMICOLON)
 			{
-				if (sdl_mod&KMOD_CTRL)
+				if (sdl_mod&(KMOD_CTRL|KMOD_META))
 					SPECIFIC_DELETE = !SPECIFIC_DELETE;
 				else
 					REPLACE_MODE = !REPLACE_MODE;
@@ -2100,7 +2100,7 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='b')
 			{
-				if (sdl_mod & KMOD_CTRL)
+				if (sdl_mod & (KMOD_CTRL|KMOD_META))
 				{
 					decorations_enable = !decorations_enable;
 					if (decorations_enable)
@@ -2128,7 +2128,7 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='g')
 			{
-				if(sdl_mod & (KMOD_CTRL))
+				if(sdl_mod & (KMOD_CTRL|KMOD_META))
 				{
 					drawgrav_enable =! drawgrav_enable;
 				}
@@ -2143,7 +2143,7 @@ int main(int argc, char *argv[])
 			if (sdl_key=='=')
 			{
 				int nx, ny;
-				if (sdl_mod & (KMOD_CTRL))
+				if (sdl_mod & (KMOD_CTRL|KMOD_META))
 				{
 					for (i=0; i < NPART; i++)
 						if (parts[i].type == PT_SPRK)
@@ -2174,7 +2174,7 @@ int main(int argc, char *argv[])
 				}
 			}
 
-			if (sdl_key=='w' && (globalSim->elementCount[PT_STKM2]<=0 || (sdl_mod & (KMOD_CTRL)))) //Gravity, by Moach
+			if (sdl_key=='w' && (globalSim->elementCount[PT_STKM2]<=0 || (sdl_mod & (KMOD_CTRL|KMOD_META)))) //Gravity, by Moach
 			{
 				++gravityMode; // cycle gravity mode
 
@@ -2229,17 +2229,17 @@ int main(int argc, char *argv[])
 				sys_pause = !sys_pause;
 			if (sdl_key=='u')
 			{
-				if (sdl_mod & KMOD_CTRL)
+				if (sdl_mod & (KMOD_CTRL|KMOD_META))
 					open_link("http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11117");
 				else
 					aheat_enable = !aheat_enable;
 
 			}
-			if (sdl_key=='h' && !(sdl_mod & KMOD_CTRL))
+			if (sdl_key=='h' && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
 			{
 				hud_enable = !hud_enable;
 			}
-			if (sdl_key==SDLK_F1 || (sdl_key=='h' && (sdl_mod & KMOD_CTRL)))
+			if (sdl_key==SDLK_F1 || (sdl_key=='h' && (sdl_mod & (KMOD_CTRL|KMOD_META))))
 			{
 				if (!GetToolTipAlpha(INTROTIP))
 				{
@@ -2252,7 +2252,7 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='n')
 			{
-				if (sdl_mod & KMOD_CTRL)
+				if (sdl_mod & (KMOD_CTRL|KMOD_META))
 				{
 					if (num_tabs < 24-GetNumMenus())
 					{
@@ -2301,7 +2301,7 @@ int main(int argc, char *argv[])
 				vector2d translate = v2d_zero;
 				void *ndata;
 				bool doTransform = true;
-				if (sdl_key=='r' && (sdl_mod & (KMOD_CTRL)) && (sdl_mod & (KMOD_SHIFT)))
+				if (sdl_key=='r' && (sdl_mod & (KMOD_CTRL|KMOD_META)) && (sdl_mod & (KMOD_SHIFT)))
 				{
 					transform = m2d_new(1,0,0,-1); //vertical invert
 				}
@@ -2475,15 +2475,15 @@ int main(int argc, char *argv[])
 			}
 			else //change brush size
 			{
-				if (!(sdl_mod & (KMOD_SHIFT|KMOD_CTRL)))
+				if (!(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_META)))
 				{
 					currentBrush->ChangeRadius(Point(sdl_wheel, sdl_wheel));
 				}
-				else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL)))
+				else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
 				{
 					currentBrush->ChangeRadius(Point(sdl_wheel, 0));
 				}
-				else if (sdl_mod & (KMOD_CTRL) && !(sdl_mod & (KMOD_SHIFT)))
+				else if (sdl_mod & (KMOD_CTRL|KMOD_META) && !(sdl_mod & (KMOD_SHIFT)))
 				{
 					currentBrush->ChangeRadius(Point(0, sdl_wheel));
 				}
@@ -3099,7 +3099,7 @@ int main(int argc, char *argv[])
 					//flood fill
 					else if (lm == 3)
 					{
-						if (!((sdl_mod&KMOD_CTRL) && (sdl_mod&KMOD_SHIFT)))
+						if (!((sdl_mod&(KMOD_CTRL|KMOD_META)) && (sdl_mod&KMOD_SHIFT)))
 							lb = 0;
 						else
 							activeTool->FloodFill(Point(mx, my));
@@ -3108,7 +3108,7 @@ int main(int argc, char *argv[])
 					{
 						if (sdl_mod & KMOD_SHIFT)
 							toolStrength = 10.0f;
-						else if (sdl_mod & KMOD_CTRL)
+						else if (sdl_mod & (KMOD_CTRL|KMOD_META))
 							toolStrength = .1f;
 						activeTool->DrawLine(currentBrush, Point(lx, ly), Point(mx, my), true);
 						lx = mx;
@@ -3123,24 +3123,24 @@ int main(int argc, char *argv[])
 					lb = b;
 					lm = 0;
 					//start line tool
-					if ((sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_CTRL)))
+					if ((sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
 					{
 						lm = 1;//line
 					}
 					//start box tool
-					else if ((sdl_mod & (KMOD_CTRL)) && !(sdl_mod & (KMOD_SHIFT)))
+					else if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & (KMOD_SHIFT)))
 					{
 						lm = 2;//box
 					}
 					//flood fill
-					else if ((sdl_mod & (KMOD_CTRL)) && (sdl_mod & (KMOD_SHIFT)) && (((ToolTool*)activeTool)->GetID() == -1 || ((ToolTool*)activeTool)->GetID() == TOOL_PROP))
+					else if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (sdl_mod & (KMOD_SHIFT)) && (((ToolTool*)activeTool)->GetID() == -1 || ((ToolTool*)activeTool)->GetID() == TOOL_PROP))
 					{
 						ctrlzSnapshot();
 						activeTool->FloodFill(Point(mx, my));
 						lm = 3;
 					}
 					//sample
-					else if (((sdl_mod & (KMOD_ALT)) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL))) || b==SDL_BUTTON_MIDDLE)
+					else if (((sdl_mod & (KMOD_ALT)) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_META))) || b==SDL_BUTTON_MIDDLE)
 					{
 						activeTools[activeToolID] = activeTool->Sample(Point(mx, my));
 						lb = 0;
@@ -3157,7 +3157,7 @@ int main(int argc, char *argv[])
 						//get tool strength, shift (or ctrl+shift) makes it faster and ctrl makes it slower
 						if (sdl_mod & KMOD_SHIFT)
 							toolStrength = 10.0f;
-						else if (sdl_mod & KMOD_CTRL)
+						else if (sdl_mod & (KMOD_CTRL|KMOD_META))
 							toolStrength = .1f;
 
 						activeTool->DrawPoint(currentBrush, Point(mx, my));

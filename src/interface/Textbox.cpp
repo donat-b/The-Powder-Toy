@@ -35,7 +35,7 @@ bool Textbox::DeleteHighlight()
 void Textbox::OnKeyPress(int key, unsigned short character, unsigned char modifiers)
 {
 	Label::OnKeyPress(key, character, modifiers);
-	if (modifiers&KMOD_CTRL)
+	if (modifiers & (KMOD_CTRL|KMOD_META))
 	{
 		switch (key)
 		{

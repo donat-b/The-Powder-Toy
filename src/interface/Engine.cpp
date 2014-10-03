@@ -50,7 +50,7 @@ bool Engine::EventProcess(SDL_Event event)
 			top->DoMouseWheel(0, 0, -1);
 		else if (event.key.keysym.sym == SDLK_ESCAPE)
 			return true;
-		if (event.key.keysym.sym == 'q' && (sdl_mod & KMOD_CTRL))
+		if (event.key.keysym.sym == 'q' && (sdl_mod & (KMOD_CTRL|KMOD_META)))
 		{
 			if (confirm_ui(vid_buf, "You are about to quit", "Are you sure you want to quit?", "Quit"))
 			{

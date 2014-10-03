@@ -247,7 +247,7 @@ int lastx = 0;
 int lasty = 0;
 void Label::OnKeyPress(int key, unsigned short character, unsigned char modifiers)
 {
-	if (modifiers&KMOD_CTRL)
+	if (modifiers & (KMOD_CTRL|KMOD_META))
 	{
 		switch (key)
 		{
