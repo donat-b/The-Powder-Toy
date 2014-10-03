@@ -3467,7 +3467,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 				}
 				else
 					toolTip = tabNames[i-1];
-				UpdateToolTip(toolTip, Point((XRES - 5) - textwidth(toolTip.c_str()), (i*16)+6), QTIP, 15);
+				UpdateToolTip(toolTip, Point((XRES - 5) - textwidth(toolTip.c_str()), (i*16)+6), QTIP, -1);
 
 				if (i > 0 && i <= num_tabs && tab_num != i)
 				{
