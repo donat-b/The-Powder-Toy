@@ -144,7 +144,6 @@ void luacon_open()
 		{"clear_sim",&luatpt_clear_sim},
 		{"reset_elements",&luatpt_reset_elements},
 		{"indestructible",&luatpt_indestructible},
-		{"moving_solid",&luatpt_moving_solid},
 		{"create_parts",&luatpt_create_parts},
 		{"create_line",&luatpt_create_line},
 		{"floodfill",&luatpt_floodfill},
@@ -2784,45 +2783,6 @@ int luatpt_indestructible(lua_State* l)
 		ptypes[el].properties &= ~PROP_INDESTRUCTIBLE;
 		globalSim->elements[el].Properties &= ~PROP_INDESTRUCTIBLE;
 	}
-	return 0;
-}
-
-int luatpt_moving_solid(lua_State* l)
-{
-	int el = 0, movs;
-	if(lua_isnumber(l, 1))
-	{
-		el = luaL_optint(l, 1, 0);
-		if (el<0 || el>=PT_NUM)
-			return luaL_error(l, "Unrecognised element number '%d'", el);
-	}
-	else
-	{
-		const char* name = luaL_optstring(l, 1, "");
-		if (!console_parse_type(name, &el, NULL))
-			return luaL_error(l, "Unrecognised element '%s'", name);
-	}
-	movs = luaL_optint(l, 2, 1);
-	if (movs)
-	{
-		ptypes[el].properties |= PROP_MOVS;
-		globalSim->elements[el].Properties |= PROP_MOVS;
-		ptypes[el].advection = globalSim->elements[el].Advection = ptypes[PT_MOVS].advection;
-		ptypes[el].airdrag = globalSim->elements[el].AirDrag = ptypes[PT_MOVS].airdrag;
-		ptypes[el].airloss = globalSim->elements[el].AirLoss = ptypes[PT_MOVS].airloss;
-		ptypes[el].gravity = globalSim->elements[el].Gravity = ptypes[PT_MOVS].gravity;
-		ptypes[el].loss = globalSim->elements[el].Loss = ptypes[PT_MOVS].loss;
-		ptypes[el].falldown = globalSim->elements[el].Falldown = ptypes[PT_MOVS].falldown;
-	}
-	else
-	{
-		if (globalSim->elements[el].Init)
-		{
-			globalSim->elements[el].Init(globalSim, &globalSim->elements[el], el);
-			Simulation_Compat_CopyData(globalSim);
-		}
-	}
-	init_can_move();
 	return 0;
 }
 

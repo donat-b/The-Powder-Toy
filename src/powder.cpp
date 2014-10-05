@@ -32,6 +32,7 @@
 #include "simulation/ElementDataContainer.h"
 #include "simulation/elements/PRTI.h"
 #include "simulation/elements/FIGH.h"
+#include "simulation/elements/MOVS.h"
 
 part_type ptypes[PT_NUM];
 part_transition ptransitions[PT_NUM];
@@ -57,9 +58,6 @@ int pmap_count[YRES][XRES];
 unsigned cb_pmap[YRES][XRES];
 unsigned photons[YRES][XRES];
 int NUM_PARTS = 0;
-
-float msvx[256], msvy[256], msrotation[256], newmsrotation[256];
-int msindex[256], msnum[256], numballs = 0, ms_rotation = 1;
 
 void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float *pGravX, float *pGravY)
 {
@@ -221,8 +219,6 @@ void init_can_move()
 			can_move[movingType][PT_VIBR] = 1;
 			can_move[movingType][PT_BVBR] = 1;
 		}
-		if (ptypes[movingType].properties&PROP_MOVS)
-			can_move[movingType][movingType] = 2;
 	}
 	//a list of lots of things PHOT can move through
 	for (destinationType = 0; destinationType < PT_NUM; destinationType++)
@@ -272,6 +268,7 @@ void init_can_move()
 	can_move[PT_THDR][PT_THDR] = 2;
 	can_move[PT_EMBR][PT_EMBR] = 2;
 	can_move[PT_TRON][PT_SWCH] = 3;
+	can_move[PT_MOVS][PT_MOVS] = 2;
 }
 
 /*
@@ -687,13 +684,12 @@ int move(int i, int x, int y, float nxf, float nyf)
 		else if ((photons[y][x]>>8)==i) photons[y][x] = 0;
 		if (OutOfBounds(nx, ny))//kill_part if particle is out of bounds
 		{
-			if (!(ptypes[t].properties&PROP_MOVS) || (parts[i].tmp2 < 0 || parts[i].tmp2 > 255 || !msindex[parts[i].tmp2]))
-				kill_part(i);
+			kill_part(i);
 			return -1;
 		}
 		if (ptypes[t].properties & TYPE_ENERGY)
 			photons[ny][nx] = t|(i<<8);
-		else if (t && (pmap[ny][nx]&0xFF) != PT_PINV && (!(ptypes[t].properties&PROP_MOVS) || !(pmap[ny][nx]&0xFF) || (ptypes[pmap[ny][nx]&0xFF].properties&PROP_MOVS)))
+		else if (t && (pmap[ny][nx]&0xFF) != PT_PINV && (t!=PT_MOVS || !(pmap[ny][nx]&0xFF)))
 			pmap[ny][nx] = t|(i<<8);
 		else if (t && (pmap[ny][nx]&0xFF) == PT_PINV)
 			parts[pmap[ny][nx]>>8].tmp2 = t|(i<<8);
@@ -1587,85 +1583,6 @@ void particle_transitions(int i, int *t)
 		parts[i].life = rand()%50+120;
 }
 
-void rotate(float *x, float *y, float angle);
-
-void update_moving_solids()
-{
-	if (numballs == 0)
-		return;
-	for (int bn = 0; bn < numballs; bn++)
-	{
-		msvx[bn] = msvx[bn]/msnum[bn];
-		msvy[bn] = msvy[bn]/msnum[bn];
-		switch (gravityMode)
-		{
-		case 0:
-			msvy[bn] = msvy[bn] + .2;
-			break;
-		case 1:
-			break;
-		case 2:
-			float pGravD = 0.01f - hypotf((parts[msindex[bn]-1].x - XCNTR), (parts[msindex[bn]-1].y - YCNTR));
-			msvx[bn] = msvx[bn] + .2 * ((parts[msindex[bn]-1].x - XCNTR) / pGravD);
-			msvy[bn] = msvy[bn] + .2 * ((parts[msindex[bn]-1].y - YCNTR) / pGravD);
-			break;
-		}
-		msrotation[bn] = newmsrotation[bn];
-		if (!ms_rotation)
-		{
-			msrotation[bn] = 0;
-		}
-		else if (msrotation[bn] > 2*M_PI)
-		{
-			msrotation[bn] -= 2*M_PI;
-		}
-		else if (msrotation[bn] < -2*M_PI)
-		{
-			msrotation[bn] += 2*M_PI;
-		}
-	}
-	for (int i = 0; i <= globalSim->parts_lastActiveIndex; i++)
-	{
-		if (ptypes[parts[i].type].properties&PROP_MOVS)
-		{
-			int bn = parts[i].tmp2;
-			if (bn < 0 || bn > 255)
-				continue;
-			if (msindex[bn])
-			{
-				float tmp = parts[i].pavg[0];
-				float tmp2 = parts[i].pavg[1];
-				if (ms_rotation)
-					rotate(&tmp, &tmp2, msrotation[bn]);
-				float nx = parts[msindex[bn]-1].x + tmp;
-				float ny = parts[msindex[bn]-1].y + tmp2;
-				move(i,(int)(parts[i].x+.5f),(int)(parts[i].y+.5f),nx,ny);
-
-				if (ms_rotation)
-				{
-					rotate(&tmp, &tmp2, .02f);
-					if (parts[msindex[bn]-1].x + tmp != nx || parts[msindex[bn]-1].y + tmp2 != ny)
-					{
-						int j = globalSim->part_create(-1, (int)(parts[msindex[bn]-1].x + tmp), (int)(parts[msindex[bn]-1].y + tmp2), parts[i].type);
-						if (j >= 0)
-							parts[j].flags |= FLAG_DISAPPEAR;
-					}
-				}
-
-				parts[i].vx = msvx[bn];
-				parts[i].vy = msvy[bn];
-			}
-			if (OutOfBounds((int)(parts[i].x+.5f), (int)(parts[i].y+.5f)))//kill_part if particle is out of bounds
-				kill_part(i);
-		}
-	}
-	for (int bn = 0; bn < numballs; bn++)
-	{
-		msvx[bn] = 0;
-		msvy[bn] = 0;
-	}
-}
-
 void clear_area(int area_x, int area_y, int area_w, int area_h)
 {
 	int cx = 0;
@@ -1745,43 +1662,6 @@ int flood_water(int x, int y, int i, int originaly, int check)
 				if (!flood_water(x, y+1, i, originaly, check))
 					return 0;
 	return 1;
-}
-
-void create_moving_solid(int x, int y, int type, Brush* brush)
-{
-	int index, i, j, rx = brush->GetRadius().X, ry = brush->GetRadius().Y;
-	//max of 255 moving solids for now
-	if (numballs >= 255)
-		return;
-
-	//create the center "control" particle, set it's default properties and init moving solid variables
-	index = create_part(-2, x, y, type);
-	if (index < 0)
-		return;
-	parts[index].tmp2 = numballs;
-	parts[index].pavg[0] = 0;
-	parts[index].pavg[1] = 0;
-	msindex[numballs] = index+1;
-	msnum[numballs] = 1;
-	msvx[numballs] = 0;
-	msvy[numballs] = 0;
-	msrotation[numballs] = 0;
-
-	numballs = numballs + 1;
-
-	for (j=-ry; j<=ry; j++)
-		for (i=-rx; i<=rx; i++)
-			if (brush->IsInside(i ,j) && (i || j))
-			{
-				index = create_part(-2, x+i, y+j, type);
-				if (index < 0)
-					continue;
-				//set which ball # it belongs to, and which position in the ball it is
-				parts[index].tmp2 = numballs-1;
-				parts[index].pavg[0] = x+i - parts[msindex[numballs-1]-1].x;
-				parts[index].pavg[1] = y+j - parts[msindex[numballs-1]-1].y;
-				msnum[numballs-1]++;
-			}
 }
 
 int get_brush_flags()

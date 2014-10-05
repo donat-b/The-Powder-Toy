@@ -26,16 +26,12 @@ Tool::Tool(int toolType, int toolID, std::string toolIdentifier):
 
 int Tool::DrawPoint(Brush* brush, Point position)
 {
-	if (globalSim->elements[ID].Properties&PROP_MOVS)
-		create_moving_solid(position.X, position.Y, ID, brush);
-	else
-		return globalSim->CreateParts(position.X, position.Y, ID, get_brush_flags(), true, brush);
-	return 0;
+	return globalSim->CreateParts(position.X, position.Y, ID, get_brush_flags(), true, brush);
 }
 
 void Tool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 {
-	if (held && (globalSim->elements[ID].Properties&PROP_MOVS))
+	if (held && ID == PT_MOVS)
 		return;
 	if (ID == PT_STKM || ID == PT_STKM2 || ID == PT_FIGH)
 		return;

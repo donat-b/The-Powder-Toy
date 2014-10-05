@@ -44,6 +44,9 @@ public:
 	int pfree;
 	int parts_lastActiveIndex;
 	bool forceStackingCheck;
+
+	//settings
+	bool msRotation;
 	
 
 
@@ -57,7 +60,6 @@ public:
 	void part_kill(int i);
 	bool part_change_type(int i, int x, int y, int t);
 	void part_change_type_force(int i, int t);
-	void delete_part_info(int i);
 
 	void RecalcFreeParticles();
 	void Update();

@@ -24,6 +24,7 @@
 //Simulation stuff
 #include "Element.h"
 #include "ElementDataContainer.h"
+#include "simulation/elements/MOVS.h"
 #include "Tool.h"
 #include "Simulation.h"
 #include "CoordStack.h"
@@ -43,7 +44,8 @@ Simulation::Simulation():
 	pfree(-1),
 	parts_lastActiveIndex(NPART-1),
 	forceStackingCheck(false),
-	lightningRecreate(0)
+	lightningRecreate(0),
+	msRotation(true)
 {
 	memset(elementData, 0, sizeof(elementData));
 	Clear();
@@ -236,7 +238,6 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 			(*(elements[oldType].Func_ChangeType))(this, p, oldX, oldY, oldType, t);
 		}
 		if (oldType) elementCount[oldType]--;
-		delete_part_info(p);
 		pmap_remove(p, oldX, oldY);
 		i = p;
 	}
@@ -282,14 +283,6 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 		(*(elements[t].Func_Create))(this, i, x, y, t, v);
 	}
 
-	//default moving solid values, not part of any ball and random "bounciness"
-	if (elements[t].Properties & PROP_MOVS)
-	{
-		parts[i].tmp2 = 255;
-		parts[i].pavg[0] = (float)(rand()%20);
-		parts[i].pavg[1] = (float)(rand()%20);
-	}
-
 	pmap_add(i, x, y, t);
 
 	if (elements[t].Func_ChangeType)
@@ -322,7 +315,6 @@ bool Simulation::part_change_type(int i, int x, int y, int t)//changes the type 
 
 	if (!elements[t].Enabled)
 		t = PT_NONE;
-	delete_part_info(i);
 
 	parts[i].type = t;
 	pmap_remove(i, x, y);
@@ -359,7 +351,6 @@ void Simulation::part_change_type_force(int i, int t)
 
 	int oldType = parts[i].type;
 	if (oldType) elementCount[oldType]--;
-	delete_part_info(i);
 	parts[i].type = t;
 	pmap_remove(i, x, y);
 	if (t)
@@ -390,7 +381,6 @@ void Simulation::part_kill(int i)//kills particle number i
 	{
 		(*(elements[t].Func_ChangeType))(this, i, x, y, t, PT_NONE);
 	}
-	delete_part_info(i);
 
 	if (x>=0 && y>=0 && x<XRES && y<YRES)
 		pmap_remove(i, x, y);
@@ -398,21 +388,6 @@ void Simulation::part_kill(int i)//kills particle number i
 		return;
 	if (t) elementCount[t]--;
 	part_free(i);
-}
-
-//delete some extra info that isn't specific to just one particle (TODO: maybe remove tpt.moving_solid()?)
-void Simulation::delete_part_info(int i)
-{
-	if (elements[parts[i].type].Properties & PROP_MOVS)
-	{
-		int bn = parts[i].tmp2;
-		if (bn >= 0 && bn < 256)
-		{
-			msnum[bn]--;
-			if (msindex[bn]-1 == i)
-				msindex[bn] = 0;
-		}
-	}
 }
 
 /* Recalculates the pfree/parts[].life linked list for particles with ID <= parts_lastActiveIndex.
@@ -432,10 +407,6 @@ void Simulation::RecalcFreeParticles()
 	NUM_PARTS = 0;
 	for (int i = 0; i <= parts_lastActiveIndex; i++)//the particle loop that resets the pmap/photon maps every frame, to update them.
 	{
-		if (parts[i].flags&FLAG_DISAPPEAR)
-		{
-			part_kill(i);
-		}
 		if (parts[i].type)
 		{
 			t = parts[i].type;
@@ -453,13 +424,13 @@ void Simulation::RecalcFreeParticles()
 				{
 					// Particles are sometimes allowed to go inside INVS and FILT
 					// To make particles collide correctly when inside these elements, these elements must not overwrite an existing pmap entry from particles inside them
-					if (!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT && !(elements[t].Properties&PROP_MOVS) && (pmap[y][x]&0xFF) != PT_PINV))
+					if (!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT && t != PT_MOVS && (pmap[y][x]&0xFF) != PT_PINV))
 						pmap[y][x] = t|(i<<8);
 					else if ((pmap[y][x]&0xFF) == PT_PINV)
 						parts[pmap[y][x]>>8].tmp2 = t|(i<<8);
 					// Count number of particles at each location, for excess stacking check
 					// (does not include energy particles or THDR - currently no limit on stacking those)
-					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM && !(elements[t].Properties&PROP_MOVS))
+					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM && t!=PT_MOVS)
 						pmap_count[y][x]++;
 				}
 			}
@@ -601,22 +572,18 @@ void Simulation::Update()
 		for (int i = 0; i <= parts_lastActiveIndex; i++)
 			if (parts[i].type)
 			{
-				if (!UpdateParticle(i))
-				{
-					if (elements[parts[i].type].Properties&PROP_MOVS)
-					{
-						int bn = parts[i].tmp2;
-						if (bn >= 0 && bn < 256 && msindex[bn])
-						{
-							msvx[bn] = msvx[bn] + parts[i].vx;
-							msvy[bn] = msvy[bn] + parts[i].vy;
-						}
-					}
-				}
+				UpdateParticle(i);
 			}
 
-		//update moving solid info
-		update_moving_solids();
+		//For elements with extra data, run special update functions
+		//Used only for moving solids
+		for (int t = 1; t < PT_NUM; t++)
+		{
+			if (elementData[t])
+			{
+				elementData[t]->Simulation_AfterUpdate(this);
+			}
+		}
 
 		currentTick++;
 	}
@@ -666,7 +633,7 @@ bool Simulation::UpdateParticle(int i)
 		   (bmap[y/CELL][x/CELL] == WL_ALLOWENERGY && !(elements[t].Properties&TYPE_ENERGY)) ||
 		   (bmap[y/CELL][x/CELL] == WL_DETECT && (t==PT_METL || t==PT_SPRK)) ||
 		   (bmap[y/CELL][x/CELL] == WL_EWALL && !emap[y/CELL][x/CELL])
-		  ) && t!=PT_STKM && t!=PT_STKM2 && t!=PT_FIGH && !(elements[t].Properties&PROP_MOVS)))
+		  ) && t!=PT_STKM && t!=PT_STKM2 && t!=PT_FIGH))
 	{
 		part_kill(i);
 		return true;
@@ -713,7 +680,7 @@ bool Simulation::UpdateParticle(int i)
 			}
 		}
 	}
-	if (elements[t].Gravity || !(elements[t].Properties & TYPE_SOLID) || (elements[t].Properties & PROP_MOVS))
+	if (elements[t].Gravity || !(elements[t].Properties & TYPE_SOLID))
 	{
 
 		//Gravity mode by Moach
@@ -891,11 +858,6 @@ bool Simulation::UpdateParticle(int i)
 				if (BCLN_update(this, i, x, y, surround_space, nt))
 					return true;
 			}
-		}
-		if (elements[t].Properties&PROP_MOVS)
-		{
-			if (MOVS_update(this, i, x, y, surround_space, nt))
-				return true;
 		}
 		if (elements[t].Update)
 		{
@@ -1529,6 +1491,12 @@ int Simulation::CreateParts(int x, int y, int c, int flags, bool fill, Brush* br
 		if (newtmp > 300)
 			newtmp = 300;
 		c = c|newtmp<<8;
+	}
+	else if (c == PT_MOVS)
+	{
+		if (CreatePartFlags(x, y, c|1<<8, flags) && !((MOVS_ElementDataContainer*)this->elementData[PT_MOVS])->IsCreatingSolid())
+			return 1;
+		c = c|2<<8;
 	}
 
 	if (rx<=0) //workaround for rx == 0 crashing. todo: find a better fix later.

@@ -3107,7 +3107,7 @@ void menu_draw_text(Tool* over, int y)
 		toolTip << fav[toolID-FAV_START].description;
 		if (toolID == FAV_ROTATE)
 		{
-			if (ms_rotation)
+			if (globalSim->msRotation)
 				toolTip << "on";
 			else
 				toolTip << "off";
@@ -3188,7 +3188,7 @@ void menu_select_element(int b, Tool* over)
 			else if (toolID == FAV_INFO)
 				drawinfo = !drawinfo;
 			else if (toolID == FAV_ROTATE)
-				ms_rotation = !ms_rotation;
+				globalSim->msRotation = !globalSim->msRotation;
 			else if (toolID == FAV_HEAT)
 				heatmode = (heatmode + 1)%3;
 			else if (toolID == FAV_LUA)

@@ -422,13 +422,6 @@ void clear_sim()
 			hv[y][x] = outside_temp; //Set to room temperature (or whatever the default air temp was changed to)
 		}
 	}
-	numballs = 0;
-	memset(msindex, 0, sizeof(msindex));
-	memset(msnum, 0, sizeof(msnum));
-	memset(msvx, 0, sizeof(msvx));
-	memset(msvy, 0, sizeof(msvy));
-	memset(msrotation, 0, sizeof(msrotation));
-	memset(newmsrotation, 0, sizeof(newmsrotation));
 	player.spawnID = player2.spawnID = -1;
 	player.spwn = player2.spwn = 0;
 	finding &= 0x8;

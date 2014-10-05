@@ -23,6 +23,7 @@ public:
 	virtual ~ElementDataContainer() {}
 	virtual void Simulation_Cleared(Simulation *sim) {}
 	virtual void Simulation_BeforeUpdate(Simulation *sim) {}
+	virtual void Simulation_AfterUpdate(Simulation *sim) {}
 };
 
 #endif

@@ -74,9 +74,8 @@
 #define PROP_POWERED		0x0100000 //2^20 Makes an element turn on/off with PSCN/NSCN
 #define PROP_SPARKSETTLE	0x0200000 //2^21 Allow Sparks/Embers to settle
 #define PROP_NOAMBHEAT      0x0400000 //2^23 Don't transfer or receive heat from ambient heat.
-#define PROP_MOVS			0x0800000 //2^24 Moving solids!
-#define PROP_DRAWONCTYPE	0x1000000 //2^25 Set its ctype to another element if the element is drawn upon it (like what CLNE does)
-#define PROP_NOCTYPEDRAW	0x2000000 // 2^26 When this element is drawn upon with, do not set ctype (like BCLN for CLNE) 
+#define PROP_DRAWONCTYPE	0x0800000 //2^24 Set its ctype to another element if the element is drawn upon it (like what CLNE does)
+#define PROP_NOCTYPEDRAW	0x1000000 //2^25 When this element is drawn upon with, do not set ctype (like BCLN for CLNE)
 
 #define FLAG_STAGNANT	0x1
 #define FLAG_SKIPMOVE	0x2  // Skip movement for one frame
@@ -235,15 +234,6 @@ extern int pmap_count[YRES][XRES];
 
 extern unsigned photons[YRES][XRES];
 
-extern int msindex[256];
-extern int msnum[256];
-extern float msvx[256];
-extern float msvy[256];
-extern float msrotation[256];
-extern float newmsrotation[256];
-extern int numballs;
-extern int ms_rotation;
-
 int get_normal_interp(int pt, float x0, float y0, float dx, float dy, float *nx, float *ny);
 int get_wavelength_bin(int *wm);
 
@@ -291,8 +281,6 @@ int transfer_heat(int i, int surround[8]);
 
 void particle_transitions(int i, int* t);
 
-void update_moving_solids();
-
 void rotate_area(int area_x, int area_y, int area_w, int area_h, int invert);
 
 void clear_area(int area_x, int area_y, int area_w, int area_h);
@@ -300,8 +288,6 @@ void clear_area(int area_x, int area_y, int area_w, int area_h);
 int INST_flood_spark(Simulation *sim, int x, int y);
 
 int flood_water(int x, int y, int i, int originaly, int check);
-
-void create_moving_solid(int x, int y, int type, Brush* brush);
 
 void orbitalparts_get(int block1, int block2, int resblock1[], int resblock2[]);
 void orbitalparts_set(int *block1, int *block2, int resblock1[], int resblock2[]);

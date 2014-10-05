@@ -14,6 +14,7 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "MOVS.h"
 
 void rotate(float *x, float *y, float angle)
 {
@@ -26,10 +27,12 @@ int MOVS_update(UPDATE_FUNC_ARGS)
 {
 	int bn = parts[i].tmp2, type, bounce = 2, t = parts[i].type;
 	float tmp = parts[i].pavg[0], tmp2 = parts[i].pavg[1];
-	if (bn < 0 || bn > 255)
+
+	MovingSolid *movingSolid = ((MOVS_ElementDataContainer*)sim->elementData[PT_MOVS])->GetMovingSolid(bn);
+	if (!movingSolid || (parts[i].flags&FLAG_DISAPPEAR))
 		return 0;
 	//center control particle was killed, ball slowly falls apart
-	if (!msindex[bn])
+	if (!movingSolid->index)
 	{
 		if (rand()%500<1)
 		{
@@ -42,8 +45,8 @@ int MOVS_update(UPDATE_FUNC_ARGS)
 	{
 		tmp = parts[i].pavg[0];
 		tmp2 = parts[i].pavg[1];
-		if (ms_rotation)
-			rotate(&tmp, &tmp2, msrotation[bn]);
+		if (sim->msRotation)
+			rotate(&tmp, &tmp2, movingSolid->rotationOld);
 	}
 	//kill moving solid control particle with a lot of pressure (other ones disappear at 30 pressure)
 	if (!tmp && !tmp2 && pv[y/CELL][x/CELL] > 10 || pv[y/CELL][x/CELL] < -10)
@@ -56,30 +59,69 @@ int MOVS_update(UPDATE_FUNC_ARGS)
 	if (tmp2 > 0 && type && y+1 < YRES && ((type != t && !eval_move(t, x, y+1, NULL)) || (type == t && parts[pmap[y+1][x]>>8].tmp2 != bn) || IsWallBlocking(x, y+1, t)))
 	{
 		parts[i].vy -= tmp2*bounce;
-		newmsrotation[bn] -= tmp/50000;
+		movingSolid->rotation -= tmp/50000;
 	}
 	type = pmap[y-1][x]&0xFF;
 	//top side collision
 	if (tmp2 < 0 && type && y-1 >= 0 && ((type != t && !eval_move(t, x, y-1, NULL)) || (type == t && parts[pmap[y-1][x]>>8].tmp2 != bn) || IsWallBlocking(x, y-1, t)))
 	{
 		parts[i].vy -= tmp2*bounce;
-		newmsrotation[bn] -= tmp/50000;
+		movingSolid->rotation -= tmp/50000;
 	}
 	type = pmap[y][x+1]&0xFF;
 	//right side collision
 	if (tmp > 0 && type && x+1 < XRES && ((type != t && !eval_move(t, x+1, y, NULL)) || (type == t && parts[pmap[y][x+1]>>8].tmp2 != bn) || IsWallBlocking(x+1, y, t)))
 	{
 		parts[i].vx -= tmp*bounce;
-		newmsrotation[bn] -= tmp/50000;
+		movingSolid->rotation -= tmp/50000;
 	}
 	type = pmap[y][x-1]&0xFF;
 	//left side collision
 	if (tmp < 0 && type && x-1 >= 0 && ((type != t && !eval_move(t, x-1, y, NULL)) || (type == t && parts[pmap[y][x-1]>>8].tmp2 != bn) || IsWallBlocking(x-1, y, t)))
 	{
 		parts[i].vx -= tmp*bounce;
-		newmsrotation[bn] -= tmp/50000;
+		movingSolid->rotation -= tmp/50000;
 	}
 	return 0;
+}
+
+bool MOVS_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
+{
+	if (((MOVS_ElementDataContainer*)sim->elementData[PT_MOVS])->GetNumBalls() >= 255 || (pmap[y][x]&0xFF))
+		return false;
+	return true;
+}
+
+void MOVS_create(ELEMENT_CREATE_FUNC_ARGS)
+{
+	if (v == 2 || ((MOVS_ElementDataContainer*)sim->elementData[PT_MOVS])->IsCreatingSolid())
+	{
+		((MOVS_ElementDataContainer*)sim->elementData[PT_MOVS])->CreateMovingSolid(i, x, y);
+	}
+	else if (v == 1)
+	{
+		((MOVS_ElementDataContainer*)sim->elementData[PT_MOVS])->CreateMovingSolidCenter(i);
+	}
+	else
+	{
+		parts[i].tmp2 = 255;
+		parts[i].pavg[0] = rand()%20-10.0f;
+		parts[i].pavg[1] = rand()%20-10.0f;
+	}
+}
+
+void MOVS_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
+{
+	if (to != PT_MOVS)
+	{
+		MovingSolid *movingSolid = ((MOVS_ElementDataContainer*)sim->elementData[PT_MOVS])->GetMovingSolid(parts[i].tmp2);
+		if (movingSolid && !(parts[i].flags&FLAG_DISAPPEAR))
+		{
+			movingSolid->particleCount--;
+			if (movingSolid->index-1 == i)
+				movingSolid->index = 0;
+		}
+	}
 }
 
 void MOVS_init_element(ELEMENT_INIT_FUNC_ARGS)
@@ -114,7 +156,7 @@ void MOVS_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Description = "Moving solid. Acts like a bouncy ball.";
 
 	elem->State = ST_NONE;
-	elem->Properties = TYPE_PART|PROP_MOVS;
+	elem->Properties = TYPE_PART;
 
 	elem->LowPressureTransitionThreshold = -25.0f;
 	elem->LowPressureTransitionElement = PT_NONE;
@@ -125,7 +167,16 @@ void MOVS_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = NULL;
+	elem->Update = &MOVS_update;
 	elem->Graphics = NULL;
+	elem->Func_Create_Allowed = &MOVS_create_allowed;
+	elem->Func_Create = &MOVS_create;
+	elem->Func_ChangeType = &MOVS_ChangeType;
 	elem->Init = &MOVS_init_element;
+
+	if (sim->elementData[t])
+	{
+		delete sim->elementData[t];
+	}
+	sim->elementData[t] = new MOVS_ElementDataContainer;
 }
