@@ -32,7 +32,6 @@
 #include "simulation/ElementDataContainer.h"
 #include "simulation/elements/PRTI.h"
 #include "simulation/elements/FIGH.h"
-#include "simulation/elements/MOVS.h"
 
 part_type ptypes[PT_NUM];
 part_transition ptransitions[PT_NUM];

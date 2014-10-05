@@ -1359,7 +1359,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	unsigned char * inputData = (unsigned char*)save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *pressData = NULL, *vxData = NULL, *vyData = NULL, *soapLinkData = NULL, *movsData = NULL;
 	int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, fanDataLen, wallDataLen, pressDataLen, vxDataLen, vyDataLen, soapLinkDataLen, movsDataLen;
 	unsigned partsCount = 0, *partsSimIndex = NULL;
-	int i, freeIndicesCount, x, y, returnCode = 0, j, oldnumballs = ((MOVS_ElementDataContainer*)globalSim->elementData[PT_MOVS])->GetNumBalls(), modsave = 0;
+	int i, freeIndicesCount, x, y, returnCode = 0, j, modsave = 0;
 	int *freeIndices = NULL;
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	int saved_version = inputData[4];
@@ -1431,7 +1431,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	{
 		//Remove everything
 		clear_sim();
-		oldnumballs = 0;
 		erase_bframe();
 		if (replace == 1)
 		{
@@ -2328,7 +2327,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		}
 		if (movsData)
 		{
-			int movsDataPos = 0;
+			int movsDataPos = 0, numBalls = ((MOVS_ElementDataContainer*)globalSim->elementData[PT_MOVS])->GetNumBalls();
 			int solids[MAX_MOVING_SOLIDS];
 			memset(solids, 0, sizeof(solids));
 			for (int i = 0; i < movsDataLen/2; i++)
@@ -2336,8 +2335,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				int bn = movsData[movsDataPos++];
 				if (bn >= 0 && bn < MAX_MOVING_SOLIDS)
 				{
-					solids[bn] = oldnumballs;
-					MovingSolid *movingSolid = ((MOVS_ElementDataContainer*)globalSim->elementData[PT_MOVS])->GetMovingSolid(oldnumballs++);
+					solids[bn] = numBalls;
+					MovingSolid *movingSolid = ((MOVS_ElementDataContainer*)globalSim->elementData[PT_MOVS])->GetMovingSolid(numBalls++);
 					if (movingSolid)
 					{
 						movingSolid->Simulation_Cleared();
@@ -2345,7 +2344,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					}
 				}
 			}
-			((MOVS_ElementDataContainer*)globalSim->elementData[PT_MOVS])->SetNumBalls(oldnumballs);
+			((MOVS_ElementDataContainer*)globalSim->elementData[PT_MOVS])->SetNumBalls(numBalls);
 			for (int i = 0; i < partsCount; i++)
 			{
 				if (partsSimIndex[i] && partsptr[partsSimIndex[i]-1].type == PT_MOVS)
