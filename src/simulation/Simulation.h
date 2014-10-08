@@ -46,7 +46,8 @@ public:
 	bool forceStackingCheck;
 
 	//settings
-	bool msRotation;
+	bool msRotation; //for moving solids
+	int maxFrames;   //for animated LCRY
 	
 
 

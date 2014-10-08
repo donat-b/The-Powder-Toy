@@ -45,7 +45,8 @@ Simulation::Simulation():
 	parts_lastActiveIndex(NPART-1),
 	forceStackingCheck(false),
 	lightningRecreate(0),
-	msRotation(true)
+	msRotation(true),
+	maxFrames(25)
 {
 	memset(elementData, 0, sizeof(elementData));
 	Clear();
@@ -192,17 +193,6 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 			return -1;
 	}
 	// End Brush Creation
-
-	// If the element has a Func_Create_Override, use that instead of the rest of this function
-	if (elements[t].Func_Create_Override)
-	{
-		int ret = (*(elements[t].Func_Create_Override))(this, p, x, y, t);
-
-		// returning -4 means continue with part_create as though there was no override function
-		// Useful if creation should be blocked in some conditions, but otherwise no changes to this function (e.g. SPWN)
-		if (ret!=-4)
-			return ret;
-	}
 
 	if (elements[t].Func_Create_Allowed)
 	{
@@ -2450,7 +2440,8 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 
 	if (parts[rp>>8].type == PT_ANIM)
 	{
-		parts[rp>>8].animations[framenum] = parts[rp>>8].dcolour;
+		if (parts[rp>>8].tmp2 >= 0 && parts[rp>>8].tmp2 < maxFrames)
+			parts[rp>>8].animations[parts[rp>>8].tmp2] = parts[rp>>8].dcolour;
 	}
 }
 

@@ -21,6 +21,7 @@ char tempstring[256] = "";
 char timeinfotext[512] = "";
 char infotext[512] = "";
 int wavelength_gfx = 0;
+int frameNum = 0; //for animated LCRY
 
 int normalHud[HUD_OPTIONS];
 int debugHud[HUD_OPTIONS];
@@ -181,6 +182,8 @@ void SetRightHudText(int x, int y)
 			}
 			if (currentHud[45] && ((cr&0xFF)==PT_PHOT || (cr&0xFF)==PT_BIZR || (cr&0xFF)==PT_BIZRG || (cr&0xFF)==PT_BIZRS || (cr&0xFF)==PT_FILT || (cr&0xFF)==PT_BRAY))
 				wavelength_gfx = parts[cr>>8].ctype;
+			if ((cr&0xFF) == PT_ANIM)
+				frameNum = parts[cr>>8].tmp2+1;
 		}
 		else if (wl && currentHud[48])
 		{
@@ -337,10 +340,11 @@ void SetLeftHudText(float FPSB2)
 		sprintf(tempstring, "[GRID: %d] ", GRID_MODE);
 		strappend(uitext, tempstring);
 	}
-	if (active_menu == SC_DECO && globalSim->elementCount[PT_ANIM] > 0)
+	if (active_menu == SC_DECO && frameNum)
 	{
-		sprintf(tempstring,"[Frame %i/%i] ",framenum+1,maxframes);
+		sprintf(tempstring,"[Frame %i/%i] ",frameNum,globalSim->maxFrames);
 		strappend(uitext, tempstring);
+		frameNum = 0;
 	}
 #ifdef INTERNAL
 	if (vs)

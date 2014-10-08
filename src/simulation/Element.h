@@ -33,7 +33,6 @@ class Simulation;
 #define GRAPHICS_FUNC_ARGS Simulation *sim, particle *cpart, int nx, int ny, int *pixel_mode, int* cola, int *colr, int *colg, int *colb, int *firea, int *firer, int *fireg, int *fireb
 #define GRAPHICS_FUNC_SUBCALL_ARGS sim, cpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb
 #define ELEMENT_CREATE_FUNC_ARGS Simulation *sim, int i, int x, int y, int t, int v
-#define ELEMENT_CREATE_OVERRIDE_FUNC_ARGS Simulation *sim, int p, int x, int y, int t
 #define ELEMENT_CREATE_ALLOWED_FUNC_ARGS Simulation *sim, int i, int x, int y, int t
 #define ELEMENT_CHANGETYPE_FUNC_ARGS Simulation *sim, int i, int x, int y, int from, int to
 #define ELEMENT_INIT_FUNC_ARGS Simulation *sim, Element *elem, int t
@@ -99,11 +98,6 @@ public:
 	// It cannot be used to block creation, to do that use Func_Create_Allowed
 	// Particle type should not be changed in this function
 	void (*Func_Create)(ELEMENT_CREATE_FUNC_ARGS);
-
-	// Func_Create_Override can be used to completely override Simulation::part_create
-	// Coordinates and particle type are checked before calling this.
-	// The meaning of the return value is identical to part_create, except that returning -4 means continue with part_create as though there was no override function
-	int (*Func_Create_Override)(ELEMENT_CREATE_OVERRIDE_FUNC_ARGS);
 
 	// Func_Create_Allowed is used to check whether a particle can be created, by both Simulation::part_create and Simulation::part_change_type
 	// Arguments are the same as Simulation::part_create or Simulation::part_change_type

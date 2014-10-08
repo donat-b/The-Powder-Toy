@@ -92,17 +92,17 @@ right clicking it will toggle displaying time on comments older than a day.
 The rest (SPIN, HEAT, LUA) are explained later in the readme.
 
 Moving Solids
-No lag, and it actually works. They are found in the special
-menu, and you can have a maximum of 256 at once. They are drawn the same 
-shape as your brush, no matter what shape or size it is. They are very 
-bouncy, and fall with gravity. Pressure over 10.0 will destroy them, and if 
-the center particle is destroyed, it will fall apart, making really tiny 
-bouncing pixels. Go into the fav2 menu and click SPIN to make them be able 
-to rotate, now enabled by default. Recent version 29 additions allow them to 
-properly move around in loop edge mode and to bounce off walls. A bug also 
-severely limits the use of them, when you have a few on the screen you can't 
-draw any particles unless you pause the game first. This bug is remedied by 
-turning off SPIN.
+No lag, and it actually works. They are found in the special menu, and you 
+can have a maximum of 256 at once. They are drawn the same shape as your 
+brush, no matter what shape or size it is. They are very bouncy, and fall 
+with gravity. Pressure over 10.0 will destroy them, and if the center 
+particle is destroyed, it will fall apart, making really tiny bouncing 
+pixels. Go into the fav2 menu and click SPIN to make them able to rotate, now 
+enabled by default. Recent version 29 additions allow them to properly move 
+around in loop edge mode and to bounce off walls. Version 30 rewrites them 
+internally, while paused any moving solids you draw will all be attached as 
+one ball (even if they aren't attached physically). This allows you to create  
+unique shapes.
 
 Animated LCRY
 Found in the powered elements menu. In the decoration editor, 

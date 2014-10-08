@@ -125,8 +125,6 @@ int zoom_wx=0, zoom_wy=0;
 unsigned char ZFACTOR = 8;
 unsigned char ZSIZE = 32;
 
-int numframes = 0;
-int framenum = 0;
 int hud_menunum = 0;
 int has_quit = 0;
 int dateformat = 7;
@@ -7472,50 +7470,62 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 			zoom_en = 0;
 		}
 	}
-	if (sdl_key==SDLK_RIGHT && framenum < maxframes-1)
+	if (sdl_key==SDLK_RIGHT)
 	{
-		int i;
-		framenum++;
-		if (framenum > numframes)
-			numframes = framenum;
-		for (i = 0; i <= globalSim->parts_lastActiveIndex; i++)
+		int framenum = -1;
+		for (int i = 0; i <= globalSim->parts_lastActiveIndex; i++)
 			if (parts[i].type == PT_ANIM)
 			{
-				parts[i].tmp2 = framenum;
-				if (parts[i].ctype < numframes)
-					parts[i].ctype = numframes;
-				if (sdl_mod & (KMOD_CTRL|KMOD_META))
-					parts[i].animations[numframes] = parts[i].animations[numframes-1];
-			}
-	}
-	else if (sdl_key==SDLK_LEFT && framenum > 0)
-	{
-		int i;
-		framenum--;
-		for (i = 0; i <= globalSim->parts_lastActiveIndex; i++)
-			if (parts[i].type == PT_ANIM)
-				parts[i].tmp2 = framenum;
-	}
-	else if (sdl_key==SDLK_DELETE && numframes > 0)
-	{
-		int i;
-		numframes--;
-		for (i = 0; i <= globalSim->parts_lastActiveIndex; i++)
-			if (parts[i].type == PT_ANIM)
-			{
-				int j;
-				if (parts[i].ctype != numframes)
+				if (framenum == -1)
 				{
-					for (j = framenum; j <= parts[i].ctype; j++)
-						parts[i].animations[j] = parts[i].animations[j+1];
-					parts[i].animations[parts[i].ctype] = 0;
+					framenum = parts[i].tmp2+1;
+					if (framenum >= globalSim->maxFrames)
+						framenum = globalSim->maxFrames-1;
 				}
-				parts[i].ctype--;
-				if (framenum == numframes+1)
-					parts[i].tmp2 = framenum-1;
+				parts[i].tmp = 0;
+				parts[i].tmp2 = framenum;
+				if (framenum > parts[i].ctype)
+					parts[i].ctype = framenum;
+
+				if (sdl_mod & (KMOD_CTRL|KMOD_META))
+					parts[i].animations[framenum] = parts[i].animations[framenum-1];
 			}
-		if (framenum >= numframes)
-			framenum--;
+	}
+	else if (sdl_key==SDLK_LEFT)
+	{
+		int framenum = -1;
+		for (int i = 0; i <= globalSim->parts_lastActiveIndex; i++)
+			if (parts[i].type == PT_ANIM)
+			{
+				if (framenum == -1)
+				{
+					framenum = parts[i].tmp2-1;
+					if (framenum < 0)
+						framenum = 0;
+				}
+				parts[i].tmp = 0;
+				parts[i].tmp2 = framenum;
+			}
+	}
+	else if (sdl_key==SDLK_DELETE)
+	{
+		int framenum = -1;
+		for (int i = 0; i <= globalSim->parts_lastActiveIndex; i++)
+			if (parts[i].type == PT_ANIM)
+			{
+				if (framenum == -1)
+				{
+					framenum = parts[i].tmp2;
+					if (framenum < 0)
+						framenum = 0;
+				}
+				for (int j = framenum; j < globalSim->maxFrames-1; j++)
+					parts[i].animations[j] = parts[i].animations[j+1];
+				if (parts[i].ctype >= framenum && parts[i].ctype)
+					parts[i].ctype--;
+				if (parts[i].tmp2 > parts[i].ctype)
+					parts[i].tmp2 = parts[i].ctype;
+			}
 	}
 	else if (sdl_key == SDLK_TAB)
 	{

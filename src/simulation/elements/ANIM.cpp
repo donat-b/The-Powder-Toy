@@ -18,69 +18,34 @@
 
 int ANIM_update(UPDATE_FUNC_ARGS)
 {
-	int oldtmp = parts[i].tmp, oldtmp2 = parts[i].tmp2;
 	if (!parts[i].animations)
 	{
 		kill_part(i);
 		return 1;
 	}
-	if (parts[i].tmp >= 0 && parts[i].life == 10)
+	if (parts[i].life == 10)
 	{
 		parts[i].tmp--;
-		if (!parts[i].tmp)
+		if (parts[i].tmp <= 0)
 		{
 			parts[i].tmp = (int)(parts[i].temp-273.15);
-			if (framenum == parts[i].tmp2)
-				framenum++;
 			parts[i].tmp2++;
 		}
 	}
 	if (parts[i].tmp2 > parts[i].ctype)
 	{
-		if (framenum == parts[i].tmp2)
-			framenum = 0;
 		parts[i].tmp2 = 0;
 	}
 	parts[i].dcolour = parts[i].animations[parts[i].tmp2];
-	if (parts[i].life==10)
-	{
-		int r, rx, ry;
-		for (rx=-1; rx<2; rx++)
-			for (ry=-1; ry<2; ry++)
-				if (BOUNDS_CHECK && (rx || ry))
-				{
-					r = pmap[y+ry][x+rx];
-					if (!r)
-						continue;
-					if ((r&0xFF)==PT_ANIM)
-					{
-						if (parts[r>>8].life < 10 && parts[r>>8].life > 0)
-						{
-							parts[i].life = 9;
-							parts[i].tmp = parts[i].tmp2 = parts[r>>8].tmp;
-						}
-						else if (parts[r>>8].life == 0)
-						{
-							parts[r>>8].life = 10;
-							parts[r>>8].tmp = parts[r>>8].tmp2 = (r>>8 > i) ? oldtmp : parts[i].tmp;
-						}
-					}
-				}
-	}
 	return 0;
 }
 
 void ANIM_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	sim->parts[i].animations = (unsigned int*)calloc(maxframes,sizeof(unsigned int));
-	if (sim->parts[i].animations == NULL)
-	{
-		//return -1; //it will just be deleted later anyway, don't deal with override functions for now until I have everything merged and can figure this all out.
+	sim->parts[i].animations = (unsigned int*)calloc(sim->maxFrames,sizeof(unsigned int));
+	if (!sim->parts[i].animations)
 		return;
-	}
 	memset(sim->parts[i].animations, 0, sizeof(sim->parts[i].animations));
-	sim->parts[i].life = 10;
-	sim->parts[i].tmp = 1;
 }
 
 void ANIM_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
@@ -119,6 +84,9 @@ void ANIM_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Weight = 100;
 
 	elem->DefaultProperties.temp = R_TEMP + 273.15f;
+	elem->DefaultProperties.life = 10;
+	elem->DefaultProperties.ctype = 0;
+	elem->DefaultProperties.tmp = 1;
 	elem->HeatConduct = 0;
 	elem->Latent = 0;
 	elem->Description = "Animated Liquid Crystal. Can show multiple frames, use left/right in the deco editor.";

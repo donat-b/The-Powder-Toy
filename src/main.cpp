@@ -257,7 +257,6 @@ int locked = 0;
 int highesttemp = MAX_TEMP;
 int lowesttemp = MIN_TEMP;
 int heatmode = 0;
-int maxframes = 25;
 int secret_els = 0;
 int save_as = 2;
 int tab_num = 1;

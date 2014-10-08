@@ -56,7 +56,6 @@ Element::Element():
 	Update(NULL),
 	Graphics(NULL),
 	Func_Create(NULL),
-	Func_Create_Override(NULL),
 	Func_Create_Allowed(NULL),
 	Func_ChangeType(NULL),
 	Init(NULL)

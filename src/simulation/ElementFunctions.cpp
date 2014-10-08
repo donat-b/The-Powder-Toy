@@ -162,21 +162,8 @@ int update_POWERED(UPDATE_FUNC_ARGS)
 					}
 					if ((r&0xFF)==PT_SPRK && parts[r>>8].life>0 && (parts[r>>8].life<4 || parts[i].type == PT_SWCH))
 					{
-						if (!(parts[i].flags & FLAG_INSTACTV))
-						{
-							if ((parts[i].type == PT_PUMP || parts[i].type == PT_GPMP || parts[i].type == PT_HSWC || parts[i].type == PT_PBCN))
-								continue;
-							if (parts[i].type != PT_SWCH && parts[r>>8].ctype==PT_PSCN && parts[i].life < 10)
-								parts[i].life = 10;
-							else if (parts[i].type != PT_SWCH && parts[r>>8].ctype==PT_NSCN)
-								parts[i].life = 9;
-							else if ((parts[i].type == PT_SWCH || parts[i].type == PT_BUTN) && parts[r>>8].ctype != PT_PSCN && parts[r>>8].ctype != PT_NSCN && !(parts[r>>8].ctype == PT_INWR && parts[r>>8].tmp == 1) && parts[i].life == 10)
-							{
-								sim->spark_conductive(i, x, y);
-								return 1;
-							}
-						}
-						else if ((parts[i].type == PT_PPTI || parts[i].type == PT_PPTO))
+						//Mod powered elements are always instantly activated
+						if ((parts[i].type == PT_PPTI || parts[i].type == PT_PPTO))
 						{
 							if (parts[r>>8].life>2)
 							{
@@ -237,6 +224,21 @@ int update_POWERED(UPDATE_FUNC_ARGS)
 										return 0;
 									}
 								}
+							}
+						}
+						//element isn't instantly activated (mod elements are always instantly activated)
+						else if (!(parts[i].flags & FLAG_INSTACTV) && parts[i].type != PT_BUTN && parts[i].type != PT_PINV && parts[i].type != PT_PWHT)
+						{
+							if ((parts[i].type == PT_PUMP || parts[i].type == PT_GPMP || parts[i].type == PT_HSWC || parts[i].type == PT_PBCN))
+								continue;
+							if (parts[i].type != PT_SWCH && parts[r>>8].ctype==PT_PSCN && parts[i].life < 10)
+								parts[i].life = 10;
+							else if (parts[i].type != PT_SWCH && parts[r>>8].ctype==PT_NSCN)
+								parts[i].life = 9;
+							else if (parts[i].type == PT_SWCH && parts[r>>8].ctype != PT_PSCN && parts[r>>8].ctype != PT_NSCN && !(parts[r>>8].ctype == PT_INWR && parts[r>>8].tmp == 1) && parts[i].life == 10)
+							{
+								sim->spark_conductive(i, x, y);
+								return 1;
 							}
 						}
 						else

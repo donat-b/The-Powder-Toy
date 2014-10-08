@@ -221,7 +221,6 @@ extern int locked;
 extern int highesttemp;
 extern int lowesttemp;
 extern int heatmode;
-extern int maxframes;
 extern int secret_els;
 extern int save_as;
 extern int tab_num;

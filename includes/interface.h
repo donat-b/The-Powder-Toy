@@ -236,8 +236,6 @@ extern int zoom_en;
 extern int zoom_x, zoom_y;
 extern int zoom_wx, zoom_wy;
 
-extern int numframes;
-extern int framenum;
 extern int hud_menunum;
 extern int dateformat;
 extern int show_ids;

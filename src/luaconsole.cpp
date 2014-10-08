@@ -2646,21 +2646,26 @@ int luatpt_get_gravity(lua_State* l)
 
 int luatpt_maxframes(lua_State* l)
 {
-	int newmaxframes = luaL_optint(l,1,-1), i;
-	if (newmaxframes == -1)
+	int maxFrames = luaL_optint(l,1,-1), i;
+	if (maxFrames == -1)
 	{
-		lua_pushnumber(l, maxframes);
+		lua_pushnumber(l, globalSim->maxFrames);
 		return 1;
 	}
-	if (newmaxframes > 0 && newmaxframes <= 256)
-		maxframes = newmaxframes;
+	if (maxFrames > 0 && maxFrames <= 256)
+		globalSim->maxFrames = maxFrames;
 	else
 		return luaL_error(l, "must be between 1 and 256");
-	for (i = 0; i < NPART; i++)
+	for (i = 0; i < globalSim->parts_lastActiveIndex; i++)
 		if (parts[i].type == PT_ANIM)
 		{
-			kill_part(i);
-			create_part(-1, (int)parts[i].x, (int)parts[i].y, PT_ANIM);
+			if (parts[i].animations)
+			{
+				free(parts[i].animations);
+				parts[i].animations = NULL;
+			}
+			parts[i].tmp2 = parts[i].ctype = 0;
+			parts[i].tmp = 1;
 		}
 	return 0;
 }

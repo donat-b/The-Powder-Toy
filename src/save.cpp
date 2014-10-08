@@ -2192,9 +2192,9 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							int k;
 							if (partsptr[newIndex].type == PT_ANIM)
 							{
-								if (partsptr[newIndex].ctype > maxframes)
-									maxframes = partsptr[newIndex].ctype;
-								partsptr[newIndex].animations = (unsigned int*)calloc(maxframes,sizeof(unsigned int));
+								if (partsptr[newIndex].ctype > globalSim->maxFrames)
+									globalSim->maxFrames = partsptr[newIndex].ctype;
+								partsptr[newIndex].animations = (unsigned int*)calloc(globalSim->maxFrames,sizeof(unsigned int));
 							}
 							else
 								partsptr[newIndex].animations = (unsigned int*)calloc(257,sizeof(unsigned int));
@@ -2603,7 +2603,7 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 		}
 	}
 	if (c[4]>=53) {
-		if (m[j]==PT_PBCN || m[j]==PT_MOVS || m[j]==PT_ANIM || ((m[j]==PT_PSCN || m[j]==PT_NSCN) && c[4] >= 240) || m[j]==PT_PPTI || m[j]==PT_PPTO || m[j]==PT_VIRS || m[j]==PT_VRSS || m[j]==PT_VRSG || (m[j]==PT_PCLN && c[4] >= 244))
+		if (m[j]==PT_PBCN || (m[j]==PT_TRON && c[4] > 77))
 			p++;
 	}
 	if (c[4]>=49) {
@@ -2718,6 +2718,8 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 		ver = 71;
 		modver = 8;
 	}
+	if (modver)
+		info_ui(vid_buf,"Unsupported save", "Most support for mod saves in the old PSv format was removed, use version 29.6 or below to convert it if it doesn't load.");
 
 	if (ver<34)
 	{
@@ -2876,11 +2878,6 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 						j += (PT_NORMAL_NUM - 137);
 					d[p-1] = j;
 				}
-				/*if (modver > 0 && modver <= 7 && (j == 161 || j == 162))
-				{
-					j += 2;
-					d[p-1] = j;
-				}*/
 				if (pmap[y][x])
 				{
 					k = pmap[y][x]>>8;
@@ -2996,7 +2993,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			i = m[j];
 			ty = d[pty+j];
-			if (i && (ty==PT_PBCN || (ty==PT_TRON && ver>=77) || ty==PT_MOVS || ty==PT_ANIM || ((ty==PT_PSCN || ty==PT_NSCN) && modver >= 3) || ty==PT_PPTI || ty==PT_PPTO || ty==PT_VIRS || ty==PT_VRSS || ty==PT_VRSG || (ty==PT_PCLN && modver >= 7)))
+			if (i && (ty==PT_PBCN || (ty==PT_TRON && ver>=77)))
 			{
 				if (p >= size)
 					goto corrupt;
@@ -3075,63 +3072,6 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 				}
 				if (i <= NPART) {
 					parts[i-1].dcolour |= d[p++];
-				} else {
-					p++;
-				}
-			}
-		}
-	}
-	for (j=0; j<w*h; j++)
-	{
-		i = m[j];
-		if (i && parts[i-1].type == PT_ANIM)
-		{
-			if (modver>=3) {
-				if (p >= size) {
-					goto corrupt;
-				}
-				if (i <= NPART) {
-					int k;
-					parts[i-1].ctype = d[p++];
-					if (parts[i-1].ctype > maxframes)
-						maxframes = parts[i-1].ctype;
-					parts[i-1].animations = (unsigned int*)calloc(maxframes,sizeof(unsigned int));
-					if (parts[i-1].animations == NULL) {
-						goto corrupt;
-					}
-					memset(parts[i-1].animations, 0, sizeof(parts[i-1].animations));
-					for (k = 0; k <= parts[i-1].ctype; k++)
-					{
-						parts[i-1].animations[k] = d[p++]<<24;
-						parts[i-1].animations[k] |= d[p++]<<16;
-						parts[i-1].animations[k] |= d[p++]<<8;
-						parts[i-1].animations[k] |= d[p++];
-					}
-				} else {
-					p++;
-				}
-			}
-		}
-		if (i && parts[i-1].type == PT_INDI)
-		{
-			if (modver>=7) {
-				if (p >= size) {
-					goto corrupt;
-				}
-				if (i <= NPART) {
-					int k;
-					parts[i-1].animations = (unsigned int*)calloc(257,sizeof(unsigned int));
-					if (parts[i-1].animations == NULL) {
-						goto corrupt;
-					}
-					memset(parts[i-1].animations, 0, sizeof(parts[i-1].animations));
-					for (k = 0; k <= 256; k++)
-					{
-						parts[i-1].animations[k] = d[p++]<<24;
-						parts[i-1].animations[k] |= d[p++]<<16;
-						parts[i-1].animations[k] |= d[p++]<<8;
-						parts[i-1].animations[k] |= d[p++];
-					}
 				} else {
 					p++;
 				}

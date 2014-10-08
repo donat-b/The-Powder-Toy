@@ -227,8 +227,6 @@ void draw_walls(pixel *vid);
 
 void draw_find();
 
-void create_decoration(int x, int y, int r, int g, int b, int a, int click, int tool);
-
 void render_signs(pixel *vid_buf);
 
 void render_fire(pixel *dst);
