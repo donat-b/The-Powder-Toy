@@ -22,12 +22,8 @@
 #include <bzlib.h>
 #include <math.h>
 #include <time.h>
-#if defined(WIN) && !defined(__GNUC__)
-#include <io.h>
-#else
-#include <dirent.h>
-#endif
 #ifdef WIN
+#include <dirent.h>
 #include <direct.h>
 #define getcwd _getcwd
 #endif
@@ -7593,22 +7589,6 @@ savelist_e *get_local_saves(char *folder, char *search, int *results_ret)
 	savelist_e *new_savelist = NULL;
 	savelist_e *current_item = NULL, *new_item = NULL;
 	char *fname;
-#if defined(WIN) && !defined(__GNUC__)
-	struct _finddata_t current_file;
-	intptr_t findfile_handle;
-	char *filematch = (char*)malloc(strlen(folder)+4);
-	sprintf(filematch, "%s%s", folder, "*.*");
-	findfile_handle = _findfirst(filematch, &current_file);
-	free(filematch);
-	if (findfile_handle == -1L)
-	{
-		*results_ret = 0;
-		return NULL;
-	}
-	do
-	{
-		fname = current_file.name;
-#else
 	struct dirent *derp;
 	DIR *directory = opendir(folder);
 	if(!directory)
@@ -7620,7 +7600,6 @@ savelist_e *get_local_saves(char *folder, char *search, int *results_ret)
 	while(derp = readdir(directory))
 	{
 		fname = derp->d_name;
-#endif
 		if(strlen(fname)>4)
 		{
 			char *ext = fname+(strlen(fname)-4);
@@ -7644,12 +7623,7 @@ savelist_e *get_local_saves(char *folder, char *search, int *results_ret)
 			}
 		}
 	}
-#if defined(WIN) && !defined(__GNUC__)
-	while (_findnext(findfile_handle, &current_file) == 0);
-	_findclose(findfile_handle);
-#else
 	closedir(directory);
-#endif
 	*results_ret = results;
 	return new_savelist;
 }

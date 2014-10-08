@@ -5367,7 +5367,7 @@ int draw_debug_info(pixel* vid, int lm, int lx, int ly, int cx, int cy, int line
 		std::stringstream numtostring;
 
 
-		float maxVal = 255;
+		int maxVal = 255;
 		float scale = 1.0f;
 		int bars = 0;
 		for (int i = 0; i < PT_NUM; i++)
@@ -5396,8 +5396,8 @@ int draw_debug_info(pixel* vid, int lm, int lx, int ly, int cx, int cy, int line
 		{
 			if (globalSim->elements[i].Enabled)
 			{
-				float count = globalSim->elementCount[i];
-				int barSize = (count * scale - 0.5f);
+				int count = globalSim->elementCount[i];
+				int barSize = (int)(count * scale - 0.5f);
 				int barX = bars;//*2;
 
 				draw_line(vid_buf, xStart+barX, yBottom+3, xStart+barX, yBottom+2, PIXR(globalSim->elements[i].Colour), PIXG(globalSim->elements[i].Colour), PIXB(globalSim->elements[i].Colour), XRES+BARSIZE);

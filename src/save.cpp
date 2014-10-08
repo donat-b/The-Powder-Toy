@@ -715,7 +715,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	unsigned *partsPosLink = NULL, *partsPosFirstMap = NULL, *partsPosCount = NULL, *partsPosLastMap = NULL;
 	unsigned partsCount = 0, *partsSaveIndex = NULL;
 	unsigned *elementCount = (unsigned*)calloc(PT_NUM, sizeof(unsigned));
-	int partsDataLen, partsPosDataLen, fanDataLen = 0, wallDataLen, pressDataLen = 0, vxDataLen = 0, vyDataLen = 0, finalDataLen, outputDataLen, soapLinkDataLen, movsDataLen;
+	int partsDataLen, partsPosDataLen, fanDataLen = 0, wallDataLen, pressDataLen = 0, vxDataLen = 0, vyDataLen = 0, finalDataLen, outputDataLen, soapLinkDataLen, movsDataLen = 0;
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	int x, y, i, wallDataFound = 0;
 	int posCount, signsCount;
@@ -1084,7 +1084,6 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	if (elementCount[PT_MOVS])
 	{
 		movsData = (unsigned char*)malloc(MAX_MOVING_SOLIDS*2);
-		movsDataLen = 0;
 		if (!movsData)
 		{
 			puts("Save Error, out of memory\n");
