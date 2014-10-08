@@ -17,7 +17,7 @@
 
 int FRAY_update(UPDATE_FUNC_ARGS)
 {
-	int r, nxx, nyy, len, nxi, nyi, rx, ry, nr;
+	int r, nxx, nyy, len, nxi, nyi, rx, ry;
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
@@ -36,8 +36,8 @@ int FRAY_update(UPDATE_FUNC_ARGS)
 			
 						if (r && !(ptypes[r&0xFF].properties & TYPE_SOLID))
 						{
-							parts[r>>8].vx += nxi*((parts[i].temp-273.15)/10.0f);
-							parts[r>>8].vy += nyi*((parts[i].temp-273.15)/10.0f);
+							parts[r>>8].vx += nxi*((parts[i].temp-273.15f)/10.0f);
+							parts[r>>8].vy += nyi*((parts[i].temp-273.15f)/10.0f);
 						}
 					}
 				}

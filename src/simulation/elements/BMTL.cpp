@@ -17,7 +17,7 @@
 
 int BMTL_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, tempFactor;
+	int r, rx, ry;
 	if (parts[i].tmp>1)
 	{
 		parts[i].tmp--;

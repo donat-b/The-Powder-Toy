@@ -37,7 +37,7 @@ int WOOD_graphics(GRAPHICS_FUNC_ARGS)
 	{
 		*colr -= (int)restrict_flt((273-maxtemp)/5,0,40);
 		*colg += (int)restrict_flt((273-maxtemp)/4,0,40);
-		*colb += (int)restrict_flt((273-maxtemp)/1.5,0,150);
+		*colb += (int)restrict_flt((273-maxtemp)/1.5f,0,150);
 	}
 	return 0;
 }

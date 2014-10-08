@@ -169,7 +169,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 	 * tmp - angle of lighting, measured in degrees anticlockwise from the positive x direction
 	 *
 	*/
-	int r,rx,ry,rt, multipler, powderful=(int)(parts[i].temp*(1+parts[i].life/40)*LIGHTING_POWER), near;
+	int r,rx,ry,rt, multipler, powderful=(int)(parts[i].temp*(1+parts[i].life/40)*LIGHTING_POWER);
 	float angle, angle2=-1;
 	FIRE_update(UPDATE_FUNC_SUBCALL_ARGS);
 	if (aheat_enable)
@@ -240,7 +240,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 				}
 				pv[y/CELL][x/CELL] += powderful/400;
 				if (sim->elements[rt].HeatConduct)
-					parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/1.3, MIN_TEMP, MAX_TEMP);
+					parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/1.3f, MIN_TEMP, MAX_TEMP);
 			}
 	if (parts[i].tmp2 == 3)
 	{

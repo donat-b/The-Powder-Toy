@@ -17,7 +17,7 @@
 
 int PUMP_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry;
+	int rx, ry;
 	if (parts[i].life == 10)
 	{
 		if (parts[i].temp>=256.0+273.15)
@@ -29,7 +29,7 @@ int PUMP_update(UPDATE_FUNC_ARGS)
 			for (ry=-1; ry<2; ry++)
 				if ((x+rx)-CELL>=0 && (y+ry)-CELL>0 && (x+rx)+CELL<XRES && (y+ry)+CELL<YRES && !(rx && ry))
 				{
-					pv[(y/CELL)+ry][(x/CELL)+rx] += 0.1f*((parts[i].temp-273.15)-pv[(y/CELL)+ry][(x/CELL)+rx]);
+					pv[(y/CELL)+ry][(x/CELL)+rx] += 0.1f*((parts[i].temp-273.15f)-pv[(y/CELL)+ry][(x/CELL)+rx]);
 				}
 	}
 	return 0;

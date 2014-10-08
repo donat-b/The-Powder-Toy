@@ -17,7 +17,6 @@
 
 int FWRK_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, np;
 	if (parts[i].life==0 && ((parts[i].temp>400 && (9+parts[i].temp/40) > rand()%100000 && surround_space) || parts[i].ctype==PT_DUST))
 	{
 		float gx, gy, multiplier, gmax;
@@ -61,7 +60,7 @@ int FWRK_update(UPDATE_FUNC_ARGS)
 		unsigned col = (r<<16) | (g<<8) | b;
 		for (n=0; n<40; n++)
 		{
-			np = sim->part_create(-3, x, y, PT_EMBR);
+			int np = sim->part_create(-3, x, y, PT_EMBR);
 			if (np>-1)
 			{
 				magnitude = ((rand()%60)+40)*0.05f;

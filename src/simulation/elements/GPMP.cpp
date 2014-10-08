@@ -17,15 +17,14 @@
 
 int GPMP_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry;
 	if (parts[i].life == 10)
 	{
-		if (parts[i].temp>=256.0+273.15)
-			parts[i].temp=256.0f+273.15f;
-		if (parts[i].temp<= -256.0+273.15)
+		if (parts[i].temp >= 256.0+273.15)
+			parts[i].temp = 256.0f+273.15f;
+		if (parts[i].temp <= -256.0+273.15)
 			parts[i].temp = -256.0f+273.15f;
 
-		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = 0.2f*(parts[i].temp-273.15);
+		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = 0.2f*(parts[i].temp-273.15f);
 	}
 	return 0;
 }

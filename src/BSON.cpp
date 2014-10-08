@@ -171,7 +171,7 @@ void bson_oid_gen( bson_oid_t *oid ) {
     static int incr = 0;
     static int fuzz = 0;
     int i;
-    int t = time( NULL );
+    int t = (int)time( NULL );
 
     if( oid_inc_func )
         i = oid_inc_func();
@@ -427,7 +427,7 @@ int bson_iterator_int( const bson_iterator *i ) {
     case BSON_INT:
         return bson_iterator_int_raw( i );
     case BSON_LONG:
-        return bson_iterator_long_raw( i );
+        return (int)bson_iterator_long_raw( i );
     case BSON_DOUBLE:
         return (int)bson_iterator_double_raw( i );
     default:

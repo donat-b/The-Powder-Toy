@@ -168,7 +168,7 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 		{
 			float dx = parts[i].x - parts[parts[i].tmp].x;
 			float dy = parts[i].y - parts[parts[i].tmp].y;
-			float d = 9/(pow(dx, 2)+pow(dy, 2)+9)-0.5;
+			float d = 9/(pow(dx, 2)+pow(dy, 2)+9)-0.5f;
 
 			parts[parts[i].tmp].vx -= dx*d;
 			parts[parts[i].tmp].vy -= dy*d;
@@ -184,7 +184,7 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 				{
 					dx = parts[ii].x - parts[parts[i].tmp].x;
 					dy = parts[ii].y - parts[parts[i].tmp].y;
-					d = 81/(pow(dx, 2)+pow(dy, 2)+81)-0.5;
+					d = 81/(pow(dx, 2)+pow(dy, 2)+81)-0.5f;
 
 					parts[parts[i].tmp].vx -= dx*d*0.5f;
 					parts[parts[i].tmp].vy -= dy*d*0.5f;

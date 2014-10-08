@@ -33,7 +33,6 @@ int INST_flood_spark(Simulation *sim, int x, int y)
 	int x1, x2;
 	const int cm = PT_INST;
 	int created_something = 0;
-	bool found;
 
 	if (!contains_sparkable_INST(sim, x, y))
 		return 0;
@@ -121,8 +120,9 @@ int INST_flood_spark(Simulation *sim, int x, int y)
 			}
 		} while (cs.getSize()>0);
 	}
-	catch (std::exception& e)
+	catch (const CoordStackOverflowException& e)
 	{
+		(void)e; //ignore compiler warning
 		return -1;
 	}
 

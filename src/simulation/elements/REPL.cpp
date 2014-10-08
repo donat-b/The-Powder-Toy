@@ -29,8 +29,8 @@ int RPEL_update(UPDATE_FUNC_ARGS)
 				r = photons[y+ry][x+rx];
 
 			if (r && !(ptypes[r&0xFF].properties & TYPE_SOLID)){
-				parts[r>>8].vx += isign((float)rx)*((parts[i].temp-273.15)/10.0f);
-				parts[r>>8].vy += isign((float)ry)*((parts[i].temp-273.15)/10.0f);
+				parts[r>>8].vx += isign((float)rx)*((parts[i].temp-273.15f)/10.0f);
+				parts[r>>8].vy += isign((float)ry)*((parts[i].temp-273.15f)/10.0f);
 			}
 		}
 	}

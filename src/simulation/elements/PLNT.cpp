@@ -99,7 +99,7 @@ int PLNT_graphics(GRAPHICS_FUNC_ARGS)
 	if (maxtemp < 273)
 	{
 		*colg += (int)restrict_flt((273-maxtemp)/4,0,255);
-		*colb += (int)restrict_flt((273-maxtemp)/1.5,0,255);
+		*colb += (int)restrict_flt((273-maxtemp)/1.5f,0,255);
 	}
 	return 0;
 }

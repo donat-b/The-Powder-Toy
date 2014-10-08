@@ -442,7 +442,7 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS)
 						angle+=360;
 					parts[np].tmp = (int)angle;
 					parts[np].life=rand()%(2+power/15)+power/7;
-					parts[np].temp=parts[np].life*power/2.5;
+					parts[np].temp=parts[np].life*power/2.5f;
 					parts[np].tmp2=1;
 				}
 				else if (playerp->elem != SPC_AIR)
@@ -458,25 +458,25 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS)
 	}
 
 	//Simulation of joints
-	d = 25/(pow((playerp->legs[0]-playerp->legs[4]), 2) + pow((playerp->legs[1]-playerp->legs[5]), 2)+25) - 0.5;  //Fast distance
+	d = 25/(pow((playerp->legs[0]-playerp->legs[4]), 2) + pow((playerp->legs[1]-playerp->legs[5]), 2)+25) - 0.5f;  //Fast distance
 	playerp->legs[4] -= (playerp->legs[0]-playerp->legs[4])*d;
 	playerp->legs[5] -= (playerp->legs[1]-playerp->legs[5])*d;
 	playerp->legs[0] += (playerp->legs[0]-playerp->legs[4])*d;
 	playerp->legs[1] += (playerp->legs[1]-playerp->legs[5])*d;
 
-	d = 25/(pow((playerp->legs[8]-playerp->legs[12]), 2) + pow((playerp->legs[9]-playerp->legs[13]), 2)+25) - 0.5;
+	d = 25/(pow((playerp->legs[8]-playerp->legs[12]), 2) + pow((playerp->legs[9]-playerp->legs[13]), 2)+25) - 0.5f;
 	playerp->legs[12] -= (playerp->legs[8]-playerp->legs[12])*d;
 	playerp->legs[13] -= (playerp->legs[9]-playerp->legs[13])*d;
 	playerp->legs[8] += (playerp->legs[8]-playerp->legs[12])*d;
 	playerp->legs[9] += (playerp->legs[9]-playerp->legs[13])*d;
 
-	d = 36/(pow((playerp->legs[0]-parts[i].x), 2) + pow((playerp->legs[1]-parts[i].y), 2)+36) - 0.5;
+	d = 36/(pow((playerp->legs[0]-parts[i].x), 2) + pow((playerp->legs[1]-parts[i].y), 2)+36) - 0.5f;
 	parts[i].vx -= (playerp->legs[0]-parts[i].x)*d;
 	parts[i].vy -= (playerp->legs[1]-parts[i].y)*d;
 	playerp->legs[0] += (playerp->legs[0]-parts[i].x)*d;
 	playerp->legs[1] += (playerp->legs[1]-parts[i].y)*d;
 
-	d = 36/(pow((playerp->legs[8]-parts[i].x), 2) + pow((playerp->legs[9]-parts[i].y), 2)+36) - 0.5;
+	d = 36/(pow((playerp->legs[8]-parts[i].x), 2) + pow((playerp->legs[9]-parts[i].y), 2)+36) - 0.5f;
 	parts[i].vx -= (playerp->legs[8]-parts[i].x)*d;
 	parts[i].vy -= (playerp->legs[9]-parts[i].y)*d;
 	playerp->legs[8] += (playerp->legs[8]-parts[i].x)*d;
@@ -518,11 +518,11 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS)
 
 		if (tvx || tvy)
 		{
-			playerp->accs[2] -= 0.2*tvx/hypot(tvx, tvy);
-			playerp->accs[3] -= 0.2*tvy/hypot(tvx, tvy);
+			playerp->accs[2] -= 0.2f*tvx/hypot(tvx, tvy);
+			playerp->accs[3] -= 0.2f*tvy/hypot(tvx, tvy);
 
-			playerp->accs[6] += 0.2*tvx/hypot(tvx, tvy);
-			playerp->accs[7] += 0.2*tvy/hypot(tvx, tvy);
+			playerp->accs[6] += 0.2f*tvx/hypot(tvx, tvy);
+			playerp->accs[7] += 0.2f*tvy/hypot(tvx, tvy);
 		}
 	}
 
@@ -534,11 +534,11 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS)
 
 		if (tvx || tvy)
 		{
-			playerp->accs[0] -= 0.2*tvx/hypot(tvx, tvy);
-			playerp->accs[1] -= 0.2*tvy/hypot(tvx, tvy);
+			playerp->accs[0] -= 0.2f*tvx/hypot(tvx, tvy);
+			playerp->accs[1] -= 0.2f*tvy/hypot(tvx, tvy);
 
-			playerp->accs[4] += 0.2*tvx/hypot(tvx, tvy);
-			playerp->accs[5] += 0.2*tvy/hypot(tvx, tvy);
+			playerp->accs[4] += 0.2f*tvx/hypot(tvx, tvy);
+			playerp->accs[5] += 0.2f*tvy/hypot(tvx, tvy);
 		}
 	}
 

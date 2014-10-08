@@ -42,7 +42,7 @@ unsigned int wavelengthToDecoColour(int wavelength)
 
 int CRAY_update(UPDATE_FUNC_ARGS)
 {
-	int r, nxx, nyy, docontinue, nxi, nyi, rx, ry, nr, ry1, rx1;
+	int r, nxx, nyy, docontinue, nxi, nyi, rx, ry;
 	// set ctype to things that touch it if it doesn't have one already
 	if(parts[i].ctype<=0 || parts[i].ctype>=PT_NUM || !ptypes[parts[i].ctype].enabled) {
 		int r, rx, ry;

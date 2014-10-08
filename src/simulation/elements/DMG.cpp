@@ -17,7 +17,7 @@
 
 int DMG_update(UPDATE_FUNC_ARGS)
 {
-	int r, rr, rx, ry, nb, nxi, nxj, t, dist;
+	int r, rr, rx, ry, nxi, nxj, t, dist;
 	int rad = 25;
 	float angle, fx, fy;
 

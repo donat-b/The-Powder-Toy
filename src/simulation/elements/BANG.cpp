@@ -17,7 +17,7 @@
 
 int BANG_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, nb;
+	int r, rx, ry;
 	if(parts[i].tmp == 0)
 	{
 		if(parts[i].temp>=673.0f)

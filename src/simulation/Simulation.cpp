@@ -1740,7 +1740,7 @@ int Simulation::FloodParts(int x, int y, int fullc, int replace, int flags)
 			// fill span
 			for (x=x1; x<=x2; x++)
 			{
-				if (CreateParts(x, y, fullc, flags, true));
+				if (CreateParts(x, y, fullc, flags, true))
 					created_something = 1;
 			}
 
@@ -1760,8 +1760,9 @@ int Simulation::FloodParts(int x, int y, int fullc, int replace, int flags)
 		}
 		while (cs.getSize() > 0);
 	}
-	catch (std::exception& e)
+	catch (const CoordStackOverflowException& e)
 	{
+		(void)e; //ignore compiler warning
 		return -1;
 	}
 	return created_something;
@@ -2408,7 +2409,7 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 		tr = (parts[rp>>8].dcolour>>16)&0xFF;
 		tg = (parts[rp>>8].dcolour>>8)&0xFF;
 		tb = (parts[rp>>8].dcolour)&0xFF;
-		parts[rp>>8].dcolour = ((parts[rp>>8].dcolour&0xFF000000)|(clamp_flt(tr+(255-tr)*0.02+1, 0,255)<<16)|(clamp_flt(tg+(255-tg)*0.02+1, 0,255)<<8)|clamp_flt(tb+(255-tb)*0.02+1, 0,255));
+		parts[rp>>8].dcolour = ((parts[rp>>8].dcolour&0xFF000000)|(clamp_flt(tr+(255-tr)*0.02f+1, 0,255)<<16)|(clamp_flt(tg+(255-tg)*0.02f+1, 0,255)<<8)|clamp_flt(tb+(255-tb)*0.02f+1, 0,255));
 		break;
 	case DECO_DARKEN:
 		if (!parts[rp>>8].dcolour)
@@ -2416,7 +2417,7 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 		tr = (parts[rp>>8].dcolour>>16)&0xFF;
 		tg = (parts[rp>>8].dcolour>>8)&0xFF;
 		tb = (parts[rp>>8].dcolour)&0xFF;
-		parts[rp>>8].dcolour = ((parts[rp>>8].dcolour&0xFF000000)|(clamp_flt(tr-(tr)*0.02, 0,255)<<16)|(clamp_flt(tg-(tg)*0.02, 0,255)<<8)|clamp_flt(tb-(tb)*0.02, 0,255));
+		parts[rp>>8].dcolour = ((parts[rp>>8].dcolour&0xFF000000)|(clamp_flt(tr-(tr)*0.02f, 0,255)<<16)|(clamp_flt(tg-(tg)*0.02f, 0,255)<<8)|clamp_flt(tb-(tb)*0.02f, 0,255));
 		break;
 	case DECO_SMUDGE:
 		if (x >= CELL && x < XRES-CELL && y >= CELL && y < YRES-CELL)

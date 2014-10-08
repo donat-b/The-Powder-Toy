@@ -17,7 +17,7 @@
 
 int SING_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, cry, crx, rad, nxi, nxj, nb, j, spawncount;
+	int r, rx, ry, cry, crx, nb, j, spawncount;
 	int singularity = -parts[i].life;
 	float angle, v;
 

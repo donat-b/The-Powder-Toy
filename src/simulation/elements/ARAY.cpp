@@ -17,7 +17,7 @@
 
 int ARAY_update(UPDATE_FUNC_ARGS)
 {
-	int r, nxx, nyy, docontinue, nxi, nyi, rx, ry, nr, ry1, rx1;
+	int r, nxx, nyy, docontinue, nxi, nyi, rx, ry, ry1, rx1;
 	if (parts[i].life==0) {
 		int colored =0;
 		for (rx=-1; rx<2; rx++)

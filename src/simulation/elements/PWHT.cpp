@@ -17,7 +17,7 @@
 
 int PWHT_flood(UPDATE_FUNC_ARGS)
 {
-	int format = parts[i].tmp2, pwht_property;
+	int format = parts[i].tmp2;
 	size_t propoffset;
 
 	if (parts[i].ctype == 0)

@@ -17,7 +17,7 @@
 
 int ACID_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, trade, np;
+	int r, rx, ry, trade;
 	for (rx=-2; rx<3; rx++)
 		for (ry=-2; ry<3; ry++)
 			if (BOUNDS_CHECK && (rx || ry))

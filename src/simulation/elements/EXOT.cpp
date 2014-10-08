@@ -17,7 +17,7 @@
 
 int EXOT_update(UPDATE_FUNC_ARGS)
 {
-	int r, rt, rx, ry, nb, rrx, rry, trade, tym;
+	int r, rt, rx, ry, trade, tym;
 	for (rx=-2; rx<=2; rx++)
 		for (ry=-2; ry<=2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
@@ -183,9 +183,9 @@ int EXOT_graphics(GRAPHICS_FUNC_ARGS)
 	else
 	{
 		float frequency = 0.01300f;	
-		*colr = (int)(sinf(frequency*q + 6.00) * 127 + ((b/2.9) + 80));
-		*colg = (int)(sinf(frequency*q + 6.00) * 127 + ((b/2.9) + 80));
-		*colb = (int)(sinf(frequency*q + 6.00) * 127 + ((b/2.9) + 80));
+		*colr = (int)(sinf(frequency*q + 6.00f) * 127 + ((b/2.9) + 80));
+		*colg = (int)(sinf(frequency*q + 6.00f) * 127 + ((b/2.9) + 80));
+		*colb = (int)(sinf(frequency*q + 6.00f) * 127 + ((b/2.9) + 80));
 		*cola = cpart->tmp / 6;	
 		*firea = *cola;
 		*firer = *colr;

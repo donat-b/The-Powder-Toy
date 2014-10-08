@@ -19,11 +19,13 @@ int COAL_graphics(GRAPHICS_FUNC_ARGS);
 
 int BCOL_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, trade, temp;
-	if (parts[i].life<=0) {
+	if (parts[i].life <= 0)
+	{
 		sim->part_create(i, x, y, PT_FIRE);
 		return 1;
-	} else if (parts[i].life < 100) {
+	}
+	else if (parts[i].life < 100)
+	{
 		parts[i].life--;
 		sim->part_create(-1, x+rand()%3-1, y+rand()%3-1, PT_FIRE);
 	}

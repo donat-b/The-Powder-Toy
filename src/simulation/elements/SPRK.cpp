@@ -103,16 +103,16 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 					parts[p].life=rand()%(2+parts[i].tmp/15)+parts[i].tmp/7;
 					if (parts[i].life>60)
 						parts[i].life=60;
-					parts[p].temp=parts[p].life*parts[i].tmp/2.5;
+					parts[p].temp=parts[p].life*parts[i].tmp/2.5f;
 					parts[p].tmp2=1;
 					parts[p].tmp=(int)(atan2((float)-ry, (float)rx)/M_PI*360);
 					parts[i].temp-=parts[i].tmp*2+parts[i].temp/5; // slight self-cooling
 					if (fabs(pv[y/CELL][x/CELL])!=0.0f)
 					{
 						if (fabs(pv[y/CELL][x/CELL])<=0.5f)
-							pv[y/CELL][x/CELL]=0;
+							pv[y/CELL][x/CELL] = 0;
 						else
-							pv[y/CELL][x/CELL]-=(pv[y/CELL][x/CELL]>0)?0.5:-0.5;
+							pv[y/CELL][x/CELL] -= (pv[y/CELL][x/CELL]>0) ? 0.5f : -0.5f;
 					}
 				}
 			}

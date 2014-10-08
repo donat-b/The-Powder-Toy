@@ -154,14 +154,14 @@ public:
 			switch (gravityMode)
 			{
 			case 0:
-				movingSolid->vy = movingSolid->vy + .2;
+				movingSolid->vy = movingSolid->vy + .2f;
 				break;
 			case 1:
 				break;
 			case 2:
 				float pGravD = 0.01f - hypotf((parts[movingSolid->index-1].x - XCNTR), (parts[movingSolid->index-1].y - YCNTR));
-				movingSolid->vx = movingSolid->vx + .2 * ((parts[movingSolid->index-1].x - XCNTR) / pGravD);
-				movingSolid->vy = movingSolid->vy + .2 * ((parts[movingSolid->index-1].y - YCNTR) / pGravD);
+				movingSolid->vx = movingSolid->vx + .2f * ((parts[movingSolid->index-1].x - XCNTR) / pGravD);
+				movingSolid->vy = movingSolid->vy + .2f * ((parts[movingSolid->index-1].y - YCNTR) / pGravD);
 				break;
 			}
 			movingSolid->rotationOld = movingSolid->rotation;

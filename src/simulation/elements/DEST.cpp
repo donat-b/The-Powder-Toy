@@ -17,11 +17,10 @@
 
 int DEST_update(UPDATE_FUNC_ARGS)
 {
-	int r,rx,ry, topv;
-	rx=rand()%5-2;
-	ry=rand()%5-2;
+	int rx=rand()%5-2;
+	int ry=rand()%5-2;
 
-	r = pmap[y+ry][x+rx];
+	int r = pmap[y+ry][x+rx];
 	if (!r || (r&0xFF)==PT_DEST || ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE || ptypes[r&0xFF].properties&PROP_CLONE || ptypes[r&0xFF].properties&PROP_BREAKABLECLONE)
 		return 0;
 
