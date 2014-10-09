@@ -25,7 +25,7 @@ void rotate(float *x, float *y, float angle)
 
 int MOVS_update(UPDATE_FUNC_ARGS)
 {
-	int bn = parts[i].tmp2, type, bounce = 2, t = parts[i].type;
+	int bn = parts[i].tmp2, type, bounce = 2;
 	float tmp = parts[i].pavg[0], tmp2 = parts[i].pavg[1];
 
 	MovingSolid *movingSolid = ((MOVS_ElementDataContainer*)sim->elementData[PT_MOVS])->GetMovingSolid(bn);
@@ -56,28 +56,28 @@ int MOVS_update(UPDATE_FUNC_ARGS)
 	}
 	type = pmap[y+1][x]&0xFF;
 	//bottom side collision
-	if (tmp2 > 0 && type && y+1 < YRES && ((type != t && !eval_move(t, x, y+1, NULL)) || (type == t && parts[pmap[y+1][x]>>8].tmp2 != bn) || IsWallBlocking(x, y+1, t)))
+	if (tmp2 > 0 && type && y+1 < YRES && ((type != PT_MOVS && !eval_move(PT_MOVS, x, y+1, NULL)) || (type == PT_MOVS && parts[pmap[y+1][x]>>8].tmp2 != bn) || IsWallBlocking(x, y+1, PT_MOVS)))
 	{
 		parts[i].vy -= tmp2*bounce;
 		movingSolid->rotation -= tmp/50000;
 	}
 	type = pmap[y-1][x]&0xFF;
 	//top side collision
-	if (tmp2 < 0 && type && y-1 >= 0 && ((type != t && !eval_move(t, x, y-1, NULL)) || (type == t && parts[pmap[y-1][x]>>8].tmp2 != bn) || IsWallBlocking(x, y-1, t)))
+	if (tmp2 < 0 && type && y-1 >= 0 && ((type != PT_MOVS && !eval_move(PT_MOVS, x, y-1, NULL)) || (type == PT_MOVS && parts[pmap[y-1][x]>>8].tmp2 != bn) || IsWallBlocking(x, y-1, PT_MOVS)))
 	{
 		parts[i].vy -= tmp2*bounce;
 		movingSolid->rotation -= tmp/50000;
 	}
 	type = pmap[y][x+1]&0xFF;
 	//right side collision
-	if (tmp > 0 && type && x+1 < XRES && ((type != t && !eval_move(t, x+1, y, NULL)) || (type == t && parts[pmap[y][x+1]>>8].tmp2 != bn) || IsWallBlocking(x+1, y, t)))
+	if (tmp > 0 && type && x+1 < XRES && ((type != PT_MOVS && !eval_move(PT_MOVS, x+1, y, NULL)) || (type == PT_MOVS && parts[pmap[y][x+1]>>8].tmp2 != bn) || IsWallBlocking(x+1, y, PT_MOVS)))
 	{
 		parts[i].vx -= tmp*bounce;
 		movingSolid->rotation -= tmp/50000;
 	}
 	type = pmap[y][x-1]&0xFF;
 	//left side collision
-	if (tmp < 0 && type && x-1 >= 0 && ((type != t && !eval_move(t, x-1, y, NULL)) || (type == t && parts[pmap[y][x-1]>>8].tmp2 != bn) || IsWallBlocking(x-1, y, t)))
+	if (tmp < 0 && type && x-1 >= 0 && ((type != PT_MOVS && !eval_move(PT_MOVS, x-1, y, NULL)) || (type == PT_MOVS && parts[pmap[y][x-1]>>8].tmp2 != bn) || IsWallBlocking(x-1, y, PT_MOVS)))
 	{
 		parts[i].vx -= tmp*bounce;
 		movingSolid->rotation -= tmp/50000;

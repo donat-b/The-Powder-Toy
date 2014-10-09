@@ -40,6 +40,32 @@ int ANIM_update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
+int ANIM_graphics(GRAPHICS_FUNC_ARGS)
+{
+	//invalid ANIM
+	if (!cpart->animations || cpart->tmp2 < 0 || cpart->tmp2 >= sim->maxFrames)
+		return 0;
+
+	//if decorations are even set (black deco has alpha set)
+	if (cpart->animations[cpart->tmp2])
+	{
+		*cola = (cpart->animations[cpart->tmp2]>>24)&0xFF;
+		*colr = (cpart->animations[cpart->tmp2]>>16)&0xFF;
+		*colg = (cpart->animations[cpart->tmp2]>>8)&0xFF;
+		*colb = (cpart->animations[cpart->tmp2])&0xFF;
+	}
+
+	if (cpart->life < 10)
+	{
+		*colr = *colr/(5.5f-cpart->life/2.0f);
+		*colg = *colg/(5.5f-cpart->life/2.0f);
+		*colb = *colb/(5.5f-cpart->life/2.0f);
+	}
+
+	*pixel_mode |= NO_DECO;
+	return 0;
+}
+
 void ANIM_create(ELEMENT_CREATE_FUNC_ARGS)
 {
 	sim->parts[i].animations = (unsigned int*)calloc(sim->maxFrames,sizeof(unsigned int));
@@ -104,7 +130,7 @@ void ANIM_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionElement = NT;
 
 	elem->Update = &ANIM_update;
-	elem->Graphics = NULL;
+	elem->Graphics = &ANIM_graphics;
 	elem->Func_Create = &ANIM_create;
 	elem->Func_ChangeType = &ANIM_ChangeType;
 	elem->Init = &ANIM_init_element;

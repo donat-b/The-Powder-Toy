@@ -2656,7 +2656,7 @@ int luatpt_maxframes(lua_State* l)
 		globalSim->maxFrames = maxFrames;
 	else
 		return luaL_error(l, "must be between 1 and 256");
-	for (i = 0; i < globalSim->parts_lastActiveIndex; i++)
+	for (i = 0; i <= globalSim->parts_lastActiveIndex; i++)
 		if (parts[i].type == PT_ANIM)
 		{
 			if (parts[i].animations)

@@ -205,6 +205,7 @@ public:
 							{
 								parts[j].flags |= FLAG_DISAPPEAR;
 								parts[j].tmp2 = parts[i].tmp2;
+								parts[j].dcolour = parts[i].dcolour;
 							}
 						}
 					}

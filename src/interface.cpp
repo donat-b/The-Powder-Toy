@@ -22,8 +22,8 @@
 #include <bzlib.h>
 #include <math.h>
 #include <time.h>
-#ifdef WIN
 #include <dirent.h>
+#ifdef WIN
 #include <direct.h>
 #define getcwd _getcwd
 #endif
@@ -7473,6 +7473,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	if (sdl_key==SDLK_RIGHT)
 	{
 		int framenum = -1;
+		bool canCopy = true;
 		for (int i = 0; i <= globalSim->parts_lastActiveIndex; i++)
 			if (parts[i].type == PT_ANIM)
 			{
@@ -7480,14 +7481,17 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 				{
 					framenum = parts[i].tmp2+1;
 					if (framenum >= globalSim->maxFrames)
+					{
+						canCopy = false;
 						framenum = globalSim->maxFrames-1;
+					}
 				}
 				parts[i].tmp = 0;
 				parts[i].tmp2 = framenum;
 				if (framenum > parts[i].ctype)
 					parts[i].ctype = framenum;
 
-				if (sdl_mod & (KMOD_CTRL|KMOD_META))
+				if (sdl_mod & (KMOD_CTRL|KMOD_META) && canCopy)
 					parts[i].animations[framenum] = parts[i].animations[framenum-1];
 			}
 	}

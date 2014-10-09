@@ -688,7 +688,7 @@ int move(int i, int x, int y, float nxf, float nyf)
 		}
 		if (ptypes[t].properties & TYPE_ENERGY)
 			photons[ny][nx] = t|(i<<8);
-		else if (t && (pmap[ny][nx]&0xFF) != PT_PINV && (t!=PT_MOVS || !(pmap[ny][nx]&0xFF)))
+		else if (t && (pmap[ny][nx]&0xFF) != PT_PINV && (t!=PT_MOVS || !(pmap[ny][nx]&0xFF) || (pmap[ny][nx]&0xFF) == PT_MOVS))
 			pmap[ny][nx] = t|(i<<8);
 		else if (t && (pmap[ny][nx]&0xFF) == PT_PINV)
 			parts[pmap[ny][nx]>>8].tmp2 = t|(i<<8);

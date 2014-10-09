@@ -682,13 +682,6 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 						{
 							if(i++ >= partsDataLen) goto fail;
 						}
-
-						//Skip animations
-						if ((type == PT_ANIM || type == PT_INDI) && (fieldDescriptor & 0x20))
-						{
-							i += 4+4*ctype;
-							if(i > partsDataLen) goto fail;
-						}
 					}
 				}
 			}
@@ -711,11 +704,11 @@ fin:
 void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* o_partsptr, int tab, int saveAs)
 {
 	particle *partsptr = (particle*)o_partsptr;
-	unsigned char *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *pressData = NULL, *vxData = NULL, *vyData = NULL, *finalData = NULL, *outputData = NULL, *soapLinkData = NULL, *movsData = NULL;
+	unsigned char *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *pressData = NULL, *vxData = NULL, *vyData = NULL, *finalData = NULL, *outputData = NULL, *soapLinkData = NULL, *movsData = NULL, *animData = NULL;
 	unsigned *partsPosLink = NULL, *partsPosFirstMap = NULL, *partsPosCount = NULL, *partsPosLastMap = NULL;
 	unsigned partsCount = 0, *partsSaveIndex = NULL;
 	unsigned *elementCount = (unsigned*)calloc(PT_NUM, sizeof(unsigned));
-	int partsDataLen, partsPosDataLen, fanDataLen = 0, wallDataLen, pressDataLen = 0, vxDataLen = 0, vyDataLen = 0, finalDataLen, outputDataLen, soapLinkDataLen, movsDataLen = 0;
+	int partsDataLen, partsPosDataLen, fanDataLen = 0, wallDataLen, pressDataLen = 0, vxDataLen = 0, vyDataLen = 0, finalDataLen, outputDataLen, soapLinkDataLen, movsDataLen = 0, animDataLen = 0;
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	int x, y, i, wallDataFound = 0;
 	int posCount, signsCount;
@@ -1044,6 +1037,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 					partsData[partsDataLen++] = (int)partsptr[i].pavg[1];
 					partsData[partsDataLen++] = ((int)partsptr[i].pavg[1])>>8;
 
+					//add to a list of moving solids confirmed in the area to be saved
 					if (partsptr[i].type == PT_MOVS && partsptr[i].tmp2 >= 0 && partsptr[i].tmp2 < MAX_MOVING_SOLIDS && !solids[partsptr[i].tmp2])
 						solids[partsptr[i].tmp2] = true;
 				}
@@ -1055,19 +1049,6 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 					{
 						fieldDesc |= 1 << 14;
 						partsData[partsDataLen++] = partsptr[i].flags;
-					}
-
-					//animations, and also lua code in saves
-					if ((partsptr[i].type == PT_ANIM || partsptr[i].type == PT_INDI) && partsptr[i].ctype && partsptr[i].animations)
-					{
-						int j, max = partsptr[i].ctype;
-						for (j = 0; j <= max; j++)
-						{
-							partsData[partsDataLen++] = (partsptr[i].animations[j]&0xFF000000)>>24;
-							partsData[partsDataLen++] = (partsptr[i].animations[j]&0x00FF0000)>>16;
-							partsData[partsDataLen++] = (partsptr[i].animations[j]&0x0000FF00)>>8;
-							partsData[partsDataLen++] = (partsptr[i].animations[j]&0x000000FF);
-						}
 					}
 				}
 				
@@ -1092,7 +1073,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 		}
 
 		for (int bn = 0; bn < MAX_MOVING_SOLIDS; bn++)
-			if (solids[bn])
+			if (solids[bn]) //list of moving solids that are in the save area, filled above
 			{
 				MovingSolid* movingSolid = ((MOVS_ElementDataContainer*)globalSim->elementData[PT_MOVS])->GetMovingSolid(bn);
 				if (movingSolid && (movingSolid->index || movingSolid->particleCount))
@@ -1101,6 +1082,55 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 					movsData[movsDataLen++] = (int)((movingSolid->rotationOld + 2*M_PI)*20);
 				}
 			}
+	}
+
+	if (elementCount[PT_ANIM])
+	{
+		animData = (unsigned char*)malloc((globalSim->maxFrames*4+1)*elementCount[PT_ANIM]);
+		if (!animData)
+		{
+			puts("Save Error, out of memory\n");
+			outputData = NULL;
+			goto fin;
+		}
+
+		//Iterate through particles in the same order that they were saved
+		for (y=0;y<fullH;y++)
+		{
+			for (x=0;x<fullW;x++)
+			{
+				//Find the first particle in this position
+				i = partsPosFirstMap[y*fullW + x];
+
+				//Loop while there is a pmap entry
+				while (i)
+				{
+					//Turn pmap entry into a partsptr index
+					i = i>>8;
+
+					if (partsptr[i].type == PT_ANIM && partsptr[i].animations)
+					{
+						int animLength = std::min(partsptr[i].ctype, globalSim->maxFrames-1); //make sure we don't try to read past what is allocated
+						animData[animDataLen++] = animLength; //first byte stores data length, rest is length*4 bytes
+						for (int j = 0; j <= animLength; j++)
+						{
+							animData[animDataLen++] = (partsptr[i].animations[j]&0xFF000000)>>24;
+							animData[animDataLen++] = (partsptr[i].animations[j]&0x00FF0000)>>16;
+							animData[animDataLen++] = (partsptr[i].animations[j]&0x0000FF00)>>8;
+							animData[animDataLen++] = (partsptr[i].animations[j]&0x000000FF);
+						}
+					}
+
+					//Get the pmap entry for the next particle in the same position
+					i = partsPosLink[i];
+				}
+			}
+		}
+		if(!animDataLen)
+		{
+			free(animData);
+			animData = NULL;
+		}
 	}
 
 	if (elementCount[PT_SOAP])
@@ -1235,6 +1265,8 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 		bson_append_binary(&b, "soapLinks", (char)BSON_BIN_USER, (const char*)soapLinkData, soapLinkDataLen);
 	if (movsDataLen)
 		bson_append_binary(&b, "movs", (char)BSON_BIN_USER, (const char*)movsData, movsDataLen);
+	if (animData)
+		bson_append_binary(&b, "anim", (char)BSON_BIN_USER, (const char*)animData, animDataLen);
 	signsCount = 0;
 	for(i = 0; i < MAXSIGNS; i++)
 	{
@@ -1355,8 +1387,8 @@ fin:
 int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* o_partsptr, unsigned pmap[YRES][XRES])
 {
 	particle *partsptr = (particle*)o_partsptr;
-	unsigned char * inputData = (unsigned char*)save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *pressData = NULL, *vxData = NULL, *vyData = NULL, *soapLinkData = NULL, *movsData = NULL;
-	int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, fanDataLen, wallDataLen, pressDataLen, vxDataLen, vyDataLen, soapLinkDataLen, movsDataLen;
+	unsigned char * inputData = (unsigned char*)save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *pressData = NULL, *vxData = NULL, *vyData = NULL, *soapLinkData = NULL, *movsData = NULL, *animData = NULL;
+	int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, fanDataLen, wallDataLen, pressDataLen, vxDataLen, vyDataLen, soapLinkDataLen, movsDataLen, animDataLen;
 	unsigned partsCount = 0, *partsSimIndex = NULL;
 	int i, freeIndicesCount, x, y, returnCode = 0, j, modsave = 0;
 	int *freeIndices = NULL;
@@ -1598,6 +1630,17 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			else
 			{
 				fprintf(stderr, "Invalid datatype of movs data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
+			}
+		}
+		else if (!strcmp(bson_iterator_key(&iter), "anim"))
+		{
+			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (animDataLen = bson_iterator_bin_len(&iter)) > 0)
+			{
+				animData = (unsigned char*)bson_iterator_bin_data(&iter);
+			}
+			else
+			{
+				fprintf(stderr, "Invalid datatype of anim data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
 			}
 		}
 		else if (!strcmp(bson_iterator_key(&iter), "legacyEnable") && replace)
@@ -2185,30 +2228,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							if(i >= partsDataLen) goto fail;
 							partsptr[newIndex].flags = partsData[i++];
 						}
-					
-
-						if ((partsptr[newIndex].type == PT_ANIM || partsptr[newIndex].type == PT_INDI) && (fieldDescriptor & 0x20))
-						{
-							int k;
-							if (partsptr[newIndex].type == PT_ANIM)
-							{
-								if (partsptr[newIndex].ctype > globalSim->maxFrames)
-									globalSim->maxFrames = partsptr[newIndex].ctype;
-								partsptr[newIndex].animations = (unsigned int*)calloc(globalSim->maxFrames,sizeof(unsigned int));
-							}
-							else
-								partsptr[newIndex].animations = (unsigned int*)calloc(257,sizeof(unsigned int));
-							if (i+4+4*partsptr[newIndex].ctype >= partsDataLen || partsptr[newIndex].animations == NULL)
-								goto fail;
-							memset(partsptr[newIndex].animations, 0, sizeof(partsptr[newIndex].animations));
-							for (k = 0; k <= partsptr[newIndex].ctype; k++)
-							{
-								partsptr[newIndex].animations[k] = partsData[i++]<<24;
-								partsptr[newIndex].animations[k] |= partsData[i++]<<16;
-								partsptr[newIndex].animations[k] |= partsData[i++]<<8;
-								partsptr[newIndex].animations[k] |= partsData[i++];
-							}
-						}
 					}
 
 					// no more particle properties to load, so we can change type here without messing up loading
@@ -2270,8 +2289,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							partsptr[newIndex].flags |= FLAG_INSTACTV;
 						else if (partsptr[newIndex].type != PT_PBCN && partsptr[newIndex].tmp == 1)
 							partsptr[newIndex].flags |= FLAG_INSTACTV;
-						else if (partsptr[newIndex].type == PT_ANIM)
-							partsptr[newIndex].flags |= FLAG_INSTACTV;
 					}
 					if (saved_version<81)
 					{
@@ -2327,8 +2344,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		if (movsData)
 		{
 			int movsDataPos = 0, numBalls = ((MOVS_ElementDataContainer*)globalSim->elementData[PT_MOVS])->GetNumBalls();
-			int solids[MAX_MOVING_SOLIDS];
-			memset(solids, 0, sizeof(solids));
+			int solids[MAX_MOVING_SOLIDS]; //solids is a map of the old .tmp2 it was saved with, to the new ball number it is getting
+			memset(solids, MAX_MOVING_SOLIDS, sizeof(solids)); //default to invalid ball
 			for (int i = 0; i < movsDataLen/2; i++)
 			{
 				int bn = movsData[movsDataPos++];
@@ -2336,14 +2353,16 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				{
 					solids[bn] = numBalls;
 					MovingSolid *movingSolid = ((MOVS_ElementDataContainer*)globalSim->elementData[PT_MOVS])->GetMovingSolid(numBalls++);
-					if (movingSolid)
+					if (movingSolid) //create a moving solid and clear all it's variables
 					{
 						movingSolid->Simulation_Cleared();
-						movingSolid->rotationOld = partsData[movsDataPos++]/20.0f - 2*M_PI;
+						movingSolid->rotationOld = movingSolid->rotation = movsData[movsDataPos++]/20.0f - 2*M_PI; //set its rotation
 					}
 				}
+				else
+					movsDataPos++;
 			}
-			((MOVS_ElementDataContainer*)globalSim->elementData[PT_MOVS])->SetNumBalls(numBalls);
+			((MOVS_ElementDataContainer*)globalSim->elementData[PT_MOVS])->SetNumBalls(numBalls); //new number of known moving solids
 			for (int i = 0; i < partsCount; i++)
 			{
 				if (partsSimIndex[i] && partsptr[partsSimIndex[i]-1].type == PT_MOVS)
@@ -2355,15 +2374,49 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						MovingSolid *movingSolid = ((MOVS_ElementDataContainer*)globalSim->elementData[PT_MOVS])->GetMovingSolid(partsptr[newIndex].tmp2);
 						if (movingSolid)
 						{
-							movingSolid->particleCount++;
+							movingSolid->particleCount++; //increase ball particle count
+							//set center "controlling" particle
 							if (partsptr[newIndex].pavg[0] == 0 && partsptr[newIndex].pavg[1] == 0)
 								movingSolid->index = newIndex+1;
 						}
 					}
+					else
+						partsptr[newIndex].tmp2 = MAX_MOVING_SOLIDS; //default to invalid ball
+
 					if (partsptr[newIndex].pavg[0] > 32768)
 						partsptr[newIndex].pavg[0] -= 65536;
 					if (partsptr[newIndex].pavg[1] > 32768)
 						partsptr[newIndex].pavg[1] -= 65536;
+				}
+			}
+		}
+		if (animData)
+		{
+			int animDataPos = 0;
+			for (i = 0; i < partsCount; i++)
+			{
+				if (partsSimIndex[i] && partsptr[partsSimIndex[i]-1].type == PT_ANIM)
+				{
+					if (animDataPos >= animDataLen) break;
+
+					newIndex = partsSimIndex[i]-1;
+					int origanimLen = animData[animDataPos++];
+					int animLen = std::min(origanimLen, globalSim->maxFrames-1); //read animation length, make sure it doesn't go past the current frame limit
+					partsptr[newIndex].ctype = animLen;
+					partsptr[newIndex].animations = (unsigned int*)calloc(globalSim->maxFrames, sizeof(unsigned int));
+					if (animDataPos+4*animLen > animDataLen || partsptr[newIndex].animations == NULL)
+						goto fail;
+
+					for (int j = 0; j < globalSim->maxFrames; j++)
+					{
+						if (j <= animLen) //read animation data
+							partsptr[newIndex].animations[j] = animData[animDataPos++]<<24 | animData[animDataPos++]<<16 | animData[animDataPos++]<<8 | animData[animDataPos++];
+						else //set the rest to 0
+							partsptr[newIndex].animations[j] = 0;
+					}
+					//ignore any extra data in case user set maxFrames to something small
+					if (origanimLen+1 > globalSim->maxFrames)
+						animDataPos += 4*(origanimLen+1-globalSim->maxFrames);
 				}
 			}
 		}

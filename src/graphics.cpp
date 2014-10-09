@@ -2654,15 +2654,6 @@ void render_parts(pixel *vid, Point mousePos)
 					colb = PIXB(ptypes[t].pcolors);
 					pixel_mode = PMODE_FLAT;
 				}
-								
-				//Apply decoration colour
-				if (parts[i].type == PT_ANIM && parts[i].animations)
-				{
-					deca = (parts[i].animations[parts[i].tmp2]>>24)&0xFF;
-					decr = (parts[i].animations[parts[i].tmp2]>>16)&0xFF;
-					decg = (parts[i].animations[parts[i].tmp2]>>8)&0xFF;
-					decb = (parts[i].animations[parts[i].tmp2])&0xFF;
-				}
 
 				if(!(colour_mode & ~COLOUR_GRAD))
 				{
@@ -2678,14 +2669,6 @@ void render_parts(pixel *vid, Point mousePos)
 						firer = (deca*decr + (255-deca)*firer) >> 8;
 						fireg = (deca*decg + (255-deca)*fireg) >> 8;
 						fireb = (deca*decb + (255-deca)*fireb) >> 8;
-					}
-				}
-				if (parts[i].type == PT_ANIM)
-				{
-					if(parts[i].life<10){
-						colr /= 10-parts[i].life; colr *= 2;
-						colg /= 10-parts[i].life; colg *= 2;
-						colb /= 10-parts[i].life; colb *= 2;
 					}
 				}
 
