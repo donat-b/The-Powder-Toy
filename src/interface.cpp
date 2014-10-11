@@ -3187,7 +3187,7 @@ void menu_select_element(int b, Tool* over)
 				heatmode = (heatmode + 1)%3;
 			else if (toolID == FAV_LUA)
 #ifdef LUACONSOLE
-				addluastuff();
+				ReadLuaCode();
 #else
 				error_ui(vid_buf, 0, "Lua console not enabled");
 #endif

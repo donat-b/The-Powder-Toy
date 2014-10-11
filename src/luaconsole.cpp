@@ -1226,6 +1226,8 @@ void luacon_close()
 		free(lastCode);
 	if (logs)
 		free(logs);
+	if (LuaCode)
+		free(LuaCode);
 	for (i = 0; i < 20; i++)
 	{
 		if (log_history[i])
@@ -2867,97 +2869,70 @@ int luatpt_oldmenu(lua_State *l)
 	return 0;
 }
 
-void addluastuff()
+char* LuaCode = NULL;
+int LuaCodeLen = 0;
+bool ranLuaCode = true;
+void ReadLuaCode()
 {
-	int i, next, j = 0, x = 5, y = 4, num = 0, total = 1, i2, k;
-	FILE *file = fopen ("luacode.txt", "r");
-	char* test;
-	if (file == NULL)
+	if (!file_exists("luacode.txt"))
 	{
-		error_ui(vid_buf,0,"file luacode.txt does not exist");
+		error_ui(vid_buf, 0, "Place some code in luacode.txt");
 		return;
 	}
-	delete_part(4,4,0);
-	i2 = create_part(-1,4,4,PT_INDI);
-	parts[i2].animations = (unsigned int*)calloc(257,sizeof(unsigned int));
-	memset(parts[i2].animations, 0, sizeof(parts[i].animations));
-	parts[i2].animations[1] = 0;
-	parts[i2].animations[2] = SAVE_VERSION;
-	parts[i2].animations[3] = MINOR_VERSION;
-	parts[i2].animations[4] = BUILD_NUM;
-	parts[i2].animations[5] = 120;
-	parts[i2].animations[6] = 0;
-	parts[i2].ctype = 256;
-	for (k = 0; k < 64; k++)
-		parts[i2].animations[k+150] = svf_user[k];
-
-	delete_part(5,4,0);
-	i = create_part(-1,5,4,PT_INDI);
-	parts[i].animations = (unsigned int*)calloc(257,sizeof(unsigned int));
-	memset(parts[i].animations, 0, sizeof(parts[i].animations));
-	parts[i].ctype = 256;
-	while((next = fgetc(file)) != EOF)
+	char* code = (char*)file_load("luacode.txt", &LuaCodeLen);
+	if (!code)
 	{
-		parts[i].animations[j] = next;
-		j++;
-		num++;
-		total++;
-		if (num == 256)
-		{
-			j = num = 0;
-			x++;
-			if (x >= XRES-4)
-			{
-				x = 4;
-				y++;
-			}
-			delete_part(x,y,0);
-			i = create_part(-1,x,y,PT_INDI);
-			parts[i].animations = (unsigned int*)calloc(257,sizeof(unsigned int));
-			memset(parts[i].animations, 0, sizeof(parts[i].animations));
-			parts[i].ctype = 256;
-		}
+		error_ui(vid_buf, 0, "Error reading luacode.txt");
+		return;
 	}
-	parts[i2].animations[0] = total;
-	fclose(file);
+	if (LuaCode)
+	{
+		free(LuaCode);
+		LuaCode = NULL;
+	}
+	// lua bytecode starts with byte 27, don't allow since can't be read and can do strange things
+	if (code[0] == '\x1b')
+	{
+		error_ui(vid_buf, 0, "Lua bytecode detected");
+		return;
+	}
+	LuaCode = code;
+	ranLuaCode = false;
 }
 
-void readluastuff()
+void ExecuteEmbededLuaCode()
 {
-	int i = pmap[4][5], i2 = pmap[4][4], x = 5, y = 4, total = 1;
-	if ((i2&0xFF) == PT_INDI && parts[i2>>8].animations && parts[i2>>8].animations[1] == 0)
+	if (!ranLuaCode && LuaCode)
 	{
-		int num = parts[i2>>8].animations[0], j = 0;
-		FILE *file = fopen ("newluacode.txt", "w+");
-		if (file == NULL)
+		ranLuaCode = true;
+
+		FILE* previewCode = fopen("newluacode.txt", "w");
+		bool runCode = false;
+		if (!previewCode)
 		{
-			delete_part(4,4,0);
+			runCode = confirm_ui(vid_buf, "Lua code", "Error writing to newluacode.txt, run the untrusted code in this save anyway?", "Run");
+		}
+		else
+		{
+			fwrite(LuaCode, LuaCodeLen, 1, previewCode);
+			fclose(previewCode);
+			runCode = confirm_ui(vid_buf, "Lua code", "Run the lua code in newluacode.txt?", "Run");
+		}
+		// lua bytecode starts with byte 27, don't allow since can't be read and can do strange things
+		if (LuaCode[0] == '\x1b')
+		{
+			error_ui(vid_buf, 0, "Lua bytecode detected");
+			free(LuaCode);
+			LuaCode = NULL;
 			return;
 		}
-		while(total < num)
-		{
-			fputc(parts[i>>8].animations[j++],file);
-			total++;
-			if (j >= 256)
-			{
-				j = 0;
-				x++;
-				if (x >= XRES-4)
-				{
-					x = 4;
-					y++;
-				}
-				i = pmap[y][x];
-				if ((i&0xFF) != PT_INDI)
-					j = num;
-			}
-		}
-		fclose(file);
-		parts[i2>>8].animations[1] = 1;
-		if (!confirm_ui(vid_buf, "Lua code", "Run the lua code in newluacode.txt?", "Run"))
+		if (!runCode)
 			return;
-		luaL_dostring(l,"\n\
-			local env = {\n\
+
+		//whitelist of functions we allow. Hopefully safe but just in case we write it to newluacode.txt above and ask the user to check it
+		if (luaL_dostring(l,"\n\
+			env = {\n\
+			    print = print,\n\
 				ipairs = ipairs,\n\
 				next = next,\n\
 				pairs = pairs,\n\
@@ -2984,22 +2959,28 @@ void readluastuff()
 					min = math.min, modf = math.modf, pi = math.pi, pow = math.pow, \n\
 					rad = math.rad, random = math.random, randomseed = math.randomseed, sin = math.sin, sinh = math.sinh, \n\
 					sqrt = math.sqrt, tan = math.tan, tanh = math.tanh },\n\
-				os = { clock = os.clock, difftime = os.difftime, time = os.time, date = os.date, exit = os.exit},\n\
-				tpt = tpt\n\
-			}\n\
+				os = { clock = os.clock, difftime = os.difftime, time = os.time, date = os.date, exit = os.exit },\n\
+				tpt = tpt,\n\
+				sim = sim, simulation = simulation,\n\
+				elem = elem, elements = elements,\n\
+				gfx = gfx, graphics = graphics,\n\
+				ren = ren, renderer = renderer,\n\
+				bit = bit,\n\
+				socket = { gettime = socket.gettime }} --[[I think socket.gettime() is safe?]]\n\
+				\n\
 			function run(untrusted_code)\n\
-				--if untrusted_code:byte(1) == 27 then return nil, \"binary bytecode prohibited\" end\n\
-				--local untrusted_function, message = loadstring(untrusted_code)\n\
 				if not untrusted_code then return nil end\n\
 				setfenv(untrusted_code, env)\n\
 				untrusted_code()\n\
 			end\n\
-		");
+			"))
+			luacon_log(mystrdup(luacon_geterror())); //if large above thing errored
 
 		loop_time = SDL_GetTicks();
-		luaL_dostring(l,"run(loadfile(\"newluacode.txt\"))");
-		if (parts[i2>>8].animations[6] == 1)
-			remove("newluacode.txt");
+		if (luaL_dostring(l, "run(loadfile(\"newluacode.txt\"))"))
+		{
+			luacon_log(mystrdup(luacon_geterror()));
+		}
 	}
 }
 

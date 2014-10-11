@@ -875,8 +875,6 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	}
 	
 	i = pmap[4][4]>>8;
-	if (parts[i].type == PT_INDI && parts[i].animations)
-		parts[i].animations[1] = 0; //Save lua code as not being run yet, so it will run when the save is opened
 	bool solids[MAX_MOVING_SOLIDS]; //used to remember which moving solids are in this save
 	memset(solids, 0, MAX_MOVING_SOLIDS*sizeof(bool));
 	//Copy parts data
@@ -1061,6 +1059,11 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 			}
 		}
 	}
+	if (!partsDataLen)
+	{
+		free(partsData);
+		partsData = NULL;
+	}
 
 	if (elementCount[PT_MOVS])
 	{
@@ -1082,6 +1085,12 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 					movsData[movsDataLen++] = (int)((movingSolid->rotationOld + 2*M_PI)*20);
 				}
 			}
+
+		if (!movsDataLen)
+		{
+			free(movsData);
+			movsData = NULL;
+		}
 	}
 
 	if (elementCount[PT_ANIM])
@@ -1182,11 +1191,6 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 			soapLinkData = NULL;
 		}
 	}
-	if(!partsDataLen)
-	{
-		free(partsData);
-		partsData = NULL;
-	}
 	
 	bson_init(&b);
 	bson_append_start_object(&b, "origin");
@@ -1263,10 +1267,14 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 		bson_append_binary(&b, "vyMap", (char)BSON_BIN_USER, (const char*)vyData, vyDataLen);
 	if (soapLinkData)
 		bson_append_binary(&b, "soapLinks", (char)BSON_BIN_USER, (const char*)soapLinkData, soapLinkDataLen);
-	if (movsDataLen)
+	if (movsData)
 		bson_append_binary(&b, "movs", (char)BSON_BIN_USER, (const char*)movsData, movsDataLen);
 	if (animData)
 		bson_append_binary(&b, "anim", (char)BSON_BIN_USER, (const char*)animData, animDataLen);
+	if (LuaCode && LuaCodeLen)
+	{
+		bson_append_binary(&b, "LuaCode", (char)BSON_BIN_USER, (const char*)LuaCode, LuaCodeLen);
+	}
 	signsCount = 0;
 	for(i = 0; i < MAXSIGNS; i++)
 	{
@@ -1641,6 +1649,21 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			else
 			{
 				fprintf(stderr, "Invalid datatype of anim data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
+			}
+		}
+		else if (!strcmp(bson_iterator_key(&iter), "LuaCode"))
+		{
+			if (bson_iterator_type(&iter) == BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter)) == BSON_BIN_USER && (LuaCodeLen = bson_iterator_bin_len(&iter)) > 0)
+			{
+				//this reads directly into the variables from luaconsole.h
+				if (LuaCode)
+					free(LuaCode);
+				LuaCode = mystrdup(bson_iterator_bin_data(&iter));
+				ranLuaCode = false;
+			}
+			else
+			{
+				fprintf(stderr, "Invalid datatype of anim data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter) == BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter)) == BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
 			}
 		}
 		else if (!strcmp(bson_iterator_key(&iter), "legacyEnable") && replace)

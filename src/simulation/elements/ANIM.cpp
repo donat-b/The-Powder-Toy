@@ -57,9 +57,9 @@ int ANIM_graphics(GRAPHICS_FUNC_ARGS)
 
 	if (cpart->life < 10)
 	{
-		*colr = *colr/(5.5f-cpart->life/2.0f);
-		*colg = *colg/(5.5f-cpart->life/2.0f);
-		*colb = *colb/(5.5f-cpart->life/2.0f);
+		*colr = (int)(*colr / (5.5f - cpart->life / 2.0f));
+		*colg = (int)(*colg / (5.5f - cpart->life / 2.0f));
+		*colb = (int)(*colb / (5.5f - cpart->life / 2.0f));
 	}
 
 	*pixel_mode |= NO_DECO;

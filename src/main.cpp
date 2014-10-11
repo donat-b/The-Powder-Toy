@@ -427,6 +427,11 @@ void clear_sim()
 	mod_save = MOD_SAVE_VERSION;
 	if(edgeMode == 1)
 		draw_bframe();
+	if (LuaCode)
+	{
+		free(LuaCode);
+		LuaCode = NULL;
+	}
 }
 
 void NewSim()
@@ -2484,7 +2489,7 @@ int main(int argc, char *argv[])
 		
 #ifdef LUACONSOLE
 		luacon_step(x, y);
-		readluastuff();
+		ExecuteEmbededLuaCode();
 #endif
 		sdl_wheel = 0;
 

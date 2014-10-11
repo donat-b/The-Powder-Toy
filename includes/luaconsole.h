@@ -173,7 +173,11 @@ int luatpt_outside_airtemp(lua_State* l);
 int luatpt_oldmenu(lua_State* l);
 
 void set_map(int x, int y, int width, int height, float value, int map);
-void addluastuff();
-void readluastuff();
+
+extern char* LuaCode;
+extern int LuaCodeLen;
+extern bool ranLuaCode;
+void ReadLuaCode();
+void ExecuteEmbededLuaCode();
 #endif
 #endif
