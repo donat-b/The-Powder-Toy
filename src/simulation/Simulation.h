@@ -48,6 +48,7 @@ public:
 	//settings
 	bool msRotation; //for moving solids
 	int maxFrames;   //for animated LCRY
+	bool instantActivation; //electronics are instantly activated
 	
 
 

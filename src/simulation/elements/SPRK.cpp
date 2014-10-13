@@ -167,7 +167,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 				case PT_SWCH:
 				case PT_BUTN:
 					// make sparked SWCH and BUTN turn off correctly
-					if (!(parts[i].flags & FLAG_INSTACTV) && pavg != PT_INSL && parts[i].life < 4)
+					if (!sim->instantActivation && pavg != PT_INSL && parts[i].life < 4)
 					{
 						if (sender == PT_PSCN && parts[r>>8].life<10)
 						{
@@ -185,7 +185,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 					{
 						if (parts[r>>8].ctype == PT_SWCH || parts[r>>8].ctype == PT_BUTN)
 						{
-							if (!(parts[i].flags & FLAG_INSTACTV) && sender == PT_NSCN)
+							if (!sim->instantActivation && sender == PT_NSCN)
 							{
 								part_change_type(r>>8, x+rx, y+ry, parts[r>>8].ctype);
 								parts[r>>8].ctype = PT_NONE;
@@ -203,7 +203,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 				case PT_GPMP:
 				case PT_HSWC:
 				case PT_PBCN:
-					if (!(parts[i].flags & FLAG_INSTACTV) && parts[i].life < 4) // PROP_PTOGGLE, Maybe? We seem to use 2 different methods for handling actived elements, this one seems better. Yes, use this one
+					if (!sim->instantActivation && parts[i].life < 4) // PROP_PTOGGLE, Maybe? We seem to use 2 different methods for handling actived elements, this one seems better. Yes, use this one
 					{
 						if (sender==PT_PSCN)
 							parts[r>>8].life = 10;

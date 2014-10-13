@@ -46,7 +46,8 @@ Simulation::Simulation():
 	forceStackingCheck(false),
 	lightningRecreate(0),
 	msRotation(true),
-	maxFrames(25)
+	maxFrames(25),
+	instantActivation(true)
 {
 	memset(elementData, 0, sizeof(elementData));
 	Clear();
@@ -87,6 +88,8 @@ void Simulation::Clear()
 	memset(elementCount, 0, sizeof(elementCount));
 	pfree = 0;
 	parts_lastActiveIndex = NPART-1;
+
+	instantActivation = true;
 }
 
 void Simulation::recountElements()
@@ -249,10 +252,6 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 	parts[i].lastX = (float)x;
 	parts[i].lastY = (float)y;
 #endif
-	if (elements[t].Properties & PROP_POWERED)
-	{
-		parts[i].flags |= FLAG_INSTACTV;
-	}
 
 	// Fancy dust effects for powder types
 	if ((elements[t].Properties & TYPE_PART) && pretty_powder)

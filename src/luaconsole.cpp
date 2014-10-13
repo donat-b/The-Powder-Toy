@@ -2904,20 +2904,16 @@ void ExecuteEmbededLuaCode()
 {
 	if (!ranLuaCode && LuaCode)
 	{
-		ranLuaCode = true;
-
 		FILE* previewCode = fopen("newluacode.txt", "w");
-		bool runCode = false;
+		ranLuaCode = true;
 		if (!previewCode)
 		{
-			runCode = confirm_ui(vid_buf, "Lua code", "Error writing to newluacode.txt, run the untrusted code in this save anyway?", "Run");
+			error_ui(vid_buf, 0, "Could not write code to newluacode.txt");
+			return;
 		}
-		else
-		{
-			fwrite(LuaCode, LuaCodeLen, 1, previewCode);
-			fclose(previewCode);
-			runCode = confirm_ui(vid_buf, "Lua code", "Run the lua code in newluacode.txt?", "Run");
-		}
+		fwrite(LuaCode, LuaCodeLen, 1, previewCode);
+		fclose(previewCode);
+		bool runCode = confirm_ui(vid_buf, "Lua code", "Run the lua code in newluacode.txt?", "Run");
 		// lua bytecode starts with byte 27, don't allow since can't be read and can do strange things
 		if (LuaCode[0] == '\x1b')
 		{
@@ -2932,7 +2928,7 @@ void ExecuteEmbededLuaCode()
 		//whitelist of functions we allow. Hopefully safe but just in case we write it to newluacode.txt above and ask the user to check it
 		if (luaL_dostring(l,"\n\
 			env = {\n\
-			    print = print,\n\
+				print = print,\n\
 				ipairs = ipairs,\n\
 				next = next,\n\
 				pairs = pairs,\n\

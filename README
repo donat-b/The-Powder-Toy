@@ -119,36 +119,35 @@ ANIM. If you delete a lot of it at once, the game will freeze for a while to
 free all the allocated memory, just wait and it will keep working.
 
 New Heat Displays
-Found in the Fav2 menu. Click the HEAT button once to go 
-to automatic display mode, where the hottest temp is always pink, the lowest 
-is dark blue, and everything else in between is based off of that. Click it 
-again to go into manual heat display. The min and max temps will stop 
-changing when you go into this, so it will help if automatic mode flickers 
-because of something like CLNE(FIRE) constantly changing the max temp. If 
-you right click the  button, it will ask you to enter the new maximum and 
-minimum temp. Enter the temperatures in Celsius. It will change the display 
-mode into manual automatically after this.
+Found in the Fav2 menu. Click the HEAT button once to go to automatic display 
+mode, where the hottest temp is always pink, the lowest is dark blue, and 
+everything else in between is based off of that. Click it again to go into 
+manual heat display. The min and max temps will stop changing when you go 
+into this, so it will help if automatic mode flickers because of something 
+like CLNE(FIRE) constantly changing the max temp. If you right click the 
+button, it will ask you to enter the new maximum and minimum temp. Enter the 
+temperatures in Celsius. It will change the display mode into manual 
+automatically after this.
 
 Powered Elements
-All powered elements are now activated instantly. When 
-you draw a powered element, a flag is set which causes it to be instantly 
-activated. Saves loaded from official TPT don't have this set, so won't act 
-this way. You can always use the prop tool to set the flags to 0 to go back 
-to the old way.
+All powered elements are now activated instantly. When you start the mod or 
+clear the sim, a setting is set which causes all powered elements to be 
+instantly activated. Saves loaded from official TPT don't have this set, so 
+will maintain compatibility. Elements from the mod are always activated 
+instantly regardless of this setting. Also, if you want to make a powered 
+element in Lua it's as simple as setting PROP_POWERED, it will handle the 
+life values for you (you will have to do the graphics though).
 
 Lua Code
-Put a lua script in luacode.txt and click the LUA button in the 
-FAV2 menu. It will change the script into INDI and put it in the top left 
-corner. It will then run the code once, so if you want it to run every frame, 
-use tpt.register_step. When you save it in a save or stamp, it will run every 
-time you open it. The code currently gets embeded into some INDI in the top 
-left corner, which can be deleted after loading the save. The code is also 
-written to newluacode.txt for inspection before you click the confirmation 
-prompt to run the code. There is virus protection, it won't allow you to run 
-functions that can be abused. It is recommended to still check the code anyway 
-so that you know what it does. Note that this feature is very old and 
-outdated, most new and interesting scripts use functions that haven't been 
-whitelisted yet.
+Put a Lua script in luacode.txt and click the LUA button in the FAV2 menu. It 
+will read the script and then run it once the following frame. If you need 
+something to run every frame, use tpt.register_step. Once you do this the 
+script becomes "embeded" in every save and stamp you create. When you load the 
+save, it will write the code back out to newluacode.txt and ask if you want 
+to run it. This is just so that you can see what you are running and look for 
+malicious code before it is executed. Clearing the simulation will also make 
+it forget about any code, although there may still be side effects from the 
+script.
 
 Custom HUDs
 Inside the HUD2 menu you can click on HUD2 to make a customized HUD. By 
@@ -872,7 +871,6 @@ Ability to follow users using jacksonmj's website
 
 Possible future plans:
 customizable settings menu completely, ability to add and read options. (also HUD option settings)
-Don't save lua code inside of INDI, since this isn't a lua script anymore
 CMND - command element to run old commands
 finish what was started and add ability for multiple Simulation*s to run at once?
 Things never backported: const* changes, lua panic, regex removal, old/lua syntax highlighting (https://github.com/simtr/The-Powder-Toy/commit/ecf1f0e3917386f087dbe569862bd6486a4b366a), png/bmp saving

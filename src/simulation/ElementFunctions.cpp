@@ -226,16 +226,26 @@ int update_POWERED(UPDATE_FUNC_ARGS)
 								}
 							}
 						}
-						//element isn't instantly activated (mod elements are always instantly activated)
-						else if (!(parts[i].flags & FLAG_INSTACTV) && parts[i].type != PT_BUTN && parts[i].type != PT_PINV && parts[i].type != PT_PWHT)
+						//element is instantly activated (mod elements are always instantly activated)
+						else if (sim->instantActivation || parts[i].type == PT_BUTN || parts[i].type == PT_PINV || parts[i].type == PT_PWHT)
 						{
-							if ((parts[i].type == PT_PUMP || parts[i].type == PT_GPMP || parts[i].type == PT_HSWC || parts[i].type == PT_PBCN))
-								continue;
-							if (parts[i].type != PT_SWCH && parts[r>>8].ctype==PT_PSCN && parts[i].life < 10)
-								parts[i].life = 10;
-							else if (parts[i].type != PT_SWCH && parts[r>>8].ctype==PT_NSCN)
-								parts[i].life = 9;
-							else if (parts[i].type == PT_SWCH && parts[r>>8].ctype != PT_PSCN && parts[r>>8].ctype != PT_NSCN && !(parts[r>>8].ctype == PT_INWR && parts[r>>8].tmp == 1) && parts[i].life == 10)
+							if (parts[r >> 8].ctype == PT_PSCN && parts[i].life < 10)
+							{
+								PropertyValue tempValue;
+								tempValue.Integer = 10;
+								globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, life));
+								tempValue.Integer = parts[i].flags | FLAG_SKIPMOVE;
+								globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, flags));
+							}
+							else if (parts[r >> 8].ctype == PT_NSCN && parts[i].life >= 10)
+							{
+								PropertyValue tempValue;
+								tempValue.Integer = 9;
+								globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, life));
+								tempValue.Integer = parts[i].flags | FLAG_SKIPMOVE;
+								globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, flags));
+							}
+							else if ((parts[i].type == PT_SWCH || parts[i].type == PT_BUTN) && parts[r >> 8].ctype != PT_PSCN && parts[r >> 8].ctype != PT_NSCN && !(parts[r >> 8].ctype == PT_INWR && parts[r >> 8].tmp == 1) && parts[i].life == 10)
 							{
 								sim->spark_conductive(i, x, y);
 								return 1;
@@ -243,23 +253,13 @@ int update_POWERED(UPDATE_FUNC_ARGS)
 						}
 						else
 						{
-							if (parts[r>>8].ctype==PT_PSCN && parts[i].life < 10)
-							{
-								PropertyValue tempValue;
-								tempValue.Integer = 10;
-								globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, life));
-								tempValue.Integer = parts[i].flags|FLAG_SKIPMOVE;
-								globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, flags));
-							}
-							else if (parts[r>>8].ctype==PT_NSCN && parts[i].life >= 10)
-							{
-								PropertyValue tempValue;
-								tempValue.Integer = 9;
-								globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, life));
-								tempValue.Integer = parts[i].flags|FLAG_SKIPMOVE;
-								globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, flags));
-							}
-							else if ((parts[i].type == PT_SWCH || parts[i].type == PT_BUTN) && parts[r>>8].ctype != PT_PSCN && parts[r>>8].ctype != PT_NSCN && !(parts[r>>8].ctype == PT_INWR && parts[r>>8].tmp == 1) && parts[i].life == 10)
+							if ((parts[i].type == PT_PUMP || parts[i].type == PT_GPMP || parts[i].type == PT_HSWC || parts[i].type == PT_PBCN))
+								continue;
+							if (parts[i].type != PT_SWCH && parts[r >> 8].ctype == PT_PSCN && parts[i].life < 10)
+								parts[i].life = 10;
+							else if (parts[i].type != PT_SWCH && parts[r >> 8].ctype == PT_NSCN)
+								parts[i].life = 9;
+							else if (parts[i].type == PT_SWCH && parts[r >> 8].ctype != PT_PSCN && parts[r >> 8].ctype != PT_NSCN && !(parts[r >> 8].ctype == PT_INWR && parts[r >> 8].tmp == 1) && parts[i].life == 10)
 							{
 								sim->spark_conductive(i, x, y);
 								return 1;

@@ -880,7 +880,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 	//Copy parts data
 	/* Field descriptor format:
 	|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|
-	|				|	flags (mod)	|	  pavg		|	tmp[3+4]	|		tmp2[2]	|		tmp2	|	ctype[2]	|		vy		|		vx		|	dcolor		|	ctype[1]	|		tmp[2]	|		tmp[1]	|		life[2]	|		life[1]	|	temp dbl len|
+	|				|				|	  pavg		|	tmp[3+4]	|		tmp2[2]	|		tmp2	|	ctype[2]	|		vy		|		vx		|	dcolor		|	ctype[1]	|		tmp[2]	|		tmp[1]	|		life[2]	|		life[1]	|	temp dbl len|
 	life[2] means a second byte (for a 16 bit field) if life[1] is present
 	*/
 	partsData = (unsigned char*)malloc(NPART * (sizeof(particle)+1));
@@ -1038,16 +1038,6 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 					//add to a list of moving solids confirmed in the area to be saved
 					if (partsptr[i].type == PT_MOVS && partsptr[i].tmp2 >= 0 && partsptr[i].tmp2 < MAX_MOVING_SOLIDS && !solids[partsptr[i].tmp2])
 						solids[partsptr[i].tmp2] = true;
-				}
-
-				if (saveAs == 0)
-				{
-					//Instantly activated electronics
-					if (partsptr[i].flags)
-					{
-						fieldDesc |= 1 << 14;
-						partsData[partsDataLen++] = partsptr[i].flags;
-					}
 				}
 				
 				//Write the field descriptor
@@ -1478,6 +1468,10 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				svf_modsave = 1;
 		}
 	}
+	if (svf_modsave)
+		globalSim->instantActivation = true;
+	else
+		globalSim->instantActivation = false;
 	
 	bson_init_data(&b, (char*)bsonData);
 	bson_iterator_init(&iter, &b);
@@ -2243,9 +2237,10 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					partsptr[newIndex].lastY = partsptr[newIndex].y - partsptr[newIndex].vy;
 #endif
 
-					if (modsave)
+					if (modsave && modsave <= 20)
 					{
 						//Read flags (for instantly activated powered elements in my mod)
+						//now removed so that the partsData save format is exactly the same as tpt and won't cause errors
 						if(fieldDescriptor & 0x4000)
 						{
 							if(i >= partsDataLen) goto fail;
@@ -2306,13 +2301,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					if (!ptypes[partsptr[newIndex].type].enabled && !secret_els)
 						partsptr[newIndex].type = PT_NONE;
 
-					if (modsave && modsave < 10 && (ptypes[partsptr[newIndex].type].properties&PROP_POWERED))
-					{
-						if (partsptr[newIndex].type == PT_PCLN && partsptr[newIndex].tmp2 == 1)
-							partsptr[newIndex].flags |= FLAG_INSTACTV;
-						else if (partsptr[newIndex].type != PT_PBCN && partsptr[newIndex].tmp == 1)
-							partsptr[newIndex].flags |= FLAG_INSTACTV;
-					}
 					if (saved_version<81)
 					{
 						if (partsptr[newIndex].type==PT_BOMB && partsptr[newIndex].tmp!=0)
@@ -2794,35 +2782,6 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 		ver = 71;
 		modver = 8;
 	}
-	if (modver)
-		info_ui(vid_buf,"Unsupported save", "Most support for mod saves in the old PSv format was removed, use version 29.6 or below to convert it if it doesn't load.");
-
-	if (ver<34)
-	{
-		legacy_enable = 1;
-	}
-	else
-	{
-		if (ver>=44) {
-			legacy_enable = c[3]&0x01;
-			if (!sys_pause) {
-				sys_pause = (c[3]>>1)&0x01;
-			}
-			if (ver>=46 && replace) {
-				gravityMode = ((c[3]>>2)&0x03);// | ((c[3]>>2)&0x01);
-				airMode = ((c[3]>>4)&0x07);// | ((c[3]>>4)&0x02) | ((c[3]>>4)&0x01);
-			}
-			if (ver>=49 && replace) {
-				tempGrav = ((c[3]>>7)&0x01);		
-			}
-		} else {
-			if (c[3]==1||c[3]==0) {
-				legacy_enable = c[3];
-			} else {
-				legacy_beta = 1;
-			}
-		}
-	}
 
 	bw = c[6];
 	bh = c[7];
@@ -2873,6 +2832,43 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 	}
 	globalSim->parts_lastActiveIndex = NPART-1;
 	m = (int*)calloc(XRES*YRES, sizeof(int));
+
+	if (modver)
+	{
+		info_ui(vid_buf, "Unsupported save", "Most support for mod saves in the old PSv format was removed, use version 29.6 or below to convert it if it doesn't load.");
+		globalSim->instantActivation = true;
+	}
+	else
+		globalSim->instantActivation = false;
+
+	if (ver<34)
+	{
+		legacy_enable = 1;
+	}
+	else
+	{
+		if (ver >= 44) {
+			legacy_enable = c[3] & 0x01;
+			if (!sys_pause) {
+				sys_pause = (c[3] >> 1) & 0x01;
+			}
+			if (ver >= 46 && replace) {
+				gravityMode = ((c[3] >> 2) & 0x03);// | ((c[3]>>2)&0x01);
+				airMode = ((c[3] >> 4) & 0x07);// | ((c[3]>>4)&0x02) | ((c[3]>>4)&0x01);
+			}
+			if (ver >= 49 && replace) {
+				tempGrav = ((c[3] >> 7) & 0x01);
+			}
+		}
+		else {
+			if (c[3] == 1 || c[3] == 0) {
+				legacy_enable = c[3];
+			}
+			else {
+				legacy_beta = 1;
+			}
+		}
+	}
 
 	// make a catalog of free parts
 	//memset(pmap, 0, sizeof(pmap)); "Using sizeof for array given as function argument returns the size of pointer."
@@ -3326,18 +3322,6 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 			if (!ptypes[parts[i-1].type].enabled)
 				parts[i-1].type = PT_NONE;
 			
-			if (modver)
-			{
-				if (modver && (ptypes[parts[i].type].properties&PROP_POWERED))
-				{
-					if (parts[i].type == PT_PCLN && parts[i].tmp2 == 1)
-						parts[i].flags |= FLAG_INSTACTV;
-					else if (parts[i].type != PT_PBCN && parts[i].tmp == 1)
-						parts[i].flags |= FLAG_INSTACTV;
-					else if (parts[i].type == PT_ANIM)
-						parts[i].flags |= FLAG_INSTACTV;
-				}
-			}
 			//PSv isn't used past version 77, but check version anyway ...
 			if (ver<81)
 			{
