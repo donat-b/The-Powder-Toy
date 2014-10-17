@@ -258,7 +258,6 @@ int highesttemp = MAX_TEMP;
 int lowesttemp = MIN_TEMP;
 int heatmode = 0;
 int secret_els = 0;
-int save_as = 2;
 int tab_num = 1;
 int num_tabs = 1;
 int show_tabs = 0;
@@ -424,7 +423,6 @@ void clear_sim()
 	player.spawnID = player2.spawnID = -1;
 	player.spwn = player2.spwn = 0;
 	finding &= 0x8;
-	mod_save = MOD_SAVE_VERSION;
 	if(edgeMode == 1)
 		draw_bframe();
 	if (LuaCode)
@@ -547,13 +545,13 @@ char* stamp_save(int x, int y, int w, int h)
 {
 	FILE *f;
 	char fn[64], sn[16];
-	int n, saveAs = save_as;
+	int n;
 	void *s;
-	if (check_save(saveAs, x, y, w, h, 0))
+	/*if (check_save(saveAs, x, y, w, h, 0))
 	{
 		saveAs = 0;
-	}
-	s = build_save(&n, x, y, w, h, bmap, vx, vy, pv, fvx, fvy, signs, parts, (sdl_mod & KMOD_SHIFT), saveAs);
+	}*/
+	s = build_save(&n, x, y, w, h, bmap, vx, vy, pv, fvx, fvy, signs, parts);
 	if (!s)
 		return NULL;
 
@@ -596,7 +594,7 @@ void tab_save(int num, char reloadButton)
 	void *saveData;
 
 	//build the tab
-	saveData = build_save(&fileSize, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, 2, 0);
+	saveData = build_save(&fileSize, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, true);
 	if (!saveData)
 		return;
 
@@ -2814,7 +2812,7 @@ int main(int argc, char *argv[])
 					{
 						if (clipboard_data)
 							free(clipboard_data);
-						clipboard_data = build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts, (sdl_mod & KMOD_SHIFT), 0);
+						clipboard_data = build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts);
 						if (clipboard_data)
 							clipboard_ready = 1;
 					}
@@ -2822,7 +2820,7 @@ int main(int argc, char *argv[])
 					{
 						if (clipboard_data)
 							free(clipboard_data);
-						clipboard_data = build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts, (sdl_mod & KMOD_SHIFT), 0);
+						clipboard_data = build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts);
 						if (clipboard_data)
 						{
 							clipboard_ready = 1;
@@ -2912,7 +2910,7 @@ int main(int argc, char *argv[])
 							if (!svf_open || !svf_own || x>51)
 							{
 								if (save_name_ui(vid_buf)) {
-									if (!execute_save(vid_buf, save_as) && svf_id[0]) {
+									if (!execute_save(vid_buf) && svf_id[0]) {
 										copytext_ui(vid_buf, "Save ID", "Saved successfully!", svf_id);
 									}
 									else
@@ -2923,7 +2921,7 @@ int main(int argc, char *argv[])
 							}
 							else
 							{
-								int saveAs = save_as;
+								/*int saveAs = save_as;
 								int can_publish = check_save(2, 0, 0, XRES, YRES, 0);
 								if (can_publish)
 								{
@@ -2935,8 +2933,8 @@ int main(int argc, char *argv[])
 								{
 									svf_modsave = 0;
 									saveAs = 2;
-								}
-								if (execute_save(vid_buf, saveAs))
+								}*/
+								if (execute_save(vid_buf))
 								{
 									UpdateToolTip("Error Saving", Point(XCNTR-textwidth("Error Saving")/2, YCNTR-10), INFOTIP, 1000);
 								}

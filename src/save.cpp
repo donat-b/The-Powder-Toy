@@ -37,8 +37,6 @@
 #include "simulation/elements/LIFE.h"
 #include "simulation/elements/MOVS.h"
 
-int saveversion;
-int mod_save;
 //Pop
 pixel *prerender_save(void *save, int size, int *width, int *height)
 {
@@ -58,18 +56,18 @@ pixel *prerender_save(void *save, int size, int *width, int *height)
 	return NULL;
 }
 
-void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, int tab, int saveAs)
+void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, bool tab)
 {
-	if (check_save(saveAs, orig_x0, orig_y0, orig_w, orig_h, 1))
+	/*if (check_save(saveAs, orig_x0, orig_y0, orig_w, orig_h, 1))
 		return NULL;
 	if (saveAs == 1) //Beta
 		saveversion = BETA_VERSION;
 	else if (saveAs == 2) //Release
 		saveversion = RELEASE_VERSION;
 	else //Mod
-		saveversion = SAVE_VERSION;
+		saveversion = SAVE_VERSION;*/
 
-	return build_save_OPS(size, orig_x0, orig_y0, orig_w, orig_h, bmap, vx, vy, pv, fvx, fvy, signs, partsptr, tab, saveAs);
+	return build_save_OPS(size, orig_x0, orig_y0, orig_w, orig_h, bmap, vx, vy, pv, fvx, fvy, signs, partsptr, tab);
 }
 
 int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, unsigned pmap[YRES][XRES])
@@ -701,7 +699,7 @@ fin:
 	return vidBuf;
 }
 
-void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* o_partsptr, int tab, int saveAs)
+void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* o_partsptr, bool tab)
 {
 	particle *partsptr = (particle*)o_partsptr;
 	unsigned char *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *pressData = NULL, *vxData = NULL, *vyData = NULL, *finalData = NULL, *outputData = NULL, *soapLinkData = NULL, *movsData = NULL, *animData = NULL;
@@ -738,17 +736,14 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 		outputData = NULL;
 		goto fin;
 	}
-	if (tab)
+	pressData = (unsigned char*)malloc((blockW*blockH)*2);
+	vxData = (unsigned char*)malloc((blockW*blockH)*2);
+	vyData = (unsigned char*)malloc((blockW*blockH)*2);
+	if (!pressData || !vxData || !vyData)
 	{
-		pressData = (unsigned char*)malloc((blockW*blockH)*2);
-		vxData = (unsigned char*)malloc((blockW*blockH)*2);
-		vyData = (unsigned char*)malloc((blockW*blockH)*2);
-		if (!pressData || !vxData || !vyData)
-		{
-			puts("Save Error, out of memory\n");
-			outputData = NULL;
-			goto fin;
-		}
+	puts("Save Error, out of memory\n");
+		outputData = NULL;
+		goto fin;
 	}
 	//Copy wall and fan data
 	for(x = blockX; x < blockX+blockW; x++)
@@ -756,20 +751,20 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 		for(y = blockY; y < blockY+blockH; y++)
 		{
 			wallData[(y-blockY)*blockW+(x-blockX)] = bmap[y][x];
-			if (tab)
-			{
-				float pres = std::max(-255.0f,std::min(255.0f,pv[y][x]))+256.0f;
-				float velX = std::max(-255.0f,std::min(255.0f,vx[y][x]))+256.0f;
-				float velY = std::max(-255.0f,std::min(255.0f,vy[y][x]))+256.0f;
-				pressData[pressDataLen++] = (unsigned char)((int)(pres*128)&0xFF);
-				pressData[pressDataLen++] = (unsigned char)((int)(pres*128)>>8);
+			
+			//save pressure and x/y velocity grids (mod only)
+			float pres = std::max(-255.0f,std::min(255.0f,pv[y][x]))+256.0f;
+			float velX = std::max(-255.0f,std::min(255.0f,vx[y][x]))+256.0f;
+			float velY = std::max(-255.0f,std::min(255.0f,vy[y][x]))+256.0f;
+			pressData[pressDataLen++] = (unsigned char)((int)(pres*128)&0xFF);
+			pressData[pressDataLen++] = (unsigned char)((int)(pres*128)>>8);
 
-				vxData[vxDataLen++] = (unsigned char)((int)(velX*128)&0xFF);
-				vxData[vxDataLen++] = (unsigned char)((int)(velX*128)>>8);
+			vxData[vxDataLen++] = (unsigned char)((int)(velX*128)&0xFF);
+			vxData[vxDataLen++] = (unsigned char)((int)(velX*128)>>8);
 
-				vyData[vyDataLen++] = (unsigned char)((int)(velY*128)&0xFF);
-				vyData[vyDataLen++] = (unsigned char)((int)(velY*128)>>8);
-			}
+			vyData[vyDataLen++] = (unsigned char)((int)(velY*128)&0xFF);
+			vyData[vyDataLen++] = (unsigned char)((int)(velY*128)>>8);
+
 			if(bmap[y][x] && !wallDataFound)
 				wallDataFound = 1;
 			if(bmap[y][x]==WL_FAN)
@@ -1290,7 +1285,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 		}
 		bson_append_finish_array(&b);
 	}
-	if (tab == 2)
+	if (tab)
 	{
 		bson_append_start_object(&b, "saveInfo");
 		bson_append_int(&b, "saveOpened", svf_open);
@@ -1322,12 +1317,12 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 
 	outputData[0] = 'O';
 	outputData[1] = 'P';
-	if (saveAs == 0)
-		outputData[2] = 'J';
-	else
+	//if (saveAs == 0)
+	//	outputData[2] = 'J';
+	//else
 		outputData[2] = 'S';
 	outputData[3] = '1';
-	outputData[4] = saveversion;
+	outputData[4] = SAVE_VERSION;
 	outputData[5] = CELL;
 	outputData[6] = blockW;
 	outputData[7] = blockH;
@@ -1463,7 +1458,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		erase_bframe();
 		if (replace == 1)
 		{
-			svf_modsave = mod_save = 0;
+			svf_modsave = 0;
 			if (inputData[2] == 'J')
 				svf_modsave = 1;
 		}
@@ -1847,7 +1842,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			if(bson_iterator_type(&iter)==BSON_INT)
 			{
-				mod_save = modsave = bson_iterator_int(&iter);
+				modsave = bson_iterator_int(&iter);
 #ifdef LUACONSOLE
 				//TODO: don't use lua logging
 				if (!strcmp(svf_user,"jacob1") && replace == 1 && log_history[19] == NULL)
@@ -2828,7 +2823,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 		}
 		clear_sim();
 		erase_bframe();
-		svf_modsave = mod_save = 0;
+		svf_modsave = 0;
 	}
 	globalSim->parts_lastActiveIndex = NPART-1;
 	m = (int*)calloc(XRES*YRES, sizeof(int));
@@ -3627,7 +3622,7 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 			vyn[ny][nx] = vel.y;
 			pvn[ny][nx] = pvo[y][x];
 		}
-	ndata = build_save(size,0,0,nw,nh,bmapn,vxn,vyn,pvn,fvxn,fvyn,signst,partst, (sdl_mod & KMOD_RCTRL), 0);
+	ndata = build_save(size,0,0,nw,nh,bmapn,vxn,vyn,pvn,fvxn,fvyn,signst,partst);
 	free(bmapo);
 	free(bmapn);
 	free(partst);

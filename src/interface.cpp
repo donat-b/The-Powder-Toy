@@ -6344,7 +6344,7 @@ int execute_tagop(pixel *vid_buf, char *op, char *tag)
 	return 0;
 }
 
-int execute_save(pixel *vid_buf, int saveAs)
+int execute_save(pixel *vid_buf)
 {
 	int status;
 	char *result;
@@ -6360,7 +6360,7 @@ int execute_save(pixel *vid_buf, int saveAs)
 			saveAs = 2;
 		}
 	}*/
-	if (saveAs != 1 && !svf_modsave)
+	/*if (saveAs != 1 && !svf_modsave)
 	{
 		saveAs = 2;
 	}
@@ -6374,13 +6374,13 @@ int execute_save(pixel *vid_buf, int saveAs)
 		return 1;
 	}
 	if (svf_publish == 1 && check_save(2,0,0,XRES,YRES,1))
-		return 1;
+		return 1;*/
 
 	uploadparts[0] = svf_name;
 	plens[0] = strlen(svf_name);
 	uploadparts[1] = svf_description;
 	plens[1] = strlen(svf_description);
-	uploadparts[2] = (char*)build_save(plens+2, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, (saveAs == 0 && (sdl_mod & KMOD_SHIFT)), saveAs);
+	uploadparts[2] = (char*)build_save(plens+2, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts);
 	if (!uploadparts[2])
 	{
 		error_ui(vid_buf, 0, "Error creating save");
@@ -7670,9 +7670,9 @@ int save_filename_ui(pixel *vid_buf)
 	pixel *save_data_image;
 	pixel *save = NULL;//calloc((XRES/3)*(YRES/3), PIXELSIZE);
 	ui_edit ed;
-	int official_save = (!check_save(2,0,0,XRES,YRES,0))*2;
+	//int official_save = (!check_save(2,0,0,XRES,YRES,0))*2;
 
-	save_data = build_save(&save_size, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, (!official_save && (sdl_mod & KMOD_SHIFT)), official_save);
+	save_data = build_save(&save_size, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts);
 	if (!save_data)
 	{
 		error_ui(vid_buf, 0, "Unable to create save file");

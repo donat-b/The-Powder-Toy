@@ -222,7 +222,6 @@ extern int highesttemp;
 extern int lowesttemp;
 extern int heatmode;
 extern int secret_els;
-extern int save_as;
 extern int tab_num;
 extern int num_tabs;
 extern int show_tabs;
@@ -239,7 +238,6 @@ extern int realistic;
 extern int loop_time;
 extern int unlockedstuff;
 extern int old_menu;
-extern int mod_save;
 extern int decobox_hidden;
 
 extern int drawinfo;
