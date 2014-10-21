@@ -441,7 +441,6 @@ void NewSim()
 	svf_myvote = 0;
 	svf_open = 0;
 	svf_publish = 0;
-	svf_modsave = 0;
 	svf_own = 0;
 	svf_id[0] = 0;
 	svf_name[0] = 0;
@@ -546,12 +545,7 @@ char* stamp_save(int x, int y, int w, int h)
 	FILE *f;
 	char fn[64], sn[16];
 	int n;
-	void *s;
-	/*if (check_save(saveAs, x, y, w, h, 0))
-	{
-		saveAs = 0;
-	}*/
-	s = build_save(&n, x, y, w, h, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+	void *s = build_save(&n, x, y, w, h, bmap, vx, vy, pv, fvx, fvy, signs, parts);
 	if (!s)
 		return NULL;
 
@@ -2921,19 +2915,6 @@ int main(int argc, char *argv[])
 							}
 							else
 							{
-								/*int saveAs = save_as;
-								int can_publish = check_save(2, 0, 0, XRES, YRES, 0);
-								if (can_publish)
-								{
-									//svf_publish = 0;
-									svf_modsave = 1;
-									saveAs = 0;
-								}
-								else if (!svf_modsave)
-								{
-									svf_modsave = 0;
-									saveAs = 2;
-								}*/
 								if (execute_save(vid_buf))
 								{
 									UpdateToolTip("Error Saving", Point(XCNTR-textwidth("Error Saving")/2, YCNTR-10), INFOTIP, 1000);

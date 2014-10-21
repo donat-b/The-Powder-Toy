@@ -202,7 +202,6 @@ extern int svf_open;
 extern int svf_own;
 extern int svf_myvote;
 extern int svf_publish;
-extern int svf_modsave;
 extern char svf_id[16];
 extern char svf_name[64];
 extern char svf_tags[256];

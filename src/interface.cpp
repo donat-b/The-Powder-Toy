@@ -85,7 +85,6 @@ int svf_open = 0;
 int svf_own = 0;
 int svf_myvote = 0;
 int svf_publish = 0;
-int svf_modsave = 0;
 char svf_filename[255] = "";
 int svf_fileopen = 0;
 char svf_id[16] = "";
@@ -2636,19 +2635,18 @@ finish:
 int save_name_ui(pixel *vid_buf)
 {
 	int x0=(XRES-420)/2,y0=(YRES-78-YRES/4)/2,b=1,bq,mx,my,ths,idtxtwidth,nd=0;
-	int can_publish = 1;
+	bool can_publish = true;
 	void *th;
 	pixel *old_vid=(pixel *)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	ui_edit ed;
 	ui_edit ed2;
 	ui_checkbox cbPublish;
-	ui_checkbox cbMod;
 	ui_checkbox cbPaused;
 	ui_copytext ctb;
 
 	th = build_thumb(&ths, 0);
 	if (check_save(2,0,0,XRES,YRES,0))
-		can_publish = 0;
+		can_publish = false;
 
 	while (!sdl_poll())
 	{
@@ -2662,7 +2660,7 @@ int save_name_ui(pixel *vid_buf)
 	ed.cursor = ed.cursorstart = strlen(svf_name);
 	strcpy(ed.str, svf_name);
 
-	ui_edit_init(&ed2, x0+13, y0+45, 170, 85);
+	ui_edit_init(&ed2, x0+13, y0+45, 170, 115);
 	ed2.def = "[simulation description]";
 	ed2.focus = 0;
 	ed2.cursor = ed2.cursorstart = strlen(svf_description);
@@ -2678,19 +2676,14 @@ int save_name_ui(pixel *vid_buf)
 	strcpy(ctb.text, svf_id);
 
 	cbPublish.x = x0+10;
-	cbPublish.y = y0+53+YRES/4;
+	cbPublish.y = y0+74+YRES/4;
 	cbPublish.focus = 0;
-	cbPublish.checked = (svf_publish && can_publish);
+	cbPublish.checked = svf_publish;
 
-	cbPaused.x = x0+10;
-	cbPaused.y = y0+73+YRES/4;
+	cbPaused.x = x0+110;
+	cbPaused.y = y0+74+YRES/4;
 	cbPaused.focus = 0;
 	cbPaused.checked = sys_pause || framerender;
-
-	cbMod.x = x0+110;
-	cbMod.y = y0+53+YRES/4;
-	cbMod.focus = 0;
-	cbMod.checked = !can_publish;
 	
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
 	draw_rgba_image(vid_buf, (unsigned char*)save_to_server_image, 0, 0, 0.7f);
@@ -2708,7 +2701,7 @@ int save_name_ui(pixel *vid_buf)
 		drawtext(vid_buf, x0+10, y0+23, "\x82", 192, 192, 192, 255);
 		drawrect(vid_buf, x0+8, y0+20, 176, 16, 192, 192, 192, 255); //rectangle around title box
 
-		drawrect(vid_buf, x0+8, y0+40, 176, 100, 192, 192, 192, 255); //rectangle around description box
+		drawrect(vid_buf, x0+8, y0+40, 176, 124, 192, 192, 192, 255); //rectangle around description box
 
 		ui_edit_draw(vid_buf, &ed);
 		ui_edit_draw(vid_buf, &ed2);
@@ -2716,22 +2709,17 @@ int save_name_ui(pixel *vid_buf)
 		drawrect(vid_buf, x0+(205-XRES/3)/2-2+205, y0+40, XRES/3+3, YRES/3+3, 128, 128, 128, 255); //rectangle around thumbnail
 		render_thumb(th, ths, 0, vid_buf, x0+(205-XRES/3)/2+205, y0+42, 3);
 
-		if (can_publish)
+		if (!can_publish)
 		{
-			ui_checkbox_draw(vid_buf, &cbPublish);
-			drawtext(vid_buf, x0+34, y0+56+YRES/4, "Publish?", 192, 192, 192, 255);
+			drawtext(vid_buf, x0+235, y0+180, "\xE4", 255, 255, 0, 255);
+			drawtext(vid_buf, x0+251, y0+182, "Warning: uses mod elements", 192, 192, 192, 255);
+		}
 
-			ui_checkbox_draw(vid_buf, &cbMod);
-			drawtext(vid_buf, x0+134, y0+56+YRES/4, "Mod save?", 192, 192, 192, 255);
-		}
-		else
-		{
-			drawtext(vid_buf, x0+10, y0+53+YRES/4, "\xE4", 255, 255, 0, 255);
-			drawtext(vid_buf, x0+26, y0+55+YRES/4, "Uses mod elements, can't publish", 192, 192, 192, 255);
-		}
+		ui_checkbox_draw(vid_buf, &cbPublish);
+		drawtext(vid_buf, cbPublish.x+24, cbPublish.y+3, "Publish?", 192, 192, 192, 255);
 
 		ui_checkbox_draw(vid_buf, &cbPaused);
-		drawtext(vid_buf, x0+34, y0+76+YRES/4, "Paused?", 192, 192, 192, 255);
+		drawtext(vid_buf, cbPaused.x+24, cbPaused.y+3, "Paused?", 192, 192, 192, 255);
 
 		drawtext(vid_buf, x0+5, y0+99+YRES/4, "Save simulation", 255, 255, 255, 255);
 		drawrect(vid_buf, x0, y0+94+YRES/4, 192, 16, 192, 192, 192, 255);
@@ -2758,18 +2746,10 @@ int save_name_ui(pixel *vid_buf)
 
 		ui_edit_process(mx, my, b, bq, &ed);
 		ui_edit_process(mx, my, b, bq, &ed2);
-		if (can_publish)
-		{
-			ui_checkbox_process(mx, my, b, bq, &cbPublish);
-			ui_checkbox_process(mx, my, b, bq, &cbMod);
-		}
+		ui_checkbox_process(mx, my, b, bq, &cbPublish);
 		ui_checkbox_process(mx, my, b, bq, &cbPaused);
-		if (cbMod.checked)
-			cbPublish.checked = 0;
 
-		if ((b && !bq && ((mx>=x0+9 && mx<x0+23 && my>=y0+22 && my<y0+36) ||
-		                 (mx>=x0 && mx<x0+192 && my>=y0+94+YRES/4 && my<y0+110+YRES/4)))
-			|| sdl_key==SDLK_RETURN)
+		if ((b && !bq && mx>=x0 && mx<x0+192 && my>=y0+94+YRES/4 && my<y0+110+YRES/4) || sdl_key==SDLK_RETURN)
 		{
 			if (th) free(th);
 			if (!ed.str[0])
@@ -2788,7 +2768,6 @@ int save_name_ui(pixel *vid_buf)
 			svf_open = 1;
 			svf_own = 1;
 			svf_publish = cbPublish.checked;
-			svf_modsave = cbMod.checked;
 			sys_pause = cbPaused.checked;
 			framerender = 0;
 			svf_filename[0] = 0;
@@ -5788,7 +5767,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					svf_open = 0;
 					svf_filename[0] = 0;
 					svf_fileopen = 0;
-					svf_modsave = 0;
 					svf_publish = 0;
 					svf_own = 0;
 					svf_myvote = 0;
@@ -6352,29 +6330,6 @@ int execute_save(pixel *vid_buf)
 	char *names[] = {"Name","Description", "Data:save.bin", "Thumb:thumb.bin", "Publish", "ID", NULL};
 	char *uploadparts[6];
 	int plens[6];
-
-	/*if (saveAs == 0 && !check_save(2,0,0,XRES,YRES,0))
-	{
-		if (confirm_ui(vid_buf, "Save as official version?", "This save doesn't use any mod elements, and could be opened by everyone and have a correct thumbnail if it was saved as the official version. Click cancel to save like this anyway, incase you used some mod features", "OK"))
-		{
-			saveAs = 2;
-		}
-	}*/
-	/*if (saveAs != 1 && !svf_modsave)
-	{
-		saveAs = 2;
-	}
-	else if (svf_modsave)
-	{
-		saveAs = 0;
-	}
-	if (svf_publish == 1 && saveAs != 2)
-	{
-		error_ui(vid_buf, 0, "You must save this as the non beta version");
-		return 1;
-	}
-	if (svf_publish == 1 && check_save(2,0,0,XRES,YRES,1))
-		return 1;*/
 
 	uploadparts[0] = svf_name;
 	plens[0] = strlen(svf_name);
@@ -7670,7 +7625,6 @@ int save_filename_ui(pixel *vid_buf)
 	pixel *save_data_image;
 	pixel *save = NULL;//calloc((XRES/3)*(YRES/3), PIXELSIZE);
 	ui_edit ed;
-	//int official_save = (!check_save(2,0,0,XRES,YRES,0))*2;
 
 	save_data = build_save(&save_size, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts);
 	if (!save_data)
@@ -7964,7 +7918,6 @@ void catalogue_ui(pixel * vid_buf)
 								svf_fileopen = 1;
 								svf_open = 0;
 								svf_publish = 0;
-								svf_modsave = 0;
 								svf_own = 0;
 								svf_myvote = 0;
 								svf_id[0] = 0;

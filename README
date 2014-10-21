@@ -849,8 +849,7 @@ ctrl. Update TPTMP to version .82. Fix HUD issues with LAVA and FILT. Add a
 ------------------------------------------------------------------------------
 -------------------------------------Bugs-------------------------------------
 ------------------------------------------------------------------------------
-Can't draw particles when moving solids are on the screen
-//None (at least that I know of)
+None (at least that I know of)
 
 
 
@@ -859,6 +858,7 @@ Can't draw particles when moving solids are on the screen
 -------------------------------------TODO-------------------------------------
 ------------------------------------------------------------------------------
 TODO: '>' means currently being worked on/added next
+>Ceramics http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=19402
 Redo fav menu ...
 Do something about the massively repeated drawing code in Simulation.cpp
 make open ui more colorful like tpt++, also fix cut off description in save uploading ui

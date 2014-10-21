@@ -56,20 +56,6 @@ pixel *prerender_save(void *save, int size, int *width, int *height)
 	return NULL;
 }
 
-void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, bool tab)
-{
-	/*if (check_save(saveAs, orig_x0, orig_y0, orig_w, orig_h, 1))
-		return NULL;
-	if (saveAs == 1) //Beta
-		saveversion = BETA_VERSION;
-	else if (saveAs == 2) //Release
-		saveversion = RELEASE_VERSION;
-	else //Mod
-		saveversion = SAVE_VERSION;*/
-
-	return build_save_OPS(size, orig_x0, orig_y0, orig_w, orig_h, bmap, vx, vy, pv, fvx, fvy, signs, partsptr, tab);
-}
-
 int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, unsigned pmap[YRES][XRES])
 {
 	unsigned char * saveData = (unsigned char*)save;
@@ -699,7 +685,7 @@ fin:
 	return vidBuf;
 }
 
-void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* o_partsptr, bool tab)
+void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* o_partsptr, bool tab)
 {
 	particle *partsptr = (particle*)o_partsptr;
 	unsigned char *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *pressData = NULL, *vxData = NULL, *vyData = NULL, *finalData = NULL, *outputData = NULL, *soapLinkData = NULL, *movsData = NULL, *animData = NULL;
@@ -1293,7 +1279,6 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 		bson_append_string(&b, "saveName", svf_name);
 		bson_append_string(&b, "fileName", svf_filename);
 		bson_append_int(&b, "published", svf_publish);
-		bson_append_int(&b, "modSave", svf_modsave);
 		bson_append_string(&b, "ID", svf_id);
 		bson_append_string(&b, "description", svf_description);
 		bson_append_string(&b, "author", svf_author);
@@ -1317,10 +1302,7 @@ void *build_save_OPS(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h
 
 	outputData[0] = 'O';
 	outputData[1] = 'P';
-	//if (saveAs == 0)
-	//	outputData[2] = 'J';
-	//else
-		outputData[2] = 'S';
+	outputData[2] = 'S';
 	outputData[3] = '1';
 	outputData[4] = SAVE_VERSION;
 	outputData[5] = CELL;
@@ -1456,17 +1438,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		//Remove everything
 		clear_sim();
 		erase_bframe();
-		if (replace == 1)
-		{
-			svf_modsave = 0;
-			if (inputData[2] == 'J')
-				svf_modsave = 1;
-		}
-	}
-	if (svf_modsave)
-		globalSim->instantActivation = true;
-	else
 		globalSim->instantActivation = false;
+	}
 	
 	bson_init_data(&b, (char*)bsonData);
 	bson_iterator_init(&iter, &b);
@@ -1842,16 +1815,20 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			if(bson_iterator_type(&iter)==BSON_INT)
 			{
-				modsave = bson_iterator_int(&iter);
-#ifdef LUACONSOLE
-				//TODO: don't use lua logging
-				if (!strcmp(svf_user,"jacob1") && replace == 1 && log_history[19] == NULL)
+				if (replace == 1)
 				{
-					char* modver = (char*)calloc(32, sizeof(char));
-					sprintf(modver, "Made in jacob1's mod version %d", modsave);
-					luacon_log(modver);
-				}
+					modsave = bson_iterator_int(&iter);
+#ifdef LUACONSOLE
+					//TODO: don't use lua logging
+					if (!strcmp(svf_user,"jacob1") && log_history[19] == NULL)
+					{
+						char* modver = (char*)calloc(32, sizeof(char));
+						sprintf(modver, "Made in jacob1's mod version %d", modsave);
+						luacon_log(modver);
+					}
 #endif
+					globalSim->instantActivation = true;
+				}
 			}
 			else
 			{
@@ -1887,8 +1864,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						strncpy(svf_filename, bson_iterator_string(&saveInfoiter), 254);
 					else if(!strcmp(bson_iterator_key(&saveInfoiter), "published") && bson_iterator_type(&saveInfoiter) == BSON_INT)
 						svf_publish = bson_iterator_int(&saveInfoiter);
-					else if(!strcmp(bson_iterator_key(&saveInfoiter), "modSave") && bson_iterator_type(&saveInfoiter) == BSON_INT)
-						svf_modsave = bson_iterator_int(&saveInfoiter);
 					else if(!strcmp(bson_iterator_key(&saveInfoiter), "ID") && bson_iterator_type(&saveInfoiter) == BSON_STRING)
 						strncpy(svf_id, bson_iterator_string(&saveInfoiter), 15);
 					else if(!strcmp(bson_iterator_key(&saveInfoiter), "description") && bson_iterator_type(&saveInfoiter) == BSON_STRING)
@@ -2823,7 +2798,6 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 		}
 		clear_sim();
 		erase_bframe();
-		svf_modsave = 0;
 	}
 	globalSim->parts_lastActiveIndex = NPART-1;
 	m = (int*)calloc(XRES*YRES, sizeof(int));

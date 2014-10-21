@@ -483,12 +483,7 @@ int http_async_req_status(void *ctx)
 			}
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "Content-Length: %d\r\n", cx->txdl);
 
-			//if (save_as == 0)
-				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dS%d\r\n", IDENT_VERSION, SAVE_VERSION, MINOR_VERSION);
-			/*else if (save_as == 1)
-				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dB%d\r\n", IDENT_VERSION, BETA_VERSION, BETA_MINOR_VER);
-			else
-				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dS%d\r\n", IDENT_VERSION, RELEASE_VERSION, RELEASE_MINOR_VER);*/
+			cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dS%d\r\n", IDENT_VERSION, SAVE_VERSION, MINOR_VERSION);
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-J1Mod-Version: %d.%d.%d\r\n", MOD_VERSION, MOD_MINOR_VERSION, MOD_BUILD_VERSION);
 
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "\r\n");
@@ -517,12 +512,7 @@ int http_async_req_status(void *ctx)
 			if (!cx->keep)
 				cx->tlen += sprintf(cx->tbuf+cx->tlen, "Connection: close\r\n");
 
-			//if (save_as == 0)
-				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dS%d\r\n", IDENT_VERSION, SAVE_VERSION, MINOR_VERSION);
-			/*else if (save_as == 1)
-				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dB%d\r\n", IDENT_VERSION, BETA_VERSION, BETA_MINOR_VER);
-			else
-				cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dS%d\r\n", IDENT_VERSION, RELEASE_VERSION, RELEASE_MINOR_VER);*/
+			cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dS%d\r\n", IDENT_VERSION, SAVE_VERSION, MINOR_VERSION);
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-J1Mod-Version: %d.%d.%d\r\n", MOD_VERSION, MOD_MINOR_VERSION, MOD_BUILD_VERSION);
 
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "\n");
