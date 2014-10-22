@@ -132,26 +132,8 @@ void luacon_open()
 		{"sound",&luatpt_sound},
 		{"load",&luatpt_load},
 		{"bubble",&luatpt_bubble},
-		{"reset_pressure",&luatpt_reset_pressure},
-		{"reset_temp",&luatpt_reset_temp},
-		{"get_pressure",&luatpt_get_pressure},
-		{"get_aheat",&luatpt_get_aheat},
-		{"get_velocity",&luatpt_get_velocity},
-		{"get_gravity",&luatpt_get_gravity},
 		{"maxframes",&luatpt_maxframes},
-		{"get_wall",&luatpt_getwall},
-		{"create_wall",&luatpt_createwall},
-		{"clear_sim",&luatpt_clear_sim},
-		{"reset_elements",&luatpt_reset_elements},
 		{"indestructible",&luatpt_indestructible},
-		{"create_parts",&luatpt_create_parts},
-		{"create_line",&luatpt_create_line},
-		{"floodfill",&luatpt_floodfill},
-		{"save_stamp",&luatpt_save_stamp},
-		{"load_stamp",&luatpt_load_stamp},
-		{"set_selected",&luatpt_set_selected},
-		{"set_decocol",&luatpt_set_decocolor},
-		{"outside_airtemp",&luatpt_outside_airtemp},
 		{"oldmenu", &luatpt_oldmenu},
 		{NULL,NULL}
 	};
@@ -2579,73 +2561,6 @@ int luatpt_bubble(lua_State* l)
 	return 0;
 }
 
-int luatpt_reset_pressure(lua_State* l)
-{
-	return simulation_resetPressure(l);
-}
-
-int luatpt_reset_temp(lua_State* l)
-{
-	return simulation_resetTemp(l);
-}
-
-int luatpt_get_pressure(lua_State* l)
-{
-	int x, y;
-	x = luaL_optint(l, 1, 0);
-	y = luaL_optint(l, 2, 0);
-	if (x*CELL<0 || y*CELL<0 || x*CELL>=XRES || y*CELL>=YRES)
-		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
-	lua_pushnumber(l, pv[y][x]);
-	return 1;
-}
-
-int luatpt_get_aheat(lua_State* l)
-{
-	int x, y;
-	x = luaL_optint(l, 1, 0);
-	y = luaL_optint(l, 2, 0);
-	if (x*CELL<0 || y*CELL<0 || x*CELL>=XRES || y*CELL>=YRES)
-		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
-	lua_pushnumber(l, hv[y][x]);
-	return 1;
-}
-
-int luatpt_get_velocity(lua_State* l)
-{
-	int x, y;
-	char *direction = (char*)luaL_optstring(l, 1, "x");
-	x = luaL_optint(l, 2, 0);
-	y = luaL_optint(l, 3, 0);
-	if (x*CELL<0 || y*CELL<0 || x*CELL>=XRES || y*CELL>=YRES)
-		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
-	if (strcmp(direction,"x")==0)
-		lua_pushnumber(l, vx[y][x]);
-	else if (strcmp(direction,"y")==0)
-		lua_pushnumber(l, vy[y][x]);
-	else
-		return luaL_error(l, "Invalid direction: %s", direction);
-	return 1;
-}
-
-int luatpt_get_gravity(lua_State* l)
-{
-	int x, y;
-	char* xy;
-	x = luaL_optint(l, 1, 0);
-	y = luaL_optint(l, 2, 0);
-	xy = (char*)luaL_optstring(l, 3, "");
-	if (x*CELL<0 || y*CELL<0 || x*CELL>=XRES || y*CELL>=YRES)
-		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
-	if (strcmp(xy,"x")==0)
-		lua_pushnumber(l, (double)gravx[y*XRES/4+x]);
-	else if (strcmp(xy,"y")==0)
-		lua_pushnumber(l, (double)gravy[y*XRES/4+x]);
-	else
-		lua_pushnumber(l,gravmap[y*(XRES/CELL)+x]); //Getting gravity doesn't work either...
-	return 1;
-}
-
 int luatpt_maxframes(lua_State* l)
 {
 	int maxFrames = luaL_optint(l,1,-1), i;
@@ -2749,21 +2664,6 @@ int luatpt_get_elecmap(lua_State* l)
 	return 1;
 }
 
-int luatpt_clear_sim(lua_State* l)
-{
-	clear_sim();
-	return 0;
-}
-
-int luatpt_reset_elements(lua_State* l)
-{
-	globalSim->InitElements();
-	FillMenus();
-	init_can_move();
-	memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
-	return 0;
-}
-
 int luatpt_indestructible(lua_State* l)
 {
 	int el = 0, ind;
@@ -2791,69 +2691,6 @@ int luatpt_indestructible(lua_State* l)
 		globalSim->elements[el].Properties &= ~PROP_INDESTRUCTIBLE;
 	}
 	return 0;
-}
-
-int luatpt_create_parts(lua_State* l)
-{
-	int x = luaL_optint(l,1,-1);
-	int y = luaL_optint(l,2,-1);
-	int rx = luaL_optint(l,3,5);
-	int ry = luaL_optint(l,4,5);
-	int c = luaL_optint(l,5,((ElementTool*)activeTools[0])->GetID());
-	int fill = luaL_optint(l,6,1);
-	int brush = luaL_optint(l,7,CIRCLE_BRUSH);
-	int flags = luaL_optint(l,8,get_brush_flags());
-	int ret;
-	if (x < 0 || x > XRES || y < 0 || y > YRES)
-		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
-	if (c < 0 || c >= PT_NUM && !ptypes[c].enabled)
-		return luaL_error(l, "Unrecognised element number '%d'", c);
-	Brush* tempBrush = new Brush(Point(rx, ry), brush);
-	ret = globalSim->CreateParts(x, y, c, flags, fill, tempBrush);
-	delete tempBrush;
-	lua_pushinteger(l, ret);
-	return 1;
-}
-
-int luatpt_create_line(lua_State* l)
-{
-	return simulation_createLine(l);
-}
-
-int luatpt_floodfill(lua_State* l)
-{
-	return simulation_floodParts(l);
-}
-
-int luatpt_save_stamp(lua_State* l)
-{
-	return simulation_saveStamp(l);
-}
-
-int luatpt_load_stamp(lua_State* l)
-{
-	return simulation_loadStamp(l);
-}
-
-int luatpt_set_selected(lua_State* l)
-{
-	std::string newsl = std::string(luaL_optstring(l, 1, activeTools[0]->GetIdentifier().c_str()));
-	std::string newsr = std::string(luaL_optstring(l, 2, activeTools[1]->GetIdentifier().c_str()));
-	std::string newSLALT = std::string(luaL_optstring(l, 3, activeTools[2]->GetIdentifier().c_str()));
-	activeTools[0] = GetToolFromIdentifier(newsl);
-	activeTools[1] = GetToolFromIdentifier(newsr);
-	activeTools[2] = GetToolFromIdentifier(newSLALT);
-	return 0;
-}
-
-int luatpt_set_decocolor(lua_State* l)
-{
-	return simulation_decoColor(l);
-}
-
-int luatpt_outside_airtemp(lua_State* l)
-{
-	return simulation_ambientAirTemp(l);
 }
 
 int luatpt_oldmenu(lua_State *l)
