@@ -33,6 +33,7 @@
 #ifdef MACOSX
 #include <ApplicationServices/ApplicationServices.h>
 #endif
+#include <sstream>
 #include <math.h>
 
 #ifdef LIN
@@ -154,12 +155,18 @@ void save_console_history(cJSON **historyArray, command_history *commandList)
 	cJSON_AddItemToArray(*historyArray, cJSON_CreateString(commandList->command.str));
 }
 
+void cJSON_AddString(cJSON** obj, const char *name, int number)
+{
+	std::stringstream str;
+	str << number;
+	cJSON_AddStringToObject(*obj, name, str.str().c_str());
+}
+
 void save_presets(int do_update)
 {
-	int i = 0, count;
 	char * outputdata;
 	char mode[32];
-	cJSON *root, *userobj, *userobj2, *versionobj, *recobj, *graphicsobj, *graphicsobj2, *hudobj, *simulationobj, *consoleobj, *tmpobj;
+	cJSON *root, *userobj, *versionobj, *recobj, *graphicsobj, *hudobj, *simulationobj, *consoleobj, *tmpobj;
 #ifndef MACOSX
 	FILE *f = fopen("powder.pref", "wb");
 	if(!f)
@@ -170,62 +177,66 @@ void save_presets(int do_update)
 	cJSON_AddStringToObject(root, "Powder Toy Preferences", "Don't modify this file unless you know what you're doing. P.S: editing the admin/mod fields in your user info doesn't give you magical powers");
 	
 	//Tpt++ User Info
-	if(svf_login){
-		cJSON_AddItemToObject(root, "User", userobj2=cJSON_CreateObject());
-		cJSON_AddStringToObject(userobj2, "Username", svf_user);
-		cJSON_AddNumberToObject(userobj2, "ID", atoi(svf_user_id));
-		cJSON_AddStringToObject(userobj2, "SessionID", svf_session_id);
-		cJSON_AddStringToObject(userobj2, "SessionKey", svf_session_key);
-		if(svf_admin){
-			cJSON_AddStringToObject(userobj2, "Elevation", "Admin");
-		} else if(svf_mod){
-			cJSON_AddStringToObject(userobj2, "Elevation", "Mod");
-		} else {
-			cJSON_AddStringToObject(userobj2, "Elevation", "None");
+	if (svf_login)
+	{
+		cJSON_AddItemToObject(root, "User", userobj=cJSON_CreateObject());
+		cJSON_AddStringToObject(userobj, "Username", svf_user);
+		cJSON_AddNumberToObject(userobj, "ID", atoi(svf_user_id));
+		cJSON_AddStringToObject(userobj, "SessionID", svf_session_id);
+		cJSON_AddStringToObject(userobj, "SessionKey", svf_session_key);
+		if (svf_admin)
+		{
+			cJSON_AddStringToObject(userobj, "Elevation", "Admin");
+		}
+		else if (svf_mod)
+		{
+			cJSON_AddStringToObject(userobj, "Elevation", "Mod");
+		}
+		else {
+			cJSON_AddStringToObject(userobj, "Elevation", "None");
 		}
 	}
 
 	//Tpt++ Renderer settings
-	cJSON_AddItemToObject(root, "Renderer", graphicsobj2=cJSON_CreateObject());
-	sprintf(mode, "%i", colour_mode);
-	cJSON_AddStringToObject(graphicsobj2, "ColourMode", mode);
+	cJSON_AddItemToObject(root, "Renderer", graphicsobj=cJSON_CreateObject());
+	cJSON_AddString(&graphicsobj, "ColourMode", colour_mode);
 	if (DEBUG_MODE)
-		cJSON_AddTrueToObject(graphicsobj2, "DebugMode");
+		cJSON_AddTrueToObject(graphicsobj, "DebugMode");
 	else
-		cJSON_AddFalseToObject(graphicsobj2, "DebugMode");
+		cJSON_AddFalseToObject(graphicsobj, "DebugMode");
 	tmpobj = cJSON_CreateStringArray(NULL, 0);
-	while(display_modes[i])
+	int i = 0;
+	while (display_modes[i])
 	{
 		sprintf(mode, "%x", display_modes[i]);
 		cJSON_AddItemToArray(tmpobj, cJSON_CreateString(mode));
 		i++;
 	}
-	cJSON_AddItemToObject(graphicsobj2, "DisplayModes", tmpobj);
+	cJSON_AddItemToObject(graphicsobj, "DisplayModes", tmpobj);
 	tmpobj = cJSON_CreateStringArray(NULL, 0);
 	i = 0;
-	while(render_modes[i])
+	while (render_modes[i])
 	{
 		sprintf(mode, "%x", render_modes[i]);
 		cJSON_AddItemToArray(tmpobj, cJSON_CreateString(mode));
 		i++;
 	}
-	cJSON_AddItemToObject(graphicsobj2, "RenderModes", tmpobj);
+	cJSON_AddItemToObject(graphicsobj, "RenderModes", tmpobj);
 	if (drawgrav_enable)
-		cJSON_AddTrueToObject(graphicsobj2, "GravityField");
+		cJSON_AddTrueToObject(graphicsobj, "GravityField");
 	else
-		cJSON_AddFalseToObject(graphicsobj2, "GravityField");
+		cJSON_AddFalseToObject(graphicsobj, "GravityField");
 	if (decorations_enable)
-		cJSON_AddTrueToObject(graphicsobj2, "Decorations");
+		cJSON_AddTrueToObject(graphicsobj, "Decorations");
 	else
-		cJSON_AddFalseToObject(graphicsobj2, "Decorations");
+		cJSON_AddFalseToObject(graphicsobj, "Decorations");
 	
 	//Tpt++ Simulation setting(s)
 	cJSON_AddItemToObject(root, "Simulation", simulationobj=cJSON_CreateObject());
-	sprintf(mode, "%i", edgeMode);
-	cJSON_AddStringToObject(simulationobj, "EdgeMode", mode);
-	cJSON_AddNumberToObject(simulationobj, "NewtonianGravity", ngrav_enable);
-	cJSON_AddNumberToObject(simulationobj, "AmbientHeat", aheat_enable);
-	cJSON_AddNumberToObject(simulationobj, "PrettyPowder", pretty_powder);
+	cJSON_AddString(&simulationobj, "EdgeMode", edgeMode);
+	cJSON_AddString(&simulationobj, "NewtonianGravity", ngrav_enable);
+	cJSON_AddString(&simulationobj, "AmbientHeat", aheat_enable);
+	cJSON_AddString(&simulationobj, "PrettyPowder", pretty_powder);
 
 	//Tpt++ install check, prevents annoyingness
 	cJSON_AddTrueToObject(root, "InstallCheck");
@@ -239,33 +250,17 @@ void save_presets(int do_update)
 	save_console_history(&tmpobj, last_command_result);
 	cJSON_AddItemToObject(consoleobj, "HistoryResults", tmpobj);
 
-	//Tpt User info
-	if (svf_login)
-	{
-		cJSON_AddItemToObject(root, "user", userobj=cJSON_CreateObject());
-		cJSON_AddStringToObject(userobj, "name", svf_user);
-		cJSON_AddStringToObject(userobj, "id", svf_user_id);
-		cJSON_AddStringToObject(userobj, "session_id", svf_session_id);
-		if(svf_admin){
-			cJSON_AddTrueToObject(userobj, "admin");
-			cJSON_AddFalseToObject(userobj, "mod");
-		} else if(svf_mod){
-			cJSON_AddFalseToObject(userobj, "admin");
-			cJSON_AddTrueToObject(userobj, "mod");
-		} else {
-			cJSON_AddFalseToObject(userobj, "admin");
-			cJSON_AddFalseToObject(userobj, "mod");
-		}
-	}
-
 	//Version Info
 	cJSON_AddItemToObject(root, "version", versionobj=cJSON_CreateObject());
 	cJSON_AddNumberToObject(versionobj, "major", SAVE_VERSION);
 	cJSON_AddNumberToObject(versionobj, "minor", MINOR_VERSION);
 	cJSON_AddNumberToObject(versionobj, "build", BUILD_NUM);
-	if(do_update){
+	if (do_update)
+	{
 		cJSON_AddTrueToObject(versionobj, "update");
-	} else {
+	}
+	else
+	{
 		cJSON_AddFalseToObject(versionobj, "update");
 	}
 	
@@ -288,14 +283,6 @@ void save_presets(int do_update)
 	cJSON_AddNumberToObject(recobj, "Total AFK Time", ((double)totalafktime/1000)+((double)afktime/1000)+((double)prevafktime/1000));
 	cJSON_AddNumberToObject(recobj, "Times Played", timesplayed);
 
-	//Display settings
-	cJSON_AddItemToObject(root, "graphics", graphicsobj=cJSON_CreateObject());
-	cJSON_AddNumberToObject(graphicsobj, "colour", colour_mode);
-	count = 0; i = 0; while(display_modes[i++]){ count++; }
-	cJSON_AddItemToObject(graphicsobj, "display", cJSON_CreateIntArray((int*)display_modes, count));
-	count = 0; i = 0; while(render_modes[i++]){ count++; }
-	cJSON_AddItemToObject(graphicsobj, "render", cJSON_CreateIntArray((int*)render_modes, count));
-
 	//HUDs
 	cJSON_AddItemToObject(root, "HUD", hudobj=cJSON_CreateObject());
 	cJSON_AddItemToObject(hudobj, "normal", cJSON_CreateIntArray(normalHud, HUD_OPTIONS));
@@ -303,14 +290,16 @@ void save_presets(int do_update)
 
 	//General settings
 	cJSON_AddStringToObject(root, "proxy", http_proxy_string);
-	cJSON_AddNumberToObject(root, "scale", sdl_scale);
-	cJSON_AddNumberToObject(root, "Debug mode", DEBUG_MODE);
+	cJSON_AddString(&root, "Scale", sdl_scale);
+	if (kiosk_enable)
+		cJSON_AddTrueToObject(root, "FullScreen");
+	cJSON_AddString(&root, "FastQuit", fastquit);
+	cJSON_AddString(&root, "WindowX", savedWindowX);
+	cJSON_AddString(&root, "WindowY", savedWindowY);
+
+	//additional settings from my mod
 	cJSON_AddNumberToObject(root, "heatmode", heatmode);
 	cJSON_AddNumberToObject(root, "autosave", autosave);
-	cJSON_AddNumberToObject(root, "aheat_enable", aheat_enable);
-	cJSON_AddNumberToObject(root, "decorations_enable", decorations_enable);
-	cJSON_AddNumberToObject(root, "ngrav_enable", ngrav_enable);
-	cJSON_AddNumberToObject(root, "kiosk_enable", kiosk_enable);
 	cJSON_AddNumberToObject(root, "realistic", realistic);
 	if (unlockedstuff & 0x01)
 		cJSON_AddNumberToObject(root, "cracker_unlocked", 1);
@@ -320,17 +309,12 @@ void save_presets(int do_update)
 		cJSON_AddNumberToObject(root, "EXPL_unlocked", 1);
 	if (old_menu)
 		cJSON_AddNumberToObject(root, "old_menu", 1);
-	cJSON_AddNumberToObject(root, "drawgrav_enable", drawgrav_enable);
-	cJSON_AddNumberToObject(root, "edgeMode", edgeMode);
 	if (finding & 0x8)
 		cJSON_AddNumberToObject(root, "alt_find", 1);
 	cJSON_AddNumberToObject(root, "dateformat", dateformat);
 	cJSON_AddNumberToObject(root, "ShowIDs", show_ids);
 	cJSON_AddNumberToObject(root, "decobox_hidden", decobox_hidden);
-	cJSON_AddNumberToObject(root, "fastquit", fastquit);
 	cJSON_AddNumberToObject(root, "doUpdates2", doUpdates);
-	cJSON_AddNumberToObject(root, "WindowX", savedWindowX);
-	cJSON_AddNumberToObject(root, "WindowY", savedWindowY);
 	
 	outputdata = cJSON_Print(root);
 	cJSON_Delete(root);
@@ -346,9 +330,8 @@ void save_presets(int do_update)
 
 void load_console_history(cJSON *tmpobj, command_history **last_command, int count)
 {
-	int i;
 	command_history *currentcommand = *last_command;
-	for(i = 0; i < count; i++)
+	for (int i = 0; i < count; i++)
 	{
 		currentcommand = (command_history*)malloc(sizeof(command_history));
 		memset(currentcommand, 0, sizeof(command_history));
@@ -359,55 +342,63 @@ void load_console_history(cJSON *tmpobj, command_history **last_command, int cou
 	}
 }
 
+int cJSON_GetInt(cJSON **tmpobj)
+{
+	const char* ret = (*tmpobj)->valuestring;
+	return atoi(ret);
+}
+
 void load_presets(void)
 {
-	int prefdatasize = 0, i, count;
+	int prefdatasize = 0;
 #ifdef MACOSX
 	char * prefdata = readUserPreferences();
 #else
 	char * prefdata = (char*)file_load("powder.pref", &prefdatasize);
 #endif
 	cJSON *root;
-	if(prefdata && (root = cJSON_Parse(prefdata)))
+	if (prefdata && (root = cJSON_Parse(prefdata)))
 	{
 		cJSON *userobj, *versionobj, *recobj, *tmpobj, *graphicsobj, *hudobj, *simulationobj, *consoleobj;
 		
 		//Read user data
 		userobj = cJSON_GetObjectItem(root, "User");
-		if (userobj && (tmpobj = cJSON_GetObjectItem(userobj, "SessionKey"))) { //tpt++ format
+		if (userobj && (tmpobj = cJSON_GetObjectItem(userobj, "SessionKey")))
+		{
 			svf_login = 1;
-			if((tmpobj = cJSON_GetObjectItem(userobj, "Username")) && tmpobj->type == cJSON_String) strncpy(svf_user, tmpobj->valuestring, 63); else svf_user[0] = 0;
-			if((tmpobj = cJSON_GetObjectItem(userobj, "ID")) && tmpobj->type == cJSON_Number) sprintf(svf_user_id, "%i", tmpobj->valueint, 63); else svf_user_id[0] = 0;
-			if((tmpobj = cJSON_GetObjectItem(userobj, "SessionID")) && tmpobj->type == cJSON_String) strncpy(svf_session_id, tmpobj->valuestring, 63); else svf_session_id[0] = 0;
-			if((tmpobj = cJSON_GetObjectItem(userobj, "SessionKey")) && tmpobj->type == cJSON_String) strncpy(svf_session_key, tmpobj->valuestring, 63); else svf_session_key[0] = 0;
-			if((tmpobj = cJSON_GetObjectItem(userobj, "Elevation")) && tmpobj->type == cJSON_String) {
-				if (!strcmp(tmpobj->valuestring, "Admin")) {
+			if ((tmpobj = cJSON_GetObjectItem(userobj, "Username")) && tmpobj->type == cJSON_String)
+				strncpy(svf_user, tmpobj->valuestring, 63);
+			else
+				svf_user[0] = 0;
+			if ((tmpobj = cJSON_GetObjectItem(userobj, "ID")) && tmpobj->type == cJSON_Number)
+				sprintf(svf_user_id, "%i", tmpobj->valueint, 63);
+			else
+				svf_user_id[0] = 0;
+			if ((tmpobj = cJSON_GetObjectItem(userobj, "SessionID")) && tmpobj->type == cJSON_String)
+				strncpy(svf_session_id, tmpobj->valuestring, 63);
+			else
+				svf_session_id[0] = 0;
+			if ((tmpobj = cJSON_GetObjectItem(userobj, "SessionKey")) && tmpobj->type == cJSON_String)
+				strncpy(svf_session_key, tmpobj->valuestring, 63);
+			else
+				svf_session_key[0] = 0;
+			if ((tmpobj = cJSON_GetObjectItem(userobj, "Elevation")) && tmpobj->type == cJSON_String)
+			{
+				if (!strcmp(tmpobj->valuestring, "Admin"))
+				{
 					svf_admin = 1;
 					svf_mod = 0;
-				} else if (!strcmp(tmpobj->valuestring, "Mod")) {
+				}
+				else if (!strcmp(tmpobj->valuestring, "Mod"))
+				{
 					svf_mod = 1;
 					svf_admin = 0;
-				} else {
+				}
+				else
+				{
 					svf_admin = 0;
 					svf_mod = 0;
 				}
-			}
-		}
-		else if (userobj && cJSON_GetObjectItem(userobj, "name")) //tpt format
-		{
-			svf_login = 1;
-			if((tmpobj = cJSON_GetObjectItem(userobj, "name")) && tmpobj->type == cJSON_String) strncpy(svf_user, tmpobj->valuestring, 63); else svf_user[0] = 0;
-			if((tmpobj = cJSON_GetObjectItem(userobj, "id")) && tmpobj->type == cJSON_String) strncpy(svf_user_id, tmpobj->valuestring, 63); else svf_user_id[0] = 0;
-			if((tmpobj = cJSON_GetObjectItem(userobj, "session_id")) && tmpobj->type == cJSON_String) strncpy(svf_session_id, tmpobj->valuestring, 63); else svf_session_id[0] = 0;
-			if((tmpobj = cJSON_GetObjectItem(userobj, "admin")) && tmpobj->type == cJSON_True) {
-				svf_admin = 1;
-				svf_mod = 0;
-			} else if((tmpobj = cJSON_GetObjectItem(userobj, "mod")) && tmpobj->type == cJSON_True) {
-				svf_mod = 1;
-				svf_admin = 0;
-			} else {
-				svf_admin = 0;
-				svf_mod = 0;
 			}
 		}
 		else 
@@ -422,7 +413,8 @@ void load_presets(void)
 		
 		//Read version data
 		versionobj = cJSON_GetObjectItem(root, "version");
-		if(versionobj){
+		if (versionobj)
+		{
 			if(tmpobj = cJSON_GetObjectItem(versionobj, "major")) last_major = tmpobj->valueint;
 			if(tmpobj = cJSON_GetObjectItem(versionobj, "minor")) last_minor = tmpobj->valueint;
 			if(tmpobj = cJSON_GetObjectItem(versionobj, "build")) last_build = tmpobj->valueint;
@@ -430,7 +422,9 @@ void load_presets(void)
 				update_flag = 1;
 			else
 				update_flag = 0;
-		} else {
+		}
+		else
+		{
 			last_major = 0;
 			last_minor = 0;
 			last_build = 0;
@@ -439,8 +433,10 @@ void load_presets(void)
 		
 		//Read FavMenu/Records
 		recobj = cJSON_GetObjectItem(root, "records");
-		if (recobj) {
-			if(tmpobj = cJSON_GetObjectItem(recobj, "Favorited Elements")) locked = tmpobj->valueint;
+		if (recobj)
+		{
+			if (tmpobj = cJSON_GetObjectItem(recobj, "Favorited Elements"))
+				locked = tmpobj->valueint;
 			if (tmpobj = cJSON_GetObjectItem(recobj, "Recent Elements"))
 			{
 				for (int i = 0; i < 18; i++)
@@ -467,27 +463,34 @@ void load_presets(void)
 					favMenu[i] = element;
 				}
 			}
-			if(tmpobj = cJSON_GetObjectItem(recobj, "Total Time Played")) totaltime = (int)((tmpobj->valuedouble)*1000);
-			if(tmpobj = cJSON_GetObjectItem(recobj, "Average FPS")) totalfps = tmpobj->valuedouble;
-			if(tmpobj = cJSON_GetObjectItem(recobj, "Number of frames")) frames = tmpobj->valueint; totalfps = totalfps * frames;
-			if(tmpobj = cJSON_GetObjectItem(recobj, "Max FPS")) maxfps = tmpobj->valuedouble;
-			if(tmpobj = cJSON_GetObjectItem(recobj, "Total AFK Time")) prevafktime = (int)((tmpobj->valuedouble)*1000);
-			if(tmpobj = cJSON_GetObjectItem(recobj, "Times Played")) timesplayed = tmpobj->valueint;
+			if (tmpobj = cJSON_GetObjectItem(recobj, "Total Time Played"))
+				totaltime = (int)((tmpobj->valuedouble)*1000);
+			if (tmpobj = cJSON_GetObjectItem(recobj, "Average FPS"))
+				totalfps = tmpobj->valuedouble;
+			if (tmpobj = cJSON_GetObjectItem(recobj, "Number of frames"))
+				frames = tmpobj->valueint; totalfps = totalfps * frames;
+			if (tmpobj = cJSON_GetObjectItem(recobj, "Max FPS"))
+				maxfps = tmpobj->valuedouble;
+			if (tmpobj = cJSON_GetObjectItem(recobj, "Total AFK Time"))
+				prevafktime = (int)((tmpobj->valuedouble)*1000);
+			if (tmpobj = cJSON_GetObjectItem(recobj, "Times Played"))
+				timesplayed = tmpobj->valueint;
 		}
 
 		//Read display settings
 		graphicsobj = cJSON_GetObjectItem(root, "Renderer");
 		if(graphicsobj)
 		{
-			if(tmpobj = cJSON_GetObjectItem(graphicsobj, "ColourMode")) colour_mode = atoi(tmpobj->valuestring);
-			if(tmpobj = cJSON_GetObjectItem(graphicsobj, "DisplayModes"))
+			if (tmpobj = cJSON_GetObjectItem(graphicsobj, "ColourMode"))
+				colour_mode = cJSON_GetInt(&tmpobj);
+			if (tmpobj = cJSON_GetObjectItem(graphicsobj, "DisplayModes"))
 			{
 				char temp[32];
-				count = cJSON_GetArraySize(tmpobj);
+				int count = cJSON_GetArraySize(tmpobj);
 				free(display_modes);
 				display_mode = 0;
 				display_modes = (unsigned int*)calloc(count+1, sizeof(unsigned int));
-				for(i = 0; i < count; i++)
+				for (int i = 0; i < count; i++)
 				{
 					unsigned int mode;
 					strncpy(temp, cJSON_GetArrayItem(tmpobj, i)->valuestring, 31);
@@ -496,14 +499,14 @@ void load_presets(void)
 					display_modes[i] = mode;
 				}
 			}
-			if(tmpobj = cJSON_GetObjectItem(graphicsobj, "RenderModes"))
+			if (tmpobj = cJSON_GetObjectItem(graphicsobj, "RenderModes"))
 			{
 				char temp[32];
-				count = cJSON_GetArraySize(tmpobj);
+				int count = cJSON_GetArraySize(tmpobj);
 				free(render_modes);
 				render_mode = 0;
 				render_modes = (unsigned int*)calloc(count+1, sizeof(unsigned int));
-				for(i = 0; i < count; i++)
+				for (int i = 0; i < count; i++)
 				{
 					unsigned int mode;
 					strncpy(temp, cJSON_GetArrayItem(tmpobj, i)->valuestring, 31);
@@ -512,64 +515,37 @@ void load_presets(void)
 					render_modes[i] = mode;
 				}
 			}
-			if((tmpobj = cJSON_GetObjectItem(graphicsobj, "Decorations")) && tmpobj->type == cJSON_True)
-				decorations_enable = tmpobj->valueint;
-			if((tmpobj = cJSON_GetObjectItem(graphicsobj, "GravityField")) && tmpobj->type == cJSON_True)
+			if ((tmpobj = cJSON_GetObjectItem(graphicsobj, "Decorations")) && tmpobj->type == cJSON_True)
+				decorations_enable = true;
+			if ((tmpobj = cJSON_GetObjectItem(graphicsobj, "GravityField")) && tmpobj->type == cJSON_True)
 				drawgrav_enable = tmpobj->valueint;
 			if((tmpobj = cJSON_GetObjectItem(graphicsobj, "DebugMode")) && tmpobj->type == cJSON_True)
 				DEBUG_MODE = tmpobj->valueint;
 		}
-		else
-		{
-			graphicsobj = cJSON_GetObjectItem(root, "graphics");
-			if (graphicsobj)
-			{
-				if(tmpobj = cJSON_GetObjectItem(graphicsobj, "colour")) colour_mode = tmpobj->valueint;
-				if(tmpobj = cJSON_GetObjectItem(graphicsobj, "display"))
-				{
-					count = cJSON_GetArraySize(tmpobj);
-					free(display_modes);
-					display_mode = 0;
-					display_modes = (unsigned int*)calloc(count+1, sizeof(unsigned int));
-					for(i = 0; i < count; i++)
-					{
-						display_mode |= cJSON_GetArrayItem(tmpobj, i)->valueint;
-						display_modes[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
-					}
-				}
-				if(tmpobj = cJSON_GetObjectItem(graphicsobj, "render"))
-				{
-					count = cJSON_GetArraySize(tmpobj);
-					free(render_modes);
-					render_mode = 0;
-					render_modes = (unsigned int*)calloc(count+1, sizeof(unsigned int));
-					for(i = 0; i < count; i++)
-					{
-						render_mode |= cJSON_GetArrayItem(tmpobj, i)->valueint;
-						render_modes[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
-					}
-				}
-			}
-		}
 
+		//Read simulation settings
 		simulationobj = cJSON_GetObjectItem(root, "Simulation");
 		if (simulationobj)
 		{
 			if(tmpobj = cJSON_GetObjectItem(simulationobj, "EdgeMode"))
-				edgeMode = tmpobj->valueint;
-			if((tmpobj = cJSON_GetObjectItem(simulationobj, "NewtonianGravity")) && tmpobj->valueint == 1)
+			{
+				edgeMode = cJSON_GetInt(&tmpobj);
+				if (edgeMode > 3)
+					edgeMode = 0;
+			}
+			if((tmpobj = cJSON_GetObjectItem(simulationobj, "NewtonianGravity")) && !strcmp(tmpobj->valuestring, "1"))
 				start_grav_async();
 			if(tmpobj = cJSON_GetObjectItem(simulationobj, "AmbientHeat"))
-				aheat_enable = tmpobj->valueint;
+				aheat_enable = cJSON_GetInt(&tmpobj);
 			if(tmpobj = cJSON_GetObjectItem(simulationobj, "PrettyPowder"))
-				pretty_powder = tmpobj->valueint;
+				pretty_powder = cJSON_GetInt(&tmpobj);
 		}
 
 		//read console history
 		consoleobj = cJSON_GetObjectItem(root, "Console");
 		if (consoleobj)
 		{
-			if(tmpobj = cJSON_GetObjectItem(consoleobj, "History"))
+			if (tmpobj = cJSON_GetObjectItem(consoleobj, "History"))
 			{
 				int size = cJSON_GetArraySize(tmpobj);
 				tmpobj = cJSON_GetObjectItem(consoleobj, "HistoryResults");
@@ -584,36 +560,36 @@ void load_presets(void)
 
 		//Read HUDs
 		hudobj = cJSON_GetObjectItem(root, "HUD");
-		if(hudobj)
+		if (hudobj)
 		{
-			if(tmpobj = cJSON_GetObjectItem(hudobj, "normal"))
+			if (tmpobj = cJSON_GetObjectItem(hudobj, "normal"))
 			{
-				count = std::min(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
-				for(i = 0; i < count; i++)
+				int count = std::min(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
+				for (int i = 0; i < count; i++)
 				{
 					normalHud[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
 				}
 			}
-			if(tmpobj = cJSON_GetObjectItem(hudobj, "debug"))
+			if (tmpobj = cJSON_GetObjectItem(hudobj, "debug"))
 			{
-				count = std::min(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
-				for(i = 0; i < count; i++)
+				int count = std::min(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
+				for (int i = 0; i < count; i++)
 				{
 					debugHud[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
 				}
 			}
-			if(tmpobj = cJSON_GetObjectItem(hudobj, "modnormal"))
+			if (tmpobj = cJSON_GetObjectItem(hudobj, "modnormal"))
 			{
-				count = std::min(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
-				for(i = 0; i < count; i++)
+				int count = std::min(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
+				for (int i = 0; i < count; i++)
 				{
 					normalHud[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
 				}
 			}
-			if(tmpobj = cJSON_GetObjectItem(hudobj, "moddebug"))
+			if (tmpobj = cJSON_GetObjectItem(hudobj, "moddebug"))
 			{
-				count = std::min(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
-				for(i = 0; i < count; i++)
+				int count = std::min(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
+				for (int i = 0; i < count; i++)
 				{
 					debugHud[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
 				}
@@ -621,112 +597,73 @@ void load_presets(void)
 		}
 		
 		//Read general settings
-		if((tmpobj = cJSON_GetObjectItem(root, "proxy")) && tmpobj->type == cJSON_String) strncpy(http_proxy_string, tmpobj->valuestring, 255); else http_proxy_string[0] = 0;
-		if(tmpobj = cJSON_GetObjectItem(root, "scale")) sdl_scale = tmpobj->valueint;
-		else if(tmpobj = cJSON_GetObjectItem(root, "Scale")) sdl_scale = tmpobj->valueint;
-		if(tmpobj = cJSON_GetObjectItem(root, "Debug mode")) DEBUG_MODE = tmpobj->valueint;
-		if(tmpobj = cJSON_GetObjectItem(root, "heatmode")) heatmode = tmpobj->valueint;
-		if(tmpobj = cJSON_GetObjectItem(root, "autosave")) autosave = tmpobj->valueint;
-		//if(tmpobj = cJSON_GetObjectItem(root, "sl")) sl = su = tmpobj->valueint;
-		//if(tmpobj = cJSON_GetObjectItem(root, "sr")) sr = tmpobj->valueint;
-		if(tmpobj = cJSON_GetObjectItem(root, "active_menu")) active_menu = tmpobj->valueint;
-		if(tmpobj = cJSON_GetObjectItem(root, "autosave")) autosave = tmpobj->valueint;
-		if(tmpobj = cJSON_GetObjectItem(root, "aheat_enable")) aheat_enable = tmpobj->valueint;
-		if(tmpobj = cJSON_GetObjectItem(root, "decorations_enable")) decorations_enable = tmpobj->valueint;
-		if(tmpobj = cJSON_GetObjectItem(root, "ngrav_enable")) { if (tmpobj->valueint) start_grav_async(); };
-		if(tmpobj = cJSON_GetObjectItem(root, "kiosk_enable")) { kiosk_enable = tmpobj->valueint; if (kiosk_enable) set_scale(sdl_scale, kiosk_enable); }
-		//if(tmpobj = cJSON_GetObjectItem(root, "realistic")) { realistic = tmpobj->valueint; if (realistic) ptypes[PT_FIRE].hconduct = 1; }
-		if(tmpobj = cJSON_GetObjectItem(root, "cracker_unlocked")) { unlockedstuff |= 0x01; menuSections[SC_CRACKER]->enabled = true; }
-		if(tmpobj = cJSON_GetObjectItem(root, "show_votes")) unlockedstuff |= 0x08;
-		if(tmpobj = cJSON_GetObjectItem(root, "EXPL_unlocked")) { unlockedstuff |= 0x10; ptypes[PT_EXPL].menu = 1; ptypes[PT_EXPL].enabled = 1; globalSim->elements[PT_EXPL].MenuVisible = 1; globalSim->elements[PT_EXPL].Enabled = 1; FillMenus(); }
-		if(tmpobj = cJSON_GetObjectItem(root, "old_menu")) old_menu = 1;
-		if(tmpobj = cJSON_GetObjectItem(root, "drawgrav_enable")) drawgrav_enable = tmpobj->valueint;
-		if(tmpobj = cJSON_GetObjectItem(root, "edgeMode")) edgeMode = tmpobj->valueint;
-		if (edgeMode > 3) edgeMode = 0;
-		if(tmpobj = cJSON_GetObjectItem(root, "alt_find")) finding |= 0x8;
-		if(tmpobj = cJSON_GetObjectItem(root, "dateformat")) dateformat = tmpobj->valueint;
-		if(tmpobj = cJSON_GetObjectItem(root, "ShowIDs")) show_ids = tmpobj->valueint;
-		if(tmpobj = cJSON_GetObjectItem(root, "decobox_hidden")) decobox_hidden = tmpobj->valueint;
-		if(tmpobj = cJSON_GetObjectItem(root, "fastquit")) fastquit = tmpobj->valueint;
-		if(tmpobj = cJSON_GetObjectItem(root, "doUpdates2")) doUpdates = tmpobj->valueint;
-		if(tmpobj = cJSON_GetObjectItem(root, "WindowX")) savedWindowX = tmpobj->valueint;
-		if(tmpobj = cJSON_GetObjectItem(root, "WindowY")) savedWindowY = tmpobj->valueint;
+		if ((tmpobj = cJSON_GetObjectItem(root, "proxy")) && tmpobj->type == cJSON_String)
+			strncpy(http_proxy_string, tmpobj->valuestring, 255);
+		else
+			http_proxy_string[0] = 0;
+		if (tmpobj = cJSON_GetObjectItem(root, "Scale"))
+		{
+			sdl_scale = cJSON_GetInt(&tmpobj);
+			if (sdl_scale <= 0)
+				sdl_scale = 1;
+		}
+		if (tmpobj = cJSON_GetObjectItem(root, "Fullscreen"))
+		{
+			kiosk_enable = cJSON_GetInt(&tmpobj);
+			if (kiosk_enable)
+				set_scale(sdl_scale, kiosk_enable);
+		}
+		if (tmpobj = cJSON_GetObjectItem(root, "FastQuit"))
+			fastquit = cJSON_GetInt(&tmpobj);
+		if (tmpobj = cJSON_GetObjectItem(root, "WindowX"))
+			savedWindowX = cJSON_GetInt(&tmpobj);
+		if (tmpobj = cJSON_GetObjectItem(root, "WindowY"))
+			savedWindowY = cJSON_GetInt(&tmpobj);
+
+		//Read some extra mod settings
+		if (tmpobj = cJSON_GetObjectItem(root, "heatmode"))
+			heatmode = tmpobj->valueint;
+		if (tmpobj = cJSON_GetObjectItem(root, "autosave"))
+			autosave = tmpobj->valueint;
+		if (tmpobj = cJSON_GetObjectItem(root, "autosave"))
+			autosave = tmpobj->valueint;
+		/*if(tmpobj = cJSON_GetObjectItem(root, "realistic"))
+		{
+			realistic = tmpobj->valueint;
+			if (realistic)
+				ptypes[PT_FIRE].hconduct = 1;
+		}*/
+		if (tmpobj = cJSON_GetObjectItem(root, "cracker_unlocked"))
+		{
+			unlockedstuff |= 0x01;
+			menuSections[SC_CRACKER]->enabled = true;
+		}
+		if (tmpobj = cJSON_GetObjectItem(root, "show_votes"))
+			unlockedstuff |= 0x08;
+		if (tmpobj = cJSON_GetObjectItem(root, "EXPL_unlocked"))
+		{
+			unlockedstuff |= 0x10;
+			ptypes[PT_EXPL].menu = 1;
+			ptypes[PT_EXPL].enabled = 1;
+			globalSim->elements[PT_EXPL].MenuVisible = 1;
+			globalSim->elements[PT_EXPL].Enabled = 1;
+			FillMenus();
+		}
+		if (tmpobj = cJSON_GetObjectItem(root, "old_menu"))
+			old_menu = 1;
+		if (tmpobj = cJSON_GetObjectItem(root, "alt_find"))
+			finding |= 0x8;
+		if (tmpobj = cJSON_GetObjectItem(root, "dateformat"))
+			dateformat = tmpobj->valueint;
+		if (tmpobj = cJSON_GetObjectItem(root, "ShowIDs"))
+			show_ids = tmpobj->valueint;
+		if (tmpobj = cJSON_GetObjectItem(root, "decobox_hidden"))
+			decobox_hidden = tmpobj->valueint;
+		if (tmpobj = cJSON_GetObjectItem(root, "doUpdates2"))
+			doUpdates = tmpobj->valueint;
 
 		cJSON_Delete(root);
 		free(prefdata);
-	} else { //Fallback and read from old def file
-		FILE *f=fopen("powder.def", "rb");
-		unsigned char sig[4], tmp;
-		if (!f)
-			return;
-		fread(sig, 1, 4, f);
-		if (sig[0]!=0x50 || sig[1]!=0x44 || sig[2]!=0x65)
-		{
-			if (sig[0]==0x4D && sig[1]==0x6F && sig[2]==0x46 && sig[3]==0x6F)
-			{
-				if (fseek(f, -3, SEEK_END))
-				{
-					remove("powder.def");
-					return;
-				}
-				if (fread(sig, 1, 3, f) != 3)
-				{
-					remove("powder.def");
-					goto fail;
-				}
-				//last_major = sig[0];
-				//last_minor = sig[1];
-				last_build = 0;
-				update_flag = sig[2];
-			}
-			fclose(f);
-			remove("powder.def");
-			return;
-		}
-		if (sig[3]==0x66) {
-			if (load_string(f, svf_user, 63))
-				goto fail;
-			if (load_string(f, svf_pass, 63))
-				goto fail;
-		} else {
-			if (load_string(f, svf_user, 63))
-				goto fail;
-			if (load_string(f, svf_user_id, 63))
-				goto fail;
-			if (load_string(f, svf_session_id, 63))
-				goto fail;
-		}
-		svf_login = !!svf_session_id[0];
-		if (fread(&tmp, 1, 1, f) != 1)
-			goto fail;
-		sdl_scale = (tmp == 2) ? 2 : 1;
-		if (fread(&tmp, 1, 1, f) != 1)
-			goto fail;
-		//TODO: Translate old cmode value into new *_mode values
-		//cmode = tmp%CM_COUNT;
-		if (fread(&tmp, 1, 1, f) != 1)
-			goto fail;
-		svf_admin = tmp;
-		if (fread(&tmp, 1, 1, f) != 1)
-			goto fail;
-		svf_mod = tmp;
-		if (load_string(f, http_proxy_string, 255))
-			goto fail;
-
-		if (sig[3]!=0x68) { //Pre v64 format
-			if (fread(sig, 1, 3, f) != 3)
-				goto fail;
-			last_build = 0;
-		} else {
-			if (fread(sig, 1, 4, f) != 4)
-				goto fail;
-			last_build = sig[3];
-		}
-		last_major = sig[0];
-		last_minor = sig[1];
-		update_flag = sig[2];
-	fail:
-		fclose(f);
 	}
 }
 

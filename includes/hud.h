@@ -100,7 +100,7 @@ static hud hud_menu[] =
 #define HUD_START 400
 #define HUD_REALSTART 405
 #define HUD_NUM 58
-#define HUD_OPTIONS 523
+#define HUD_OPTIONS 53
 
 extern int currentHud[HUD_OPTIONS];
 extern int normalHud[HUD_OPTIONS];

@@ -4762,16 +4762,25 @@ int SaveWindowPosition()
 		int format;
 
 		//adjust for window border. Some window managers will have get ignore the window border, so set needs to be adjusted to include it
-		//this doesn't actually work though, for some reason
-		if (Success == XGetWindowProperty(display, window, XA_NET_FRAME_EXTENTS, 0, 16, 0, XA_CARDINAL, &type, &format, &nitems, &bytes_after, &property) && property)
+		//this doesn't actually work though, for some reason. Possible alternative, xwininfo command?
+		if (Success == XGetWindowProperty(display, window, XA_NET_FRAME_EXTENTS, 0, 16, 0, XA_CARDINAL, &type, &format, &nitems, &bytes_after, &property))
 		{
-			long border_left = ((Atom*)property)[0];
-			long border_top = ((Atom*)property)[2];
+			if (property)
+			{
+				long border_left = ((Atom*)property)[0];
+				long border_top = ((Atom*)property)[2];
 
-			savedWindowX -= border_left;
-			savedWindowY -= border_top;
+				savedWindowX -= border_left;
+				savedWindowY -= border_top;
 
-			XFree(property);
+				XFree(property);
+			}
+			else
+			{
+				//hardcode my size :P
+				savedWindowX -= 3;
+				savedWindowY -= 22;
+			}
 		}
 
 		sysInfo.info.x11.unlock_func();
