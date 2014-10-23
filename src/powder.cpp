@@ -1380,6 +1380,14 @@ int transfer_heat(int i, int surround[8])
 					else
 						s = 0;
 				}
+				else if (t == PT_CRMC)
+				{
+					float pres = std::max((pv[y/CELL][x/CELL]+pv[(y-2)/CELL][x/CELL]+pv[(y+2)/CELL][x/CELL]+pv[y/CELL][(x-2)/CELL]+pv[y/CELL][(x+2)/CELL])*2.0f, 0.0f);
+					if (ctemph < pres+ptransitions[PT_CRMC].thv)
+						s = 0;
+					else
+						t = PT_LAVA;
+				}
 				else
 					s = 0;
 			}
@@ -1407,7 +1415,7 @@ int transfer_heat(int i, int surround[8])
 						t = ptransitions[t].tlt;
 					}
 				}
-				else if (t==PT_WTRV)
+				else if (t == PT_WTRV)
 				{
 					if (pt<273.0f)
 						t = PT_RIME;
@@ -1416,23 +1424,29 @@ int transfer_heat(int i, int surround[8])
 				}
 				else if (t==PT_LAVA)
 				{
-					if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && parts[i].ctype!=PT_LAVA && parts[i].ctype!=PT_LAVA && globalSim->elements[parts[i].ctype].Enabled)
+					if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && parts[i].ctype!=PT_LAVA && globalSim->elements[parts[i].ctype].Enabled)
 					{
-						if (parts[i].ctype==PT_THRM&&pt>=ptransitions[PT_BMTL].thv)
+						if (parts[i].ctype == PT_THRM && pt>=ptransitions[PT_BMTL].thv)
 							s = 0;
-						else if ((parts[i].ctype==PT_VIBR || parts[i].ctype==PT_BVBR) && pt>=273.15f)
+						else if ((parts[i].ctype == PT_VIBR || parts[i].ctype == PT_BVBR) && pt>=273.15f)
 							s = 0;
-						else if (parts[i].ctype==PT_TUNG)
+						else if (parts[i].ctype == PT_TUNG)
 						{
 							if (pt>=3695.0)
 								s = 0;
 						}
-						else if (ptransitions[parts[i].ctype].tht==PT_LAVA)
+						else if (parts[i].ctype == PT_CRMC)
+						{
+							float pres = std::max((pv[y/CELL][x/CELL]+pv[(y-2)/CELL][x/CELL]+pv[(y+2)/CELL][x/CELL]+pv[y/CELL][(x-2)/CELL]+pv[y/CELL][(x+2)/CELL])*2.0f, 0.0f);
+							if (ctemph >= pres+ptransitions[PT_CRMC].thv)
+								s = 0;
+						}
+						else if (ptransitions[parts[i].ctype].tht == PT_LAVA)
 						{
 							if (pt>=ptransitions[parts[i].ctype].thv)
 								s = 0;
 						}
-						else if (pt>=973.0f)
+						else if (pt >= 973.0f)
 							s = 0; // freezing point for lava with any other (not listed in ptransitions as turning into lava) ctype
 						if (s)
 						{
@@ -1450,7 +1464,7 @@ int transfer_heat(int i, int surround[8])
 							}
 						}
 					}
-					else if (pt<973.0f)
+					else if (pt < 973.0f)
 						t = PT_STNE;
 					else
 						s = 0;

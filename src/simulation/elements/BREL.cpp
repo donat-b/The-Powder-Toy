@@ -29,6 +29,22 @@ int BREL_update(UPDATE_FUNC_ARGS)
 			parts[i].temp += (pv[y/CELL][x/CELL])/8;
 		}
 	}
+	for (int rx = -1; rx <= 1; rx++)
+		for (int ry = -1; ry <= 1; ry++)
+		{
+			if (rx || ry)
+			{
+				int r = pmap[y+ry][x+rx];
+				if (!r)
+					continue;
+				if (parts[r>>8].type == PT_LAVA && parts[r>>8].ctype == PT_CLST)
+				{
+					float pres = std::max(pv[y/CELL][x/CELL]*10.0f, 0.0f);
+					if (parts[r>>8].temp >= pres+sim->elements[PT_CRMC].HighTemperatureTransitionThreshold+50.0f)
+						parts[r>>8].ctype = PT_CRMC;
+				}
+			}
+		}
 	return 0;
 }
 
