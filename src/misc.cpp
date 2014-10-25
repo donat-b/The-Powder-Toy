@@ -345,7 +345,10 @@ void load_console_history(cJSON *tmpobj, command_history **last_command, int cou
 int cJSON_GetInt(cJSON **tmpobj)
 {
 	const char* ret = (*tmpobj)->valuestring;
-	return atoi(ret);
+	if (ret)
+		return atoi(ret);
+	else
+		return 0;
 }
 
 void load_presets(void)
@@ -533,7 +536,7 @@ void load_presets(void)
 				if (edgeMode > 3)
 					edgeMode = 0;
 			}
-			if((tmpobj = cJSON_GetObjectItem(simulationobj, "NewtonianGravity")) && !strcmp(tmpobj->valuestring, "1"))
+			if((tmpobj = cJSON_GetObjectItem(simulationobj, "NewtonianGravity")) && tmpobj->valuestring && !strcmp(tmpobj->valuestring, "1"))
 				start_grav_async();
 			if(tmpobj = cJSON_GetObjectItem(simulationobj, "AmbientHeat"))
 				aheat_enable = cJSON_GetInt(&tmpobj);
