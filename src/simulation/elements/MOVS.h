@@ -47,7 +47,7 @@ class MOVS_ElementDataContainer : public ElementDataContainer
 {
 private:
 	MovingSolid movingSolids[MAX_MOVING_SOLIDS];
-	int numBalls = 0;
+	int numBalls;
 
 public:
 	int creatingSolid;

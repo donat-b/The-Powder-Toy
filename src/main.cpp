@@ -1373,6 +1373,18 @@ int main(int argc, char *argv[])
 	{
 		luacon_log(autorun_result);
 	}
+
+	if (file_exists("scriptmanager.lua")) //Script manager updates
+	{
+		if (luacon_eval("dofile(\"scriptmanager.lua\")", &autorun_result))
+		{
+			//scriptmanager.lua doesn't exist or errored
+			luacon_log(mystrdup(luacon_geterror()));
+			luacon_openscriptmanager();
+		}
+	}
+	else
+		luacon_openscriptmanager();
 	luacon_openmultiplayer();
 #endif
 	for (i = 0; i < 10; i++)

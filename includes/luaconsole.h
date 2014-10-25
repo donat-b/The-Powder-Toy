@@ -57,7 +57,9 @@ extern int log_history_times[20];
 
 void luacon_open();
 void luacon_openmultiplayer();
+void luacon_openscriptmanager();
 void luaopen_multiplayer(lua_State *l);
+void luaopen_scriptmanager(lua_State *l);
 int luaopen_bit(lua_State *L);
 int luacon_step(int mx, int my);
 int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel);

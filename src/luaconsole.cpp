@@ -312,6 +312,11 @@ void luacon_openmultiplayer()
 	luaopen_multiplayer(l);
 }
 
+void luacon_openscriptmanager()
+{
+	luaopen_scriptmanager(l);
+}
+
 #ifndef FFI
 int luacon_partread(lua_State* l)
 {
