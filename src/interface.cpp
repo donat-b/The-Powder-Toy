@@ -3397,7 +3397,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 	//tab menu
 	else
 	{
-		while(i < num_tabs + 2 && i < 25-GetNumMenus())
+		while(i < num_tabs + 2 && i < 23-GetNumMenus())
 		{
 			char num[8];
 			sprintf(num,"%d",i);
@@ -3500,14 +3500,14 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 						NewSim();
 					tab_save(tab_num, 1);
 				}
-				//load an different tab
+				//load a different tab
 				else if (tab_num != clickedQuickoption)
 				{
 					tab_save(tab_num, 0);
 					tab_load(clickedQuickoption);
 					tab_num = clickedQuickoption;
 				}
-				//click current tab, do nothing
+				//clicked current tab, do nothing
 				else
 				{
 				}

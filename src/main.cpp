@@ -1378,7 +1378,7 @@ int main(int argc, char *argv[])
 	{
 		if (luacon_eval("dofile(\"scriptmanager.lua\")", &autorun_result))
 		{
-			//scriptmanager.lua doesn't exist or errored
+			//scriptmanager.lua errored, log error and open the included one
 			luacon_log(mystrdup(luacon_geterror()));
 			luacon_openscriptmanager();
 		}
@@ -1753,7 +1753,7 @@ int main(int argc, char *argv[])
 		}
 		if (ptsaveOpenID)
 		{
-			if (num_tabs < 24-GetNumMenus())
+			if (num_tabs < 22-GetNumMenus())
 			{
 				char ptsaveOpenString[512];
 				int oldTabNum = tab_num;
@@ -2255,7 +2255,7 @@ int main(int argc, char *argv[])
 			{
 				if (sdl_mod & (KMOD_CTRL|KMOD_META))
 				{
-					if (num_tabs < 24-GetNumMenus())
+					if (num_tabs < 22-GetNumMenus())
 					{
 						tab_save(tab_num, 0);
 						num_tabs++;
