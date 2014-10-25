@@ -755,6 +755,7 @@ local function createPartsAny(x,y,rx,ry,c,brush,user)
 end
 local function createLineAny(x1,y1,x2,y2,rx,ry,c,brush,user)
 	if noShape[c] then return end
+	if jacobsmod and c == tpt.element("ball") and not user.shift then return end
 	if c>=wallStart then
 		if c<= wallEnd then
 			if c == 284 then rx,ry = 0,0 end
