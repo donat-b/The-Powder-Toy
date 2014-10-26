@@ -63,6 +63,7 @@ int simulation_canMove(lua_State * l);
 int simulation_parts(lua_State * l);
 int simulation_pmap(lua_State * l);
 int simulation_neighbours(lua_State * l);
+int simulation_stickman(lua_State * l);
 
 void initRendererAPI(lua_State * l);
 int renderer_renderModes(lua_State * l);

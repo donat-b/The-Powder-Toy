@@ -213,9 +213,6 @@ extern const particle emptyparticle;
 extern playerst player;
 extern playerst player2;
 
-extern playerst fighters[256];
-extern unsigned char fighcount;
-
 extern int airMode;
 
 extern particle *parts;

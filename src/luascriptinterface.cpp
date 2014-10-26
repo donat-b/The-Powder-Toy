@@ -25,6 +25,7 @@
 #include "simulation/WallNumbers.h"
 #include "simulation/ToolNumbers.h"
 #include "simulation/Tool.h"
+#include "simulation/elements/FIGH.h"
 
 /*
 
@@ -209,6 +210,7 @@ void initSimulationAPI(lua_State * l)
 		{"pmap", simulation_pmap},
 		{"neighbors", simulation_neighbours},
 		{"neighbours", simulation_neighbours},
+		{"stickman", simulation_stickman},
 		{NULL, NULL}
 	};
 	luaL_register(l, "simulation", simulationAPIMethods);
@@ -1325,6 +1327,105 @@ int simulation_neighbours(lua_State * l)
 	lua_pushnumber(l, -ry);
 	lua_pushcclosure(l, NeighboursClosure, 6);
 	return 1;
+}
+
+//function added only for tptmp really
+int simulation_stickman(lua_State *l)
+{
+	bool set = lua_gettop(l) > 2 && !lua_isnil(l, 3);
+	int num = luaL_checkint(l, 1);
+	const char* property = luaL_checkstring(l, 2);
+	double value, ret = -1;
+	int offset = luaL_optint(l, 4, 0);
+	if (set)
+		value = luaL_checknumber(l, 3);
+
+	if (num < 1 || num >= 259)
+		return luaL_error(l, "invalid stickmen number %d", num);
+	playerst *stick;
+	if (num == 1)
+		stick = &player;
+	else if (num == 2)
+		stick = &player2;
+	else
+		stick = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get(num-3);
+
+	if (!strcmp(property, "comm"))
+	{
+		if (set)
+			stick->comm = value;
+		else
+			ret = stick->comm;
+	}
+	else if (!strcmp(property, "pcomm"))
+	{
+		if (set)
+			stick->pcomm = value;
+		else
+			ret = stick->pcomm;
+	}
+	else if (!strcmp(property, "elem"))
+	{
+		if (set)
+			stick->elem = value;
+		else
+			ret = stick->elem;
+	}
+	else if (!strcmp(property, "legs"))
+	{
+		if (offset >= 0 && offset < 16)
+		{
+			if (set)
+				stick->legs[offset] = value;
+			else
+				ret = stick->legs[offset];
+		}
+	}
+	else if (!strcmp(property, "accs"))
+	{
+		if (offset >= 0 && offset < 8)
+		{
+			if (set)
+				stick->accs[offset] = value;
+			else
+				ret = stick->accs[offset];
+		}
+	}
+	else if (!strcmp(property, "spwn"))
+	{
+		if (set)
+			stick->spwn = value ? 1 : 0;
+		else
+			ret = stick->spwn;
+	}
+	else if (!strcmp(property, "frames"))
+	{
+		if (set)
+			stick->frames = value;
+		else
+			ret = stick->frames;
+	}
+	else if (!strcmp(property, "spawnID"))
+	{
+		if (set)
+			stick->spawnID = value;
+		else
+			ret = stick->spawnID;
+	}
+	else if (!strcmp(property, "rocketBoots"))
+	{
+		if (set)
+			stick->rocketBoots = value ? 1 : 0;
+		else
+			ret = stick->rocketBoots;
+	}
+
+	if (!set)
+	{
+		lua_pushnumber(l, ret);
+		return 1;
+	}
+	return 0;
 }
 
 /*
