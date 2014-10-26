@@ -9,6 +9,9 @@
 	lua_pushinteger(L, NAME);\
 	lua_setfield(L, -2, #NAME)
 
+int simulation_signIndex(lua_State *l);
+int simulation_signNewIndex(lua_State *l);
+int simulation_newsign(lua_State *l);
 void initSimulationAPI(lua_State * l);
 int simulation_partNeighbours(lua_State * l);
 int simulation_partChangeType(lua_State * l);

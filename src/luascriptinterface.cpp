@@ -32,6 +32,123 @@ SIMULATION API
 
 */
 
+int simulation_signIndex(lua_State *l)
+{
+	std::string key = luaL_checkstring(l, 2);
+
+	//Get Raw Index value for element. Maybe there is a way to get the sign index some other way?
+	lua_pushstring(l, "id");
+	lua_rawget(l, 1);
+	int id = lua_tointeger(l, lua_gettop(l));
+
+	if (id < 0 || id >= MAXSIGNS)
+	{
+		luaL_error(l, "Invalid sign ID (stop messing with things): %i", id);
+		return 0;
+	}
+
+	if (!key.compare("text"))
+		return lua_pushstring(l, signs[id].text), 1;
+	else if (!key.compare("justification"))
+		return lua_pushnumber(l, signs[id].ju), 1;
+	else if (!key.compare("x"))
+		return lua_pushnumber(l, signs[id].x), 1;
+	else if (!key.compare("y"))
+		return lua_pushnumber(l, signs[id].y), 1;
+	else
+		return lua_pushnil(l), 1;
+}
+
+int simulation_signNewIndex(lua_State *l)
+{
+	std::string key = luaL_checkstring(l, 2);
+
+	//Get Raw Index value for element. Maybe there is a way to get the sign index some other way?
+	lua_pushstring(l, "id");
+	lua_rawget(l, 1);
+	int id = lua_tointeger(l, lua_gettop(l));
+
+	if (id < 0 || id >= MAXSIGNS)
+	{
+		luaL_error(l, "Invalid sign ID (stop messing with things)");
+		return 0;
+	}
+
+	if (!key.compare("text"))
+	{
+		char* temp = mystrdup(luaL_checkstring(l, 3));
+		clean_text(temp, 180); //arbitrary max pixel length
+		if (strlen(temp) > 255)
+			temp[255] = 0;
+		sprintf(signs[id].text, temp);
+		free(temp);
+		return 1;
+	}
+	else if (!key.compare("justification"))
+	{
+		int ju = luaL_checknumber(l, 3);
+		if (ju >= 0 && ju <= 2)
+			return signs[id].ju = ju, 1;
+		else
+			luaL_error(l, "Invalid justification");
+		return 0;
+	}
+	else if (!key.compare("x"))
+	{
+		int x = luaL_checknumber(l, 3);
+		if (x >= 0 && x < XRES)
+			return signs[id].x = x, 1;
+		else
+			luaL_error(l, "Invalid X coordinate");
+		return 0;
+	}
+	else if (!key.compare("y"))
+	{
+		int y = luaL_checknumber(l, 3);
+		if (y >= 0 && y < YRES)
+			return signs[id].y = y, 1;
+		else
+			luaL_error(l, "Invalid Y coordinate");
+		return 0;
+	}
+	return 0;
+}
+
+//creates a new sign at the first open index
+int simulation_newsign(lua_State *l)
+{
+	for (int i = 0; i < MAXSIGNS; i++)
+	{
+		if (!signs[i].text[0])
+		{
+			char* temp = mystrdup(luaL_checkstring(l, 1));
+			int x = luaL_checknumber(l, 2);
+			int y = luaL_checknumber(l, 3);
+			int ju = luaL_optnumber(l, 4, 1);
+			if (ju < 0 || ju > 2)
+				return luaL_error(l, "Invalid justification");
+			if (x < 0 || x >= XRES)
+				return luaL_error(l, "Invalid X coordinate");
+			if (y < 0 || y >= YRES)
+				return luaL_error(l, "Invalid Y coordinate");
+
+			clean_text(temp, 180); //arbitrary max pixel length
+			if (strlen(temp) > 255)
+				temp[255] = 0;
+			sprintf(signs[i].text, temp);
+			free(temp);
+			signs[i].x = x;
+			signs[i].y = y;
+			signs[i].ju = ju;
+
+			lua_pushnumber(l, i);
+			return 1;
+		}
+	}
+	lua_pushnumber(l, -1);
+	return 1;
+}
+
 const int particlePropertiesCount = 12;
 
 void initSimulationAPI(lua_State * l)
@@ -134,6 +251,26 @@ void initSimulationAPI(lua_State * l)
 		lua_pushinteger(l, i);
 		lua_setfield(l, -2, propertyList[i]);
 	}
+
+	lua_newtable(l);
+	for (int i = 0; i < MAXSIGNS; i++)
+	{
+		lua_newtable(l);
+		lua_pushinteger(l, i); //set "id" to table index
+		lua_setfield(l, -2, "id");
+		lua_newtable(l);
+		lua_pushcfunction(l, simulation_signIndex);
+		lua_setfield(l, -2, "__index");
+		lua_pushcfunction(l, simulation_signNewIndex);
+		lua_setfield(l, -2, "__newindex");
+		lua_setmetatable(l, -2);
+		lua_pushinteger(l, i); //table index
+		lua_insert(l, -2); //swap k and v
+		lua_settable(l, -3); //set metatable to signs[i]
+	}
+	lua_pushcfunction(l, simulation_newsign);
+	lua_setfield(l, -2, "new");
+	lua_setfield(l, -2, "signs");
 }
 
 int simulation_partNeighbours(lua_State * l)
