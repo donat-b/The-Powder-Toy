@@ -106,6 +106,7 @@ int fix_type(int type, int version, int modver)
 	{
 		type += (PT_NORMAL_NUM-max);
 	}
+	//change VIRS into official elements, and CURE into SOAP; adjust ids
 	if (modver && modver <= 15)
 	{
 		if (type >= PT_NORMAL_NUM+6 && type <= PT_NORMAL_NUM+8)
@@ -115,10 +116,21 @@ int fix_type(int type, int version, int modver)
 		else if (type > PT_NORMAL_NUM+9)
 			type -= 4;
 	}
-	if (modver && modver <= 20)
+	//change GRVT and DRAY into official elements
+	if (modver && modver <= 19)
 	{
 		if (type >= PT_NORMAL_NUM+12 && type <= PT_NORMAL_NUM+13)
 			type -= 14;
+	}
+	//change OTWR and COND into METL, adjust ids
+	if (modver && modver <= 20)
+	{
+		if (type == PT_NORMAL_NUM+3 || type == PT_NORMAL_NUM+9)
+			type = PT_METL;
+		else if (type > PT_NORMAL_NUM+3 && type < PT_NORMAL_NUM+9)
+			type--;
+		else if (type > PT_NORMAL_NUM+9)
+			type -= 2;
 	}
 	return type;
 }

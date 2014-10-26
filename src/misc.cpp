@@ -581,22 +581,6 @@ void load_presets(void)
 					debugHud[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
 				}
 			}
-			if (tmpobj = cJSON_GetObjectItem(hudobj, "modnormal"))
-			{
-				int count = std::min(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
-				for (int i = 0; i < count; i++)
-				{
-					normalHud[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
-				}
-			}
-			if (tmpobj = cJSON_GetObjectItem(hudobj, "moddebug"))
-			{
-				int count = std::min(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
-				for (int i = 0; i < count; i++)
-				{
-					debugHud[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
-				}
-			}
 		}
 		
 		//Read general settings

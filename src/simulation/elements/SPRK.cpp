@@ -20,7 +20,7 @@ int FIRE_update(UPDATE_FUNC_ARGS);
 
 int SPRK_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, nearp, pavg, ct = parts[i].ctype, sender, receiver, rd = 2;
+	int r, rx, ry, nearp, pavg, ct = parts[i].ctype, sender, receiver;
 	FIRE_update(UPDATE_FUNC_SUBCALL_ARGS);
 
 	if (parts[i].life<=0)
@@ -29,13 +29,6 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 			parts[i].temp = R_TEMP + 273.15f;
 		if (ct<=0 || ct>=PT_NUM || !ptypes[ct].enabled)
 			ct = PT_METL;
-		if (ct==PT_OTWR)
-		{
-			if (parts[i].tmp == 0)
-				ct = PT_BREL;
-			else
-				parts[i].tmp--;
-		}
 		part_change_type(i,x,y,ct);
 		parts[i].ctype = PT_NONE;
 		parts[i].life = 4;
@@ -140,14 +133,11 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 		if (parts[i].temp < 3595.0)
 			parts[i].temp += (rand()%20)-4;
 		break;
-	case PT_COND:
-		rd = parts[i].tmp2>MAX_DISTANCE?(int)MAX_DISTANCE:parts[i].tmp2;
-		break;
 	default:
 		break;
 	}
-	for (rx=-rd; rx<=rd; rx++)
-		for (ry=-rd; ry<=rd; ry++)
+	for (rx=-2; rx<=2; rx++)
+		for (ry=-2; ry<=2; ry++)
 			if (x+rx>=0 && y+ry>=0 && x+rx<XRES && y+ry<YRES && (rx || ry))
 			{
 				r = pmap[y+ry][x+rx];
@@ -245,9 +235,9 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 					continue;
 				if (!((ptypes[receiver].properties&PROP_CONDUCTS) || receiver==PT_INST || receiver==PT_QRTZ)) //Stop non-conducting recievers, allow INST and QRTZ as special cases
 					continue;
-				if (abs(rx)+abs(ry)>=4 && receiver!=PT_SWCH && sender!=PT_SWCH && sender!=PT_COND) //Only SWCH and COND conduct really far
+				if (abs(rx)+abs(ry)>=4 && receiver!=PT_SWCH && sender!=PT_SWCH) //Only SWCH conducts really far
 					continue;
-				if (receiver == sender && receiver != PT_INST && receiver != PT_COND) //Everything conducts to itself, except INST and COND
+				if (receiver == sender && receiver != PT_INST) //Everything conducts to itself, except INST
 					goto conduct;
 
 				//Sender cases, where elements can have specific outputs
@@ -278,10 +268,6 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 					if (receiver==PT_NSCN || receiver==PT_PSCN)
 						goto conduct;
 					continue;
-				case PT_COND:
-					if (receiver == PT_COND && parts[i].tmp != parts[r>>8].tmp)
-						continue;
-					goto conduct;
 				default:
 					break;
 				}
