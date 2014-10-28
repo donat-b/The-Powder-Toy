@@ -16,6 +16,7 @@
  */
 #ifndef SAVE_H
 #define SAVE_H
+#include <simulation/ElementNumbers.h>
 
 //transforms a save when you move it around with the arrow keys, or rotate it
 void *transform_save(void *odata, int *size, matrix2d transform, vector2d translate);
@@ -30,7 +31,7 @@ pixel *prerender_save(void *save, int size, int *width, int *height);
 int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, unsigned pmap[YRES][XRES]);
 
 //converts mod elements from older saves into the new correct id's, since as new elements are added to tpt the id's go up
-int fix_type(int type, int version, int modver);
+int fix_type(int type, int version, int modver, int (elementPalette)[PT_NUM] = NULL);
 
 //functions to check saves for invalid elements that shouldn't be saved
 int invalid_element(int save_as, int el);

@@ -76,63 +76,71 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 	return 1;
 }
 
-int fix_type(int type, int version, int modver)
+int fix_type(int type, int version, int modver, int (elementPalette)[PT_NUM])
 {
-	int max = 161;
-	if (modver == 18)
+	if (elementPalette)
 	{
-		if (type >= 190 && type <= 204)
-			return PT_LOLZ;
+		if (elementPalette[type] >= 0)
+			type = elementPalette[type];
 	}
+	else if (modver)
+	{
+		int max = 161;
+		if (modver == 18)
+		{
+			if (type >= 190 && type <= 204)
+				return PT_LOLZ;
+		}
 
-	if (version >= 90)
-		max = 179;
-	else if (version >= 89 || modver >= 16)
-		max = 177;
-	else if (version >= 87)
-		max = 173;
-	else if (version >= 86 || modver == 14)
-		max = 170;
-	else if (version >= 84 || modver == 13)
-		max = 167;
-	else if (modver == 12)
-		max = 165;
-	else if (version >= 83)
-		max = 163;
-	else if (version >= 82)
-		max = 162;
+		if (version >= 90)
+			max = 179;
+		else if (version >= 89 || modver >= 16)
+			max = 177;
+		else if (version >= 87)
+			max = 173;
+		else if (version >= 86 || modver == 14)
+			max = 170;
+		else if (version >= 84 || modver == 13)
+			max = 167;
+		else if (modver == 12)
+			max = 165;
+		else if (version >= 83)
+			max = 163;
+		else if (version >= 82)
+			max = 162;
 
-	if (type >= max)
-	{
-		type += (PT_NORMAL_NUM-max);
+		if (type >= max)
+		{
+			type += (PT_NORMAL_NUM-max);
+		}
+		//change VIRS into official elements, and CURE into SOAP; adjust ids
+		if (modver <= 15)
+		{
+			if (type >= PT_NORMAL_NUM+6 && type <= PT_NORMAL_NUM+8)
+				type = PT_VIRS + type-(PT_NORMAL_NUM+6);
+			else if (type == PT_NORMAL_NUM+9)
+				type = PT_SOAP;
+			else if (type > PT_NORMAL_NUM+9)
+				type -= 4;
+		}
+		//change GRVT and DRAY into official elements
+		if (modver <= 19)
+		{
+			if (type >= PT_NORMAL_NUM+12 && type <= PT_NORMAL_NUM+13)
+				type -= 14;
+		}
+		//change OTWR and COND into METL, adjust ids
+		if (modver <= 20)
+		{
+			if (type == PT_NORMAL_NUM+3 || type == PT_NORMAL_NUM+9)
+				type = PT_METL;
+			else if (type > PT_NORMAL_NUM+3 && type < PT_NORMAL_NUM+9)
+				type--;
+			else if (type > PT_NORMAL_NUM+9)
+				type -= 2;
+		}
+		return type;
 	}
-	//change VIRS into official elements, and CURE into SOAP; adjust ids
-	if (modver && modver <= 15)
-	{
-		if (type >= PT_NORMAL_NUM+6 && type <= PT_NORMAL_NUM+8)
-			type = PT_VIRS + type-(PT_NORMAL_NUM+6);
-		else if (type == PT_NORMAL_NUM+9)
-			type = PT_SOAP;
-		else if (type > PT_NORMAL_NUM+9)
-			type -= 4;
-	}
-	//change GRVT and DRAY into official elements
-	if (modver && modver <= 19)
-	{
-		if (type >= PT_NORMAL_NUM+12 && type <= PT_NORMAL_NUM+13)
-			type -= 14;
-	}
-	//change OTWR and COND into METL, adjust ids
-	if (modver && modver <= 20)
-	{
-		if (type == PT_NORMAL_NUM+3 || type == PT_NORMAL_NUM+9)
-			type = PT_METL;
-		else if (type > PT_NORMAL_NUM+3 && type < PT_NORMAL_NUM+9)
-			type--;
-		else if (type > PT_NORMAL_NUM+9)
-			type -= 2;
-	}
-	return type;
 }
 
 int invalid_element(int save_as, int el)
@@ -292,6 +300,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 	int i, x, y, j, type, ctype, wt, pc, gc, modsave = 0, saved_version = inputData[4];
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	int bsonInitialised = 0;
+	int elementPalette[PT_NUM];
 	pixel * vidBuf = NULL;
 	bson b;
 	bson_iterator iter;
@@ -390,6 +399,35 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 			else
 			{
 				fprintf(stderr, "Invalid datatype of wall data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
+			}
+		}
+		else if (!strcmp(bson_iterator_key(&iter), "palette"))
+		{
+			if(bson_iterator_type(&iter)==BSON_ARRAY)
+			{
+				bson_iterator subiter;
+				bson_iterator_subiterator(&iter, &subiter);
+				while(bson_iterator_next(&subiter))
+				{
+					if(bson_iterator_type(&subiter)==BSON_INT)
+					{
+						std::string identifier = std::string(bson_iterator_key(&subiter));
+						int ID = -1, oldID = bson_iterator_int(&subiter);
+						for (int i = 0; i < PT_NUM; i++)
+							if (!identifier.compare(globalSim->elements[i].Identifier))
+							{
+								ID = i;
+								break;
+							}
+
+						if (oldID >= 0 && oldID < PT_NUM)
+							elementPalette[oldID] = ID;
+					}
+				}
+			}
+			else
+			{
+				fprintf(stderr, "Wrong type for element palette: %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_ARRAY);
 			}
 		}
 		else if (!strcmp(bson_iterator_key(&iter), "compatible_with"))
@@ -537,9 +575,9 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 						fprintf(stderr, "Out of range [%d]: %d %d, [%d, %d], [%d, %d]\n", i, x, y, (unsigned)partsData[i+1], (unsigned)partsData[i+2], (unsigned)partsData[i+3], (unsigned)partsData[i+4]);
 						goto fail;
 					}
-					type = fix_type(partsData[i],saved_version, modsave);
-					if(type >= PT_NUM || !ptypes[partsData[i]].enabled)
-						type = PT_DMND;	//Replace all invalid elements with diamond
+					type = fix_type(partsData[i],saved_version, modsave, elementPalette);
+					if (type < 0 || type >= PT_NUM || !globalSim->elements[type].Enabled)
+						type = PT_NONE; //invalid element
 					
 					//Draw type
 					if (type==PT_STKM || type==PT_STKM2 || type==PT_FIGH)
@@ -1235,7 +1273,15 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	bson_append_string(&b, "rightSelectedElementIdentifier", activeTools[1]->GetIdentifier().c_str());
 	bson_append_int(&b, "activeMenu", active_menu);
 	if (partsData)
+	{
 		bson_append_binary(&b, "parts", (char)BSON_BIN_USER, (const char*)partsData, partsDataLen);
+
+		bson_append_start_array(&b, "palette");
+		for (int i = 0; i < PT_NUM; i++)
+			bson_append_int(&b, globalSim->elements[i].Identifier.c_str(), i);
+
+		bson_append_finish_array(&b);
+	}
 	if (partsPosData)
 		bson_append_binary(&b, "partsPos", (char)BSON_BIN_USER, (const char*)partsPosData, partsPosDataLen);
 	if (wallData)
@@ -1381,6 +1427,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	int *freeIndices = NULL;
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	int saved_version = inputData[4];
+	int elementPalette[PT_NUM];
 	bson b;
 	bson_iterator iter;
 
@@ -1638,6 +1685,35 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			else
 			{
 				fprintf(stderr, "Invalid datatype of anim data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter) == BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter)) == BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
+			}
+		}
+		else if (!strcmp(bson_iterator_key(&iter), "palette"))
+		{
+			if(bson_iterator_type(&iter)==BSON_ARRAY)
+			{
+				bson_iterator subiter;
+				bson_iterator_subiterator(&iter, &subiter);
+				while(bson_iterator_next(&subiter))
+				{
+					if(bson_iterator_type(&subiter)==BSON_INT)
+					{
+						std::string identifier = std::string(bson_iterator_key(&subiter));
+						int ID = -1, oldID = bson_iterator_int(&subiter);
+						for (int i = 0; i < PT_NUM; i++)
+							if (!identifier.compare(globalSim->elements[i].Identifier))
+							{
+								ID = i;
+								break;
+							}
+
+						if (oldID >= 0 && oldID < PT_NUM)
+							elementPalette[oldID] = ID;
+					}
+				}
+			}
+			else
+			{
+				fprintf(stderr, "Wrong type for element palette: %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_ARRAY);
 			}
 		}
 		else if (!strcmp(bson_iterator_key(&iter), "legacyEnable") && replace)
@@ -2087,8 +2163,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					partsptr[newIndex].y = (float)y;
 					i+=3;
 					
-					if (modsave)
-						partsptr[newIndex].type = fix_type(partsptr[newIndex].type, saved_version, modsave);
+					partsptr[newIndex].type = fix_type(partsptr[newIndex].type, saved_version, modsave, elementPalette);
 
 					//Read temp
 					if(fieldDescriptor & 0x01)
@@ -2136,16 +2211,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 								partsptr[newIndex].tmp |= (((unsigned)partsData[i++]) << 16);
 							}
 						}
-						if (modsave)
-						{
-							if (partsptr[newIndex].type == PT_PIPE || partsptr[newIndex].type == PT_PPIP)
-								partsptr[newIndex].tmp = fix_type(partsptr[newIndex].tmp&0xFF, saved_version, modsave)|(parts[newIndex].tmp&~0xFF);
-							if (modsave < 12 && (partsptr[newIndex].type == PT_VRSS || partsptr[newIndex].type == PT_VIRS || partsptr[newIndex].type == PT_VRSG))
-							{
-								parts[newIndex].pavg[0] = (float)(parts[newIndex].tmp&0xFF);
-								parts[newIndex].pavg[1] = (float)(parts[newIndex].tmp>>8);
-							}
-						}
+						if (partsptr[newIndex].type == PT_PIPE || partsptr[newIndex].type == PT_PPIP)
+							partsptr[newIndex].tmp = fix_type(partsptr[newIndex].tmp&0xFF, saved_version, modsave, elementPalette)|(parts[newIndex].tmp&~0xFF);
 					}
 					
 					//Read ctype
@@ -2161,8 +2228,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							partsptr[newIndex].ctype |= (((unsigned)partsData[i++]) << 16);
 							partsptr[newIndex].ctype |= (((unsigned)partsData[i++]) << 8);
 						}
-						if (modsave && (partsptr[newIndex].type == PT_CLNE || partsptr[newIndex].type == PT_PCLN || partsptr[newIndex].type == PT_BCLN || partsptr[newIndex].type == PT_PBCN || partsptr[newIndex].type == PT_STOR || partsptr[newIndex].type == PT_CONV || ((partsptr[newIndex].type == PT_STKM || partsptr[newIndex].type == PT_STKM2 || partsptr[newIndex].type == PT_FIGH) && partsptr[newIndex].ctype != SPC_AIR) || partsptr[newIndex].type == PT_LAVA || partsptr[newIndex].type == PT_SPRK || partsptr[newIndex].type == PT_VIRS || partsptr[newIndex].type == PT_VRSS || partsptr[newIndex].type == PT_VRSG))
-							partsptr[newIndex].ctype = fix_type(partsptr[newIndex].ctype, saved_version, modsave);
+						if (partsptr[newIndex].type == PT_CLNE || partsptr[newIndex].type == PT_PCLN || partsptr[newIndex].type == PT_BCLN || partsptr[newIndex].type == PT_PBCN || partsptr[newIndex].type == PT_STOR || partsptr[newIndex].type == PT_CONV || ((partsptr[newIndex].type == PT_STKM || partsptr[newIndex].type == PT_STKM2 || partsptr[newIndex].type == PT_FIGH) && partsptr[newIndex].ctype != SPC_AIR) || partsptr[newIndex].type == PT_LAVA || partsptr[newIndex].type == PT_SPRK || partsptr[newIndex].type == PT_PSTN || partsptr[newIndex].type == PT_CRAY || partsptr[newIndex].type == PT_DTEC || partsptr[newIndex].type == PT_DRAY)
+							partsptr[newIndex].ctype = fix_type(partsptr[newIndex].ctype, saved_version, modsave, elementPalette);
 					}
 					
 					//Read dcolour
@@ -2200,6 +2267,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							if(i >= partsDataLen) goto fail;
 							partsptr[newIndex].tmp2 |= (((unsigned)partsData[i++]) << 8);
 						}
+						if (partsptr[newIndex].type == PT_VIRS || partsptr[newIndex].type == PT_VRSS || partsptr[newIndex].type == PT_VRSG)
+							partsptr[newIndex].tmp2 = fix_type(partsptr[newIndex].tmp2, saved_version, modsave, elementPalette);
 					}
 
 					//Read pavg (for moving solids)
