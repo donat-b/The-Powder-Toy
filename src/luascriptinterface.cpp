@@ -87,7 +87,7 @@ int simulation_signNewIndex(lua_State *l)
 	}
 	else if (!key.compare("justification"))
 	{
-		int ju = luaL_checknumber(l, 3);
+		int ju = luaL_checkinteger(l, 3);
 		if (ju >= 0 && ju <= 2)
 			return signs[id].ju = ju, 1;
 		else
@@ -96,7 +96,7 @@ int simulation_signNewIndex(lua_State *l)
 	}
 	else if (!key.compare("x"))
 	{
-		int x = luaL_checknumber(l, 3);
+		int x = luaL_checkinteger(l, 3);
 		if (x >= 0 && x < XRES)
 			return signs[id].x = x, 1;
 		else
@@ -105,7 +105,7 @@ int simulation_signNewIndex(lua_State *l)
 	}
 	else if (!key.compare("y"))
 	{
-		int y = luaL_checknumber(l, 3);
+		int y = luaL_checkinteger(l, 3);
 		if (y >= 0 && y < YRES)
 			return signs[id].y = y, 1;
 		else
@@ -123,9 +123,9 @@ int simulation_newsign(lua_State *l)
 		if (!signs[i].text[0])
 		{
 			char* temp = mystrdup(luaL_checkstring(l, 1));
-			int x = luaL_checknumber(l, 2);
-			int y = luaL_checknumber(l, 3);
-			int ju = luaL_optnumber(l, 4, 1);
+			int x = luaL_checkinteger(l, 2);
+			int y = luaL_checkinteger(l, 3);
+			int ju = luaL_optinteger(l, 4, 1);
 			if (ju < 0 || ju > 2)
 				return luaL_error(l, "Invalid justification");
 			if (x < 0 || x >= XRES)
@@ -1353,21 +1353,21 @@ int simulation_stickman(lua_State *l)
 	if (!strcmp(property, "comm"))
 	{
 		if (set)
-			stick->comm = value;
+			stick->comm = (char)value;
 		else
 			ret = stick->comm;
 	}
 	else if (!strcmp(property, "pcomm"))
 	{
 		if (set)
-			stick->pcomm = value;
+			stick->pcomm = (char)value;
 		else
 			ret = stick->pcomm;
 	}
 	else if (!strcmp(property, "elem"))
 	{
 		if (set)
-			stick->elem = value;
+			stick->elem = (int)value;
 		else
 			ret = stick->elem;
 	}
@@ -1401,14 +1401,14 @@ int simulation_stickman(lua_State *l)
 	else if (!strcmp(property, "frames"))
 	{
 		if (set)
-			stick->frames = value;
+			stick->frames = (unsigned int)value;
 		else
 			ret = stick->frames;
 	}
 	else if (!strcmp(property, "spawnID"))
 	{
 		if (set)
-			stick->spawnID = value;
+			stick->spawnID = (int)value;
 		else
 			ret = stick->spawnID;
 	}

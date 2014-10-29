@@ -139,8 +139,8 @@ int fix_type(int type, int version, int modver, int (elementPalette)[PT_NUM])
 			else if (type > PT_NORMAL_NUM+9)
 				type -= 2;
 		}
-		return type;
 	}
+	return type;
 }
 
 int invalid_element(int save_as, int el)
