@@ -315,8 +315,8 @@ int simulation_partNeighbours(lua_State * l)
 
 int simulation_partChangeType(lua_State * l)
 {
-	int partIndex = lua_tointeger(l, 1), x, y;
-	if(partIndex < 0 || partIndex >= NPART || !parts[partIndex].type)
+	int partIndex = lua_tointeger(l, 1);
+	if (partIndex < 0 || partIndex >= NPART || !parts[partIndex].type)
 		return 0;
 	part_change_type(partIndex, (int)(parts[partIndex].x+0.5f), (int)(parts[partIndex].y+0.5f), lua_tointeger(l, 2));
 	return 0;
@@ -374,8 +374,8 @@ int simulation_partPosition(lua_State * l)
 	
 	if(argCount == 3)
 	{
-		parts[particleID].x = lua_tonumber(l, 2);
-		parts[particleID].y = lua_tonumber(l, 3);
+		parts[particleID].x = (float)lua_tonumber(l, 2);
+		parts[particleID].y = (float)lua_tonumber(l, 3);
 		return 0;
 	}
 	else
@@ -433,7 +433,7 @@ int simulation_partProperty(lua_State * l)
 			*((int*)(((unsigned char*)&parts[particleID])+offset)) = lua_tointeger(l, 3);
 			break;
 		case 1:
-			*((float*)(((unsigned char*)&parts[particleID])+offset)) = lua_tonumber(l, 3);
+			*((float*)(((unsigned char*)&parts[particleID])+offset)) = (float)lua_tonumber(l, 3);
 			break;
 		case 2:
 			globalSim->part_change_type_force(particleID, lua_tointeger(l, 3));
@@ -782,7 +782,7 @@ int simulation_toolBrush(lua_State * l)
 	int ry = luaL_optint(l,4,5);
 	int tool = luaL_optint(l,5,TOOL_HEAT);
 	int brush = luaL_optint(l,6,CIRCLE_BRUSH);
-	float strength = luaL_optnumber(l,7,1.0f);
+	float strength = (float)luaL_optnumber(l, 7, 1.0f);
 	if (tool < 0 || tool >= TOOL_PROP)
 			return luaL_error(l, "Invalid tool id '%d'", tool);
 	if (brush < 0 || brush >= BRUSH_NUM)
@@ -805,7 +805,7 @@ int simulation_toolLine(lua_State * l)
 	int ry = luaL_optint(l,6,5);
 	int tool = luaL_optint(l,7,TOOL_HEAT);
 	int brush = luaL_optint(l,8,CIRCLE_BRUSH);
-	float strength = luaL_optnumber(l,9,1.0f);
+	float strength = (float)luaL_optnumber(l, 9, 1.0f);
 	if (tool < 0 || tool >= TOOL_PROP)
 			return luaL_error(l, "Invalid tool id '%d'", tool);
 	if (brush < 0 || brush >= BRUSH_NUM)
@@ -824,7 +824,7 @@ int simulation_toolBox(lua_State * l)
 	int x2 = luaL_optint(l,3,-1)/CELL;
 	int y2 = luaL_optint(l,4,-1)/CELL;
 	int tool = luaL_optint(l,5,TOOL_HEAT);
-	float strength = luaL_optnumber(l,6,1.0f);
+	float strength = (float)luaL_optnumber(l, 6, 1.0f);
 	if (tool < 0 || tool >= TOOL_PROP)
 			return luaL_error(l, "Invalid tool id '%d'", tool);
 
@@ -955,7 +955,7 @@ int simulation_clearSim(lua_State * l)
 
 int simulation_resetTemp(lua_State * l)
 {
-	bool onlyConductors = luaL_optint(l, 1, 0);
+	bool onlyConductors = luaL_optint(l, 1, 0) ? true : false;
 	for (int i = 0; i < globalSim->parts_lastActiveIndex; i++)
 	{
 		if (parts[i].type && (globalSim->elements[parts[i].type].HeatConduct || !onlyConductors))
@@ -1205,7 +1205,7 @@ int simulation_ambientAirTemp(lua_State * l)
 		lua_pushnumber(l, outside_temp);
 		return 1;
 	}
-	outside_temp = luaL_optnumber(l, 1, 295.15f);
+	outside_temp = (float)luaL_optnumber(l, 1, 295.15f);
 	return 0;
 }
 
@@ -1376,7 +1376,7 @@ int simulation_stickman(lua_State *l)
 		if (offset >= 0 && offset < 16)
 		{
 			if (set)
-				stick->legs[offset] = value;
+				stick->legs[offset] = (float)value;
 			else
 				ret = stick->legs[offset];
 		}
@@ -1386,7 +1386,7 @@ int simulation_stickman(lua_State *l)
 		if (offset >= 0 && offset < 8)
 		{
 			if (set)
-				stick->accs[offset] = value;
+				stick->accs[offset] = (float)value;
 			else
 				ret = stick->accs[offset];
 		}
@@ -2366,7 +2366,7 @@ void elements_setProperty(lua_State * l, int id, int format, int offset)
 			*((int*)(((unsigned char*)&globalSim->elements[id])+offset)) = lua_tointeger(l, 3);
 			break;
 		case 1: //Float
-			*((float*)(((unsigned char*)&globalSim->elements[id])+offset)) = lua_tonumber(l, 3);
+			*((float*)(((unsigned char*)&globalSim->elements[id])+offset)) = (float)lua_tonumber(l, 3);
 			break;
 		case 2: //String
 			*((std::string*)(((unsigned char*)&globalSim->elements[id]) + offset)) = std::string(luaL_optstring(l, 3, ""));

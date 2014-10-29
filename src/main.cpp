@@ -42,6 +42,10 @@
 
 #ifdef WIN
 #include <direct.h>
+#ifdef _MSC_VER
+#undef chdir
+#define chdir _chdir //chdir is deprecated in visual studio
+#endif
 #else
 #include <sys/stat.h>
 #include <unistd.h>
@@ -963,12 +967,12 @@ void BlueScreen(char * detailMessage)
 	memcpy(vid_buf2, vid_buf, (XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
 	std::vector<Point> food;
 	std::list<Point> tron;
-	int tronSize = 5, tronDirection = 2, score = 0;
+	unsigned int tronSize = 5, tronDirection = 2, score = 0;
 	char scoreString[20];
 	bool gameRunning = false, gameLost = false;
 	for (int i = 0; i < 10; i++)
 		food.push_back(Point(rand()%(XRES+BARSIZE-6)+3, rand()%(YRES+MENUSIZE-6)+3));
-	for (int i = 0; i < tronSize; i++)
+	for (unsigned int i = 0; i < tronSize; i++)
 		tron.push_back(Point(20, 10+i));
 
 	//Death loop
@@ -1022,7 +1026,7 @@ void BlueScreen(char * detailMessage)
 			Point tronHead = ((Point)tron.back());
 			tronHead.X -= (tronDirection-2)%2;
 			tronHead.Y += (tronDirection-1)%2;
-			if (tronHead.X > 1 && tronHead.X < XRES+BARSIZE-2 && tronHead.Y > 1 & tronHead.Y < YRES+MENUSIZE-2)
+			if (tronHead.X > 1 && tronHead.X < XRES+BARSIZE-2 && tronHead.Y > 1 && tronHead.Y < YRES+MENUSIZE-2)
 				tron.push_back(tronHead);
 			else
 				gameLost = true;

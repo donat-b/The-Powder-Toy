@@ -216,7 +216,6 @@ float plasma_data_pos[] = {1.0f, 0.9f, 0.5f, 0.25, 0.0f};
 
 void init_display_modes()
 {
-	int i;
 	display_modes = (unsigned int*)calloc(1, sizeof(unsigned int));
 	render_modes = (unsigned int*)calloc(5, sizeof(unsigned int));
 	
@@ -439,8 +438,8 @@ pixel *resample_img(pixel *src, int sw, int sh, int rw, int rh)
 			{
 				fx = ((float)x)*((float)sw)/((float)rw);
 				fy = ((float)y)*((float)sh)/((float)rh);
-				fxc = modf(fx, &intp);
-				fyc = modf(fy, &intp);
+				fxc = (float)modf(fx, &intp);
+				fyc = (float)modf(fy, &intp);
 				fxceil = (int)ceil(fx);
 				fyceil = (int)ceil(fy);
 				if (fxceil>=sw) fxceil = sw-1;
@@ -480,8 +479,8 @@ pixel *resample_img(pixel *src, int sw, int sh, int rw, int rh)
 				{
 					fx = ((float)x)*((float)sw)/((float)rw);
 					fy = ((float)y)*((float)sh)/((float)rh);
-					fxc = modf(fx, &intp);
-					fyc = modf(fy, &intp);
+					fxc = (float)modf(fx, &intp);
+					fyc = (float)modf(fy, &intp);
 					fxceil = (int)ceil(fx);
 					fyceil = (int)ceil(fy);
 					if (fxceil>=sw) fxceil = sw-1;
@@ -2434,7 +2433,7 @@ void render_parts(pixel *vid, Point mousePos)
 	Simulation *sim = globalSim;
 	int deca, decr, decg, decb, cola, colr, colg, colb, firea, firer = 0, fireg = 0, fireb = 0, pixel_mode, q, i, t, nx, ny, x, y, caddress;
 	int orbd[4] = {0, 0, 0, 0}, orbl[4] = {0, 0, 0, 0};
-	float gradv, flicker, fnx, fny, flx, fly;
+	float gradv, flicker, fnx, fny;
 #ifdef OGLR
 	int cfireV = 0, cfireC = 0, cfire = 0;
 	int csmokeV = 0, csmokeC = 0, csmoke = 0;
@@ -2480,8 +2479,8 @@ void render_parts(pixel *vid, Point mousePos)
 			if ((pmap[ny][nx]&0xFF) == PT_PINV)
 				parts[pmap[ny][nx]>>8].tmp2 = t|(i<<8);
 #ifdef OGLR
-			flx = parts[i].lastX;
-			fly = parts[i].lastY;
+			float flx = parts[i].lastX;
+			float fly = parts[i].lastY;
 #endif
 
 			if(photons[ny][nx]&0xFF && !(ptypes[t].properties & TYPE_ENERGY) && t!=PT_STKM && t!=PT_STKM2 && t!=PT_FIGH)
@@ -4139,7 +4138,7 @@ void render_gravlensing(pixel *src, pixel * dst)
 
 void render_fire(pixel *vid)
 {
-	int i,j,x,y,r,g,b,a,nx,ny;
+	int i,j,x,y,r,g,b,a;
 	for (j=0; j<YRES/CELL; j++)
 		for (i=0; i<XRES/CELL; i++)
 		{
@@ -4178,12 +4177,9 @@ void render_fire(pixel *vid)
 void prepare_alpha(int size, float intensity)
 {
 	//TODO: implement size
-	int x,y,i,j,c;
+	int x,y,i,j;
 	float multiplier = 255.0f*intensity;
 	float temp[CELL*3][CELL*3];
-	float fire_alphaf[CELL*3][CELL*3];
-	float glow_alphaf[11][11];
-	float blur_alphaf[7][7];
 	memset(temp, 0, sizeof(temp));
 	for (x=0; x<CELL; x++)
 		for (y=0; y<CELL; y++)
@@ -4195,6 +4191,9 @@ void prepare_alpha(int size, float intensity)
 			fire_alpha[y][x] = (int)(multiplier*temp[y][x]/(CELL*CELL));
 			
 #ifdef OGLR
+	float fire_alphaf[CELL * 3][CELL * 3];
+	float glow_alphaf[11][11];
+	float blur_alphaf[7][7];
 	for (x=0; x<CELL*3; x++)
 		for (y=0; y<CELL*3; y++)
 		{
@@ -4208,7 +4207,7 @@ void prepare_alpha(int size, float intensity)
 	
 	memset(glow_alphaf, 0, sizeof(glow_alphaf));
 	
-	c = 5;
+	int c = 5;
 	
 	glow_alphaf[c][c] = 0.8f;
 	glow_alphaf[c][c-1] = 0.4f;
@@ -4807,7 +4806,6 @@ int sdl_open(void)
 	sprintf(envStr, "SDL_VIDEO_WINDOW_POS=%i,%i", savedWindowX, savedWindowY);
 	SDL_putenv(envStr);
 #endif
-	int status;
 	if (SDL_Init(SDL_INIT_VIDEO)<0)
 	{
 		fprintf(stderr, "Initializing SDL: %s\n", SDL_GetError());
@@ -4858,7 +4856,7 @@ int sdl_open(void)
 	else
 	{
 #ifdef WIN
-		status = glewInit();
+		int status = glewInit();
 		if(status != GLEW_OK)
 		{
 			fprintf(stderr, "Initializing Glew: %d\n", status);

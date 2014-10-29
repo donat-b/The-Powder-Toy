@@ -87,10 +87,10 @@ float console_parse_temp(std::string temperature)
 	if (!temperature.length())
 		return 0;
 	if (temperature[temperature.length()-1] == 'C')
-		return atof(temperature.substr(0, temperature.length()-1).c_str())+273.15f;
+		return (float)atof(temperature.substr(0, temperature.length()-1).c_str())+273.15f;
 	else if (temperature[temperature.length()-1] == 'F')
-		return (atof(temperature.substr(0, temperature.length()-1).c_str())-32.0f)*5/9+273.15f;
-	return atof(temperature.c_str());
+		return (float)(atof(temperature.substr(0, temperature.length()-1).c_str())-32.0f)*5/9+273.15f;
+	return (float)atof(temperature.c_str());
 }
 
 //takes a string of either coords or a particle number, and puts the particle number into *which
@@ -188,14 +188,14 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 								y += ny;
 								sprintf(xcoord,"%d",x);
 								sprintf(ycoord,"%d",y);
-								for (k = 0; k<strlen(xcoord); k++)//rewrite pch with numbers
+								for (unsigned int k = 0; k<strlen(xcoord); k++)//rewrite pch with numbers
 								{
 									pch[i-j-tokensize+k] = xcoord[k];
 									starty = k+1;
 								}
 								pch[i-j-tokensize+starty] = ',';
 								starty++;
-								for (k=0; k<strlen(ycoord); k++)
+								for (unsigned int k = 0; k < strlen(ycoord); k++)
 								{
 									pch[i-j-tokensize+starty+k] = ycoord[k];
 								}
@@ -297,7 +297,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 
 					for (i = 1; i<=30; i++)
 					{
-						rem2 = create_part(-1, (int)(nx+18*cosf(i/5.0)), (int)(ny+18*sinf(i/5.0)), PT_SOAP);
+						rem2 = create_part(-1, (int)(nx+18*cosf(i/5.0f)), (int)(ny+18*sinf(i/5.0f)), PT_SOAP);
 
 						parts[rem1].ctype = 7;
 						parts[rem1].tmp = rem2;
@@ -606,7 +606,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 				{
 					if (strcmp(console4, "all")==0)
 					{
-						f = atof(console5);
+						f = (float)atof(console5);
 						for (i=0; i<NPART; i++)
 						{
 							if (parts[i].type)
@@ -615,7 +615,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 					}
 					else if (console_parse_type(console4, &j, console_error))
 					{
-						f = atof(console5);
+						f = (float)atof(console5);
 						for (i=0; i<NPART; i++)
 						{
 							if (parts[i].type == j)
@@ -626,7 +626,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 					{
 						if (console_parse_partref(console4, &i, console_error))
 						{
-							f = atof(console5);
+							f = (float)atof(console5);
 							parts[i].vx = f;
 						}
 					}
@@ -635,7 +635,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 				{
 					if (strcmp(console4, "all")==0)
 					{
-						f = atof(console5);
+						f = (float)atof(console5);
 						for (i=0; i<NPART; i++)
 						{
 							if (parts[i].type)
@@ -644,7 +644,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 					}
 					else if (console_parse_type(console4, &j, console_error))
 					{
-						f = atof(console5);
+						f = (float)atof(console5);
 						for (i=0; i<NPART; i++)
 						{
 							if (parts[i].type == j)
@@ -655,7 +655,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 					{
 						if (console_parse_partref(console4, &i, console_error))
 						{
-							f = atof(console5);
+							f = (float)atof(console5);
 							parts[i].vy = f;
 						}
 					}

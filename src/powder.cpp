@@ -878,11 +878,11 @@ static void create_gain_photon(int pp)//photons from PHOT going through GLOW
 	lr = rand() % 2;
 
 	if (lr) {
-		xx = parts[pp].x - 0.3*parts[pp].vy;
-		yy = parts[pp].y + 0.3*parts[pp].vx;
+		xx = parts[pp].x - 0.3f*parts[pp].vy;
+		yy = parts[pp].y + 0.3f*parts[pp].vx;
 	} else {
-		xx = parts[pp].x + 0.3*parts[pp].vy;
-		yy = parts[pp].y - 0.3*parts[pp].vx;
+		xx = parts[pp].x + 0.3f*parts[pp].vy;
+		yy = parts[pp].y - 0.3f*parts[pp].vx;
 	}
 
 	nx = (int)(xx + 0.5f);
@@ -914,7 +914,7 @@ static void create_gain_photon(int pp)//photons from PHOT going through GLOW
 static void create_cherenkov_photon(int pp)//photons from NEUT going through GLAS
 {
 	int i, lr, nx, ny;
-	float r, eff_ior;
+	float r;
 
 	nx = (int)(parts[pp].x + 0.5f);
 	ny = (int)(parts[pp].y + 0.5f);
@@ -946,7 +946,7 @@ static void create_cherenkov_photon(int pp)//photons from NEUT going through GLA
 	}
 
 	/* photons have speed of light. no discussion. */
-	r = 1.269 / hypotf(parts[i].vx, parts[i].vy);
+	r = 1.269f / hypotf(parts[i].vx, parts[i].vy);
 	parts[i].vx *= r;
 	parts[i].vy *= r;
 }
@@ -1179,13 +1179,13 @@ int transfer_heat(int i, int surround[8])
 		{
 			if (realistic)
 			{
-				c_heat = parts[i].temp*96.645/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight) + hv[y/CELL][x/CELL]*100*(pv[y/CELL][x/CELL]+273.15f)/256;
-				c_Cm = 96.645/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight) + 100*(pv[y/CELL][x/CELL]+273.15f)/256;
+				c_heat = parts[i].temp*96.645f/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight) + hv[y/CELL][x/CELL]*100*(pv[y/CELL][x/CELL]+273.15f)/256;
+				c_Cm = 96.645f/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight) + 100*(pv[y/CELL][x/CELL]+273.15f)/256;
 				pt = c_heat/c_Cm;
 				pt = restrict_flt(pt, -MAX_TEMP+MIN_TEMP, MAX_TEMP-MIN_TEMP);
 				parts[i].temp = pt;
 				//Pressure increase from heat (temporary)
-				pv[y/CELL][x/CELL] += (pt-hv[y/CELL][x/CELL])*0.004;
+				pv[y/CELL][x/CELL] += (pt-hv[y/CELL][x/CELL])*0.004f;
 				hv[y/CELL][x/CELL] = pt;
 
 				c_heat = 0.0f;
@@ -1193,7 +1193,7 @@ int transfer_heat(int i, int surround[8])
 			}
 			else
 			{
-				c_heat = (hv[y/CELL][x/CELL]-parts[i].temp)*0.04;
+				c_heat = (hv[y/CELL][x/CELL]-parts[i].temp)*0.04f;
 				c_heat = restrict_flt(c_heat, -MAX_TEMP+MIN_TEMP, MAX_TEMP-MIN_TEMP);
 				parts[i].temp += c_heat;
 				hv[y/CELL][x/CELL] -= c_heat;
@@ -1222,8 +1222,8 @@ int transfer_heat(int i, int surround[8])
 						gel_scale = parts[r>>8].tmp*2.55f;
 					else gel_scale = 1.0f;
 
-					c_heat += parts[r>>8].temp*96.645/ptypes[rt].hconduct*fabs((float)ptypes[rt].weight);
-					c_Cm += 96.645/ptypes[rt].hconduct*fabs((float)ptypes[rt].weight);
+					c_heat += parts[r>>8].temp*96.645f/ptypes[rt].hconduct*fabs((float)ptypes[rt].weight);
+					c_Cm += 96.645f/ptypes[rt].hconduct*fabs((float)ptypes[rt].weight);
 				}
 				else
 				{
@@ -1239,11 +1239,11 @@ int transfer_heat(int i, int surround[8])
 			else gel_scale = 1.0f;
 
 			if (t == PT_PHOT)
-				pt = (c_heat+parts[i].temp*96.645)/(c_Cm+96.645);
+				pt = (c_heat+parts[i].temp*96.645f)/(c_Cm+96.645f);
 			else
-				pt = (c_heat+parts[i].temp*96.645/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight))/(c_Cm+96.645/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight));
-			c_heat += parts[i].temp*96.645/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight);
-			c_Cm += 96.645/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight);
+				pt = (c_heat+parts[i].temp*96.645f/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight))/(c_Cm+96.645f/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight));
+			c_heat += parts[i].temp*96.645f/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight);
+			c_Cm += 96.645f/ptypes[t].hconduct*gel_scale*fabs((float)ptypes[t].weight);
 			parts[i].temp = restrict_flt(pt, MIN_TEMP, MAX_TEMP);
 		}
 		else

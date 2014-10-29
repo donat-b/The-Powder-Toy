@@ -3,7 +3,7 @@
 std::vector<ToolTip*> toolTips;
 void UpdateToolTip(std::string toolTip, Point location, int ID, int alpha)
 {
-	for (int i = 0; i < toolTips.size(); i++)
+	for (unsigned int i = 0; i < toolTips.size(); i++)
 		if (toolTips[i]->GetID() == ID)
 		{
 			toolTips[i]->UpdateToolTip(toolTip, location, alpha);
@@ -27,7 +27,7 @@ void DrawToolTips()
 
 int GetToolTipAlpha(int ID)
 {
-	for (int i = 0; i < toolTips.size(); i++)
+	for (unsigned int i = 0; i < toolTips.size(); i++)
 		if (toolTips[i]->GetID() == ID)
 			return toolTips[i]->GetAlpha();
 	return 0;

@@ -1072,7 +1072,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 				}
 				
 				//Write the field descriptor
-				partsData[fieldDescLoc] = fieldDesc;
+				partsData[fieldDescLoc] = fieldDesc&0xFF;
 				partsData[fieldDescLoc+1] = fieldDesc>>8;
 
 				//Get the pmap entry for the next particle in the same position
@@ -2425,7 +2425,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					movsDataPos++;
 			}
 			((MOVS_ElementDataContainer*)globalSim->elementData[PT_MOVS])->SetNumBalls(numBalls); //new number of known moving solids
-			for (int i = 0; i < partsCount; i++)
+			for (unsigned int i = 0; i < partsCount; i++)
 			{
 				if (partsSimIndex[i] && partsptr[partsSimIndex[i]-1].type == PT_MOVS)
 				{
@@ -2455,7 +2455,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		if (animData)
 		{
 			int animDataPos = 0;
-			for (i = 0; i < partsCount; i++)
+			for (unsigned i = 0; i < partsCount; i++)
 			{
 				if (partsSimIndex[i] && partsptr[partsSimIndex[i]-1].type == PT_ANIM)
 				{
@@ -2485,12 +2485,12 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		if (soapLinkData)
 		{
 			int soapLinkDataPos = 0;
-			for (i=0; i<partsCount; i++)
+			for (unsigned int i = 0; i < partsCount; i++)
 			{
 				if (partsSimIndex[i] && partsptr[partsSimIndex[i]-1].type == PT_SOAP)
 				{
 					// Get the index of the particle forward linked from this one, if present in the save data
-					int linkedIndex = 0;
+					unsigned int linkedIndex = 0;
 					if (soapLinkDataPos+3 > soapLinkDataLen) break;
 					linkedIndex |= soapLinkData[soapLinkDataPos++]<<16;
 					linkedIndex |= soapLinkData[soapLinkDataPos++]<<8;
@@ -2527,7 +2527,7 @@ fin:
 pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 {
 	unsigned char *d,*c=(unsigned char*)save,*m=NULL;
-	int i,j,k,x,y,rx,ry,p=0,wt, pc, gc;
+	int i,j,k,x,y,rx,ry,p=0, pc, gc;
 	int bw,bh,w,h,new_format = 0;
 	pixel *fb;
 
@@ -3219,7 +3219,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 							ttv = (d[p++])<<8;
 							ttv |= (d[p++]);
 							if (parts[i-1].type==PT_PUMP) {
-								parts[i-1].temp = ttv + 0.15;//fix PUMP saved at 0, so that it loads at 0.
+								parts[i-1].temp = ttv + 0.15f;//fix PUMP saved at 0, so that it loads at 0.
 							} else {
 								parts[i-1].temp = (float)ttv;
 							}

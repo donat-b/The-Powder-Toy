@@ -59,7 +59,7 @@ int tptParts, tptPartsMeta, tptElementTransitions, tptPartsCData, tptPartMeta, t
 
 void luacon_open()
 {
-	int i = 0, j;
+	int i = 0;
 	char tmpname[12];
 	int currentElementMeta, currentElement;
 	const static struct luaL_reg tptluaapi [] = {
@@ -236,7 +236,7 @@ tpt.partsdata = nil");
 	{
 		if (i == PT_EXPL)
 			continue;
-		for(j = 0; j < strlen(ptypes[i].name); j++)
+		for(unsigned int j = 0; j < strlen(ptypes[i].name); j++)
 			tmpname[j] = tolower(ptypes[i].name[j]);
 		tmpname[strlen(ptypes[i].name)] = 0;
 		
@@ -263,7 +263,7 @@ tpt.partsdata = nil");
 	{
 		if (i == PT_EXPL)
 			continue;
-		for(j = 0; j < strlen(ptypes[i].name); j++)
+		for(unsigned int j = 0; j < strlen(ptypes[i].name); j++)
 			tmpname[j] = tolower(ptypes[i].name[j]);
 		tmpname[strlen(ptypes[i].name)] = 0;
 		
@@ -379,7 +379,7 @@ int luacon_partwrite(lua_State* l)
 		*((int*)(((char*)&parts[i])+offset)) = luaL_optinteger(l, 3, 0);
 		break;
 	case 1:
-		*((float*)(((char*)&parts[i])+offset)) = luaL_optnumber(l, 3, 0);
+		*((float*)(((char*)&parts[i])+offset)) = (float)luaL_optnumber(l, 3, 0);
 		break;
 	case 2:
 		globalSim->part_change_type_force(i, luaL_optinteger(l, 3, 0));
@@ -726,12 +726,11 @@ int luacon_elementwrite(lua_State* l)
 		return luaL_error(l, "Invalid property");
 	}
 
-	char * tempstring = strdup((char*)luaL_optstring(l, 3, ""));
+	char * tempstring = mystrdup(luaL_optstring(l, 3, ""));
 	if (!strcmp(key, "name"))
 	{
-		int j = 0;
 		//Convert to upper case
-		for (j = 0; j < strlen(tempstring); j++)
+		for (unsigned int j = 0; j < strlen(tempstring); j++)
 			tempstring[j] = toupper(tempstring[j]);
 		if (console_parse_type(tempstring, NULL, NULL))
 		{
@@ -1569,7 +1568,7 @@ int luatpt_set_aheat(lua_State* l)
 
 int luatpt_set_velocity(lua_State* l)
 {
-	int x, y, width, height, dir;
+	int x, y, width, height;
 	float value;
 	char *direction = (char*)luaL_optstring(l, 1, "");
 	x = abs(luaL_optint(l, 2, 0));
@@ -1582,9 +1581,9 @@ int luatpt_set_velocity(lua_State* l)
 	else if(value < -256.0f)
 		value = -256.0f;
 
-	if (strcmp(direction,"x")==0)
+	if (!strcmp(direction,"x"))
 		set_map(x, y, width, height, value, 3);
-	else if (strcmp(direction,"y")==0)
+	else if (!strcmp(direction,"y"))
 		set_map(x, y, width, height, value, 4);
 	else
 		return luaL_error(l, "Invalid direction: %s", direction);
@@ -1700,7 +1699,7 @@ int luatpt_set_property(lua_State* l)
 	if (lua_isnumber(l, 2))
 	{
 		if (format == 1)
-			f = luaL_optnumber(l, 2, 0);
+			f = (float)luaL_optnumber(l, 2, 0);
 		else
 			t = luaL_optint(l, 2, 0);
 
@@ -2550,7 +2549,7 @@ int luatpt_bubble(lua_State* l)
 
 	for (i = 1; i<=30; i++)
 	{
-		rem2 = create_part(-1, (int)(x+18*cosf(i/5.0)), (int)(y+18*sinf(i/5.0)), PT_SOAP);
+		rem2 = create_part(-1, (int)(x+18*cosf(i/5.0f)), (int)(y+18*sinf(i/5.0f)), PT_SOAP);
 
 		parts[rem1].ctype = 7;
 		parts[rem1].tmp = rem2;

@@ -141,7 +141,11 @@ typedef unsigned int pixel;
 #define GLASS_DISP     0.07f
 
 #ifdef WIN
+#ifdef _MSC_VER
+#define strcasecmp _stricmp //stricmp is deprecated in visual studio
+#else
 #define strcasecmp stricmp
+#endif
 #endif
 
 #if defined(_MSC_VER) && _MSC_VER >= 1800

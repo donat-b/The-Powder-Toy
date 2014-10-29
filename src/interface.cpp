@@ -26,6 +26,10 @@
 #ifdef WIN
 #include <direct.h>
 #define getcwd _getcwd
+#ifdef _MSC_VER
+#undef rmdir
+#define rmdir _rmdir //deprecated in visual studio
+#endif
 #endif
 #if defined(LIN) || defined(MACOSX)
 #include <sys/stat.h>
@@ -600,7 +604,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 				if (!paste)
 					return;
 				int pl = strlen(paste);
-				if ((textwidth(str)+textwidth(paste) > ed->w-14 && !ed->multiline) || (pl+strlen(ed->str)>ed->limit) || (float)(((textwidth(str)+textwidth(paste))/(ed->w-14)*12) > ed->h && ed->multiline && ed->limit != 1023))
+				if ((textwidth(str)+textwidth(paste) > ed->w-14 && !ed->multiline) || (pl+(int)strlen(ed->str)>ed->limit) || (float)(((textwidth(str)+textwidth(paste))/(ed->w-14)*12) > ed->h && ed->multiline && ed->limit != 1023))
 					break;
 				if (ed->highlightlength)
 				{
@@ -1783,9 +1787,9 @@ void prop_edit_ui(pixel *vid_buf)
 	else if (format == 1)
 	{
 		unsigned int value;
-		int isint = 1, i;
+		int isint = 1;
 		//Check if it's an element name
-		for (i = 0; i < strlen(ed2.str); i++)
+		for (int unsigned i = 0; i < strlen(ed2.str); i++)
 		{
 			if (!(ed2.str[i] >= '0' && ed2.str[i] <= '9'))
 			{
@@ -1823,18 +1827,17 @@ void prop_edit_ui(pixel *vid_buf)
 	else if (format == 3)
 	{
 		unsigned int value;
-		int j;
 		if (ed2.str[0] == '#') // #FFFFFFFF
 		{
 			//Convert to lower case
-			for(j = 0; j < strlen(ed2.str); j++)
+			for (unsigned int j = 0; j < strlen(ed2.str); j++)
 				ed2.str[j] = tolower(ed2.str[j]);
 			sscanf(ed2.str, "#%x", &value);
 		}
 		else if (ed2.str[0] == '0' && ed2.str[1] == 'x') // 0xFFFFFFFF
 		{
 			//Convert to lower case
-			for(j = 0; j < strlen(ed2.str); j++)
+			for (unsigned int j = 0; j < strlen(ed2.str); j++)
 				ed2.str[j] = tolower(ed2.str[j]);
 			sscanf(ed2.str, "0x%x", &value);
 		}
@@ -1930,7 +1933,6 @@ void info_box_overlay(pixel *vid_buf, char *msg)
 void copytext_ui(pixel *vid_buf, char *top, char *txt, char *copytxt)
 {
 	int state = 0;
-	int i;
 	int g = 255;
 	int xsize = 244;
 	int ysize = 90;
@@ -1998,10 +2000,10 @@ void copytext_ui(pixel *vid_buf, char *top, char *txt, char *copytxt)
 			break;
 	}
 }
-int confirm_ui(pixel *vid_buf, char *top, char *msg, char *btn)
+bool confirm_ui(pixel *vid_buf, char *top, char *msg, char *btn)
 {
 	int x0=(XRES-240)/2,y0=YRES/2,b=1,bq,mx,my,textheight;
-	int ret = 0;
+	bool ret = false;
 
 	textheight = textwrapheight(msg, 224);
 	y0 -= (52+textheight)/2;
@@ -2038,7 +2040,7 @@ int confirm_ui(pixel *vid_buf, char *top, char *msg, char *btn)
 
 		if (b && !bq && mx>=x0+160 && mx<x0+240 && my>=y0+textheight+32 && my<=y0+textheight+48)
 		{
-			ret = 1;
+			ret = true;
 			break;
 		}
 		
@@ -2047,7 +2049,7 @@ int confirm_ui(pixel *vid_buf, char *top, char *msg, char *btn)
 
 		if (sdl_key==SDLK_RETURN)
 		{
-			ret = 1;
+			ret = true;
 			break;
 		}
 		if (sdl_key==SDLK_ESCAPE)
@@ -2066,7 +2068,7 @@ int confirm_ui(pixel *vid_buf, char *top, char *msg, char *btn)
 
 void login_ui(pixel *vid_buf)
 {
-	int x0=(XRES+BARSIZE-192)/2,y0=(YRES+MENUSIZE-80)/2,b=1,bq,mx,my,err;
+	int x0=(XRES+BARSIZE-192)/2,y0=(YRES+MENUSIZE-80)/2,b=1,bq,mx,my;
 	ui_edit ed1,ed2;
 	char passwordHash[33];
 	char totalHash[33];
@@ -4115,8 +4117,8 @@ int search_ui(pixel *vid_buf)
 
 	void *img_http[IMGCONNS];
 	char *img_id[IMGCONNS];
-	void *thumb, *data;
-	int thlen, dlen;
+	void *thumb;
+	int thlen;
 
 	if (!v_buf)
 		return 0;
@@ -5021,10 +5023,10 @@ void converttotime(char *timestamp, char **timestring, int show_day, int show_ye
 
 int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 {
-	int b=1,bq,mx,my,ca=0,thumb_w,thumb_h,active=0,active_2=0,active_3=0,active_4=0,cc=0,ccy=0,cix=0;
+	int b=1,bq,mx,my,ca=0,active=0,active_2=0,active_3=0,active_4=0,cc=0,ccy=0,cix=0;
 	int hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1;
 	int comment_scroll = 0, comment_page = 0, redraw_comments = 1, dofocus = 0, disable_scrolling = 0;
-	int nyd,nyu,ry,lv;
+	int nyd,nyu,lv;
 	float ryf, scroll_velocity = 0.0f;
 
 	char *uri, *uri_2, *o_uri, *uri_3, *uri_4;
@@ -5192,7 +5194,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		}
 		if (active && http_async_req_status(http))
 		{
-			int imgh, imgw, nimgh, nimgw;
+			int imgh, imgw;
 			http_last_use = time(NULL);
 			data = http_async_req_stop(http, &status, &data_size);
 			saveDone = data_size;
@@ -5244,7 +5246,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		}
 		if (!instant_open && active_3 && http_async_req_status(http_3))
 		{
-			int imgh, imgw, nimgh, nimgw;
+			int imgh, imgw;
 			http_last_use_3 = time(NULL);
 			thumb_data_full = http_async_req_stop(http_3, &status, &full_thumb_data_size);
 			if (status == 200)
@@ -5855,7 +5857,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 int info_parse(char *info_data, save_info *info)
 {
 	int i,j;
-	char *p,*q,*r,*s,*vu,*vd,*pu,*sd;
+	char *p,*q,*s;
 
 	if (info->title) free(info->title);
 	if (info->name) free(info->name);
@@ -7813,8 +7815,7 @@ int save_filename_ui(pixel *vid_buf)
 			break;
 		}
 	}
-		
-savefin:
+	
 	while (!sdl_poll())
 	{
 		b = mouse_get_state(&mx, &my);

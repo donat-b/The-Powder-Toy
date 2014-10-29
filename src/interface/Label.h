@@ -9,7 +9,7 @@ class Label
 {
 private:
 	void UpdateCursorTemp(int x, int y);
-	int UpdateCursor(int position);
+	unsigned int UpdateCursor(unsigned int position);
 	bool multiline;
 
 protected:
@@ -17,11 +17,11 @@ protected:
 	Point size;
 
 	std::string text;
-	int cursor, cursorStart;
-	int lastClick, numClicks, clickPosition;
+	unsigned int cursor, cursorStart;
+	unsigned int lastClick, numClicks, clickPosition;
 
 	void UpdateDisplayText(bool updateCursor = false, bool firstClick = false, int mx = 0, int my = 0);
-	void MoveCursor(int *cursor, int amount);
+	void MoveCursor(unsigned int *cursor, int amount);
 	virtual bool ShowCursor() { return false; }
 
 public:

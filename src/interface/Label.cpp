@@ -20,9 +20,9 @@ Label::Label(std::string text, Point position, Point size, bool multiline):
 	UpdateDisplayText();
 }
 
-void FindWordPosition(const char *s, int position, int *cursorStart, int *cursorEnd, const char* spaces)
+void FindWordPosition(const char *s, unsigned int position, unsigned int *cursorStart, unsigned int *cursorEnd, const char* spaces)
 {
-	int wordLength = 0, totalLength = 0, strLength = strlen(s);
+	unsigned int wordLength = 0, totalLength = 0, strLength = strlen(s);
 	while (totalLength < strLength)
 	{
 		wordLength = strcspn(s, spaces);
@@ -39,11 +39,11 @@ void FindWordPosition(const char *s, int position, int *cursorStart, int *cursor
 	*cursorEnd = totalLength+wordLength;
 }
 
-int Label::UpdateCursor(int position)
+unsigned int Label::UpdateCursor(unsigned int position)
 {
 	if (numClicks >= 2)
 	{
-		int start = 0, end = text.length();
+		unsigned int start = 0, end = text.length();
 		const char *spaces = " .,!?\n";
 		if (numClicks == 3)
 			spaces = "\n";
@@ -78,7 +78,7 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my
 		cursor = 0;
 		updatedCursor = true;
 	}
-	for (int i = 0; i < text.length();)
+	for (unsigned int i = 0; i < text.length();)
 	{
 		//find end of word/line chars
 		int wordlen = text.substr(i).find_first_of(" .,!?\n");
@@ -192,24 +192,24 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my
 }
 
 //this function moves the cursor a certain amount, and checks at the end for special characters to move past like \r, \b, and \0F
-void Label::MoveCursor(int *cursor, int amount)
+void Label::MoveCursor(unsigned int *cursor, int amount)
 {
-	int sign = isign(amount), offset = 0;
+	int cur = *cursor, sign = isign((float)amount), offset = 0;
 	if (!amount)
 		return;
 
 	offset += amount;
 	//adjust for strange characters
-	if (text[*cursor+offset-1] == '\b' || text[*cursor+offset-1] == '\r')
+	if (cur+offset-1 >= 0 && (text[cur+offset-1] == '\b' || text[cur+offset-1] == '\r'))
 		offset += sign;
-	else if (*cursor+offset-3+(sign>0)*2 > 0 && text[*cursor+offset-3+(sign>0)*2] == '\x0F') //when moving right, check 1 behind, when moving left, check 3 behind
+	else if (cur+offset-3+(sign>0)*2 >= 0 && text[cur+offset-3+(sign>0)*2] == '\x0F') //when moving right, check 1 behind, when moving left, check 3 behind
 		offset += sign*3;
 
 	//make sure it's in bounds
-	if (*cursor+offset < 0)
-		offset = -*cursor;
-	if (*cursor+offset > text.length())
-		offset = text.length()-*cursor;
+	if (cur+offset < 0)
+		offset = -cur;
+	if (cur+offset >= (int)text.length())
+		offset = text.length()-cur-1;
 
 	*cursor += offset;
 }
@@ -254,7 +254,7 @@ void Label::OnKeyPress(int key, unsigned short character, unsigned char modifier
 		case 'c':
 		{
 			int start = (cursor > cursorStart) ? cursorStart : cursor;
-			int len = abs(cursor-cursorStart);
+			int len = std::abs((int)(cursor-cursorStart));
 			std::string copyStr = text.substr(start, len);
 			copyStr.erase(std::remove(copyStr.begin(), copyStr.end(), '\r'), copyStr.end()); //strip special newlines
 			clipboard_push_text((char*)copyStr.c_str());
@@ -269,14 +269,15 @@ void Label::OnKeyPress(int key, unsigned short character, unsigned char modifier
 			break;
 		case SDLK_LEFT:
 		{
-			int start, end;
+			unsigned int start, end;
 			FindWordPosition(text.c_str(), cursor-1, &start, &end, " .,!?\n");
-			MoveCursor(&cursor, start-cursor-(cursor > cursorStart));
+			if (start < cursor)
+				MoveCursor(&cursor, start-cursor-(cursor > cursorStart));
 			break;
 		}
 		case SDLK_RIGHT:
 		{
-			int start, end;
+			unsigned int start, end;
 			FindWordPosition(text.c_str(), cursor+1, &start, &end, " .,!?\n");
 			MoveCursor(&cursor, end-cursor+!(cursor > cursorStart));
 			break;

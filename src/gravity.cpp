@@ -67,8 +67,8 @@ void bilinear_interpolation(float *src, float *dst, int sw, int sh, int rw, int 
 		{
 			fx = ((float)x)*((float)sw)/((float)rw);
 			fy = ((float)y)*((float)sh)/((float)rh);
-			fxc = modf(fx, &intp);
-			fyc = modf(fy, &intp);
+			fxc = (float)modf(fx, &intp);
+			fyc = (float)modf(fy, &intp);
 			fxceil = (int)ceil(fx);
 			fyceil = (int)ceil(fy);
 			if (fxceil>=sw) fxceil = sw-1;

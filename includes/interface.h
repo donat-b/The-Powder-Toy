@@ -299,7 +299,7 @@ void info_box_overlay(pixel *vid_buf, char *msg);
 
 char *input_ui(pixel *vid_buf, char *title, char *prompt, char *text, char *shadow);
 
-int confirm_ui(pixel *vid_buf, char *top, char *msg, char *btn);
+bool confirm_ui(pixel *vid_buf, char *top, char *msg, char *btn);
 
 void login_ui(pixel *vid_buf);
 

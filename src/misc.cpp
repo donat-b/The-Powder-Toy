@@ -136,15 +136,12 @@ void strlist_free(struct strlist **list)
 
 void clean_text(char *text, int vwidth)
 {
-	int i = 0;
-	if(vwidth>=0 && textwidth(text) > vwidth){
+	if (vwidth >= 0 && textwidth(text) > vwidth)
 		text[textwidthx(text, vwidth)] = 0;	
-	}
-	for(i = 0; i < strlen(text); i++){
-		if(! (text[i]>=' ' && text[i]<127)){
+
+	for (unsigned i = 0; i < strlen(text); i++)
+		if (text[i] < ' ' || text[i] >= 127)
 			text[i] = ' ';
-		}
-	}
 }
 
 void save_console_history(cJSON **historyArray, command_history *commandList)
@@ -1286,7 +1283,7 @@ Tool* GetToolFromIdentifier(std::string identifier)
 {
 	for (int i = 0; i < SC_TOTAL; i++)
 	{
-		for (int j = 0; j < menuSections[i]->tools.size(); j++)
+		for (unsigned int j = 0; j < menuSections[i]->tools.size(); j++)
 		{
 			if  (identifier == menuSections[i]->tools[j]->GetIdentifier())
 				return menuSections[i]->tools[j];
