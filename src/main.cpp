@@ -628,7 +628,7 @@ void tab_save(int num, char reloadButton)
 	if (tabThumbnails[num-1])
 		free(tabThumbnails[num-1]);
 	//the fillrect is to cover up the quickoptions so they aren't in the thumbnail. the &filesize is just a dummy int variable that's unused
-	fillrect(vid_buf, XRES, 0, BARSIZE, YRES/2, 0, 0, 0, 255);
+	fillrect(vid_buf, XRES, 0, BARSIZE, YRES, 0, 0, 0, 255);
 	tabThumbnails[num-1] = rescale_img(vid_buf, XRES+BARSIZE, YRES, &fileSize, &fileSize, 3);
 }
 

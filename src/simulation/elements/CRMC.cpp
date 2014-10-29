@@ -22,6 +22,20 @@ int CRMC_update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
+int CRMC_graphics(GRAPHICS_FUNC_ARGS)
+{
+	int z = cpart->tmp2 - 2;
+	*colr += z * 8;
+	*colg += z * 8;
+	*colb += z * 8;
+	return 0;
+}
+
+void CRMC_create(ELEMENT_CREATE_FUNC_ARGS)
+{
+	sim->parts[i].tmp2 = (rand() % 5);
+}
+
 void CRMC_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_CRMC";
@@ -66,6 +80,8 @@ void CRMC_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionElement = ST;
 
 	elem->Update = &CRMC_update;
+	elem->Graphics = &CRMC_graphics;
+	elem->Func_Create = &CRMC_create;
 	elem->Init = &CRMC_init_element;
 }
 
