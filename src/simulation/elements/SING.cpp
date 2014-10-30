@@ -17,7 +17,7 @@
 
 int SING_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, cry, crx, nb, j, spawncount;
+	int r, rx, ry, cry, crx, nb = -1, j, spawncount;
 	int singularity = -parts[i].life;
 	float angle, v;
 
@@ -78,7 +78,7 @@ int SING_update(UPDATE_FUNC_ARGS)
 					nb = sim->part_create(-3, x, y, PT_ELEC);
 					break;
 			}
-			if (nb!=-1)
+			if (nb != -1)
 			{
 				parts[nb].life = (rand()%300);
 				parts[nb].temp = MAX_TEMP/2;

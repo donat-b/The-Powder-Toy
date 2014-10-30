@@ -180,7 +180,7 @@ void init_can_move()
 	for (destinationType = 0; destinationType < PT_NUM; destinationType++)
 	{
 		//set what stickmen can move through
-		int stkm_move = 0;
+		unsigned char stkm_move = 0;
 		if (ptypes[destinationType].properties & (TYPE_LIQUID | TYPE_GAS))
 			stkm_move = 2;
 		if (!destinationType || destinationType == PT_PRTO || destinationType == PT_SPAWN || destinationType == PT_SPAWN2)
@@ -663,7 +663,7 @@ int move(int i, int x, int y, float nxf, float nyf)
 			else if (t == PT_STKM2)
 				stickman = &player2;
 			else if (t == PT_FIGH)
-				stickman = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get(parts[i].tmp);
+				stickman = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get((unsigned char)parts[i].tmp);
 
 			if (stickman)
 				for (int i = 0; i < 16; i+=2)

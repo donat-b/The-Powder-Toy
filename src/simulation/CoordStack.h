@@ -51,8 +51,8 @@ public:
 	{
 		if (stack_size>=stack_limit)
 			throw CoordStackOverflowException();
-		stack[stack_size][0] = x;
-		stack[stack_size][1] = y;
+		stack[stack_size][0] = (unsigned short)x;
+		stack[stack_size][1] = (unsigned short)y;
 		stack_size++;
 	}
 	void pop(int& x, int& y)

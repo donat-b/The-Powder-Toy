@@ -27,9 +27,9 @@ int FIGH_update(UPDATE_FUNC_ARGS)
 		return 1;
 	}
 
-	playerst* figh = ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Get(parts[i].tmp);
+	playerst* figh = ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Get((unsigned char)parts[i].tmp);
 
-	int tarx, tary;
+	int tarx = 0, tary = 0;
 
 	parts[i].tmp2 = 0; //0 - stay in place, 1 - seek a stick man
 
@@ -59,7 +59,7 @@ int FIGH_update(UPDATE_FUNC_ARGS)
 	switch (parts[i].tmp2)
 	{
 	case 1:
-		if ((pow((float)tarx-x, 2) + pow((float)tary-y, 2))<600)
+		if ((pow(tarx-x, 2.0f) + pow(tary-y, 2.0f))<600)
 		{
 			if (figh->elem == PT_LIGH || figh->elem == PT_NEUT 
 					|| ptypes[figh->elem].properties&(PROP_DEADLY|PROP_RADIOACTIVE) 
@@ -126,7 +126,7 @@ void FIGH_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
 		sim->parts[i].tmp = ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Alloc();
 		if (sim->parts[i].tmp>=0)
 		{
-			playerst* figh = ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Get(sim->parts[i].tmp);
+			playerst* figh = ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Get((unsigned char)sim->parts[i].tmp);
 			figh->spwn = 1;
 			figh->elem = PT_DUST;
 			STKM_init_legs(figh, i);
@@ -134,7 +134,7 @@ void FIGH_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
 	}
 	else
 	{
-		((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Free(sim->parts[i].tmp);
+		((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Free((unsigned char)sim->parts[i].tmp);
 	}
 }
 

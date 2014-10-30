@@ -2323,7 +2323,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						partsptr[newIndex].tmp = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Alloc();
 						if (partsptr[newIndex].tmp>=0)
 						{
-							playerst* figh = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get(partsptr[newIndex].tmp);
+							playerst* figh = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get((unsigned char)partsptr[newIndex].tmp);
 							figh->spwn = 1;
 							figh->elem = PT_DUST;
 							STKM_init_legs(figh, newIndex);
@@ -3298,7 +3298,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 				parts[i-1].tmp = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Alloc();
 				if (parts[i-1].tmp>=0)
 				{
-					playerst* figh = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get(parts[i-1].tmp);
+					playerst* figh = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get((unsigned char)parts[i-1].tmp);
 					figh->spwn = 1;
 					figh->elem = PT_DUST;
 					STKM_init_legs(figh, i-1);

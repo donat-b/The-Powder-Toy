@@ -1686,8 +1686,8 @@ int Simulation::FloodParts(int x, int y, int fullc, int replace, int flags)
 					return FloodWalls(x/CELL, y/CELL, WL_ERASE, -1);
 				else
 					return 0;
-				if ((flags&BRUSH_REPLACEMODE) && ((ElementTool*)activeTools[2])->GetID() != replace)
-					return 0;
+				//if ((flags&BRUSH_REPLACEMODE) && ((ElementTool*)activeTools[2])->GetID() != replace)
+				//	return 0;
 			}
 		}
 		else
@@ -1795,7 +1795,7 @@ void Simulation::CreateWall(int x, int y, int wall)
 	}
 	if (wall == WL_GRAV || bmap[y][x] == WL_GRAV)
 		gravwl_timeout = 60;
-	bmap[y][x] = wall;
+	bmap[y][x] = (unsigned char)wall;
 }
 
 void Simulation::CreateWallLine(int x1, int y1, int x2, int y2, int rx, int ry, int wall)

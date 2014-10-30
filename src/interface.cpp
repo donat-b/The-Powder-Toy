@@ -1932,8 +1932,6 @@ void info_box_overlay(pixel *vid_buf, char *msg)
 
 void copytext_ui(pixel *vid_buf, char *top, char *txt, char *copytxt)
 {
-	int state = 0;
-	int g = 255;
 	int xsize = 244;
 	int ysize = 90;
 	int x0=(XRES-xsize)/2,y0=(YRES-MENUSIZE-ysize)/2,b=1,bq,mx,my;
@@ -3242,7 +3240,7 @@ void menu_select_element(int b, Tool* over)
 		}
 		else if (toolID >= DECO_PRESET_START && toolID < DECO_PRESET_START+NUM_COLOR_PRESETS)
 		{
-			int newDecoColor = (255<<24)|colorlist[toolID-DECO_PRESET_START].colour;
+			unsigned int newDecoColor = (255<<24)|colorlist[toolID-DECO_PRESET_START].colour;
 			if (newDecoColor != decocolor)
 				decocolor = newDecoColor;
 			else
@@ -5023,7 +5021,7 @@ void converttotime(char *timestamp, char **timestring, int show_day, int show_ye
 
 int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 {
-	int b=1,bq,mx,my,ca=0,active=0,active_2=0,active_3=0,active_4=0,cc=0,ccy=0,cix=0;
+	int b=1,bq,mx,my,active=0,active_2=0,active_3=0,active_4=0,cc=0,ccy=0,cix=0;
 	int hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1;
 	int comment_scroll = 0, comment_page = 0, redraw_comments = 1, dofocus = 0, disable_scrolling = 0;
 	int nyd,nyu,lv;
@@ -7607,7 +7605,7 @@ struct savelist_e {
 };
 savelist_e *get_local_saves(char *folder, char *search, int *results_ret)
 {
-	int index = 0, results = 0;
+	int results = 0;
 	savelist_e *new_savelist = NULL;
 	savelist_e *current_item = NULL, *new_item = NULL;
 	char *fname;
@@ -8696,7 +8694,7 @@ void simulation_ui(pixel * vid_buf)
 		else
 			stop_grav_async();
 	}
-	edgeMode = list3.selected;
+	edgeMode = (char)list3.selected;
 	if(edgeMode == 1 && oldedgeMode != 1)
 		draw_bframe();
 	else if(edgeMode != 1 && oldedgeMode == 1)

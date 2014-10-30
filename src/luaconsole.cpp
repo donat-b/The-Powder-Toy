@@ -1677,8 +1677,8 @@ int luatpt_reset_spark(lua_State* l)
 int luatpt_set_property(lua_State* l)
 {
 	const char *prop, *name;
-	int r, i, x, y, w, h, t, format, nx, ny, partsel = 0, acount;
-	float f;
+	int r, i, x, y, w, h, t = 0, format, nx, ny, partsel = 0, acount;
+	float f = 0.0f;
 	size_t offset;
 	acount = lua_gettop(l);
 	prop = luaL_optstring(l, 1, "");

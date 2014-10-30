@@ -1010,7 +1010,7 @@ int simulation_saveStamp(lua_State* l)
 
 int simulation_loadStamp(lua_State* l)
 {
-	int stamp_size, i = -1, x, y;
+	int stamp_size = 0, i = -1, x, y;
 	void *load_data = NULL;
 	x = luaL_optint(l,2,0);
 	y = luaL_optint(l,3,0);
@@ -1153,7 +1153,7 @@ int simulation_edgeMode(lua_State * l)
 		lua_pushnumber(l, edgeMode);
 		return 1;
 	}
-	edgeMode = luaL_optint(l, 1, 0);
+	edgeMode = (char)luaL_optint(l, 1, 0);
 	if (edgeMode == 1)
 		draw_bframe();
 	else
@@ -1235,7 +1235,7 @@ int simulation_canMove(lua_State * l)
 	}
 	else
 	{
-		can_move[movingElement][destinationElement] = luaL_checkint(l, 3);
+		can_move[movingElement][destinationElement] = (unsigned char)luaL_checkint(l, 3);
 		return 0;
 	}
 }
@@ -1335,7 +1335,7 @@ int simulation_stickman(lua_State *l)
 	bool set = lua_gettop(l) > 2 && !lua_isnil(l, 3);
 	int num = luaL_checkint(l, 1);
 	const char* property = luaL_checkstring(l, 2);
-	double value, ret = -1;
+	double value = 0, ret = -1;
 	int offset = luaL_optint(l, 4, 0);
 	if (set)
 		value = luaL_checknumber(l, 3);
@@ -1348,7 +1348,7 @@ int simulation_stickman(lua_State *l)
 	else if (num == 2)
 		stick = &player2;
 	else
-		stick = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get(num-3);
+		stick = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get((unsigned char)(num-3));
 
 	if (!strcmp(property, "comm"))
 	{
@@ -2372,7 +2372,7 @@ void elements_setProperty(lua_State * l, int id, int format, int offset)
 			*((std::string*)(((unsigned char*)&globalSim->elements[id]) + offset)) = std::string(luaL_optstring(l, 3, ""));
 			break;
 		case 3: //Unsigned char (HeatConduct)
-			*((unsigned char*)(((unsigned char*)&globalSim->elements[id])+offset)) = lua_tointeger(l, 3);
+			*((unsigned char*)(((unsigned char*)&globalSim->elements[id])+offset)) = (unsigned char)lua_tointeger(l, 3);
 			break;
 		case 4: //Color (Color)
 		{
@@ -2388,7 +2388,7 @@ void elements_setProperty(lua_State * l, int id, int format, int offset)
 			*((unsigned int*)(((unsigned char*)&globalSim->elements[id])+offset)) = lua_tointeger(l, 3);
 			break;
 		case 6: //Char (State)
-			*((char*)(((unsigned char*)&globalSim->elements[id])+offset)) = lua_tointeger(l, 3);
+			*((char*)(((unsigned char*)&globalSim->elements[id])+offset)) = (char)lua_tointeger(l, 3);
 			break;
 	}
 }
@@ -2610,7 +2610,6 @@ int elements_element(lua_State * l)
 		lua_setfield(l, -2, "Identifier");
 		return 1;
 	}
-	return 0;
 }
 
 int elements_property(lua_State * l)

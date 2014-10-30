@@ -204,7 +204,7 @@ int PSTN_update(UPDATE_FUNC_ARGS)
 					{
 						int movedPiston = 0;
 						int foundEnd = 0;
-						int pistonEndX, pistonEndY;
+						int pistonEndX = 0, pistonEndY = 0;
 						int pistonCount = 0;
 						int newSpace = 0;
 						int armCount = 0;

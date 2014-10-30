@@ -48,6 +48,7 @@ int PWHT_flood(UPDATE_FUNC_ARGS)
 	{
 		parts[i].ctype = 0;
 		parts[i].tmp2 = 0;
+		return 0;
 	}
 	
 	if (format == 2)
@@ -73,7 +74,6 @@ int PWHT_flood(UPDATE_FUNC_ARGS)
 int PWHT_update(UPDATE_FUNC_ARGS)
 {
 	int r = pmap[y-1][x];
-	float temp = parts[i].temp;
 	if (parts[i].life < 10)
 		return 0;
 	if ((r&0xFF) == PT_PWHT)

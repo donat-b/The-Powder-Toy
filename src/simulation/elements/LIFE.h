@@ -77,7 +77,7 @@ public:
 				}
 				if ((r&0xFF) == PT_LIFE)
 				{
-					int golnum = parts[r>>8].ctype+1;
+					unsigned char golnum = (unsigned char)(parts[r>>8].ctype+1);
 					if (golnum <= 0 || golnum > NGOL)
 					{
 						sim->part_kill(r>>8);

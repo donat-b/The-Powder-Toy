@@ -140,7 +140,7 @@ public:
 		else if ((!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT)))// && (pmap[y][x]&0xFF) != PT_PINV)
 			pmap[y][x] = t|(i<<8);
 	}
-	void pmap_remove(int i, int x, int y)
+	void pmap_remove(unsigned int i, int x, int y)
 	{
 		// NB: all arguments are assumed to be within bounds
 		if ((pmap[y][x]>>8)==i)

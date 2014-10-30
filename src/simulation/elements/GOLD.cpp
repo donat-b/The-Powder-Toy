@@ -17,7 +17,7 @@
 
 int GOLD_update(UPDATE_FUNC_ARGS)
 {
-	int rx, ry, r, blocking = 0, j;
+	int rx, ry, r, j;
 	static int checkCoordsX[] = { -4, 4, 0, 0 };
 	static int checkCoordsY[] = { 0, 0, -4, 4 };
 	//Find nearby rusted iron (BMTL with tmp 1+)

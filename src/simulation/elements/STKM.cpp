@@ -589,7 +589,7 @@ void STKM_interact(Simulation* sim, playerst* playerp, int i, int x, int y)
 		if (((r&0xFF)==PT_PRTI || (r&0xFF)==PT_PPTI) && parts[i].type)
 		{
 			int t = parts[i].type;
-			int tmp = parts[i].tmp;
+			unsigned char tmp = parts[i].tmp&0xFF;
 			PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, r>>8);
 			if (channel->StoreParticle(sim, i, 1))//slot=1 gives rx=0, ry=1 in PRTO_update
 			{

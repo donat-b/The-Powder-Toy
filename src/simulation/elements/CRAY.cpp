@@ -18,7 +18,6 @@
 unsigned int wavelengthToDecoColour(int wavelength)
 {
 	int colr = 0, colg = 0, colb = 0, x;
-	unsigned int dcolour = 0;
 	for (x=0; x<12; x++) {
 		colr += (wavelength >> (x+18)) & 1;
 		colb += (wavelength >>  x)     & 1;

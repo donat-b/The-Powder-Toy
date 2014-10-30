@@ -415,10 +415,13 @@ void load_presets(void)
 		versionobj = cJSON_GetObjectItem(root, "version");
 		if (versionobj)
 		{
-			if(tmpobj = cJSON_GetObjectItem(versionobj, "major")) last_major = tmpobj->valueint;
-			if(tmpobj = cJSON_GetObjectItem(versionobj, "minor")) last_minor = tmpobj->valueint;
-			if(tmpobj = cJSON_GetObjectItem(versionobj, "build")) last_build = tmpobj->valueint;
-			if((tmpobj = cJSON_GetObjectItem(versionobj, "update")) && tmpobj->type == cJSON_True)
+			if (tmpobj = cJSON_GetObjectItem(versionobj, "major"))
+				last_major = (unsigned char)tmpobj->valueint;
+			if (tmpobj = cJSON_GetObjectItem(versionobj, "minor"))
+				last_minor = (unsigned char)tmpobj->valueint;
+			if (tmpobj = cJSON_GetObjectItem(versionobj, "build"))
+				last_build = (unsigned char)tmpobj->valueint;
+			if ((tmpobj = cJSON_GetObjectItem(versionobj, "update")) && tmpobj->type == cJSON_True)
 				update_flag = 1;
 			else
 				update_flag = 0;
@@ -529,7 +532,7 @@ void load_presets(void)
 		{
 			if(tmpobj = cJSON_GetObjectItem(simulationobj, "EdgeMode"))
 			{
-				edgeMode = cJSON_GetInt(&tmpobj);
+				edgeMode = (char)cJSON_GetInt(&tmpobj);
 				if (edgeMode > 3)
 					edgeMode = 0;
 			}

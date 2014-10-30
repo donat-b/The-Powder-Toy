@@ -74,7 +74,7 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 					{
 						if (storedPart->type == PT_FIGH)
 						{
-							((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Free(storedPart->tmp);
+							((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Free((unsigned char)storedPart->tmp);
 						}
 						else if (storedPart->type == PT_STKM)
 							player.spwn = 0;
@@ -85,7 +85,7 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 						{
 							if (storedPart->type == PT_FIGH)
 							{
-								((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->AllocSpecific(storedPart->tmp);
+								((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->AllocSpecific((unsigned char)storedPart->tmp);
 							}
 							else if (storedPart->type == PT_STKM)
 								player.spwn = 1;
@@ -96,8 +96,8 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 						if (parts[np].type == PT_FIGH)
 						{
 							// Release the fighters[] element allocated by part_create, the one reserved when the fighter went into the portal will be used
-							((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Free(parts[np].tmp);
-							((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->AllocSpecific(storedPart->tmp);
+							((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Free((unsigned char)parts[np].tmp);
+							((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->AllocSpecific((unsigned char)storedPart->tmp);
 						}
 						if (storedPart->vx == 0.0f && storedPart->vy == 0.0f)
 						{

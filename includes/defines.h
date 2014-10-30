@@ -143,17 +143,14 @@ typedef unsigned int pixel;
 #ifdef WIN
 #ifdef _MSC_VER
 #define strcasecmp _stricmp //stricmp is deprecated in visual studio
+#if _MSC_VER >= 1800
+#include <algorithm>
+#endif
+#pragma warning(disable: 4100) //unreferenced formal parameter
 #else
 #define strcasecmp stricmp
 #endif
 #endif
-
-#if defined(_MSC_VER) && _MSC_VER >= 1800
-#include <algorithm>
-#endif
-//#if _MSC_VER
-//#define snprintf _snprintf
-//#endif
 
 #ifdef __cplusplus
 #define TPT_INLINE
