@@ -203,7 +203,6 @@ extern int elapsedTime;
 extern int NUM_PARTS;
 
 extern int legacy_enable;
-extern int sound_enable;
 extern int kiosk_enable;
 extern int aheat_enable;
 extern int decorations_enable;
@@ -323,7 +322,6 @@ int tab_load(int tabNum);
 void stamp_init();
 void del_stamp(int d);
 void sdl_seticon(void);
-void play_sound(char *file);
 int set_scale(int scale, int kiosk);
 void dump_frame(pixel *src, int w, int h, int pitch);
 void ctrlzSnapshot();

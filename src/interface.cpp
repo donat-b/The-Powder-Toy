@@ -6771,7 +6771,6 @@ const static struct command_match matches [] = {
 	{"tpt.element_", "tpt.element_func("},
 	{"tpt.ele", "tpt.element("},
 	{"tpt.gr", "tpt.graphics_func("},
-	{"tpt.so", "tpt.sound("},
 	{"tpt.bu", "tpt.bubble("},
 	{"tpt.ma", "tpt.maxframes("},
 	{"tpt.ind", "tpt.indestructible("},

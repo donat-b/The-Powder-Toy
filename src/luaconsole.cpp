@@ -129,7 +129,6 @@ void luacon_open()
 		{"element",&luatpt_getelement},
 		{"element_func",&luatpt_element_func},
 		{"graphics_func",&luatpt_graphics_func},
-		{"sound",&luatpt_sound},
 		{"load",&luatpt_load},
 		{"bubble",&luatpt_bubble},
 		{"maxframes",&luatpt_maxframes},
@@ -2515,15 +2514,6 @@ int luatpt_setclip(lua_State* l)
 {
 	luaL_checktype(l, 1, LUA_TSTRING);
 	clipboard_push_text((char*)luaL_optstring(l, 1, ""));
-	return 0;
-}
-
-int luatpt_sound(lua_State* l)
-{
-	char *filename;
-	filename = mystrdup((char*)luaL_optstring(l, 1, ""));
-	if (sound_enable) play_sound(filename);
-	else return luaL_error(l, "Audio device not available - cannot play sounds");
 	return 0;
 }
 

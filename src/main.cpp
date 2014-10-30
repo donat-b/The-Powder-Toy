@@ -29,10 +29,8 @@
 #include <math.h>
 #ifdef SDL_R_INC
 #include <SDL.h>
-#include <SDL_audio.h>
 #else
 #include <SDL/SDL.h>
-#include <SDL/SDL_audio.h>
 #endif
 #include <bzlib.h>
 #include <time.h>
@@ -86,72 +84,6 @@
 #endif
 
 pixel *vid_buf;
-
-#define NUM_SOUNDS 2
-struct sample {
-	Uint8 *data;
-	Uint32 dpos;
-	Uint32 dlen;
-} sounds[NUM_SOUNDS];
-
-void mixaudio(void *unused, Uint8 *stream, int len)
-{
-	int i;
-	Uint32 amount;
-
-	for ( i=0; i<NUM_SOUNDS; ++i ) {
-		amount = (sounds[i].dlen-sounds[i].dpos);
-		if ( amount > len ) {
-			amount = len;
-		}
-		SDL_MixAudio(stream, &sounds[i].data[sounds[i].dpos], amount, SDL_MIX_MAXVOLUME);
-		sounds[i].dpos += amount;
-	}
-}
-
-//plays a .wav file (sounds must be enabled)
-void play_sound(char *file)
-{
-	int index;
-	SDL_AudioSpec wave;
-	Uint8 *data;
-	Uint32 dlen;
-	SDL_AudioCVT cvt;
-
-	if (!sound_enable) return;
-
-	/* Look for an empty (or finished) sound slot */
-	for ( index=0; index<NUM_SOUNDS; ++index ) {
-		if ( sounds[index].dpos == sounds[index].dlen ) {
-			break;
-		}
-	}
-	if ( index == NUM_SOUNDS )
-		return;
-
-	/* Load the sound file and convert it to 16-bit stereo at 22kHz */
-	if ( SDL_LoadWAV(file, &wave, &data, &dlen) == NULL ) {
-		fprintf(stderr, "Couldn't load %s: %s\n", file, SDL_GetError());
-		return;
-	}
-	SDL_BuildAudioCVT(&cvt, wave.format, wave.channels, wave.freq,
-	                  AUDIO_S16,   2,             22050);
-	cvt.buf = (Uint8*)malloc(dlen*cvt.len_mult);
-	memcpy(cvt.buf, data, dlen);
-	cvt.len = dlen;
-	SDL_ConvertAudio(&cvt);
-	SDL_FreeWAV(data);
-
-	/* Put the sound data in the slot (it starts playing immediately) */
-	if ( sounds[index].data ) {
-		free(sounds[index].data);
-	}
-	SDL_LockAudio();
-	sounds[index].data = cvt.buf;
-	sounds[index].dlen = cvt.len_cvt;
-	sounds[index].dpos = 0;
-	SDL_UnlockAudio();
-}
 
 static const char *it_msg =
     "\blThe Powder Toy - Version " MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) " - http://powdertoy.co.uk, irc.freenode.net #powder\n"
@@ -254,7 +186,6 @@ int MSIGN =-1;
 int frameidx = 0;
 int limitFPS = 60;
 int main_loop = 1;
-int sound_enable = 0;
 std::string favMenu[18];
 int finding = 0;
 int locked = 0;
@@ -1103,7 +1034,6 @@ int main(int argc, char *argv[])
 	void *load_data=NULL;
 	pixel *load_img=NULL;
 	int save_mode=0, save_x=0, save_y=0, save_w=0, save_h=0, copy_mode=0;
-	SDL_AudioSpec fmt;
 	int username_flash = 0, username_flash_t = 1;
 	int saveOpenError = 0;
 	int benchmark_enable = 0;
@@ -1137,14 +1067,6 @@ int main(int argc, char *argv[])
 	memcpy(currentHud,normalHud,sizeof(currentHud));
 
 	gravity_init();
-
-	/* Set 16-bit stereo audio at 22Khz */
-	fmt.freq = 22050;
-	fmt.format = AUDIO_S16;
-	fmt.channels = 2;
-	fmt.samples = 512;
-	fmt.callback = mixaudio;
-	fmt.userdata = NULL;
 
 #ifdef MT
 	numCores = core_count();
@@ -1222,19 +1144,6 @@ int main(int argc, char *argv[])
 			kiosk_enable = 1;
 			//sdl_scale = 2; //Removed because some displays cannot handle the resolution
 			hud_enable = 0;
-		}
-		else if (!strncmp(argv[i], "sound", 5))
-		{
-			/* Open the audio device and start playing sound! */
-			if ( SDL_OpenAudio(&fmt, NULL) < 0 )
-			{
-				fprintf(stderr, "Unable to open audio: %s\n", SDL_GetError());
-			}
-			else
-			{
-				sound_enable = 1;
-				SDL_PauseAudio(0);
-			}
 		}
 		else if (!strncmp(argv[i], "scripts", 8))
 		{
@@ -3263,8 +3172,6 @@ int main(int argc, char *argv[])
 #endif
 	}
 	
-	if (sound_enable)
-		SDL_CloseAudio();
 	SaveWindowPosition();
 	http_done();
 	gravity_cleanup();

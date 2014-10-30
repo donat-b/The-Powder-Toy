@@ -238,18 +238,6 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 			}
 			
 		}
-		else if (strcmp(console2, "sound")==0 && console3[0])
-		{
-			if (sound_enable) play_sound(console3);
-			else strcpy(console_error, "Audio device not available - cannot play sounds");
-		}
-#ifdef PYCONSOLE
-		else if (strcmp(console2, "python")==0)
-			if (pygood==1)
-				pyready=1;
-			else
-				strcpy(console_error, "python not ready. check stdout for more info.")
-#endif
 			else if (strcmp(console2, "load")==0 && console3[0])
 			{
 				j = atoi(console3);
