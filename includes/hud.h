@@ -27,7 +27,7 @@ struct hud
 };
 typedef struct hud hud;
 
-static hud hud_menu[] =
+const hud hud_menu[] =
 {
 	{"BACK",   PIXPACK(0xFF7F00), 0, "Go Back"},
 	{"UI",     PIXPACK(0x20D8FF), 0, "Change the HUD on the left"},

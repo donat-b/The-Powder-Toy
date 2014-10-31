@@ -44,10 +44,10 @@ Simulation::Simulation():
 	pfree(-1),
 	parts_lastActiveIndex(NPART-1),
 	forceStackingCheck(false),
-	lightningRecreate(0),
 	msRotation(true),
 	maxFrames(25),
-	instantActivation(true)
+	instantActivation(true),
+	lightningRecreate(0)
 {
 	memset(elementData, 0, sizeof(elementData));
 	Clear();
@@ -1656,7 +1656,7 @@ void Simulation::CreateBox(int x1, int y1, int x2, int y2, int c, int flags)
 }
 
 //used for element and prop tool floodfills
-int Simulation::FloodFillPmapCheck(int x, int y, int type)
+int Simulation::FloodFillPmapCheck(int x, int y, unsigned int type)
 {
 	if (type == 0)
 		return !pmap[y][x] && !photons[y][x];
@@ -1668,7 +1668,7 @@ int Simulation::FloodFillPmapCheck(int x, int y, int type)
 
 int Simulation::FloodParts(int x, int y, int fullc, int replace, int flags)
 {
-	int c = fullc&0xFF;
+	unsigned int c = fullc&0xFF;
 	int x1, x2;
 	int created_something = 0;
 
@@ -1993,7 +1993,7 @@ void Simulation::CreateToolBrush(int x, int y, int tool, float strength, Brush* 
 	}
 	else
 	{
-		int tempy = y, i, j, jmax, oldy;
+		int tempy = y, i, j, jmax;
 		// tempy is the smallest y value that is still inside the brush
 		// jmax is the largest y value that is still inside the brush (bottom border of brush)
 
@@ -2002,7 +2002,6 @@ void Simulation::CreateToolBrush(int x, int y, int tool, float strength, Brush* 
 			tempy = y + ry;
 		for (i = x - rx; i <= x; i++)
 		{
-			oldy = tempy;
 			//loop up until it finds a point not in the brush
 			while (brush->IsInside(i-x,tempy-y))
 				tempy = tempy - 1;
@@ -2140,7 +2139,7 @@ void Simulation::CreatePropBrush(int x, int y, PropertyType propType, PropertyVa
 	}
 	else
 	{
-		int tempy = y, i, j, jmax, oldy;
+		int tempy = y, i, j, jmax;
 		// tempy is the smallest y value that is still inside the brush
 		// jmax is the largest y value that is still inside the brush (bottom border of brush)
 
@@ -2149,7 +2148,6 @@ void Simulation::CreatePropBrush(int x, int y, PropertyType propType, PropertyVa
 			tempy = y + ry;
 		for (i = x - rx; i <= x; i++)
 		{
-			oldy = tempy;
 			//loop up until it finds a point not in the brush
 			while (brush->IsInside(i - x, tempy - y))
 				tempy = tempy - 1;
@@ -2454,7 +2452,7 @@ void Simulation::CreateDecoBrush(int x, int y, int tool, unsigned int color, Bru
 	}
 	else
 	{
-		int tempy = y, i, j, jmax, oldy;
+		int tempy = y, i, j, jmax;
 		// tempy is the smallest y value that is still inside the brush
 		// jmax is the largest y value that is still inside the brush (bottom border of brush)
 
@@ -2463,7 +2461,6 @@ void Simulation::CreateDecoBrush(int x, int y, int tool, unsigned int color, Bru
 			tempy = y + ry;
 		for (i = x - rx; i <= x; i++)
 		{
-			oldy = tempy;
 			//loop up until it finds a point not in the brush
 			while (brush->IsInside(i-x,tempy-y))
 				tempy = tempy - 1;

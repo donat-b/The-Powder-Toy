@@ -2172,7 +2172,7 @@ void initElementsAPI(lua_State * l)
 	}
 }
 
-int elements_getProperty(char * key, int * format, unsigned int * modifiedStuff)
+int elements_getProperty(const char * key, int * format, unsigned int * modifiedStuff)
 {
 	int offset;
 	if (!strcmp(key, "Name"))
@@ -2534,7 +2534,7 @@ int elements_element(lua_State * l)
 {
 	int args = lua_gettop(l), id, i = 0;
 	unsigned int modifiedStuff = 0;
-	char *propertyList[] = { "Name", "Colour", "Color", "MenuVisible", "MenuSection", "Advection", "AirDrag", "AirLoss", "Loss", "Collision", "Gravity", "Diffusion", "HotAir", "Falldown", "Flammable", "Explosive", "Meltable", "Hardness", "PhotonReflectWavelengths", "Weight", "Temperature", "HeatConduct", "Latent", "Description", "State", "Properties", "LowPressure", "LowPressureTransition", "HighPressure", "HighPressureTransition", "LowTemperature", "LowTemperatureTransition", "HighTemperature", "HighTemperatureTransition", NULL};
+	const char *propertyList[] = { "Name", "Colour", "Color", "MenuVisible", "MenuSection", "Advection", "AirDrag", "AirLoss", "Loss", "Collision", "Gravity", "Diffusion", "HotAir", "Falldown", "Flammable", "Explosive", "Meltable", "Hardness", "PhotonReflectWavelengths", "Weight", "Temperature", "HeatConduct", "Latent", "Description", "State", "Properties", "LowPressure", "LowPressureTransition", "HighPressure", "HighPressureTransition", "LowTemperature", "LowTemperatureTransition", "HighTemperature", "HighTemperatureTransition", NULL};
 	luaL_checktype(l, 1, LUA_TNUMBER);
 	id = lua_tointeger(l, 1);
 
@@ -2614,13 +2614,9 @@ int elements_element(lua_State * l)
 
 int elements_property(lua_State * l)
 {
-	int args = lua_gettop(l), id;
+	int args = lua_gettop(l), id = luaL_checkinteger(l, 1);;
 	unsigned int modifiedStuff = 0;
-	char *propertyName;
-	luaL_checktype(l, 1, LUA_TNUMBER);
-	id = lua_tointeger(l, 1);
-	luaL_checktype(l, 2, LUA_TSTRING);
-	propertyName = (char*)lua_tostring(l, 2);
+	const char *propertyName = luaL_checkstring(l, 2);
 
 	if(id < 0 || id >= PT_NUM || !globalSim->elements[id].Enabled)
 		return luaL_error(l, "Invalid element");

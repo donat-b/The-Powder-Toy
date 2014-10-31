@@ -56,7 +56,7 @@ struct wallType
 };
 typedef struct wallType wallType;
 
-static wallType wallTypes[] =
+const wallType wallTypes[] =
 {
 	{"ERASE",			"DEFAULT_WL_ERASE",	PIXPACK(0x808080), PIXPACK(0x000000), -1, "Erases walls."},
 	{"CONDUCTIVE WALL",	"DEFAULT_WL_CNDTW",	PIXPACK(0xC0C0C0), PIXPACK(0x101010), 0,  "Blocks everything. Conductive."},

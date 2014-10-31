@@ -427,6 +427,8 @@ if GetOption('opengl'):
 if GetOption('renderer'):
 	env.Append(CPPDEFINES=['RENDERER'])
 
+if not msvc:
+	env.Append(CXXFLAGS=['-Wno-invalid-offsetof'])
 if GetOption("wall"):
 	if msvc:
 		env.Append(CCFLAGS=['/WX'])

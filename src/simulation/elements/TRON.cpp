@@ -54,7 +54,7 @@ int new_tronhead(Simulation *sim, int x, int y, int i, int direction)
 		parts[i].life = 5;
 	}
 	//give new head our properties
-	parts[np].tmp = 1 | direction<<5 | parts[i].tmp&(TRON_NOGROW|TRON_NODIE) | (parts[i].tmp&0xF800);
+	parts[np].tmp = 1 | direction<<5 | (parts[i].tmp&(TRON_NOGROW|TRON_NODIE)) | (parts[i].tmp&0xF800);
 	if (np > i)
 		parts[np].tmp |= TRON_WAIT;
 	

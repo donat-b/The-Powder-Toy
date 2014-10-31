@@ -77,7 +77,7 @@ public:
 	int CreatePartFlags(int x, int y, int c, int flags);
 	void CreateLine(int x1, int y1, int x2, int y2, int c, int flags, Brush* brush = NULL);
 	void CreateBox(int x1, int y1, int x2, int y2, int c, int flags);
-	int FloodFillPmapCheck(int x, int y, int type);
+	int FloodFillPmapCheck(int x, int y, unsigned int type);
 	int FloodParts(int x, int y, int fullc, int replace, int flags);
 
 	void CreateWall(int x, int y, int wall);

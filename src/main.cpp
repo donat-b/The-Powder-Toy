@@ -948,6 +948,8 @@ void BlueScreen(char * detailMessage)
 					if (tronDirection != 1)
 						tronDirection = 3;
 					break;
+				default:
+					break;
 				}
 				gameRunning = true;
 			}

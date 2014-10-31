@@ -35,6 +35,7 @@ protected:
 public:
 	Tool(int toolID, std::string toolIdentifier);
 	Tool(int toolType, int toolID, std::string toolIdentifier);
+	virtual ~Tool() {}
 
 	int GetType() { return type; }
 	int GetID() { return ID; }

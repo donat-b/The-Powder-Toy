@@ -25,7 +25,7 @@ bool contains_sparkable_INST(Simulation *sim, int x, int y)
 //Any INST or SPRK(INST) regardless of life
 bool part_cmp_conductive(unsigned int p, int t)
 {
-	return ((p&0xFF)==t || ((p&0xFF)==PT_SPRK && parts[p>>8].ctype==t));
+	return ((p&0xFF)==(unsigned int)t || ((p&0xFF)==PT_SPRK && parts[p>>8].ctype==t));
 }
 
 int INST_flood_spark(Simulation *sim, int x, int y)

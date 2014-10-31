@@ -9,17 +9,17 @@
 #include "game/Brush.h"
 
 Tool::Tool(int toolID, std::string toolIdentifier):
+	identifier(toolIdentifier),
 	type(INVALID_TOOL),
-	ID(toolID),
-	identifier(toolIdentifier)
+	ID(toolID)
 {
 
 }
 
 Tool::Tool(int toolType, int toolID, std::string toolIdentifier):
+	identifier(toolIdentifier),
 	type(toolType),
-	ID(toolID),
-	identifier(toolIdentifier)
+	ID(toolID)
 {
 
 }

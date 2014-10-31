@@ -49,7 +49,7 @@ int MOVS_update(UPDATE_FUNC_ARGS)
 			rotate(&tmp, &tmp2, movingSolid->rotationOld);
 	}
 	//kill moving solid control particle with a lot of pressure (other ones disappear at 30 pressure)
-	if (!tmp && !tmp2 && pv[y/CELL][x/CELL] > 10 || pv[y/CELL][x/CELL] < -10)
+	if (!tmp && !tmp2 && (pv[y/CELL][x/CELL] > 10 || pv[y/CELL][x/CELL] < -10))
 	{
 		kill_part(i);
 		return 1;

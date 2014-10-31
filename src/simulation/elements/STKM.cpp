@@ -28,7 +28,7 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS)
 	float dt = 0.9f;///(FPSB*FPSB);  //Delta time in square
 	float gvx, gvy;
 	float gx, gy, dl, dr;
-	float rbx, rby, rbx1, rby1, tmp;
+	float rbx, rby, tmp;
 	bool rbLowGrav;
 	float rocketBootsHeadEffect = 0.35f;
 	float rocketBootsFeetEffect = 0.15f;
@@ -100,7 +100,6 @@ int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS)
 		rby = 1.0f;
 		tmp = 1.0f;
 	}
-	rbx1 = rbx/tmp, rby1 = rby/tmp;// scale so that the largest is 1.0
 	tmp = 1.0f/sqrtf(rbx*rbx+rby*rby);
 	rbx *= tmp;// scale to a unit vector
 	rby *= tmp;

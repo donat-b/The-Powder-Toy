@@ -35,14 +35,14 @@
 
 struct quick_option
 {
-	char *icon;
+	const char *icon;
 	const char *name;
 	int type;
 	int *variable;
 };
 typedef struct quick_option quick_option;
 
-static quick_option quickmenu[] =
+const quick_option quickmenu[] =
 {
 	{"T", "Show tabs \bg(t)", QM_TOGGLE, &show_tabs},
 	{"G", "Draw gravity grid \bg(ctrl+g)", QM_TOGGLE, &drawgrav_enable},
@@ -64,7 +64,7 @@ struct menu_wall
 };
 typedef struct menu_wall menu_wall;
 
-static menu_wall colorlist[] =
+const menu_wall colorlist[] =
 {
 	{PIXPACK(0xFF0000), "Red"},
 	{PIXPACK(0x00FF00), "Green"},

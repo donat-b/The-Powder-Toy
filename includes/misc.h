@@ -20,8 +20,6 @@
 #include <stdlib.h>
 #include <string>
 
-static char hex[] = "0123456789ABCDEF";
-
 //Signum function
 int isign(float i);
 

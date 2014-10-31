@@ -64,7 +64,7 @@ struct golType
 };
 typedef struct golType golType;
 
-static golType golTypes[NGOL] = 
+const golType golTypes[NGOL] =
 {
 	{"GOL",		"DEFAULT_PT_LIFE_GOL",	PIXPACK(0x0CAC00), "Game Of Life: Begin 3/Stay 23"},
 	{"HLIF",	"DEFAULT_PT_LIFE_HLIF",	PIXPACK(0xFF0000), "High Life: B36/S23"},
@@ -92,7 +92,7 @@ static golType golTypes[NGOL] =
 	{"BRAN",	"DEFAULT_PT_LIFE_BRAN",	PIXPACK(0xCCCC00), "Brian 6: B246/S6/3"}
 };
 
-static int oldgolTypes[NGOL] =
+const int oldgolTypes[NGOL] =
 {
 	GT_GOL,
 	GT_HLIF,

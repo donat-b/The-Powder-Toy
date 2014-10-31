@@ -71,7 +71,7 @@ void ANIM_create(ELEMENT_CREATE_FUNC_ARGS)
 	sim->parts[i].animations = (unsigned int*)calloc(sim->maxFrames,sizeof(unsigned int));
 	if (!sim->parts[i].animations)
 		return;
-	memset(sim->parts[i].animations, 0, sizeof(sim->parts[i].animations));
+	memset(sim->parts[i].animations, 0, sizeof(*sim->parts[i].animations));
 }
 
 void ANIM_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)

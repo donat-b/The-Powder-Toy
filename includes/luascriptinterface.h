@@ -96,7 +96,7 @@ int graphics_getColors(lua_State * l);
 int graphics_getHexColor(lua_State * l);
 int graphics_toolTip(lua_State * l);
 
-int elements_getProperty(char * key, int * format, unsigned int * modifiedStuff);
+int elements_getProperty(const char * key, int * format, unsigned int * modifiedStuff);
 void elements_setProperty(lua_State * l, int id, int format, int offset);
 void elements_writeProperty(lua_State *l, int id, int format, int offset);
 void initElementsAPI(lua_State * l);

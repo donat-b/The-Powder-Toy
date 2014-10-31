@@ -58,6 +58,9 @@ unsigned cb_pmap[YRES][XRES];
 unsigned photons[YRES][XRES];
 int NUM_PARTS = 0;
 
+static void create_cherenkov_photon(int pp);
+static void create_gain_photon(int pp);
+
 void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float *pGravX, float *pGravY)
 {
 	int angle;
@@ -87,7 +90,7 @@ void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float
 static int pn_junction_sprk(int x, int y, int pt)
 {
 	unsigned r = pmap[y][x];
-	if ((r & 0xFF) != pt)
+	if ((int)(r & 0xFF) != pt)
 		return 0;
 	r >>= 8;
 	if (parts[r].type != pt)
@@ -678,9 +681,9 @@ int move(int i, int x, int y, float nxf, float nyf)
 	parts[i].y = nyf;
 	if (ny!=y || nx!=x)
 	{
-		if ((pmap[y][x]>>8)==i) pmap[y][x] = 0;
+		if ((int)(pmap[y][x]>>8)==i) pmap[y][x] = 0;
 		else if ((pmap[y][x]&0xFF)==PT_PINV && (parts[pmap[y][x]>>8].tmp2>>8)==i) parts[pmap[y][x]>>8].tmp2 = 0;
-		else if ((photons[y][x]>>8)==i) photons[y][x] = 0;
+		else if ((int)(photons[y][x]>>8)==i) photons[y][x] = 0;
 		if (OutOfBounds(nx, ny))//kill_part if particle is out of bounds
 		{
 			kill_part(i);
@@ -870,7 +873,7 @@ int create_part(int p, int x, int y, int tv)
 	return i;
 }
 
-static void create_gain_photon(int pp)//photons from PHOT going through GLOW
+void create_gain_photon(int pp)//photons from PHOT going through GLOW
 {
 	float xx, yy;
 	int i, lr, temp_bin, nx, ny;
@@ -911,7 +914,7 @@ static void create_gain_photon(int pp)//photons from PHOT going through GLOW
 	parts[i].ctype = 0x1F << temp_bin;
 }
 
-static void create_cherenkov_photon(int pp)//photons from NEUT going through GLAS
+void create_cherenkov_photon(int pp)//photons from NEUT going through GLAS
 {
 	int i, lr, nx, ny;
 	float r;
