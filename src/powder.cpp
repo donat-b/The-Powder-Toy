@@ -1300,7 +1300,7 @@ int transfer_heat(int i, int surround[8])
 					{
 						if (parts[i].ctype > 0 && parts[i].ctype < PT_NUM&&parts[i].ctype != t)
 						{
-							if (ptransitions[parts[i].ctype].tlt==t&&pt<ptransitions[parts[i].ctype].tlv)
+							if ((ptransitions[parts[i].ctype].tlt==PT_ICEI || ptransitions[parts[i].ctype].tlt==PT_SNOW) && pt<ptransitions[parts[i].ctype].tlv)
 								s = 0;
 							else
 							{
@@ -1326,7 +1326,7 @@ int transfer_heat(int i, int surround[8])
 					{
 						if (parts[i].ctype>0&&parts[i].ctype<PT_NUM&&parts[i].ctype!=t) 
 						{
-							if (ptransitions[parts[i].ctype].tlt==t&&pt<ptransitions[parts[i].ctype].tlv)
+							if ((ptransitions[parts[i].ctype].tlt==PT_ICEI || ptransitions[parts[i].ctype].tlt==PT_SNOW) && pt<ptransitions[parts[i].ctype].tlv)
 								s = 0;
 							else
 							{
