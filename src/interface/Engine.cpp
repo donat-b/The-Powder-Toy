@@ -44,13 +44,9 @@ bool Engine::EventProcess(SDL_Event event)
 	case SDL_KEYDOWN:
 		top->DoKeyPress(event.key.keysym.sym, event.key.keysym.unicode, (unsigned char)sdl_mod);
 
-		if (event.key.keysym.sym == SDLK_PLUS)
-			top->DoMouseWheel(0, 0, 1);
-		else if (event.key.keysym.sym == SDLK_MINUS)
-			top->DoMouseWheel(0, 0, -1);
-		else if (event.key.keysym.sym == SDLK_ESCAPE)
+		if (event.key.keysym.sym == SDLK_ESCAPE)
 			return true;
-		if (event.key.keysym.sym == 'q' && (sdl_mod & (KMOD_CTRL|KMOD_META)))
+		else if (event.key.keysym.sym == 'q' && (sdl_mod & (KMOD_CTRL|KMOD_META)))
 		{
 			if (confirm_ui(vid_buf, "You are about to quit", "Are you sure you want to quit?", "Quit"))
 			{

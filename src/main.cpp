@@ -1037,6 +1037,9 @@ int main(int argc, char *argv[])
 	int username_flash = 0, username_flash_t = 1;
 	int saveOpenError = 0;
 	int benchmark_enable = 0;
+#if !defined(DEBUG) && !defined(_DEBUG)
+	int signal_hooks = 0;
+#endif
 
 	//init some new c++ stuff
 	Simulation *mainSim = new Simulation();
@@ -3161,14 +3164,14 @@ int main(int argc, char *argv[])
 		}
 
 #if !defined(DEBUG) && !defined(_DEBUG)
-	if (!signal_hooks)
-	{
-		signal(SIGSEGV, SigHandler);
-		signal(SIGFPE, SigHandler);
-		signal(SIGILL, SigHandler);
-		signal(SIGABRT, SigHandler);
-		signal_hooks = 1;
-	}
+		if (!signal_hooks)
+		{
+			signal(SIGSEGV, SigHandler);
+			signal(SIGFPE, SigHandler);
+			signal(SIGILL, SigHandler);
+			signal(SIGABRT, SigHandler);
+			signal_hooks = 1;
+		}
 #endif
 	}
 	

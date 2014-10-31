@@ -3611,14 +3611,6 @@ int EventProcess(SDL_Event event)
 	case SDL_KEYDOWN:
 		sdl_key=event.key.keysym.sym;
 		sdl_ascii=event.key.keysym.unicode;
-		if (event.key.keysym.sym == SDLK_PLUS)
-		{
-			sdl_wheel++;
-		}
-		if (event.key.keysym.sym == SDLK_MINUS)
-		{
-			sdl_wheel--;
-		}
 		if (event.key.keysym.sym=='q' && (sdl_mod & (KMOD_CTRL|KMOD_META)))
 		{
 			if (confirm_ui(vid_buf, "You are about to quit", "Are you sure you want to quit?", "Quit"))
@@ -5685,7 +5677,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				if (abs(scroll_velocity) < .5f)
 					scroll_velocity = 0.0f;
 			}
-			if (sdl_wheel && (!ed.focus || (sdl_key != '-' && sdl_key != '+')))
+			if (sdl_wheel)
 			{
 				if (!disable_scrolling || sdl_wheel > 0)
 				{
