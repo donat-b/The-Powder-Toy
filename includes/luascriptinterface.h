@@ -62,6 +62,7 @@ int simulation_elementCount(lua_State* l);
 int simulation_canMove(lua_State * l);
 int simulation_parts(lua_State * l);
 int simulation_pmap(lua_State * l);
+int simulation_photons(lua_State * l);
 int simulation_neighbours(lua_State * l);
 int simulation_stickman(lua_State * l);
 

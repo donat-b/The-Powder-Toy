@@ -208,6 +208,7 @@ void initSimulationAPI(lua_State * l)
 		{"can_move", simulation_canMove},
 		{"parts", simulation_parts},
 		{"pmap", simulation_pmap},
+		{"photons", simulation_photons},
 		{"neighbors", simulation_neighbours},
 		{"neighbours", simulation_neighbours},
 		{"stickman", simulation_stickman},
@@ -288,7 +289,9 @@ int simulation_partNeighbours(lua_State * l)
 				if (x+rx >= 0 && y+ry >= 0 && x+rx < XRES && y+ry < YRES && (rx || ry))
 				{
 					n = pmap[y+ry][x+rx];
-					if(n && (n&0xFF) == t)
+					if (!n || (n&0xFF) != t)
+						n = photons[y+ry][x+rx];
+					if (n && (n&0xFF) == t)
 					{
 						lua_pushinteger(l, n>>8);
 						lua_rawseti(l, -2, id++);
@@ -303,7 +306,9 @@ int simulation_partNeighbours(lua_State * l)
 				if (x+rx >= 0 && y+ry >= 0 && x+rx < XRES && y+ry < YRES && (rx || ry))
 				{
 					n = pmap[y+ry][x+rx];
-					if(n)
+					if (!n)
+						n = photons[y+ry][x+rx];
+					if (n)
 					{
 						lua_pushinteger(l, n>>8);
 						lua_rawseti(l, -2, id++);
@@ -629,11 +634,11 @@ int simulation_gravMap(lua_State* l)
 	if (x*CELL<0 || y*CELL<0 || x*CELL>=XRES || y*CELL>=YRES)
 		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
 
-	/*if (argCount == 2)
+	if (argCount == 2)
 	{
-		lua_pushnumber(l, gravmap[y*XRES/CELL+x]);
+		lua_pushnumber(l, gravp[y*XRES/CELL+x]);
 		return 1;
-	}*/
+	}
 	luaL_checktype(l, 3, LUA_TNUMBER);
 	if (argCount == 3)
 		value = (float)lua_tonumber(l, 3);
@@ -1268,7 +1273,7 @@ int simulation_pmap(lua_State * l)
 {
 	int x = luaL_checkint(l, 1);
 	int y = luaL_checkint(l, 2);
-	if(x < 0 || x >= XRES || y < 0 || y >= YRES)
+	if (x < 0 || x >= XRES || y < 0 || y >= YRES)
 		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
 	int r = pmap[y][x];
 	if (!(r&0xFF))
@@ -1277,6 +1282,18 @@ int simulation_pmap(lua_State * l)
 	return 1;
 }
 
+int simulation_photons(lua_State * l)
+{
+	int x = luaL_checkint(l, 1);
+	int y = luaL_checkint(l, 2);
+	if (x < 0 || x >= XRES || y < 0 || y >= YRES)
+		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
+	int r = photons[y][x];
+	if (!(r&0xFF))
+		return 0;
+	lua_pushnumber(l, r>>8);
+	return 1;
+}
 
 int NeighboursClosure(lua_State * l)
 {
@@ -1297,12 +1314,15 @@ int NeighboursClosure(lua_State * l)
 			if (y > ry)
 				return 0;
 		}
-		if(!(x || y) || sx+x<0 || sy+y<0 || sx+x>=XRES*CELL || sy+y>=YRES*CELL)
+		if (!(x || y) || sx+x<0 || sy+y<0 || sx+x>=XRES*CELL || sy+y>=YRES*CELL)
 		{
 			continue;
 		}
 		i = pmap[y+sy][x+sx];
-	} while (!(i&0xFF));
+		if (!i)
+			i = photons[y+sy][x+sx];
+	}
+	while (!(i&0xFF));
 	lua_pushnumber(l, x);
 	lua_replace(l, lua_upvalueindex(5));
 	lua_pushnumber(l, y);
