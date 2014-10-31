@@ -1645,17 +1645,15 @@ char propValue[255] = "";
 void prop_edit_ui(pixel *vid_buf)
 {
 	pixel * o_vid_buf;
-	int format;
-	size_t propoffset;
-	char *listitems[] = {"type", "life", "ctype", "temp", "tmp", "tmp2", "vy", "vx", "x", "y", "dcolour", "flags"};
-	int listitemscount = 12;
+	int format, propoffset = -1;
+	char *listitems[] = {"type", "life", "ctype", "temp", "tmp", "tmp2", "vy", "vx", "x", "y", "dcolour", "flags", "pavg0", "pavg1"};
+	int listitemscount = 14;
 	int xsize = 244;
 	int ysize = 87;
 	int x0=(XRES-xsize)/2,y0=(YRES-MENUSIZE-ysize)/2,b=1,bq,mx,my;
 	ui_list ed;
 	ui_edit ed2;
 	PropTool* propTool = (PropTool*)GetToolFromIdentifier("DEFAULT_UI_PROPERTY");
-	bool name = false;
 
 	ed.x = x0+8;
 	ed.y = y0+25;
@@ -1731,60 +1729,18 @@ void prop_edit_ui(pixel *vid_buf)
 		}
 	}
 
-	if(ed.selected != -1)
+	if (ed.selected != -1)
 	{
-		if (!strcmp(ed.str, "type")) {
-			propoffset = offsetof(particle, type);
-			format = 1;
-			name = true;
-		} else if (!strcmp(ed.str,"life")) {
-			propoffset = offsetof(particle, life);
-			format = 0;
-		} else if (!strcmp(ed.str,"ctype")) {
-			propoffset = offsetof(particle, ctype);
-			format = 1;
-		} else if (!strcmp(ed.str,"temp")) {
-			propoffset = offsetof(particle, temp);
-			format = 2;
-		} else if (!strcmp(ed.str,"tmp")) {
-			propoffset = offsetof(particle, tmp);
-			format = 0;
-		} else if (!strcmp(ed.str,"tmp2")) {
-			propoffset = offsetof(particle, tmp2);
-			format = 0;
-		} else if (!strcmp(ed.str,"vy")) {
-			propoffset = offsetof(particle, vy);
-			format = 2;
-		} else if (!strcmp(ed.str,"vx")) {
-			propoffset = offsetof(particle, vx);
-			format = 2;
-		} else if (!strcmp(ed.str,"x")) {
-			propoffset = offsetof(particle, x);
-			format = 2;
-		} else if (!strcmp(ed.str,"y")) {
-			propoffset = offsetof(particle, y);
-			format = 2;
-		} else if (!strcmp(ed.str,"dcolour")) {
-			propoffset = offsetof(particle, dcolour);
-			format = 3;
-		} else if (!strcmp(ed.str,"flags")) {
-			propoffset = offsetof(particle, flags);
-			format = 3;
-		}
-	} else {
+		propoffset = luacon_particle_getproperty(ed.str, &format);
+	}
+	if (propoffset == -1)
+	{
 		error_ui(vid_buf, 0, "Invalid property");
 		goto exit;
 	}
 	
-	propTool->propOffset = propoffset;
-	if (format == 0)
-	{
-		int value;
-		sscanf(ed2.str, "%d", &value);
-		propTool->propValue.Integer = value;
-		propTool->propType = Integer;
-	}
-	else if (format == 1)
+	propTool->propOffset = (size_t)propoffset;
+	if (format == 2 || !strcmp(ed.str, "ctype")) //ctype is special here
 	{
 		unsigned int value;
 		int isint = 1;
@@ -1809,7 +1765,7 @@ void prop_edit_ui(pixel *vid_buf)
 				goto exit;
 			}
 		}
-		if (name && (value < 0 || value > PT_NUM || !ptypes[value].enabled))
+		if (format == 2 && (value < 0 || value > PT_NUM || !ptypes[value].enabled))
 		{
 			error_ui(vid_buf, 0, "Invalid element number");
 			goto exit;
@@ -1817,7 +1773,14 @@ void prop_edit_ui(pixel *vid_buf)
 		propTool->propValue.UInteger = value;
 		propTool->propType = UInteger;
 	}
-	else if (format == 2)
+	else if (format == 0)
+	{
+		int value;
+		sscanf(ed2.str, "%d", &value);
+		propTool->propValue.Integer = value;
+		propTool->propType = Integer;
+	}
+	else if (format == 1)
 	{
 		float value;
 		sscanf(ed2.str, "%f", &value);

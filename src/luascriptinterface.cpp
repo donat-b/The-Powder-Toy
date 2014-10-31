@@ -435,6 +435,7 @@ int simulation_partProperty(lua_State * l)
 		switch(format)
 		{
 		case 0:
+		case 3:
 			*((int*)(((unsigned char*)&parts[particleID])+offset)) = lua_tointeger(l, 3);
 			break;
 		case 1:
@@ -453,6 +454,7 @@ int simulation_partProperty(lua_State * l)
 		{
 		case 0:
 		case 2:
+		case 3:
 			lua_pushnumber(l, *((int*)(((unsigned char*)&parts[particleID])+offset)));
 			break;
 		case 1:

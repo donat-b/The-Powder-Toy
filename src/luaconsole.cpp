@@ -344,6 +344,7 @@ int luacon_partread(lua_State* l)
 	{
 	case 0:
 	case 2:
+	case 3:
 		tempinteger = *((int*)(((char*)&parts[i])+offset));
 		lua_pushnumber(l, tempinteger);
 		break;
@@ -375,6 +376,7 @@ int luacon_partwrite(lua_State* l)
 	switch(format)
 	{
 	case 0:
+	case 3:
 		*((int*)(((char*)&parts[i])+offset)) = luaL_optinteger(l, 3, 0);
 		break;
 	case 1:
@@ -441,10 +443,19 @@ int luacon_particle_getproperty(const char * key, int * format)
 		*format = 1;
 	} else if (!strcmp(key, "dcolour")) {
 		offset = offsetof(particle, dcolour);
-		*format = 0;
+		*format = 3;
 	} else if (!strcmp(key, "dcolor")) {
 		offset = offsetof(particle, dcolour);
-		*format = 0;
+		*format = 3;
+	} else if (!strcmp(key, "flags")) {
+		offset = offsetof(particle, flags);
+		*format = 3;
+	} else if (!strcmp(key, "pavg0")) {
+		offset = offsetof(particle, pavg[0]);
+		*format = 1;
+	} else if (!strcmp(key, "pavg1")) {
+		offset = offsetof(particle, pavg[1]);
+		*format = 1;
 	} else {
 		offset = -1;
 	}
@@ -1685,6 +1696,8 @@ int luatpt_set_property(lua_State* l)
 	offset = luacon_particle_getproperty(prop, &format);
 	if (offset == -1)
 		return luaL_error(l, "Invalid property '%s'", prop);
+	else if (format == 3)
+		format = 0;
 
 	if (acount > 2)
 	{
@@ -1832,6 +1845,7 @@ int luatpt_get_property(lua_State* l)
 		{
 		case 0:
 		case 2:
+		case 3:
 			tempinteger = *((int*)(((unsigned char*)&parts[i])+offset));
 			lua_pushnumber(l, tempinteger);
 			break;
