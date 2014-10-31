@@ -2675,6 +2675,7 @@ int main(int argc, char *argv[])
 			{
 				zoom_en = 2;
 				sdl_zoom_trig = 0;
+				lb = lm = 0;
 			}
 		}
 		//mouse clicks ignored when placing stamps
@@ -2705,11 +2706,11 @@ int main(int argc, char *argv[])
 		//mouse clicks ignored when saving stamps
 		else if (save_mode == 1)
 		{
-			if (b==1)
+			if (b == 1)
 			{
 				save_mode = 2;
 			}
-			else if (b==4)
+			else if (!b && bq == 4)
 			{
 				save_mode = 0;
 				copy_mode = 0;
@@ -2718,42 +2719,45 @@ int main(int argc, char *argv[])
 		//mouse clicks ignored when saving stamps
 		else if (save_mode == 2)
 		{
-			if (!b)
+			if (!b && bq)
 			{
-				if (save_w < 0)
+				if (bq != 4) //mouse could be 4 if strange stuff with zoom window happened
 				{
-					save_x = save_x + save_w - 1;
-					save_w = abs(save_w) + 2;
-				}
-				if (save_h < 0)
-				{
-					save_y = save_y + save_h - 1;
-					save_h = abs(save_h) + 2;
-				}
-				if (save_h > 0 && save_w > 0)
-				{
-					if (copy_mode==1)//CTRL-C, copy
+					if (save_w < 0)
 					{
-						if (clipboard_data)
-							free(clipboard_data);
-						clipboard_data = build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts);
-						if (clipboard_data)
-							clipboard_ready = 1;
+						save_x = save_x + save_w - 1;
+						save_w = abs(save_w) + 2;
 					}
-					else if (copy_mode==2)//CTRL-X, cut
+					if (save_h < 0)
 					{
-						if (clipboard_data)
-							free(clipboard_data);
-						clipboard_data = build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts);
-						if (clipboard_data)
+						save_y = save_y + save_h - 1;
+						save_h = abs(save_h) + 2;
+					}
+					if (save_h > 0 && save_w > 0)
+					{
+						if (copy_mode==1)//CTRL-C, copy
 						{
-							clipboard_ready = 1;
-							clear_area(save_x, save_y, save_w, save_h);
+							if (clipboard_data)
+								free(clipboard_data);
+							clipboard_data = build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+							if (clipboard_data)
+								clipboard_ready = 1;
 						}
-					}
-					else//normal save
-					{
-						stamp_save(save_x, save_y, save_w, save_h);
+						else if (copy_mode==2)//CTRL-X, cut
+						{
+							if (clipboard_data)
+								free(clipboard_data);
+							clipboard_data = build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+							if (clipboard_data)
+							{
+								clipboard_ready = 1;
+								clear_area(save_x, save_y, save_w, save_h);
+							}
+						}
+						else//normal save
+						{
+							stamp_save(save_x, save_y, save_w, save_h);
+						}
 					}
 				}
 				copy_mode = 0;
