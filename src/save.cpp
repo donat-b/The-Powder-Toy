@@ -301,6 +301,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	int bsonInitialised = 0;
 	int elementPalette[PT_NUM];
+	bool hasPalette = false;
 	pixel * vidBuf = NULL;
 	bson b;
 	bson_iterator iter;
@@ -424,6 +425,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 							elementPalette[oldID] = ID;
 					}
 				}
+				hasPalette = true;
 			}
 			else
 			{
@@ -575,7 +577,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 						fprintf(stderr, "Out of range [%d]: %d %d, [%d, %d], [%d, %d]\n", i, x, y, (unsigned)partsData[i+1], (unsigned)partsData[i+2], (unsigned)partsData[i+3], (unsigned)partsData[i+4]);
 						goto fail;
 					}
-					type = fix_type(partsData[i],saved_version, modsave, elementPalette);
+					type = fix_type(partsData[i],saved_version, modsave, hasPalette ? elementPalette : NULL);
 					if (type < 0 || type >= PT_NUM || !globalSim->elements[type].Enabled)
 						type = PT_NONE; //invalid element
 					
@@ -1428,6 +1430,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	int saved_version = inputData[4];
 	int elementPalette[PT_NUM];
+	bool hasPallete = false;
 	bson b;
 	bson_iterator iter;
 
@@ -1710,6 +1713,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							elementPalette[oldID] = ID;
 					}
 				}
+				hasPallete = true;
 			}
 			else
 			{
@@ -2163,7 +2167,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					partsptr[newIndex].y = (float)y;
 					i+=3;
 					
-					partsptr[newIndex].type = fix_type(partsptr[newIndex].type, saved_version, modsave, elementPalette);
+					partsptr[newIndex].type = fix_type(partsptr[newIndex].type, saved_version, modsave, hasPallete ? elementPalette : NULL);
 
 					//Read temp
 					if(fieldDescriptor & 0x01)
@@ -2212,7 +2216,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							}
 						}
 						if (partsptr[newIndex].type == PT_PIPE || partsptr[newIndex].type == PT_PPIP)
-							partsptr[newIndex].tmp = fix_type(partsptr[newIndex].tmp&0xFF, saved_version, modsave, elementPalette)|(parts[newIndex].tmp&~0xFF);
+							partsptr[newIndex].tmp = fix_type(partsptr[newIndex].tmp&0xFF, saved_version, modsave, hasPallete ? elementPalette : NULL)|(parts[newIndex].tmp&~0xFF);
 					}
 					
 					//Read ctype
@@ -2229,7 +2233,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							partsptr[newIndex].ctype |= (((unsigned)partsData[i++]) << 8);
 						}
 						if (partsptr[newIndex].type == PT_CLNE || partsptr[newIndex].type == PT_PCLN || partsptr[newIndex].type == PT_BCLN || partsptr[newIndex].type == PT_PBCN || partsptr[newIndex].type == PT_STOR || partsptr[newIndex].type == PT_CONV || ((partsptr[newIndex].type == PT_STKM || partsptr[newIndex].type == PT_STKM2 || partsptr[newIndex].type == PT_FIGH) && partsptr[newIndex].ctype != SPC_AIR) || partsptr[newIndex].type == PT_LAVA || partsptr[newIndex].type == PT_SPRK || partsptr[newIndex].type == PT_PSTN || partsptr[newIndex].type == PT_CRAY || partsptr[newIndex].type == PT_DTEC || partsptr[newIndex].type == PT_DRAY)
-							partsptr[newIndex].ctype = fix_type(partsptr[newIndex].ctype, saved_version, modsave, elementPalette);
+							partsptr[newIndex].ctype = fix_type(partsptr[newIndex].ctype, saved_version, modsave, hasPallete ? elementPalette : NULL);
 					}
 					
 					//Read dcolour
@@ -2268,7 +2272,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							partsptr[newIndex].tmp2 |= (((unsigned)partsData[i++]) << 8);
 						}
 						if (partsptr[newIndex].type == PT_VIRS || partsptr[newIndex].type == PT_VRSS || partsptr[newIndex].type == PT_VRSG)
-							partsptr[newIndex].tmp2 = fix_type(partsptr[newIndex].tmp2, saved_version, modsave, elementPalette);
+							partsptr[newIndex].tmp2 = fix_type(partsptr[newIndex].tmp2, saved_version, modsave, hasPallete ? elementPalette : NULL);
 					}
 
 					//Read pavg (for moving solids)

@@ -859,6 +859,11 @@ New sign / stickmen Lua functions. Support tpt++'s save palette (lua / mod
 elements can change IDs and still be loaded properly). Remove some legacy 
 BRTY / SDL sound code. Drawing / Lua / Simulation updates from tpt++.
 
+Version 30.0 (build 50) 10/31/14
+Fix crash when loading saves without palette (old mod saves / non-tpt++ saves)
+
+
+
 
 ------------------------------------------------------------------------------
 -------------------------------------Bugs-------------------------------------

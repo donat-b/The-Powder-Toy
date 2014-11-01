@@ -898,7 +898,8 @@ void BlueScreen(char * detailMessage)
 	memcpy(vid_buf2, vid_buf, (XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
 	std::vector<Point> food;
 	std::list<Point> tron;
-	unsigned int tronSize = 5, tronDirection = 2, score = 0;
+	unsigned int tronSize = 5, score = 0;
+	int tronDirection = 2;
 	char scoreString[20];
 	bool gameRunning = false, gameLost = false;
 	for (int i = 0; i < 10; i++)
