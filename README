@@ -54,7 +54,8 @@ Joeboy25 - AMTR ctypes
 baizuo - Multiple element highlights
 The-Fall - GEL and SPNG can absorb water from more elements (ex. PSTE + SPNG -> CLST)
 GIGATeun - GRVI (gravitons)
-minecraft-physics - DRAY (duplicator ray)
+minecraft-physics - DRAY (duplicator ray), CRMC
+G-LinuxorU - CRMC additions
 
 
 2014 April fools joke element suggestions:
@@ -843,7 +844,20 @@ stickmen spawning with rocket boots. Stamps can be rotated without holding
 ctrl. Update TPTMP to version .82. Fix HUD issues with LAVA and FILT. Add a
 'rescan stamps' button in the save browser.
 
-
+Version 30.0 10/31/14
+Rewrite parts of README. Fix emap bug, fix q-tips being invisible. Command 
+key works on OS X. Add tpt.set_debug(2). Rewrite moving solids, fixes the 
+drawing bug and makes them sync over TPTMP. Remove tpt.moving_solid(). Redo 
+parts of ANIM, redo Lua code in saves / lua sandbox. Instantly activated 
+electronics is now a setting (automatically turned on or off). Remove 
+support for PSv mod saves or k,d mod saves with MOVS / ANIM / Lua code and 
+move all of that to a better format. Allow uploading saves made in the mod 
+(mod elements invisible to non TPT players). Fix compatibility with tpt++ 
+powder.pref. Remove most mod-specific lua functions (were clones). New 
+element: CRMC. Add the new script manager lua script. Remove OTWR and COND. 
+New sign / stickmen Lua functions. Support tpt++'s save palette (lua / mod 
+elements can change IDs and still be loaded properly). Remove some legacy 
+BRTY / SDL sound code. Drawing / Lua / Simulation updates from tpt++.
 
 
 ------------------------------------------------------------------------------
@@ -858,7 +872,6 @@ None (at least that I know of)
 -------------------------------------TODO-------------------------------------
 ------------------------------------------------------------------------------
 TODO: '>' means currently being worked on/added next
->Ceramics http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=19402
 Redo fav menu ...
 Do something about the massively repeated drawing code in Simulation.cpp
 make open ui more colorful like tpt++, also fix cut off description in save uploading ui

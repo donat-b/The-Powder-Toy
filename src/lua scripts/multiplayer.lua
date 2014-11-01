@@ -23,7 +23,7 @@ local using_manager = false
 local _print = print
 if MANAGER ~= nil or MANAGER_EXISTS then
 	using_manager = true
-	_print = MANAGER.print
+	_print = MANAGER and MANAGER.print or MANAGER_PRINT
 else
 	_print = print
 end
