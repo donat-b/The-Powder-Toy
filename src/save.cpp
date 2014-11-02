@@ -1803,11 +1803,15 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			{
 				if (bson_iterator_key(&iter)[0] == 'l')
 				{
-					activeTools[0] = GetToolFromIdentifier(bson_iterator_string(&iter));
+					Tool *temp = GetToolFromIdentifier(bson_iterator_string(&iter));
+					if (temp)
+						activeTools[0] = temp;
 				}
 				else
 				{
-					activeTools[1] = GetToolFromIdentifier(bson_iterator_string(&iter));
+					Tool *temp = GetToolFromIdentifier(bson_iterator_string(&iter));
+					if (temp)
+						activeTools[1] = temp;
 				}
 			}
 			else

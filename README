@@ -877,6 +877,7 @@ None (at least that I know of)
 -------------------------------------TODO-------------------------------------
 ------------------------------------------------------------------------------
 TODO: '>' means currently being worked on/added next
+>rename save buttons, name textbox changes colors to show whether it will be a new save
 Redo fav menu ...
 Do something about the massively repeated drawing code in Simulation.cpp
 make open ui more colorful like tpt++, also fix cut off description in save uploading ui

@@ -1270,7 +1270,7 @@ int transfer_heat(int i, int surround[8])
 		if (!(ptypes[t].properties&PROP_INDESTRUCTIBLE))
 		{
 			//A fix for ice with ctype = 0
-			if ((t==PT_ICEI || t==PT_SNOW) && (parts[i].ctype==0 || parts[i].ctype>=PT_NUM || parts[i].ctype==PT_ICEI || parts[i].ctype==PT_SNOW || !globalSim->elements[parts[i].ctype].Enabled))
+			if ((t==PT_ICEI || t==PT_SNOW) && (parts[i].ctype<=0 || parts[i].ctype>=PT_NUM || parts[i].ctype==PT_ICEI || parts[i].ctype==PT_SNOW || !globalSim->elements[parts[i].ctype].Enabled))
 				parts[i].ctype = PT_WATR;
 			if (ptransitions[t].tht > -1 && ctemph >= ptransitions[t].thv)
 			{
