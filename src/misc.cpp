@@ -287,7 +287,7 @@ void save_presets(int do_update)
 	cJSON_AddItemToObject(hudobj, "debug", cJSON_CreateIntArray(debugHud, HUD_OPTIONS));
 
 	//General settings
-	cJSON_AddStringToObject(root, "proxy", http_proxy_string);
+	cJSON_AddStringToObject(root, "Proxy", http_proxy_string);
 	cJSON_AddString(&root, "Scale", sdl_scale);
 	if (kiosk_enable)
 		cJSON_AddTrueToObject(root, "FullScreen");
@@ -585,7 +585,7 @@ void load_presets(void)
 		}
 		
 		//Read general settings
-		if ((tmpobj = cJSON_GetObjectItem(root, "proxy")) && tmpobj->type == cJSON_String)
+		if ((tmpobj = cJSON_GetObjectItem(root, "Proxy")) && tmpobj->type == cJSON_String)
 			strncpy(http_proxy_string, tmpobj->valuestring, 255);
 		else
 			http_proxy_string[0] = 0;
