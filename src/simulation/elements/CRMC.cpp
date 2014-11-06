@@ -84,4 +84,3 @@ void CRMC_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Func_Create = &CRMC_create;
 	elem->Init = &CRMC_init_element;
 }
-

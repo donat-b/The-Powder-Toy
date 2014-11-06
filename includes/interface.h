@@ -285,7 +285,7 @@ void ui_richtext_process(int mx, int my, int mb, int mbq, ui_richtext *ed);
 
 void draw_svf_ui(pixel *vid_buf, int alternate);
 
-void error_ui(pixel *vid_buf, int err, char *txt);
+void error_ui(pixel *vid_buf, int err, const char *txt);
 
 void element_search_ui(pixel *vid_buf, Tool** sl, Tool** sr);
 
@@ -330,7 +330,7 @@ void limit_fps();
 
 void set_cmode(int cm);
 
-char *download_ui(pixel *vid_buf, char *uri, int *len);
+char *download_ui(pixel *vid_buf, const char *uri, int *len);
 
 int search_ui(pixel *vid_buf);
 

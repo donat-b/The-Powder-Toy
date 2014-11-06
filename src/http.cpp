@@ -42,11 +42,13 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <sys/time.h>
 #endif
 
-#include <defines.h>
-#include <http.h>
-#include <md5.h>
+#include "defines.h"
+#include "http.h"
+#include "misc.h"
+#include "md5.h"
 
 #ifdef WIN
 #define PERROR SOCKET_ERROR
@@ -71,34 +73,35 @@ static long http_timeout = 15;
 static int http_use_proxy = 0;
 static struct sockaddr_in http_proxy;
 
-static char *mystrdup(char *s)
+void millisleep(long int t)
 {
-	char *x;
-	if (s)
-	{
-		x = (char*)malloc(strlen(s)+1);
-		strcpy(x, s);
-		return x;
-	}
-	return s;
+#ifdef WIN
+	Sleep(t);
+#else
+	struct timespec s;
+	s.tv_sec = t/1000;
+	s.tv_nsec = (t%1000)*10000000;
+	nanosleep(&s, NULL);
+#endif
 }
 
-static int splituri(char *uri, char **host, char **path)
+static int splituri(const char *uri, char **host, char **path)
 {
-	char *p=uri,*q,*x,*y;
-	if (!strncmp(p, "http://", 7))
-		p += 7;
-	q = strchr(p, '/');
+	const char* q;
+	char *x,*y;
+	if (!strncmp(uri, "http://", 7))
+		uri += 7;
+	q = strchr(uri, '/');
 	if (!q)
-		q = p + strlen(p);
-	x = (char*)malloc(q-p+1);
+		q = uri + strlen(uri);
+	x = (char*)malloc(q-uri+1);
 	if (*q)
 		y = mystrdup(q);
 	else
 		y = mystrdup("/");
-	strncpy(x, p, q-p);
-	x[q-p] = 0;
-	if (q==p || x[q-p-1]==':')
+	strncpy(x, uri, q-uri);
+	x[q-uri] = 0;
+	if (q==uri || x[q-uri-1]==':')
 	{
 		free(x);
 		free(y);
@@ -219,7 +222,7 @@ struct http_ctx
 	int fd;
 	char *fdhost;
 };
-void *http_async_req_start(void *ctx, char *uri, char *data, int dlen, int keep)
+void *http_async_req_start(void *ctx, const char *uri, const char *data, int dlen, int keep)
 {
 	struct http_ctx *cx = (struct http_ctx*)ctx;
 	if (!ctx)
@@ -294,7 +297,7 @@ void *http_async_req_start(void *ctx, char *uri, char *data, int dlen, int keep)
 	return ctx;
 }
 
-void http_async_add_header(void *ctx, char *name, char *data)
+void http_async_add_header(void *ctx, const char *name, const char *data)
 {
 	struct http_ctx *cx = (struct http_ctx*)ctx;
 	cx->thdr = (char*)realloc(cx->thdr, cx->thlen + strlen(name) + strlen(data) + 5);
@@ -579,7 +582,8 @@ char *http_async_req_stop(void *ctx, int *ret, int *len)
 	char *rxd;
 
 	if (cx->state != HTS_DONE)
-		while (!http_async_req_status(ctx)) ;
+		while (!http_async_req_status(ctx))
+			millisleep(1);
 
 	if (cx->host)
 	{
@@ -674,7 +678,7 @@ void http_async_req_close(void *ctx)
 	free(ctx);
 }
 
-char *http_simple_get(char *uri, int *ret, int *len)
+char *http_simple_get(const char *uri, int *ret, int *len)
 {
 	void *ctx = http_async_req_start(NULL, uri, NULL, 0, 0);
 	if (!ctx)
@@ -688,7 +692,7 @@ char *http_simple_get(char *uri, int *ret, int *len)
 	return http_async_req_stop(ctx, ret, len);
 }
 static char hex[] = "0123456789abcdef";
-void http_auth_headers(void *ctx, char *user, char *pass, char *session_id)
+void http_auth_headers(void *ctx, const char *user, const char *pass, const char *session_id)
 {
 	char *tmp;
 	int i;
@@ -728,7 +732,7 @@ void http_auth_headers(void *ctx, char *user, char *pass, char *session_id)
 		}
 	}
 }
-char *http_auth_get(char *uri, char *user, char *pass, char *session_id, int *ret, int *len)
+char *http_auth_get(const char *uri, const char *user, const char *pass, const char *session_id, int *ret, int *len)
 {
 	void *ctx = http_async_req_start(NULL, uri, NULL, 0, 0);
 
@@ -757,7 +761,7 @@ char *http_simple_post(char *uri, char *data, int dlen, int *ret, int *len)
 	return http_async_req_stop(ctx, ret, len);
 }
 
-char *http_ret_text(int ret)
+const char *http_ret_text(int ret)
 {
 	switch (ret)
 	{
@@ -894,10 +898,10 @@ char *http_ret_text(int ret)
 		return "Unknown Status Code";
 	}
 }
-char *http_multipart_post(char *uri, char **names, char **parts, int *plens, char *user, char *pass, char *session_id, int *ret, int *len)
+char *http_multipart_post(const char *uri, const char *const *names, const char *const *parts, int *plens, const char *user, const char *pass, const char *session_id, int *ret, int *len)
 {
 	void *ctx;
-	char *data = NULL, *tmp, *p;
+	char *data = NULL, *tmp;
 	int dlen = 0, i, j;
 	unsigned char hash[16];
 	unsigned char boundary[32], ch;
@@ -967,12 +971,11 @@ retry:
 			if (strchr(names[i], ':'))
 			{
 				tmp = mystrdup(names[i]);
-				p = strchr(tmp, ':');
+				char *p = strchr(tmp, ':');
 				*p = 0;
 				dlen += sprintf(data+dlen, "content-disposition: form-data; name=\"%s\"; ", tmp);
 				free(tmp);
-				p = strchr(names[i], ':');
-				dlen += sprintf(data+dlen, "filename=\"%s\"\r\n\r\n", p+1);
+				dlen += sprintf(data+dlen, "filename=\"%s\"\r\n\r\n", strchr(names[i], ':')+1);
 			}
 			else
 				dlen += sprintf(data+dlen, "content-disposition: form-data; name=\"%s\"\r\n\r\n", names[i]);
@@ -1002,7 +1005,7 @@ retry:
 				{
 					//md5_update(&md5, (unsigned char *)parts[i], plens[i]); //WHY?
 					//md5_update(&md5, (unsigned char *)"-", 1);
-					p = strchr(names[i], ':');
+					const char *p = strchr(names[i], ':');
 					if (p)
 						m += (p - names[i]) + 1;
 					else
@@ -1013,7 +1016,7 @@ retry:
 				m = 0;
 				for (i=0; names[i]; i++)
 				{
-					p = strchr(names[i], ':');
+					const char *p = strchr(names[i], ':');
 					if (m)
 					{
 						tmp[m] = ' ';

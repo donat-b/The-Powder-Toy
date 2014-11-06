@@ -743,10 +743,10 @@ unsigned char last_major=0, last_minor=0, last_build=0, update_flag=0;
 	#define UPDATE_CPU "Unknown"
 #endif
 
-char update_uri[] = "http://" UPDATESERVER "/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
-char changelog_uri[] = "http://" UPDATESERVER "/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
-char update_uri_alt[] = "http://" UPDATESERVERALT "/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
-char changelog_uri_alt[] = "http://" UPDATESERVERALT "/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
+const char update_uri[] = "http://" UPDATESERVER "/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
+const char changelog_uri[] = "http://" UPDATESERVER "/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
+const char update_uri_alt[] = "http://" UPDATESERVERALT "/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
+const char changelog_uri_alt[] = "http://" UPDATESERVERALT "/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
 
 void ctrlzSnapshot()
 {

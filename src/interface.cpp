@@ -1318,7 +1318,7 @@ void draw_svf_ui(pixel *vid_buf, int alternate)// all the buttons at the bottom
 	//	drawtext(vid_buf, XRES-45+BARSIZE/*463*/, YRES+(MENUSIZE-14), "\x97", 0, 230, 153, 255); //Why is this here?
 }
 
-void error_ui(pixel *vid_buf, int err, char *txt)
+void error_ui(pixel *vid_buf, int err, const char *txt)
 {
 	int x0=(XRES-240)/2,y0=YRES/2,b=1,bq,mx,my,textheight;
 	char *msg;
@@ -2123,8 +2123,8 @@ void login_ui(pixel *vid_buf)
 	if (totalHash)
 	{
 		int dataStatus, dataLength;
-		char * postNames[] = { "Username", "Hash", NULL };
-		char * postDatas[] = { svf_user, totalHash };
+		const char *const postNames[] = { "Username", "Hash", NULL };
+		const char *const postDatas[] = { svf_user, totalHash };
 		int postLengths[] = { strlen(svf_user), 32 };
 		char * data;
 		data = http_multipart_post(
@@ -3945,7 +3945,7 @@ void set_cmode(int cm) // sets to given view mode
 	save_presets(0);
 }
 
-char *download_ui(pixel *vid_buf, char *uri, int *len)
+char *download_ui(pixel *vid_buf, const char *uri, int *len)
 {
 	int dstate = 0;
 	void *http = http_async_req_start(NULL, uri, NULL, 0, 0);
@@ -6232,14 +6232,11 @@ int execute_tagop(pixel *vid_buf, char *op, char *tag)
 	int status;
 	char *result;
 
-	char *names[] = {"ID", "Tag", NULL};
-	char *parts[2];
+	const char *const names[] = {"ID", "Tag", NULL};
+	const char *const parts[] = {svf_id, tag, NULL};
 
 	char *uri = (char*)malloc(strlen(SERVER)+strlen(op)+36);
 	sprintf(uri, "http://" SERVER "/Tag.api?Op=%s", op);
-
-	parts[0] = svf_id;
-	parts[1] = tag;
 
 	result = http_multipart_post(
 	             uri,
@@ -6282,7 +6279,7 @@ int execute_save(pixel *vid_buf)
 	int status;
 	char *result;
 
-	char *names[] = {"Name","Description", "Data:save.bin", "Thumb:thumb.bin", "Publish", "ID", NULL};
+	const char *names[] = {"Name","Description", "Data:save.bin", "Thumb:thumb.bin", "Publish", "ID", NULL};
 	char *uploadparts[6];
 	int plens[6];
 
@@ -6364,7 +6361,7 @@ int execute_delete(pixel *vid_buf, char *id)
 	int status;
 	char *result;
 
-	char *names[] = {"ID", NULL};
+	const char *const names[] = {"ID", NULL};
 	char *parts[1];
 
 	parts[0] = id;
@@ -6407,8 +6404,8 @@ int execute_submit(pixel *vid_buf, char *id, char *message)
 
 	if (1)//strlen(svf_session_key))
 	{
-		char * postNames[] = { "Comment", NULL };
-		char * postDatas[] = { message };
+		const char *const postNames[] = { "Comment", NULL };
+		const char *const postDatas[] = { message };
 		int postLengths[] = { strlen(message) };
 		int dataLength;
 		char *url = (char*)malloc(sizeof(message)+sizeof(id) + 128);
@@ -6482,8 +6479,8 @@ int execute_report(pixel *vid_buf, char *id, char *reason)
 	int status;
 	char *result;
 
-	char *names[] = {"ID", "Reason", NULL};
-	char *parts[2];
+	const char *const names[] = {"ID", "Reason", NULL};
+	const char *parts[2];
 
 	parts[0] = id;
 	parts[1] = reason;
@@ -6520,7 +6517,7 @@ int execute_bug(pixel *vid_buf, char *feedback)
 	std::string bug = "bug=";
 	bug.append(URLEncode(feedback));
 
-	void *http = http_async_req_start(NULL, "http://" UPDATESERVER "/jacob1/bug.lua", (char*)bug.c_str(), bug.length(), 0);
+	void *http = http_async_req_start(NULL, "http://" UPDATESERVER "/jacob1/bug.lua", bug.c_str(), bug.length(), 0);
 	if (svf_login)
 	{
 		http_auth_headers(http, svf_user, NULL, NULL);
@@ -6551,8 +6548,8 @@ void execute_fav(pixel *vid_buf, char *id)
 	int status;
 	char *result;
 
-	char *names[] = {"ID", NULL};
-	char *parts[1];
+	const char *const names[] = {"ID", NULL};
+	const char *parts[1];
 
 	parts[0] = id;
 
@@ -6585,8 +6582,8 @@ void execute_unfav(pixel *vid_buf, char *id)
 	int status;
 	char *result;
 
-	char *names[] = {"ID", NULL};
-	char *parts[1];
+	const char *const names[] = {"ID", NULL};
+	const char *parts[1];
 
 	parts[0] = id;
 
@@ -6619,8 +6616,8 @@ int execute_vote(pixel *vid_buf, char *id, char *action)
 	int status;
 	char *result;
 
-	char *names[] = {"ID", "Action", NULL};
-	char *parts[2];
+	const char *const names[] = {"ID", "Action", NULL};
+	const char *parts[2];
 
 	parts[0] = id;
 	parts[1] = action;
