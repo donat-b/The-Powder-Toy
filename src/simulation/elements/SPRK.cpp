@@ -175,7 +175,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 					{
 						if (parts[r>>8].ctype == PT_SWCH || parts[r>>8].ctype == PT_BUTN)
 						{
-							if (!sim->instantActivation && sender == PT_NSCN)
+							if (sender == PT_NSCN)
 							{
 								part_change_type(r>>8, x+rx, y+ry, parts[r>>8].ctype);
 								parts[r>>8].ctype = PT_NONE;
