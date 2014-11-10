@@ -593,7 +593,7 @@ void *stamp_load(int i, int *size, int reorder)
 	return data;
 }
 
-int tab_load(int tabNum)
+int tab_load(int tabNum, bool del)
 {
 	void *saveData;
 	int saveSize;
@@ -603,6 +603,8 @@ int tab_load(int tabNum)
 	saveData = file_load(fileName, &saveSize);
 	if (saveData)
 	{
+		if (del)
+			remove(fileName); //prevent crash loops on startup
 		parse_save(saveData, saveSize, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 		ctrlzSnapshot();
 		if (!svf_last) //only free if reload button isn't active
@@ -1311,7 +1313,7 @@ int main(int argc, char *argv[])
 		sprintf(tabNames[i], "Untitled Simulation %i", i+1);
 		tabThumbnails[i] = NULL;
 	}
-	if (tab_load(1))
+	if (tab_load(1, true))
 	{
 		char fn[64];
 		for (i = 2; i <= 9; i++)

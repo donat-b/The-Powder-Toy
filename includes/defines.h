@@ -318,7 +318,7 @@ void NewSim();
 char* stamp_save(int x, int y, int w, int h);
 void tab_save(int num, char reloadButton);
 void *stamp_load(int i, int *size, int reorder);
-int tab_load(int tabNum);
+int tab_load(int tabNum, bool del = false);
 void stamp_init();
 void del_stamp(int d);
 void sdl_seticon(void);
