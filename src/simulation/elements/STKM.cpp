@@ -642,6 +642,9 @@ void STKM_init_legs(playerst* playerp, int i)
 	playerp->legs[14] = x+3.0f;
 	playerp->legs[15] = y+12.0f;
 
+	for (int i = 0; i < 8; i++)
+		playerp->accs[i] = 0;
+
 	playerp->comm = 0;
 	playerp->frames = 0;
 	playerp->pcomm = 0;
