@@ -3158,8 +3158,14 @@ void menu_select_element(int b, Tool* over)
 			}
 			else if (toolID == FAV_DATE)
 			{
-				if (dateformat%6 == 5)
-					dateformat -= 5;
+				if (dateformat == 5)
+					dateformat = 12;
+				else if (dateformat == 11)
+					dateformat = 13;
+				else if (dateformat == 12)
+					dateformat = 0;
+				else if (dateformat >= 13)
+					dateformat = 6;
 				else
 					dateformat = dateformat + 1;
 			}
@@ -3265,7 +3271,11 @@ void menu_select_element(int b, Tool* over)
 			}
 			else if (toolID == FAV_DATE)
 			{
-				if (dateformat < 6)
+				if (dateformat == 12)
+					dateformat = 13;
+				else if (dateformat == 13)
+					dateformat = 12;
+				else if (dateformat < 6)
 					dateformat += 6;
 				else
 					dateformat -= 6;
@@ -4919,47 +4929,54 @@ void converttotime(char *timestamp, char **timestring, int show_day, int show_ye
 	stamptime = localtime(&stamptime2);
 	*timestring = (char*)calloc(63,sizeof(char*));
 
-	if (show_day == 1 || show_day != 0 && (stamptime->tm_yday != curr_tm_yday || stamptime->tm_year != curr_tm_year)) //Different day or year, show date
+	if (dateformat >= 12 && (show_day || show_year))
 	{
-		if (dateformat%6 < 3) //Show weekday
+		sprintf(*timestring, "%.4i-%.2i-%.2i", stamptime->tm_year+1900, stamptime->tm_mon+1, stamptime->tm_mday);
+	}
+	else
+	{
+		if (show_day == 1 || show_day != 0 && (stamptime->tm_yday != curr_tm_yday || stamptime->tm_year != curr_tm_year)) //Different day or year, show date
 		{
-			sprintf(tempstring,asctime(stamptime));
-			tempstring[4] = 0;
-			strappend(*timestring,tempstring);
-		}
-		if (dateformat%3 == 1) // MM/DD/YY
-		{
-			sprintf(tempstring,"%i/%i",stamptime->tm_mon+1,stamptime->tm_mday);
+			if (dateformat%6 < 3) //Show weekday
+			{
+				sprintf(tempstring,asctime(stamptime));
+				tempstring[4] = 0;
+				strappend(*timestring,tempstring);
+			}
+			if (dateformat%3 == 1) // MM/DD/YY
+			{
+				sprintf(tempstring,"%i/%i",stamptime->tm_mon+1,stamptime->tm_mday);
 
-		}
-		else if (dateformat%3 == 2) // DD/MM/YY
-		{
-			sprintf(tempstring,"%i/%i",stamptime->tm_mday,stamptime->tm_mon+1);
-		}
-		else //Ex. Sun Jul 4
-		{
-			//sprintf(tempstring,asctime(stamptime));
-			//tempstring[7] = 0;
-			strncpy(tempstring,asctime(stamptime)+4,4);
+			}
+			else if (dateformat%3 == 2) // DD/MM/YY
+			{
+				sprintf(tempstring,"%i/%i",stamptime->tm_mday,stamptime->tm_mon+1);
+			}
+			else //Ex. Sun Jul 4
+			{
+				//sprintf(tempstring,asctime(stamptime));
+				//tempstring[7] = 0;
+				strncpy(tempstring,asctime(stamptime)+4,4);
+				strappend(*timestring,tempstring);
+				sprintf(tempstring,"%i",stamptime->tm_mday);
+			}
 			strappend(*timestring,tempstring);
-			sprintf(tempstring,"%i",stamptime->tm_mday);
 		}
-		strappend(*timestring,tempstring);
+		if (show_year == 1 || show_year != 0 && stamptime->tm_year != curr_tm_year) //Show year
+		{
+			if (dateformat%3 != 0)
+			{
+				sprintf(tempstring,"/%i",(stamptime->tm_year+1900)%100);
+				strappend(*timestring,tempstring);
+			}
+			else
+			{
+				sprintf(tempstring," %i",stamptime->tm_year+1900);
+				strappend(*timestring,tempstring);
+			}
+		}
 	}
-	if (show_year == 1 || show_year != 0 && stamptime->tm_year != curr_tm_year) //Show year
-	{
-		if (dateformat%3 != 0)
-		{
-			sprintf(tempstring,"/%i",(stamptime->tm_year+1900)%100);
-			strappend(*timestring,tempstring);
-		}
-		else
-		{
-			sprintf(tempstring," %i",stamptime->tm_year+1900);
-			strappend(*timestring,tempstring);
-		}
-	}
-	if (show_time == 1 || show_time != 0 && (dateformat < 6 || (stamptime->tm_yday == curr_tm_yday && stamptime->tm_year == curr_tm_year))) //Show time
+	if (show_time == 1 || show_time != 0 && (dateformat < 6 || dateformat == 12 || (stamptime->tm_yday == curr_tm_yday && stamptime->tm_year == curr_tm_year))) //Show time
 	{
 		int hour = stamptime->tm_hour%12;
 		char *ampm = "AM";
