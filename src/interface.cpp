@@ -1745,9 +1745,9 @@ void prop_edit_ui(pixel *vid_buf)
 		unsigned int value;
 		int isint = 1;
 		//Check if it's an element name
-		for (int unsigned i = 0; i < strlen(ed2.str); i++)
+		for (unsigned int i = 0; i < strlen(ed2.str); i++)
 		{
-			if (!(ed2.str[i] >= '0' && ed2.str[i] <= '9'))
+			if (!((ed2.str[i] >= '0' && ed2.str[i] <= '9') || (i == 0 && ed2.str[0] == '-')))
 			{
 				isint = 0;
 				break;
