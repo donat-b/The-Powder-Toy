@@ -1731,26 +1731,12 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='f')
 			{
-				if ((sdl_mod & (KMOD_LCTRL)))
+				if ((sdl_mod & KMOD_LCTRL) && !(sdl_mod & (KMOD_SHIFT|KMOD_ALT)))
 				{
 					if (!(finding & 0x1))
 						finding |= 0x1;
 					else
 						finding &= ~0x1;
-				}
-				else if ((sdl_mod & (KMOD_RCTRL)))
-				{
-					if (!(finding & 0x2))
-						finding |= 0x2;
-					else
-						finding &= ~0x2;
-				}
-				else if ((sdl_mod & (KMOD_SHIFT)))
-				{
-					if (!(finding & 0x4))
-						finding |= 0x4;
-					else
-						finding &= ~0x4;
 				}
 				else
 					framerender = 1;
