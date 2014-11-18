@@ -138,7 +138,7 @@ void PWHT_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->DefaultProperties.temp = R_TEMP + 273.15f;
 	elem->HeatConduct = 0;
 	elem->Latent = 0;
-	elem->Description = "Powered Heater. Flood fill heats particles to it's temp. Use only one.";
+	elem->Description = "Powered Heater. Flood fill heats particles to its temp. Use only one.";
 
 	elem->State = ST_NONE;
 	elem->Properties = TYPE_SOLID|PROP_POWERED;

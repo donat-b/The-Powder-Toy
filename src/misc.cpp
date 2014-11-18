@@ -597,7 +597,7 @@ void load_presets(void)
 		}
 		if (tmpobj = cJSON_GetObjectItem(root, "Fullscreen"))
 		{
-			kiosk_enable = cJSON_GetInt(&tmpobj);
+			kiosk_enable = tmpobj->valueint;
 			if (kiosk_enable)
 				set_scale(sdl_scale, kiosk_enable);
 		}
