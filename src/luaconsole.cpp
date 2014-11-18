@@ -1490,6 +1490,8 @@ int luatpt_log(lua_State* l)
 		}
 		lua_pop(l, 2);
 	}
+	if (!buffer)
+		buffer = mystrdup("");
 	if (console_mode)
 	{
 		if(logs)
