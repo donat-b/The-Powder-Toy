@@ -1517,7 +1517,7 @@ int Simulation::CreateParts(int x, int y, int c, int flags, bool fill, Brush* br
 				else
 					jmax = 2*y - tempy;
 
-				for (j = tempy; j <= jmax; j++)
+				for (j = jmax; j >= tempy; j--)
 				{
 					if (CreatePartFlags(i, j, c, flags))
 						f = 1;
@@ -1530,7 +1530,7 @@ int Simulation::CreateParts(int x, int y, int c, int flags, bool fill, Brush* br
 			{
 				if ((oldy != tempy && brush->GetShape() != SQUARE_BRUSH) || i == x-rx)
 					oldy--;
-				for (j = tempy; j <= oldy+1; j++)
+				for (j = oldy+1; j >= tempy; j--)
 				{
 					int i2 = 2*x-i, j2 = 2*y-j;
 					if (brush->GetShape() == TRI_BRUSH)
@@ -1650,7 +1650,7 @@ void Simulation::CreateBox(int x1, int y1, int x2, int y2, int c, int flags)
 		y2 = y1;
 		y1 = temp;
 	}
-	for (int j = y1; j <= y2; j++)
+	for (int j = y2; j >= y1; j--)
 		for (int i = x1; i <= x2; i++)
 			CreateParts(i, j, c, flags, false);
 }
