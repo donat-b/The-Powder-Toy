@@ -18,7 +18,7 @@
 int ICE_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
-	if (parts[i].ctype==PT_FRZW)//get colder if it is from FRZW
+	if (parts[i].ctype == PT_FRZW)//get colder if it is from FRZW
 	{
 		parts[i].temp = restrict_flt(parts[i].temp-1.0f, MIN_TEMP, MAX_TEMP);
 	}
@@ -31,18 +31,17 @@ int ICE_update(UPDATE_FUNC_ARGS)
 					continue;
 				if ((r&0xFF)==PT_SALT || (r&0xFF)==PT_SLTW)
 				{
-					if (parts[i].temp > ptransitions[PT_SLTW].tlv && !(rand()%200))
+					if (parts[i].temp > sim->elements[PT_SLTW].LowTemperatureTransitionThreshold && !(rand()%200))
 					{
-						part_change_type(i, x, y, PT_SLTW);
-						part_change_type(r>>8, x+rx, y+ry, PT_SLTW);
+						sim->part_change_type(i, x, y, PT_SLTW);
+						sim->part_change_type(r>>8, x+rx, y+ry, PT_SLTW);
 						return 0;
 					}
 				}
-				else if ((r&0xFF) == PT_FRZZ)
+				else if (((r&0xFF)==PT_FRZZ) && !(rand()%200))
 				{
-					parts[i].ctype = PT_FRZW;
-					if (!(rand()%200))
-						part_change_type(r>>8, x+rx, y+ry, PT_ICEI);
+					sim->part_change_type(r>>8,x+rx,y+ry,PT_ICEI);
+					parts[r>>8].ctype = PT_FRZW;
 				}
 			}
 	return 0;
