@@ -4828,9 +4828,19 @@ finish:
 
 int report_ui(pixel* vid_buf, char *save_id, bool bug)
 {
-	int b=1,bq,mx,my;
+	int b=1,bq,mx,my,messageHeight;
 	ui_edit ed;
-	ui_edit_init(&ed, 209, 159, (XRES+BARSIZE-400)-18, (YRES+MENUSIZE-300)-36);
+	char *message;
+	if (bug)
+		message = "Report bugs and feedback here. Do not suggest new elements or features, or report bugs with downloaded scripts.";
+	else
+		message = "Report saves or comments that break the rules here. Also, remember:\n"\
+				  "\bw1) \bgWhen reporting stolen saves, please include the ID of the original save.\n"
+				  "\bw2) \bgDo not ask for saves to be removed from front page.\n"
+				  "\bw3) \bgDue to limitations you may only report each save once.";
+	messageHeight = (int)(textwrapheight(message, XRES+BARSIZE-410)/2);
+
+	ui_edit_init(&ed, 209, 159+messageHeight, (XRES+BARSIZE-400)-18, (YRES+MENUSIZE-300)-36);
 	if (bug)
 		ed.def = "Feedback";
 	else
@@ -4847,28 +4857,30 @@ int report_ui(pixel* vid_buf, char *save_id, bool bug)
 	}
 	while (!sdl_poll())
 	{
-		fillrect(vid_buf, 200, 150, (XRES+BARSIZE-400), (YRES+MENUSIZE-300), 0,0,0, 255);
-		drawrect(vid_buf, 200, 150, (XRES+BARSIZE-400), (YRES+MENUSIZE-300), 255, 255, 255, 255);
+		fillrect(vid_buf, 200, 150-messageHeight, (XRES+BARSIZE-400), (YRES+MENUSIZE-300)+messageHeight*2, 0,0,0, 255);
+		drawrect(vid_buf, 200, 150-messageHeight, (XRES+BARSIZE-400), (YRES+MENUSIZE-300)+messageHeight*2, 255, 255, 255, 255);
 
-		drawrect(vid_buf, 205, 155, (XRES+BARSIZE-400)-10, (YRES+MENUSIZE-300)-28, 255, 255, 255, 170);
+		drawtextwrap(vid_buf, 205, 155-messageHeight, (XRES+BARSIZE-410), 0, message, 255, 255, 255, 255);
+
+		drawrect(vid_buf, 205, 155+messageHeight, (XRES+BARSIZE-400)-10, (YRES+MENUSIZE-300)-28, 255, 255, 255, 170);
 
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 
 
-		drawrect(vid_buf, 200, (YRES+MENUSIZE-150)-18, 50, 18, 255, 255, 255, 255);
-		drawtext(vid_buf, 213, (YRES+MENUSIZE-150)-13, "Cancel", 255, 255, 255, 255);
+		drawrect(vid_buf, 200, (YRES+MENUSIZE-150)-18+messageHeight, 50, 18, 255, 255, 255, 255);
+		drawtext(vid_buf, 213, (YRES+MENUSIZE-150)-13+messageHeight, "Cancel", 255, 255, 255, 255);
 
-		drawrect(vid_buf, (XRES+BARSIZE-400)+150, (YRES+MENUSIZE-150)-18, 50, 18, 255, 255, 255, 255);
+		drawrect(vid_buf, (XRES+BARSIZE-400)+150, (YRES+MENUSIZE-150)-18+messageHeight, 50, 18, 255, 255, 255, 255);
 		if (bug)
-			drawtext(vid_buf, (XRES+BARSIZE-400)+163, (YRES+MENUSIZE-150)-13, "Send", 255, 255, 255, 255);
+			drawtext(vid_buf, (XRES+BARSIZE-400)+163, (YRES+MENUSIZE-150)-13+messageHeight, "Send", 255, 255, 255, 255);
 		else
-			drawtext(vid_buf, (XRES+BARSIZE-400)+163, (YRES+MENUSIZE-150)-13, "Report", 255, 255, 255, 255);
-		if (mx>(XRES+BARSIZE-400)+150 && my>(YRES+MENUSIZE-150)-18 && mx<(XRES+BARSIZE-400)+200 && my<(YRES+MENUSIZE-150))
+			drawtext(vid_buf, (XRES+BARSIZE-400)+163, (YRES+MENUSIZE-150)-13+messageHeight, "Report", 255, 255, 255, 255);
+		if (mx>(XRES+BARSIZE-400)+150 && my>(YRES+MENUSIZE-150)-18+messageHeight && mx<(XRES+BARSIZE-400)+200 && my<(YRES+MENUSIZE-150)+messageHeight)
 		{
 			if (b)
 			{
-				fillrect(vid_buf, (XRES+BARSIZE-400)+150, (YRES+MENUSIZE-150)-18, 50, 18, 255, 255, 255, 100);
+				fillrect(vid_buf, (XRES+BARSIZE-400)+150, (YRES+MENUSIZE-150)-18+messageHeight, 50, 18, 255, 255, 255, 100);
 			}
 			else if (!b && bq == 1)
 			{
@@ -4891,17 +4903,17 @@ int report_ui(pixel* vid_buf, char *save_id, bool bug)
 				}
 			}
 			else
-				fillrect(vid_buf, (XRES+BARSIZE-400)+150, (YRES+MENUSIZE-150)-18, 50, 18, 255, 255, 255, 40);
+				fillrect(vid_buf, (XRES+BARSIZE-400)+150, (YRES+MENUSIZE-150)-18+messageHeight, 50, 18, 255, 255, 255, 40);
 		}
-		if (mx>200 && my>(YRES+MENUSIZE-150)-18 && mx<250 && my<(YRES+MENUSIZE-150))
+		if (mx>200 && my>(YRES+MENUSIZE-150)-18+messageHeight && mx<250 && my<(YRES+MENUSIZE-150)+messageHeight)
 		{
-			fillrect(vid_buf, 200, (YRES+MENUSIZE-150)-18, 50, 18, 255, 255, 255, 40);
+			fillrect(vid_buf, 200, (YRES+MENUSIZE-150)-18+messageHeight, 50, 18, 255, 255, 255, 40);
 			if (!b && bq)
 				return 0;
 			else if (b)
-				fillrect(vid_buf, 200, (YRES+MENUSIZE-150)-18, 50, 18, 255, 255, 255, 100);
+				fillrect(vid_buf, 200, (YRES+MENUSIZE-150)-18+messageHeight, 50, 18, 255, 255, 255, 100);
 			else
-				fillrect(vid_buf, 200, (YRES+MENUSIZE-150)-18, 50, 18, 255, 255, 255, 40);
+				fillrect(vid_buf, 200, (YRES+MENUSIZE-150)-18+messageHeight, 50, 18, 255, 255, 255, 40);
 		}
 		ui_edit_draw(vid_buf, &ed);
 #ifdef OGLR
