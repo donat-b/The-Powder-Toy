@@ -44,7 +44,7 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 									parts[nb].vy = (float)(rand()%20-10);
 								}
 							}
-					kill_part(i);
+					sim->part_kill(i);
 					return 1;
 				case PT_LCRY:
 					parts[r>>8].tmp2 = 5+rand()%5;
@@ -61,13 +61,13 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 					{
 						sim->part_create(r>>8, x+rx, y+ry, PT_H2);
 					}
-					kill_part(i);
+					sim->part_kill(i);
 					return 1;
 				case PT_PROT:
 					if (parts[r>>8].tmp2&0x1)
 						continue;
 				case PT_NEUT:
-					part_change_type(r>>8, x+rx, y+ry, PT_H2);
+					sim->part_change_type(r>>8, x+rx, y+ry, PT_H2);
 					parts[r>>8].life = 0;
 					parts[r>>8].ctype = 0;
 					break;
@@ -75,7 +75,7 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 					if (parts[r>>8].life < 6000)
 						parts[r>>8].life += 1;
 					parts[r>>8].temp = 0;
-					kill_part(i);
+					sim->part_kill(i);
 					return 1;
 				case PT_EXOT:
 					parts[r>>8].tmp2 += 5;
@@ -83,15 +83,15 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 					break;
 				case PT_GLOW:
 					if (!rx && !ry) //if on GLOW
-						part_change_type(i, x, y, PT_PHOT);
+						sim->part_change_type(i, x, y, PT_PHOT);
 					break;
 				case PT_NONE: //seems to speed up ELEC even if it isn't used
 					break;
 				default:
-					if (ptypes[rt].properties & PROP_CONDUCTS && (rt!=PT_NBLE || parts[i].temp<2273.15))
+					if (sim->elements[rt].Properties & PROP_CONDUCTS && (rt!=PT_NBLE || parts[i].temp<2273.15))
 					{
 						sim->spark_conductive_attempt(r>>8, x+rx, y+ry);
-						kill_part(i);
+						sim->part_kill(i);
 						return 1;
 					}
 					break;
