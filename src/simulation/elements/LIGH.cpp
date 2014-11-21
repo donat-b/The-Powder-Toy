@@ -71,7 +71,7 @@ int create_LIGH(Simulation *sim, int x, int y, int c, int temp, int life, int tm
 		else
 		{
 			parts[p].life = life;
-			parts[p].tmp2 = tmp2;
+			parts[p].tmp2 = 0;
 		}
 	}
 	else if (x >= 0 && x < XRES && y >= 0 && y < YRES)
@@ -303,7 +303,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 	multipler = (int)(parts[i].life*1.5+rand()%((int)(parts[i].life+1)));
 	rx = (int)(cos(angle*M_PI/180)*multipler);
 	ry = (int)(-sin(angle*M_PI/180)*multipler);
-	create_line_par(sim, x, y, x+rx, y+ry, PT_LIGH, (int)parts[i].temp, parts[i].life, (int)angle, 0);
+	create_line_par(sim, x, y, x+rx, y+ry, PT_LIGH, (int)parts[i].temp, parts[i].life, (int)angle, parts[i].tmp2);
 
 	if (parts[i].tmp2 == 2)// && pNear==-1)
 	{
@@ -311,7 +311,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 		multipler = (int)(parts[i].life*1.5+rand()%((int)(parts[i].life+1)));
 		rx = (int)(cos(angle2*M_PI/180)*multipler);
 		ry = (int)(-sin(angle2*M_PI/180)*multipler);
-		create_line_par(sim, x, y, x+rx, y+ry, PT_LIGH, (int)parts[i].temp, parts[i].life, (int)angle2, 0);
+		create_line_par(sim, x, y, x+rx, y+ry, PT_LIGH, (int)parts[i].temp, parts[i].life, (int)angle2, parts[i].tmp2);
 	}
 
 	parts[i].tmp2=-1;

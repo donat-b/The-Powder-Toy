@@ -15,24 +15,25 @@
 
 #include "simulation/ElementsCommon.h"
 
-int DeutExplosion(Simulation *sim, int n, int x, int y, float temp, int t)
+void DeutExplosion(Simulation *sim, int n, int x, int y, float temp, int t)
 {
-	int i, c;
+	int i;
 	n = (n/50);
-	if (n<1) {
+	if (n < 1)
 		n = 1;
-	}
-	if (n>340) {
+	else if (n > 340)
 		n = 340;
-	}
-	for (c=0; c<n; c++)
+
+	for (int c = 0; c < n; c++)
 	{
 		i = sim->part_create(-3, x, y, t);
-		if (i > -1)
+		if (i >= 0)
 			parts[i].temp = temp;
-		pv[y/CELL][x/CELL] += 6.0f * CFDS;
+		else if (sim->pfree < 0)
+			break;
 	}
-	return 0;
+	pv[y/CELL][x/CELL] += (6.0f * CFDS)*n;
+	return;
 }
 
 int FIRE_update(UPDATE_FUNC_ARGS);

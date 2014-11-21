@@ -53,18 +53,21 @@ int DMG_update(UPDATE_FUNC_ARGS)
 										pv[(y+nxj)/CELL][(x+nxi)/CELL] += 1.0f;
 										
 										t = rr&0xFF;
-										if(t && ptransitions[t].pht>-1 && ptransitions[t].pht<PT_NUM)
-											part_change_type(rr>>8, x+nxi, y+nxj, ptransitions[t].pht);
+										if(t && sim->elements[t].HighPressureTransitionThreshold>-1 && sim->elements[t].HighPressureTransitionThreshold<PT_NUM)
+											sim->part_change_type(rr>>8, x+nxi, y+nxj, sim->elements[t].HighPressureTransitionThreshold);
 										else if(t == PT_BMTL)
-											part_change_type(rr>>8, x+nxi, y+nxj, PT_BRMT);
+											sim->part_change_type(rr>>8, x+nxi, y+nxj, PT_BRMT);
 										else if(t == PT_GLAS)
-											part_change_type(rr>>8, x+nxi, y+nxj, PT_BGLA);
+											sim->part_change_type(rr>>8, x+nxi, y+nxj, PT_BGLA);
 										else if(t == PT_COAL)
-											part_change_type(rr>>8, x+nxi, y+nxj, PT_BCOL);
+											sim->part_change_type(rr>>8, x+nxi, y+nxj, PT_BCOL);
 										else if(t == PT_QRTZ)
-											part_change_type(rr>>8, x+nxi, y+nxj, PT_PQRT);
+											sim->part_change_type(rr>>8, x+nxi, y+nxj, PT_PQRT);
 										else if(t == PT_TUNG)
-											part_change_type(rr>>8, x+nxi, y+nxj, PT_BRMT); 
+										{
+											sim->part_change_type(rr>>8, x+nxi, y+nxj, PT_BRMT);
+											parts[rr>>8].ctype = PT_TUNG;
+										}
 									}
 								}
 							}

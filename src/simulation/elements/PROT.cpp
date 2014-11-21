@@ -15,23 +15,25 @@
 
 #include "simulation/ElementsCommon.h"
 
-void DeutImplosion(Simulation * sim, int n, int x, int y, float temp, int t)
+void DeutImplosion(Simulation *sim, int n, int x, int y, float temp, int t)
 {
 	int i;
 	n = (n/50);
-	if (n<1)
+	if (n < 1)
 		n = 1;
-	else if (n>340)
+	else if (n > 340)
 		n = 340;
 
-	for (int c=0; c<n; c++)
+	for (int c = 0; c < n; c++)
 	{
 		i = sim->part_create(-3, x, y, t);
 		if (i >= 0)
-			sim->parts[i].temp = temp;
-
-		pv[y/CELL][x/CELL] -= 6.0f * CFDS;
+			parts[i].temp = temp;
+		else if (sim->pfree < 0)
+			break;
 	}
+	pv[y/CELL][x/CELL] -= (6.0f * CFDS)*n;
+	return;
 }
 
 int PROT_update(UPDATE_FUNC_ARGS)

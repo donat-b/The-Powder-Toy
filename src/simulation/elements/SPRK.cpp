@@ -237,7 +237,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 					continue;
 				if (abs(rx)+abs(ry)>=4 && receiver!=PT_SWCH && sender!=PT_SWCH) //Only SWCH conducts really far
 					continue;
-				if (receiver == sender && receiver != PT_INST) //Everything conducts to itself, except INST
+				if (receiver == sender && receiver != PT_INST && receiver != PT_QRTZ) //Everything conducts to itself, except INST and QRTZ
 					goto conduct;
 
 				//Sender cases, where elements can have specific outputs

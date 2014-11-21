@@ -30,7 +30,7 @@ int GOLD_update(UPDATE_FUNC_ARGS)
 			if((r&0xFF)==PT_BMTL && parts[r>>8].tmp)
 			{
 				parts[r>>8].tmp = 0;
-				part_change_type(r>>8, x+rx, y+ry, PT_IRON);
+				sim->part_change_type(r>>8, x+rx, y+ry, PT_IRON);
 			}
 		}
 	}
@@ -45,7 +45,7 @@ int GOLD_update(UPDATE_FUNC_ARGS)
 				if(!r) continue;
 				if((r&0xFF)==PT_SPRK && parts[r>>8].life && parts[r>>8].life<4)
 				{
-					globalSim->spark_conductive(i, x, y);
+					sim->spark_conductive(i, x, y);
 					return 1;
 				}
 			}
