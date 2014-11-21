@@ -23,7 +23,7 @@ class FIGH_ElementDataContainer : public ElementDataContainer
 {
 private:
 	static const int maxFighters = 100;
-	playerst fighters[256];
+	playerst fighters[maxFighters];
 	int usedCount;
 public:	
 	FIGH_ElementDataContainer() :
@@ -75,6 +75,10 @@ public:
 	{
 		memset(fighters, 0, sizeof(fighters));
 		usedCount = 0;
+	}
+	int MaxFighters()
+	{
+		return maxFighters;
 	}
 };
 

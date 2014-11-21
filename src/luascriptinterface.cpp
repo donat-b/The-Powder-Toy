@@ -1362,7 +1362,7 @@ int simulation_stickman(lua_State *l)
 	if (set)
 		value = luaL_checknumber(l, 3);
 
-	if (num < 1 || num >= 259)
+	if (num < 1 || num > ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->MaxFighters()+2)
 		return luaL_error(l, "invalid stickmen number %d", num);
 	playerst *stick;
 	if (num == 1)

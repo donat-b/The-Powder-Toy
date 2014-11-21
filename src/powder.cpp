@@ -665,7 +665,7 @@ int move(int i, int x, int y, float nxf, float nyf)
 				stickman = &player;
 			else if (t == PT_STKM2)
 				stickman = &player2;
-			else if (t == PT_FIGH)
+			else if (t == PT_FIGH && parts[i].tmp >= 0 && parts[i].tmp < ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->MaxFighters())
 				stickman = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get((unsigned char)parts[i].tmp);
 
 			if (stickman)

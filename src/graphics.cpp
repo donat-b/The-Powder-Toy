@@ -2753,7 +2753,7 @@ void render_parts(pixel *vid, Point mousePos)
 						cplayer = &player;
 					else if(t==PT_STKM2)
 						cplayer = &player2;
-					else if(t==PT_FIGH)
+					else if(t==PT_FIGH && parts[i].tmp >= 0 && parts[i].tmp < ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->MaxFighters())
 						cplayer = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get(parts[i].tmp);
 					else
 						continue;

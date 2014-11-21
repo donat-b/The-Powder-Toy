@@ -21,7 +21,7 @@ void STKM_init_legs(playerst* playerp, int i);
 
 int FIGH_update(UPDATE_FUNC_ARGS)
 {
-	if (parts[i].tmp<0)
+	if (parts[i].tmp < 0 || parts[i].tmp >= ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->MaxFighters())
 	{
 		sim->part_kill(i);
 		return 1;
@@ -121,10 +121,10 @@ bool FIGH_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 
 void FIGH_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
 {
-	if (to==PT_FIGH)
+	if (to == PT_FIGH)
 	{
 		sim->parts[i].tmp = ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Alloc();
-		if (sim->parts[i].tmp>=0)
+		if (sim->parts[i].tmp >= 0)
 		{
 			playerst* figh = ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Get((unsigned char)sim->parts[i].tmp);
 			figh->spwn = 1;
