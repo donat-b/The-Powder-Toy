@@ -606,8 +606,8 @@ bool Simulation::UpdateParticle(int i)
 	int t = parts[i].type;
 	int x = (int)(parts[i].x+0.5f);
 	int y = (int)(parts[i].y+0.5f);
-
 	float pGravX, pGravY, pGravD;
+	bool transitionOccurred = false;
 
 	//this kills any particle out of the screen, or in a wall where it isn't supposed to go
 	if (OutOfBounds(x, y) ||
@@ -761,7 +761,8 @@ bool Simulation::UpdateParticle(int i)
 
 	if (!legacy_enable)
 	{
-		t = transfer_heat(i, surround);
+		if (transfer_heat(i, &t, surround))
+			transitionOccurred = true;
 		if (!t)
 			return true;
 	}
@@ -813,7 +814,8 @@ bool Simulation::UpdateParticle(int i)
 
 	if (!(elements[t].Properties&PROP_INDESTRUCTIBLE) && (elements[t].HighPressureTransitionThreshold != -1 || elements[t].HighPressureTransitionElement != -1))
 	{
-		particle_transitions(i, &t);
+		if (particle_transitions(i, &t))
+			transitionOccurred = true;
 		if (!t)
 			return true;
 	}
@@ -906,6 +908,9 @@ bool Simulation::UpdateParticle(int i)
 			return true;
 		}
 	}
+
+	if (transitionOccurred)
+		return false;
 
 	if (!parts[i].vx && !parts[i].vy)//if its not moving, skip to next particle, movement code is next
 		return false;

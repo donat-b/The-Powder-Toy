@@ -226,9 +226,9 @@ int nearest_part(int ci, int t, int max_d);
 
 void decrease_life(int i);
 
-int transfer_heat(int i, int surround[8]);
+int transfer_heat(int i, int *t, int surround[8]);
 
-void particle_transitions(int i, int* t);
+bool particle_transitions(int i, int *t);
 
 void rotate_area(int area_x, int area_y, int area_w, int area_h, int invert);
 
