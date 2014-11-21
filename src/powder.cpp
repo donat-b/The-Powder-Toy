@@ -1150,7 +1150,7 @@ void decrease_life(int i)
 	}
 }
 
-int transfer_heat(int i, int *t, int surround[8])
+bool transfer_heat(int i, int *t, int surround[8])
 {
 	int x = (int)(parts[i].x+0.5f), y = (int)(parts[i].y+0.5f);
 	int j, r, rt, s, h_count = 0, surround_hconduct[8];

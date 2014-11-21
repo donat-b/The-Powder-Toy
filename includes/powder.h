@@ -226,7 +226,7 @@ int nearest_part(int ci, int t, int max_d);
 
 void decrease_life(int i);
 
-int transfer_heat(int i, int *t, int surround[8]);
+bool transfer_heat(int i, int *t, int surround[8]);
 
 bool particle_transitions(int i, int *t);
 

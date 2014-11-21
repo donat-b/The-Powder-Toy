@@ -181,7 +181,7 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 						parts[pmap[y][x]>>8].ctype |= v<<8;
 				}
 			}
-			else if (drawOn == PT_CRAY && drawOn != t && t != PT_PSCN && t != PT_INST && t != PT_METL)
+			else if (drawOn == PT_CRAY && drawOn != t)
 			{
 				parts[pmap[y][x]>>8].ctype = t;
 				if (t==PT_LIFE && v<NGOL)
