@@ -978,7 +978,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 						life = 0;
 					fieldDesc |= 1 << 1;
 					partsData[partsDataLen++] = life;
-					if(partsptr[i].life & 0xFF00)
+					if (life & 0xFF00)
 					{
 						fieldDesc |= 1 << 2;
 						partsData[partsDataLen++] = life >> 8;

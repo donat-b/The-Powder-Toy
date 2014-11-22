@@ -143,12 +143,6 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 					{
 						sim->part_create(i, x, y, PT_EXOT);
 					}
-					//Absorbs energy particles
-					else if ((ptypes[r&0xFF].properties & TYPE_ENERGY))
-					{
-						parts[i].tmp += 20;
-						kill_part(r>>8);
-					}
 				}
 				//VIBR+ANAR=BVBR
 				if (parts[i].type != PT_BVBR && (r&0xFF) == PT_ANAR)
