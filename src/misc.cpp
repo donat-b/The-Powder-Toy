@@ -1267,7 +1267,7 @@ void RGB_to_HSV(int r,int g,int b,int *h,int *s,int *v)//convert 0-255 RGB value
 	a = std::min(a,bb);
 	x = std::max(rr,gg);
 	x = std::max(x,bb);
-	if (a==x)//greyscale
+	if (r == g && g == b)//greyscale
 	{
 		*h = 0;
 		*s = 0;
@@ -1275,11 +1275,12 @@ void RGB_to_HSV(int r,int g,int b,int *h,int *s,int *v)//convert 0-255 RGB value
 	}
 	else
 	{
- 		c = (rr==a) ? gg-bb : ((bb==a) ? rr-gg : bb-rr);
- 		d = (float)((rr==a) ? 3 : ((bb==a) ? 1 : 5));
- 		*h = (int)(60.0*(d - c/(x - a)));
- 		*s = (int)(255.0*((x - a)/x));
- 		*v = (int)(255.0*x);
+		int min = (r < g) ? ((r < b) ? 0 : 2) : ((g < b) ? 1 : 2);
+		c = (min==0) ? gg-bb : ((min==2) ? rr-gg : bb-rr);
+		d = (float)((min==0) ? 3 : ((min==2) ? 1 : 5));
+		*h = (int)(60.0*(d - c/(x - a)));
+		*s = (int)(255.0*((x - a)/x));
+		*v = (int)(255.0*x);
 	}
 }
 
