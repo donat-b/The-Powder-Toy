@@ -122,7 +122,8 @@ int PROT_update(UPDATE_FUNC_ARGS)
 		else
 			element = PT_NBLE;
 		newID = sim->part_create(-1, x+rand()%3-1, y+rand()%3-1, element);
-		parts[newID].temp = restrict_flt(100.0f*parts[i].tmp, MIN_TEMP, MAX_TEMP);
+		if (newID >= 0)
+			parts[newID].temp = restrict_flt(100.0f*parts[i].tmp, MIN_TEMP, MAX_TEMP);
 		kill_part(i);
 		return 1;
 	}

@@ -49,6 +49,8 @@ int LCRY_update(UPDATE_FUNC_ARGS)
 		setto=2;
 		break;
 	default:
+		parts[i].tmp = 0;
+		parts[i].life = 0;
 		return 0;
 	}
 	for (rx=-1; rx<2; rx++)

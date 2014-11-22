@@ -250,6 +250,7 @@ void init_can_move()
 	can_move[PT_ELEC][PT_PINV] = 2;
 	can_move[PT_ELEC][PT_LCRY] = 2;
 	can_move[PT_ELEC][PT_EXOT] = 2;
+	can_move[PT_ELEC][PT_GLOW] = 2;
 	can_move[PT_PHOT][PT_LCRY] = 3; //varies according to LCRY life
 	
 	can_move[PT_PHOT][PT_BIZR] = 2;
@@ -487,15 +488,23 @@ int try_move(int i, int x, int y, int nx, int ny)
 					create_cherenkov_photon(i);
 			}
 		}
-		else if (parts[i].type==PT_BIZR || parts[i].type==PT_BIZRG)
+		else if (parts[i].type == PT_ELEC)
 		{
-			if ((r&0xFF) == PT_FILT)
-				parts[i].ctype = interactWavelengths(&parts[r>>8], parts[i].ctype);
+			if ((r&0xFF) == PT_GLOW)
+			{
+				part_change_type(i, x, y, PT_PHOT);
+				parts[i].ctype = 0x3FFFFFFF;
+			}
 		}
 		else if (parts[i].type == PT_PROT)
 		{
 			if ((r&0xFF) == PT_INVIS)
 				part_change_type(i, x, y, PT_NEUT);
+		}
+		else if (parts[i].type == PT_BIZR || parts[i].type == PT_BIZRG)
+		{
+			if ((r&0xFF) == PT_FILT)
+				parts[i].ctype = interactWavelengths(&parts[r>>8], parts[i].ctype);
 		}
 		return 1;
 	}
