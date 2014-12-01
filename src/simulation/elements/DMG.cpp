@@ -54,7 +54,7 @@ int DMG_update(UPDATE_FUNC_ARGS)
 										
 										t = rr&0xFF;
 										if(t && sim->elements[t].HighPressureTransitionThreshold>-1 && sim->elements[t].HighPressureTransitionThreshold<PT_NUM)
-											sim->part_change_type(rr>>8, x+nxi, y+nxj, sim->elements[t].HighPressureTransitionThreshold);
+											sim->part_change_type(rr>>8, x+nxi, y+nxj, sim->elements[t].HighPressureTransitionElement);
 										else if(t == PT_BMTL)
 											sim->part_change_type(rr>>8, x+nxi, y+nxj, PT_BRMT);
 										else if(t == PT_GLAS)
