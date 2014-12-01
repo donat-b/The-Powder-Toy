@@ -205,36 +205,31 @@ int PSTN_update(UPDATE_FUNC_ARGS)
 						int movedPiston = 0;
 						int foundEnd = 0;
 						int pistonEndX = 0, pistonEndY = 0;
-						int pistonCount = -1;
+						int pistonCount = 0;
 						int newSpace = 0;
 						int armCount = 0;
 						directionX = rx;
 						directionY = ry;
 						for (nxx = 0, nyy = 0, nxi = directionX, nyi = directionY; ; nyy += nyi, nxx += nxi) {
-							if (!(x+nxx<XRES && y+nyy<YRES && x+nxx >= 0 && y+nyy >= 0)) {
+							if (!(x+nxi+nxx<XRES && y+nyi+nyy<YRES && x+nxi+nxx >= 0 && y+nyi+nyy >= 0)) {
 								break;
 							}
-							r = pmap[y+nyy][x+nxx];
+							r = pmap[y+nyi+nyy][x+nxi+nxx];
 							if((r&0xFF)==PT_PSTN) {
 								if(parts[r>>8].life)
 									armCount++;
 								else if (armCount)
 								{
-									pistonEndX = x+nxx;
-									pistonEndY = y+nyy;
+									pistonEndX = x+nxi+nxx;
+									pistonEndY = y+nyi+nyy;
 									foundEnd = 1;
 									break;
 								}
 								else
-								{
-									if (parts[r>>8].temp>283.15)
-										pistonCount += (int)((parts[r>>8].temp-268.15)/10);// how many tens of degrees above 0 C, rounded to nearest 10
-									else
-										pistonCount++;
-								}
+									pistonCount++;
 							} else {
-								pistonEndX = x+nxx;
-								pistonEndY = y+nyy;
+								pistonEndX = x+nxi+nxx;
+								pistonEndY = y+nyi+nyy;
 								foundEnd = 1;
 								break;
 							}
@@ -316,7 +311,7 @@ void PSTN_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 100;
 
-	elem->DefaultProperties.temp = 283.15f;
+	elem->DefaultProperties.temp = R_TEMP + 273.15f;
 	elem->HeatConduct = 0;
 	elem->Latent = 0;
 	elem->Description = "Piston, extends and pushes particles.";
