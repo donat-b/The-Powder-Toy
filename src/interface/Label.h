@@ -3,9 +3,10 @@
 
 #include <string>
 #include "common/Point.h"
+#include "Component.h"
 
 class VideoBuffer;
-class Label
+class Label : public Component
 {
 private:
 	void UpdateCursorTemp(int x, int y);
@@ -13,10 +14,8 @@ private:
 	bool multiline;
 
 protected:
-	Point position;
-	Point size;
-
 	std::string text;
+	int textWidth;
 	unsigned int cursor, cursorStart;
 	unsigned int lastClick, numClicks, clickPosition;
 
@@ -25,11 +24,8 @@ protected:
 	virtual bool ShowCursor() { return false; }
 
 public:
-	Label(std::string text, Point position, Point size, bool multiline = false);
+	Label(Point position, Point size, std::string text, bool multiline = false);
 
-	bool focus;
-	Point GetPosition() { return position; }
-	Point GetSize() { return size; }
 	void SetText(std::string text_);
 	std::string GetText();
 

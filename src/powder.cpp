@@ -1518,7 +1518,7 @@ bool transfer_heat(int i, int *t, int surround[8])
 				if (*t==PT_NONE)
 				{
 					kill_part(i);
-					return *t;
+					return true;
 				}
 				else
 					part_change_type(i,x,y,*t);

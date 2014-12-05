@@ -12,7 +12,7 @@ protected:
 	bool ShowCursor() { return true; }
 
 public:
-	Textbox(std::string text, Point position, Point size, bool multiline);
+	Textbox(Point position, Point size, std::string text, bool multiline);
 	~Textbox();
 
 	virtual void OnKeyPress(int key, unsigned short character, unsigned char modifiers);

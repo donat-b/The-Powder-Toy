@@ -4,8 +4,8 @@
 #include "graphics/VideoBuffer.h"
 #include "misc.h"
 
-Textbox::Textbox(std::string text, Point position, Point size, bool multiline):
-	Label(text, position, size, multiline)
+Textbox::Textbox(Point position, Point size, std::string text, bool multiline) :
+	Label(position, size, text, multiline)
 {
 }
 
@@ -48,8 +48,10 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned char modifi
 		case 'v':
 		{
 			char* clipboard = clipboard_pull_text();
-			int len = strlen(clipboard);
+			int len = strlen(clipboard), width = textwidth(clipboard);
 			DeleteHighlight();
+			if (width+textWidth+2 >= size.X)
+				return;
 			text.insert(cursor, clipboard);
 
 			int oldLines = std::count(text.begin(), text.begin()+cursor+len, '\r');
@@ -126,7 +128,10 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned char modifi
 	default:
 		if (key >= ' ' && key <= '~')
 		{
+			int width = charwidth(key);
 			DeleteHighlight();
+			if (width+textWidth+1 >= size.X)
+				return;
 			text.insert(cursor++, 1, (char)key);
 			cursorStart = cursor;
 			int oldLines = std::count(text.begin(), text.begin()+cursor, '\r');
@@ -148,6 +153,9 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned char modifi
 void Textbox::OnDraw(VideoBuffer* vid)
 {
 	Label::OnDraw(vid);
-	vid->DrawRect(position.X-1, position.Y-1, size.X+2, size.Y+2, 255, 255, 255, 255);
+	if (IsFocused())
+		vid->DrawRect(position.X-1, position.Y-1, size.X+2, size.Y+2, 255, 255, 255, 255);
+	else
+		vid->DrawRect(position.X-1, position.Y-1, size.X+2, size.Y+2, 150, 150, 150, 255);
 }
 #endif

@@ -5,17 +5,16 @@
 #include "misc.h"
 #include "graphics/VideoBuffer.h"
 
-Label::Label(std::string text, Point position, Point size, bool multiline):
-	text(text),
-	position(position),
-	size(size),
+Label::Label(Point position, Point size, std::string text, bool multiline) :
+	Component(position, size),
 	multiline(multiline),
+	text(text),
+	textWidth(0),
 	cursor(0),
 	cursorStart(0),
-	clickPosition(0),
 	lastClick(0),
 	numClicks(0),
-	focus(false)
+	clickPosition(0)
 {
 	UpdateDisplayText();
 }
@@ -169,6 +168,8 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my
 			}
 		}
 	}
+	if (!multiline)
+		textWidth = posX-1;
 	if (updateCursor)
 	{
 		//if cursor position wasn't found, probably goes at the end
@@ -208,8 +209,8 @@ void Label::MoveCursor(unsigned int *cursor, int amount)
 	//make sure it's in bounds
 	if (cur+offset < 0)
 		offset = -cur;
-	if (cur+offset >= (int)text.length())
-		offset = text.length()-cur-1;
+	if (cur+offset > (int)text.length())
+		offset = text.length()-cur;
 
 	*cursor += offset;
 }
@@ -218,7 +219,6 @@ void Label::OnMouseDown(int x, int y, unsigned char button)
 {
 	if (button == 1)
 	{
-		focus = true;
 		numClicks++;
 		lastClick = SDL_GetTicks();
 
@@ -231,13 +231,12 @@ void Label::OnMouseUp(int x, int y, unsigned char button)
 	if (button == 1)
 	{
 		UpdateDisplayText(true, false, x, y);
-		focus = false;
 	}
 }
 
 void Label::OnMouseMoved(int x, int y, Point difference)
 {
-	if (focus)
+	if (IsClicked())
 	{
 		UpdateDisplayText(true, false, x, y);
 	}
@@ -309,16 +308,16 @@ void Label::OnDraw(VideoBuffer* vid)
 		mootext.insert(cursorStart, "\x01");
 		mootext.insert(cursor+(cursor > cursorStart), "\x01");
 	}
-	if (ShowCursor())
+	if (ShowCursor() && IsFocused())
 	{
 		mootext.insert(cursor+(cursor > cursorStart)*2/*+(cursor < cursorStart)*/, "\x02");
 	}
-	vid->DrawText(position.X+2, position.Y+3, mootext.c_str(), 255, 255, 255, 100);//focus?255:100);
+	vid->DrawText(position.X+2, position.Y+3, mootext.c_str(), 255, 255, 255, 100);
 }
 
 void Label::OnTick()
 {
-	if (!focus && numClicks && lastClick+300 < SDL_GetTicks())
+	if (!IsClicked() && numClicks && lastClick+300 < SDL_GetTicks())
 		numClicks = 0;
 }
 
