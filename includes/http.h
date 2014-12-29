@@ -17,6 +17,8 @@
 #ifndef HTTP_H
 #define HTTP_H
 
+void millisleep(long int t);
+
 void http_init(char *proxy);
 void http_done(void);
 

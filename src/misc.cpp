@@ -705,7 +705,7 @@ void strcaturl(char *dst, char *src)
 	*d = 0;
 }
 
-void strappend(char *dst, char *src)
+void strappend(char *dst, const char *src)
 {
 	char *d;
 	unsigned char *s;

@@ -60,6 +60,7 @@
 
 #include "game/Menus.h"
 #include "game/ToolTip.h"
+#include "game/Download.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/ToolNumbers.h"
@@ -5005,20 +5006,17 @@ void converttotime(char *timestamp, char **timestring, int show_day, int show_ye
 
 int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 {
-	int b=1,bq,mx,my,active=0,active_2=0,active_3=0,active_4=0,cc=0,ccy=0,cix=0;
+	int b=1,bq,mx,my,cc=0,ccy=0,cix=0;
 	int hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1;
 	int comment_scroll = 0, comment_page = 0, redraw_comments = 1, dofocus = 0, disable_scrolling = 0;
 	int nyd,nyu,lv;
 	float ryf, scroll_velocity = 0.0f;
 
-	char *uri, *uri_2, *o_uri, *uri_3, *uri_4;
 	void *data = NULL, *info_data, *thumb_data_full, *comment_data;
 	save_info *info = (save_info*)calloc(sizeof(save_info), 1);
-	void *http = NULL, *http_2 = NULL, *http_3 = NULL, *http_4 = NULL;
 	int lasttime = TIMEOUT, saveTotal, saveDone, infoTotal, infoDone, downloadDone, downloadTotal;
-	int status, status_2, status_4, info_ready = 0, data_ready = 0, thumb_data_ready = 0;
-	time_t http_last_use = HTTP_TIMEOUT,  http_last_use_2 = HTTP_TIMEOUT,  http_last_use_3 = HTTP_TIMEOUT,  http_last_use_4 = HTTP_TIMEOUT;
-	pixel *save_pic;// = malloc((XRES/2)*(YRES/2));
+	int info_ready = 0, data_ready = 0, thumb_data_ready = 0;
+	pixel *save_pic = NULL;
 	pixel *save_pic_thumb = NULL;
 	char *thumb_data = NULL;
 	char viewcountbuffer[11];
@@ -5063,6 +5061,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	}
 	
 	//Try to load the thumbnail from the cache
+	bool thumbFound;
 	if(save_date)
 	{
 		char * id_d_temp = (char*)malloc(strlen(save_id)+strlen(save_date)+2);
@@ -5070,16 +5069,19 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		strappend(id_d_temp, "_");
 		strappend(id_d_temp, save_date);
 		
-		status = thumb_cache_find(id_d_temp, (void**)(&thumb_data), &thumb_data_size);
+		thumbFound = thumb_cache_find(id_d_temp, (void**)(&thumb_data), &thumb_data_size);
 		free(id_d_temp);
 	}
 	else
 	{
-		status = thumb_cache_find(save_id, (void**)(&thumb_data), &thumb_data_size);
+		thumbFound = thumb_cache_find(save_id, (void**)(&thumb_data), &thumb_data_size);
 	}
-	if(!status){
+	if (!thumbFound)
+	{
 		thumb_data = NULL;	
-	} else {
+	}
+	else
+	{
 		//We found a thumbnail in the cache, we'll draw this one while we wait for the full image to load.
 		int finw, finh;
 		pixel *thumb_imgdata = ptif_unpack(thumb_data, thumb_data_size, &finw, &finh);
@@ -5091,77 +5093,64 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		//rescale_img(full_save, imgw, imgh, &thumb_w, &thumb_h, 2);
 	}
 
+	Download *saveDataDownload;
+	Download *saveInfoDownload;
+	Download *thumbnailDownload;
+	Download *commentsDownload;
 	//Begin Async loading of data
-	if (save_date) {
-		// We're loading an historical save
-		uri = (char*)malloc(strlen(save_id)*3+strlen(save_date)*3+strlen(STATICSERVER)+71);
-		strcpy(uri, "http://" STATICSERVER "/");
-		strcaturl(uri, save_id);
-		strappend(uri, "_");
-		strcaturl(uri, save_date);
-		strappend(uri, ".cps");
+	if (save_date)
+	{
+		// We're loading a historical save
+		std::stringstream uri;
+		uri << "http://" << STATICSERVER << "/" << save_id << "_" << save_date << ".cps";
+		saveDataDownload = new Download(uri.str());
 
-		uri_2 = (char*)malloc(strlen(save_id)*3+strlen(save_date)*3+strlen(STATICSERVER)+71);
-		strcpy(uri_2, "http://" STATICSERVER "/");
-		strcaturl(uri_2, save_id);
-		strappend(uri_2, "_");
-		strcaturl(uri_2, save_date);
-		strappend(uri_2, ".info");
+		uri.str("");
+		uri << "http://" << STATICSERVER << "/" << save_id << "_" << save_date << ".info";
+		saveInfoDownload = new Download(uri.str());
 
-		uri_3 = (char*)malloc(strlen(save_id)*3+strlen(save_date)*3+strlen(STATICSERVER)+71);
-		strcpy(uri_3, "http://" STATICSERVER "/");
-		strcaturl(uri_3, save_id);
-		strappend(uri_3, "_");
-		strcaturl(uri_3, save_date);
-		strappend(uri_3, "_large.pti");
-	} else {
-		//We're loading a normal save
-		uri = (char*)malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
-		strcpy(uri, "http://" STATICSERVER "/");
-		strcaturl(uri, save_id);
-		strappend(uri, ".cps");
-
-		uri_2 = (char*)malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
-		strcpy(uri_2, "http://" STATICSERVER "/");
-		strcaturl(uri_2, save_id);
-		strappend(uri_2, ".info");
-
-		uri_3 = (char*)malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
-		strcpy(uri_3, "http://" STATICSERVER "/");
-		strcaturl(uri_3, save_id);
-		strappend(uri_3, "_large.pti");
+		if (!instant_open)
+		{
+			uri.str("");
+			uri << "http://" << STATICSERVER << "/" << save_id << "_" << save_date << "_large.pti";
+			thumbnailDownload = new Download(uri.str());
+		}
 	}
-	uri_4 = (char*)malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
-	strcpy(uri_4, "http://" SERVER "/Browse/Comments.json?ID=");
-	strcaturl(uri_4, save_id);
-	strappend(uri_4, "&Start=0&Count=20");
+	else
+	{
+		//We're loading a normal save
+		std::stringstream uri;
+		uri << "http://" << STATICSERVER << "/" << save_id << ".cps";
+		saveDataDownload = new Download(uri.str());
 
-	http = http_async_req_start(http, uri, NULL, 0, 1);
-	http_2 = http_async_req_start(http_2, uri_2, NULL, 0, 1);
+		uri.str("");
+		uri << "http://" << STATICSERVER << "/" << save_id << ".info";
+		saveInfoDownload = new Download(uri.str());
+
+		if (!instant_open)
+		{
+			uri.str("");
+			uri << "http://" << STATICSERVER << "/" << save_id << "_large.pti";
+			thumbnailDownload = new Download(uri.str());
+		}
+	}
+
+	saveDataDownload->Start();
+	saveInfoDownload->Start();
 	if (!instant_open)
 	{
-		http_3 = http_async_req_start(http_3, uri_3, NULL, 0, 1);
-		http_4 = http_async_req_start(http_4, uri_4, NULL, 0, 1);
+		std::stringstream uri;
+		uri << "http://" << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=0&Count=20";
+		commentsDownload = new Download(uri.str());
+		commentsDownload->Start();
+
+		thumbnailDownload->Start();
 	}
+	//authenticate requests
 	if (svf_login)
 	{
-		http_auth_headers(http, svf_user_id, NULL, svf_session_id);
-		http_auth_headers(http_2, svf_user_id, NULL, svf_session_id);
-	}
-	http_last_use = time(NULL);
-	http_last_use_2 = time(NULL);
-	free(uri);
-	free(uri_2);
-	active = 1;
-	active_2 = 1;
-	if (!instant_open)
-	{
-		http_last_use_3 = time(NULL);
-		free(uri_3);
-		active_3 = 1;
-		http_last_use_4 = time(NULL);
-		free(uri_4);
-		active_4 = 1;
+		saveDataDownload->AuthHeaders(svf_user_id, svf_session_id);
+		saveInfoDownload->AuthHeaders(svf_user_id, svf_session_id);
 	}
 	while (!sdl_poll())
 	{
@@ -5170,76 +5159,82 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		if (b == 1)
 			redraw_comments = 1;
 
-		if (active)
+		if (saveDataDownload)
 		{
-			http_async_get_length(http, &saveTotal, &saveDone);
-		}
-		if (active && http_async_req_status(http))
-		{
-			int imgh, imgw;
-			http_last_use = time(NULL);
-			data = http_async_req_stop(http, &status, &data_size);
-			saveDone = data_size;
-			saveTotal = data_size;
-			if (status == 200)
+			if (saveDataDownload->CheckDone())
 			{
-				pixel *full_save;
-				if (!data||!data_size) {
-					error_ui(vid_buf, 0, "Save data is empty (may be corrupt)");
-					break;
+				int imgh, imgw, status;
+				data = saveDataDownload->Finish(&data_size, &status);
+				saveDone = saveTotal = data_size;
+				if (status == 200)
+				{
+					pixel *full_save;
+					if (!data || !data_size)
+					{
+						error_ui(vid_buf, 0, "Save data is empty (may be corrupt)");
+						break;
+					}
+					full_save = prerender_save(data, data_size, &imgw, &imgh);
+					if (full_save)
+					{
+						//save_pic = rescale_img(full_save, imgw, imgh, &thumb_w, &thumb_h, 2);
+						data_ready = 1;
+						free(full_save);
+					}
+					else
+					{
+						error_ui(vid_buf, 0, "Save may be from a newer version");
+						break;
+					}
 				}
-				full_save = prerender_save(data, data_size, &imgw, &imgh);
-				if (full_save!=NULL) {
-					//save_pic = rescale_img(full_save, imgw, imgh, &thumb_w, &thumb_h, 2);
-					data_ready = 1;
-					free(full_save);
-				} else {
-					error_ui(vid_buf, 0, "Save may be from a newer version");
-					break;
-				}
+				delete saveDataDownload;
+				saveDataDownload = NULL;
 			}
-			active = 0;
-			free(http);
-			http = NULL;
+			else
+				saveDataDownload->CheckProgress(&saveTotal, &saveDone);
 		}
-		if (active_2)
+		if (saveInfoDownload)
 		{
-			http_async_get_length(http_2, &infoTotal, &infoDone);
-		}
-		if (active_2 && http_async_req_status(http_2))
-		{
-			http_last_use_2 = time(NULL);
-			info_data = http_async_req_stop(http_2, &status_2, &infoTotal);
-			infoDone = infoTotal;
-			if (status_2 == 200 || !info_data)
+			if (saveInfoDownload->CheckDone())
 			{
-				info_ready = info_parse((char*)info_data, info);
-				sprintf(viewcountbuffer, "%d", info->downloadcount);
-				if (info_ready<=0) {
-					error_ui(vid_buf, 0, "Save info not found");
-					break;
+				int status;
+				info_data = saveInfoDownload->Finish(&infoTotal, &status);
+				infoDone = infoTotal;
+				if (status == 200 || !info_data)
+				{
+					info_ready = info_parse((char*)info_data, info);
+					sprintf(viewcountbuffer, "%d", info->downloadcount);
+					if (info_ready <= 0)
+					{
+						error_ui(vid_buf, 0, "Save info not found");
+						break;
+					}
 				}
+				if (info_data)
+					free(info_data);
+				delete saveInfoDownload;
+				saveInfoDownload = NULL;
 			}
-			if (info_data)
-				free(info_data);
-			active_2 = 0;
-			free(http_2);
-			http_2 = NULL;
+			else
+				saveInfoDownload->CheckProgress(&infoTotal, &infoDone);
 		}
-		if (!instant_open && active_3 && http_async_req_status(http_3))
+		if (thumbnailDownload && thumbnailDownload->CheckDone())
 		{
-			int imgh, imgw;
-			http_last_use_3 = time(NULL);
-			thumb_data_full = http_async_req_stop(http_3, &status, &full_thumb_data_size);
+			int imgh, imgw, status;
+			thumb_data_full = thumbnailDownload->Finish(&full_thumb_data_size, &status);
 			if (status == 200)
 			{
 				pixel *full_thumb;
-				if (!thumb_data_full||!full_thumb_data_size) {
+				if (!thumb_data_full || !full_thumb_data_size)
+				{
 					//error_ui(vid_buf, 0, "Save data is empty (may be corrupt)");
 					//break;
-				} else {
+				}
+				else
+				{
 					full_thumb = ptif_unpack(thumb_data_full, full_thumb_data_size, &imgw, &imgh);//prerender_save(data, data_size, &imgw, &imgh);
-					if (full_thumb!=NULL) {
+					if (full_thumb)
+					{
 						save_pic = resample_img(full_thumb, imgw, imgh, XRES/2, YRES/2);
 						thumb_data_ready = 1;
 						free(full_thumb);
@@ -5248,19 +5243,17 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			if(thumb_data_full)
 				free(thumb_data_full);
-			active_3 = 0;
-			free(http_3);
-			http_3 = NULL;
+			delete thumbnailDownload;
+			thumbnailDownload = NULL;
 		}
-		if (!instant_open && active_4 && http_async_req_status(http_4) && info_ready)
+		if (info_ready && commentsDownload && commentsDownload->CheckDone())
 		{
-			http_last_use_4 = time(NULL);
-			comment_data = http_async_req_stop(http_4, &status_4, NULL);
-			if (status_4 == 200)
+			int status;
+			comment_data = commentsDownload->Finish(NULL, &status);
+			if (status == 200)
 			{
-				int i;
 				cJSON *root, *commentobj, *tmpobj;
-				for (i=comment_page*20;i<comment_page*20+20&&i<NUM_COMMENTS;i++)
+				for (int i = comment_page*20; i < comment_page*20+20 && i < NUM_COMMENTS; i++)
 				{
 					if (info->comments[i].str) { info->comments[i].str[0] = 0; }
 					if (info->commentauthors[i]) { free(info->commentauthors[i]); info->commentauthors[i] = NULL; }
@@ -5276,7 +5269,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						info->comment_count += cJSON_GetArraySize(root);
 					if (info->comment_count > NUM_COMMENTS)
 						info->comment_count = NUM_COMMENTS;
-					for (i = comment_page*20; i < info->comment_count; i++)
+					for (int i = comment_page*20; i < info->comment_count; i++)
 					{
 						commentobj = cJSON_GetArrayItem(root, i%20);
 						if(commentobj){
@@ -5294,9 +5287,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			if (comment_data)
 				free(comment_data);
-			active_4 = 0;
-			free(http_4);
-			http_4 = NULL;
+			delete commentsDownload;
+			commentsDownload = NULL;
 			disable_scrolling = 0;
 		}
 		if (!instant_open)
@@ -5451,9 +5443,12 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							if (cc < NUM_COMMENTS-1)
 								info->comments[cc+1].y = info->comments[cc].y + change + 22;
 
-							if (ccy+comment_scroll < 100 && cc == info->comment_count-1 && active_4) // disable scrolling until more comments have loaded
+							if (ccy+comment_scroll < 100 && cc == info->comment_count-1 && commentsDownload) // disable scrolling until more comments have loaded
+							{
 								disable_scrolling = 1;
-							if (ccy+comment_scroll < 0 && cc == info->comment_count-1 && !active_4) // reset to top of comments
+								scroll_velocity = 0.0f;
+							}
+							if (ccy+comment_scroll < 0 && cc == info->comment_count-1 && !commentsDownload) // reset to top of comments
 							{
 								comment_scroll = 0;
 								scroll_velocity = 0.0f;
@@ -5472,15 +5467,14 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							commentNum = cc;
 						break;
 					}
-					if (cc == info->comment_count-1 && !http_4 && comment_page < NUM_COMMENTS/10 && !(info->comment_count%20))
+					if (cc == info->comment_count-1 && !commentsDownload && comment_page < NUM_COMMENTS/20 && !(info->comment_count%20))
 					{
+						std::stringstream uri;
+						uri << "http://" << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=" << comment_page*20 << "&Count=20";
+						commentsDownload = new Download(uri.str());
+						commentsDownload->Start();
+
 						comment_page++;
-						uri_4 = (char*)malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
-						sprintf(uri_4,"http://%s/Browse/Comments.json?ID=%s&Start=%i&Count=20",SERVER,save_id,comment_page*20);
-						http_4 = http_async_req_start(http_4, uri_4, NULL, 0, 1);
-						http_last_use_4 = time(NULL);
-						free(uri_4);
-						active_4 = 1;
 					}
 				}
 
@@ -5618,34 +5612,28 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			//Open in browser button
 			if (mx > 250 && mx < 250+107 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50  && !queue_open) {
 				fillrect(vid_buf, 250, YRES+MENUSIZE-68, 107, 18, 255, 255, 255, 40);
-				if (b && !bq) {
-					//Button Clicked
-					o_uri = (char*)malloc(7+strlen(SERVER)+41+strlen(save_id)*3);
-					strcpy(o_uri, "http://" SERVER "/Browse/View.html?ID=");
-					strcaturl(o_uri, save_id);
-					open_link(o_uri);
-					free(o_uri);
+				if (b && !bq)
+				{
+					std::stringstream browserLink;
+					browserLink << "http://" << SERVER << "/Browse/View.html?ID=" << save_id;
+					open_link(browserLink.str().c_str());
 				}
 			}
 			//Submit Button
 			if (mx > XRES+BARSIZE-100 && mx < XRES+BARSIZE-100+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && info_ready && !queue_open) {
-				fillrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40+active_4*80);
+				fillrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40+(commentsDownload != NULL ? 1 : 0)*80);
 				if (b && !bq) {
 					//Button Clicked
 					fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
 					info_box(vid_buf, "Submitting Comment...");
-					if (!active_4 && !execute_submit(vid_buf, save_id, ed.str))
+					if (!commentsDownload && !execute_submit(vid_buf, save_id, ed.str))
 					{
-						int i;
-						ed.str[0] = 0;
-						uri_4 = (char*)malloc(strlen(save_id)*3+strlen(STATICSERVER)+64);
-						sprintf(uri_4,"http://%s/Browse/Comments.json?ID=%s&Start=%i&Count=20",SERVER,save_id,0);
-						http_4 = http_async_req_start(http_4, uri_4, NULL, 0, 1);
-						http_last_use_4 = time(NULL);
-						free(uri_4);
-						active_4 = 1;
+						std::stringstream uri;
+						uri << "http://" << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=0&Count=20";
+						commentsDownload = new Download(uri.str());
+						commentsDownload->Start();
 
-						for (i=0; i < NUM_COMMENTS; i++)
+						for (int i = 0; i < NUM_COMMENTS; i++)
 						{
 							if (info->comments[i].str) { info->comments[i].str[0] = 0; }
 							if (info->commentauthors[i]) { free(info->commentauthors[i]); info->commentauthors[i] = NULL; }
@@ -5657,6 +5645,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						info->comment_count = 0;
 						comment_scroll = 0;
 						scroll_velocity = 0.0f;
+						ed.str[0] = 0;
 					}
 				}
 			}
@@ -5713,11 +5702,14 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		}
 
 		//User opened the save, wait until we've got all the data first...
-		if (queue_open || instant_open) {
-			if (info_ready && data_ready) {
+		if (queue_open || instant_open)
+		{
+			if (info_ready && data_ready)
+			{
 				// Do Open!
-				status = parse_save(data, data_size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-				if (!status) {
+				int status = parse_save(data, data_size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+				if (!status)
+				{
 					if(svf_last)
 						free(svf_last);
 					svf_last = data;
@@ -5745,7 +5737,9 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					retval = 1;
 					ctrlzSnapshot();
 					break;
-				} else {
+				}
+				else
+				{
 					queue_open = 0;
 
 					svf_open = 0;
@@ -5764,12 +5758,15 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					svf_last = NULL;
 					error_ui(vid_buf, 0, "An Error Occurred");
 				}
-			} else {
+			}
+			else
+			{
 				fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 190);
 				drawtext(vid_buf, 50+(XRES/4)-textwidth("Loading...")/2, 50+(YRES/4), "Loading...", 255, 255, 255, 128);
 			}
 		}
-		if (!info_ready || !data_ready) {
+		if (!info_ready || !data_ready)
+		{
 			info_box(vid_buf, "Loading");
 		}
 #ifdef OGLR
@@ -5804,35 +5801,22 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	}
 
 	finish:
-	//Close open connections
-	if (http)
-	{
-		http_hackyclosefreezefix(http);
-		http_async_req_close(http);
-	}
-	if (http_2)
-	{
-		http_hackyclosefreezefix(http_2);
-		http_async_req_close(http_2);
-	}
-	if (!instant_open)
-	{
-		if (http_3)
-		{
-			http_hackyclosefreezefix(http_3);
-			http_async_req_close(http_3);
-		}
-		if (http_4)
-		{
-			http_hackyclosefreezefix(http_4);
-			http_async_req_close(http_4);
-		}
-	}
+	//Let the download threads finish downloads and delete the data
+	if (saveDataDownload)
+		saveDataDownload->Cancel();
+	if (saveInfoDownload)
+		saveInfoDownload->Cancel();
+	if (thumbnailDownload)
+		thumbnailDownload->Cancel();
+	if (commentsDownload)
+		commentsDownload->Cancel();
 	info_parse("", info);
 	free(info);
 	free(old_vid);
 	if (data) free(data);
 	if (thumb_data) free(thumb_data);
+	if (save_pic) free(save_pic);
+	if (save_pic_thumb) free(save_pic_thumb);
 	return retval;
 }
 
@@ -6675,7 +6659,8 @@ int execute_vote(pixel *vid_buf, char *id, char *action)
 		free(result);
 	return 1;
 }
-void open_link(char *uri) {
+void open_link(const char *uri)
+{
 #ifdef WIN
 	ShellExecute(0, "OPEN", uri, NULL, NULL, 0);
 #elif MACOSX

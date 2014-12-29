@@ -98,6 +98,7 @@ void gravity_init()
 
 void gravity_cleanup()
 {
+	stop_grav_async();
 #ifdef GRAVFFT
 	grav_fft_cleanup();
 #endif

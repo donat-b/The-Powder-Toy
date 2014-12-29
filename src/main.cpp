@@ -695,14 +695,14 @@ void thumb_cache_add(char *id, void *thumb, int size)
 	thumb_cache_size[i] = size;
 	thumb_cache_lru[i] = 0;
 }
-int thumb_cache_find(char *id, void **thumb, int *size)
+bool thumb_cache_find(char *id, void **thumb, int *size)
 {
 	int i,j;
 	for (i=0; i<THUMB_CACHE_SIZE; i++)
 		if (thumb_cache_id[i] && !strcmp(id, thumb_cache_id[i]))
 			break;
 	if (i >= THUMB_CACHE_SIZE)
-		return 0;
+		return false;
 	for (j=0; j<THUMB_CACHE_SIZE; j++)
 		if (thumb_cache_lru[j] < thumb_cache_lru[i])
 			thumb_cache_lru[j]++;
@@ -710,7 +710,7 @@ int thumb_cache_find(char *id, void **thumb, int *size)
 	*thumb = malloc(thumb_cache_size[i]);
 	*size = thumb_cache_size[i];
 	memcpy(*thumb, thumb_cache_data[i], *size);
-	return 1;
+	return true;
 }
 
 char http_proxy_string[256] = "";
@@ -1033,7 +1033,7 @@ int main(int argc, char *argv[])
 	void *http_ver_check, *http_session_check = NULL;
 	char *ver_data=NULL, *check_data=NULL, *tmp, *changelog, *autorun_result = NULL;
 	int i, j, bq, bc = 0, do_check=0, do_s_check=0, old_version=0, http_ret=0,http_s_ret=0, old_ver_len = 0, new_message_len=0, afk = 0, afkstart = 0;
-	int x, y, line_x, line_y, b = 0, lb = 0, lx = 0, ly = 0, lm = 0;//, tx, ty;
+	int x = XRES, y = YRES, line_x, line_y, b = 0, lb = 0, lx = 0, ly = 0, lm = 0;//, tx, ty;
 	int mx = 0, my = 0, lastx = 1, lasty = 0;
 	int load_mode=0, load_w=0, load_h=0, load_x=0, load_y=0, load_size=0;
 	void *load_data=NULL;
@@ -3172,8 +3172,8 @@ int main(int argc, char *argv[])
 	
 	SaveWindowPosition();
 	http_done();
-	gravity_cleanup();
 	save_presets(0);
+	gravity_cleanup();
 #ifdef LUACONSOLE
 	luacon_close();
 #endif

@@ -311,7 +311,7 @@ extern char http_proxy_string[256];
 //Functions in main.c
 void thumb_cache_inval(char *id);
 void thumb_cache_add(char *id, void *thumb, int size);
-int thumb_cache_find(char *id, void **thumb, int *size);
+bool thumb_cache_find(char *id, void **thumb, int *size);
 void dump_frame(pixel *src, int w, int h, int pitch);
 void clear_sim();
 void NewSim();

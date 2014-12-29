@@ -53,7 +53,7 @@ int load_string(FILE *f, char *str, int max);
 
 void strcaturl(char *dst, char *src);
 
-void strappend(char *dst, char *src);
+void strappend(char *dst, const char *src);
 
 int file_exists(char *filename);
 void *file_load(const char *fn, int *size);
