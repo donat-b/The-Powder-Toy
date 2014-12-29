@@ -41,12 +41,15 @@ void Download::DoDownload()
 	while (true)
 	{
 		pthread_mutex_lock(&downloadLock);
+		if (downloadCanceled) //set http to HTS_DONE
+			http_force_close(http);
 		if (http_async_req_status(http) != 0)
 		{
 			downloadFinished = true;
 			lastUse = time(NULL);
 			downloadData = http_async_req_stop(http, &downloadStatus, &downloadSize);
-			http_async_req_close(http);
+			if (keepAlive)
+				http_async_req_close(http);
 			pthread_mutex_unlock(&downloadLock);
 			return;
 		}

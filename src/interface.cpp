@@ -4681,7 +4681,7 @@ int search_ui(pixel *vid_buf)
 
 		if (http && !active && (time(NULL)>http_last_use+HTTP_TIMEOUT))
 		{
-			http_hackyclosefreezefix(http);
+			http_force_close(http);
 			http_async_req_close(http);
 			http = NULL;
 		}
@@ -4790,7 +4790,7 @@ int search_ui(pixel *vid_buf)
 			}
 			if (!img_id[i] && img_http[i])
 			{
-				http_hackyclosefreezefix(img_http[i]);
+				http_force_close(img_http[i]);
 				http_async_req_close(img_http[i]);
 				img_http[i] = NULL;
 			}
@@ -4806,13 +4806,13 @@ finish:
 		free(last);
 	if (http)
 	{
-		http_hackyclosefreezefix(http);
+		http_force_close(http);
 		http_async_req_close(http);
 	}
 	for (i=0; i<IMGCONNS; i++)
 		if (img_http[i])
 		{
-			http_hackyclosefreezefix(img_http[i]);
+			http_force_close(img_http[i]);
 			http_async_req_close(img_http[i]);
 		}
 			

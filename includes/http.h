@@ -33,7 +33,7 @@ void http_async_add_header(void *ctx, const char *name, const char *data);
 int http_async_req_status(void *ctx);
 void http_async_get_length(void *ctx, int *total, int *done);
 char *http_async_req_stop(void *ctx, int *ret, int *len);
-void http_hackyclosefreezefix(void *ctx);
+void http_force_close(void *ctx);
 void http_async_req_close(void *ctx);
 
 char *http_multipart_post(const char *uri, const char *const *names, const char *const *parts, int *plens, const char *user, const char *pass, const char * session_id, int *ret, int *len);

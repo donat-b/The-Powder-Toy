@@ -653,7 +653,7 @@ void http_async_get_length(void *ctx, int *total, int *done)
 		*total = cx->contlen;
 }
 
-void http_hackyclosefreezefix(void *ctx)
+void http_force_close(void *ctx)
 {
 #ifdef LIN
 	struct http_ctx *cx = (struct http_ctx*)ctx;

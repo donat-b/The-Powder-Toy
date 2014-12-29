@@ -18,12 +18,12 @@ class Download
 	int downloadStatus;
 
 	volatile bool downloadFinished;
-	bool downloadCanceled;
+	volatile bool downloadCanceled;
 	pthread_t downloadThread;
 	pthread_mutex_t downloadLock;
 
 public:
-	Download(std::string uri, bool keepAlive = true);
+	Download(std::string uri, bool keepAlive = false);
 	~Download();
 
 	void AuthHeaders(const char *userID, const char *session);
