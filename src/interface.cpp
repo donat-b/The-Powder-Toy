@@ -4069,6 +4069,7 @@ int search_ui(pixel *vid_buf)
 	ui_richtext motd;
 
 
+	Download *saveListDownload = NULL;
 	void *http = NULL;
 	int active = 0;
 	char *last = NULL;
@@ -4597,7 +4598,10 @@ int search_ui(pixel *vid_buf)
 			search = 0;
 
 		if (search && lasttime>=TIMEOUT)
+		//if (search && (!saveListDownload || saveListDownload->CheckDone()))
 		{
+			std::stringstream uri;
+			int start, count;
 			lasttime = 0;
 			last = mystrdup(ed.str);
 			last_own = search_own;
@@ -4606,50 +4610,47 @@ int search_ui(pixel *vid_buf)
 			last_fav = search_fav;
 			last_p1_extra = p1_extra;
 			active = 1;
-			uri = (char*)malloc(strlen(last)*3+180+strlen(SERVER)+strlen(svf_user)+20); //Increase "padding" from 80 to 180 to fix the search memory corruption bug
-			if (search_own || svf_admin || svf_mod || (unlockedstuff&0x08))
-				tmp = "&ShowVotes=true";
-			else
-				tmp = "";
-			if (!search_own && !search_date && !search_fav && !*last)
+
+			bool byvotes = !search_own && !search_date && !search_fav && !*last;
+			if (byvotes)
 			{
 				if (search_page)
 				{
-					exp_res = GRID_X*GRID_Y;
-					sprintf(uri, "http://" SERVER "/Search.api?Start=%d&Count=%d%s&Query=", (search_page-1)*GRID_X*GRID_Y+GRID_X*GRID_P, exp_res+1, tmp);
+					start = (search_page-1)*GRID_X*GRID_Y + GRID_X*GRID_P;
+					count = GRID_X*GRID_Y;
 				}
 				else
 				{
-					exp_res = p1_extra?GRID_X*GRID_Y:GRID_X*GRID_P;
-					sprintf(uri, "http://" SERVER "/Search.api?Start=%d&Count=%d&t=%d%s&Query=", 0, exp_res+1, ((GRID_Y-GRID_P)*YRES)/(GRID_Y*14)*GRID_X, tmp);
+					start = 0;
+					count = p1_extra ? GRID_X*GRID_Y : GRID_X*GRID_P;
 				}
 			}
 			else
 			{
-				exp_res = GRID_X*GRID_Y;
-				sprintf(uri, "http://" SERVER "/Search.api?Start=%d&Count=%d%s&Query=", search_page*GRID_X*GRID_Y, exp_res+1, tmp);
+				start = search_page*GRID_X*GRID_Y;
+				count = GRID_X*GRID_Y + 1;
 			}
-			strcaturl(uri, last);
+			exp_res = count; //-1 so that it can know if there is an extra save and show the next page button
+			uri << "http://" << SERVER << "/Search.api?Start=" << start << "&Count=" << count+1 << "&ShowVotes=true";
+			if (byvotes)
+				uri << "&t=" << ((GRID_Y-GRID_P)*YRES)/(GRID_Y*14)*GRID_X; //what does this even mean? ...
+			uri << "&Query=" << last;
 			if (search_own)
-			{
-				strcaturl(uri, " user:");
-				strcaturl(uri, svf_user);
-			}
+				uri << " user:" << svf_user;
 			if (search_fav)
-			{
-				strcaturl(uri, " cat:favs");
-			}
+				uri << " cat:favs";
 			if (search_date)
-				strcaturl(uri, " sort:date");
+				uri << " sort:date";
 
-			http = http_async_req_start(http, uri, NULL, 0, 1);
+			//saveListDownload = new Download(uri, true);
+			//saveListDownload->Start();
+			http = http_async_req_start(http, uri.str().c_str(), NULL, 0, 1);
 			if (svf_login)
 			{
 				//http_auth_headers(http, svf_user, svf_pass);
 				http_auth_headers(http, svf_user_id, NULL, svf_session_id);
 			}
 			http_last_use = time(NULL);
-			free(uri);
 		}
 
 		if (active && http_async_req_status(http))
@@ -5011,8 +5012,9 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	int comment_scroll = 0, comment_page = 0, redraw_comments = 1, dofocus = 0, disable_scrolling = 0;
 	int nyd,nyu,lv;
 	float ryf, scroll_velocity = 0.0f;
+	bool loadedComments = false;
 
-	void *data = NULL, *info_data, *thumb_data_full, *comment_data;
+	void *data = NULL;
 	save_info *info = (save_info*)calloc(sizeof(save_info), 1);
 	int lasttime = TIMEOUT, saveTotal, saveDone, infoTotal, infoDone, downloadDone, downloadTotal;
 	int info_ready = 0, data_ready = 0, thumb_data_ready = 0;
@@ -5093,10 +5095,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		//rescale_img(full_save, imgw, imgh, &thumb_w, &thumb_h, 2);
 	}
 
-	Download *saveDataDownload;
-	Download *saveInfoDownload;
-	Download *thumbnailDownload;
-	Download *commentsDownload;
+	Download *saveDataDownload, *saveInfoDownload, *thumbnailDownload, *commentsDownload;
 	//Begin Async loading of data
 	if (save_date)
 	{
@@ -5141,7 +5140,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	{
 		std::stringstream uri;
 		uri << "http://" << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=0&Count=20";
-		commentsDownload = new Download(uri.str());
+		commentsDownload = new Download(uri.str(), true);
 		commentsDownload->Start();
 
 		thumbnailDownload->Start();
@@ -5198,7 +5197,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			if (saveInfoDownload->CheckDone())
 			{
 				int status;
-				info_data = saveInfoDownload->Finish(&infoTotal, &status);
+				char *info_data = saveInfoDownload->Finish(&infoTotal, &status);
 				infoDone = infoTotal;
 				if (status == 200 || !info_data)
 				{
@@ -5221,7 +5220,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		if (thumbnailDownload && thumbnailDownload->CheckDone())
 		{
 			int imgh, imgw, status;
-			thumb_data_full = thumbnailDownload->Finish(&full_thumb_data_size, &status);
+			char *thumb_data_full = thumbnailDownload->Finish(&full_thumb_data_size, &status);
 			if (status == 200)
 			{
 				pixel *full_thumb;
@@ -5246,10 +5245,10 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			delete thumbnailDownload;
 			thumbnailDownload = NULL;
 		}
-		if (info_ready && commentsDownload && commentsDownload->CheckDone())
+		if (!loadedComments && info_ready && commentsDownload && commentsDownload->CheckDone())
 		{
 			int status;
-			comment_data = commentsDownload->Finish(NULL, &status);
+			char *comment_data = commentsDownload->Finish(NULL, &status);
 			if (status == 200)
 			{
 				cJSON *root, *commentobj, *tmpobj;
@@ -5263,6 +5262,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				}
 				if(comment_data && (root = cJSON_Parse((const char*)comment_data)))
 				{
+					if (cJSON_GetArraySize(root) == 0)
+						std::cout << "something is wrong";
 					if (comment_page == 0)
 						info->comment_count = cJSON_GetArraySize(root);
 					else
@@ -5287,9 +5288,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			if (comment_data)
 				free(comment_data);
-			delete commentsDownload;
-			commentsDownload = NULL;
 			disable_scrolling = 0;
+			loadedComments = true;
 		}
 		if (!instant_open)
 		{
@@ -5443,12 +5443,12 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							if (cc < NUM_COMMENTS-1)
 								info->comments[cc+1].y = info->comments[cc].y + change + 22;
 
-							if (ccy+comment_scroll < 100 && cc == info->comment_count-1 && commentsDownload) // disable scrolling until more comments have loaded
+							if (ccy+comment_scroll < 100 && cc == info->comment_count-1 && !commentsDownload->CheckDone()) // disable scrolling until more comments have loaded
 							{
 								disable_scrolling = 1;
 								scroll_velocity = 0.0f;
 							}
-							if (ccy+comment_scroll < 0 && cc == info->comment_count-1 && !commentsDownload) // reset to top of comments
+							if (ccy+comment_scroll < 0 && cc == info->comment_count-1 && commentsDownload->CheckDone()) // reset to top of comments
 							{
 								comment_scroll = 0;
 								scroll_velocity = 0.0f;
@@ -5467,12 +5467,12 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							commentNum = cc;
 						break;
 					}
-					if (cc == info->comment_count-1 && !commentsDownload && comment_page < NUM_COMMENTS/20 && !(info->comment_count%20))
+					if (cc == info->comment_count-1 && loadedComments && comment_page < NUM_COMMENTS/20 && !(info->comment_count%20))
 					{
 						std::stringstream uri;
-						uri << "http://" << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=" << comment_page*20 << "&Count=20";
-						commentsDownload = new Download(uri.str());
-						commentsDownload->Start();
+						uri << "http://" << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=" << (comment_page+1)*20 << "&Count=20";
+						commentsDownload->Reuse(uri.str());
+						loadedComments = false;
 
 						comment_page++;
 					}
@@ -5621,17 +5621,17 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			//Submit Button
 			if (mx > XRES+BARSIZE-100 && mx < XRES+BARSIZE-100+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && info_ready && !queue_open) {
-				fillrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40+(commentsDownload != NULL ? 1 : 0)*80);
+				fillrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40+(commentsDownload->CheckDone() ? 0 : 1)*80);
 				if (b && !bq) {
 					//Button Clicked
 					fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
 					info_box(vid_buf, "Submitting Comment...");
-					if (!commentsDownload && !execute_submit(vid_buf, save_id, ed.str))
+					if (commentsDownload->CheckDone() && !execute_submit(vid_buf, save_id, ed.str))
 					{
 						std::stringstream uri;
 						uri << "http://" << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=0&Count=20";
-						commentsDownload = new Download(uri.str());
-						commentsDownload->Start();
+						commentsDownload->Reuse(uri.str());
+						loadedComments = false;
 
 						for (int i = 0; i < NUM_COMMENTS; i++)
 						{
@@ -5808,8 +5808,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		saveInfoDownload->Cancel();
 	if (thumbnailDownload)
 		thumbnailDownload->Cancel();
-	if (commentsDownload)
-		commentsDownload->Cancel();
+	commentsDownload->Cancel();
 	info_parse("", info);
 	free(info);
 	free(old_vid);

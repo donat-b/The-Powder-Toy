@@ -1,26 +1,27 @@
 #include <pthread.h>
-#include <iostream>
 #include <stdlib.h>
 #include "defines.h"
 #include "Download.h"
 #include "http.h"
 
 Download::Download(std::string uri_, bool keepAlive):
-	keepAlive(keepAlive),
 	http(NULL),
-	lastUse(HTTP_TIMEOUT),
+	keepAlive(keepAlive),
+	lastUse(time(NULL)),
 	downloadFinished(false),
 	downloadCanceled(false)
 {
+	pthread_mutexattr_t attr;
+	pthread_mutexattr_init(&attr);
+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+	pthread_mutex_init(&downloadLock, &attr);
+
 	uri = std::string(uri_);
-	pthread_mutex_init(&downloadLock, NULL);
 }
 
 //called by download thread itself if download was canceled
 Download::~Download()
 {
-	if (!downloadFinished)
-		std::cout << "Warning: download deleted but not finished";
 	if (downloadCanceled && downloadData)
 		free(downloadData);
 }
@@ -30,9 +31,8 @@ TH_ENTRY_POINT void* DownloadHelper(void* obj)
 {
 	Download *temp = (Download*)obj;
 	temp->DoDownload();
-	//download was canceled while running, delete the Download* and data
-	if (temp->CheckCanceled())
-		delete temp;
+	//if download was canceled while running, delete the Download* and data
+	temp->CheckCanceled(true);
 }
 
 //internal function used for actual download (don't use)
@@ -45,11 +45,11 @@ void Download::DoDownload()
 			http_force_close(http);
 		if (http_async_req_status(http) != 0)
 		{
-			downloadFinished = true;
 			lastUse = time(NULL);
 			downloadData = http_async_req_stop(http, &downloadStatus, &downloadSize);
-			if (keepAlive)
+			if (keepAlive && downloadCanceled)
 				http_async_req_close(http);
+			downloadFinished = true;
 			pthread_mutex_unlock(&downloadLock);
 			return;
 		}
@@ -72,26 +72,48 @@ void Download::Start()
 	pthread_create(&downloadThread, NULL, &DownloadHelper, this);
 }
 
+//for persistent connections (keepAlive = true), reuse the open connection to make another request
+bool Download::Reuse(std::string newuri)
+{
+	pthread_mutex_lock(&downloadLock);
+	if (!keepAlive || !CheckDone() || CheckCanceled())
+	{
+		pthread_mutex_unlock(&downloadLock);
+		return false;
+	}
+	//timeout, start a new request
+	if (time(NULL) > lastUse+HTTP_TIMEOUT)
+	{
+		http_async_req_close(http);
+		http = NULL;
+	}
+	uri = std::string(newuri);
+	downloadFinished = false;
+	Start();
+	pthread_mutex_unlock(&downloadLock);
+	return true;
+}
+
 //finish the download (only call after CheckDone() returns true, or it will block)
 char* Download::Finish(int *length, int *status)
 {
-	if (downloadCanceled)
+	if (CheckCanceled())
 		return NULL; //shouldn't happen but just in case
-	int ret = pthread_join(downloadThread, NULL);
-	if (ret)
-		std::cout << "Warning: joining download thread failed with error code " << ret;
+	pthread_join(downloadThread, NULL);
 	if (length)
 		*length = downloadSize;
 	if (status)
 		*status = downloadStatus;
-	return downloadData;
+	char *ret = downloadData;
+	downloadData = NULL;
+	return ret;
 }
 
 //returns the download size and progress (if the download has the correct length headers)
 void Download::CheckProgress(int *total, int *done)
 {
 	pthread_mutex_lock(&downloadLock);
-	if (!downloadFinished && http)
+	if (!CheckDone() && http)
 		http_async_get_length(http, total, done);
 	else
 		*total = *done = 0;
@@ -101,30 +123,41 @@ void Download::CheckProgress(int *total, int *done)
 //returns true if the download has finished
 bool Download::CheckDone()
 {
-	bool ret;
+	/*bool ret;
 	pthread_mutex_lock(&downloadLock);
 	ret = downloadFinished;
 	pthread_mutex_unlock(&downloadLock);
-	return ret;
+	return ret;*/
+	return downloadFinished; //mutex lock probably not needed here ...
 }
 
 //returns true if the download was canceled
-bool Download::CheckCanceled()
+bool Download::CheckCanceled(bool del)
 {
 	bool ret;
 	pthread_mutex_lock(&downloadLock);
 	ret = downloadCanceled;
+	if (del && ret)
+	{
+		delete this;
+		return ret;
+	}
 	pthread_mutex_unlock(&downloadLock);
 	return ret;
 }
 
-//calcels the download, the download thread will delete the Download* when it finishes
+//calcels the download, the download thread will delete the Download* when it finishes (do not use Download in any way after canceling)
 void Download::Cancel()
 {
 	pthread_mutex_lock(&downloadLock);
 	//Download thread will delete the download object when it finishes
 	pthread_detach(downloadThread);
-	lastUse = time(NULL);
 	downloadCanceled = true;
+	if (keepAlive && CheckDone())
+	{
+		http_async_req_close(http);
+		delete this;
+		return;
+	}
 	pthread_mutex_unlock(&downloadLock);
 }

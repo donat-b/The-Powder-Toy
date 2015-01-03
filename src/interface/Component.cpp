@@ -1,3 +1,4 @@
+#include <cstddef> //needed for NULL apparently ...
 #include "Component.h"
 #include "Window.h"
 

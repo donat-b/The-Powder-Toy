@@ -74,6 +74,7 @@
 #include "game/Brush.h"
 #include "game/Menus.h"
 #include "game/ToolTip.h"
+#include "game/Download.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
 #include "simulation/ToolNumbers.h"
@@ -1030,9 +1031,7 @@ int main(int argc, char *argv[])
 {
 	pixel *part_vbuf; //Extra video buffer
 	pixel *part_vbuf_store;
-	void *http_ver_check, *http_session_check = NULL;
-	char *ver_data=NULL, *check_data=NULL, *tmp, *changelog, *autorun_result = NULL;
-	int i, j, bq, bc = 0, do_check=0, do_s_check=0, old_version=0, http_ret=0,http_s_ret=0, old_ver_len = 0, new_message_len=0, afk = 0, afkstart = 0;
+	int i, j, bq, bc = 0, old_version=0, old_ver_len = 0, new_message_len=0, afk = 0, afkstart = 0;
 	int x = XRES, y = YRES, line_x, line_y, b = 0, lb = 0, lx = 0, ly = 0, lm = 0;//, tx, ty;
 	int mx = 0, my = 0, lastx = 1, lasty = 0;
 	int load_mode=0, load_w=0, load_h=0, load_x=0, load_y=0, load_size=0;
@@ -1042,6 +1041,8 @@ int main(int argc, char *argv[])
 	int username_flash = 0, username_flash_t = 1;
 	int saveOpenError = 0;
 	int benchmark_enable = 0;
+	Download *versionCheck = NULL, *sessionCheck = NULL;
+	char *changelog;
 #if !defined(DEBUG) && !defined(_DEBUG)
 	int signal_hooks = 0;
 #endif
@@ -1265,27 +1266,26 @@ int main(int argc, char *argv[])
 		error_ui(vid_buf, 0, "Unable to open save file.");
 	}
 
-	if (strcmp(svf_user, "jacob1"))
+	if (doUpdates && strcmp(svf_user, "jacob1"))
 	{
 		if (doUpdates == 2)
-			http_ver_check = http_async_req_start(NULL, changelog_uri_alt, NULL, 0, 0);
-		else if (doUpdates)
-			http_ver_check = http_async_req_start(NULL, changelog_uri, NULL, 0, 0);
+			versionCheck = new Download(changelog_uri_alt);
 		else
-			http_ver_check = NULL;
+			versionCheck = new Download(changelog_uri);
+		versionCheck->Start();
 	}
-	else
-		http_ver_check = NULL;
-	if (svf_login) {
-		if (http_ver_check)
+	if (svf_login)
+	{
+		if (versionCheck)
 		{
-			http_auth_headers(http_ver_check, svf_user, NULL, NULL);
+			versionCheck->AuthHeaders(svf_user, NULL); //username instead of session
 		}
-		http_session_check = http_async_req_start(NULL, "http://" SERVER "/Login.api?Action=CheckSession", NULL, 0, 0);
-		if (http_session_check)
-			http_auth_headers(http_session_check, svf_user_id, NULL, svf_session_id);
+		sessionCheck = new Download("http://" SERVER "/Login.api?Action=CheckSession");
+		sessionCheck->Start();
+		sessionCheck->AuthHeaders(svf_user_id, svf_session_id);
 	}
 #ifdef LUACONSOLE
+	char *autorun_result = NULL;
 	if (file_exists("autorun.lua") && luacon_eval("dofile(\"autorun.lua\")", &autorun_result)) //Autorun lua script
 	{
 		luacon_log(mystrdup(luacon_geterror()));
@@ -1511,34 +1511,31 @@ int main(int argc, char *argv[])
 			draw_debug_info(vid_buf, lm, lx, ly, x, y, line_x, line_y);
 		}
 
-		if (http_ver_check)
+		if (versionCheck && versionCheck->CheckDone())
 		{
-			if (!do_check && http_async_req_status(http_ver_check))
+			int len, status;
+			char *ver_data = versionCheck->Finish(&len, &status);
+			if (status == 200 && ver_data)
 			{
-				int len;
-				ver_data = http_async_req_stop(http_ver_check, &http_ret, &len);
-				if (http_ret == 200 && ver_data)
-				{
-					int count, buildnum, major, minor;
-					if (sscanf(ver_data, "%d %d %d%n", &buildnum, &major, &minor, &count) == 3)
-						if (buildnum>MOD_BUILD_VERSION)
-						{
-							old_version = 1;
-							changelog = (char*)malloc((len-count)*sizeof(char)+64);
-							sprintf(changelog, "\bbYour version: %d.%d (%d)\nNew version: %d.%d (%d)\n\n\bwChangeLog:\n%s", MOD_VERSION, MOD_MINOR_VERSION, MOD_BUILD_VERSION, major, minor, buildnum, &ver_data[count+2]);
-						}
-					old_ver_len = textwidth((char*)old_ver_msg);
-					free(ver_data);
-				}
-				else
-				{
-					UpdateToolTip("Error, could not find update server. Press Ctrl+u to go check for a newer version manually on the tpt website",
-							   Point(XCNTR-textwidth("Error, could not find update server. Press Ctrl+u to go check for a newer version manually on the tpt website")/2, YCNTR-10), INFOTIP, 2500);
-					UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 0);
-				}
-				http_ver_check = NULL;
+				int count, buildnum, major, minor;
+				if (sscanf(ver_data, "%d %d %d%n", &buildnum, &major, &minor, &count) == 3)
+					//if (buildnum > MOD_BUILD_VERSION)
+					{
+						old_version = 1;
+						changelog = (char*)malloc((len-count)*sizeof(char)+64);
+						sprintf(changelog, "\bbYour version: %d.%d (%d)\nNew version: %d.%d (%d)\n\n\bwChangeLog:\n%s", MOD_VERSION, MOD_MINOR_VERSION, MOD_BUILD_VERSION, major, minor, buildnum, &ver_data[count+2]);
+					}
+				old_ver_len = textwidth(old_ver_msg);
+				free(ver_data);
 			}
-			do_check = (do_check+1) & 15;
+			else
+			{
+				const char *temp = "Error, could not find update server. Press Ctrl+u to go check for a newer version manually on the tpt website";
+				UpdateToolTip(temp, Point(XCNTR-textwidth(temp)/2, YCNTR-10), INFOTIP, 2500);
+				UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 0);
+			}
+			delete versionCheck;
+			versionCheck = NULL;
 		}
 		if (saveDataOpen)
 		{
@@ -1558,17 +1555,18 @@ int main(int argc, char *argv[])
 			saveDataOpenSize = 0;
 			saveDataOpen = NULL;
 		}
-		if (http_session_check)
+		if (sessionCheck)
 		{
-			if (!do_s_check && http_async_req_status(http_session_check))
+			if (sessionCheck->CheckDone())
 			{
-				check_data = http_async_req_stop(http_session_check, &http_s_ret, NULL);
-				if (http_s_ret==200 && check_data)
+				int status;
+				char *check_data = sessionCheck->Finish(NULL, &status);
+				if (status == 200 && check_data)
 				{
 					if (!strncmp(check_data, "EXPIRED", 7))
 					{
 						//Session expired
-						printf("EXPIRED");
+						printf("Session expired");
 						strcpy(svf_user, "");
 						strcpy(svf_pass, "");
 						strcpy(svf_user_id, "");
@@ -1582,7 +1580,7 @@ int main(int argc, char *argv[])
 					else if (!strncmp(check_data, "BANNED", 6))
 					{
 						//User banned
-						printf("BANNED");
+						printf("Session expired due to ban");
 						strcpy(svf_user, "");
 						strcpy(svf_pass, "");
 						strcpy(svf_user_id, "");
@@ -1597,7 +1595,8 @@ int main(int argc, char *argv[])
 					else if (!strncmp(check_data, "OK", 2))
 					{
 						//Session valid
-						if (strlen(check_data)>2) {
+						if (strlen(check_data) > 2)
+						{
 							//User is elevated
 							if (!strncmp(check_data+3, "ADMIN", 5))
 							{
@@ -1612,7 +1611,9 @@ int main(int argc, char *argv[])
 								svf_messages = atoi(check_data+7);
 								svf_admin = 0;
 								svf_mod = 1;
-							} else {
+							}
+							else
+							{
 								//Check for messages
 								svf_messages = atoi(check_data+3);
 							}
@@ -1633,20 +1634,12 @@ int main(int argc, char *argv[])
 					}
 					save_presets(0);
 					free(check_data);
-				} else {
-					//Unable to check session, <del>YOU WILL BE TERMINATED</del>
-					/*strcpy(svf_user, "");
-					strcpy(svf_pass, "");
-					strcpy(svf_user_id, "");
-					strcpy(svf_session_id, "");
-					svf_login = 0;
-					svf_own = 0;
-					svf_admin = 0;
-					svf_mod = 0;
-					svf_messages = 0;*/
 				}
-				http_session_check = NULL;
-			} else {
+				delete sessionCheck;
+				sessionCheck = NULL;
+			}
+			else
+			{
 				clearrect(vid_buf, XRES-124+BARSIZE/*385*/, YRES+(MENUSIZE-15), 90, 13);
 				drawrect(vid_buf, XRES-125+BARSIZE/*385*/, YRES+(MENUSIZE-16), 91, 14, 255, 255, 255, 255);
 				drawtext(vid_buf, XRES-122+BARSIZE/*388*/, YRES+(MENUSIZE-13), "\x84", 255, 255, 255, 255);
@@ -1663,7 +1656,6 @@ int main(int argc, char *argv[])
 				else
 					drawtext(vid_buf, XRES-104+BARSIZE/*406*/, YRES+(MENUSIZE-12), "[checking]", 255, 255, 255, 255);
 			}
-			do_s_check = (do_s_check+1) & 15;
 		}
 		if(saveURIOpen)
 		{
@@ -2482,6 +2474,7 @@ int main(int argc, char *argv[])
 		{
 			if (b == 1 && confirm_ui(vid_buf, "\bwDo you want to update Jacob1's Mod?", changelog, "\btUpdate"))
 			{
+				char *tmp;
 				free(changelog);
 				if (doUpdates == 2)
 					tmp = download_ui(vid_buf, update_uri_alt, &i);
@@ -2796,10 +2789,8 @@ int main(int argc, char *argv[])
 					else if (x>=(XRES+BARSIZE-(510-385)) && x<=(XRES+BARSIZE-(510-476)))
 					{
 						login_ui(vid_buf);
-						if (svf_login) {
+						if (svf_login)
 							save_presets(0);
-							http_session_check = NULL;
-						}
 					}
 					else if (x >= 1 && x <= 17)
 					{

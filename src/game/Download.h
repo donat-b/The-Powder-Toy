@@ -9,8 +9,8 @@
 class Download
 {
 	std::string uri;
-	bool keepAlive;
 	void *http;
+	bool keepAlive;
 	time_t lastUse;
 
 	char *downloadData;
@@ -28,12 +28,13 @@ public:
 
 	void AuthHeaders(const char *userID, const char *session);
 	void Start();
+	bool Reuse(std::string newuri);
 	char* Finish(int *length, int *status);
 	void Cancel();
 
 	void CheckProgress(int *total, int *done);
 	bool CheckDone();
-	bool CheckCanceled();
+	bool CheckCanceled(bool del = false);
 
 	void DoDownload();
 };

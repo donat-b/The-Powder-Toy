@@ -535,7 +535,10 @@ int http_async_req_status(void *ctx)
 				cx->tptr = 0;
 				cx->tlen = 0;
 				if (cx->tbuf)
+				{
 					free(cx->tbuf);
+					cx->tbuf = NULL;
+				}
 				cx->state = HTS_RECV;
 			}
 			cx->last = now;
@@ -600,6 +603,11 @@ char *http_async_req_stop(void *ctx, int *ret, int *len)
 		free(cx->txd);
 		cx->txd = NULL;
 		cx->txdl = 0;
+	}
+	if (cx->tbuf)
+	{
+		free(cx->tbuf);
+		cx->tbuf = NULL;
 	}
 	if (cx->hbuf)
 	{
