@@ -19,6 +19,7 @@ class Download
 
 	volatile bool downloadFinished;
 	volatile bool downloadCanceled;
+	bool downloadStarted;
 	pthread_t downloadThread;
 	pthread_mutex_t downloadLock;
 
@@ -35,6 +36,7 @@ public:
 	void CheckProgress(int *total, int *done);
 	bool CheckDone();
 	bool CheckCanceled(bool del = false);
+	bool CheckStarted();
 
 	void DoDownload();
 };

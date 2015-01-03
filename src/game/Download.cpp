@@ -9,7 +9,8 @@ Download::Download(std::string uri_, bool keepAlive):
 	keepAlive(keepAlive),
 	lastUse(time(NULL)),
 	downloadFinished(false),
-	downloadCanceled(false)
+	downloadCanceled(false),
+	downloadStarted(false)
 {
 	pthread_mutexattr_t attr;
 	pthread_mutexattr_init(&attr);
@@ -69,6 +70,7 @@ void Download::Start()
 {
 	http = http_async_req_start(http, uri.c_str(), NULL, 0, keepAlive ? 1 : 0);
 	lastUse = time(NULL);
+	downloadStarted = true;
 	pthread_create(&downloadThread, NULL, &DownloadHelper, this);
 }
 
@@ -100,6 +102,7 @@ char* Download::Finish(int *length, int *status)
 	if (CheckCanceled())
 		return NULL; //shouldn't happen but just in case
 	pthread_join(downloadThread, NULL);
+	downloadStarted = false;
 	if (length)
 		*length = downloadSize;
 	if (status)
@@ -144,6 +147,12 @@ bool Download::CheckCanceled(bool del)
 	}
 	pthread_mutex_unlock(&downloadLock);
 	return ret;
+}
+
+//returns true if the download is running
+bool Download::CheckStarted()
+{
+	return downloadStarted;
 }
 
 //calcels the download, the download thread will delete the Download* when it finishes (do not use Download in any way after canceling)

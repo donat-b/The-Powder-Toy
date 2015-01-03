@@ -4628,7 +4628,7 @@ int search_ui(pixel *vid_buf)
 			else
 			{
 				start = search_page*GRID_X*GRID_Y;
-				count = GRID_X*GRID_Y + 1;
+				count = GRID_X*GRID_Y;
 			}
 			exp_res = count; //-1 so that it can know if there is an extra save and show the next page button
 			uri << "http://" << SERVER << "/Search.api?Start=" << start << "&Count=" << count+1 << "&ShowVotes=true";
@@ -5012,7 +5012,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	int comment_scroll = 0, comment_page = 0, redraw_comments = 1, dofocus = 0, disable_scrolling = 0;
 	int nyd,nyu,lv;
 	float ryf, scroll_velocity = 0.0f;
-	bool loadedComments = false;
 
 	void *data = NULL;
 	save_info *info = (save_info*)calloc(sizeof(save_info), 1);
@@ -5245,7 +5244,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			delete thumbnailDownload;
 			thumbnailDownload = NULL;
 		}
-		if (!loadedComments && info_ready && commentsDownload && commentsDownload->CheckDone())
+		if (commentsDownload->CheckStarted() && info_ready && commentsDownload && commentsDownload->CheckDone())
 		{
 			int status;
 			char *comment_data = commentsDownload->Finish(NULL, &status);
@@ -5289,7 +5288,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			if (comment_data)
 				free(comment_data);
 			disable_scrolling = 0;
-			loadedComments = true;
 		}
 		if (!instant_open)
 		{
@@ -5443,7 +5441,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							if (cc < NUM_COMMENTS-1)
 								info->comments[cc+1].y = info->comments[cc].y + change + 22;
 
-							if (ccy+comment_scroll < 100 && cc == info->comment_count-1 && !commentsDownload->CheckDone()) // disable scrolling until more comments have loaded
+							if (ccy+comment_scroll < 50 && cc == info->comment_count-1 && !commentsDownload->CheckDone()) // disable scrolling until more comments have loaded
 							{
 								disable_scrolling = 1;
 								scroll_velocity = 0.0f;
@@ -5467,12 +5465,11 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							commentNum = cc;
 						break;
 					}
-					if (cc == info->comment_count-1 && loadedComments && comment_page < NUM_COMMENTS/20 && !(info->comment_count%20))
+					if (cc == info->comment_count-1 && !commentsDownload->CheckStarted() && comment_page < NUM_COMMENTS/20 && !(info->comment_count%20))
 					{
 						std::stringstream uri;
 						uri << "http://" << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=" << (comment_page+1)*20 << "&Count=20";
 						commentsDownload->Reuse(uri.str());
-						loadedComments = false;
 
 						comment_page++;
 					}
@@ -5631,7 +5628,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						std::stringstream uri;
 						uri << "http://" << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=0&Count=20";
 						commentsDownload->Reuse(uri.str());
-						loadedComments = false;
 
 						for (int i = 0; i < NUM_COMMENTS; i++)
 						{
