@@ -1272,17 +1272,14 @@ int main(int argc, char *argv[])
 			versionCheck = new Download(changelog_uri_alt);
 		else
 			versionCheck = new Download(changelog_uri);
+		versionCheck->AuthHeaders(svf_user, NULL); //username instead of session
 		versionCheck->Start();
 	}
 	if (svf_login)
 	{
-		if (versionCheck)
-		{
-			versionCheck->AuthHeaders(svf_user, NULL); //username instead of session
-		}
 		sessionCheck = new Download("http://" SERVER "/Login.api?Action=CheckSession");
-		sessionCheck->Start();
 		sessionCheck->AuthHeaders(svf_user_id, svf_session_id);
+		sessionCheck->Start();
 	}
 #ifdef LUACONSOLE
 	char *autorun_result = NULL;
@@ -2790,7 +2787,14 @@ int main(int argc, char *argv[])
 					{
 						login_ui(vid_buf);
 						if (svf_login)
+						{
 							save_presets(0);
+							if (sessionCheck)
+							{
+								sessionCheck->Cancel();
+								sessionCheck = NULL;
+							}
+						}
 					}
 					else if (x >= 1 && x <= 17)
 					{

@@ -17,6 +17,9 @@ class Download
 	int downloadSize;
 	int downloadStatus;
 
+	const char *userID;
+	const char *userSession;
+
 	volatile bool downloadFinished;
 	volatile bool downloadCanceled;
 	bool downloadStarted;
@@ -27,7 +30,7 @@ public:
 	Download(std::string uri, bool keepAlive = false);
 	~Download();
 
-	void AuthHeaders(const char *userID, const char *session);
+	void AuthHeaders(const char *ID, const char *session);
 	void Start();
 	bool Reuse(std::string newuri);
 	char* Finish(int *length, int *status);

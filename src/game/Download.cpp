@@ -10,7 +10,9 @@ Download::Download(std::string uri_, bool keepAlive):
 	lastUse(time(NULL)),
 	downloadFinished(false),
 	downloadCanceled(false),
-	downloadStarted(false)
+	downloadStarted(false),
+	userID(NULL),
+	userSession(NULL)
 {
 	pthread_mutexattr_t attr;
 	pthread_mutexattr_init(&attr);
@@ -49,7 +51,10 @@ void Download::DoDownload()
 			lastUse = time(NULL);
 			downloadData = http_async_req_stop(http, &downloadStatus, &downloadSize);
 			if (keepAlive && downloadCanceled)
+			{
 				http_async_req_close(http);
+				http = NULL;
+			}
 			downloadFinished = true;
 			pthread_mutex_unlock(&downloadLock);
 			return;
@@ -60,15 +65,20 @@ void Download::DoDownload()
 }
 
 //add userID and sessionID headers to the download. Must be done after download starts for some reason
-void Download::AuthHeaders(const char *userID, const char *session)
+void Download::AuthHeaders(const char *ID, const char *session)
 {
-	http_auth_headers(http, userID, NULL, session);
+	userID = ID;
+	userSession = session;
 }
 
 //start the download thread
 void Download::Start()
 {
+	if (downloadStarted)
+		return;
 	http = http_async_req_start(http, uri.c_str(), NULL, 0, keepAlive ? 1 : 0);
+	if (userID || userSession)
+		http_auth_headers(http, userID, NULL, userSession);
 	lastUse = time(NULL);
 	downloadStarted = true;
 	pthread_create(&downloadThread, NULL, &DownloadHelper, this);
@@ -158,13 +168,16 @@ bool Download::CheckStarted()
 //calcels the download, the download thread will delete the Download* when it finishes (do not use Download in any way after canceling)
 void Download::Cancel()
 {
+	if (CheckCanceled())
+		return;
 	pthread_mutex_lock(&downloadLock);
 	//Download thread will delete the download object when it finishes
 	pthread_detach(downloadThread);
 	downloadCanceled = true;
-	if (keepAlive && CheckDone())
+	if (CheckDone())
 	{
-		http_async_req_close(http);
+		if (keepAlive)
+			http_async_req_close(http);
 		delete this;
 		return;
 	}

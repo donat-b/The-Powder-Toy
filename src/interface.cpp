@@ -4064,21 +4064,13 @@ int search_ui(pixel *vid_buf)
 	pixel *v_buf = (pixel *)malloc(((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 	pixel *bthumb_rsdata = NULL;
 	float ry;
-	time_t http_last_use=HTTP_TIMEOUT;
 	ui_edit ed;
 	ui_richtext motd;
 
 
 	Download *saveListDownload = NULL;
-	void *http = NULL;
-	int active = 0;
 	char *last = NULL;
 	int search = 0;
-	int lasttime = TIMEOUT;
-	char *uri;
-	int status;
-	char *results;
-	char *tmp, ts[64];
 
 	void *img_http[IMGCONNS];
 	char *img_id[IMGCONNS];
@@ -4143,7 +4135,7 @@ int search_ui(pixel *vid_buf)
 		memcpy(vid_buf, v_buf, ((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 
 		drawtext(vid_buf, 11, 13, "Search:", 192, 192, 192, 255);
-		if (!last || (!active && strcmp(last, ed.str)))
+		if (!saveListDownload || saveListDownload->CheckStarted())
 			drawtext(vid_buf, 51, 11, "\x8E", 192, 160, 32, 255);
 		else
 			drawtext(vid_buf, 51, 11, "\x8E", 32, 64, 160, 255);
@@ -4247,7 +4239,6 @@ int search_ui(pixel *vid_buf)
 				search_page --;
 			else if (!(search_own || search_fav || search_date) && !sdl_wheel)
 				p1_extra = !p1_extra;
-			lasttime = TIMEOUT;
 			sdl_wheel = 0;
 			uih = 1;
 		}
@@ -4255,7 +4246,6 @@ int search_ui(pixel *vid_buf)
 		{
 			if (page_count>exp_res)
 			{
-				lasttime = TIMEOUT;
 				search_page ++;
 				page_count = exp_res;
 			}
@@ -4317,7 +4307,7 @@ int search_ui(pixel *vid_buf)
 				gy = ((((YRES-(MENUSIZE-20))+15)/GRID_Y)*gj) + ((YRES-(MENUSIZE-20))/GRID_Y-(YRES-(MENUSIZE-20))/GRID_S+10)/2 + 18;
 				if (textwidth(search_names[pos]) > XRES/GRID_X-10)
 				{
-					tmp = (char*)malloc(strlen(search_names[pos])+4);
+					char *tmp = (char*)malloc(strlen(search_names[pos])+4);
 					strcpy(tmp, search_names[pos]);
 					j = textwidthx(tmp, XRES/GRID_X-15);
 					strcpy(tmp+j, "...");
@@ -4395,6 +4385,7 @@ int search_ui(pixel *vid_buf)
 				}
 				if (view_own || svf_admin || svf_mod || (unlockedstuff & 0x08))
 				{
+					char ts[64];
 					sprintf(ts+1, "%d", search_votes[pos]);
 					ts[0] = (char)0xBB;
 					for (j=1; ts[j]; j++)
@@ -4490,9 +4481,7 @@ int search_ui(pixel *vid_buf)
 
 		if (sdl_key==SDLK_RETURN)
 		{
-			if (!last || (!active && (strcmp(last, ed.str) || last_own!=search_own || last_date!=search_date || last_page!=search_page)))
-				lasttime = TIMEOUT;
-			else if (search_ids[0] && !search_ids[1])
+			if (search_ids[0] && !search_ids[1])
 			{
 				bq = 0;
 				b = 1;
@@ -4508,19 +4497,16 @@ int search_ui(pixel *vid_buf)
 		if (b && !bq && mx>=XRES-64+16 && mx<=XRES-8+16 && my>=8 && my<=24 && svf_login && !search_fav)
 		{
 			search_own = !search_own;
-			lasttime = TIMEOUT;
 		}
 		if (b && !bq && mx>=XRES-129+16 && mx<=XRES-65+16 && my>=8 && my<=24 && !search_fav)
 		{
 			search_date = !search_date;
-			lasttime = TIMEOUT;
 		}
 		if (b && !bq && mx>=XRES-134 && mx<=XRES-134+16 && my>=8 && my<=24 && svf_login)
 		{
 			search_fav = !search_fav;
 			search_own = 0;
 			search_date = 0;
-			lasttime = TIMEOUT;
 		}
 
 		if (b && !bq && dp!=-1)
@@ -4528,7 +4514,6 @@ int search_ui(pixel *vid_buf)
 			if (search_fav){
 				if(confirm_ui(vid_buf, "Remove from favorites?", search_names[dp], "Remove")){
 					execute_unfav(vid_buf, search_ids[dp]);
-					lasttime = TIMEOUT;
 					if (last)
 					{
 						free(last);
@@ -4539,7 +4524,6 @@ int search_ui(pixel *vid_buf)
 				if (confirm_ui(vid_buf, "Do you want to delete?", search_names[dp], "Delete"))
 				{
 					execute_delete(vid_buf, search_ids[dp]);
-					lasttime = TIMEOUT;
 					if (last)
 					{
 						free(last);
@@ -4551,19 +4535,16 @@ int search_ui(pixel *vid_buf)
 		if (b && !bq && dap!=-1)
 		{
 			sprintf(ed.str, "history:%s", search_ids[dap]);
-			lasttime = TIMEOUT;
 		}
 
 		if (b && !bq && tp!=-1)
 		{
 			strncpy(ed.str, tag_names[tp], 255);
-			lasttime = TIMEOUT;
 		}
 
 		if (b && !bq && mp!=-1 && st)
 		{
 			sprintf(ed.str, "user:%s", search_owners[mp]);
-			lasttime = TIMEOUT;
 		}
 
 		if (do_open==1)
@@ -4583,7 +4564,7 @@ int search_ui(pixel *vid_buf)
 		{
 			search = 1;
 		}
-		else if (!active && (strcmp(last, ed.str) || last_own!=search_own || last_date!=search_date || last_page!=search_page || last_fav!=search_fav || last_p1_extra!=p1_extra))
+		else if (strcmp(last, ed.str) || last_own!=search_own || last_date!=search_date || last_page!=search_page || last_fav!=search_fav || last_p1_extra!=p1_extra)
 		{
 			search = 1;
 			if (strcmp(last, ed.str) || last_own!=search_own || last_fav!=search_fav || last_date!=search_date)
@@ -4597,19 +4578,16 @@ int search_ui(pixel *vid_buf)
 		else
 			search = 0;
 
-		if (search && lasttime>=TIMEOUT)
-		//if (search && (!saveListDownload || saveListDownload->CheckDone()))
+		if (search && (!saveListDownload || !saveListDownload->CheckStarted()))
 		{
 			std::stringstream uri;
 			int start, count;
-			lasttime = 0;
 			last = mystrdup(ed.str);
 			last_own = search_own;
 			last_date = search_date;
 			last_page = search_page;
 			last_fav = search_fav;
 			last_p1_extra = p1_extra;
-			active = 1;
 
 			bool byvotes = !search_own && !search_date && !search_fav && !*last;
 			if (byvotes)
@@ -4642,21 +4620,21 @@ int search_ui(pixel *vid_buf)
 			if (search_date)
 				uri << " sort:date";
 
-			//saveListDownload = new Download(uri, true);
-			//saveListDownload->Start();
-			http = http_async_req_start(http, uri.str().c_str(), NULL, 0, 1);
-			if (svf_login)
+			if (!saveListDownload)
 			{
-				//http_auth_headers(http, svf_user, svf_pass);
-				http_auth_headers(http, svf_user_id, NULL, svf_session_id);
+				saveListDownload = new Download(uri.str(), true);
+				if (svf_login)
+					saveListDownload->AuthHeaders(svf_user_id, svf_session_id);
+				saveListDownload->Start();
 			}
-			http_last_use = time(NULL);
+			else
+				saveListDownload->Reuse(uri.str());
 		}
 
-		if (active && http_async_req_status(http))
+		if (saveListDownload && saveListDownload->CheckStarted() && saveListDownload->CheckDone())
 		{
-			http_last_use = time(NULL);
-			results = http_async_req_stop(http, &status, NULL);
+			int status;
+			char *results = saveListDownload->Finish(NULL, &status);
 			view_own = last_own;
 			is_p1 = (exp_res < GRID_X*GRID_Y);
 			if (status == 200)
@@ -4677,20 +4655,13 @@ int search_ui(pixel *vid_buf)
 			}
 			if (results)
 				free(results);
-			active = 0;
-		}
-
-		if (http && !active && (time(NULL)>http_last_use+HTTP_TIMEOUT))
-		{
-			http_force_close(http);
-			http_async_req_close(http);
-			http = NULL;
 		}
 
 		for (i=0; i<IMGCONNS; i++)
 		{
 			if (img_http[i] && http_async_req_status(img_http[i]))
 			{
+				int status;
 				thumb = http_async_req_stop(img_http[i], &status, &thlen);
 				if (status != 200)
 				{
@@ -4764,6 +4735,7 @@ int search_ui(pixel *vid_buf)
 					}
 				if (pos<GRID_X*GRID_Y)
 				{
+					char *uri;
 					if (search_dates[pos]) {
 						char *id_d_temp = (char*)malloc(strlen(search_ids[pos])+strlen(search_dates[pos])+2);
 						uri = (char*)malloc(strlen(search_ids[pos])*3+strlen(search_dates[pos])*3+strlen(STATICSERVER)+71);
@@ -4796,20 +4768,14 @@ int search_ui(pixel *vid_buf)
 				img_http[i] = NULL;
 			}
 		}
-
-		if (lasttime<TIMEOUT)
-			lasttime++;
 	}
 
 	strcpy(search_expr, ed.str);
 finish:
 	if (last)
 		free(last);
-	if (http)
-	{
-		http_force_close(http);
-		http_async_req_close(http);
-	}
+	if (saveListDownload)
+		saveListDownload->Cancel();
 	for (i=0; i<IMGCONNS; i++)
 		if (img_http[i])
 		{
@@ -5132,7 +5098,12 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			thumbnailDownload = new Download(uri.str());
 		}
 	}
-
+	//authenticate requests
+	if (svf_login)
+	{
+		saveDataDownload->AuthHeaders(svf_user_id, svf_session_id);
+		saveInfoDownload->AuthHeaders(svf_user_id, svf_session_id);
+	}
 	saveDataDownload->Start();
 	saveInfoDownload->Start();
 	if (!instant_open)
@@ -5144,12 +5115,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 
 		thumbnailDownload->Start();
 	}
-	//authenticate requests
-	if (svf_login)
-	{
-		saveDataDownload->AuthHeaders(svf_user_id, svf_session_id);
-		saveInfoDownload->AuthHeaders(svf_user_id, svf_session_id);
-	}
+
 	while (!sdl_poll())
 	{
 		bq = b;
@@ -5441,12 +5407,12 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							if (cc < NUM_COMMENTS-1)
 								info->comments[cc+1].y = info->comments[cc].y + change + 22;
 
-							if (ccy+comment_scroll < 50 && cc == info->comment_count-1 && !commentsDownload->CheckDone()) // disable scrolling until more comments have loaded
+							if (ccy+comment_scroll < 50 && cc == info->comment_count-1 && commentsDownload->CheckStarted()) // disable scrolling until more comments have loaded
 							{
 								disable_scrolling = 1;
 								scroll_velocity = 0.0f;
 							}
-							if (ccy+comment_scroll < 0 && cc == info->comment_count-1 && commentsDownload->CheckDone()) // reset to top of comments
+							if (ccy+comment_scroll < 0 && cc == info->comment_count-1 && !commentsDownload->CheckStarted()) // reset to top of comments
 							{
 								comment_scroll = 0;
 								scroll_velocity = 0.0f;
@@ -5618,12 +5584,13 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			//Submit Button
 			if (mx > XRES+BARSIZE-100 && mx < XRES+BARSIZE-100+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && info_ready && !queue_open) {
-				fillrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40+(commentsDownload->CheckDone() ? 0 : 1)*80);
-				if (b && !bq) {
+				fillrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40+(!commentsDownload->CheckStarted() ? 0 : 1)*80);
+				if (b && !bq && !commentsDownload->CheckStarted())
+				{
 					//Button Clicked
 					fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
 					info_box(vid_buf, "Submitting Comment...");
-					if (commentsDownload->CheckDone() && !execute_submit(vid_buf, save_id, ed.str))
+					if (!execute_submit(vid_buf, save_id, ed.str))
 					{
 						std::stringstream uri;
 						uri << "http://" << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=0&Count=20";
@@ -6420,6 +6387,7 @@ int execute_submit(pixel *vid_buf, char *id, char *message)
 		//sprintf(url, "http://%s/Browse/Comments.json?ID=%s&Key=%s", SERVER, id, svf_session_key);
 		sprintf(url, "http://%s/Browse/Comments.json?ID=%s", SERVER, id);
 		result = http_multipart_post(url, postNames, postDatas, postLengths, svf_user_id, NULL, svf_session_id, &status, &dataLength);
+		free(url);
 
 		if (status!=200)
 		{
