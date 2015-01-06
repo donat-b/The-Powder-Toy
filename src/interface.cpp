@@ -8552,19 +8552,19 @@ void simulation_ui(pixel * vid_buf)
 
 		drawtext(vid_buf, x0+8, y0+26, "Heat simulation", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12+textwidth("Heat simulation"), y0+26, "Introduced in version 34.", 255, 255, 255, 180);
-		drawtext(vid_buf, x0+12, y0+40, "Older saves may behave oddly with this enabled.", 255, 255, 255, 120);
+		drawtext(vid_buf, x0+12, y0+40, "Can cause odd behaviour when disabled.", 255, 255, 255, 120);
 		
 		drawtext(vid_buf, x0+8, y0+54, "Ambient heat simulation", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12+textwidth("Ambient heat simulation"), y0+54, "Introduced in version 50.", 255, 255, 255, 180);
-		drawtext(vid_buf, x0+12, y0+68, "Older saves may behave oddly with this enabled.", 255, 255, 255, 120);
+		drawtext(vid_buf, x0+12, y0+68, "Can cause odd / broken behaviour with many saves.", 255, 255, 255, 120);
 
 		drawtext(vid_buf, x0+8, y0+82, "Newtonian gravity", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12+textwidth("Newtonian gravity"), y0+82, "Introduced in version 48.", 255, 255, 255, 180);
-		drawtext(vid_buf, x0+12, y0+96, "May also cause slow performance on older computers", 255, 255, 255, 120);
+		drawtext(vid_buf, x0+12, y0+96, "May also cause poor performance on single core computers", 255, 255, 255, 120);
 
 		drawtext(vid_buf, x0+8, y0+110, "Water Equalization Test", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12+textwidth("Water Equalization Test"), y0+110, "Introduced in version 61.", 255, 255, 255, 180);
-		drawtext(vid_buf, x0+12, y0+124, "May lag with lots of water.", 255, 255, 255, 120);
+		drawtext(vid_buf, x0+12, y0+124, "May cause poor performance with a lot of water.", 255, 255, 255, 120);
 		
 		drawtext(vid_buf, x0+8, y0+138, "Air Simulation Mode \bg(y)", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12, y0+152, "airMode", 255, 255, 255, 120);
