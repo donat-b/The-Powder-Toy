@@ -54,22 +54,26 @@ int O2_update(UPDATE_FUNC_ARGS)
 			int j;
 			sim->part_create(i,x,y,PT_BRMT);
 
-			j = sim->part_create(-3,x+rand()%3-1,y+rand()%3-1,PT_NEUT);
+			j = sim->part_create(-3,x,y,PT_NEUT);
 			if (j != -1)
 				parts[j].temp = MAX_TEMP;
-			j = sim->part_create(-3,x+rand()%3-1,y+rand()%3-1,PT_PHOT);
+			j = sim->part_create(-3,x,y,PT_PHOT);
 			if (j != -1)
 			{
 				parts[j].temp = MAX_TEMP;
 				parts[j].tmp = 0x1;
 			}
-			j = sim->part_create(-3,x+rand()%3-1,y+rand()%3-1,PT_PLSM);
-			if (j != -1)
+			int rx = x+rand()%3-1, ry = y+rand()%3-1, rt = pmap[ry][rx]&0xFF;
+			if (can_move[PT_PLSM][rt] || rt == PT_O2)
 			{
-				parts[j].temp = MAX_TEMP;
-				parts[j].tmp |= 4;
+				j = sim->part_create(-3,x+rand()%3-1,y+rand()%3-1,PT_PLSM);
+				if (j > -1)
+				{
+					parts[j].temp = MAX_TEMP;
+					parts[j].tmp |= 4;
+				}
 			}
-			j = sim->part_create(-3,x+rand()%3-1,y+rand()%3-1,PT_GRVT);
+			j = sim->part_create(-3,x,y,PT_GRVT);
 			if (j != -1)
 				parts[j].temp = MAX_TEMP;
 

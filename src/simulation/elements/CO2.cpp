@@ -63,12 +63,12 @@ int CO2_update(UPDATE_FUNC_ARGS)
 			int j;
 			sim->part_create(i,x,y,PT_O2);
 
-			j = sim->part_create(-3,x+rand()%3-1,y+rand()%3-1,PT_NEUT);
+			j = sim->part_create(-3,x,y,PT_NEUT);
 			if (j != -1)
 				parts[j].temp = MAX_TEMP;
 			if (!(rand()%50))
 			{
-				j = sim->part_create(-3,x+rand()%3-1,y+rand()%3-1,PT_ELEC);
+				j = sim->part_create(-3,x,y,PT_ELEC);
 				if (j != -1)
 					parts[j].temp = MAX_TEMP;
 			}

@@ -26,16 +26,16 @@ int NBLE_update(UPDATE_FUNC_ARGS)
 			float temp = parts[i].temp;
 			sim->part_create(i,x,y,PT_CO2);
 
-			j = sim->part_create(-3,x+rand()%3-1,y+rand()%3-1,PT_NEUT);
+			j = sim->part_create(-3,x,y,PT_NEUT);
 			if (j != -1)
 				parts[j].temp = temp;
 			if (!(rand()%25))
 			{
-				j = sim->part_create(-3,x+rand()%3-1,y+rand()%3-1,PT_ELEC);
+				j = sim->part_create(-3,x,y,PT_ELEC);
 				if (j != -1)
 					parts[j].temp = temp;
 			}
-			j = sim->part_create(-3,x+rand()%3-1,y+rand()%3-1,PT_PHOT);
+			j = sim->part_create(-3,x,y,PT_PHOT);
 			if (j != -1)
 			{
 				parts[j].ctype = 0xF800000;
@@ -43,11 +43,15 @@ int NBLE_update(UPDATE_FUNC_ARGS)
 				parts[j].tmp = 0x1;
 			}
 
-			j = sim->part_create(-3,x+rand()%3-1,y+rand()%3-1,PT_PLSM);
-			if (j != -1)
+			int rx = x+rand()%3-1, ry = y+rand()%3-1, rt = pmap[ry][rx]&0xFF;
+			if (can_move[PT_PLSM][rt] || rt == PT_NBLE)
 			{
-				parts[j].temp = temp;
-				parts[j].tmp |= 4;
+				j = sim->part_create(-3,x+rand()%3-1,y+rand()%3-1,PT_PLSM);
+				if (j > -1)
+				{
+					parts[j].temp = temp;
+					parts[j].tmp |= 4;
+				}
 			}
 
 			parts[i].temp = temp+1750+rand()%500;
