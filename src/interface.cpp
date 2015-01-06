@@ -263,27 +263,33 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 
 		ui_edit_process(mx, my, b, bq, &ed);
 
-		if (b && !bq && mx>=x0+50 && mx<=x0+67 && my>=y0+42 && my<=y0+59)
-			ju = 0;
-		if (b && !bq && mx>=x0+68 && mx<=x0+85 && my>=y0+42 && my<=y0+59)
-			ju = 1;
-		if (b && !bq && mx>=x0+86 && mx<=x0+103 && my>=y0+42 && my<=y0+59)
-			ju = 2;
-
-		if (!nm && b && !bq && mx>=x0+104 && mx<=x0+130 && my>=y0+42 && my<=y0+59)
+		if (b && !bq)
 		{
-			MSIGN = i;
-			break;
-		}
-		if (b && !bq && mx>=x0+9 && mx<x0+23 && my>=y0+22 && my<y0+36)
-			break;
-		if (b && !bq && mx>=x0 && mx<x0+192 && my>=y0+64 && my<=y0+80)
-			break;
+			if (mx>=x0+50 && mx<=x0+67 && my>=y0+42 && my<=y0+59)
+				ju = 0;
+			if (mx>=x0+68 && mx<=x0+85 && my>=y0+42 && my<=y0+59)
+				ju = 1;
+			if (mx>=x0+86 && mx<=x0+103 && my>=y0+42 && my<=y0+59)
+				ju = 2;
 
-		if (!nm && b && !bq && mx>=x0+134 && my>=y0+42 && mx<=x0+184 && my<=y0+59)
-		{
-			signs[i].text[0] = 0;
-			return;
+			if (!nm && mx>=x0+104 && mx<=x0+130 && my>=y0+42 && my<=y0+59)
+			{
+				MSIGN = i;
+				break;
+			}
+			if (mx>=x0+9 && mx<x0+23 && my>=y0+22 && my<y0+36)
+				break;
+			if (mx>=x0 && mx<x0+217 && my>=y0+64 && my<=y0+80)
+				break;
+
+			if (!nm && mx>=x0+134 && my>=y0+42 && mx<=x0+184 && my<=y0+59)
+			{
+				signs[i].text[0] = 0;
+				return;
+			}
+
+			if (mx < x0 || my < y0 || mx > x0+217 || my > y0+80)
+				return;
 		}
 
 		if (sdl_key == SDLK_RETURN)
@@ -1362,8 +1368,13 @@ void error_ui(pixel *vid_buf, int err, const char *txt)
 #endif
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 
-		if (b && !bq && mx>=x0 && mx<x0+240 && my>=y0+textheight+32 && my<=y0+textheight+48)
-			break;
+		if (b && !bq)
+		{
+			if (mx>=x0 && mx<x0+240 && my>=y0+textheight+32 && my<=y0+textheight+48)
+				break;
+			//else if (mx < x0 || my < y0 || mx > x0+240 || my > y0+textheight+48)
+			//	break;
+		}
 
 		if (sdl_key==SDLK_RETURN)
 			break;
@@ -1551,8 +1562,13 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 #endif
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 
-		if (b && !bq && mx>=x0 && mx<x0+windowWidth && my>=y0+windowHeight-16 && my<=y0+windowHeight)
-			break;
+		if (b && !bq)
+		{
+			if (mx>=x0 && mx<x0+windowWidth && my>=y0+windowHeight-16 && my<=y0+windowHeight)
+				break;
+			else if (mx < x0 || mx > x0+windowWidth || my < y0 || my > y0+windowHeight)
+				break;
+		}
 
 		if (sdl_key==SDLK_RETURN)
 		{
@@ -1623,8 +1639,13 @@ char *input_ui(pixel *vid_buf, char *title, char *prompt, char *text, char *shad
 #endif
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 
-		if (b && !bq && mx>=x0 && mx<x0+xsize && my>=y0+ysize-16 && my<=y0+ysize)
-			break;
+		if (b && !bq)
+		{
+			if (mx>=x0 && mx<x0+xsize && my>=y0+ysize-16 && my<=y0+ysize)
+				break;
+			//else if (mx < x0 || my < y0 || mx > x0+xsize || my > y0+ysize)
+			//	break;
+		}
 
 		if (sdl_key==SDLK_RETURN)
 			break;
@@ -1711,8 +1732,13 @@ void prop_edit_ui(pixel *vid_buf)
 #endif
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 
-		if (b && !bq && mx>=x0 && mx<x0+xsize && my>=y0+ysize-16 && my<=y0+ysize)
-			break;
+		if (b && !bq)
+		{
+			if (mx>=x0 && mx<x0+xsize && my>=y0+ysize-16 && my<=y0+ysize)
+				break;
+			else if (mx < x0 || my < y0 || mx > x0+xsize || my > y0+ysize)
+				goto exit;
+		}
 
 		if (sdl_key == SDLK_RETURN)
 			break;
@@ -2006,8 +2032,13 @@ bool confirm_ui(pixel *vid_buf, char *top, char *msg, char *btn)
 			break;
 		}
 		
-		if (b && !bq && mx>=x0 && mx<x0+160 && my>=y0+textheight+32 && my<=y0+textheight+48)
-			break;
+		if (b && !bq)
+		{
+			if (mx>=x0 && mx<x0+160 && my>=y0+textheight+32 && my<=y0+textheight+48)
+				break;
+			//else if (mx < x0 || mx > x0+160 || my < y0 || my > y0+textheight+48)
+			//	break;
+		}
 
 		if (sdl_key==SDLK_RETURN)
 		{
@@ -2455,6 +2486,12 @@ void tag_list_ui(pixel *vid_buf)
 	ed.def = "[new tag]";
 	ed.focus = 0;
 
+	while (!sdl_poll())
+	{
+		b = mouse_get_state(&mx, &my);
+		if (!b)
+			break;
+	}
 	fillrect(vid_buf, -1, -1, XRES, YRES+MENUSIZE, 0, 0, 0, 192);
 	while (!sdl_poll())
 	{
@@ -2545,7 +2582,7 @@ void tag_list_ui(pixel *vid_buf)
 			free(tag);
 			op = tag = NULL;
 			if (d)
-				goto finish;
+				break;
 		}
 
 		if (b && !bq && mx>=x0+9 && mx<x0+23 && my>=y0+218 && my<y0+232)
@@ -2554,8 +2591,11 @@ void tag_list_ui(pixel *vid_buf)
 			strcpy(ed.str, "");
 			ed.cursor = ed.cursorstart = 0;
 			if (d)
-				goto finish;
+				break;
 		}
+
+		if (!b && bq && (mx < x0 || my < y0 || mx > x0+192 || my > y0+256))
+			break;
 
 		if (sdl_key == SDLK_RETURN)
 		{
@@ -2567,12 +2607,12 @@ void tag_list_ui(pixel *vid_buf)
 				strcpy(ed.str, "");
 				ed.cursor = ed.cursorstart = 0;
 				if (d)
-					goto finish;
+					break;
 			}
 			else
 			{
 				error_ui(vid_buf, 0, "Not Authenticated");
-				goto finish;
+				break;
 			}
 		}
 		if (sdl_key == SDLK_ESCAPE)
@@ -2592,7 +2632,6 @@ void tag_list_ui(pixel *vid_buf)
 	}
 	sdl_key = 0;
 
-finish:
 	strlist_free(&vote);
 }
 
@@ -2739,6 +2778,8 @@ int save_name_ui(pixel *vid_buf)
 			free(old_vid);
 			return nd+1;
 		}
+		if (b && !bq && (mx < x0 || my < y0 || mx > x0+420 || my > y0+110+YRES/4))
+			break;
 		if (sdl_key == SDLK_ESCAPE)
 		{
 			break;
@@ -4897,6 +4938,8 @@ int report_ui(pixel* vid_buf, char *save_id, bool bug)
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 		ui_edit_process(mx, my, b, bq, &ed);
 
+		if (b && !bq && (mx < 200 || my < 150-messageHeight || mx > (XRES+BARSIZE-200) || my > (YRES+MENUSIZE-150)+messageHeight))
+			return 0;
 		if (sdl_key == SDLK_ESCAPE)
 		{
 			return 0;
@@ -7743,6 +7786,8 @@ int save_filename_ui(pixel *vid_buf)
 			}
 		}
 
+		if (b && !bq && (mx < x0 || my < y0 || mx > x0+xsize || my > y0+ysize))
+			break;
 		if (sdl_key == SDLK_ESCAPE)
 		{
 			break;
@@ -8598,6 +8643,8 @@ void simulation_ui(pixel * vid_buf)
 				system(workingDirectory);
 				delete workingDirectory;
 			}
+			else if (mx < x0 || my < y0 || mx > x0+xsize || my > y0+ysize)
+				break;
 		}
 
 		if (sdl_key==SDLK_RETURN)
