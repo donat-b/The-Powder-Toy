@@ -56,28 +56,28 @@ int MOVS_update(UPDATE_FUNC_ARGS)
 	}
 	type = pmap[y+1][x]&0xFF;
 	//bottom side collision
-	if (tmp2 > 0 && type && y+1 < YRES && ((type != PT_MOVS && !eval_move(PT_MOVS, x, y+1, NULL)) || (type == PT_MOVS && parts[pmap[y+1][x]>>8].tmp2 != bn) || IsWallBlocking(x, y+1, PT_MOVS)))
+	if (tmp2 > 0 && type && y+1 < YRES && ((type != PT_MOVS && !eval_move(PT_MOVS, x, y+1)) || (type == PT_MOVS && parts[pmap[y+1][x]>>8].tmp2 != bn) || IsWallBlocking(x, y+1, PT_MOVS)))
 	{
 		parts[i].vy -= tmp2*bounce;
 		movingSolid->rotation -= tmp/50000;
 	}
 	type = pmap[y-1][x]&0xFF;
 	//top side collision
-	if (tmp2 < 0 && type && y-1 >= 0 && ((type != PT_MOVS && !eval_move(PT_MOVS, x, y-1, NULL)) || (type == PT_MOVS && parts[pmap[y-1][x]>>8].tmp2 != bn) || IsWallBlocking(x, y-1, PT_MOVS)))
+	if (tmp2 < 0 && type && y-1 >= 0 && ((type != PT_MOVS && !eval_move(PT_MOVS, x, y-1)) || (type == PT_MOVS && parts[pmap[y-1][x]>>8].tmp2 != bn) || IsWallBlocking(x, y-1, PT_MOVS)))
 	{
 		parts[i].vy -= tmp2*bounce;
 		movingSolid->rotation -= tmp/50000;
 	}
 	type = pmap[y][x+1]&0xFF;
 	//right side collision
-	if (tmp > 0 && type && x+1 < XRES && ((type != PT_MOVS && !eval_move(PT_MOVS, x+1, y, NULL)) || (type == PT_MOVS && parts[pmap[y][x+1]>>8].tmp2 != bn) || IsWallBlocking(x+1, y, PT_MOVS)))
+	if (tmp > 0 && type && x+1 < XRES && ((type != PT_MOVS && !eval_move(PT_MOVS, x+1, y)) || (type == PT_MOVS && parts[pmap[y][x+1]>>8].tmp2 != bn) || IsWallBlocking(x+1, y, PT_MOVS)))
 	{
 		parts[i].vx -= tmp*bounce;
 		movingSolid->rotation -= tmp/50000;
 	}
 	type = pmap[y][x-1]&0xFF;
 	//left side collision
-	if (tmp < 0 && type && x-1 >= 0 && ((type != PT_MOVS && !eval_move(PT_MOVS, x-1, y, NULL)) || (type == PT_MOVS && parts[pmap[y][x-1]>>8].tmp2 != bn) || IsWallBlocking(x-1, y, PT_MOVS)))
+	if (tmp < 0 && type && x-1 >= 0 && ((type != PT_MOVS && !eval_move(PT_MOVS, x-1, y)) || (type == PT_MOVS && parts[pmap[y][x-1]>>8].tmp2 != bn) || IsWallBlocking(x-1, y, PT_MOVS)))
 	{
 		parts[i].vx -= tmp*bounce;
 		movingSolid->rotation -= tmp/50000;

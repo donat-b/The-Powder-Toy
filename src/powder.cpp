@@ -666,7 +666,7 @@ int move(int i, int x, int y, float nxf, float nyf)
 			ny = (int)(nyf+0.5f);
 
 			//make sure there isn't something blocking it on the other side
-			if (!eval_move(t, nx, ny, NULL) || (t == PT_PHOT && pmap[ny][nx]))
+			if (!eval_move(t, nx, ny) || (t == PT_PHOT && pmap[ny][nx]))
 				return -1;
 
 			//adjust stickmen legs
@@ -748,7 +748,7 @@ static int is_blocking(int t, int x, int y)
 		return 0;
 	}
 
-	return !eval_move(t, x, y, NULL);
+	return !eval_move(t, x, y);
 }
 
 static int is_boundary(int pt, int x, int y)
@@ -1678,7 +1678,7 @@ int flood_water(int x, int y, int i, int originaly, int check)
 		else
 			parts[pmap[y][x]>>8].flags |= FLAG_WATEREQUAL;
 		//check above, maybe around other sides too?
-		if ( ((y-1) > originaly) && !pmap[y-1][x] && eval_move(parts[i].type, x, y-1, NULL))
+		if ( ((y-1) > originaly) && !pmap[y-1][x] && eval_move(parts[i].type, x, y-1))
 		{
 			int oldx = (int)(parts[i].x + 0.5f);
 			int oldy = (int)(parts[i].y + 0.5f);

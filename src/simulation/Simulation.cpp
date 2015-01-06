@@ -211,7 +211,7 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 		// If there isn't a particle but there is a wall, check whether the new particle is allowed to be in it
 		//   (not "!=2" for wall check because eval_move returns 1 for moving into empty space)
 		// If there's no particle and no wall, assume creation is allowed
-		if (pmap[y][x] ? (eval_move(t, x, y, NULL)!=2) : (bmap[y/CELL][x/CELL] && eval_move(t, x, y, NULL)==0))
+		if (pmap[y][x] ? (eval_move(t, x, y)!=2) : (bmap[y/CELL][x/CELL] && eval_move(t, x, y)==0))
 		{
 			return -1;
 		}
@@ -977,7 +977,7 @@ bool Simulation::UpdateParticle(int i)
 			}
 			//block if particle can't move (0), or some special cases where it returns 1 (can_move = 3 but returns 1 meaning particle will be eaten)
 			//also photons are still blocked (slowed down) by any particle (even ones it can move through), and absorb wall also blocks particles
-			int eval = eval_move(t, fin_x, fin_y, NULL);
+			int eval = eval_move(t, fin_x, fin_y);
 			if (!eval || (can_move[t][pmap[fin_y][fin_x]&0xFF] == 3 && eval == 1) || (t == PT_PHOT && pmap[fin_y][fin_x]) || bmap[fin_y/CELL][fin_x/CELL]==WL_DESTROYALL)
 			{
 				// found an obstacle
@@ -1007,7 +1007,7 @@ bool Simulation::UpdateParticle(int i)
 			int rt = pmap[fin_y][fin_x] & 0xFF;
 			int lt = pmap[y][x] & 0xFF;
 
-			int r = eval_move(PT_PHOT, fin_x, fin_y, NULL);
+			int r = eval_move(PT_PHOT, fin_x, fin_y);
 			if (((rt == PT_GLAS && lt != PT_GLAS) || (rt != PT_GLAS && lt == PT_GLAS)) && r)
 			{
 				float nrx, nry, nn, ct1, ct2;
