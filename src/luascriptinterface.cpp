@@ -1090,14 +1090,17 @@ int simulation_deleteStamp(lua_State* l)
 
 int simulation_loadSave(lua_State * l)
 {
-	int saveID = luaL_optint(l,1,0);
+	int saveID = luaL_optint(l,1,1);
 	int instant = luaL_optint(l,2,0);
 	int history = luaL_optint(l,3,0); //Exact second a previous save was saved
 	char save_id[24], save_date[24];
+	if (saveID < 0)
+		return luaL_error(l, "Invalid save ID");
 	sprintf(save_id, "%i", saveID);
 	sprintf(save_date, "%i", history);
 	
-	open_ui(vid_buf, save_id, save_date, instant);
+	if (open_ui(vid_buf, save_id, save_date, instant))
+		console_mode = 0;
 	return 0;
 }
 

@@ -129,7 +129,7 @@ void luacon_open()
 		{"element",&luatpt_getelement},
 		{"element_func",&luatpt_element_func},
 		{"graphics_func",&luatpt_graphics_func},
-		{"load",&luatpt_load},
+		{"load",&simulation_loadSave},
 		{"bubble",&luatpt_bubble},
 		{"maxframes",&luatpt_maxframes},
 		{"indestructible",&luatpt_indestructible},
@@ -2530,17 +2530,6 @@ int luatpt_setclip(lua_State* l)
 {
 	luaL_checktype(l, 1, LUA_TSTRING);
 	clipboard_push_text((char*)luaL_optstring(l, 1, ""));
-	return 0;
-}
-
-int luatpt_load(lua_State* l)
-{
-	char *savenum;
-	int instant;
-	savenum = mystrdup((char*)luaL_optstring(l, 1, ""));
-	instant = luaL_optint(l, 2, 0);
-	open_ui(vid_buf, savenum, NULL, instant);
-	console_mode = 0;
 	return 0;
 }
 

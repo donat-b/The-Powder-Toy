@@ -147,7 +147,6 @@ int luatpt_setwindowsize(lua_State* l);
 int luatpt_screenshot(lua_State* l);
 int luatpt_getclip(lua_State* l);
 int luatpt_setclip(lua_State* l);
-int luatpt_load(lua_State* l);
 int luatpt_bubble(lua_State* l);
 int luatpt_maxframes(lua_State* l);
 int luatpt_getwall(lua_State* l);
