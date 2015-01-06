@@ -3593,10 +3593,17 @@ int EventProcess(SDL_Event event)
 				return 1;
 			}
 		}
+#ifdef LUACONSOLE
+		if (!deco_disablestuff && sdl_key && !luacon_keyevent(sdl_key, sdl_mod, LUACON_KDOWN))
+			sdl_key = 0;
+#endif
 		break;
-
 	case SDL_KEYUP:
 		sdl_rkey=event.key.keysym.sym;
+#ifdef LUACONSOLE
+		if (!deco_disablestuff && sdl_rkey && !luacon_keyevent(sdl_rkey, sdl_mod, LUACON_KUP))
+			sdl_rkey = 0;
+#endif
 		break;
 	case SDL_MOUSEBUTTONDOWN:
 		if (event.button.button == SDL_BUTTON_WHEELUP)
