@@ -74,7 +74,7 @@ void Download::AuthHeaders(const char *ID, const char *session)
 //start the download thread
 void Download::Start()
 {
-	if (downloadStarted)
+	if (CheckStarted())
 		return;
 	http = http_async_req_start(http, uri.c_str(), NULL, 0, keepAlive ? 1 : 0);
 	if (userID || userSession)
@@ -168,7 +168,8 @@ bool Download::CheckStarted()
 //calcels the download, the download thread will delete the Download* when it finishes (do not use Download in any way after canceling)
 void Download::Cancel()
 {
-	if (CheckCanceled())
+	//if already cancelled or if download thread has already ended, return
+	if (CheckCanceled() || !CheckStarted())
 		return;
 	pthread_mutex_lock(&downloadLock);
 	//Download thread will delete the download object when it finishes

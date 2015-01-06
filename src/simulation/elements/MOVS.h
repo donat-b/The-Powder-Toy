@@ -149,6 +149,9 @@ public:
 		for (int bn = 0; bn < numBalls; bn++)
 		{
 			MovingSolid *movingSolid = GetMovingSolid(bn);
+			if (!movingSolid || !movingSolid->index)
+				continue;
+
 			movingSolid->vx = movingSolid->vx/movingSolid->particleCount;
 			movingSolid->vy = movingSolid->vy/movingSolid->particleCount;
 			switch (gravityMode)
