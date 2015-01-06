@@ -73,6 +73,15 @@ static long http_timeout = 15;
 static int http_use_proxy = 0;
 static struct sockaddr_in http_proxy;
 
+#define DNS_CACHE_SIZE 4
+struct dns_cache
+{
+	char *dns;
+	char *srv;
+	sockaddr_in addr;
+};
+static dns_cache dns_cache[DNS_CACHE_SIZE];
+
 void millisleep(long int t)
 {
 #ifdef WIN
@@ -140,6 +149,14 @@ static int resolve(char *dns, char *srv, struct sockaddr_in *addr)
 		memcpy(addr, &http_proxy, sizeof(struct sockaddr_in));
 		return 0;
 	}
+	for (int i = 0; i < DNS_CACHE_SIZE; i++)
+	{
+		if (dns_cache[i].dns && !strcmp(dns_cache[i].dns, dns) && !strcmp(dns_cache[i].srv, srv))
+		{
+			memcpy(addr, &dns_cache[i].addr, sizeof(struct sockaddr_in));
+			return 0;
+		}
+	}
 	memset(&hnt, 0, sizeof(hnt));
 	hnt.ai_family = AF_INET;
 	hnt.ai_socktype = SOCK_STREAM;
@@ -153,6 +170,16 @@ static int resolve(char *dns, char *srv, struct sockaddr_in *addr)
 			return 1;
 		}
 		memcpy(addr, res->ai_addr, res->ai_addrlen);
+		for (int i = 0; i < DNS_CACHE_SIZE; i++)
+		{
+			if (!dns_cache[i].dns)
+			{
+				dns_cache[i].dns = mystrdup(dns);
+				dns_cache[i].srv = mystrdup(srv);
+				memcpy(&dns_cache[i].addr, addr, sizeof(struct sockaddr_in));
+				break;
+			}
+		}
 		freeaddrinfo(res);
 		return 0;
 	}
@@ -181,6 +208,7 @@ void http_init(char *proxy)
 		free(host);
 		free(port);
 	}
+	memset(dns_cache, 0, sizeof(dns_cache));
 }
 
 void http_done(void)
@@ -189,6 +217,14 @@ void http_done(void)
 	WSACleanup();
 #endif
 	http_up = 0;
+	for (int i = 0; i < DNS_CACHE_SIZE; i++)
+	{
+		if (dns_cache[i].dns)
+		{
+			free(dns_cache[i].dns);
+			free(dns_cache[i].srv);
+		}
+	}
 }
 
 #define CHUNK 4096
