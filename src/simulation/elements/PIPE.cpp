@@ -402,36 +402,23 @@ int PIPE_update(UPDATE_FUNC_ARGS)
 	}
 	else if (!parts[i].ctype && parts[i].life<=10)
 	{
-		if (parts[i].temp<272.15)//manual pipe colors
-		{
-			if (parts[i].temp > 173.25)
-				parts[i].ctype = 2;
-			else if (parts[i].temp > 73.25)
-				parts[i].ctype = 3;
-			else
-				parts[i].ctype = 4;
-			parts[i].life = 0;
-		}
-		else
-		{
-			// make a border
-			for (rx=-2; rx<3; rx++)
-				for (ry=-2; ry<3; ry++)
+		// make a border
+		for (rx=-2; rx<3; rx++)
+			for (ry=-2; ry<3; ry++)
+			{
+				if (BOUNDS_CHECK && (rx || ry))
 				{
-					if (BOUNDS_CHECK && (rx || ry))
+					r = pmap[y+ry][x+rx];
+					if (!r)
 					{
-						r = pmap[y+ry][x+rx];
-						if (!r)
-						{
-							int index = sim->part_create(-1,x+rx,y+ry,PT_BRCK);//BRCK border, people didn't like DMND
-							if (parts[i].type == PT_PPIP && index != -1)
-								parts[index].tmp = 1;
-						}
+						int index = sim->part_create(-1,x+rx,y+ry,PT_BRCK);//BRCK border, people didn't like DMND
+						if (parts[i].type == PT_PPIP && index != -1)
+							parts[index].tmp = 1;
 					}
 				}
-			if (parts[i].life<=1)
-				parts[i].ctype = 1;
-		}
+			}
+		if (parts[i].life<=1)
+			parts[i].ctype = 1;
 	}
 	else if (parts[i].ctype==1)//wait for empty space before starting to generate automatic pipe pattern
 	{
@@ -468,23 +455,13 @@ int PIPE_update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
+//Temp particle used for graphics
+particle tpart;
 int PIPE_graphics(GRAPHICS_FUNC_ARGS)
 {
-
-	if ((cpart->tmp&0xFF)>0 && (cpart->tmp&0xFF)<PT_NUM && globalSim->elements[cpart->tmp&0xFF].Enabled)
+	int t = cpart->tmp&0xFF;
+	if (t > 0 && t < PT_NUM && globalSim->elements[t].Enabled)
 	{
-		//Create a temp. particle and do a subcall.
-		particle tpart;
-		int t;
-		memset(&tpart, 0, sizeof(particle));
-		tpart.type = cpart->tmp&0xFF;
-		tpart.temp = cpart->temp;
-		tpart.life = cpart->tmp2;
-		tpart.tmp = (int)cpart->pavg[0];
-		tpart.ctype = (int)cpart->pavg[1];
-		if (tpart.type == PT_PHOT && tpart.ctype == 0x40000000)
-			tpart.ctype = 0x3FFFFFFF;
-		t = tpart.type;
 		if (graphicscache[t].isready)
 		{
 			*pixel_mode = graphicscache[t].pixel_mode;
@@ -499,6 +476,15 @@ int PIPE_graphics(GRAPHICS_FUNC_ARGS)
 		}
 		else
 		{
+			//Emulate the graphics of stored particle
+			tpart.type = t;
+			tpart.temp = cpart->temp;
+			tpart.life = cpart->tmp2;
+			tpart.tmp = cpart->pavg[0];
+			tpart.ctype = cpart->pavg[1];
+			if (t == PT_PHOT && tpart.ctype == 0x40000000)
+				tpart.ctype = 0x3FFFFFFF;
+
 			*colr = PIXR(ptypes[t].pcolors);
 			*colg = PIXG(ptypes[t].pcolors);
 			*colb = PIXB(ptypes[t].pcolors);
@@ -517,44 +503,25 @@ int PIPE_graphics(GRAPHICS_FUNC_ARGS)
 	}
 	else
 	{
-		if (cpart->ctype==2)
+		switch (cpart->ctype)
 		{
+		case 2:
 			*colr = 50;
 			*colg = 1;
 			*colb = 1;
-		}
-		else if (cpart->ctype==3)
-		{
+			break;
+		case 3:
 			*colr = 1;
 			*colg = 50;
 			*colb = 1;
-		}
-		else if (cpart->ctype==4)
-		{
+			break;
+		case 4:
 			*colr = 1;
 			*colg = 1;
 			*colb = 50;
-		}
-		else if (cpart->temp<272.15&&cpart->ctype!=1)
-		{
-			if (cpart->temp>173.25&&cpart->temp<273.15)
-			{
-				*colr = 50;
-				*colg = 1;
-				*colb = 1;
-			}
-			if (cpart->temp>73.25&&cpart->temp<=173.15)
-			{
-				*colr = 1;
-				*colg = 50;
-				*colb = 1;
-			}
-			if (cpart->temp>=0&&cpart->temp<=73.15)
-			{
-				*colr = 1;
-				*colg = 1;
-				*colb = 50;
-			}
+			break;
+		default:
+			break;
 		}
 	}
 	return 0;
@@ -608,4 +575,6 @@ void PIPE_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &PIPE_update;
 	elem->Graphics = &PIPE_graphics;
 	elem->Init = &PIPE_init_element;
+
+	memset(&tpart, 0, sizeof(particle));
 }
