@@ -1748,7 +1748,7 @@ int Simulation::FloodParts(int x, int y, int fullc, int replace, int flags)
 						cs.push(x, y-1);
 					}
 
-			if (c ? y<=YRES-CELL : y<=YRES)
+			if (c ? y<YRES-CELL-1 : y<YRES-1)
 				for (x=x1; x<=x2; x++)
 					if (FloodFillPmapCheck(x, y+1, replace) && (c == 0 || !IsWallBlocking(x, y+1, c)))
 					{
