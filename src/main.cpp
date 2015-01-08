@@ -1502,6 +1502,7 @@ int main(int argc, char *argv[])
 		clearrect(vid_buf, XRES, 1, BARSIZE, YRES-1);
 
 		draw_svf_ui(vid_buf, sdl_mod & (KMOD_LCTRL|KMOD_RCTRL));
+		DrawToolTips();
 		
 		if(debug_flags)
 		{
@@ -2379,12 +2380,6 @@ int main(int argc, char *argv[])
 				}
 			}
 		}
-		
-#ifdef LUACONSOLE
-		luacon_step(x, y);
-		ExecuteEmbededLuaCode();
-#endif
-		sdl_wheel = 0;
 
 		if (!old_menu)
 		{
@@ -2428,6 +2423,12 @@ int main(int argc, char *argv[])
 		}
 		if (deco_disablestuff)
 			b = 0;
+
+#ifdef LUACONSOLE
+		luacon_step(x, y);
+		ExecuteEmbededLuaCode();
+#endif
+		sdl_wheel = 0;
 
 		mx = x;
 		my = y;
@@ -3079,8 +3080,6 @@ int main(int argc, char *argv[])
 #ifdef OGLR
 		draw_parts_fbo();
 #endif
-
-		DrawToolTips();
 
 		if (elapsedTime != currentTime && main_loop == 2)
 		{
