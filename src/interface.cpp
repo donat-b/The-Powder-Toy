@@ -490,10 +490,14 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 		switch (sdl_key)
 		{
 		case SDLK_HOME:
-			ed->cursor = ed->cursorstart = 0;
+			ed->cursorstart = 0;
+			if (!(sdl_mod & KMOD_SHIFT))
+				ed->cursor = 0;
 			break;
 		case SDLK_END:
-			ed->cursor = ed->cursorstart = l;
+			ed->cursorstart = l;
+			if (!(sdl_mod & KMOD_SHIFT))
+				ed->cursor = l;
 			break;
 		case SDLK_LEFT:
 			if (sdl_mod & (KMOD_LSHIFT|KMOD_RSHIFT))
@@ -798,7 +802,15 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 	if (ed->focus && sdl_key)
 	{
 		int l = strlen(ed->str);
-		if (sdl_key == SDLK_LEFT)
+		if (sdl_key == SDLK_HOME && (sdl_mod & KMOD_SHIFT))
+		{
+			ed->cursorstart = 0;
+		}
+		else if (sdl_key == SDLK_END && (sdl_mod & KMOD_SHIFT))
+		{
+			ed->cursorstart = l;
+		}
+		else if (sdl_key == SDLK_LEFT)
 		{
 			if (sdl_mod & (KMOD_LSHIFT|KMOD_RSHIFT))
 			{
