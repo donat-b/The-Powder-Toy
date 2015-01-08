@@ -100,6 +100,8 @@ void VINE_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = 573.0f;
 	elem->HighTemperatureTransitionElement = PT_FIRE;
 
+	elem->DefaultProperties.tmp = 1;
+
 	elem->Update = &VINE_update;
 	elem->Graphics = &VINE_graphics;
 	elem->Init = &VINE_init_element;

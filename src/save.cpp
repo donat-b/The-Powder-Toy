@@ -2406,6 +2406,11 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						if (partsptr[newIndex].type == PT_PHOT)
 							partsptr[newIndex].flags |= FLAG_PHOTDECO;
 					}
+					if (saved_version < 91)
+					{
+						if (partsptr[newIndex].type == PT_VINE)
+							partsptr[newIndex].tmp = 1;
+					}
 					//note: PSv was used in version 77.0 and every version before, add something in PSv too if the element is that old
 
 					globalSim->elementCount[partsptr[newIndex].type]++;
@@ -3423,6 +3428,10 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 			if (ver<90 && parts[i-1].type == PT_PHOT)
 			{
 				parts[i-1].flags |= FLAG_PHOTDECO;
+			}
+			if (ver<91 && parts[i-1].type == PT_VINE)
+			{
+				parts[i-1].tmp = 1;
 			}
 
 			globalSim->elementCount[parts[i-1].type]++;

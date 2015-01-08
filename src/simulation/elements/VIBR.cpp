@@ -82,17 +82,19 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 			if (!parts[i].tmp2)
 			{
 				rndstore = rand();
-				sim->part_create(i, x, y, PT_EXOT);
-				parts[i].tmp2 = rand()%1000;
 				int index = sim->part_create(-3,x+((rndstore>>4)&3)-1,y+((rndstore>>6)&3)-1,PT_ELEC);
 				if (index != -1)
 					parts[index].temp = 7000;
 				index = sim->part_create(-3,x+((rndstore>>8)&3)-1,y+((rndstore>>10)&3)-1,PT_PHOT);
 				if (index != -1)
 					parts[index].temp = 7000;
-				index = sim->part_create(-1,x+((rndstore>>12)&3)-1,y+rand()%3-1,PT_BREL);
+				int rx = ((rndstore>>12)&3)-1;
+				rndstore = rand();
+				index = sim->part_create(-1,x+rx-1,y+rndstore%3-1,PT_BREL);
 				if (index != -1)
 					parts[index].temp = 7000;
+				sim->part_create(i, x, y, PT_EXOT);
+				parts[i].tmp2 = (rndstore>>2)%1000;
 				parts[i].temp=9000;
 				pv[y/CELL][x/CELL] += 50;
 
