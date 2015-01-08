@@ -2509,10 +2509,15 @@ int main(int argc, char *argv[])
 				}
 				else if (svf_login)
 				{
-					if (svf_open && svf_own && x<=55)
-						newToolTip = "Upload the simulation under the current name";
+					if (svf_open && svf_own)
+					{
+						if (x <= 55)
+							newToolTip = "Reupload the current simulation";
+						else
+							newToolTip = "Modify simulation properties";
+					}
 					else
-						newToolTip = "Upload the simulation under a new name";
+						newToolTip = "Upload a new simulation";
 				}
 			}
 			if (x>=189 && x<=241)

@@ -2700,7 +2700,10 @@ int save_name_ui(pixel *vid_buf)
 
 		drawrect(vid_buf, x0, y0, 420, 110+YRES/4, 192, 192, 192, 255); // rectangle around entire thing
 		clearrect(vid_buf, x0+1, y0+1, 419, 109+YRES/4);
-		drawtext(vid_buf, x0+8, y0+8, "New simulation name:", 255, 255, 255, 255);
+		if (strcmp(svf_name, ed.str) || !svf_own)
+			drawtext(vid_buf, x0+8, y0+8, "Upload new simulation:", 255, 255, 255, 255);
+		else
+			drawtext(vid_buf, x0+8, y0+8, "Modify simulation properties:", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+10, y0+23, "\x82", 192, 192, 192, 255);
 		drawrect(vid_buf, x0+8, y0+20, 176, 16, 192, 192, 192, 255); //rectangle around title box
 
