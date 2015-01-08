@@ -86,12 +86,12 @@ static decoType decoTypes[] =
 //#define FAV_SAVE 306
 #define FAV_LUA 306
 #define FAV_CUSTOMHUD 307
-#define FAV_AUTOSAVE 308
-#define FAV_REAL 309
-#define FAV_FIND2 310
-#define FAV_DATE 311
-#define FAV_SECR 312
-#define FAV_END 313
+//#define FAV_AUTOSAVE 308
+#define FAV_REAL 308
+#define FAV_FIND2 309
+#define FAV_DATE 310
+#define FAV_SECR 311
+#define FAV_END 312
 
 struct fav_menu
 {
@@ -113,7 +113,7 @@ const fav_menu fav[] =
 	//{"SAVE", PIXPACK(0x2B1AC9), "Makes saves/stamps compatible with: "},
 	{"LUA",  PIXPACK(0xFFFF00), "Add Lua code to a save"},
 	{"HUD2", PIXPACK(0x20D8FF), "Make a custom HUD"},
-	{"AUTO", PIXPACK(0xDF1BFF), "Sets how often your work is autosaved. Currently: "},
+	//{"AUTO", PIXPACK(0xDF1BFF), "Sets how often your work is autosaved. Currently: "},
 	{"REAL", PIXPACK(0xFF6800), "Turns on realistic heat mode, by savask. Now "},
 	{"FND2", PIXPACK(0xDF0000), "Alternate find mode, looks different but may find things better. Now "},
 	{"DATE", PIXPACK(0x3FBB3F), "Change date and time format. Example: "},

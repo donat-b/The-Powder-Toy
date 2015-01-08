@@ -3107,13 +3107,13 @@ void menu_draw_text(Tool* over, int y)
 			else
 				toolTip << "manual: " << lowesttemp-273 << "C - " << highesttemp-273 << "C";
 		}
-		else if (toolID == FAV_AUTOSAVE)
+		/*else if (toolID == FAV_AUTOSAVE)
 		{
 			if (!autosave)
 				toolTip << "off";
 			else
-				toolTip << "every " << autosave << " seconds";
-		}
+				toolTip << "every " << autosave << " frames";
+		}*/
 		else if (toolID == FAV_REAL)
 		{
 			if (realistic)
@@ -3185,12 +3185,12 @@ void menu_select_element(int b, Tool* over)
 #endif
 			else if (toolID == FAV_CUSTOMHUD)
 				active_menu = SC_HUD;
-			else if (toolID == FAV_AUTOSAVE)
+			/*else if (toolID == FAV_AUTOSAVE)
 			{
-				autosave = atoi(input_ui(vid_buf,"Autosave","Input number of seconds between saves, 0 = off","",""));
+				autosave = atoi(input_ui(vid_buf,"Autosave","Input number of frames between saves, 0 = off","",""));
 				if (autosave < 0)
 					autosave = 0;
-			}
+			}*/
 			else if (toolID == FAV_REAL)
 			{
 				realistic = !realistic;
