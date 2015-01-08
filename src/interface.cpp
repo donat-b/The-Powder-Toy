@@ -2117,14 +2117,19 @@ void login_ui(pixel *vid_buf)
 		ui_edit_process(mx, my, b, bq, &ed1);
 		ui_edit_process(mx, my, b, bq, &ed2);
 
-		if (b && !bq && mx>=x0+9 && mx<x0+23 && my>=y0+22 && my<y0+36)
-			break;
-		if (b && !bq && mx>=x0+9 && mx<x0+23 && my>=y0+42 && my<y0+46)
-			break;
-		if (b && !bq && mx>=x0 && mx<x0+96 && my>=y0+64 && my<=y0+80)
-			goto fail;
-		if (b && !bq && mx>=x0+97 && mx<x0+192 && my>=y0+64 && my<=y0+80)
-			break;
+		if (b && !bq)
+		{
+			if (mx>=x0+9 && mx<x0+23 && my>=y0+22 && my<y0+36)
+				break;
+			if (mx>=x0+9 && mx<x0+23 && my>=y0+42 && my<y0+46)
+				break;
+			if (mx>=x0 && mx<x0+96 && my>=y0+64 && my<=y0+80)
+				goto fail;
+			if (mx>=x0+97 && mx<x0+192 && my>=y0+64 && my<=y0+80)
+				break;
+			if (mx < x0 || my < y0 || mx > x0+192 || my > y0+80)
+				return;
+		}
 
 		if (sdl_key==SDLK_RETURN || sdl_key==SDLK_TAB)
 		{
@@ -3638,14 +3643,14 @@ int EventProcess(SDL_Event event)
 			}
 		}
 #ifdef LUACONSOLE
-		if (!deco_disablestuff && sdl_key && !luacon_keyevent(sdl_key, sdl_mod, LUACON_KDOWN))
+		if (main_loop && !deco_disablestuff && sdl_key && !luacon_keyevent(sdl_key, sdl_mod, LUACON_KDOWN))
 			sdl_key = 0;
 #endif
 		break;
 	case SDL_KEYUP:
 		sdl_rkey=event.key.keysym.sym;
 #ifdef LUACONSOLE
-		if (!deco_disablestuff && sdl_rkey && !luacon_keyevent(sdl_rkey, sdl_mod, LUACON_KUP))
+		if (main_loop && !deco_disablestuff && sdl_rkey && !luacon_keyevent(sdl_rkey, sdl_mod, LUACON_KUP))
 			sdl_rkey = 0;
 #endif
 		break;
