@@ -40,68 +40,62 @@ int PROT_update(UPDATE_FUNC_ARGS)
 {
 	pv[y/CELL][x/CELL] -= .003f;
 	int under = pmap[y][x];
-	//set off explosives (only when hot because it wasn't as fun when it made an entire save explode)
-	if (parts[i].temp > 273.15f+500.0f && (sim->elements[under&0xFF].Flammable || sim->elements[under&0xFF].Explosive || (under&0xFF) == PT_BANG))
+	int utype = under & 0xFF;
+	switch (utype)
 	{
-		sim->part_create(under>>8, x, y, PT_FIRE);
-		parts[under>>8].temp += restrict_flt(sim->elements[under&0xFF].Flammable*5.0f, MIN_TEMP, MAX_TEMP);
-		pv[y/CELL][x/CELL] += 1.00f;
-	}
-	//remove active sparks
-	else if ((under&0xFF) == PT_SPRK)
-	{
+	case PT_SPRK:
+		//remove active sparks
 		part_change_type(under>>8, x, y, parts[under>>8].ctype);
 		parts[under>>8].life = 44+parts[under>>8].life;
 		parts[under>>8].ctype = 0;
-	}
-	else if ((under&0xFF) == PT_DEUT)
-	{
+		break;
+	case PT_DEUT:
 		if ((-((int)pv[y/CELL][x/CELL]-4)+(parts[under>>8].life/100)) > rand()%200)
 		{
 			DeutImplosion(sim, parts[under>>8].life, x, y, restrict_flt(parts[under>>8].temp + parts[under>>8].life*500, MIN_TEMP, MAX_TEMP), PT_PROT);
 			kill_part(under>>8);
 		}
-	}
-	//prevent inactive sparkable elements from being sparked
-	else if ((sim->elements[under&0xFF].Properties&PROP_CONDUCTS) && parts[under>>8].life <= 4)
-	{
-		parts[under>>8].life = 40+parts[under>>8].life;
-	}
-	//Powered LCRY reaction: PROT->PHOT
-	else if ((under&0xFF) == PT_LCRY && parts[under>>8].life > 5 && !(rand()%10))
-	{
+		break;
+	case PT_LCRY:
+		//Powered LCRY reaction: PROT->PHOT
 		part_change_type(i, x, y, PT_PHOT);
 		parts[i].life *= 2;
 		parts[i].ctype = 0x3FFFFFFF;
-	} 
-	else if ((under&0xFF) == PT_EXOT)
+		break;
+	case PT_EXOT:
 		parts[under>>8].ctype = PT_PROT;
-
-	//make temp of other things closer to it's own temperature. This will change temp of things that don't conduct, and won't change the PROT's temperature
-	if (under)
-	{
-		//now changed so that PROT goes through portal, so only the WIFI part applies
-		if ((under&0xFF) == PT_WIFI /*|| (under&0xFF) == PT_PRTI || (under&0xFF) == PT_PRTO*/)
-		{
-			float change;
-			if (parts[i].temp<173.15f) change = -1000.0f;
-			else if (parts[i].temp<273.15f) change = -100.0f;
-			else if (parts[i].temp>473.15f) change = 1000.0f;
-			else if (parts[i].temp>373.15f) change = 100.0f;
-			else change = 0.0f;
-			parts[under>>8].temp = restrict_flt(parts[under>>8].temp+change, MIN_TEMP, MAX_TEMP);
-		}
-		else
-		{
-			parts[under>>8].temp = restrict_flt(parts[under>>8].temp-(parts[under>>8].temp-parts[i].temp)/4.0f, MIN_TEMP, MAX_TEMP);
-		}
-	}
-	//else, slowly kill it if it's not inside an element
-	else if (parts[i].life)
-	{
+		break;
+	case PT_NONE:
 		if (!--parts[i].life)
 			kill_part(i);
+		break;
+	case PT_WIFI:
+		float change;
+		if (parts[i].temp<173.15f) change = -1000.0f;
+		else if (parts[i].temp<273.15f) change = -100.0f;
+		else if (parts[i].temp>473.15f) change = 1000.0f;
+		else if (parts[i].temp>373.15f) change = 100.0f;
+		else change = 0.0f;
+		parts[under>>8].temp = restrict_flt(parts[under>>8].temp+change, MIN_TEMP, MAX_TEMP);
+		break;
+	default:
+		//set off explosives (only when hot because it wasn't as fun when it made an entire save explode)
+		if (parts[i].temp > 273.15f+500.0f && (sim->elements[under&0xFF].Flammable || sim->elements[under&0xFF].Explosive || (under&0xFF) == PT_BANG))
+		{
+			sim->part_create(under>>8, x, y, PT_FIRE);
+			parts[under>>8].temp += restrict_flt(sim->elements[under&0xFF].Flammable*5.0f, MIN_TEMP, MAX_TEMP);
+			pv[y/CELL][x/CELL] += 1.00f;
+		}
+		//prevent inactive sparkable elements from being sparked
+		else if ((sim->elements[under&0xFF].Properties&PROP_CONDUCTS) && parts[under>>8].life <= 4)
+		{
+			parts[under>>8].life = 40+parts[under>>8].life;
+		}
+		break;
 	}
+	//make temp of other things closer to it's own temperature. This will change temp of things that don't conduct, and won't change the PROT's temperature
+	if (utype && utype != PT_WIFI)
+		parts[under>>8].temp = restrict_flt(parts[under>>8].temp-(parts[under>>8].temp-parts[i].temp)/4.0f, MIN_TEMP, MAX_TEMP);
 	
 	//if this proton has collided with another last frame, change it into a heavier element
 	if (parts[i].tmp)

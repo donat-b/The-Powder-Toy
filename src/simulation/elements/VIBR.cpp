@@ -17,7 +17,7 @@
 
 int VIBR_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, transfer, trade;
+	int r, rx, ry, transfer, trade, rndstore;
 	if (!parts[i].life) //if not exploding
 	{
 		//Heat absorption code
@@ -51,9 +51,10 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 		//Release sparks before explode
 		if (parts[i].life < 300)
 		{
-			int randstore = rand();
-			rx = randstore%3-1;
-			ry = (randstore>>2)%3-1;
+			rndstore = rand();
+			rx = rndstore%3-1;
+			ry = (rndstore>>2)%3-1;
+			rndstore = rndstore >> 4;
 			r = pmap[y+ry][x+rx];
 			if ((r&0xFF) && (r&0xFF) != PT_BREL && (ptypes[r&0xFF].properties&PROP_CONDUCTS) && !parts[r>>8].life)
 			{
@@ -63,9 +64,8 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 		//Release all heat
 		if (parts[i].life < 500)
 		{
-			int random = rand();
-			rx = random%7-3;
-			ry = (random>>3)%7-3;
+			rx = rndstore%7-3;
+			ry = (rndstore>>3)%7-3;
 			if(BOUNDS_CHECK)
 			{
 				r = pmap[y+ry][x+rx];
@@ -81,16 +81,16 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 		{
 			if (!parts[i].tmp2)
 			{
-				int random = rand(), index;
+				rndstore = rand();
 				sim->part_create(i, x, y, PT_EXOT);
 				parts[i].tmp2 = rand()%1000;
-				index = sim->part_create(-3,x+((random>>4)&3)-1,y+((random>>6)&3)-1,PT_ELEC);
+				int index = sim->part_create(-3,x+((rndstore>>4)&3)-1,y+((rndstore>>6)&3)-1,PT_ELEC);
 				if (index != -1)
 					parts[index].temp = 7000;
-				index = sim->part_create(-3,x+((random>>8)&3)-1,y+((random>>10)&3)-1,PT_PHOT);
+				index = sim->part_create(-3,x+((rndstore>>8)&3)-1,y+((rndstore>>10)&3)-1,PT_PHOT);
 				if (index != -1)
 					parts[index].temp = 7000;
-				index = sim->part_create(-1,x+((random>>12)&3)-1,y+rand()%3-1,PT_BREL);
+				index = sim->part_create(-1,x+((rndstore>>12)&3)-1,y+rand()%3-1,PT_BREL);
 				if (index != -1)
 					parts[index].temp = 7000;
 				parts[i].temp=9000;
@@ -112,8 +112,6 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
 				r = pmap[y+ry][x+rx];
-				if (!r)
-					r = photons[y+ry][x+rx];
 				if (!r)
 					continue;
 				if (parts[i].life)
@@ -142,6 +140,7 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 					if ((r&0xFF) == PT_EXOT && !(rand()%25))
 					{
 						sim->part_create(i, x, y, PT_EXOT);
+						return 1;
 					}
 				}
 				//VIBR+ANAR=BVBR
@@ -153,9 +152,12 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 			}
 	for (trade = 0; trade < 9; trade++)
 	{
-		int random = rand();
-		rx = random%7-3;
-		ry = (random>>3)%7-3;
+		if (!(trade%2))
+			rndstore = rand();
+		rx = rndstore%7-3;
+		rndstore >>= 3;
+		ry = rndstore%7-3;
+		rndstore >>= 3;
 		if (BOUNDS_CHECK && (rx || ry))
 		{
 			r = pmap[y+ry][x+rx];
@@ -182,13 +184,15 @@ int VIBR_graphics(GRAPHICS_FUNC_ARGS)
 	{
 		*colr = (int)(fabs(sin(exp((750.0f-cpart->life)/170)))*200.0f);
 		if (cpart->tmp2)
-			*colg = (int)(fabs(sin(exp((750.0f-cpart->life)/170)))*200.0f);
-		else
-			*colg = 255;
-		if (cpart->tmp2)
+		{
+			*colg = *colr;
 			*colb = 255;
+		}
 		else
-			*colb = (int)(fabs(sin(exp((750.0f-cpart->life)/170)))*200.0f);
+		{
+			*colg = 255;
+			*colb = *colr;
+		}
 		*firea = 90;
 		*firer = *colr;
 		*fireg = *colg;

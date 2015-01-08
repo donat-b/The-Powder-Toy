@@ -17,7 +17,7 @@
 
 int PLNT_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, np;
+	int r, rx, ry, np, rndstore;
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
@@ -49,11 +49,14 @@ int PLNT_update(UPDATE_FUNC_ARGS)
 					}
 					break;
 				case PT_WOOD:
-					if (surround_space && abs(rx+ry)<=2 && parts[i].tmp==1 && !(rand()%4))
+					rndstore = rand();
+					if (surround_space && abs(rx+ry)<=2 && parts[i].tmp==1 && !(rndstore%4))
 					{
-						int nnx = rand()%3 -1;
-						int nny = rand()%3 -1;
-						if (x+rx+nnx>=0 && y+ry+nny>0 && x+rx+nnx<XRES && y+ry+nny<YRES && (nnx || nny))
+						rndstore >>= 3;
+						int nnx = (rndstore%3) -1;
+						rndstore >>= 2;
+						int nny = (rndstore%3) -1;
+						if (nnx || nny)
 						{
 							if (pmap[y+ry+nny][x+rx+nnx])
 								continue;

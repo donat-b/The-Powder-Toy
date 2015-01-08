@@ -17,11 +17,15 @@
 
 int VINE_update(UPDATE_FUNC_ARGS)
 {
-	int r, np, rx =(rand()%3)-1, ry=(rand()%3)-1;
+	int r, np, rx, ry, rndstore = rand();
+	rx = (rndstore % 3) - 1;
+	rndstore >>= 2;
+	ry = (rndstore % 3) - 1;
+	rndstore >>= 2;
 	if (BOUNDS_CHECK && (rx || ry))
 	{
 		r = pmap[y+ry][x+rx];
-		if (!(rand()%15))
+		if (!(rndstore % 15))
 			part_change_type(i,x,y,PT_PLNT);
 		else if (!r)
 		{

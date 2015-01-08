@@ -17,17 +17,22 @@
 
 int GOLD_update(UPDATE_FUNC_ARGS)
 {
-	int rx, ry, r, j;
+	int rx, ry, r, j, rndstore;
 	static int checkCoordsX[] = { -4, 4, 0, 0 };
 	static int checkCoordsY[] = { 0, 0, -4, 4 };
 	//Find nearby rusted iron (BMTL with tmp 1+)
-	for(j = 0; j < 8; j++){
-		rx = (rand()%9)-4;
-		ry = (rand()%9)-4;
-		if ((!rx != !ry) && BOUNDS_CHECK) {
+	for (j = 0; j < 8; j++)
+	{
+		rndstore = rand();
+		rx = (rndstore % 9)-4;
+		rndstore >>= 4;
+		ry = (rndstore % 9)-4;
+		if ((!rx != !ry) && BOUNDS_CHECK)
+		{
 			r = pmap[y+ry][x+rx];
-			if(!r) continue;
-			if((r&0xFF)==PT_BMTL && parts[r>>8].tmp)
+			if (!r)
+				continue;
+			if ((r&0xFF)==PT_BMTL && parts[r>>8].tmp)
 			{
 				parts[r>>8].tmp = 0;
 				sim->part_change_type(r>>8, x+rx, y+ry, PT_IRON);
@@ -37,13 +42,16 @@ int GOLD_update(UPDATE_FUNC_ARGS)
 	//Find sparks
 	if(!parts[i].life)
 	{
-		for(j = 0; j < 4; j++){
+		for (j = 0; j < 4; j++)
+		{
 			rx = checkCoordsX[j];
 			ry = checkCoordsY[j];
-			if ((!rx != !ry) && BOUNDS_CHECK) {
+			if ((!rx != !ry) && BOUNDS_CHECK)
+			{
 				r = pmap[y+ry][x+rx];
-				if(!r) continue;
-				if((r&0xFF)==PT_SPRK && parts[r>>8].life && parts[r>>8].life<4)
+				if (!r)
+					continue;
+				if ((r&0xFF) == PT_SPRK && parts[r>>8].life && parts[r>>8].life < 4)
 				{
 					sim->spark_conductive(i, x, y);
 					return 1;
@@ -63,9 +71,12 @@ int GOLD_update(UPDATE_FUNC_ARGS)
 
 int GOLD_graphics(GRAPHICS_FUNC_ARGS)
 {
-	*colr += rand()%10-5;
-	*colg += rand()%10-5;
-	*colb += rand()%10-5;
+	int rndstore = rand();
+	*colr += (rndstore % 10) - 5;
+	rndstore >>= 4;
+	*colg += (rndstore % 10)- 5;
+	rndstore >>= 4;
+	*colb += (rndstore % 10) - 5;
 	return 0;
 }
 
