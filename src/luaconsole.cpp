@@ -1934,7 +1934,7 @@ int luatpt_fillrect(lua_State* l)
 	b = luaL_optint(l, 7, 255);
 	a = luaL_optint(l, 8, 255);
 
-	if (x<0 || y<0 || x>=XRES+BARSIZE || y>=YRES+MENUSIZE)
+	if (x<-1 || y<-1 || x>=XRES+BARSIZE || y>=YRES+MENUSIZE)
 		return luaL_error(l, "Screen coordinates out of range (%d,%d)", x, y);
 	if(x+w > XRES+BARSIZE)
 		w = XRES+BARSIZE-x;

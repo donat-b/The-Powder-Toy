@@ -693,7 +693,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 	if (ed->numClicks >= 2)
 	{
 		int start = 0, end = strlen(ed->str);
-		const char *spaces = " .,!?\n";
+		const char *spaces = " .,!?_():;~\n";
 		if (ed->numClicks == 3)
 			spaces = "\n";
 		findWordPosition(ed->str, ed->cursor, &start, &end, spaces);
@@ -867,7 +867,7 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 	if (ed->numClicks >= 2)
 	{
 		int start = 0, end = strlen(ed->str);
-		const char *spaces = " .,!?\n";
+		const char *spaces = " .,!?_():;~\n";
 		if (ed->numClicks == 3)
 			spaces = "\n";
 		findWordPosition(ed->str, ed->cursor, &start, &end, spaces);

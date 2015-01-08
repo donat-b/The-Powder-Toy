@@ -43,7 +43,7 @@ unsigned int Label::UpdateCursor(unsigned int position)
 	if (numClicks >= 2)
 	{
 		unsigned int start = 0, end = text.length();
-		const char *spaces = " .,!?\n";
+		const char *spaces = " .,!?_():;~\n";
 		if (numClicks == 3)
 			spaces = "\n";
 		FindWordPosition(text.c_str(), position, &start, &end, spaces);
