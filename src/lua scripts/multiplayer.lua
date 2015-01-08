@@ -392,6 +392,7 @@ new=function(x,y,w,h)
 		end
 		if newstr then
 			self.t:update(newstr,self.cursor)
+			return true
 		end
 		--some actual text processing, lol
 	end
@@ -699,7 +700,8 @@ local eleNameTable = {
 ["DEFAULT_WL_11"] = 291,["DEFAULT_WL_12"] = 292,["DEFAULT_WL_13"] = 293,["DEFAULT_WL_14"] = 294,["DEFAULT_WL_15"] = 295,
 ["DEFAULT_UI_SAMPLE"] = 296,["DEFAULT_UI_SIGN"] = 297,["DEFAULT_UI_PROPERTY"] = 298,["DEFAULT_UI_WIND"] = 299,
 ["DEFAULT_TOOL_HEAT"] = 300,["DEFAULT_TOOL_COOL"] = 301,["DEFAULT_TOOL_VAC"] = 302,["DEFAULT_TOOL_AIR"] = 303,["DEFAULT_TOOL_PGRV"] = 304,["DEFAULT_TOOL_NGRV"] = 305,
-["DEFAULT_DECOR_SET"] = 306,["DEFAULT_DECOR_ADD"] = 307,["DEFAULT_DECOR_SUB"] = 308,["DEFAULT_DECOR_MUL"] = 309,["DEFAULT_DECOR_DIV"] = 310,["DEFAULT_DECOR_SMDG"] = 311,["DEFAULT_DECOR_CLR"] = 312,["DEFAULT_DECOR_LIGH"] = 313, ["DEFAULT_DECOR_DARK"] = 314
+["DEFAULT_DECOR_SET"] = 306,["DEFAULT_DECOR_ADD"] = 307,["DEFAULT_DECOR_SUB"] = 308,["DEFAULT_DECOR_MUL"] = 309,["DEFAULT_DECOR_DIV"] = 310,["DEFAULT_DECOR_SMDG"] = 311,["DEFAULT_DECOR_CLR"] = 312,["DEFAULT_DECOR_LIGH"] = 313, ["DEFAULT_DECOR_DARK"] = 314,
+["DEFAULT_WL_16"] = 315
 }
 local function convertDecoTool(c)
 	return c
@@ -716,7 +718,8 @@ if jacobsmod then
 	local modNameTable = {
 	["DEFAULT_WL_ERASE"] = 280,["DEFAULT_WL_CNDTW"] = 281,["DEFAULT_WL_EWALL"] = 282,["DEFAULT_WL_DTECT"] = 283,["DEFAULT_WL_STRM"] = 284,
 	["DEFAULT_WL_FAN"] = 285,["DEFAULT_WL_LIQD"] = 286,["DEFAULT_WL_ABSRB"] = 287,["DEFAULT_WL_WALL"] = 288,["DEFAULT_WL_AIR"] = 289,["DEFAULT_WL_POWDR"] = 290,
-	["DEFAULT_WL_CNDTR"] = 291,["DEFAULT_WL_EHOLE"] = 292,["DEFAULT_WL_GAS"] = 293,["DEFAULT_WL_GRVTY"] = 294,["DEFAULT_WL_ENRGY"] = 295,["DEFAULT_WL_ERASEA"] = 280
+	["DEFAULT_WL_CNDTR"] = 291,["DEFAULT_WL_EHOLE"] = 292,["DEFAULT_WL_GAS"] = 293,["DEFAULT_WL_GRVTY"] = 294,["DEFAULT_WL_ENRGY"] = 295,["DEFAULT_WL_ERASEA"] = 280,
+	["DEFAULT_WL_NOAIR"] = 315
 	}
 	for k,v in pairs(modNameTable) do
 		eleNameTable[k] = v
@@ -1578,7 +1581,7 @@ end
 
 local keypressfuncs = {
 	--TAB
-	[9] = function() conSend(35) end,
+	[9] = function() if not jacobsmod or not L.ctrl then conSend(35) end end,
 
 	--ESC
 	[27] = function() if not L.chatHidden then L.chatHidden = true TPTMP.chatHidden = true return false end end,
@@ -1619,7 +1622,7 @@ local keypressfuncs = {
 	--[100] = function() conSend(55) end,
 
 	--F , frame step
-	[102] = function() if not jacobsmod or (not L.ctrl and not L.shift) then conSend(50) end end,
+	[102] = function() if not jacobsmod or not L.ctrl then conSend(50) end end,
 
 	--H , HUD and intro text
 	[104] = function() if L.ctrl and jacobsmod then return false end end,

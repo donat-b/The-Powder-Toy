@@ -3378,7 +3378,7 @@ int clickedQuickoption = -1, hoverQuickoption = -1;
 void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 {
 	int i = 0;
-	char isQuickoptionClicked = 0;
+	bool isQuickoptionClicked = false, switchTabsOverride = false;
 	//normal quickoptions
 	if (!show_tabs && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
 	{
@@ -3405,12 +3405,12 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 					{
 						if (clickedQuickoption == -1)
 							clickedQuickoption = i;
-						isQuickoptionClicked = 1;
+						isQuickoptionClicked = true;
 					}
 					else if (b == 1 || bq == 1)
 					{
 						if (clickedQuickoption == i)
-							isQuickoptionClicked = 1;
+							isQuickoptionClicked = true;
 					}
 				}
 			}
@@ -3476,22 +3476,38 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 				{
 					if (clickedQuickoption == -1)
 						clickedQuickoption = i;
-					isQuickoptionClicked = 1;
+					isQuickoptionClicked = true;
 				}
 				else if (b || bq)
 				{
 					if (clickedQuickoption == i)
-						isQuickoptionClicked = 1;
+						isQuickoptionClicked = true;
 				}
 			}
 			i++;
 		}
 	}
-	if (!isQuickoptionClicked)
-		clickedQuickoption = -1;
-	if (clickedQuickoption >= 0 && !b && bq)
+	if (sdl_key == SDLK_TAB && (sdl_mod & KMOD_CTRL))
 	{
-		if (!show_tabs && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
+		if (sdl_mod & KMOD_SHIFT)
+		{
+			if (tab_num > 1)
+			{
+				clickedQuickoption = tab_num - 1;
+				switchTabsOverride = true;
+			}
+		}
+		else if (tab_num < 22-GetNumMenus())
+		{
+			clickedQuickoption = tab_num + 1;
+			switchTabsOverride = true;
+		}
+	}
+	else if (!isQuickoptionClicked)
+		clickedQuickoption = -1;
+	if ((clickedQuickoption >= 0 && !b && bq) || switchTabsOverride)
+	{
+		if (!show_tabs && !switchTabsOverride && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
 		{
 			if (bq == 1)
 			{
@@ -3508,7 +3524,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 		}
 		else
 		{
-			if (bq == 1)
+			if (bq == 1 || switchTabsOverride)
 			{
 				//toggle show_tabs
 				if (clickedQuickoption == 0)
@@ -5829,7 +5845,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		saveInfoDownload->Cancel();
 	if (thumbnailDownload)
 		thumbnailDownload->Cancel();
-	commentsDownload->Cancel();
+	if (commentsDownload)
+		commentsDownload->Cancel();
 	info_parse("", info);
 	free(info);
 	free(old_vid);

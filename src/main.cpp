@@ -1893,7 +1893,8 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key==SDLK_TAB)
 			{
-				currentBrush->SetShape((currentBrush->GetShape()+1)%BRUSH_NUM);
+				if (!(sdl_mod & KMOD_CTRL))
+					currentBrush->SetShape((currentBrush->GetShape()+1)%BRUSH_NUM);
 			}
 			if (sdl_key==SDLK_LEFTBRACKET) {
 				if (sdl_zoom_trig)
