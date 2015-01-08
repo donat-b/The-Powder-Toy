@@ -5146,7 +5146,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		//rescale_img(full_save, imgw, imgh, &thumb_w, &thumb_h, 2);
 	}
 
-	Download *saveDataDownload, *saveInfoDownload, *thumbnailDownload, *commentsDownload;
+	Download *saveDataDownload, *saveInfoDownload, *thumbnailDownload = NULL, *commentsDownload = NULL;
 	//Begin Async loading of data
 	if (save_date)
 	{
@@ -5296,7 +5296,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			delete thumbnailDownload;
 			thumbnailDownload = NULL;
 		}
-		if (commentsDownload->CheckStarted() && info_ready && commentsDownload && commentsDownload->CheckDone())
+		if (commentsDownload && commentsDownload->CheckStarted() && info_ready && commentsDownload && commentsDownload->CheckDone())
 		{
 			int status;
 			char *comment_data = commentsDownload->Finish(NULL, &status);
@@ -5362,7 +5362,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				cix = drawtext(vid_buf, 60, (YRES/2)+60, info->name, 255, 255, 255, 255);
 				cix = drawtext(vid_buf, 60, (YRES/2)+72, "Author:", 255, 255, 255, 155);
 				cix = drawtext(vid_buf, cix+4, (YRES/2)+72, info->author, 255, 255, 255, 255);
-				cix = drawtext(vid_buf, cix+4, (YRES/2)+72, "Date:", 255, 255, 255, 155);
+				cix = drawtext(vid_buf, cix+4, (YRES/2)+72, "Date Updated:", 255, 255, 255, 155);
 				cix = drawtext(vid_buf, cix+4, (YRES/2)+72, info->date, 255, 255, 255, 255);
 				if(info->downloadcount){
 					drawtext(vid_buf, 48+(XRES/2)-textwidth(viewcountbuffer)-textwidth("Views:")-4, (YRES/2)+72, "Views:", 255, 255, 255, 155);
