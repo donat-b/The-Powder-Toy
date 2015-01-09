@@ -1,17 +1,13 @@
 #ifndef DOWNLOAD_H
 #define DOWNLOAD_H
-#include <pthread.h>
 #include <string>
-#include <time.h>
 
-#define HTTP_TIMEOUT 10 //normally in defines.h
-
+class DownloadManager;
 class Download
 {
 	std::string uri;
 	void *http;
 	bool keepAlive;
-	time_t lastUse;
 
 	char *downloadData;
 	int downloadSize;
@@ -20,11 +16,9 @@ class Download
 	const char *userID;
 	const char *userSession;
 
-	volatile bool downloadFinished;
-	volatile bool downloadCanceled;
+	bool downloadFinished;
+	bool downloadCanceled;
 	bool downloadStarted;
-	pthread_t downloadThread;
-	pthread_mutex_t downloadLock;
 
 public:
 	Download(std::string uri, bool keepAlive = false);
@@ -38,10 +32,10 @@ public:
 
 	void CheckProgress(int *total, int *done);
 	bool CheckDone();
-	bool CheckCanceled(bool del = false);
+	bool CheckCanceled();
 	bool CheckStarted();
 
-	void DoDownload();
+	friend class DownloadManager;
 };
 
 #endif

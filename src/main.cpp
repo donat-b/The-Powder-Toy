@@ -75,6 +75,7 @@
 #include "game/Menus.h"
 #include "game/ToolTip.h"
 #include "game/Download.h"
+#include "game/DownloadManager.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
 #include "simulation/ToolNumbers.h"
@@ -1532,7 +1533,6 @@ int main(int argc, char *argv[])
 				UpdateToolTip(temp, Point(XCNTR-textwidth(temp)/2, YCNTR-10), INFOTIP, 2500);
 				UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 0);
 			}
-			delete versionCheck;
 			versionCheck = NULL;
 		}
 		if (saveDataOpen)
@@ -1633,7 +1633,6 @@ int main(int argc, char *argv[])
 					save_presets(0);
 					free(check_data);
 				}
-				delete sessionCheck;
 				sessionCheck = NULL;
 			}
 			else
@@ -3163,6 +3162,7 @@ int main(int argc, char *argv[])
 	}
 	
 	SaveWindowPosition();
+	DownloadManager::Ref().Shutdown();
 	http_done();
 	save_presets(0);
 	gravity_cleanup();

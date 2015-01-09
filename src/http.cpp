@@ -261,6 +261,12 @@ struct http_ctx
 void *http_async_req_start(void *ctx, const char *uri, const char *data, int dlen, int keep)
 {
 	struct http_ctx *cx = (struct http_ctx*)ctx;
+	if (cx && time(NULL) - cx->last > http_timeout)
+	{
+		http_force_close(ctx);
+		http_async_req_close(ctx);
+		ctx = NULL;
+	}
 	if (!ctx)
 	{
 		ctx = calloc(1, sizeof(struct http_ctx));
@@ -563,7 +569,7 @@ int http_async_req_status(void *ctx)
 		tmp = send(cx->fd, cx->tbuf+cx->tptr, cx->tlen-cx->tptr, 0);
 		if (tmp==PERROR && PERRNO!=PEAGAIN && PERRNO!=PEINTR)
 			goto fail;
-		if (tmp!=PERROR)
+		if (tmp!=PERROR && tmp)
 		{
 			cx->tptr += tmp;
 			if (cx->tptr == cx->tlen)
@@ -586,7 +592,7 @@ int http_async_req_status(void *ctx)
 		tmp = recv(cx->fd, buf, CHUNK, 0);
 		if (tmp==PERROR && PERRNO!=PEAGAIN && PERRNO!=PEINTR)
 			goto fail;
-		if (tmp!=PERROR)
+		if (tmp!=PERROR && tmp)
 		{
 			for (i=0; i<tmp; i++)
 			{

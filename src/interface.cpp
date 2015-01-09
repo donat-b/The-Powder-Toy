@@ -5237,7 +5237,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						break;
 					}
 				}
-				delete saveDataDownload;
 				saveDataDownload = NULL;
 			}
 			else
@@ -5262,7 +5261,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				}
 				if (info_data)
 					free(info_data);
-				delete saveInfoDownload;
 				saveInfoDownload = NULL;
 			}
 			else
@@ -5293,7 +5291,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			if(thumb_data_full)
 				free(thumb_data_full);
-			delete thumbnailDownload;
 			thumbnailDownload = NULL;
 		}
 		if (commentsDownload && commentsDownload->CheckStarted() && info_ready && commentsDownload && commentsDownload->CheckDone())
