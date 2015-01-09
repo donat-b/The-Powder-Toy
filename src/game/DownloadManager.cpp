@@ -3,9 +3,8 @@
 #include "http.h"
 #include "defines.h"
 
-int DownloadManager::nextDownloadID = 0;
-
 DownloadManager::DownloadManager():
+	threadStarted(false),
 	lastUsed(time(NULL)),
 	managerRunning(false),
 	managerShutdown(false),
@@ -93,16 +92,24 @@ void DownloadManager::Update()
 	}
 }
 
-int DownloadManager::AddDownload(Download *download)
+void DownloadManager::EnsureRunning()
 {
 	pthread_mutex_lock(&downloadLock);
-	int id = nextDownloadID++;
-	downloads.push_back(download);
 	if (!managerRunning)
 	{
-		if (nextDownloadID)
+		if (threadStarted)
 			pthread_join(downloadThread, NULL);
+		else
+			threadStarted = true;
 		Start();
 	}
 	pthread_mutex_unlock(&downloadLock);
+}
+
+int DownloadManager::AddDownload(Download *download)
+{
+	pthread_mutex_lock(&downloadLock);
+	downloads.push_back(download);
+	pthread_mutex_unlock(&downloadLock);
+	EnsureRunning();
 }

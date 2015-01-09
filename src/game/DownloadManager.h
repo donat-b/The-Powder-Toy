@@ -11,8 +11,8 @@ class DownloadManager : public Singleton<DownloadManager>
 private:
 	pthread_t downloadThread;
 	pthread_mutex_t downloadLock;
+	bool threadStarted;
 
-	static int nextDownloadID;
 	int lastUsed;
 	volatile bool managerRunning;
 	volatile bool managerShutdown;
@@ -22,9 +22,11 @@ private:
 public:
 	DownloadManager();
 	~DownloadManager();
-	void Shutdown();
 
+	void Shutdown();
 	void Update();
+	void EnsureRunning();
+
 	int AddDownload(Download *download);
 	void RemoveDownload(int id);
 };

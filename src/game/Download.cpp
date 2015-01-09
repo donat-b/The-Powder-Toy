@@ -57,6 +57,7 @@ bool Download::Reuse(std::string newuri)
 	uri = std::string(newuri);
 	downloadFinished = false;
 	Start();
+	DownloadManager::Ref().EnsureRunning();
 	return true;
 }
 
