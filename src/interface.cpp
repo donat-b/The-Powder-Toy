@@ -4156,16 +4156,15 @@ int search_ui(pixel *vid_buf)
 	char *last = NULL;
 	int search = 0;
 
-	void *img_http[IMGCONNS];
+	Download *thumbnailDownloads[IMGCONNS];
+	for (int i = 0; i < IMGCONNS; i++)
+		thumbnailDownloads[i] = NULL;
 	char *img_id[IMGCONNS];
-	void *thumb;
-	int thlen;
 
 	if (!v_buf)
 		return 0;
 	memset(v_buf, 0, ((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 
-	memset(img_http, 0, sizeof(img_http));
 	memset(img_id, 0, sizeof(img_id));
 
 	memset(search_ids, 0, sizeof(search_ids));
@@ -4743,10 +4742,10 @@ int search_ui(pixel *vid_buf)
 
 		for (i=0; i<IMGCONNS; i++)
 		{
-			if (img_http[i] && http_async_req_status(img_http[i]))
+			if (thumbnailDownloads[i] && thumbnailDownloads[i]->CheckStarted() && thumbnailDownloads[i]->CheckDone())
 			{
-				int status;
-				thumb = http_async_req_stop(img_http[i], &status, &thlen);
+				int status, len;
+				char *thumb = thumbnailDownloads[i]->Finish(&len, &status);
 				if (status != 200)
 				{
 					if (thumb)
@@ -4754,7 +4753,7 @@ int search_ui(pixel *vid_buf)
 					thumb = NULL;
 				}
 				else
-					thumb_cache_add(img_id[i], thumb, thlen);
+					thumb_cache_add(img_id[i], thumb, len);
 				for (pos=0; pos<GRID_X*GRID_Y; pos++) {
 					if (search_dates[pos]) {
 						char *id_d_temp = (char*)malloc(strlen(search_ids[pos])+strlen(search_dates[pos])+2);
@@ -4781,7 +4780,7 @@ int search_ui(pixel *vid_buf)
 					if (pos<GRID_X*GRID_Y)
 					{
 						search_thumbs[pos] = thumb;
-						search_thsizes[pos] = thlen;
+						search_thsizes[pos] = len;
 					}
 					else
 						free(thumb);
@@ -4819,37 +4818,32 @@ int search_ui(pixel *vid_buf)
 					}
 				if (pos<GRID_X*GRID_Y)
 				{
-					char *uri;
-					if (search_dates[pos]) {
-						char *id_d_temp = (char*)malloc(strlen(search_ids[pos])+strlen(search_dates[pos])+2);
-						uri = (char*)malloc(strlen(search_ids[pos])*3+strlen(search_dates[pos])*3+strlen(STATICSERVER)+71);
-						strcpy(uri, "http://" STATICSERVER "/");
-						strcaturl(uri, search_ids[pos]);
-						strappend(uri, "_");
-						strcaturl(uri, search_dates[pos]);
-						strappend(uri, "_small.pti");
-
-						strcpy(id_d_temp, search_ids[pos]);
-						strappend(id_d_temp, "_");
-						strappend(id_d_temp, search_dates[pos]);
-						img_id[i] = mystrdup(id_d_temp);
-						free(id_d_temp);
-					} else {
-						uri = (char*)malloc(strlen(search_ids[pos])*3+strlen(SERVER)+64);
-						strcpy(uri, "http://" STATICSERVER "/");
-						strcaturl(uri, search_ids[pos]);
-						strappend(uri, "_small.pti");
-						img_id[i] = mystrdup(search_ids[pos]);
+					std::stringstream uri;
+					if (search_dates[pos])
+					{
+						std::stringstream tempID;
+						tempID << search_ids[pos] << "_" << search_dates[pos];
+						img_id[i] = mystrdup(tempID.str().c_str());
+						uri << "http://" << STATICSERVER << "/" << search_ids[pos] << "_" << search_dates[pos] << "_small.pti";
 					}
-					img_http[i] = http_async_req_start(img_http[i], uri, NULL, 0, 1);
-					free(uri);
+					else
+					{
+						img_id[i] = mystrdup(search_ids[pos]);
+						uri << "http://" STATICSERVER "/" << search_ids[pos] << "_small.pti";
+					}
+					if (thumbnailDownloads[i])
+						thumbnailDownloads[i]->Reuse(uri.str());
+					else
+					{
+						thumbnailDownloads[i] = new Download(uri.str(), true);
+						thumbnailDownloads[i]->Start();
+					}
 				}
 			}
-			if (!img_id[i] && img_http[i])
+			if (!img_id[i] && thumbnailDownloads[i] && thumbnailDownloads[i]->CheckStarted())
 			{
-				http_force_close(img_http[i]);
-				http_async_req_close(img_http[i]);
-				img_http[i] = NULL;
+				thumbnailDownloads[i]->Cancel();
+				thumbnailDownloads[i] = NULL;
 			}
 		}
 	}
@@ -4860,12 +4854,11 @@ finish:
 		free(last);
 	if (saveListDownload)
 		saveListDownload->Cancel();
-	for (i=0; i<IMGCONNS; i++)
-		if (img_http[i])
-		{
-			http_force_close(img_http[i]);
-			http_async_req_close(img_http[i]);
-		}
+	for (int i = 0; i < IMGCONNS; i++)
+	{
+		if (thumbnailDownloads[i])
+			thumbnailDownloads[i]->Cancel();
+	}
 			
 	if(bthumb_rsdata){
 		free(bthumb_rsdata);

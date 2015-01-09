@@ -2571,8 +2571,13 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 	if (!d)
 		return NULL;
 	fb = (pixel*)calloc(w*h, PIXELSIZE);
+	if (!fb)
+	{
+		free(d);
+		return NULL;
+	}
 	m = (unsigned char*)calloc(w*h, sizeof(int));
-	if (!fb || !m)
+	if (!m)
 	{
 		free(d);
 		return NULL;
@@ -2795,6 +2800,7 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 	}
 
 	free(d);
+	free(m);
 	*width = w;
 	*height = h;
 	return fb;
@@ -2802,6 +2808,7 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 corrupt:
 	free(d);
 	free(fb);
+	free(m);
 	return NULL;
 }
 

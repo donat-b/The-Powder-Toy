@@ -88,7 +88,7 @@ void DownloadManager::Update()
 			pthread_mutex_unlock(&downloadLock);
 			return;
 		}
-		millisleep(10);
+		millisleep(3);
 	}
 }
 
