@@ -1518,7 +1518,7 @@ int main(int argc, char *argv[])
 			{
 				int count, buildnum, major, minor;
 				if (sscanf(ver_data, "%d %d %d%n", &buildnum, &major, &minor, &count) == 3)
-					//if (buildnum > MOD_BUILD_VERSION)
+					if (buildnum > MOD_BUILD_VERSION)
 					{
 						old_version = 1;
 						changelog = (char*)malloc((len-count)*sizeof(char)+64);
