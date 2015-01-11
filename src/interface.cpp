@@ -5303,8 +5303,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				}
 				if(comment_data && (root = cJSON_Parse((const char*)comment_data)))
 				{
-					if (cJSON_GetArraySize(root) == 0)
-						std::cout << "something is wrong";
 					if (comment_page == 0)
 						info->comment_count = cJSON_GetArraySize(root);
 					else
