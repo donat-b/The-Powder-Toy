@@ -4738,6 +4738,19 @@ int search_ui(pixel *vid_buf)
 			}
 			if (results)
 				free(results);
+			for (int i = 0; i < IMGCONNS; i++)
+			{
+				if (thumbnailDownloads[i] && thumbnailDownloads[i]->CheckStarted())
+				{
+					thumbnailDownloads[i]->Cancel();
+					thumbnailDownloads[i] = NULL;
+					if (img_id[i])
+					{
+						free(img_id[i]);
+						img_id[i] = NULL;
+					}
+				}
+			}
 		}
 
 		for (i=0; i<IMGCONNS; i++)
@@ -4746,7 +4759,7 @@ int search_ui(pixel *vid_buf)
 			{
 				int status, len;
 				char *thumb = thumbnailDownloads[i]->Finish(&len, &status);
-				if (status != 200)
+				if (status != 200 || !thumb)
 				{
 					if (thumb)
 						free(thumb);
@@ -4788,7 +4801,7 @@ int search_ui(pixel *vid_buf)
 				free(img_id[i]);
 				img_id[i] = NULL;
 			}
-			if (!img_id[i])
+			if (!img_id[i] && !(saveListDownload && saveListDownload->CheckStarted()))
 			{
 				for (pos=0; pos<GRID_X*GRID_Y; pos++)
 					if (search_ids[pos] && !search_thumbs[pos])
@@ -4831,10 +4844,14 @@ int search_ui(pixel *vid_buf)
 						img_id[i] = mystrdup(search_ids[pos]);
 						uri << "http://" STATICSERVER "/" << search_ids[pos] << "_small.pti";
 					}
-					if (thumbnailDownloads[i])
+					if (thumbnailDownloads[i] && !thumbnailDownloads[i]->CheckStarted())
+					{
 						thumbnailDownloads[i]->Reuse(uri.str());
+					}
 					else
 					{
+						if (thumbnailDownloads[i])
+							thumbnailDownloads[i]->Cancel();
 						thumbnailDownloads[i] = new Download(uri.str(), true);
 						thumbnailDownloads[i]->Start();
 					}
@@ -4858,6 +4875,11 @@ finish:
 	{
 		if (thumbnailDownloads[i])
 			thumbnailDownloads[i]->Cancel();
+		if (img_id[i])
+		{
+			free(img_id[i]);
+			img_id[i] = NULL;
+		}
 	}
 			
 	if(bthumb_rsdata){
