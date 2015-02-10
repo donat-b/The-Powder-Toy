@@ -837,10 +837,10 @@ int luacon_tptNewIndex(lua_State *l)
 
 int luacon_keyevent(int key, int modifier, int event)
 {
-	int kycontinue = 1, i, j, c, callret;
+	int keycontinue = 1;
 	lua_pushstring(l, "keyfunctions");
 	lua_rawget(l, LUA_REGISTRYINDEX);
-	if(!lua_istable(l, -1))
+	if (!lua_istable(l, -1))
 	{
 		lua_pop(l, 1);
 		lua_newtable(l);
@@ -848,8 +848,8 @@ int luacon_keyevent(int key, int modifier, int event)
 		lua_pushvalue(l, -2);
 		lua_rawset(l, LUA_REGISTRYINDEX);
 	}
-	c = lua_objlen(l, -1);
-	for(i=1;i<=c && kycontinue;i++)
+	int len = lua_objlen(l, -1);
+	for (int i = 1; i <= len && keycontinue; i++)
 	{
 		loop_time = SDL_GetTicks();
 		lua_rawgeti(l, -1, i);
@@ -857,20 +857,19 @@ int luacon_keyevent(int key, int modifier, int event)
 		lua_pushinteger(l, key);
 		lua_pushinteger(l, modifier);
 		lua_pushinteger(l, event);
-		callret = lua_pcall(l, 4, 1, 0);
+		int callret = lua_pcall(l, 4, 1, 0);
 		if (callret)
 		{
 			char *error, *tolog;
 			if (!strcmp(luacon_geterror(), "Error: Script not responding"))
 			{
-				for(j=i;j<=c-1;j++)
+				for (int j = i;j <= len-1; j++)
 				{
 					lua_rawgeti(l, -2, j+1);
 					lua_rawseti(l, -3, j);
 				}
 				lua_pushnil(l);
-				lua_rawseti(l, -3, c);
-				c--;
+				lua_rawseti(l, -3, len);
 				i--;
 			}
 			error = (char*)luacon_geterror();
@@ -881,21 +880,22 @@ int luacon_keyevent(int key, int modifier, int event)
 		}
 		else
 		{
-			if(!lua_isnoneornil(l, -1))
-				kycontinue = lua_toboolean(l, -1);
+			if (!lua_isnoneornil(l, -1))
+				keycontinue = lua_toboolean(l, -1);
 			lua_pop(l, 1);
 		}
+		len = lua_objlen(l, -1);
 	}
 	lua_pop(l, 1);
-	return kycontinue;
+	return keycontinue;
 }
 
 int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
 {
-	int mpcontinue = 1, i, j, c, callret;
+	int mpcontinue = 1;
 	lua_pushstring(l, "mousefunctions");
 	lua_rawget(l, LUA_REGISTRYINDEX);
-	if(!lua_istable(l, -1))
+	if (!lua_istable(l, -1))
 	{
 		lua_pop(l, 1);
 		lua_newtable(l);
@@ -903,8 +903,8 @@ int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
 		lua_pushvalue(l, -2);
 		lua_rawset(l, LUA_REGISTRYINDEX);
 	}
-	c = lua_objlen(l, -1);
-	for(i=1;i<=c && mpcontinue;i++)
+	int len = lua_objlen(l, -1);
+	for (int i = 1; i <= len && mpcontinue; i++)
 	{
 		loop_time = SDL_GetTicks();
 		lua_rawgeti(l, -1, i);
@@ -913,20 +913,19 @@ int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
 		lua_pushinteger(l, mb);
 		lua_pushinteger(l, event);
 		lua_pushinteger(l, mouse_wheel);
-		callret = lua_pcall(l, 5, 1, 0);
+		int callret = lua_pcall(l, 5, 1, 0);
 		if (callret)
 		{
 			char *error, *tolog;
 			if (!strcmp(luacon_geterror(), "Error: Script not responding"))
 			{
-				for(j=i;j<=c-1;j++)
+				for (int j = i; j <= len-1; j++)
 				{
 					lua_rawgeti(l, -2, j+1);
 					lua_rawseti(l, -3, j);
 				}
 				lua_pushnil(l);
-				lua_rawseti(l, -3, c);
-				c--;
+				lua_rawseti(l, -3, len);
 				i--;
 			}
 			error = (char*)luacon_geterror();
@@ -937,10 +936,11 @@ int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
 		}
 		else
 		{
-			if(!lua_isnoneornil(l, -1))
+			if (!lua_isnoneornil(l, -1))
 				mpcontinue = lua_toboolean(l, -1);
 			lua_pop(l, 1);
 		}
+		len = lua_objlen(l, -1);
 	}
 	lua_pop(l, 1);
 	return mpcontinue;
@@ -948,7 +948,6 @@ int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
 
 int luacon_step(int mx, int my)
 {
-	int i, j, c, callret;
 	lua_pushinteger(l, my);
 	lua_pushinteger(l, mx);
 	lua_setfield(l, tptProperties, "mousex");
@@ -959,7 +958,7 @@ int luacon_step(int mx, int my)
 
 	lua_pushstring(l, "stepfunctions");
 	lua_rawget(l, LUA_REGISTRYINDEX);
-	if(!lua_istable(l, -1))
+	if (!lua_istable(l, -1))
 	{
 		lua_pop(l, 1);
 		lua_newtable(l);
@@ -967,29 +966,29 @@ int luacon_step(int mx, int my)
 		lua_pushvalue(l, -2);
 		lua_rawset(l, LUA_REGISTRYINDEX);
 	}
-	c = lua_objlen(l, -1);
-	for(i=1;i<=c;i++)
+	int len = lua_objlen(l, -1);
+	for (int i = 1; i <= len; i++)
 	{
 		loop_time = SDL_GetTicks();
 		lua_rawgeti(l, -1, i);
-		callret = lua_pcall(l, 0, 0, 0);
+		int callret = lua_pcall(l, 0, 0, 0);
 		if (callret)
 		{
 			if (!strcmp(luacon_geterror(), "Error: Script not responding"))
 			{
-				for(j=i;j<=c-1;j++)
+				for (int j = i; j <= len-1; j++)
 				{
 					lua_rawgeti(l, -2, j+1);
 					lua_rawseti(l, -3, j);
 				}
 				lua_pushnil(l);
-				lua_rawseti(l, -3, c);
-				c--;
+				lua_rawseti(l, -3, len);
 				i--;
 			}
 			luacon_log(mystrdup(luacon_geterror()));
 			lua_pop(l, 1);
 		}
+		len = lua_objlen(l, -1);
 	}
 	lua_pop(l, 1);
 	return 0;
@@ -2067,7 +2066,6 @@ int luatpt_unregister_step(lua_State* l)
 {
 	if (lua_isfunction(l, 1))
 	{
-		int c, d = 0, i;
 		lua_pushstring(l, "stepfunctions");
 		lua_rawget(l, LUA_REGISTRYINDEX);
 		if (!lua_istable(l, -1))
@@ -2078,18 +2076,23 @@ int luatpt_unregister_step(lua_State* l)
 			lua_pushvalue(l, -2);
 			lua_rawset(l, LUA_REGISTRYINDEX);
 		}
-		c = lua_objlen(l, -1);
-		for (i=1;i<=c;i++)
+		int len = lua_objlen(l, -1);
+		int adjust = 0;
+		for (int i = 1; i <= len; i++)
 		{
-			lua_rawgeti(l, -1, i+d);
+			lua_rawgeti(l, -1, i+adjust);
+			//unregister the function
 			if (lua_equal(l, 1, -1))
 			{
 				lua_pop(l, 1);
-				d++;
+				adjust++;
 				i--;
 			}
+			//else, move everything down if we removed something earlier
 			else
+			{
 				lua_rawseti(l, -2, i);
+			}
 		}
 	}
 	return 0;
