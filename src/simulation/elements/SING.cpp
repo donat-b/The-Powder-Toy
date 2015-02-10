@@ -17,7 +17,7 @@
 
 int SING_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, cry, crx, nb = -1, j, spawncount;
+	int r, rx, ry, cry, crx, nb = -1, spawncount;
 	int singularity = -parts[i].life;
 	float angle, v;
 
@@ -60,11 +60,9 @@ int SING_update(UPDATE_FUNC_ARGS)
 					pv[cry][crx] += (float)parts[i].tmp;
 			}
 		}
-		spawncount = (parts[i].tmp>255)?255:parts[i].tmp;
-		if (spawncount>=1)
-			spawncount = spawncount/8;
-		spawncount = (int)(spawncount*spawncount*M_PI);
-		for (j=0;j<spawncount;j++)
+		spawncount = std::abs(parts[i].tmp);
+		spawncount = (spawncount>255) ? 3019 : std::pow((int)(spawncount/8), 2)*M_PI;
+		for (int j = 0; j < spawncount; j++)
 		{
 			switch(rand()%3)
 			{
