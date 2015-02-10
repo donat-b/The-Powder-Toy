@@ -3660,8 +3660,9 @@ int EventProcess(SDL_Event event)
 	switch (event.type)
 	{
 	case SDL_KEYDOWN:
-		sdl_key=event.key.keysym.sym;
-		sdl_ascii=event.key.keysym.unicode;
+		sdl_key = event.key.keysym.sym;
+		sdl_ascii = event.key.keysym.unicode;
+		sdl_mod = SDL_GetModState();//event.key.keysym.mod;
 		if (event.key.keysym.sym=='q' && (sdl_mod & (KMOD_CTRL|KMOD_META)))
 		{
 			if (confirm_ui(vid_buf, "You are about to quit", "Are you sure you want to quit?", "Quit"))
@@ -3676,7 +3677,8 @@ int EventProcess(SDL_Event event)
 #endif
 		break;
 	case SDL_KEYUP:
-		sdl_rkey=event.key.keysym.sym;
+		sdl_rkey = event.key.keysym.sym;
+		sdl_mod = SDL_GetModState();//event.key.keysym.mod;
 #ifdef LUACONSOLE
 		if (main_loop && !deco_disablestuff && sdl_rkey && !luacon_keyevent(sdl_rkey, sdl_mod, LUACON_KUP))
 			sdl_rkey = 0;
