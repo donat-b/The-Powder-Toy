@@ -267,22 +267,6 @@ int core_count()
 
 int kiosk_enable = 0;
 
-void sdl_seticon(void)
-{
-#ifdef WIN
-	//SDL_Surface *icon = SDL_CreateRGBSurfaceFrom(app_icon_w32, 32, 32, 32, 128, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
-	//SDL_WM_SetIcon(icon, NULL/*app_icon_mask*/);
-#else
-#ifdef MACOSX
-	//SDL_Surface *icon = SDL_CreateRGBSurfaceFrom(app_icon_w32, 32, 32, 32, 128, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
-	//SDL_WM_SetIcon(icon, NULL/*app_icon_mask*/);
-#else
-	SDL_Surface *icon = SDL_CreateRGBSurfaceFrom(app_icon, 16, 16, 32, 64, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
-	SDL_WM_SetIcon(icon, NULL/*app_icon_mask*/);
-#endif
-#endif
-}
-
 int frame_idx=0;
 void dump_frame(pixel *src, int w, int h, int pitch)
 {

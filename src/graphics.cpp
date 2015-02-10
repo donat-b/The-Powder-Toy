@@ -4801,7 +4801,6 @@ int sdl_open(void)
 	HICON hIconSmall;
 	HICON hIconBig;
 #elif LIN
-	SDL_Surface *icon;
 	char envStr[64];
 	sprintf(envStr, "SDL_VIDEO_WINDOW_POS=%i,%i", savedWindowX, savedWindowY);
 	SDL_putenv(envStr);
@@ -4825,8 +4824,8 @@ int sdl_open(void)
 	SendMessage(WindowHandle, WM_SETICON, ICON_SMALL, (LPARAM)hIconSmall);
 	SendMessage(WindowHandle, WM_SETICON, ICON_BIG, (LPARAM)hIconBig);
 #elif LIN
-	icon = SDL_CreateRGBSurfaceFrom(app_icon, 16, 16, 32, 64, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
-	SDL_WM_SetIcon(icon, NULL);
+	SDL_Surface *icon = SDL_CreateRGBSurfaceFrom((void*)app_icon, 48, 48, 24, 144, 0x00FF0000, 0x0000FF00, 0x000000FF, 0);
+	SDL_WM_SetIcon(icon, (Uint8*)app_icon_bitmap);
 	SDL_FreeSurface(icon);
 #endif
 	SDL_WM_SetCaption("Jacob1's Mod", "Jacob1's Mod");
@@ -5036,7 +5035,6 @@ int sdl_open(void)
 		fprintf(stderr, "Creating window: %s\n", SDL_GetError());
 		return 0;
 	}
-	//sdl_seticon();
 	SDL_EnableUNICODE(1);
 	SDL_SetModState(sdl_mod);
 	//SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);

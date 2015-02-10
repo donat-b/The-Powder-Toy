@@ -20,7 +20,7 @@
 #include <stdlib.h>
 
 extern unsigned char app_icon[];
-extern unsigned char app_icon_w32[];
+extern unsigned char app_icon_bitmap[];
 extern unsigned char icon_doc_32_png[];
 extern size_t icon_doc_32_png_size;
 extern unsigned char icon_doc_16_png[];
