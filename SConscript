@@ -333,7 +333,7 @@ if not GetOption('clean') and not GetOption('help'):
 
 if not msvc:
 	if platform == "Windows":
-		env.Append(CCFLAGS=['-std=gnu++98'])
+		env.Append(CXXFLAGS=['-std=gnu++98'])
 	else:
 		env.Append(CXXFLAGS=['-std=c++98'])
 
