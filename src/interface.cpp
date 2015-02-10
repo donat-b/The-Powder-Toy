@@ -8752,7 +8752,7 @@ Uint8 mouse_get_state(int *x, int *y)
 	return sdl_b;
 }
 
-void mouse_coords_window_to_sim(int *mouseX, int *mouseY)
+bool mouse_coords_window_to_sim(int *mouseX, int *mouseY)
 {
 	//adjust coords into the simulation area
 	if (*mouseX < 0)
@@ -8771,5 +8771,7 @@ void mouse_coords_window_to_sim(int *mouseX, int *mouseY)
 	{
 		*mouseX = ((*mouseX-zoom_wx)/ZFACTOR)+zoom_x;
 		*mouseY = ((*mouseY-zoom_wy)/ZFACTOR)+zoom_y;
+		return true;
 	}
+	return false;
 }

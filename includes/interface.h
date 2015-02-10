@@ -378,7 +378,7 @@ unsigned int decorations_ui(pixel *vid_buf, int *bsx, int *bsy, unsigned int sav
 
 Uint8 mouse_get_state(int *x, int *y);
 
-void mouse_coords_window_to_sim(int *mouseX, int *mouseY);
+bool mouse_coords_window_to_sim(int *mouseX, int *mouseY);
 
 void converttotime(char *timestamp, char **timestring, int show_day, int show_year, int show_time);
 

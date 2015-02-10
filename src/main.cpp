@@ -1019,6 +1019,7 @@ int main(int argc, char *argv[])
 	int i, j, bq, bc = 0, old_version=0, old_ver_len = 0, new_message_len=0, afk = 0, afkstart = 0;
 	int x = XRES, y = YRES, line_x, line_y, b = 0, lb = 0, lx = 0, ly = 0, lm = 0;//, tx, ty;
 	int mx = 0, my = 0, lastx = 1, lasty = 0;
+	bool mouseInZoom = false;
 	int load_mode=0, load_w=0, load_h=0, load_x=0, load_y=0, load_size=0;
 	void *load_data=NULL;
 	pixel *load_img=NULL;
@@ -2415,7 +2416,9 @@ int main(int argc, char *argv[])
 
 		mx = x;
 		my = y;
-		mouse_coords_window_to_sim(&mx, &my);//change mouse position while it is in a zoom window
+		//change mouse position while it is in a zoom window
+		//tmpMouseInZoom is used later, so that it only interrupts drawing, not things like copying / saving stamps
+		bool tmpMouseInZoom = mouse_coords_window_to_sim(&mx, &my);
 
 		if (b && !bq && x>=(XRES-19-new_message_len) &&
 		        x<=(XRES-14) && y>=(YRES-37) && y<=(YRES-24) && svf_messages)
@@ -2851,7 +2854,9 @@ int main(int argc, char *argv[])
 					lb = 0;
 				}
 			}
-			if ((y<YRES && x<XRES) || lb)// mouse is in playing field
+			if (tmpMouseInZoom != mouseInZoom && !lm)
+				b = lb = 0;
+			else if ((y<YRES && x<XRES) || lb)// mouse is in playing field
 			{
 				int signi;
 				bool clickedSign = false;
@@ -3059,6 +3064,7 @@ int main(int argc, char *argv[])
 			}
 			lb = 0;
 		}
+		mouseInZoom = tmpMouseInZoom;
 
 #ifdef OGLR
 		draw_parts_fbo();
