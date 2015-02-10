@@ -1682,7 +1682,7 @@ void initFileSystemAPI(lua_State * l)
 
 int fileSystem_list(lua_State * l)
 {
-	const char * directoryName = lua_tostring(l, 1);
+	const char * directoryName = luaL_checkstring(l, 1);
 	DIR * directory;
 	struct dirent * entry;
 
@@ -1712,7 +1712,7 @@ int fileSystem_list(lua_State * l)
 
 int fileSystem_exists(lua_State * l)
 {
-	char * filename = (char*)lua_tostring(l, 1);
+	char * filename = (char*)luaL_checkstring(l, 1);
 
 	lua_pushboolean(l, file_exists(filename));
 	return 1;
@@ -1720,7 +1720,7 @@ int fileSystem_exists(lua_State * l)
 
 int fileSystem_isFile(lua_State * l)
 {
-	const char * filename = lua_tostring(l, 1);
+	const char * filename = luaL_checkstring(l, 1);
 
 	int isFile = 0;
 #ifdef WIN
@@ -1751,7 +1751,7 @@ int fileSystem_isFile(lua_State * l)
 
 int fileSystem_isDirectory(lua_State * l)
 {
-	const char * filename = lua_tostring(l, 1);
+	const char * filename = luaL_checkstring(l, 1);
 
 	int isDir = 0;
 #ifdef WIN
@@ -1782,7 +1782,7 @@ int fileSystem_isDirectory(lua_State * l)
 
 int fileSystem_makeDirectory(lua_State * l)
 {
-	const char * dirname = lua_tostring(l, 1);
+	const char * dirname = luaL_checkstring(l, 1);
 
 	int ret = 0;
 #ifdef WIN
@@ -1796,7 +1796,7 @@ int fileSystem_makeDirectory(lua_State * l)
 
 int fileSystem_removeDirectory(lua_State * l)
 {
-	const char * filename = lua_tostring(l, 1);
+	const char * filename = luaL_checkstring(l, 1);
 
 	int ret = 0;
 #ifdef WIN
@@ -1810,7 +1810,7 @@ int fileSystem_removeDirectory(lua_State * l)
 
 int fileSystem_removeFile(lua_State * l)
 {
-	const char * filename = lua_tostring(l, 1);
+	const char * filename = luaL_checkstring(l, 1);
 
 	int ret = 0;
 #ifdef WIN
@@ -1824,8 +1824,8 @@ int fileSystem_removeFile(lua_State * l)
 
 int fileSystem_move(lua_State * l)
 {
-	const char * filename = lua_tostring(l, 1);
-	const char * newFilename = lua_tostring(l, 2);
+	const char * filename = luaL_checkstring(l, 1);
+	const char * newFilename = luaL_checkstring(l, 2);
 	int ret = 0;
 
 	ret = rename(filename, newFilename);
@@ -1836,15 +1836,15 @@ int fileSystem_move(lua_State * l)
 
 int fileSystem_copy(lua_State * l)
 {
-	const char * filename = lua_tostring(l, 1);
-	const char * newFilename = lua_tostring(l, 2);
+	const char * filename = luaL_checkstring(l, 1);
+	const char * newFilename = luaL_checkstring(l, 2);
 	int ret = 1;
 
 	char buf[BUFSIZ];
 	size_t size;
 
 	FILE* source = fopen(filename, "rb");
-	if(source)
+	if (source)
 	{
 		FILE* dest = fopen(newFilename, "wb");
 		if (dest)
@@ -2388,32 +2388,32 @@ void elements_setProperty(lua_State * l, int id, int format, int offset)
 	switch(format)
 	{
 		case 0: //Int
-			*((int*)(((unsigned char*)&globalSim->elements[id])+offset)) = lua_tointeger(l, 3);
+			*((int*)(((unsigned char*)&globalSim->elements[id])+offset)) = luaL_checkinteger(l, 3);
 			break;
 		case 1: //Float
-			*((float*)(((unsigned char*)&globalSim->elements[id])+offset)) = (float)lua_tonumber(l, 3);
+			*((float*)(((unsigned char*)&globalSim->elements[id])+offset)) = (float)luaL_checknumber(l, 3);
 			break;
 		case 2: //String
-			*((std::string*)(((unsigned char*)&globalSim->elements[id]) + offset)) = std::string(luaL_optstring(l, 3, ""));
+			*((std::string*)(((unsigned char*)&globalSim->elements[id]) + offset)) = std::string(luaL_checkstring(l, 3));
 			break;
 		case 3: //Unsigned char (HeatConduct)
-			*((unsigned char*)(((unsigned char*)&globalSim->elements[id])+offset)) = (unsigned char)lua_tointeger(l, 3);
+			*((unsigned char*)(((unsigned char*)&globalSim->elements[id])+offset)) = (unsigned char)luaL_checkinteger(l, 3);
 			break;
 		case 4: //Color (Color)
 		{
 #if PIXELSIZE == 4
-			unsigned int col = (unsigned int)lua_tonumber(l, 3);
+			unsigned int col = (unsigned int)luaL_checknumber(l, 3);
 			*((unsigned int*)(((unsigned char*)&globalSim->elements[id])+offset)) = col;
 #else
-			*((unsigned short*)(((unsigned char*)&globalSim->elements[id])+offset)) = lua_tointeger(l, 3);
+			*((unsigned short*)(((unsigned char*)&globalSim->elements[id])+offset)) = luaL_checkinteger(l, 3);
 #endif
 			break;
 		}
 		case 5: //Unsigned int (Properties, PhotonReflectWavelength, Latent)
-			*((unsigned int*)(((unsigned char*)&globalSim->elements[id])+offset)) = lua_tointeger(l, 3);
+			*((unsigned int*)(((unsigned char*)&globalSim->elements[id])+offset)) = luaL_checkinteger(l, 3);
 			break;
 		case 6: //Char (State)
-			*((char*)(((unsigned char*)&globalSim->elements[id])+offset)) = (char)lua_tointeger(l, 3);
+			*((char*)(((unsigned char*)&globalSim->elements[id])+offset)) = (char)luaL_checkinteger(l, 3);
 			break;
 	}
 }
