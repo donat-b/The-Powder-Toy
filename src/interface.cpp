@@ -3864,31 +3864,28 @@ void stickmen_keys()
 	}
 }
 
-int FPS = 0, pastFPS = 0;
-float FPSB2 = 0;
-float frameTime;
-float frameTimeAvg = 0.0f, correctedFrameTimeAvg = 0.0f;
+int pastFPS = 0;
+float FPSB2 = 60.0f;
+double frameTimeAvg = 0.0, correctedFrameTimeAvg = 60.0;
 void limit_fps()
 {
-	frameTime = (float)(SDL_GetTicks() - currentTime);
+	int frameTime = SDL_GetTicks() - currentTime;
 
-	frameTimeAvg = (frameTimeAvg*(1.0f-0.2f)) + (0.2f*frameTime);
-	if(limitFPS > 2)
+	frameTimeAvg = frameTimeAvg * .8 + frameTime * .2;
+	if (limitFPS > 2)
 	{
-		float targetFrameTime = 1000.0f/((float)limitFPS);
-		if(targetFrameTime - frameTimeAvg > 0)
-		{
-			SDL_Delay((Uint32)((targetFrameTime - frameTimeAvg) + 0.5f));
-			frameTime = (float)(SDL_GetTicks() - currentTime);//+= (int)(targetFrameTime - frameTimeAvg);
-		}
+		double offset = 1000.0 / limitFPS - frameTimeAvg;
+		if (offset > 0)
+			SDL_Delay(offset + 0.5);
 	}
 
-	correctedFrameTimeAvg = (correctedFrameTimeAvg*(1.0f-0.05f)) + (0.05f*frameTime);
+	int correctedFrameTime = SDL_GetTicks() - currentTime;
+	correctedFrameTimeAvg = correctedFrameTimeAvg * 0.95 + correctedFrameTime * 0.05;
 	elapsedTime = currentTime-pastFPS;
-	if (elapsedTime>=500)
+	if (elapsedTime >= 500)
 	{
 		if (!FPSwait)
-			FPSB2 = 1000.0f/correctedFrameTimeAvg;
+			FPSB2 = 1000.0f/(float)correctedFrameTimeAvg;
 		if (main_loop && FPSwait > 0)
 			FPSwait--;
 		pastFPS = currentTime;
