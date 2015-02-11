@@ -1,6 +1,6 @@
 --Cracker64's Autorun Script Manager
 --The autorun to end all autoruns
---Version 3.3
+--Version 3.4
 
 --TODO:
 --manual file addition (that can be anywhere and any extension)
@@ -9,6 +9,7 @@
 --prettier, organize code
 
 --CHANGES:
+--Version 3.4: some new buttons, better tooltips, fix 'Change dir' button, fix broken buttons on OS X
 --Version 3.3: fix apostophes in filenames, allow authors to rename their scripts on the server
 --Version 3.2: put MANAGER stuff in table, fix displaying changelogs
 --Version 3.1: Organize scripts less randomly, fix scripts being run twice, fix other bugs
@@ -31,26 +32,29 @@ if tpt.version.jacob1s_mod == 30 and tpt.version.jacob1s_mod_minor == 0 then
 	return
 end
 
-local scriptversion = 4
-MANAGER = {["version"] = "3.3", ["scriptversion"] = scriptversion, ["hidden"] = true}
+local scriptversion = 6
+MANAGER = {["version"] = "3.4", ["scriptversion"] = scriptversion, ["hidden"] = true}
 
 local TPT_LUA_PATH = 'scripts'
 local PATH_SEP = '\\'
-local WINDOWS=true
+local OS = "Windows"
 local jacobsmod = tpt.version.jacob1s_mod
-local EXE_NAME = "Powder.exe"
-if jacobsmod then
-	EXE_NAME = "Jacob1\'s\ Mod.exe"
-end
 local CHECKUPDATE = false
 if os.getenv('HOME') then
 	PATH_SEP = '/'
-	if jacobsmod then
-		EXE_NAME = "Jacob1\'s\ Mod"
+	if fs.exists("/Applications") then
+		OS = "OSX"
 	else
-		EXE_NAME = "powder"
+		OS = "Linux"
 	end
-	WINDOWS=false
+end
+local EXE_NAME
+if OS == "Windows" then
+	EXE_NAME = jacobsmod and "Jacob1\'s Mod.exe" or "Powder.exe"
+elseif OS == "Linux" then
+	EXE_NAME = jacobsmod and "Jacob1\'s Mod" or "powder"
+elseif OS == "OSX" then
+	EXE_NAME = "powder-x" --can't restart on OS X
 end
 local filenames = {}
 local num_files = 0 --downloaded scripts aren't stored in filenames
@@ -75,7 +79,7 @@ local function scriptInfoString(info)
 	for k,v in pairs(info) do
 		table.insert(t,k..":\""..v.."\"")
 	end
-	local rstr = table.concat(t,","):gsub("\n","\\n")
+	local rstr = table.concat(t,","):gsub("\r",""):gsub("\n","\\n")
 	return rstr
 end
 
@@ -87,7 +91,7 @@ local function readScriptInfo(list)
 		local t = {}
 		local ID = 0
 		for k,v in i:gmatch("(%w+):\"([^\"]*)\"") do
-			t[k]= tonumber(v) or v:gsub("\\n","\n")
+			t[k]= tonumber(v) or v:gsub("\r",""):gsub("\\n","\n")
 		end
 		scriptlist[t.ID] = t
 	end
@@ -126,38 +130,8 @@ local function save_last()
 	end
 end
 
---load settings before anything else
-local function load_last()
-	local f = io.open(TPT_LUA_PATH..PATH_SEP.."autorunsettings.txt","r")
-	if not f then
-		f = io.open("autorunsettings.txt","r")
-	end
-	if f then
-		local lines = {}
-		local line = f:read("*l")
-		while line do
-			table.insert(lines,line)
-			line = f:read("*l")
-		end
-		f:close()
-		for i=1, #lines do
-			local tok=lines[i]:sub(1,3)
-			local str=lines[i]:sub(5)
-			if tok=="SAV" then
-				for word in string.gmatch(str, "\"(.-)\"") do running[word] = true end
-			elseif tok=="EXE" then
-				EXE_NAME=str
-			elseif tok=="DIR" then
-				TPT_LUA_PATH=str
-			elseif tok=="SET" then
-			local ident,name,val = string.match(str,"(.-) (.-):\"(.-)\"")
-		if settings[ident] then settings[ident][name]=val
-		else settings[ident]={[name]=val} end
-			end
-		end
-	end
-
-	f = io.open(TPT_LUA_PATH..PATH_SEP.."downloaded"..PATH_SEP.."scriptinfo","r")
+local function load_downloaded()
+	local f = io.open(TPT_LUA_PATH..PATH_SEP.."downloaded"..PATH_SEP.."scriptinfo","r")
 	if f then
 		local lines = f:read("*a")
 		f:close()
@@ -173,6 +147,40 @@ local function load_last()
 		end
 	end
 end
+
+--load settings before anything else
+local function load_last()
+	local f = io.open(TPT_LUA_PATH..PATH_SEP.."autorunsettings.txt","r")
+	if not f then
+		f = io.open("autorunsettings.txt","r")
+	end
+	if f then
+		local lines = {}
+		local line = f:read("*l")
+		while line do
+			table.insert(lines,(line:gsub("\r","")))
+			line = f:read("*l")
+		end
+		f:close()
+		for i=1, #lines do
+			local tok=lines[i]:sub(1,3)
+			local str=lines[i]:sub(5)
+			if tok=="SAV" then
+				for word in string.gmatch(str, "\"(.-)\"") do running[word] = true end
+			elseif tok=="EXE" then
+				EXE_NAME=str
+			elseif tok=="DIR" then
+				TPT_LUA_PATH=str
+			elseif tok=="SET" then
+				local ident,name,val = string.match(str,"(.-) (.-):\"(.-)\"")
+				if settings[ident] then settings[ident][name]=val
+				else settings[ident]={[name]=val} end
+			end
+		end
+	end
+
+	load_downloaded()
+end
 load_last()
 --get list of files in scripts folder
 local function load_filenames()
@@ -187,7 +195,7 @@ local function load_filenames()
 			elseif fs.isFile(file) then
 				if file:find("%.lua$") then
 					local toinsert = file:sub(#TPT_LUA_PATH+2)
-					if WINDOWS then
+					if OS == "Windows" then
 						toinsert = toinsert:gsub("/", "\\") --not actually required
 					end
 					table.insert(filenames, toinsert)
@@ -211,7 +219,7 @@ new = function()
 	function b:draw(...)
 		for _,f in ipairs(self.drawlist) do
 			if type(f)=="function" then
-				f(self,unpack(arg))
+				f(self,...)
 			end
 		end
 	end
@@ -423,22 +431,32 @@ new = function(x,y,w,text)
 	function b:updatetooltip(tooltip)
 		self.tooltip = tooltip
 		self.length = #tooltip
-		self.lines = 0
-		local start,last = 1,2
-		while last <= self.length do
-			while tpt.textwidth(self.tooltip:sub(start,last)) < w and last <= self.length and self.tooltip:sub(last,last) ~= '\n' do
-				last = last + 1
+		self.lines = 1
+
+		local linebreak,lastspace = 0,nil
+		for i=0,#self.tooltip do
+			local width = tpt.textwidth(tooltip:sub(linebreak,i+1))
+			if width > self.w/2 and tooltip:sub(i,i):match("[%s,_%.%-?!]") then
+				lastspace = i
 			end
-			if last <= self.length and self.tooltip:sub(last,last) ~= '\n' then
-				self.length = self.length + 1
-				self.tooltip = self.tooltip:sub(1,last-1).."\n"..self.tooltip:sub(last)
+			local isnewline = (self.tooltip:sub(i,i) == '\n')
+			if width > self.w or isnewline then
+				local pos = (i==#tooltip or not lastspace) and i or lastspace
+				self.lines = self.lines + 1
+				if self.tooltip:sub(pos,pos) == ' ' then
+					self.tooltip = self.tooltip:sub(1,pos-1).."\n"..self.tooltip:sub(pos+1)
+				elseif not isnewline then
+					self.length = self.length + 1
+					self.tooltip = self.tooltip:sub(1,pos-1).."\n"..self.tooltip:sub(pos)
+					i = i + 1
+					pos = pos + 1
+				end
+				linebreak = pos+1
+				lastspace = nil
 			end
-			last = last + 1
-			start = last
-			self.lines = self.lines + 1
 		end
 		self.h = self.lines*12+2
-		--if self.lines == 1 then self.w = tpt.textwidth(self.tooltip)+3 end
+		--self.w = tpt.textwidth(self.tooltip)+3
 		self.drawbox = tooltip ~= ""
 		self.drawbackground = tooltip ~= ""
 	end
@@ -465,9 +483,10 @@ up_button = function(x,y,w,h,f,text)
 	b.canupdate=false
 	return b
 end,
-new_button = function(x,y,w,h,splitx,f,f2,text)
+new_button = function(x,y,w,h,splitx,f,f2,text,localscript)
 	local b = ui_box.new(x,y,splitx,h)
 	b.f=f b.f2=f2
+	b.localscript=localscript
 	b.splitx = splitx
 	b.t=ui_text.newscroll(text,x+24,y+2,splitx-24)
 	b.clicked=false
@@ -477,29 +496,35 @@ new_button = function(x,y,w,h,splitx,f,f2,text)
 	b:setbackground(127,127,127,100)
 	b:drawadd(function(self)
 		if self.t.text == "" then return end
-		if tpt.mousex>=self.x and tpt.mousex<self.x2 and tpt.mousey>=self.y and tpt.mousey<self.y2 then
-			local script
-			if online and onlinescripts[self.ID]["description"] then
-				script = onlinescripts[self.ID]
-			elseif not online and localscripts[self.ID] then
-				script = localscripts[self.ID]
-			end
-			if script then
-				tooltip:settooltip(script["name"].." by "..script["author"].."\n\n"..script["description"])
-			end
-			self.drawbackground=true
-		else
-			if tpt.mousey>=self.y and tpt.mousey<self.y2 and tpt.mousex > self.x then
+		self.drawbackground = false
+		if tpt.mousey >= self.y and tpt.mousey < self.y2 then
+			if tpt.mousex >= self.x and tpt.mousex < self.x+8 then
+				if self.localscript then
+					tooltip:settooltip("delete this script")
+				else
+					tooltip:settooltip("view script in browser")
+				end
+			elseif tpt.mousex>=self.x and tpt.mousex<self.x2 then
+				local script
+				if online and onlinescripts[self.ID]["description"] then
+					script = onlinescripts[self.ID]
+				elseif not online and localscripts[self.ID] then
+					script = localscripts[self.ID]
+				end
+				if script then
+					tooltip:settooltip(script["name"].." by "..script["author"].."\n\n"..script["description"])
+				end
+				self.drawbackground = true
+			elseif tpt.mousex >= self.x2 then
 				if tpt.mousex < self.x2+9 and self.running then
 					tooltip:settooltip(online and "downloaded" or "running")
 				elseif tpt.mousex >= self.x2+9 and tpt.mousex < self.x2+43 and self.checkbut.canupdate and onlinescripts[self.ID] and onlinescripts[self.ID]["changelog"] then
 					tooltip:settooltip(onlinescripts[self.ID]["changelog"])
 				end
 			end
-			self.drawbackground=false
 		end
 		self.t:draw()
-		if self.f2 then
+		if self.localscript then
 			if self.deletealmostselected then
 				self.deletealmostselected = false
 				tpt.drawtext(self.x+1, self.y+1, "\134", 255, 48, 32, 255)
@@ -507,6 +532,8 @@ new_button = function(x,y,w,h,splitx,f,f2,text)
 				tpt.drawtext(self.x+1, self.y+1, "\134", 160, 48, 32, 255)
 			end
 			tpt.drawtext(self.x+1, self.y+1, "\133", 255, 255, 255, 255)
+		else
+			tpt.drawtext(self.x+1, self.y+1, "\147", 255, 200, 80, 255)
 		end
 		tpt.drawrect(self.x+12,self.y+1,8,8)
 		if self.almostselected then self.almostselected=false tpt.fillrect(self.x+12,self.y+1,8,8,150,150,150)
@@ -563,8 +590,8 @@ new = function(x,y,w,h)
 		self.list={}
 		self.numlist=0
 	end
-	function box:add(f,f2,text)
-		local but = ui_checkbox.new_button(self.x,self.y+1+((self.numlist+1)*10),tpt.textwidth(text)+4,10,self.max_text_width,f,f2,text)
+	function box:add(f,f2,text,localscript)
+		local but = ui_checkbox.new_button(self.x,self.y+1+((self.numlist+1)*10),tpt.textwidth(text)+4,10,self.max_text_width,f,f2,text,localscript)
 		table.insert(self.list,but)
 		self.numlist = #self.list
 		return but
@@ -709,15 +736,25 @@ tooltip = ui_tooltip.new(0,1,250,"")
 --put 'using_manager=MANAGER ~= nil' or similar in your scripts, using_manager will be true if the manager is active
 --Print a message to the manager console, can be colored
 function MANAGER.print(msg,...)
-	mainwindow.menuconsole:addstr(msg,unpack(arg))
+	mainwindow.menuconsole:addstr(msg,...)
 end
 --downloads and returns a file, so you can do whatever...
+local download_file
 function MANAGER.download(url)
 	return download_file(url)
 end
---Get various info about the system (if on windows, script directory, path seperator, if socket is loaded)
+function MANAGER.scriptinfo(id)
+	local url = "http://starcatcher.us/scripts/main.lua"
+	if id then
+		url = url.."?info="..id
+	end
+	local info = download_file(url)
+	infotable = readScriptInfo(info)
+	return id and infotable[id] or infotable
+end
+--Get various info about the system (operating system, script directory, path seperator, if socket is loaded)
 function MANAGER.sysinfo()
-	return {["isWindows"]=WINDOWS, ["scriptDir"]=TPT_LUA_PATH, ["pathSep"]=PATH_SEP, ["exeName"] = EXE_NAME}
+	return {["OS"]=OS, ["scriptDir"]=TPT_LUA_PATH, ["pathSep"]=PATH_SEP, ["exeName"] = EXE_NAME}
 end
 --Save a setting in the autorun settings file, ident should be your script name no one else would use.
 --Name is variable name, val is the value which will be saved/returned as a string
@@ -745,7 +782,7 @@ end
 
 --mniip's download thing (mostly)
 local pattern = "http://w*%.?(.-)(/.*)"
-local function download_file(url)
+function download_file(url)
 	local _,_,host,rest = url:find(pattern)
 	if not host or not rest then MANAGER.print("Bad link") return end
 	local conn=socket.tcp()
@@ -753,7 +790,7 @@ local function download_file(url)
 	local succ=pcall(conn.connect,conn,host,80)
 	conn:settimeout(5)
 	if not succ then return end
-	local userAgent = "PowderToy/"..tpt.version.major.."."..tpt.version.minor.."."..tpt.version.build.." ("..(WINDOWS and "WIN; " or "LIN; ")..(jacobsmod and "M1" or "M0")..") SCRIPT/"..MANAGER.version
+	local userAgent = "PowderToy/"..tpt.version.major.."."..tpt.version.minor.."."..tpt.version.build.." ("..(OS == "Windows" and "WIN; " or (os == "Linux" and "LIN; " or "OSX; "))..(jacobsmod and "M1" or "M0")..") SCRIPT/"..MANAGER.version
 	succ,resp,something=pcall(conn.send,conn,"GET "..rest.." HTTP/1.1\r\nHost: "..host.."\r\nConnection: close\r\nUser-Agent: "..userAgent.."\r\n\n")
 	if not succ then return end
 	local data=""
@@ -796,16 +833,23 @@ end
 --Restart exe (if named correctly)
 local function do_restart()
 	save_last()
-	if WINDOWS then
+	if OS == "Windows" then
 		os.execute("TASKKILL /IM \""..EXE_NAME.."\" /F &&START .\\\""..EXE_NAME.."\"")
-	else
+	elseif OS == "Linux" then
 		os.execute("killall -s KILL \""..EXE_NAME.."\" && ./\""..EXE_NAME.."\"")
+	elseif OS == "OSX" then
+		MANAGER.print("Can't restart TPT on OS X, please close and reopen The Powder Toy")
+		return
 	end
 	MANAGER.print("Restart failed, do you have the exe name right?",255,0,0)
 end
 --TPT interface
 local function step()
-	gfx.fillRect(0,0,gfx.WIDTH,gfx.HEIGHT,0,0,0,150)
+	if jacobsmod then
+		tpt.fillrect(0,0,gfx.WIDTH,gfx.HEIGHT,0,0,0,150)
+	else
+		tpt.fillrect(-1,-1,gfx.WIDTH,gfx.HEIGHT,0,0,0,150)
+	end
 	mainwindow:draw()
 	tpt.drawtext(280,140,"Console Output:")
 	if requiresrestart then
@@ -854,6 +898,7 @@ end
 --button functions on click
 function ui_button.reloadpressed(self)
 	load_filenames()
+	load_downloaded()
 	gen_buttons()
 	mainwindow.checkbox:updatescroll()
 	if num_files == 0 then
@@ -884,6 +929,7 @@ function ui_button.changedir(self)
 	local last = TPT_LUA_PATH
 	local new = tpt.input("Change search directory","Enter the folder where your scripts are",TPT_LUA_PATH,TPT_LUA_PATH)
 	if new~=last and new~="" then
+		fs.removeFile(last..PATH_SEP.."autorunsettings.txt")
 		MANAGER.print("Directory changed to "..new,255,255,0)
 		TPT_LUA_PATH = new
 	end
@@ -891,8 +937,12 @@ function ui_button.changedir(self)
 	save_last()
 end
 function ui_button.uploadscript(self)
-	local command = WINDOWS and "start" or "xdg-open"
-	os.execute(command.." http://starcatcher.us/scripts/#submit-page")
+	local command = OS == "Windows" and "start" or (OS == "Linux" and "xdg-open" or "open")
+	if online then
+		os.execute(command.." http://starcatcher.us/scripts/#submit-page")
+	else
+		os.execute(command.." "..TPT_LUA_PATH)
+	end
 end
 local lastpaused
 function ui_button.sidepressed(self)
@@ -992,6 +1042,10 @@ function ui_button.delete(self)
 		gen_buttons()
 	end
 end
+function ui_button.viewonline(self)
+	local command = OS == "Windows" and "start" or (OS == "Linux" and "xdg-open" or "open")
+	os.execute(command.." http://starcatcher.us/scripts/#"..self.ID)
+end
 function ui_button.scriptcheck(self)
 	local oldpath = localscripts[self.ID]["path"]
 	local newpath = "downloaded"..PATH_SEP..self.ID.." "..onlinescripts[self.ID].author.."-"..onlinescripts[self.ID].name..".lua"
@@ -1023,6 +1077,7 @@ function ui_button.doupdate(self)
 	localscripts[1] = updatetable[1]
 	do_restart()
 end
+local uploadscriptbutton
 function ui_button.localview(self)
 	if online then
 		online = false
@@ -1030,6 +1085,7 @@ function ui_button.localview(self)
 		donebutton.t.text = "DONE"
 		donebutton.w = 29 donebutton.x2 = donebutton.x + donebutton.w
 		donebutton.f = ui_button.donepressed
+		uploadscriptbutton.t.text = "\147 Script Folder"
 	end
 end
 function ui_button.onlineview(self)
@@ -1039,6 +1095,7 @@ function ui_button.onlineview(self)
 		donebutton.t.text = "DOWNLOAD"
 		donebutton.w = 55 donebutton.x2 = donebutton.x + donebutton.w
 		donebutton.f = ui_button.downloadpressed
+		uploadscriptbutton.t.text = "Upload Script"
 	end
 end
 --add buttons to window
@@ -1050,10 +1107,11 @@ local nonebutton = ui_button.new(62,81,8,8,ui_button.selectnone,"")
 nonebutton.drawbox = true
 mainwindow:add(nonebutton)
 mainwindow:add(ui_button.new(538,339,33,10,ui_button.consoleclear,"CLEAR"))
-mainwindow:add(ui_button.new(278,67,40,10,ui_button.reloadpressed,"RELOAD"))
-mainwindow:add(ui_button.new(333,67,80,10,ui_button.changeexename,"Change exe name"))
+mainwindow:add(ui_button.new(278,67,39,10,ui_button.reloadpressed,"RELOAD"))
+mainwindow:add(ui_button.new(333,67,79,10,ui_button.changeexename,"Change exe name"))
 mainwindow:add(ui_button.new(428,67,51,10,ui_button.changedir,"Change dir"))
-mainwindow:add(ui_button.new(493,67,68,10,ui_button.uploadscript,"Upload Script"))
+uploadscriptbutton = ui_button.new(493,67,79,10,ui_button.uploadscript,"\147 Script Folder")
+mainwindow:add(uploadscriptbutton)
 local tempbutton = ui_button.new(60, 65, 30, 10, ui_button.localview, "Local")
 tempbutton.drawbox = true
 mainwindow:add(tempbutton)
@@ -1071,7 +1129,7 @@ local function gen_buttons_local()
 	for k,v in pairs(localscripts) do if v.ID ~= 1 then table.insert(sorted, v) end end
 	table.sort(sorted, function(first,second) return first.name:lower() < second.name:lower() end)
 	for i,v in ipairs(sorted) do
-		local check = mainwindow.checkbox:add(ui_button.pressed,ui_button.delete,v.name)
+		local check = mainwindow.checkbox:add(ui_button.pressed,ui_button.delete,v.name,true)
 		check.ID = v.ID
 		if running[v.path] then
 			check.running = true
@@ -1080,10 +1138,10 @@ local function gen_buttons_local()
 		count = count + 1
 	end
 	if #sorted >= 5 and #filenames >= 5 then
-		mainwindow.checkbox:add(nil, nil, "") --empty space to separate things
+		mainwindow.checkbox:add(nil, nil, "", false) --empty space to separate things
 	end
 	for i=1,#filenames do
-		local check = mainwindow.checkbox:add(ui_button.pressed,ui_button.delete,filenames[i])
+		local check = mainwindow.checkbox:add(ui_button.pressed,ui_button.delete,filenames[i],true)
 		if running[filenames[i]] then
 			check.running = true
 			check.selected = true
@@ -1098,7 +1156,7 @@ local function gen_buttons_online()
 	for k,v in pairs(onlinescripts) do table.insert(sorted, v) end
 	table.sort(sorted, function(first,second) return first.ID < second.ID end)
 	for k,v in pairs(sorted) do
-		local check = mainwindow.checkbox:add(ui_button.pressed, nil, v.name)
+		local check = mainwindow.checkbox:add(ui_button.pressed, ui_button.viewonline, v.name, false)
 		check.ID = v.ID
 		check.checkbut.ID = v.ID
 		if localscripts[v.ID] then
@@ -1144,7 +1202,7 @@ for prev,v in pairs(running) do
 		running[prev] = nil
 	else
 		started=started.." "..prev
-		local newbut = mainwindow.checkbox:add(ui_button.pressed,prev)
+		local newbut = mainwindow.checkbox:add(ui_button.pressed,prev,nil,false)
 		newbut.selected=true
 	end
 end
