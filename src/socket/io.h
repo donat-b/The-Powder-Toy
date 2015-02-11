@@ -16,7 +16,7 @@
 \*=========================================================================*/
 #include <stdio.h>
 
-#include "luainc.h"
+#include "LuaCompat.h"
 #include "timeout.h"
 
 /* IO error codes */

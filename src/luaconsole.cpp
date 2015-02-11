@@ -62,7 +62,7 @@ void luacon_open()
 	int i = 0;
 	char tmpname[12];
 	int currentElementMeta, currentElement;
-	const static struct luaL_reg tptluaapi [] = {
+	const static struct luaL_Reg tptluaapi [] = {
 		{"test", &luatpt_test},
 		{"drawtext", &luatpt_drawtext},
 		{"create", &luatpt_create},
@@ -137,7 +137,7 @@ void luacon_open()
 		{NULL,NULL}
 	};
 
-	l = lua_open();
+	l = luaL_newstate();
 	luaL_openlibs(l);
 	luaopen_bit(l);
 	luaopen_socket_core(l);

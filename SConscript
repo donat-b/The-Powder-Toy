@@ -61,7 +61,8 @@ AddSconsOption('renderer', False, False, "Build the save renderer")
 AddSconsOption('wall', False, False, "Error on all warnings")
 AddSconsOption('no-warnings', True, False, "Disable all compiler warnings (default)")
 AddSconsOption('nolua', False, False, "Disable Lua")
-AddSconsOption('luajit', False, False, "Enable LuaJIT.")
+AddSconsOption('luajit', False, False, "Enable LuaJIT")
+AddSconsOption('lua52', False, False, "Compile using lua 5.2")
 AddSconsOption('nofft', False, False, "Disable FFT")
 AddSconsOption("output", False, True, "Executable output name")
 
@@ -243,29 +244,39 @@ def findLibs(env, conf):
 		if GetOption('luajit'):
 			if not conf.CheckLib(['luajit-5.1', 'luajit5.1', 'luajit']):
 				FatalError("luajit development library not found or not installed")
+			env.Append(CPPDEFINES=["LUAJIT"])
 			luaver = "luajit"
+		elif GetOption('lua52'):
+			if not conf.CheckLib(['lua5.2', 'lua-5.2', 'lua52']):
+				FatalError("lua5.2 development library not found or not installed")
+			env.Append(CPPDEFINES=["LUA_COMPAT_ALL"])
+			luaver = "lua5.2"
 		else:
 			if not conf.CheckLib(['lua5.1', 'lua-5.1', 'lua51', 'lua']):
 				if platform != "Darwin" or not conf.CheckFramework("Lua"):
 					FatalError("lua5.1 development library not found or not installed")
+
 		if platform == "Linux":
 			try:
 				env.ParseConfig("pkg-config --cflags {0}".format(luaver))
 				env.ParseConfig("pkg-config --libs {0}".format(luaver))
+				env.Append(CPPDEFINES=["LUA_R_INCL"])
 			except:
 				pass
-
-		#Look for lua.h
-		foundheader = False
-		if GetOption('luajit'):
-			foundheader = conf.CheckCHeader('luajit-2.0/lua.h')
 		else:
-			foundheader = conf.CheckCHeader('lua5.1/lua.h')
-		if not foundheader:
-			if conf.CheckCHeader('lua.h'):
-				env.Append(CPPDEFINES=["LUA_R_INCL"])
+			#Look for lua.h
+			foundheader = False
+			if GetOption('luajit'):
+				foundheader = conf.CheckCHeader('luajit-2.0/lua.h')
+			elif GetOption('lua52'):
+				foundheader = conf.CheckCHeader('lua5.2/lua.h')
 			else:
-				FatalError("lua.h not found")
+				foundheader = conf.CheckCHeader('lua5.1/lua.h')
+			if not foundheader:
+				if conf.CheckCHeader('lua.h'):
+					env.Append(CPPDEFINES=["LUA_R_INCL"])
+				else:
+					FatalError("lua.h not found")
 
 	#Look for fftw
 	if not GetOption('nofft') and not conf.CheckLib(['fftw3f', 'fftw3f-3', 'libfftw3f-3']):
@@ -456,7 +467,7 @@ elif GetOption("no-warnings"):
 #Generate list of sources to compile
 sources = Glob("src/*.cpp") + Glob("src/*/*.cpp") + Glob("src/*/*/*.cpp")
 if not GetOption('nolua') and not GetOption('renderer'):
-	sources += Glob("src/socket/*.c")
+	sources += Glob("src/socket/*.c") + ["src/LuaCompat.c"]
 
 if platform == "Windows" and not msvc:
 	sources += env.RES('src/Resources/powder-res.rc')

@@ -6,7 +6,6 @@
 \*=========================================================================*/
 #include <string.h> 
 
-#include "luainc.h"
 #include "auxiliar.h"
 #include "socket.h"
 #include "inet.h"
@@ -41,7 +40,7 @@ static int meth_setfd(lua_State *L);
 static int meth_dirty(lua_State *L);
 
 /* udp object methods */
-static luaL_reg udp[] = {
+static luaL_Reg udp[] = {
     {"__gc",        meth_close},
     {"__tostring",  auxiliar_tostring},
     {"close",       meth_close},
@@ -74,7 +73,7 @@ static t_opt opt[] = {
 };
 
 /* functions in library namespace */
-static luaL_reg func[] = {
+static luaL_Reg func[] = {
     {"udp", global_create},
     {NULL, NULL}
 };

@@ -1,13 +1,5 @@
 // socket.lua from luasocket compiled into a c file
-#ifdef LUA_R_INCL
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
-#else
-#include <lua5.1/lua.h>
-#include <lua5.1/lauxlib.h>
-#include <lua5.1/lualib.h>
-#endif
+#include "LuaCompat.h"
 
 void luaopen_socket(lua_State *l){
 	int socket_luac_sz=4061;

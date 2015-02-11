@@ -6,7 +6,7 @@
 \*=========================================================================*/
 #include <string.h>
 
-#include "luainc.h"
+#include "LuaCompat.h"
 #include "socket.h"
 #include "timeout.h"
 #include "select.h"
@@ -25,7 +25,7 @@ static void make_assoc(lua_State *L, int tab);
 static int global_select(lua_State *L);
 
 /* functions in library namespace */
-static luaL_reg func[] = {
+static luaL_Reg func[] = {
     {"select", global_select},
     {NULL,     NULL}
 };

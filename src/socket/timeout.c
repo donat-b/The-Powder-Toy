@@ -6,7 +6,6 @@
 \*=========================================================================*/
 #include <stdio.h>
 
-#include "luainc.h"
 #include "auxiliar.h"
 #include "timeout.h"
 
@@ -31,7 +30,7 @@
 static int timeout_lua_gettime(lua_State *L);
 static int timeout_lua_sleep(lua_State *L);
 
-static luaL_reg func[] = {
+static luaL_Reg func[] = {
     { "gettime", timeout_lua_gettime },
     { "sleep", timeout_lua_sleep },
     { NULL, NULL }

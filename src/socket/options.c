@@ -6,7 +6,6 @@
 \*=========================================================================*/
 #include <string.h> 
 
-#include "luainc.h"
 #include "auxiliar.h"
 #include "options.h"
 #include "inet.h"

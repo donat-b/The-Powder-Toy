@@ -155,7 +155,7 @@ const int particlePropertiesCount = 12;
 void initSimulationAPI(lua_State * l)
 {
 	//Methods
-	struct luaL_reg simulationAPIMethods [] = {
+	struct luaL_Reg simulationAPIMethods [] = {
 		{"partNeighbors", simulation_partNeighbours},
 		{"partNeighbours", simulation_partNeighbours},
 		{"partChangeType", simulation_partChangeType},
@@ -1462,7 +1462,7 @@ RENDERER API
 void initRendererAPI(lua_State * l)
 {
 	//Methods
-	struct luaL_reg rendererAPIMethods [] = {
+	struct luaL_Reg rendererAPIMethods [] = {
 		{"renderModes", renderer_renderModes},
 		{"displayModes", renderer_displayModes},
 		{"colorMode", renderer_colorMode},
@@ -1661,7 +1661,7 @@ FILESYSTEM API
 void initFileSystemAPI(lua_State * l)
 {
 	//Methods
-	struct luaL_reg fileSystemAPIMethods [] = {
+	struct luaL_Reg fileSystemAPIMethods [] = {
 		{"list", fileSystem_list},
 		{"exists", fileSystem_exists},
 		{"isFile", fileSystem_isFile},
@@ -1872,7 +1872,7 @@ GRAPHICS API
 void initGraphicsAPI(lua_State * l)
 {
 	//Methods
-	struct luaL_reg graphicsAPIMethods [] = {
+	struct luaL_Reg graphicsAPIMethods [] = {
 		{"textSize", graphics_textSize},
 		{"drawText", graphics_drawText},
 		{"drawLine", graphics_drawLine},
@@ -2107,7 +2107,7 @@ void initElementsAPI(lua_State * l)
 {
 	int i;
 	//Methods
-	struct luaL_reg elementsAPIMethods [] = {
+	struct luaL_Reg elementsAPIMethods [] = {
 		{"allocate", elements_allocate},
 		{"element", elements_element},
 		{"property", elements_property},

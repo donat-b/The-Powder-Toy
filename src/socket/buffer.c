@@ -4,7 +4,6 @@
 *
 * RCS ID: $Id: buffer.c,v 1.28 2007/06/11 23:44:54 diego Exp $
 \*=========================================================================*/
-#include "luainc.h"
 #include "buffer.h"
 
 /*=========================================================================*\
@@ -231,7 +230,7 @@ static int recvline(p_buffer buf, luaL_Buffer *b) {
         pos = 0;
         while (pos < count && data[pos] != '\n') {
             /* we ignore all \r's */
-            if (data[pos] != '\r') luaL_putchar(b, data[pos]);
+			if (data[pos] != '\r') luaL_addchar(b, data[pos]);
             pos++;
         }
         if (pos < count) { /* found '\n' */

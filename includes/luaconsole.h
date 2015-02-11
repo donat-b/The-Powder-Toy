@@ -19,23 +19,9 @@
 #ifndef LUACONSOLEH
 #define LUACONSOLEH
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-#ifdef LUA_R_INCL
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
-#else
-#include <lua5.1/lua.h>
-#include <lua5.1/lauxlib.h>
-#include <lua5.1/lualib.h>
-#endif
-#ifdef __cplusplus
-}
-#endif
 #include <string>
 
+#include <LuaCompat.h>
 #include <defines.h>
 
 #define LOCAL_LUA_DIR "Lua"

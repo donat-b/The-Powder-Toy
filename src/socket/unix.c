@@ -7,7 +7,6 @@
 \*=========================================================================*/
 #include <string.h> 
 
-#include "luainc.h"
 #include "auxiliar.h"
 #include "socket.h"
 #include "options.h"
@@ -38,7 +37,7 @@ static const char *unix_tryconnect(p_unix un, const char *path);
 static const char *unix_trybind(p_unix un, const char *path);
 
 /* unix object methods */
-static luaL_reg un[] = {
+static luaL_Reg un[] = {
     {"__gc",        meth_close},
     {"__tostring",  auxiliar_tostring},
     {"accept",      meth_accept},
@@ -70,7 +69,7 @@ static t_opt opt[] = {
 };
 
 /* our socket creation function */
-static luaL_reg func[] = {
+static luaL_Reg func[] = {
     {"unix", global_create},
     {NULL,          NULL}
 };
