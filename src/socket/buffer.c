@@ -230,7 +230,7 @@ static int recvline(p_buffer buf, luaL_Buffer *b) {
         pos = 0;
         while (pos < count && data[pos] != '\n') {
             /* we ignore all \r's */
-			if (data[pos] != '\r') luaL_addchar(b, data[pos]);
+            if (data[pos] != '\r') luaL_addchar(b, data[pos]);
             pos++;
         }
         if (pos < count) { /* found '\n' */
