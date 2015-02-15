@@ -8096,9 +8096,9 @@ void catalogue_ui(pixel * vid_buf)
 		clearScreen(1.0f);
 #endif
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
-		if (sdl_key==SDLK_RETURN)
+		if (sdl_key==SDLK_RETURN || sdl_key==SDLK_ESCAPE)
 			break;
-		if (sdl_key==SDLK_ESCAPE)
+		if (b && !bq && (mx < x0 || mx >= x0+xsize || my < y0 || my >= y0+ysize))
 			break;
 	}
 openfin:	
