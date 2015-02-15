@@ -40,7 +40,7 @@ int simulation_signIndex(lua_State *l)
 	//Get Raw Index value for element. Maybe there is a way to get the sign index some other way?
 	lua_pushstring(l, "id");
 	lua_rawget(l, 1);
-	int id = lua_tointeger(l, lua_gettop(l));
+	int id = lua_tointeger(l, lua_gettop(l))-1;
 
 	if (id < 0 || id >= MAXSIGNS)
 	{
@@ -67,7 +67,7 @@ int simulation_signNewIndex(lua_State *l)
 	//Get Raw Index value for element. Maybe there is a way to get the sign index some other way?
 	lua_pushstring(l, "id");
 	lua_rawget(l, 1);
-	int id = lua_tointeger(l, lua_gettop(l));
+	int id = lua_tointeger(l, lua_gettop(l))-1;
 
 	if (id < 0 || id >= MAXSIGNS)
 	{
@@ -256,7 +256,7 @@ void initSimulationAPI(lua_State * l)
 	}
 
 	lua_newtable(l);
-	for (int i = 0; i < MAXSIGNS; i++)
+	for (int i = 1; i <= MAXSIGNS; i++)
 	{
 		lua_newtable(l);
 		lua_pushinteger(l, i); //set "id" to table index
