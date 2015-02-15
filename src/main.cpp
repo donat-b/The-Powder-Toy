@@ -2858,7 +2858,6 @@ int main(int argc, char *argv[])
 				b = lb = 0;
 			else if ((y<YRES && x<XRES) || lb)// mouse is in playing field
 			{
-				int signi;
 				bool clickedSign = false;
 
 				activeToolID = ((b&1) || b == 2) ? 0 : 1;
@@ -2867,57 +2866,64 @@ int main(int argc, char *argv[])
 					activeTool = GetToolFromIdentifier("DEFAULT_DECOR_CLR");
 
 				//link signs are clicked from here
-				if (((ToolTool*)activeTool)->GetID() != TOOL_SIGN || b != 1)
+				if (!bq && MSIGN == -1 && (((ToolTool*)activeTool)->GetID() != TOOL_SIGN || b != 1 || (sdl_mod&KMOD_CTRL)))
 				{
-					if (!bq)
-						for (signi=0; signi<MAXSIGNS; signi++)
-							if (!sregexp(signs[signi].text, "^{[ct]:[0-9]*|.*}$") || !sregexp(signs[signi].text, "^{s:.*|.*}$") || !sregexp(signs[signi].text, "^{b|.*}$"))
+					int signx, signy, signw, signh;
+					for (int signi = 0; signi < MAXSIGNS; signi++)
+					{
+						get_sign_pos(signi, &signx, &signy, &signw, &signh);
+						if (mx>=signx && mx<=signx+signw && my>=signy && my<=signy+signh)
+						{
+							if (sdl_mod&KMOD_CTRL)
 							{
-								int signx, signy, signw, signh;
-								get_sign_pos(signi, &signx, &signy, &signw, &signh);
-								if (mx>=signx && mx<=signx+signw && my>=signy && my<=signy+signh)
+								MSIGN = signi;
+								clickedSign = true;
+								break;
+							}
+							else if (!sregexp(signs[signi].text, "^{[ct]:[0-9]*|.*}$") || !sregexp(signs[signi].text, "^{s:.*|.*}$") || !sregexp(signs[signi].text, "^{b|.*}$"))
+							{
+								if (signs[signi].text[1] == 'b')
 								{
-									if (signs[signi].text[1] == 'b')
-									{
-										if (pmap[signs[signi].y][signs[signi].x])
-											globalSim->spark_all_attempt(pmap[signs[signi].y][signs[signi].x]>>8, signs[signi].x, signs[signi].y);
-										//hacky hack to cancel out clicks ...
-										lm = -1;
-										lb = 1;
-										break;
-									}
-									char buff[256];
-									int sldr;
-
-									memset(buff, 0, sizeof(buff));
-
-									for (sldr=3; signs[signi].text[sldr] != '|'; sldr++)
-										buff[sldr-3] = signs[signi].text[sldr];
-
-									if (buff[0])
-									{
-										buff[sldr-3] = '\0';
-										if (signs[signi].text[1] == 'c')
-										{
-											open_ui(vid_buf, buff, 0, 0);
-										}
-										else if (signs[signi].text[1] == 's')
-										{
-											strcpy(search_expr, buff);
-											search_own = 0;
-											search_ui(vid_buf);
-										}
-										else
-										{
-											char url[256];
-											sprintf(url, "http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=%s", buff);
-											open_link(url);
-										}
-									}
-									clickedSign = true;
+									if (pmap[signs[signi].y][signs[signi].x])
+										globalSim->spark_all_attempt(pmap[signs[signi].y][signs[signi].x]>>8, signs[signi].x, signs[signi].y);
+									//hacky hack to cancel out clicks ...
+									lm = -1;
+									lb = 1;
 									break;
 								}
+								char buff[256];
+								int sldr;
+
+								memset(buff, 0, sizeof(buff));
+
+								for (sldr=3; signs[signi].text[sldr] != '|'; sldr++)
+									buff[sldr-3] = signs[signi].text[sldr];
+
+								if (buff[0])
+								{
+									buff[sldr-3] = '\0';
+									if (signs[signi].text[1] == 'c')
+									{
+										open_ui(vid_buf, buff, 0, 0);
+									}
+									else if (signs[signi].text[1] == 's')
+									{
+										strcpy(search_expr, buff);
+										search_own = 0;
+										search_ui(vid_buf);
+									}
+									else
+									{
+										char url[256];
+										sprintf(url, "http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=%s", buff);
+										open_link(url);
+									}
+								}
+								clickedSign = true;
+								break;
 							}
+						}
+					}
 				}
 
 				//for the click functions, lx and ly, are the positions of where the FIRST click happened.  mx,my are current mouse position.
@@ -3029,6 +3035,7 @@ int main(int argc, char *argv[])
 					else if (((ToolTool*)activeTool)->GetID() == TOOL_SIGN || MSIGN != -1) // if sign tool is selected or a sign is being moved
 					{
 						add_sign_ui(vid_buf, mx, my);
+						lm = -1;
 					}
 					else //normal click, spawn element
 					{
