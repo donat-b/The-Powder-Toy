@@ -1258,7 +1258,8 @@ int main(int argc, char *argv[])
 			versionCheck = new Download(changelog_uri_alt);
 		else
 			versionCheck = new Download(changelog_uri);
-		versionCheck->AuthHeaders(svf_user, NULL); //username instead of session
+		if (svf_login)
+			versionCheck->AuthHeaders(svf_user, NULL); //username instead of session
 		versionCheck->Start();
 	}
 	if (svf_login)

@@ -886,6 +886,12 @@ Remove autosave button (it was broken, there are better alternatives now). Fix
 some issues with tptmp and the script manager. Other fixes, also simulation
 updates from tpt++.
 
+Version 30.4 2/14/15
+Fix thumbnails sometimes failing to download. Fix modifier state from lua.
+Better .desktop file and icon on Linux. Cancel mouse drawing when moving it
+in / out of the zoom window. Update internal script manager to 3.4. Now
+compiled using lua5.2. Some other minor bugfixes, especially to lua.
+
 
 
 
