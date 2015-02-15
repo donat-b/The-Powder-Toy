@@ -25,7 +25,7 @@ int BOMB_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)!=PT_BOMB && (r&0xFF)!=PT_EMBR && (r&0xFF)!=PT_VIBR && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && !(ptypes[r&0xFF].properties&PROP_CLONE))
+				if ((r&0xFF)!=PT_BOMB && (r&0xFF)!=PT_EMBR && (r&0xFF)!=PT_VIBR && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && !(ptypes[r&0xFF].properties&PROP_CLONE) && !(ptypes[r&0xFF].properties&PROP_BREAKABLECLONE))
 				{
 					int rad = 8;
 					int nxi;
@@ -36,7 +36,7 @@ int BOMB_update(UPDATE_FUNC_ARGS)
 						for (nxi=-rad; nxi<=rad; nxi++)
 							if ((pow((float)nxi,2.0f))/(pow((float)rad,2.0f))+(pow((float)nxj,2.0f))/(pow((float)rad,2.0f))<=1)
 
-								if (!(ptypes[pmap[y+nxj][x+nxi]&0xFF].properties&PROP_INDESTRUCTIBLE) && !(ptypes[pmap[y+nxj][x+nxi]&0xFF].properties&PROP_CLONE) && (pmap[y+nxj][x+nxi]&0xFF)!=PT_VIBR) {
+								if ((pmap[y+nxj][x+nxi]&0xFF)!=PT_VIBR && !(ptypes[pmap[y+nxj][x+nxi]&0xFF].properties&PROP_INDESTRUCTIBLE) && !(ptypes[pmap[y+nxj][x+nxi]&0xFF].properties&PROP_CLONE) && !(ptypes[r&0xFF].properties&PROP_BREAKABLECLONE)) {
 									delete_part(x+nxi, y+nxj, 0);
 									pv[(y+nxj)/CELL][(x+nxi)/CELL] += 0.1f;
 									nb = sim->part_create(-3, x+nxi, y+nxj, PT_EMBR);
