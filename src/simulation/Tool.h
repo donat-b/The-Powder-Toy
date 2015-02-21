@@ -45,6 +45,7 @@ public:
 	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
 	virtual void DrawRect(Point startPos, Point endPos);
 	virtual int FloodFill(Point position);
+	virtual void Click(Point position);
 	virtual Tool* Sample(Point position);
 };
 
@@ -53,6 +54,18 @@ class ElementTool : public Tool
 public:
 	ElementTool(int elementID);
 	int GetID();
+};
+
+class PlopTool : public ElementTool
+{
+public:
+	PlopTool(int elementID);
+
+	virtual int DrawPoint(Brush* brush, Point position);
+	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
+	virtual void DrawRect(Point startPos, Point endPos);
+	virtual int FloodFill(Point position);
+	virtual void Click(Point position);
 };
 
 class GolTool : public Tool
@@ -99,6 +112,7 @@ public:
 	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
 	virtual void DrawRect(Point startPos, Point endPos);
 	virtual int FloodFill(Point position);
+	virtual void Click(Point position);
 };
 
 class PropTool : public ToolTool

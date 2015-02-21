@@ -759,6 +759,27 @@ void ctrlzSnapshot()
 		}
 }
 
+//returns -1 if mouse is not inside a link sign, else returns the sign id
+//allsigns argument makes it return whether inside any sign (not just link signs)
+int InsideSign(int mx, int my, bool allsigns)
+{
+	int x, y, w, h;
+	for (int i = 0; i < MAXSIGNS; i++)
+	{
+		get_sign_pos(i, &x, &y, &w, &h);
+		if (mx >= x && mx <= x+w && my >= y && my <= y+h)
+		{
+			if (allsigns)
+				return i;
+			else if (!sregexp(signs[i].text, "^{[ct]:[0-9]*|.*}$") || !sregexp(signs[i].text, "^{s:.*|.*}$") || !sregexp(signs[i].text, "^{b|.*}$"))
+			{
+				return i;
+			}
+		}
+	}
+	return -1;
+}
+
 #ifdef RENDERER
 int main(int argc, char *argv[])
 {
@@ -2859,73 +2880,10 @@ int main(int argc, char *argv[])
 				b = lb = 0;
 			else if ((y<YRES && x<XRES) || lb)// mouse is in playing field
 			{
-				bool clickedSign = false;
-
 				activeToolID = ((b&1) || b == 2) ? 0 : 1;
 				Tool* activeTool = activeTools[activeToolID];
 				if (activeTools[0]->GetType() == DECO_TOOL && b == 4)
 					activeTool = GetToolFromIdentifier("DEFAULT_DECOR_CLR");
-
-				//link signs are clicked from here
-				if (!bq && MSIGN == -1 && (((ToolTool*)activeTool)->GetID() != TOOL_SIGN || b != 1 || (sdl_mod&KMOD_CTRL)))
-				{
-					int signx, signy, signw, signh;
-					for (int signi = 0; signi < MAXSIGNS; signi++)
-					{
-						get_sign_pos(signi, &signx, &signy, &signw, &signh);
-						if (mx>=signx && mx<=signx+signw && my>=signy && my<=signy+signh)
-						{
-							if (sdl_mod&KMOD_CTRL)
-							{
-								MSIGN = signi;
-								clickedSign = true;
-								break;
-							}
-							else if (!sregexp(signs[signi].text, "^{[ct]:[0-9]*|.*}$") || !sregexp(signs[signi].text, "^{s:.*|.*}$") || !sregexp(signs[signi].text, "^{b|.*}$"))
-							{
-								if (signs[signi].text[1] == 'b')
-								{
-									if (pmap[signs[signi].y][signs[signi].x])
-										globalSim->spark_all_attempt(pmap[signs[signi].y][signs[signi].x]>>8, signs[signi].x, signs[signi].y);
-									//hacky hack to cancel out clicks ...
-									lm = -1;
-									lb = 1;
-									break;
-								}
-								char buff[256];
-								int sldr;
-
-								memset(buff, 0, sizeof(buff));
-
-								for (sldr=3; signs[signi].text[sldr] != '|'; sldr++)
-									buff[sldr-3] = signs[signi].text[sldr];
-
-								if (buff[0])
-								{
-									buff[sldr-3] = '\0';
-									if (signs[signi].text[1] == 'c')
-									{
-										open_ui(vid_buf, buff, 0, 0);
-									}
-									else if (signs[signi].text[1] == 's')
-									{
-										strcpy(search_expr, buff);
-										search_own = 0;
-										search_ui(vid_buf);
-									}
-									else
-									{
-										char url[256];
-										sprintf(url, "http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=%s", buff);
-										open_link(url);
-									}
-								}
-								clickedSign = true;
-								break;
-							}
-						}
-					}
-				}
 
 				//for the click functions, lx and ly, are the positions of where the FIRST click happened.  mx,my are current mouse position.
 				if (lb) //lb means you are holding mouse down
@@ -2992,7 +2950,8 @@ int main(int argc, char *argv[])
 						else
 							activeTool->FloodFill(Point(mx, my));
 					}
-					else if (!lm) //while mouse is held down, it draws lines between previous and current positions
+					//while mouse is held down, this draws lines between previous and current positions
+					else if (!lm)
 					{
 						if (sdl_mod & KMOD_SHIFT)
 							toolStrength = 10.0f;
@@ -3003,7 +2962,8 @@ int main(int argc, char *argv[])
 						ly = my;
 					}
 				}
-				else if (!clickedSign && !bq) //it is the first click
+				//it is the first click (don't start drawing if we are moving a sign though)
+				else if (!bq && MSIGN == -1 && InsideSign(mx, my, sdl_mod&KMOD_CTRL) == -1)
 				{
 					toolStrength = 1.0f;
 					lx = line_x = mx;
@@ -3033,11 +2993,6 @@ int main(int argc, char *argv[])
 						activeTools[activeToolID] = activeTool->Sample(Point(mx, my));
 						lb = 0;
 					}
-					else if (((ToolTool*)activeTool)->GetID() == TOOL_SIGN || MSIGN != -1) // if sign tool is selected or a sign is being moved
-					{
-						add_sign_ui(vid_buf, mx, my);
-						lm = -1;
-					}
 					else //normal click, spawn element
 					{
 						//Copy state before drawing any particles (for undo)
@@ -3056,19 +3011,98 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			if (lb && lm && lm != 3) //lm is box/line tool
+			if (lb)
 			{
-				ctrlzSnapshot();
 				activeToolID = ((lb&1) || lb == 2) ? 0 : 1;
 				Tool* activeTool = activeTools[activeToolID];
-				if (activeTools[0]->GetType() == DECO_TOOL && lb == 4)
-					activeTool = GetToolFromIdentifier("DEFAULT_DECOR_CLR");
+				//lm is box/line tool (3 is floodfill)
+				if (lm)
+				{
+					if (lm != 3)
+					{
+						ctrlzSnapshot();
+						if (activeTools[0]->GetType() == DECO_TOOL && lb == 4)
+							activeTool = GetToolFromIdentifier("DEFAULT_DECOR_CLR");
 
-				if (lm == 1)
-					activeTool->DrawLine(currentBrush, Point(lx, ly), Point(line_x, line_y), false);
-				else if (lm == 2)
-					activeTool->DrawRect(Point(lx, ly), Point(line_x, line_y));
-				lm = 0;
+						if (lm == 1)
+							activeTool->DrawLine(currentBrush, Point(lx, ly), Point(line_x, line_y), false);
+						else if (lm == 2)
+							activeTool->DrawRect(Point(lx, ly), Point(line_x, line_y));
+						lm = 0;
+					}
+				}
+				else
+				{
+					//plop tool (STKM, STKM2, FIGH)
+					ctrlzSnapshot();
+					activeTool->Click(Point(lx, ly));
+				}
+			}
+			else if (bq)
+			{
+				//place a moved sign
+				if (MSIGN != -1)
+					MSIGN = -1;
+				//ctrl+click moves a sign
+				else if (sdl_mod&KMOD_CTRL)
+				{
+					int signID = InsideSign(mx, my, true);
+					if (signID != -1)
+						MSIGN = signID;
+				}
+				//link signs are clicked from here
+				else
+				{
+					bool signTool = ((ToolTool*)activeTools[activeToolID])->GetID() == TOOL_SIGN;
+					if (!signTool || bq != -1)
+					{
+						int signID = InsideSign(mx, my, false);
+						if (signID != -1)
+						{
+							//this is a hack so we can edit clickable signs when sign tool is selected (normal signs are handled in activeTool->Click())
+							if (signTool)
+								add_sign_ui(vid_buf, mx, my);
+							else if (signs[signID].text[1] == 'b')
+							{
+								if (pmap[signs[signID].y][signs[signID].x])
+									globalSim->spark_all_attempt(pmap[signs[signID].y][signs[signID].x]>>8, signs[signID].x, signs[signID].y);
+							}
+							else
+							{
+								char buff[256];
+								int sldr;
+
+								memset(buff, 0, sizeof(buff));
+
+								for (sldr=3; signs[signID].text[sldr] != '|'; sldr++)
+									buff[sldr-3] = signs[signID].text[sldr];
+
+								if (buff[0])
+								{
+									buff[sldr-3] = '\0';
+									if (signs[signID].text[1] == 'c')
+									{
+										open_ui(vid_buf, buff, 0, 0);
+									}
+									else if (signs[signID].text[1] == 's')
+									{
+										strcpy(search_expr, buff);
+										search_own = 0;
+										search_ui(vid_buf);
+									}
+									else
+									{
+										char url[256];
+										sprintf(url, "http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=%s", buff);
+										open_link(url);
+									}
+								}
+							}
+						}
+					}
+				}
+
+
 			}
 			lb = 0;
 		}

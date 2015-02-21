@@ -263,7 +263,7 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 
 		ui_edit_process(mx, my, b, bq, &ed);
 
-		if (b && !bq)
+		if (!b && bq)
 		{
 			if (mx>=x0+50 && mx<=x0+67 && my>=y0+42 && my<=y0+59)
 				ju = 0;

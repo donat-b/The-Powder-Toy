@@ -52,6 +52,11 @@ int Tool::FloodFill(Point position)
 	return globalSim->FloodParts(position.X, position.Y, ID, -1, get_brush_flags());
 }
 
+void Tool::Click(Point position)
+{
+
+}
+
 Tool* Tool::Sample(Point position)
 {
 	if (position.Y < 0 || position.Y >= YRES || position.X < 0 || position.X >= XRES)
@@ -92,6 +97,36 @@ int ElementTool::GetID()
 	else
 		return -1;
 }
+
+
+PlopTool::PlopTool(int elementID):
+	ElementTool(elementID)
+{
+
+}
+int PlopTool::DrawPoint(Brush* brush, Point position)
+{
+
+}
+void PlopTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
+{
+
+}
+
+void PlopTool::DrawRect(Point startPos, Point endPos)
+{
+
+}
+
+int PlopTool::FloodFill(Point position)
+{
+
+}
+void PlopTool::Click(Point position)
+{
+	globalSim->part_create(-1, position.X, position.Y, ID);
+}
+
 
 GolTool::GolTool(int golID):
 	Tool(GOL_TOOL, golID, golTypes[golID].identifier)
@@ -195,22 +230,33 @@ ToolTool::ToolTool(int toolID):
 }
 int ToolTool::DrawPoint(Brush* brush, Point position)
 {
+	if (ID == TOOL_SIGN)
+		return 1;
 	globalSim->CreateToolBrush(position.X, position.Y, ID, toolStrength, brush);
 	return 0;
 }
 void ToolTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 {
-	if (ID == TOOL_WIND && !held)
+	if ((ID == TOOL_WIND && !held) || ID == TOOL_SIGN)
 		return;
 	globalSim->CreateToolLine(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, toolStrength, brush);
 }
 void ToolTool::DrawRect(Point startPos, Point endPos)
 {
+	if (ID == TOOL_SIGN)
+		return;
 	globalSim->CreateToolBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, toolStrength);
 }
 int ToolTool::FloodFill(Point position)
 {
 	return 0;
+}
+void ToolTool::Click(Point position)
+{
+	if (ID == TOOL_SIGN)
+	{
+		add_sign_ui(vid_buf, position.X, position.Y);
+	}
 }
 
 PropTool::PropTool():

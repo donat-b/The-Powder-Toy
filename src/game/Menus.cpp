@@ -84,7 +84,10 @@ void FillMenus()
 		{
 			if ((globalSim->elements[i].MenuVisible || secret_els) && globalSim->elements[i].MenuSection >= 0 && globalSim->elements[i].MenuSection < SC_TOTAL && globalSim->elements[i].MenuSection != SC_FAV)
 			{
-				menuSections[globalSim->elements[i].MenuSection]->AddTool(new ElementTool(i));
+				if (i == PT_STKM || i == PT_STKM2 || i == PT_FIGH)
+					menuSections[globalSim->elements[i].MenuSection]->AddTool(new PlopTool(i));
+				else
+					menuSections[globalSim->elements[i].MenuSection]->AddTool(new ElementTool(i));
 			}
 			else
 				menuSections[SC_OTHER]->AddTool(new ElementTool(i));
