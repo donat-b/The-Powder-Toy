@@ -990,7 +990,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 				{
 					fieldDesc |= 1 << 3;
 					partsData[partsDataLen++] = partsptr[i].tmp;
-					if(partsptr[i].tmp & 0xFF00)
+					if(partsptr[i].tmp & 0xFFFFFF00)
 					{
 						fieldDesc |= 1 << 4;
 						partsData[partsDataLen++] = partsptr[i].tmp >> 8;
