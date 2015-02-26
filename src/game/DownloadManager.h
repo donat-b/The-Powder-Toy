@@ -27,7 +27,7 @@ public:
 	void Update();
 	void EnsureRunning();
 
-	int AddDownload(Download *download);
+	void AddDownload(Download *download);
 	void RemoveDownload(int id);
 };
 

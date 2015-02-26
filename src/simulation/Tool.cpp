@@ -106,7 +106,7 @@ PlopTool::PlopTool(int elementID):
 }
 int PlopTool::DrawPoint(Brush* brush, Point position)
 {
-
+	return 0;
 }
 void PlopTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 {
@@ -120,7 +120,7 @@ void PlopTool::DrawRect(Point startPos, Point endPos)
 
 int PlopTool::FloodFill(Point position)
 {
-
+	return 0;
 }
 void PlopTool::Click(Point position)
 {

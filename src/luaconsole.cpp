@@ -323,7 +323,7 @@ int luacon_partread(lua_State* l)
 	float tempfloat;
 	int i;
 	const char * key = luaL_optstring(l, 2, "");
-	offset = luacon_particle_getproperty(key, &format);
+	offset = Particle_GetOffset(key, &format);
 
 	i = cIndex;
 	
@@ -361,7 +361,7 @@ int luacon_partwrite(lua_State* l)
 	int format, offset;
 	int i;
 	const char * key = luaL_optstring(l, 2, "");
-	offset = luacon_particle_getproperty(key, &format);
+	offset = Particle_GetOffset(key, &format);
 	
 	i = cIndex;
 	
@@ -407,60 +407,6 @@ int luacon_partswrite(lua_State* l)
 	return luaL_error(l, "table readonly");
 }
 #endif
-
-int luacon_particle_getproperty(const char * key, int * format)
-{
-	int offset;
-	if (!strcmp(key, "type")) {
-		offset = offsetof(particle, type);
-		*format = 2;
-	} else if (!strcmp(key, "life")) {
-		offset = offsetof(particle, life);
-		*format = 0;
-	} else if (!strcmp(key, "ctype")) {
-		offset = offsetof(particle, ctype);
-		*format = 0;
-	} else if (!strcmp(key, "temp")) {
-		offset = offsetof(particle, temp);
-		*format = 1;
-	} else if (!strcmp(key, "tmp")) {
-		offset = offsetof(particle, tmp);
-		*format = 0;
-	} else if (!strcmp(key, "tmp2")) {
-		offset = offsetof(particle, tmp2);
-		*format = 0;
-	} else if (!strcmp(key, "vy")) {
-		offset = offsetof(particle, vy);
-		*format = 1;
-	} else if (!strcmp(key, "vx")) {
-		offset = offsetof(particle, vx);
-		*format = 1;
-	} else if (!strcmp(key, "x")) {
-		offset = offsetof(particle, x);
-		*format = 1;
-	} else if (!strcmp(key, "y")) {
-		offset = offsetof(particle, y);
-		*format = 1;
-	} else if (!strcmp(key, "dcolour")) {
-		offset = offsetof(particle, dcolour);
-		*format = 3;
-	} else if (!strcmp(key, "dcolor")) {
-		offset = offsetof(particle, dcolour);
-		*format = 3;
-	} else if (!strcmp(key, "flags")) {
-		offset = offsetof(particle, flags);
-		*format = 3;
-	} else if (!strcmp(key, "pavg0")) {
-		offset = offsetof(particle, pavg[0]);
-		*format = 1;
-	} else if (!strcmp(key, "pavg1")) {
-		offset = offsetof(particle, pavg[1]);
-		*format = 1;
-	} else {
-		offset = -1;
-	}
-	return offset;
-}
 
 int luacon_transition_getproperty(const char * key, int * format)
 {
@@ -1694,7 +1640,7 @@ int luatpt_set_property(lua_State* l)
 	acount = lua_gettop(l);
 	prop = luaL_optstring(l, 1, "");
 
-	offset = luacon_particle_getproperty(prop, &format);
+	offset = Particle_GetOffset(prop, &format);
 	if (offset == -1)
 		return luaL_error(l, "Invalid property '%s'", prop);
 	else if (format == 3)
@@ -1830,7 +1776,7 @@ int luatpt_get_property(lua_State* l)
 	{
 		int format, tempinteger;
 		float tempfloat;
-		int offset = luacon_particle_getproperty(prop, &format);
+		int offset = Particle_GetOffset(prop, &format);
 
 		if (offset == -1)
 		{

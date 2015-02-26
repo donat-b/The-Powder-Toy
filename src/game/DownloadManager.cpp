@@ -40,6 +40,7 @@ TH_ENTRY_POINT void* DownloadManagerHelper(void* obj)
 {
 	DownloadManager *temp = (DownloadManager*)obj;
 	temp->Update();
+	return NULL;
 }
 
 void DownloadManager::Start()
@@ -56,16 +57,16 @@ void DownloadManager::Update()
 		if (downloads.size())
 		{
 			pthread_mutex_lock(&downloadLock);
-			for (std::vector<Download*>::iterator iter = downloads.begin(); iter != downloads.end(); ++iter)
+			for (size_t i = 0; i < downloads.size(); i++)
 			{
-				Download *download = (*iter);
+				Download *download = downloads[i];
 				if (download->CheckCanceled())
 				{
 					if (download->http && download->keepAlive && download->CheckStarted())
 						http_force_close(download->http);
 					delete download;
-					downloads.erase(iter);
-					iter--;
+					downloads.erase(downloads.begin()+i);
+					i--;
 				}
 				else if (download->CheckStarted() && !download->CheckDone())
 				{
@@ -106,7 +107,7 @@ void DownloadManager::EnsureRunning()
 	pthread_mutex_unlock(&downloadLock);
 }
 
-int DownloadManager::AddDownload(Download *download)
+void DownloadManager::AddDownload(Download *download)
 {
 	pthread_mutex_lock(&downloadLock);
 	downloads.push_back(download);

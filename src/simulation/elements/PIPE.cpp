@@ -480,8 +480,8 @@ int PIPE_graphics(GRAPHICS_FUNC_ARGS)
 			tpart.type = t;
 			tpart.temp = cpart->temp;
 			tpart.life = cpart->tmp2;
-			tpart.tmp = cpart->pavg[0];
-			tpart.ctype = cpart->pavg[1];
+			tpart.tmp = (int)cpart->pavg[0];
+			tpart.ctype = (int)cpart->pavg[1];
 			if (t == PT_PHOT && tpart.ctype == 0x40000000)
 				tpart.ctype = 0x3FFFFFFF;
 

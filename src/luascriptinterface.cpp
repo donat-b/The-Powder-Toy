@@ -417,12 +417,12 @@ int simulation_partProperty(lua_State * l)
 			return luaL_error(l, "Invalid field ID (%d)", fieldID);
 
 		const char* propertyList[] = {"type", "life", "ctype", "x", "y", "vx", "vy", "temp", "flags", "tmp", "tmp2", "dcolour"};
-		offset = luacon_particle_getproperty(propertyList[fieldID], &format);
+		offset = Particle_GetOffset(propertyList[fieldID], &format);
 	}
 	else if (lua_type(l, 2) == LUA_TSTRING)
 	{
 		const char* fieldName = lua_tostring(l, 2);
-		offset = luacon_particle_getproperty(fieldName, &format);
+		offset = Particle_GetOffset(fieldName, &format);
 		if (offset == -1)
 			return luaL_error(l, "Unknown field (%s)", fieldName);
 	}

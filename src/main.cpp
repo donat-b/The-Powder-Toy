@@ -346,11 +346,13 @@ void clear_sim()
 	finding &= 0x8;
 	if(edgeMode == 1)
 		draw_bframe();
+#ifdef LUACONSOLE
 	if (LuaCode)
 	{
 		free(LuaCode);
 		LuaCode = NULL;
 	}
+#endif
 }
 
 void NewSim()

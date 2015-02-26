@@ -1302,10 +1302,12 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 		bson_append_binary(&b, "movs", (char)BSON_BIN_USER, (const char*)movsData, movsDataLen);
 	if (animData)
 		bson_append_binary(&b, "anim", (char)BSON_BIN_USER, (const char*)animData, animDataLen);
+#ifdef LUACONSOLE
 	if (LuaCode && LuaCodeLen)
 	{
 		bson_append_binary(&b, "LuaCode", (char)BSON_BIN_USER, (const char*)LuaCode, LuaCodeLen);
 	}
+#endif
 	signsCount = 0;
 	for(i = 0; i < MAXSIGNS; i++)
 	{

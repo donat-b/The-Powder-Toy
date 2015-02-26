@@ -66,7 +66,6 @@ int luacon_transitionread(lua_State* l);
 int luacon_transitionwrite(lua_State* l);
 int luacon_tptIndex(lua_State *l);
 int luacon_tptNewIndex(lua_State *l);
-int luacon_particle_getproperty(const char * key, int * format);
 int luacon_transition_getproperty(const char * key, int * format);
 int luacon_element_getproperty(const char * key, int * format, unsigned int * modified_stuff);
 int process_command_lua(pixel *vid_buf, char *command, char **result);

@@ -34,4 +34,6 @@ struct particle
 };
 typedef struct particle particle;
 
+int Particle_GetOffset(const char * key, int * format);
+
 #endif

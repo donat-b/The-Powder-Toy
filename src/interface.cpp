@@ -1770,7 +1770,7 @@ void prop_edit_ui(pixel *vid_buf)
 
 	if (ed.selected != -1)
 	{
-		propoffset = luacon_particle_getproperty(ed.str, &format);
+		propoffset = Particle_GetOffset(ed.str, &format);
 	}
 	if (propoffset == -1)
 	{
@@ -3876,7 +3876,7 @@ void limit_fps()
 	{
 		double offset = 1000.0 / limitFPS - frameTimeAvg;
 		if (offset > 0)
-			SDL_Delay(offset + 0.5);
+			SDL_Delay((Uint32)(offset + 0.5));
 	}
 
 	int correctedFrameTime = SDL_GetTicks() - currentTime;
