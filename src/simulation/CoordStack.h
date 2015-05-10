@@ -27,7 +27,7 @@ public:
 	{
 		return "Maximum number of entries in the coordinate stack was exceeded";
 	}
-	~CoordStackOverflowException() throw() {};
+	~CoordStackOverflowException() throw() {}
 };
 
 class CoordStack
