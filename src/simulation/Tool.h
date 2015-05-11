@@ -43,8 +43,8 @@ public:
 
 	virtual int DrawPoint(Brush* brush, Point position);
 	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual void DrawRect(Point startPos, Point endPos);
-	virtual int FloodFill(Point position);
+	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
+	virtual int FloodFill(Brush* brush, Point position);
 	virtual void Click(Point position);
 	virtual Tool* Sample(Point position);
 };
@@ -63,8 +63,8 @@ public:
 
 	virtual int DrawPoint(Brush* brush, Point position);
 	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual void DrawRect(Point startPos, Point endPos);
-	virtual int FloodFill(Point position);
+	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
+	virtual int FloodFill(Brush* brush, Point position);
 	virtual void Click(Point position);
 };
 
@@ -76,8 +76,8 @@ public:
 
 	virtual int DrawPoint(Brush* brush, Point position);
 	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual void DrawRect(Point startPos, Point endPos);
-	virtual int FloodFill(Point position);
+	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
+	virtual int FloodFill(Brush* brush, Point position);
 };
 
 class WallTool : public Tool
@@ -88,8 +88,8 @@ public:
 
 	virtual int DrawPoint(Brush* brush, Point position);
 	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual void DrawRect(Point startPos, Point endPos);
-	virtual int FloodFill(Point position);
+	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
+	virtual int FloodFill(Brush* brush, Point position);
 };
 
 class StreamlineTool : public WallTool
@@ -99,7 +99,7 @@ public:
 
 	virtual int DrawPoint(Brush* brush, Point position);
 	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual int FloodFill(Point position);
+	virtual int FloodFill(Brush* brush, Point position);
 };
 
 class ToolTool : public Tool
@@ -110,8 +110,8 @@ public:
 
 	virtual int DrawPoint(Brush* brush, Point position);
 	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual void DrawRect(Point startPos, Point endPos);
-	virtual int FloodFill(Point position);
+	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
+	virtual int FloodFill(Brush* brush, Point position);
 	virtual void Click(Point position);
 };
 
@@ -123,8 +123,8 @@ public:
 
 	virtual int DrawPoint(Brush* brush, Point position);
 	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual void DrawRect(Point startPos, Point endPos);
-	virtual int FloodFill(Point position);
+	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
+	virtual int FloodFill(Brush* brush, Point position);
 
 	PropertyType propType;
 	PropertyValue propValue;
@@ -139,8 +139,8 @@ public:
 
 	virtual int DrawPoint(Brush* brush, Point position);
 	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual void DrawRect(Point startPos, Point endPos);
-	virtual int FloodFill(Point position);
+	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
+	virtual int FloodFill(Brush* brush, Point position);
 	virtual Tool* Sample(Point position);
 };
 

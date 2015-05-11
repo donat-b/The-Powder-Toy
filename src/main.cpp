@@ -2950,7 +2950,7 @@ int main(int argc, char *argv[])
 						if (!((sdl_mod&(KMOD_CTRL|KMOD_META)) && (sdl_mod&KMOD_SHIFT)))
 							lb = 0;
 						else
-							activeTool->FloodFill(Point(mx, my));
+							activeTool->FloodFill(currentBrush, Point(mx, my));
 					}
 					//while mouse is held down, this draws lines between previous and current positions
 					else if (!lm)
@@ -2986,7 +2986,7 @@ int main(int argc, char *argv[])
 					else if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (sdl_mod & (KMOD_SHIFT)) && (((ToolTool*)activeTool)->GetID() == -1 || ((ToolTool*)activeTool)->GetID() == TOOL_PROP))
 					{
 						ctrlzSnapshot();
-						activeTool->FloodFill(Point(mx, my));
+						activeTool->FloodFill(currentBrush, Point(mx, my));
 						lm = 3;
 					}
 					//sample
@@ -3029,7 +3029,7 @@ int main(int argc, char *argv[])
 						if (lm == 1)
 							activeTool->DrawLine(currentBrush, Point(lx, ly), Point(line_x, line_y), false);
 						else if (lm == 2)
-							activeTool->DrawRect(Point(lx, ly), Point(line_x, line_y));
+							activeTool->DrawRect(currentBrush, Point(lx, ly), Point(line_x, line_y));
 						lm = 0;
 					}
 				}
