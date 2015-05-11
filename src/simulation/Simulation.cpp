@@ -1010,50 +1010,52 @@ bool Simulation::UpdateParticle(int i)
 	{
 		if (t == PT_PHOT)
 		{
-			int rt = pmap[fin_y][fin_x] & 0xFF;
-			int lt = pmap[y][x] & 0xFF;
-
-			int r = eval_move(PT_PHOT, fin_x, fin_y);
-			if (((rt == PT_GLAS && lt != PT_GLAS) || (rt != PT_GLAS && lt == PT_GLAS)) && r)
+			if (eval_move(PT_PHOT, fin_x, fin_y))
 			{
-				float nrx, nry, nn, ct1, ct2;
-				if (!get_normal_interp(REFRACT|t, parts[i].x, parts[i].y, parts[i].vx, parts[i].vy, &nrx, &nry))
-				{
-					part_kill(i);
-					return true;
-				}
+				int rt = pmap[fin_y][fin_x] & 0xFF;
+				int lt = pmap[y][x] & 0xFF;
 
-				r = get_wavelength_bin(&parts[i].ctype);
-				if (r == -1 || !(parts[i].ctype&0x3FFFFFFF))
+				if ((rt == PT_GLAS && lt != PT_GLAS) || (rt != PT_GLAS && lt == PT_GLAS))
 				{
-					part_kill(i);
-					return true;
-				}
-				nn = GLASS_IOR - GLASS_DISP*(r-15)/15.0f;
-				nn *= nn;
-				nrx = -nrx;
-				nry = -nry;
-				if (rt == PT_GLAS && lt != PT_GLAS)
-					nn = 1.0f/nn;
-				ct1 = parts[i].vx*nrx + parts[i].vy*nry;
-				ct2 = 1.0f - (nn*nn)*(1.0f-(ct1*ct1));
-				if (ct2 < 0.0f)
-				{
-					//total internal reflection
-					parts[i].vx -= 2.0f*ct1*nrx;
-					parts[i].vy -= 2.0f*ct1*nry;
-					fin_xf = parts[i].x;
-					fin_yf = parts[i].y;
-					fin_x = x;
-					fin_y = y;
-				}
-				else
-				{
-					// refraction
-					ct2 = sqrtf(ct2);
-					ct2 = ct2 - nn*ct1;
-					parts[i].vx = nn*parts[i].vx + ct2*nrx;
-					parts[i].vy = nn*parts[i].vy + ct2*nry;
+					float nrx, nry;
+					if (!get_normal_interp(REFRACT|t, parts[i].x, parts[i].y, parts[i].vx, parts[i].vy, &nrx, &nry))
+					{
+						part_kill(i);
+						return true;
+					}
+
+					int r = get_wavelength_bin(&parts[i].ctype);
+					if (r == -1 || !(parts[i].ctype&0x3FFFFFFF))
+					{
+						part_kill(i);
+						return true;
+					}
+					float nn = GLASS_IOR - GLASS_DISP*(r-15)/15.0f;
+					nn *= nn;
+					nrx = -nrx;
+					nry = -nry;
+					if (rt == PT_GLAS && lt != PT_GLAS)
+						nn = 1.0f/nn;
+					float ct1 = parts[i].vx*nrx + parts[i].vy*nry;
+					float ct2 = 1.0f - (nn*nn)*(1.0f-(ct1*ct1));
+					if (ct2 < 0.0f)
+					{
+						//total internal reflection
+						parts[i].vx -= 2.0f*ct1*nrx;
+						parts[i].vy -= 2.0f*ct1*nry;
+						fin_xf = parts[i].x;
+						fin_yf = parts[i].y;
+						fin_x = x;
+						fin_y = y;
+					}
+					else
+					{
+						// refraction
+						ct2 = sqrtf(ct2);
+						ct2 = ct2 - nn*ct1;
+						parts[i].vx = nn*parts[i].vx + ct2*nrx;
+						parts[i].vy = nn*parts[i].vy + ct2*nry;
+					}
 				}
 			}
 		}

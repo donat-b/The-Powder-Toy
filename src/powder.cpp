@@ -665,6 +665,12 @@ int move(int i, int x, int y, float nxf, float nyf)
 			nx = (int)(nxf+0.5f);
 			ny = (int)(nyf+0.5f);
 
+			//kill_part if particle is out of bounds (below eval_move would return before kill)
+			if (OutOfBounds(nx, ny))
+			{
+				kill_part(i);
+				return -1;
+			}
 			//make sure there isn't something blocking it on the other side
 			if (!eval_move(t, nx, ny) || (t == PT_PHOT && pmap[ny][nx]))
 				return -1;
