@@ -1513,6 +1513,13 @@ bool transfer_heat(int i, int *t, int surround[8])
 					parts[i].ctype = parts[i].type;
 				if (!(*t==PT_ICEI && parts[i].ctype==PT_FRZW))
 					parts[i].life = 0;
+				if (*t == PT_FIRE)
+				{
+					//hackish, if tmp isn't 0 the FIRE might turn into DSTW later
+					//idealy transitions should use create_part(i) but some elements rely on properties staying constant
+					//and I don't feel like checking each one right now
+					parts[i].tmp = 0;
+				}
 				if (ptypes[*t].state==ST_GAS && ptypes[parts[i].type].state!=ST_GAS)
 					pv[y/CELL][x/CELL] += 0.50f;
 				if (*t==PT_NONE)
