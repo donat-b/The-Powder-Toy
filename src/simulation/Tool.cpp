@@ -31,8 +31,16 @@ int Tool::DrawPoint(Brush* brush, Point position)
 
 void Tool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 {
-	if (held && ID == PT_MOVS)
-		return;
+	if (held)
+	{
+		if (ID == PT_MOVS)
+			return;
+	}
+	else
+	{
+		if (ID == PT_LIGH)
+			return;
+	}
 	globalSim->CreateLine(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, get_brush_flags(), brush);
 }
 
