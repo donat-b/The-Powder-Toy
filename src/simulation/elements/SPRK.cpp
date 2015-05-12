@@ -276,7 +276,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 				switch (receiver)
 				{
 				case PT_QRTZ:
-					if ((sender==PT_NSCN||sender==PT_METL||sender==PT_PSCN) && (parts[r>>8].temp<173.15||pv[(y+ry)/CELL][(x+rx)/CELL]>8))
+					if ((sender==PT_NSCN||sender==PT_METL||sender==PT_PSCN||sender==PT_QRTZ) && (parts[r>>8].temp<173.15||pv[(y+ry)/CELL][(x+rx)/CELL]>8))
 						goto conduct;
 					continue;
 				case PT_NTCT:
