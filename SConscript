@@ -242,7 +242,7 @@ def findLibs(env, conf):
 		#Look for Lua
 		luaver = "lua5.1"
 		if GetOption('luajit'):
-			if not conf.CheckLib(['luajit-5.1', 'luajit5.1', 'luajit']):
+			if not conf.CheckLib(['luajit-5.1', 'luajit5.1', 'luajit', 'libluajit']):
 				FatalError("luajit development library not found or not installed")
 			env.Append(CPPDEFINES=["LUAJIT"])
 			luaver = "luajit"
@@ -256,14 +256,16 @@ def findLibs(env, conf):
 				if platform != "Darwin" or not conf.CheckFramework("Lua"):
 					FatalError("lua5.1 development library not found or not installed")
 
+		foundpkg = False
 		if platform == "Linux":
 			try:
 				env.ParseConfig("pkg-config --cflags {0}".format(luaver))
 				env.ParseConfig("pkg-config --libs {0}".format(luaver))
 				env.Append(CPPDEFINES=["LUA_R_INCL"])
+				foundpkg = True
 			except:
 				pass
-		else:
+		if not foundpkg:
 			#Look for lua.h
 			foundheader = False
 			if GetOption('luajit'):
@@ -279,7 +281,7 @@ def findLibs(env, conf):
 					FatalError("lua.h not found")
 
 	#Look for fftw
-	if not GetOption('nofft') and not conf.CheckLib(['fftw3f', 'fftw3f-3', 'libfftw3f-3']):
+	if not GetOption('nofft') and not conf.CheckLib(['fftw3f', 'fftw3f-3', 'libfftw3f-3', 'libfftw3f']):
 			FatalError("fftw3f development library not found or not installed")
 
 	#Look for bz2
