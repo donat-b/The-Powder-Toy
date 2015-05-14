@@ -186,6 +186,7 @@ union PropertyValue
 #define DEBUG_DRAWTOOL			0x0004
 #define DEBUG_PERFORMANCE_CALC	0x0008
 #define DEBUG_PERFORMANCE_FRAME	0x0010
+#define DEBUG_PARTICLE_UPDATES	0x0020
 
 typedef unsigned char uint8;
 

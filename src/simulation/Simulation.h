@@ -43,6 +43,7 @@ public:
 	ElementDataContainer *elementData[PT_NUM];
 	int pfree;
 	int parts_lastActiveIndex;
+	int debug_currentParticle;
 	bool forceStackingCheck;
 
 	//settings
@@ -64,8 +65,11 @@ public:
 	void part_change_type_force(int i, int t);
 
 	void RecalcFreeParticles();
-	void Update();
-	bool UpdateParticle(int i);
+	void UpdateBefore();
+	void UpdateParticles(int start, int end);
+	void UpdateAfter();
+	bool UpdateParticle(int i); // called by UpdateParticles
+	void Tick();
 
 	void spark_all(int i, int x, int y);
 	bool spark_all_attempt(int i, int x, int y);

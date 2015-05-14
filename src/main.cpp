@@ -37,6 +37,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include <list>
+#include <sstream>
 
 #ifdef WIN
 #include <direct.h>
@@ -782,6 +783,58 @@ int InsideSign(int mx, int my, bool allsigns)
 	return -1;
 }
 
+// Particle debugging function
+void ParticleDebug(int mode, int x, int y)
+{
+	int debug_currentParticle = globalSim->debug_currentParticle;
+	int i;
+	std::stringstream logmessage;
+
+	// update one particle at a time
+	if (mode == 0)
+	{
+		if (!NUM_PARTS)
+			return;
+		i = debug_currentParticle;
+		while (i < NPART && !globalSim->parts[i].type)
+			i++;
+		if (i == NPART)
+			logmessage << "End of particles reached, updated sim";
+		else
+			logmessage << "Updated particle #" << i;
+	}
+	// update all particles up to particle under mouse (or to end of sim)
+	else if (mode == 1)
+	{
+		if (x < 0 || x >= XRES || y < 0 || y >= YRES || !(i = (pmap[y][x]>>8)) || i < debug_currentParticle)
+		{
+			i = NPART;
+			logmessage << "Updated particles from #" << debug_currentParticle << " to end, updated sim";
+		}
+		else
+			logmessage << "Updated particles #" << debug_currentParticle << " through #" << i;
+	}
+	luacon_log(mystrdup(logmessage.str().c_str()));
+
+	// call simulation functions run before updating particles if we are updating #0
+	if (debug_currentParticle == 0)
+	{
+		globalSim->RecalcFreeParticles();
+		globalSim->UpdateBefore();
+	}
+	// update the particles
+	globalSim->UpdateParticles(debug_currentParticle, i);
+	if (i < NPART-1)
+		globalSim->debug_currentParticle = i+1;
+	// we reached the end, call simulation functions run after updating particles
+	else
+	{
+		globalSim->UpdateAfter();
+		globalSim->currentTick++;
+		globalSim->debug_currentParticle = 0;
+	}
+}
+
 #ifdef RENDERER
 int main(int argc, char *argv[])
 {
@@ -1391,7 +1444,7 @@ int main(int argc, char *argv[])
 #endif
 		}
 		
-		globalSim->Update(); //update everything
+		globalSim->Tick(); //update everything
 			
 		if(debug_flags & (DEBUG_PERFORMANCE_CALC|DEBUG_PERFORMANCE_FRAME))
 		{
@@ -1721,15 +1774,34 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='f')
 			{
-				if ((sdl_mod & KMOD_LCTRL) && !(sdl_mod & (KMOD_SHIFT|KMOD_ALT)))
+				if (debug_flags & DEBUG_PARTICLE_UPDATES)
 				{
-					if (!(finding & 0x1))
-						finding |= 0x1;
+					sys_pause = 1;
+					if (sdl_mod & (KMOD_CTRL|KMOD_META))
+					{
+						ParticleDebug(0, 0, 0);
+					}
+					else if (sdl_mod & KMOD_SHIFT)
+					{
+						ParticleDebug(1, mx, my);
+					}
 					else
-						finding &= ~0x1;
+					{
+						framerender = 1;
+					}
 				}
 				else
-					framerender = 1;
+				{
+					if ((sdl_mod & KMOD_LCTRL) && !(sdl_mod & (KMOD_SHIFT|KMOD_ALT)))
+					{
+						if (!(finding & 0x1))
+							finding |= 0x1;
+						else
+							finding &= ~0x1;
+					}
+					else
+						framerender = 1;
+				}
 			}
 			if (sdl_key=='l' || sdl_key=='k')
 			{

@@ -43,6 +43,7 @@ Simulation::Simulation():
 	currentTick(0),
 	pfree(-1),
 	parts_lastActiveIndex(NPART-1),
+	debug_currentParticle(0),
 	forceStackingCheck(false),
 	msRotation(true),
 	maxFrames(25),
@@ -455,129 +456,138 @@ void Simulation::RecalcFreeParticles()
 	parts_lastActiveIndex = lastPartUsed;
 }
 
-void Simulation::Update()
+void Simulation::UpdateBefore()
 {
-	RecalcFreeParticles();
-
-	if (!sys_pause || framerender)
+	//update wallmaps
+	for (int y = 0; y < YRES/CELL; y++)
 	{
-		//update wallmaps
-		for (int y = 0; y < YRES/CELL; y++)
+		for (int x = 0; x < XRES/CELL; x++)
 		{
-			for (int x = 0; x < XRES/CELL; x++)
-			{
-				if (emap[y][x])
-					emap[y][x]--;
-				bmap_blockair[y][x] = (bmap[y][x]==WL_WALL || bmap[y][x]==WL_WALLELEC || bmap[y][x]==WL_BLOCKAIR || (bmap[y][x]==WL_EWALL && !emap[y][x]));
-				bmap_blockairh[y][x] = (bmap[y][x]==WL_WALL || bmap[y][x]==WL_WALLELEC || bmap[y][x]==WL_BLOCKAIR || bmap[y][x]==WL_GRAV || (bmap[y][x]==WL_EWALL && !emap[y][x])) ? 0x8:0;
-			}
+			if (emap[y][x])
+				emap[y][x]--;
+			bmap_blockair[y][x] = (bmap[y][x]==WL_WALL || bmap[y][x]==WL_WALLELEC || bmap[y][x]==WL_BLOCKAIR || (bmap[y][x]==WL_EWALL && !emap[y][x]));
+			bmap_blockairh[y][x] = (bmap[y][x]==WL_WALL || bmap[y][x]==WL_WALLELEC || bmap[y][x]==WL_BLOCKAIR || bmap[y][x]==WL_GRAV || (bmap[y][x]==WL_EWALL && !emap[y][x])) ? 0x8:0;
 		}
+	}
 
-		//create stickmen if the current one has been deleted
-		if (elementCount[PT_STKM] <= 0 && player.spawnID >= 0)
-			part_create(-1, (int)parts[player.spawnID].x, (int)parts[player.spawnID].y, PT_STKM);
-		else if (elementCount[PT_STKM2] <= 0 && player2.spawnID >= 0)
-			part_create(-1, (int)parts[player2.spawnID].x, (int)parts[player2.spawnID].y, PT_STKM2);
+	//create stickmen if the current one has been deleted
+	if (elementCount[PT_STKM] <= 0 && player.spawnID >= 0)
+		part_create(-1, (int)parts[player.spawnID].x, (int)parts[player.spawnID].y, PT_STKM);
+	else if (elementCount[PT_STKM2] <= 0 && player2.spawnID >= 0)
+		part_create(-1, (int)parts[player2.spawnID].x, (int)parts[player2.spawnID].y, PT_STKM2);
 
-		//check for excessive stacked particles, create BHOL if found
-		if (forceStackingCheck || !(rand()%10))
+	//check for excessive stacked particles, create BHOL if found
+	if (forceStackingCheck || !(rand()%10))
+	{
+		bool excessiveStackingFound = false;
+		forceStackingCheck = 0;
+		for (int y = 0; y < YRES; y++)
 		{
-			bool excessiveStackingFound = false;
-			forceStackingCheck = 0;
-			for (int y = 0; y < YRES; y++)
+			for (int x = 0; x < XRES; x++)
 			{
-				for (int x = 0; x < XRES; x++)
+				//Use a threshold, since some particle stacking can be normal (e.g. BIZR + FILT)
+				//Setting pmap_count[y][x] > NPART means BHOL will form in that spot
+				if (pmap_count[y][x] > 5)
 				{
-					//Use a threshold, since some particle stacking can be normal (e.g. BIZR + FILT)
-					//Setting pmap_count[y][x] > NPART means BHOL will form in that spot
-					if (pmap_count[y][x] > 5)
+					if (bmap[y/CELL][x/CELL] == WL_EHOLE)
 					{
-						if (bmap[y/CELL][x/CELL] == WL_EHOLE)
-						{
-							//Allow more stacking in E-hole
-							if (pmap_count[y][x] > 1500)
-							{
-								pmap_count[y][x] = pmap_count[y][x] + NPART;
-								excessiveStackingFound = true;
-							}
-						}
-						//Random chance to turn into BHOL that increases with the amount of stacking, up to a threshold where it is certain to turn into BHOL
-						else if (pmap_count[y][x] > 1500 || (rand()%1600) <= pmap_count[y][x]+100)
+						//Allow more stacking in E-hole
+						if (pmap_count[y][x] > 1500)
 						{
 							pmap_count[y][x] = pmap_count[y][x] + NPART;
 							excessiveStackingFound = true;
 						}
 					}
+					//Random chance to turn into BHOL that increases with the amount of stacking, up to a threshold where it is certain to turn into BHOL
+					else if (pmap_count[y][x] > 1500 || (rand()%1600) <= pmap_count[y][x]+100)
+					{
+						pmap_count[y][x] = pmap_count[y][x] + NPART;
+						excessiveStackingFound = true;
+					}
 				}
 			}
-			if (excessiveStackingFound)
+		}
+		if (excessiveStackingFound)
+		{
+			for (int i = 0; i <= parts_lastActiveIndex; i++)
 			{
-				for (int i = 0; i <= parts_lastActiveIndex; i++)
+				if (parts[i].type)
 				{
-					if (parts[i].type)
+					int t = parts[i].type;
+					int x = (int)(parts[i].x+0.5f);
+					int y = (int)(parts[i].y+0.5f);
+					if (x >= 0 && y >= 0 && x < XRES && y < YRES && !(elements[t].Properties&TYPE_ENERGY))
 					{
-						int t = parts[i].type;
-						int x = (int)(parts[i].x+0.5f);
-						int y = (int)(parts[i].y+0.5f);
-						if (x >= 0 && y >= 0 && x < XRES && y < YRES && !(elements[t].Properties&TYPE_ENERGY))
+						if (pmap_count[y][x] >= NPART)
 						{
-							if (pmap_count[y][x] >= NPART)
+							if (pmap_count[y][x] > NPART)
 							{
-								if (pmap_count[y][x] > NPART)
-								{
-									part_create(i, x, y, PT_NBHL);
-									parts[i].temp = MAX_TEMP;
-									parts[i].tmp = pmap_count[y][x] - NPART;//strength of grav field
-									if (parts[i].tmp > 51200)
-										parts[i].tmp = 51200;
-									pmap_count[y][x] = NPART;
-								}
-								else
-								{
-									part_kill(i);
-								}
+								part_create(i, x, y, PT_NBHL);
+								parts[i].temp = MAX_TEMP;
+								parts[i].tmp = pmap_count[y][x] - NPART;//strength of grav field
+								if (parts[i].tmp > 51200)
+									parts[i].tmp = 51200;
+								pmap_count[y][x] = NPART;
+							}
+							else
+							{
+								part_kill(i);
 							}
 						}
 					}
 				}
 			}
 		}
-
-		//For elements with extra data, run special update functions
-		//This does things like LIFE recalculation and LOLZ patterns
-		for (int t = 1; t < PT_NUM; t++)
-		{
-			if (elementData[t])
-			{
-				elementData[t]->Simulation_BeforeUpdate(this);
-			}
-		}
-
-		//lightning recreation time
-		if (lightningRecreate)
-			lightningRecreate--;
-
-		//the main particle loop function, goes over all particles.
-		for (int i = 0; i <= parts_lastActiveIndex; i++)
-			if (parts[i].type)
-			{
-				UpdateParticle(i);
-			}
-
-		//For elements with extra data, run special update functions
-		//Used only for moving solids
-		for (int t = 1; t < PT_NUM; t++)
-		{
-			if (elementData[t])
-			{
-				elementData[t]->Simulation_AfterUpdate(this);
-			}
-		}
-
-		currentTick++;
 	}
 
-	//in automatic heat mode, update highest and lowest temperature points (maybe could be moved)
+	// For elements with extra data, run special update functions
+	// This does things like LIFE recalculation and LOLZ patterns
+	for (int t = 1; t < PT_NUM; t++)
+	{
+		if (elementData[t])
+		{
+			elementData[t]->Simulation_BeforeUpdate(this);
+		}
+	}
+
+	// lightning recreation time (TODO: move to elementData)
+	if (lightningRecreate)
+		lightningRecreate--;
+}
+
+void Simulation::UpdateParticles(int start, int end)
+{
+	// The main particle loop function, goes over all particles.
+	for (int i = start; i <= end && i <= parts_lastActiveIndex; i++)
+		if (parts[i].type)
+		{
+			UpdateParticle(i);
+		}
+}
+
+void Simulation::UpdateAfter()
+{
+	// For elements with extra data, run special update functions
+	// Used only for moving solids
+	for (int t = 1; t < PT_NUM; t++)
+	{
+		if (elementData[t])
+		{
+			elementData[t]->Simulation_AfterUpdate(this);
+		}
+	}
+}
+
+void Simulation::Tick()
+{
+	RecalcFreeParticles();
+	if (!sys_pause || framerender)
+	{
+		UpdateBefore();
+		UpdateParticles(0, NPART);
+		UpdateAfter();
+	}
+	// In automatic heat mode, calculate highest and lowest temperature points (maybe could be moved)
 	if (heatmode == 1)
 	{
 		highesttemp = MIN_TEMP;
@@ -593,6 +603,7 @@ void Simulation::Update()
 			}
 		}
 	}
+	currentTick++;
 }
 
 int PCLN_update(UPDATE_FUNC_ARGS);
