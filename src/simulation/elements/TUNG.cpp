@@ -66,6 +66,7 @@ int TUNG_update(UPDATE_FUNC_ARGS)
 	{
 		part_change_type(i,x,y,PT_BRMT);
 		parts[i].ctype = PT_TUNG;
+		return 1;
 	}
 	return 0;
 }

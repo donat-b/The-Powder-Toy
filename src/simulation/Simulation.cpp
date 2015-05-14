@@ -839,6 +839,15 @@ bool Simulation::UpdateParticle(int i)
 
 	//call the particle update function, if there is one
 #ifdef LUACONSOLE
+	if (lua_el_mode[parts[i].type] == 3)
+	{
+		if (luacon_part_update(t, i, x, y, surround_space, nt))
+			return true;
+		// Need to update variables, in case they've been changed by Lua
+		x = (int)(parts[i].x+0.5f);
+		y = (int)(parts[i].y+0.5f);
+	}
+
 	if (lua_el_mode[t] != 2)
 	{
 #endif
@@ -880,7 +889,8 @@ bool Simulation::UpdateParticle(int i)
 		}
 #ifdef LUACONSOLE
 	}
-	if (lua_el_mode[t])
+
+	if (lua_el_mode[parts[i].type] && lua_el_mode[parts[i].type] != 3)
 	{
 		if (luacon_part_update(t, i, x, y, surround_space, nt))
 			return true;
