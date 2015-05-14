@@ -302,7 +302,6 @@ extern int do_open;
 extern int sys_pause;
 extern int sys_shortcuts;
 extern int legacy_enable; //Used to disable new features such as heat, will be set by commandline or save.
-extern int framerender;
 extern pixel *vid_buf;
 
 extern unsigned char last_major, last_minor, update_flag, last_build;

@@ -2792,7 +2792,6 @@ int save_name_ui(pixel *vid_buf)
 			svf_own = 1;
 			svf_publish = cbPublish.checked;
 			sys_pause = cbPaused.checked;
-			framerender = 0;
 			svf_filename[0] = 0;
 			svf_fileopen = 0;
 			free(old_vid);

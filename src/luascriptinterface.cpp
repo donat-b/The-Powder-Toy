@@ -212,6 +212,7 @@ void initSimulationAPI(lua_State * l)
 		{"neighbors", simulation_neighbours},
 		{"neighbours", simulation_neighbours},
 		{"stickman", simulation_stickman},
+		{"framerender", simulation_framerender},
 		{NULL, NULL}
 	};
 	luaL_register(l, "simulation", simulationAPIMethods);
@@ -1352,6 +1353,21 @@ int simulation_neighbours(lua_State * l)
 	lua_pushnumber(l, -ry);
 	lua_pushcclosure(l, NeighboursClosure, 6);
 	return 1;
+}
+
+
+int simulation_framerender(lua_State * l)
+{
+	if (lua_gettop(l) == 0)
+	{
+		lua_pushinteger(l, framerender);
+		return 1;
+	}
+	int frames = luaL_checkinteger(l, 1);
+	if (frames < 0)
+		return luaL_error(l, "Can't simulate a negative number of frames");
+	framerender = frames;
+	return 0;
 }
 
 //function added only for tptmp really

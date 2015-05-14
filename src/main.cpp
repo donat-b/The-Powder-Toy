@@ -1556,10 +1556,8 @@ int main(int argc, char *argv[])
 		if (!sys_pause||framerender) //Only update if not paused
 			memset(gravmap, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float)); //Clear the old gravmap
 
-		if (framerender) {
-			framerender = 0;
-			sys_pause = 1;
-		}
+		if (framerender)
+			framerender--;
 
 		memset(vid_buf+((XRES+BARSIZE)*YRES), 0, (PIXELSIZE*(XRES+BARSIZE))*MENUSIZE);//clear menu areas
 		clearrect(vid_buf, XRES, 1, BARSIZE, YRES-1);
@@ -1800,7 +1798,10 @@ int main(int argc, char *argv[])
 							finding &= ~0x1;
 					}
 					else
+					{
+						sys_pause = 1;
 						framerender = 1;
+					}
 				}
 			}
 			if (sdl_key=='l' || sdl_key=='k')
