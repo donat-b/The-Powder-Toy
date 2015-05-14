@@ -1792,7 +1792,7 @@ int main(int argc, char *argv[])
 				}
 				else
 				{
-					if ((sdl_mod & KMOD_LCTRL) && !(sdl_mod & (KMOD_SHIFT|KMOD_ALT)))
+					if (sdl_mod & KMOD_CTRL)
 					{
 						if (!(finding & 0x1))
 							finding |= 0x1;
