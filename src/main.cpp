@@ -1562,7 +1562,7 @@ int main(int argc, char *argv[])
 		memset(vid_buf+((XRES+BARSIZE)*YRES), 0, (PIXELSIZE*(XRES+BARSIZE))*MENUSIZE);//clear menu areas
 		clearrect(vid_buf, XRES, 1, BARSIZE, YRES-1);
 
-		draw_svf_ui(vid_buf, sdl_mod & (KMOD_LCTRL|KMOD_RCTRL));
+		draw_svf_ui(vid_buf, sdl_mod & (KMOD_CTRL|KMOD_META));
 		DrawToolTips();
 		
 		if(debug_flags)
@@ -2245,7 +2245,7 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='p' || sdl_key == SDLK_F2)
 				dump_frame(vid_buf, XRES, YRES, XRES+BARSIZE);
-			if (sdl_key=='v'&&(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)))
+			if (sdl_key=='v'&&(sdl_mod & (KMOD_CTRL|KMOD_META)))
 			{
 				if (clipboard_ready==1 && clipboard_data)
 				{
@@ -2305,12 +2305,12 @@ int main(int argc, char *argv[])
 					load_img = prerender_save(load_data, load_size, &load_w, &load_h);
 				}
 			}
-			if (sdl_key=='x'&&(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)))
+			if (sdl_key=='x'&&(sdl_mod & (KMOD_CTRL|KMOD_META)))
 			{
 				save_mode = 1;
 				copy_mode = 2;
 			}
-			if (sdl_key=='c'&&(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)))
+			if (sdl_key=='c'&&(sdl_mod & (KMOD_CTRL|KMOD_META)))
 			{
 				save_mode = 1;
 				copy_mode = 1;
@@ -2324,7 +2324,7 @@ int main(int argc, char *argv[])
 			}*/
 			if (sdl_key=='z') // Undo
 			{
-				if (sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
+				if (sdl_mod & (KMOD_CTRL|KMOD_META))
 				{
 					int cbx, cby, cbi;
 
@@ -2364,7 +2364,7 @@ int main(int argc, char *argv[])
 		}
 #ifdef INTERNAL
 		int counterthing;
-		if (sdl_key=='v'&&!(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)))//frame capture
+		if (sdl_key=='v'&&!(sdl_mod & (KMOD_CTRL|KMOD_META)))//frame capture
 		{
 			if (sdl_mod & (KMOD_SHIFT)) {
 				if (vs>=1)
@@ -2576,7 +2576,7 @@ int main(int argc, char *argv[])
 			std::string newToolTip = "";
 			if (x>=1 && x<=17)
 			{
-				if(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
+				if(sdl_mod & (KMOD_CTRL|KMOD_META))
 					newToolTip = "Open a simulation from your hard drive \bg(ctrl+o)";
 				else
 					newToolTip = "Find & open a simulation";
@@ -2588,11 +2588,15 @@ int main(int argc, char *argv[])
 			}
 			else if (x>=37 && x<=187)
 			{
-				if(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
+				if (!svf_login)
+				{
+					newToolTip = "Save the simulation to your hard drive. Login to save online.";
+				}
+				else if (sdl_mod & (KMOD_CTRL|KMOD_META))
 				{
 					newToolTip = "Save the simulation to your hard drive";
 				}
-				else if (svf_login)
+				else
 				{
 					if (svf_open && svf_own)
 					{
@@ -2675,7 +2679,7 @@ int main(int argc, char *argv[])
 		if (!sdl_zoom_trig && zoom_en==1)
 			zoom_en = 0;
 
-		if (sdl_key=='z' && !(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)) && zoom_en==2 && sys_shortcuts==1)
+		if (sdl_key=='z' && !(sdl_mod & (KMOD_CTRL|KMOD_META)) && zoom_en==2 && sys_shortcuts==1)
 			zoom_en = 1;
 
 
@@ -2880,7 +2884,7 @@ int main(int argc, char *argv[])
 					}
 					else if (x >= 1 && x <= 17)
 					{
-						if (sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
+						if (sdl_mod & (KMOD_CTRL|KMOD_META))
 						{
 							catalogue_ui(vid_buf);
 						}
@@ -2895,11 +2899,11 @@ int main(int argc, char *argv[])
 					}
 					else if (x >= 37 && x <= 187)
 					{
-						if (sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
+						if (!svf_login || (sdl_mod & (KMOD_CTRL|KMOD_META)))
 						{
 							save_filename_ui(vid_buf);
 						}
-						else if (svf_login)
+						else
 						{
 							if (!svf_open || !svf_own || x>51)
 							{

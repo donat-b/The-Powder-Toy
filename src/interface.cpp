@@ -538,7 +538,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			}
 			break;
 		case SDLK_DELETE:
-			if (sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
+			if (sdl_mod & (KMOD_CTRL|KMOD_META))
 			{
 				int start, end;
 				const char *spaces = " .,!?\n";
@@ -566,7 +566,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			ed->cursorstart = ed->cursor;
 			break;
 		case SDLK_BACKSPACE:
-			if (sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
+			if (sdl_mod & (KMOD_CTRL|KMOD_META))
 			{
 				int start, end;
 				const char *spaces = " .,!?\n";
@@ -1214,8 +1214,6 @@ void ui_richtext_process(int mx, int my, int mb, int mbq, ui_richtext *ed)
 
 void draw_svf_ui(pixel *vid_buf, int alternate)// all the buttons at the bottom
 {
-	int c;
-
 	//the open browser button
 	if(alternate)
 	{
@@ -1227,20 +1225,31 @@ void draw_svf_ui(pixel *vid_buf, int alternate)// all the buttons at the bottom
 	}
 
 	// the reload button
-	c = (svf_last) ? 255 : 128;
+	int c = (svf_last) ? 255 : 128;
 	drawtext(vid_buf, 23, YRES+(MENUSIZE-14), "\x91", c, c, c, 255);
 	drawrect(vid_buf, 19, YRES+(MENUSIZE-16), 16, 14, c, c, c, 255);
 
 	// the save sim button
-	if(alternate)
+	if (!svf_login)
+	{
+		drawrect(vid_buf, 37, YRES+(MENUSIZE-16), 150, 14, 255, 255, 255, 255);
+		drawtext(vid_buf, 40, YRES+(MENUSIZE-14), "\x82", 255, 255, 255, 255);
+		if (svf_fileopen)
+			drawtext(vid_buf, 58, YRES+(MENUSIZE-12), svf_filename, 255, 255, 255, 255);
+		else
+			drawtext(vid_buf, 58, YRES+(MENUSIZE-12), "[save to disk]", 255, 255, 255, 255);
+	}
+	else if (alternate)
 	{
 		fillrect(vid_buf, 36, YRES+(MENUSIZE-16)-1, 152, 16, 255, 255, 255, 255);
 		drawtext(vid_buf, 40, YRES+(MENUSIZE-14), "\x82", 0, 0, 0, 255);
-		if(svf_fileopen)
+		if (svf_fileopen)
 			drawtext(vid_buf, 58, YRES+(MENUSIZE-12), svf_filename, 0, 0, 0, 255);
 		else
 			drawtext(vid_buf, 58, YRES+(MENUSIZE-12), "[save to disk]", 0, 0, 0, 255);
-	} else {
+	}
+	else
+	{
 		c = svf_login ? 255 : 128;
 		drawtext(vid_buf, 40, YRES+(MENUSIZE-14), "\x82", c, c, c, 255);
 		if (svf_open)
@@ -8325,7 +8334,7 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 			quickoptions_menu(vid_buf, b, bq, mx, my);
 			DrawMenus(vid_buf, active_menu, my);
 		}
-		draw_svf_ui(vid_buf, sdl_mod & (KMOD_LCTRL|KMOD_RCTRL));
+		draw_svf_ui(vid_buf, sdl_mod & (KMOD_CTRL|KMOD_META));
 		
 		clearrect(vid_buf, xcoord-1, ycoord-1, xsize+3, ysize+3);
 		drawrect(vid_buf, xcoord, ycoord, xsize, ysize, 192, 192, 192, 255);
