@@ -187,6 +187,7 @@ void initSimulationAPI(lua_State * l)
 		{"decoColor", simulation_decoColor},
 		{"decoColour", simulation_decoColor},
 		{"clearSim", simulation_clearSim},
+		{"clearRect", simulation_clearRect},
 		{"resetTemp", simulation_resetTemp},
 		{"resetPressure", simulation_resetPressure},
 		{"saveStamp", simulation_saveStamp},
@@ -958,6 +959,16 @@ int simulation_decoColor(lua_State * l)
 int simulation_clearSim(lua_State * l)
 {
 	clear_sim();
+	return 0;
+}
+
+int simulation_clearRect(lua_State * l)
+{
+	int x = luaL_checkint(l,1);
+	int y = luaL_checkint(l,2);
+	int w = luaL_checkint(l,3);
+	int h = luaL_checkint(l,4);
+	clear_area(x, y, w, h);
 	return 0;
 }
 

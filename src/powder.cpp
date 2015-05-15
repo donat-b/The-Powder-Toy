@@ -1641,18 +1641,21 @@ bool particle_transitions(int i, int t)
 
 void clear_area(int area_x, int area_y, int area_w, int area_h)
 {
-	int cx = 0;
-	int cy = 0;
-	int i;
-	for (cy=0; cy<area_h; cy++)
+	float fx = area_x-.5f, fy = area_y-.5f;
+	for (int i = 0; i <= globalSim->parts_lastActiveIndex; i++)
 	{
-		for (cx=0; cx<area_w; cx++)
+		if (parts[i].type)
+			if (parts[i].x >= fx && parts[i].x <= fx+area_w && parts[i].y >= fy && parts[i].y <= fy+area_h)
+				kill_part(i);
+	}
+	for (int cy = 0; cy < area_h; cy++)
+	{
+		for (int cx = 0; cx < area_w; cx++)
 		{
 			bmap[(cy+area_y)/CELL][(cx+area_x)/CELL] = 0;
-			delete_part(cx+area_x, cy+area_y, 0);
 		}
 	}
-	for (i=0; i<MAXSIGNS; i++)
+	for (int i = 0; i < MAXSIGNS; i++)
 	{
 		if (signs[i].x>=area_x && signs[i].x<area_x+area_w && signs[i].y>=area_y && signs[i].y<area_y+area_h)
 		{

@@ -42,6 +42,7 @@ int simulation_decoBox(lua_State * l);
 int simulation_floodDeco(lua_State * l);
 int simulation_decoColor(lua_State * l);
 int simulation_clearSim(lua_State * l);
+int simulation_clearRect(lua_State * l);
 int simulation_resetTemp(lua_State * l);
 int simulation_resetPressure(lua_State * l);
 int simulation_saveStamp(lua_State * l);
