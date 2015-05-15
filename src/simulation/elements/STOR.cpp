@@ -18,7 +18,9 @@
 int STOR_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, np, rx1, ry1;
-	if(parts[i].life && !parts[i].tmp)
+	if (parts[i].tmp && !sim->IsElement(parts[i].tmp))
+		parts[i].tmp = 0;
+	if (parts[i].life && !parts[i].tmp)
 		parts[i].life--;
 	for (rx=-2; rx<3; rx++)
 		for (ry=-2; ry<3; ry++)
