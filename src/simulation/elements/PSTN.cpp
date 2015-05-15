@@ -132,10 +132,12 @@ int MoveStack(int stackX, int stackY, int directionX, int directionY, int maxSiz
 			//Move particles
 			for(j = 0; j < currentPos; j++) {
 				int jP = tempParts[j];
-				pmap[(int)(parts[jP].y + 0.5f)][(int)(parts[jP].x + 0.5f)] = 0;
-				parts[jP].x += (float)((-directionX)*amount);
-				parts[jP].y += (float)((-directionY)*amount);
-				pmap[(int)(parts[jP].y + 0.5f)][(int)(parts[jP].x + 0.5f)] = parts[jP].type|(jP<<8);
+				int srcX = (int)(parts[jP].x + 0.5f), srcY = (int)(parts[jP].y + 0.5f);
+				int destX = srcX-directionX*amount, destY = srcY-directionY*amount;
+				pmap[srcY][srcX] = 0;
+				parts[jP].x = destX;
+				parts[jP].y = destY;
+				pmap[destY][destX] = parts[jP].type|(jP<<8);
 			}
 			return amount;
 		}
@@ -154,10 +156,12 @@ int MoveStack(int stackX, int stackY, int directionX, int directionY, int maxSiz
 				}
 				if(!possibleMovement)
 					continue;
-				pmap[(int)(parts[jP].y + 0.5f)][(int)(parts[jP].x + 0.5f)] = 0;
-				parts[jP].x += (float)(directionX*possibleMovement);
-				parts[jP].y += (float)(directionY*possibleMovement);
-				pmap[(int)(parts[jP].y + 0.5f)][(int)(parts[jP].x + 0.5f)] = parts[jP].type|(jP<<8);
+				int srcX = (int)(parts[jP].x + 0.5f), srcY = (int)(parts[jP].y + 0.5f);
+				int destX = srcX+directionX*possibleMovement, destY = srcY+directionY*possibleMovement;
+				pmap[srcY][srcX] = 0;
+				parts[jP].x = destX;
+				parts[jP].y = destY;
+				pmap[destY][destX] = parts[jP].type|(jP<<8);
 			}
 			return possibleMovement;
 		}
