@@ -1396,7 +1396,7 @@ bool transfer_heat(int i, int t, int surround[8])
 				{
 					if (parts[i].ctype == PT_TUNG)
 					{
-						if (ctemph < 3695.0)
+						if (ctemph < ptransitions[PT_TUNG].thv)
 							s = 0;
 						else
 						{
@@ -1461,7 +1461,10 @@ bool transfer_heat(int i, int t, int surround[8])
 							s = 0;
 						else if (parts[i].ctype == PT_TUNG)
 						{
-							if (pt>=3695.0)
+
+							// TUNG does its own melting in its update function, so HighTemperatureTransition is not LAVA so it won't be handled by the code for HighTemperatureTransition==PT_LAVA below
+							// However, the threshold is stored in HighTemperature to allow it to be changed from Lua
+							if (pt >= ptransitions[PT_TUNG].thv)
 								s = 0;
 						}
 						else if (parts[i].ctype == PT_CRMC)

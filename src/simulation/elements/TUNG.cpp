@@ -15,10 +15,9 @@
 
 #include "simulation/ElementsCommon.h"
 
-#define MELTING_POINT	3695.0f
-
 int TUNG_update(UPDATE_FUNC_ARGS)
 {
+	const float MELTING_POINT = sim->elements[PT_TUNG].HighTemperatureTransitionThreshold;
 	bool splode = false;
 	if(parts[i].temp > 2400.0)
 	{
@@ -54,7 +53,7 @@ int TUNG_update(UPDATE_FUNC_ARGS)
 		}
 		if(splode)
 		{
-			parts[i].temp = MELTING_POINT + (rand()%600) + 200;
+			parts[i].temp = restrict_flt(MELTING_POINT + (rand()%600) + 200, MIN_TEMP, MAX_TEMP);
 		}
 		parts[i].vx += (rand()%100)-50;
 		parts[i].vy += (rand()%100)-50;
@@ -73,6 +72,7 @@ int TUNG_update(UPDATE_FUNC_ARGS)
 
 int TUNG_graphics(GRAPHICS_FUNC_ARGS)
 {
+	const float MELTING_POINT = sim->elements[PT_TUNG].HighTemperatureTransitionThreshold;
 	double startTemp = (MELTING_POINT - 1500.0);
 	double tempOver = (((cpart->temp - startTemp)/1500.0)*M_PI) - (M_PI/2.0);
 	if(tempOver > -(M_PI/2.0))
@@ -134,7 +134,7 @@ void TUNG_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighPressureTransitionElement = NT;
 	elem->LowTemperatureTransitionThreshold = ITL;
 	elem->LowTemperatureTransitionElement = NT;
-	elem->HighTemperatureTransitionThreshold = ITH;
+	elem->HighTemperatureTransitionThreshold = 3695.0f; // TUNG melts in its update function instead of in the normal way, but store the threshold here so that it can be changed from Lua
 	elem->HighTemperatureTransitionElement = NT;
 
 	elem->Update = &TUNG_update;
