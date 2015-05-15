@@ -2412,6 +2412,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					{
 						if (partsptr[newIndex].type == PT_VINE)
 							partsptr[newIndex].tmp = 1;
+						if (partsptr[newIndex].type == PT_PSTN)
+							partsptr[newIndex].temp = 283.15;
 					}
 					//note: PSv was used in version 77.0 and every version before, add something in PSv too if the element is that old
 
