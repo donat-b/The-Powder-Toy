@@ -841,7 +841,7 @@ bool Simulation::UpdateParticle(int i)
 #ifdef LUACONSOLE
 	if (lua_el_mode[parts[i].type] == 3)
 	{
-		if (luacon_part_update(t, i, x, y, surround_space, nt))
+		if (luacon_part_update(t, i, x, y, surround_space, nt) || t != parts[i].type)
 			return true;
 		// Need to update variables, in case they've been changed by Lua
 		x = (int)(parts[i].x+0.5f);
@@ -892,7 +892,7 @@ bool Simulation::UpdateParticle(int i)
 
 	if (lua_el_mode[parts[i].type] && lua_el_mode[parts[i].type] != 3)
 	{
-		if (luacon_part_update(t, i, x, y, surround_space, nt))
+		if (luacon_part_update(t, i, x, y, surround_space, nt) || t != parts[i].type)
 			return true;
 		// Need to update variables, in case they've been changed by Lua
 		x = (int)(parts[i].x+0.5f);
