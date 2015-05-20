@@ -1869,7 +1869,7 @@ void Simulation::CreateWallLine(int x1, int y1, int x2, int y2, int rx, int ry, 
 	for (x=x1; x<=x2; x++)
 	{
 		if (reverseXY)
-			CreateWallBox(y-ry, x-rx, y+rx, x+ry, wall);
+			CreateWallBox(y-rx, x-ry, y+rx, x+ry, wall);
 		else
 			CreateWallBox(x-rx, y-ry, x+rx, y+ry, wall);
 		e += de;
@@ -1879,7 +1879,7 @@ void Simulation::CreateWallLine(int x1, int y1, int x2, int y2, int rx, int ry, 
 			if ((y1<y2) ? (y<=y2) : (y>=y2))
 			{
 				if (reverseXY)
-					CreateWallBox(y-ry, x-rx, y+rx, x+ry, wall);
+					CreateWallBox(y-rx, x-ry, y+rx, x+ry, wall);
 				else
 					CreateWallBox(x-rx, y-ry, x+rx, y+ry, wall);
 			}
