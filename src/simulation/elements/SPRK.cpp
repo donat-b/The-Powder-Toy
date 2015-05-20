@@ -233,7 +233,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 
 				if (pavg == PT_INSL) //Insulation blocks everything past here
 					continue;
-				if (!((ptypes[receiver].properties&PROP_CONDUCTS) || receiver==PT_INST || receiver==PT_QRTZ)) //Stop non-conducting recievers, allow INST and QRTZ as special cases
+				if (!((ptypes[receiver].properties&PROP_CONDUCTS) || receiver==PT_INST || receiver==PT_QRTZ)) //Stop non-conducting receivers, allow INST and QRTZ as special cases
 					continue;
 				if (abs(rx)+abs(ry)>=4 && receiver!=PT_SWCH && sender!=PT_SWCH) //Only SWCH conducts really far
 					continue;
