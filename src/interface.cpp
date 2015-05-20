@@ -7833,17 +7833,20 @@ int save_filename_ui(pixel *vid_buf)
 		if ((b && !bq && mx > x0 && mx < x0+xsize && my > y0+ysize-16 && my < y0+ysize) || sdl_key == SDLK_RETURN)
 		{
 			clean_text(ed.str,256);
-			int ret = DoLocalSave(ed.str, save_data, save_size);
-			if (ret == -1)
+			if (strlen(ed.str))
 			{
-				if (confirm_ui(vid_buf, "A save with that name already exists.", ed.str, "Overwrite"))
-					ret = DoLocalSave(ed.str, save_data, save_size, true);
+				int ret = DoLocalSave(ed.str, save_data, save_size);
+				if (ret == -1)
+				{
+					if (confirm_ui(vid_buf, "A save with that name already exists.", ed.str, "Overwrite"))
+						ret = DoLocalSave(ed.str, save_data, save_size, true);
+				}
+				if (ret == -2)
+				{
+					error_ui(vid_buf, 0, "Unable to write to save file.");
+				}
+				break;
 			}
-			if (ret == -2)
-			{
-				error_ui(vid_buf, 0, "Unable to write to save file.");
-			}
-			break;
 		}
 
 		if (b && !bq && (mx < x0 || my < y0 || mx > x0+xsize || my > y0+ysize))
