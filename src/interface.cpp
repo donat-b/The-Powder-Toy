@@ -8511,7 +8511,7 @@ void simulation_ui(pixel * vid_buf)
 	int xsize = 300;
 	int ysize = 340;
 	int x0=(XRES-xsize)/2,y0=(YRES-ysize)/2,b=1,bq,mx,my;
-	int new_scale, new_kiosk = 0, oldedgeMode = edgeMode;
+	int oldedgeMode = edgeMode;
 	ui_checkbox cb, cb2, cb3, cb4, cb5, cb6, cb7;
 	char * airModeList[] = {"On", "Pressure Off", "Velocity Off", "Off", "No Update"};
 	int airModeListCount = 5;
@@ -8686,6 +8686,11 @@ void simulation_ui(pixel * vid_buf)
 		ui_list_process(vid_buf, mx, my, b, &list3);
 		ui_list_process(vid_buf, mx, my, b, &listUpdate);
 
+		if (((cb3.checked)?2:1) != sdl_scale || ((cb4.checked)?1:0) != kiosk_enable)
+		{
+			set_scale((cb3.checked)?2:1, (cb4.checked)?1:0);
+		}
+
 		if (b && !bq)
 		{
 			if (mx>=x0 && mx<x0+xsize && my>=y0+ysize-16 && my<=y0+ysize)
@@ -8719,19 +8724,10 @@ void simulation_ui(pixel * vid_buf)
 	water_equal_test = cb6.checked;
 	legacy_enable = !cb.checked;
 	aheat_enable = cb5.checked;
-	new_scale = (cb3.checked)?2:1;
-/*#ifdef MACOSX
-	if (cb4.checked)
-		error_ui(vid_buf, 0, "Fullscreen doesn't work on OS X");
-#else*/
-	new_kiosk = (cb4.checked)?1:0;
-//#endif
 	if(list.selected>=0 && list.selected<=4)
 		airMode = list.selected;
 	if(list2.selected>=0 && list2.selected<=2)
 		gravityMode = list2.selected;
-	if(new_scale!=sdl_scale || new_kiosk!=kiosk_enable)
-		set_scale(new_scale, new_kiosk);
 	if(ngrav_enable != cb2.checked)
 	{
 		if(cb2.checked)
