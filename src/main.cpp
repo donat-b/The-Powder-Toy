@@ -172,6 +172,7 @@ int saveDataOpenSize = 0;
 #ifdef INTERNAL
 	int vs = 0;
 #endif
+bool firstRun = false;
 int do_open = 0;
 int sys_pause = 0;
 int sys_shortcuts = 1;

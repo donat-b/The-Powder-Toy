@@ -197,6 +197,7 @@ extern int saveDataOpenSize;
 	extern int vs;
 #endif
 
+extern bool firstRun;
 extern float FPSB2;
 extern int main_loop;
 extern int elapsedTime;

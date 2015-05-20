@@ -4790,9 +4790,8 @@ int SaveWindowPosition()
 	return 0;
 }
 
-SDL_VideoInfo info;
-int sdl_opened = 0, size_error = 0;
-int sdl_open(void)
+int sdl_opened = 0;
+int sdl_open()
 {
 	//char screen_err = 0;
 #ifdef WIN
@@ -4810,7 +4809,12 @@ int sdl_open(void)
 		fprintf(stderr, "Initializing SDL: %s\n", SDL_GetError());
 		return 0;
 	}
-	size_error= 0;
+	if (!sdl_opened && firstRun)
+	{
+		const SDL_VideoInfo *info = SDL_GetVideoInfo();
+		if (sdl_scale == 1 && info->current_w > ((XRES+BARSIZE)*2) && info->current_h > ((YRES+MENUSIZE)*2))
+			sdl_scale = 2;
+	}
 	
 #ifdef WIN
 	SDL_VERSION(&SysInfo.version);
@@ -4832,11 +4836,6 @@ int sdl_open(void)
 	
 	atexit(SDL_Quit);
 
-	if(!sdl_opened)
-		info = *SDL_GetVideoInfo();
-
-	if (info.current_w<((XRES+BARSIZE)*sdl_scale) || info.current_h<((YRES+MENUSIZE)*sdl_scale))
-		size_error = 1;
 	LoadWindowPosition(sdl_scale);
 #if defined(OGLR)
 	sdl_scrn=SDL_SetVideoMode(XRES*sdl_scale + BARSIZE*sdl_scale,YRES*sdl_scale + MENUSIZE*sdl_scale,32,SDL_OPENGL);
@@ -5067,7 +5066,7 @@ int set_scale(int scale, int kiosk){
 #ifdef LIN
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 #endif
-	if (!sdl_open() || (size_error && !confirm_ui(vid_buf, "Confirm Size Change", "Your screen is too large, press OK to keep the size change anyway", "OK")))
+	if (!sdl_open())// || (size_error && !confirm_ui(vid_buf, "Confirm Size Change", "Your screen is too large, press OK to keep the size change anyway", "OK")))
 	{
 		sdl_scale = old_scale;
 		kiosk_enable = old_kiosk;

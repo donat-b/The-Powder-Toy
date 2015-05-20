@@ -653,6 +653,8 @@ void load_presets(void)
 		cJSON_Delete(root);
 		free(prefdata);
 	}
+	else
+		firstRun = true;
 }
 
 int sregexp(const char *str, char *pattern)
