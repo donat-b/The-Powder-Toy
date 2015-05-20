@@ -1230,23 +1230,20 @@ void draw_svf_ui(pixel *vid_buf, int alternate)// all the buttons at the bottom
 	drawrect(vid_buf, 19, YRES+(MENUSIZE-16), 16, 14, c, c, c, 255);
 
 	// the save sim button
-	if (!svf_login)
+	if (!svf_login || alternate)
 	{
-		drawrect(vid_buf, 37, YRES+(MENUSIZE-16), 150, 14, 255, 255, 255, 255);
-		drawtext(vid_buf, 40, YRES+(MENUSIZE-14), "\x82", 255, 255, 255, 255);
-		if (svf_fileopen)
-			drawtext(vid_buf, 58, YRES+(MENUSIZE-12), svf_filename, 255, 255, 255, 255);
+		c = !svf_login ? 255 : 0;
+		if (!svf_login)
+			drawrect(vid_buf, 37, YRES+(MENUSIZE-16), 150, 14, 255, 255, 255, 255);
 		else
-			drawtext(vid_buf, 58, YRES+(MENUSIZE-12), "[save to disk]", 255, 255, 255, 255);
-	}
-	else if (alternate)
-	{
-		fillrect(vid_buf, 36, YRES+(MENUSIZE-16)-1, 152, 16, 255, 255, 255, 255);
-		drawtext(vid_buf, 40, YRES+(MENUSIZE-14), "\x82", 0, 0, 0, 255);
+			fillrect(vid_buf, 36, YRES+(MENUSIZE-16)-1, 152, 16, 255, 255, 255, 255);
+		drawtext(vid_buf, 40, YRES+(MENUSIZE-14), "\x82", c, c, c, 255);
 		if (svf_fileopen)
-			drawtext(vid_buf, 58, YRES+(MENUSIZE-12), svf_filename, 0, 0, 0, 255);
+			drawtext(vid_buf, 58, YRES+(MENUSIZE-12), svf_filename, c, c, c, 255);
 		else
-			drawtext(vid_buf, 58, YRES+(MENUSIZE-12), "[save to disk]", 0, 0, 0, 255);
+			drawtext(vid_buf, 58, YRES+(MENUSIZE-12), "[save to disk]", c, c, c, 255);
+		if (svf_fileopen)
+			drawdots(vid_buf, 55, YRES+(MENUSIZE-15), 12, c, c, c, 255);
 	}
 	else
 	{
@@ -7694,6 +7691,50 @@ void free_saveslist(savelist_e *saves)
 		free(saves->image);
 }
 
+int DoLocalSave(std::string savename, void *saveData, int saveDataSize, bool force)
+{
+#ifdef WIN
+	_mkdir(LOCAL_SAVE_DIR);
+#else
+	mkdir(LOCAL_SAVE_DIR, 0755);
+#endif
+
+	// add .cps extension if needed
+	if (savename.length() < 4 || savename.substr(savename.length()-4) != ".cps")
+		savename += ".cps";
+
+	// Actual file goes into Saves/ folder
+	std::stringstream filename;
+	filename << LOCAL_SAVE_DIR << PATH_SEP << savename;
+
+	if (!force && file_exists(filename.str().c_str()))
+	{
+		return -1;
+	}
+
+	FILE *f = fopen(filename.str().c_str(), "wb");
+	if (f)
+	{
+		fwrite(saveData, saveDataSize, 1, f);
+		fclose(f);
+
+		strncpy(svf_filename, savename.c_str(), 255);
+		svf_fileopen = 1;
+
+		//Allow reloading
+		if (svf_last)
+			free(svf_last);
+		svf_last = malloc(saveDataSize);
+		memcpy(svf_last, saveData, saveDataSize);
+		svf_lsize = saveDataSize;
+		return 0;
+	}
+	else
+	{
+		return -2;
+	}
+}
+
 int save_filename_ui(pixel *vid_buf)
 {
 	int xsize = 16+(XRES/3);
@@ -7735,7 +7776,8 @@ int save_filename_ui(pixel *vid_buf)
 	ed.limit = 255;
 	ed.str[0] = 0;
 	
-	if(svf_fileopen){
+	if (svf_fileopen)
+	{
 		char * dotloc = NULL;
 		strncpy(ed.str, svf_filename, 255);
 		if(dotloc = strstr(ed.str, "."))
@@ -7788,56 +7830,20 @@ int save_filename_ui(pixel *vid_buf)
 
 		ui_edit_process(mx, my, b, bq, &ed);
 		
-		if(mx > x0 && mx < x0+xsize && my > y0+ysize-16 && my < y0+ysize)
+		if ((b && !bq && mx > x0 && mx < x0+xsize && my > y0+ysize-16 && my < y0+ysize) || sdl_key == SDLK_RETURN)
 		{
 			clean_text(ed.str,256);
-			if(b && !bq)
+			int ret = DoLocalSave(ed.str, save_data, save_size);
+			if (ret == -1)
 			{
-				FILE *f = NULL;
-				savefname = (char*)malloc(strlen(ed.str)+5);
-				filename = (char*)malloc(strlen(LOCAL_SAVE_DIR)+strlen(PATH_SEP)+strlen(ed.str)+5);
-				sprintf(filename, "%s%s%s.cps", LOCAL_SAVE_DIR, PATH_SEP, ed.str);
-				sprintf(savefname, "%s.cps", ed.str);
-			
-#ifdef WIN
-				_mkdir(LOCAL_SAVE_DIR);
-#else
-				mkdir(LOCAL_SAVE_DIR, 0755);
-#endif
-				f = fopen(filename, "r");
-				if(!f || confirm_ui(vid_buf, "A save with the name already exists.", filename, "Overwrite"))
-				{
-					if(f)
-					{
-						fclose(f);
-						f = NULL;
-					}
-					f = fopen(filename, "wb");
-					if (f)
-					{
-						fwrite(save_data, save_size, 1, f);
-						fclose(f);
-						f = NULL;
-						if(svf_fileopen)
-						{
-							strncpy(svf_filename, savefname, 255);
-							svf_fileopen = 1;
-
-							//Allow reloading
-							if(svf_last)
-								free(svf_last);
-							svf_last = malloc(save_size);
-							memcpy(svf_last, save_data, save_size);
-							svf_lsize = save_size;
-						}
-						break;
-					} else {
-						error_ui(vid_buf, 0, "Unable to write to save file.");
-					}
-				}
-				if (f)
-					fclose(f);
+				if (confirm_ui(vid_buf, "A save with that name already exists.", ed.str, "Overwrite"))
+					ret = DoLocalSave(ed.str, save_data, save_size, true);
 			}
+			if (ret == -2)
+			{
+				error_ui(vid_buf, 0, "Unable to write to save file.");
+			}
+			break;
 		}
 
 		if (b && !bq && (mx < x0 || my < y0 || mx > x0+xsize || my > y0+ysize))

@@ -1739,7 +1739,7 @@ int fileSystem_list(lua_State * l)
 
 int fileSystem_exists(lua_State * l)
 {
-	char * filename = (char*)luaL_checkstring(l, 1);
+	const char * filename = luaL_checkstring(l, 1);
 
 	lua_pushboolean(l, file_exists(filename));
 	return 1;

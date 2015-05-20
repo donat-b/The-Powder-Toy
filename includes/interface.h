@@ -309,6 +309,7 @@ void tag_list_ui(pixel *vid_buf);
 
 int save_name_ui(pixel *vid_buf);
 
+int DoLocalSave(std::string savename, void *saveData, int saveDataSize, bool force = false);
 int save_filename_ui(pixel *vid_buf);
 
 void old_menu_v2(int active_menu, int x, int y, int b, int bq);

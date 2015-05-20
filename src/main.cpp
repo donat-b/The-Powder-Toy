@@ -2588,13 +2588,19 @@ int main(int argc, char *argv[])
 			}
 			else if (x>=37 && x<=187)
 			{
-				if (!svf_login)
+				if (!svf_login || (sdl_mod & (KMOD_CTRL|KMOD_META)))
 				{
-					newToolTip = "Save the simulation to your hard drive. Login to save online.";
-				}
-				else if (sdl_mod & (KMOD_CTRL|KMOD_META))
-				{
-					newToolTip = "Save the simulation to your hard drive";
+					if (svf_fileopen && x <= 55)
+					{
+						newToolTip = "Overwrite the open simulation on your hard drive.";
+					}
+					else
+					{
+						if (!svf_login)
+							newToolTip = "Save the simulation to your hard drive. Login to save online.";
+						else
+							newToolTip = "Save the simulation to your hard drive";
+					}
 				}
 				else
 				{
@@ -2901,14 +2907,35 @@ int main(int argc, char *argv[])
 					{
 						if (!svf_login || (sdl_mod & (KMOD_CTRL|KMOD_META)))
 						{
-							save_filename_ui(vid_buf);
+							// local quick save
+							if (x <= 55 && svf_fileopen)
+							{
+								int saveSize;
+								void *saveData = build_save(&saveSize, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+								if (!saveData)
+								{
+									UpdateToolTip("Error creating save", Point(XCNTR-textwidth("Error Saving")/2, YCNTR-10), INFOTIP, 1000);
+								}
+								else
+								{
+									if (DoLocalSave(svf_filename, saveData, saveSize, true))
+										UpdateToolTip("Error writing local save", Point(XCNTR-textwidth("Error Saving")/2, YCNTR-10), INFOTIP, 1000);
+									else
+										UpdateToolTip("Updated successfully", Point(XCNTR-textwidth("Saved Successfully")/2, YCNTR-10), INFOTIP, 1000);
+								}
+							}
+							// local save
+							else
+								save_filename_ui(vid_buf);
 						}
 						else
 						{
-							if (!svf_open || !svf_own || x>51)
+							// local save
+							if (!svf_open || !svf_own || x>55)
 							{
 								if (save_name_ui(vid_buf)) {
-									if (!execute_save(vid_buf) && svf_id[0]) {
+									if (!execute_save(vid_buf) && svf_id[0])
+									{
 										copytext_ui(vid_buf, "Save ID", "Saved successfully!", svf_id);
 									}
 									else
@@ -2917,6 +2944,7 @@ int main(int argc, char *argv[])
 									}
 								}
 							}
+							// local quick save
 							else
 							{
 								if (execute_save(vid_buf))
@@ -2928,6 +2956,7 @@ int main(int argc, char *argv[])
 									UpdateToolTip("Saved Successfully", Point(XCNTR-textwidth("Saved Successfully")/2, YCNTR-10), INFOTIP, 1000);
 								}
 							}
+							// hacky thing
 							while (!sdl_poll())
 								if (!mouse_get_state(&x, &y))
 									break;

@@ -740,7 +740,7 @@ void *file_load(const char *fn, int *size)
 	return s;
 }
 
-int file_exists(char *filename)
+int file_exists(const char *filename)
 {
 	int exists = 0;
 #ifdef WIN
