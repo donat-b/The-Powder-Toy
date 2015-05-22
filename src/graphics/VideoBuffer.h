@@ -25,6 +25,8 @@ public:
 	int DrawChar(int x, int y, unsigned char c, int r, int g, int b, int a);
 	int DrawText(int x, int y, const char *s, int r, int g, int b, int a);
 
+	void DrawImage(pixel *image, int x, int y, int w, int h);
+
 	pixel* GetVid() { return vid; }
 };
 

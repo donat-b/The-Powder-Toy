@@ -4,6 +4,7 @@
 
 #include <string>
 #include "interface/Window.h"
+#include "graphics.h"
 
 class Download;
 class Label;
@@ -11,6 +12,8 @@ class ProfileViewer : public Window_
 {
 	std::string name;
 	Download *profileInfoDownload;
+	Download *avatarDownload;
+	pixel *avatar;
 
 	Label *usernameLabel, *ageLabel, *websiteLabel, *biographyLabel;
 	void MainLoop();

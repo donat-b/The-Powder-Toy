@@ -9,27 +9,28 @@
 #include "game/Download.h"
 
 ProfileViewer::ProfileViewer(std::string profileName):
-	Window_(Point(CENTERED, CENTERED), Point(200, 300)),
+	Window_(Point(CENTERED, CENTERED), Point(250, 300)),
 	name(profileName),
+	avatar(NULL),
 	ageLabel(NULL),
 	websiteLabel(NULL),
 	biographyLabel(NULL)
 {
-	profileInfoDownload = new Download("http://" SERVER "/User.json?Name=" + profileName);
+	profileInfoDownload = new Download("http://" SERVER "/User.json?Name=" + name);
 	//profileInfoDownload->AuthHeaders();
 	profileInfoDownload->Start();
 
-	usernameLabel = new Label(Point(8, 7), Point(Label::AUTOSIZE, Label::AUTOSIZE), profileName);
+	avatarDownload = new Download("http://" STATICSERVER "/avatars/" + name + ".pti");
+	avatarDownload->Start();
+
+	usernameLabel = new Label(Point(8, 7), Point(Label::AUTOSIZE, Label::AUTOSIZE), name);
 	this->AddComponent(usernameLabel);
 	MainLoop();
 }
 
 ProfileViewer::~ProfileViewer()
 {
-	delete usernameLabel;
-	delete ageLabel;
-	delete websiteLabel;
-	delete biographyLabel;
+	free(avatar);
 }
 
 // To be removed later when there is a main engine loop for the entire game
@@ -45,8 +46,7 @@ void ProfileViewer::OnTick(float dt)
 {
 	if (profileInfoDownload && profileInfoDownload->CheckDone())
 	{
-		int length, status;
-		char *data = profileInfoDownload->Finish(&length, &status);
+		char *data = profileInfoDownload->Finish(NULL, NULL);
 
 		json::Object parsed = ParseJSON(data);
 
@@ -55,20 +55,41 @@ void ProfileViewer::OnTick(float dt)
 		converter << ((json::Number)parsed["User"]["Age"]).Value();
 		std::string age = converter.str();
 
-		ageLabel = new Label(Point(30, 19), Point(Label::AUTOSIZE, Label::AUTOSIZE), age, true);
-		websiteLabel = new Label(Point(50, 31), Point(Label::AUTOSIZE, Label::AUTOSIZE), ((json::String)parsed["User"]["Website"]).Value(), true);
-		biographyLabel = new Label(Point(8, 43), Point(180, Label::AUTOSIZE), ((json::String)parsed["User"]["Biography"]).Value(), true);
+		ageLabel = new Label(Point(30, 19), Point(Label::AUTOSIZE, Label::AUTOSIZE), age);
+		websiteLabel = new Label(Point(50, 31), Point(Label::AUTOSIZE, Label::AUTOSIZE), ((json::String)parsed["User"]["Website"]).Value());
+		biographyLabel = new Label(Point(8, 43), Point(230, Label::AUTOSIZE), ((json::String)parsed["User"]["Biography"]).Value(), true);
 		this->AddComponent(ageLabel);
 		this->AddComponent(websiteLabel);
 		this->AddComponent(biographyLabel);
 
-		delete data;
+		free(data);
 		profileInfoDownload = NULL;
+	}
+
+	if (avatarDownload && avatarDownload->CheckDone())
+	{
+		int length;
+		char *data = avatarDownload->Finish(&length, NULL);
+		if (data)
+		{
+			int w, h;
+			avatar = ptif_unpack(data, length, &w, &h);
+			if (w != 40 || h != 40)
+			{
+				free(avatar);
+				avatar = NULL;
+			}
+		}
+
+		free(data);
+		avatarDownload = NULL;
 	}
 }
 
 void ProfileViewer::OnDraw(VideoBuffer *buf)
 {
+	if (avatar)
+		buf->DrawImage(avatar, 200, 10, 40, 40);
 	buf->DrawText(10, 22, "Age:", 175, 175, 175, 255);
 	buf->DrawText(10, 34, "Website:", 175, 175, 175, 255);
 	buf->DrawText(10, 46, "Biography:", 175, 175, 175, 255);

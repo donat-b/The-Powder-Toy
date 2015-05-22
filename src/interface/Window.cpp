@@ -11,6 +11,7 @@ Window_::Window_(Point position_, Point size_):
 	size(size_),
 	Components(NULL),
 	focused(NULL),
+	clicked(NULL),
 	toDelete(false)
 {
 	if (position.X == CENTERED)

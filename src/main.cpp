@@ -2882,7 +2882,8 @@ int main(int argc, char *argv[])
 #ifdef NEWINTERFACE
 						if (x <= XRES+BARSIZE-(510-399))
 						{
-							new ProfileViewer(svf_user);
+							ProfileViewer *temp = new ProfileViewer(svf_user);
+							delete temp;
 						}
 						else
 #endif

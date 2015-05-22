@@ -186,13 +186,13 @@ void Engine::ShowWindow(Window_ *window)
 	windows.push(window);
 	if (top == NULL)
 		top = window;
+	fillrect(vid_buf, -1, -1, XRES+BARSIZE+1, YRES+MENUSIZE+1, 0, 0, 0, 100);
 }
 
 void Engine::CloseWindow(Window_ *window)
 {
 	if (window == windows.top())
 	{
-		delete windows.top();
 		windows.pop();
 		if (windows.size())
 			top = windows.top();

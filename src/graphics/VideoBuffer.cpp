@@ -13,7 +13,7 @@ VideoBuffer::VideoBuffer(int width, int height):
 
 VideoBuffer::~VideoBuffer()
 {
-	delete vid;
+	delete[] vid;
 }
 
 void VideoBuffer::Clear()
@@ -275,4 +275,18 @@ int VideoBuffer::DrawText(int x, int y, const char *s, int r, int g, int b, int 
 	}
 	return x;
 }
+
+void VideoBuffer::DrawImage(pixel *img, int x, int y, int w, int h)
+{
+	for (int j = 0; j < h; j++)
+		for (int i = 0; i < w; i++)
+		{
+			int r = PIXR(*img);
+			int g = PIXG(*img);
+			int b = PIXB(*img);
+			DrawPixel(x+i, y+j, r, g, b, 255);
+			img++;
+		}
+}
+
 #endif
