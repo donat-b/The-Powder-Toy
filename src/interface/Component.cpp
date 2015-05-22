@@ -23,33 +23,3 @@ bool Component::IsClicked()
 		return parent->IsClicked(this);
 	return false;
 }
-
-void Component::OnMouseDown(int x, int y, unsigned char button)
-{
-	//Do nothing
-}
-
-void Component::OnMouseUp(int x, int y, unsigned char button)
-{
-	//Do nothing
-}
-
-void Component::OnMouseMoved(int x, int y, Point difference)
-{
-	//Do nothing
-}
-
-void Component::OnKeyPress(int key, unsigned short character, unsigned char modifiers)
-{
-	//Do nothing
-}
-
-void Component::OnDraw(VideoBuffer* vid)
-{
-	//Do nothing
-}
-
-void Component::OnTick()
-{
-	//Do nothing
-}

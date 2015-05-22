@@ -230,10 +230,15 @@ void Label::OnMouseDown(int x, int y, unsigned char button)
 
 void Label::OnMouseUp(int x, int y, unsigned char button)
 {
-	if (button == 1)
+	if (IsClicked() && button == 1)
 	{
 		UpdateDisplayText(true, false, x, y);
 	}
+}
+
+void Label::OnDefocus()
+{
+	cursorStart = cursor;
 }
 
 void Label::OnMouseMoved(int x, int y, Point difference)

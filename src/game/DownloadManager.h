@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include <time.h>
 #include <vector>
-#include "Singleton.h"
+#include "common/Singleton.h"
 
 class Download;
 class DownloadManager : public Singleton<DownloadManager>

@@ -1,5 +1,6 @@
 #ifdef NEWINTERFACE
 #include "Window.h"
+#include "Engine.h"
 #include "Label.h"
 #include "Textbox.h"
 #include "graphics.h"
@@ -9,7 +10,8 @@ Window_::Window_(Point position_, Point size_):
 	position(position_),
 	size(size_),
 	Components(NULL),
-	focused(NULL)
+	focused(NULL),
+	toDelete(false)
 {
 	if (position.X == CENTERED)
 		position.X = (XRES+BARSIZE-size.X)/2;
@@ -44,6 +46,13 @@ void Window_::RemoveComponent(Component *other)
 			Components.erase(iter);
 		}
 	}
+}
+
+void Window_::FocusComponent(Component *toFocus)
+{
+	if (focused)
+		focused->OnDefocus();
+	focused = toFocus;
 }
 
 void Window_::DoTick(float dt)
@@ -87,6 +96,11 @@ void Window_::DoMouseMove(int x, int y, int dx, int dy)
 
 void Window_::DoMouseDown(int x, int y, unsigned char button)
 {
+	if (x < position.X || x > position.X+size.X || y < position.Y || y > position.Y+size.Y)
+	{
+		toDelete = true;
+	}
+
 	bool focusedSomething = false;
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
@@ -99,6 +113,7 @@ void Window_::DoMouseDown(int x, int y, unsigned char button)
 			FocusComponent(temp);
 			clicked = temp;
 			temp->OnMouseDown(posX, posY, button);
+			break;
 		}
 	}
 	if (!focusedSomething)

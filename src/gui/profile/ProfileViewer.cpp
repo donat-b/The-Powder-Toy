@@ -24,6 +24,14 @@ ProfileViewer::ProfileViewer(std::string profileName):
 	MainLoop();
 }
 
+ProfileViewer::~ProfileViewer()
+{
+	delete usernameLabel;
+	delete ageLabel;
+	delete websiteLabel;
+	delete biographyLabel;
+}
+
 // To be removed later when there is a main engine loop for the entire game
 void ProfileViewer::MainLoop()
 {

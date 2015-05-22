@@ -16,6 +16,7 @@ class ProfileViewer : public Window_
 	void MainLoop();
 public:
 	ProfileViewer(std::string profileName);
+	~ProfileViewer();
 
 	void OnTick(float dt);
 	void OnDraw(VideoBuffer *buf);

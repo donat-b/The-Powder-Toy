@@ -2,6 +2,7 @@
 #include <SDL/SDL.h>
 #include "Engine.h"
 #include "interface.h"
+#include "misc.h"
 #include "Window.h"
 #include "common/Point.h"
 #include "graphics/VideoBuffer.h"
@@ -81,20 +82,83 @@ bool Engine::EventProcess(SDL_Event event)
 		//if (fastquit)
 		//	has_quit = 1;
 		return true;
+
+	// Special events are handled here (copy/paste on linux, open on windows)
+	case SDL_SYSWMEVENT:
+#if defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
+		if (event.syswm.msg->subsystem != SDL_SYSWM_X11)
+			break;
+		sdl_wminfo.info.x11.lock_func();
+		XEvent xe = event.syswm.msg->event.xevent;
+		if (xe.type==SelectionClear)
+		{
+			if (clipboard_text!=NULL) {
+				free(clipboard_text);
+				clipboard_text = NULL;
+			}
+		}
+		else if (xe.type==SelectionRequest)
+		{
+			XEvent xr;
+			xr.xselection.type = SelectionNotify;
+			xr.xselection.requestor = xe.xselectionrequest.requestor;
+			xr.xselection.selection = xe.xselectionrequest.selection;
+			xr.xselection.target = xe.xselectionrequest.target;
+			xr.xselection.property = xe.xselectionrequest.property;
+			xr.xselection.time = xe.xselectionrequest.time;
+			if (xe.xselectionrequest.target==XA_TARGETS)
+			{
+				// send list of supported formats
+				Atom targets[] = {XA_TARGETS, XA_STRING, XA_UTF8_STRING};
+				xr.xselection.property = xe.xselectionrequest.property;
+				XChangeProperty(sdl_wminfo.info.x11.display, xe.xselectionrequest.requestor, xe.xselectionrequest.property, XA_ATOM, 32, PropModeReplace, (unsigned char*)targets, (int)(sizeof(targets)/sizeof(Atom)));
+			}
+			// TODO: Supporting more targets would be nice
+			else if ((xe.xselectionrequest.target==XA_STRING || xe.xselectionrequest.target==XA_UTF8_STRING) && clipboard_text)
+			{
+				XChangeProperty(sdl_wminfo.info.x11.display, xe.xselectionrequest.requestor, xe.xselectionrequest.property, xe.xselectionrequest.target, 8, PropModeReplace, (unsigned char*)clipboard_text, strlen(clipboard_text)+1);
+			}
+			else
+			{
+				// refuse clipboard request
+				xr.xselection.property = None;
+			}
+			XSendEvent(sdl_wminfo.info.x11.display, xe.xselectionrequest.requestor, 0, 0, &xr);
+		}
+		sdl_wminfo.info.x11.unlock_func();
+#elif WIN
+		switch (event.syswm.msg->msg)
+		{
+		case WM_USER+614:
+			if (!ptsaveOpenID && !saveURIOpen && num_tabs < 24-GetNumMenus() && main_loop)
+				ptsaveOpenID = event.syswm.msg->lParam;
+			//If we are already opening a save, we can't have it do another one, so just start it in a new process
+			else
+			{
+				char *exename = exe_name(), args[64];
+				sprintf(args, "ptsave noopen:%i", event.syswm.msg->lParam);
+				if (exename)
+				{
+					ShellExecute(NULL, "open", exename, args, NULL, SW_SHOWNORMAL);
+					free(exename);
+				}
+				//I doubt this will happen ... but as a last resort just open it in this window anyway
+				else
+					saveURIOpen = event.syswm.msg->lParam;
+			}
+			break;
+		}
+#else
+		break;
+#endif
 	}
 	return false;
 }
 
 void Engine::MainLoop()
 {
-	/*SDL_Event event;
-	Window_* potato = new Window_(Point(100,100), Point(120,200));
-	windows.push(potato);
-	top = potato;
-	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);*/
-
 	SDL_Event event;
-	while (true)
+	while (top)
 	{
 		sdl_mod = SDL_GetModState();
 		while (SDL_PollEvent(&event))
@@ -102,16 +166,19 @@ void Engine::MainLoop()
 			int ret = EventProcess(event);
 			if (ret)
 			{
-				SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
-				return;
+				Window_ *temp = windows.top();
+				temp->toDelete = true;
 			}
 		}
 		top->DoTick(0);
 		top->DoDraw();
+		if (top->toDelete)
+			CloseWindow(top);
 		sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf /*potato->GetVid()->GetVid()*/, XRES+BARSIZE);
 		//memset(vid_buf, 0, (XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
 		limit_fps();
 	}
+	SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 }
 
 void Engine::ShowWindow(Window_ *window)
@@ -119,6 +186,19 @@ void Engine::ShowWindow(Window_ *window)
 	windows.push(window);
 	if (top == NULL)
 		top = window;
+}
+
+void Engine::CloseWindow(Window_ *window)
+{
+	if (window == windows.top())
+	{
+		delete windows.top();
+		windows.pop();
+		if (windows.size())
+			top = windows.top();
+		else
+			top = NULL;
+	}
 }
 
 #endif

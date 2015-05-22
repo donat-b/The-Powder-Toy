@@ -3,10 +3,11 @@
 
 #include <stack>
 #include "Window.h"
+//#include "common/Singleton.h"
 #include "common/Point.h"
 
 union SDL_Event;
-class Engine
+class Engine// : public Singleton<Engine>
 {
 public:
 	Engine();
@@ -14,6 +15,7 @@ public:
 
 	void MainLoop();
 	void ShowWindow(Window_ *window);
+	void CloseWindow(Window_ *window);
 
 private:
 	bool EventProcess(SDL_Event event);

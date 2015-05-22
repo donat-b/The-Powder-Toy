@@ -22,7 +22,7 @@ public:
 
 	void AddComponent(Component *other);
 	void RemoveComponent(Component *other);
-	void FocusComponent(Component *toFocus) { focused = toFocus; }
+	void FocusComponent(Component *toFocus);
 	bool IsFocused(const Component *other) const { return other == focused; }
 	bool IsClicked(const Component *other) const { return other == clicked; }
 
@@ -37,6 +37,8 @@ public:
 	void DoKeyRelease(int key, unsigned short character, unsigned char modifiers);
 
 	VideoBuffer* GetVid() { return videoBuffer; }
+
+	bool toDelete;
 
 	static const int CENTERED = -1;
 
