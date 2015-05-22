@@ -1,4 +1,5 @@
 #ifdef NEWINTERFACE
+#include <SDL/SDL.h>
 #include "Engine.h"
 #include "interface.h"
 #include "Window.h"
@@ -86,12 +87,13 @@ bool Engine::EventProcess(SDL_Event event)
 
 void Engine::MainLoop()
 {
-	SDL_Event event;
+	/*SDL_Event event;
 	Window_* potato = new Window_(Point(100,100), Point(120,200));
 	windows.push(potato);
 	top = potato;
-	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);*/
 
+	SDL_Event event;
 	while (true)
 	{
 		sdl_mod = SDL_GetModState();
@@ -111,4 +113,12 @@ void Engine::MainLoop()
 		limit_fps();
 	}
 }
+
+void Engine::ShowWindow(Window_ *window)
+{
+	windows.push(window);
+	if (top == NULL)
+		top = window;
+}
+
 #endif

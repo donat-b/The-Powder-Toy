@@ -2,10 +2,10 @@
 #define ENGINE_H
 
 #include <stack>
-#include <SDL/SDL.h>
 #include "Window.h"
 #include "common/Point.h"
 
+union SDL_Event;
 class Engine
 {
 public:
@@ -13,6 +13,7 @@ public:
 	~Engine();
 
 	void MainLoop();
+	void ShowWindow(Window_ *window);
 
 private:
 	bool EventProcess(SDL_Event event);

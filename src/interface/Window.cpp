@@ -5,14 +5,18 @@
 #include "graphics.h"
 #include "graphics/VideoBuffer.h"
 
-Window_::Window_(Point position, Point size):
-	position(position),
-	size(size),
+Window_::Window_(Point position_, Point size_):
+	position(position_),
+	size(size_),
 	Components(NULL),
 	focused(NULL)
 {
+	if (position.X == CENTERED)
+		position.X = (XRES+BARSIZE-size.X)/2;
+	if (position.Y == CENTERED)
+		position.Y = (YRES+MENUSIZE-size.Y)/2;
 	videoBuffer = new VideoBuffer(size.X, size.Y);
-	AddComponent(new Textbox(Point(5, 5), Point(100, 14), "asdf", false));
+	//AddComponent(new Textbox(Point(5, 5), Point(100, 14), "asdf", false));
 }
 
 Window_::~Window_()
@@ -48,6 +52,8 @@ void Window_::DoTick(float dt)
 	{
 		(*iter)->OnTick();
 	}
+
+	OnTick(dt);
 }
 
 void Window_::DoDraw()
@@ -57,6 +63,9 @@ void Window_::DoDraw()
 	{
 		(*iter)->OnDraw(videoBuffer);
 	}
+
+	OnDraw(videoBuffer);
+
 	videoBuffer->CopyVideoBuffer(&vid_buf, position.X, position.Y);
 	drawrect(vid_buf, position.X, position.Y, size.X, size.Y, 255, 255, 255, 255);
 }
@@ -72,6 +81,8 @@ void Window_::DoMouseMove(int x, int y, int dx, int dy)
 			temp->OnMouseMoved(posX, posY, Point(dx, dy));
 		}
 	}
+
+	OnMouseMove(x, y, Point(dx, dy));
 }
 
 void Window_::DoMouseDown(int x, int y, unsigned char button)
@@ -92,6 +103,8 @@ void Window_::DoMouseDown(int x, int y, unsigned char button)
 	}
 	if (!focusedSomething)
 		FocusComponent(NULL);
+
+	OnMouseDown(x, y, button);
 }
 
 void Window_::DoMouseUp(int x, int y, unsigned char button)
@@ -106,11 +119,18 @@ void Window_::DoMouseUp(int x, int y, unsigned char button)
 			temp->OnMouseUp(posX, posY, button);
 	}
 	clicked = NULL;
+
+	OnMouseUp(x, y, button);
 }
 
 void Window_::DoMouseWheel(int x, int y, int d)
 {
+	/*for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
+	{
+		(*iter)->OnMouseWheel(x, y, d);
+	}*/
 
+	OnMouseWheel(x, y, d);
 }
 
 void Window_::DoKeyPress(int key, unsigned short character, unsigned char modifiers)
@@ -120,11 +140,19 @@ void Window_::DoKeyPress(int key, unsigned short character, unsigned char modifi
 		if (IsFocused(*iter))
 			(*iter)->OnKeyPress(key, character, modifiers);
 	}
+
+	OnKeyPress(key, character, modifiers);
 }
 
 void Window_::DoKeyRelease(int key, unsigned short character, unsigned char modifiers)
 {
+	/*for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
+	{
+		if (IsFocused(*iter))
+			(*iter)->OnKeyRelease(key, character, modifiers);
+	}*/
 
+	OnKeyRelease(key, character, modifiers);
 }
 
 #endif
