@@ -195,7 +195,7 @@ int VideoBuffer::DrawText(int x, int y, const char *s, int r, int g, int b, int 
 			y += FONT_H+2;
 			if (highlight && (s[1] == '\n' || s[1] == '\r' || (s[1] == '\x01' && (s[2] == '\n' || s[2] == '\r'))))
 			{
-				FillRect(x, y-2, font_data[font_ptrs[' ']], FONT_H+2, 255, 0, 255, 127);
+				FillRect(x, y-2, font_data[font_ptrs[' ']], FONT_H+2, 0, 0, 255, 127);
 			}
 		}
 		else if (*s == '\x0F')
@@ -265,11 +265,12 @@ int VideoBuffer::DrawText(int x, int y, const char *s, int r, int g, int b, int 
 		}
 		else
 		{
+			int oldX = x;
+			x = DrawChar(x, y, *(unsigned char *)s, r, g, b, a);
 			if (highlight)
 			{
-				FillRect(x, y-2, font_data[font_ptrs[(int)(*(unsigned char *)s)]], FONT_H+2, 255, 0, 255, 127);
+				FillRect(oldX, y-2, font_data[font_ptrs[(int)(*(unsigned char *)s)]], FONT_H+2, 0, 0, 255, 127);
 			}
-			x = DrawChar(x, y, *(unsigned char *)s, r, g, b, a);
 		}
 	}
 	return x;

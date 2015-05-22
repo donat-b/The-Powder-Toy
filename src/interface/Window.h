@@ -5,8 +5,6 @@
 #include "common/Point.h"
 #include "Component.h"
 
-#define CENTERED -1
-
 class VideoBuffer;
 class Window_
 {
@@ -39,6 +37,8 @@ public:
 	void DoKeyRelease(int key, unsigned short character, unsigned char modifiers);
 
 	VideoBuffer* GetVid() { return videoBuffer; }
+
+	static const int CENTERED = -1;
 
 protected:
 

@@ -35,6 +35,8 @@ public:
 	virtual void OnKeyPress(int key, unsigned short character, unsigned char modifiers);
 	virtual void OnDraw(VideoBuffer* vid);
 	virtual void OnTick();
+
+	static const int AUTOSIZE = -1;
 };
 
 #endif

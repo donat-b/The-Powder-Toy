@@ -5,10 +5,10 @@
 #include "misc.h"
 #include "graphics/VideoBuffer.h"
 
-Label::Label(Point position, Point size, std::string text, bool multiline) :
-	Component(position, size),
-	multiline(multiline),
-	text(text),
+Label::Label(Point position_, Point size_, std::string text_, bool multiline_) :
+	Component(position_, size_),
+	multiline(multiline_),
+	text(text_),
 	textWidth(0),
 	cursor(0),
 	cursorStart(0),
@@ -129,7 +129,7 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my
 			default:
 				//normal character, add to the current width and check if it's too long
 				posX += charwidth(text[i]);
-				if (posX >= size.X)
+				if (size.X != AUTOSIZE && posX >= size.X)
 				{
 					if (multiline)
 					{
@@ -170,6 +170,8 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my
 	}
 	if (!multiline)
 		textWidth = posX-1;
+	if (size.X == AUTOSIZE)
+		size.X = posX+3;
 	if (updateCursor)
 	{
 		//if cursor position wasn't found, probably goes at the end
@@ -188,7 +190,7 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my
 		cursorStart = text.length();
 
 	//multiline labels have their Y size set automatically
-	if (multiline)
+	if (size.Y = AUTOSIZE)
 		size.Y = posY+2;
 }
 
@@ -312,7 +314,7 @@ void Label::OnDraw(VideoBuffer* vid)
 	{
 		mootext.insert(cursor+(cursor > cursorStart)*2/*+(cursor < cursorStart)*/, "\x02");
 	}
-	vid->DrawText(position.X+2, position.Y+3, mootext.c_str(), 255, 255, 255, 100);
+	vid->DrawText(position.X+2, position.Y+3, mootext.c_str(), 255, 255, 255, 255);
 }
 
 void Label::OnTick()

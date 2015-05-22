@@ -84,6 +84,7 @@
 
 #ifdef NEWINTERFACE
 #include "interface/Engine.h"
+#include "gui/profile/ProfileViewer.h"
 #endif
 
 pixel *vid_buf;
@@ -2878,14 +2879,23 @@ int main(int argc, char *argv[])
 					}
 					else if (x>=(XRES+BARSIZE-(510-385)) && x<=(XRES+BARSIZE-(510-476)))
 					{
-						login_ui(vid_buf);
-						if (svf_login)
+#ifdef NEWINTERFACE
+						if (x <= XRES+BARSIZE-(510-399))
 						{
-							save_presets(0);
-							if (sessionCheck)
+							new ProfileViewer(svf_user);
+						}
+						else
+#endif
+						{
+							login_ui(vid_buf);
+							if (svf_login)
 							{
-								sessionCheck->Cancel();
-								sessionCheck = NULL;
+								save_presets(0);
+								if (sessionCheck)
+								{
+									sessionCheck->Cancel();
+									sessionCheck = NULL;
+								}
 							}
 						}
 					}
