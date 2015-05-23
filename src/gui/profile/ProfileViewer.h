@@ -1,4 +1,3 @@
-#ifdef NEWINTERFACE
 #ifndef PROFILEVIEWER_H
 #define PROFILEVIEWER_H
 
@@ -26,5 +25,4 @@ public:
 	void OnDraw(VideoBuffer *buf);
 };
 
-#endif
 #endif

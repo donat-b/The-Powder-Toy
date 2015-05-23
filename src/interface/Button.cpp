@@ -1,4 +1,4 @@
-#ifdef NEWINTERFACE
+#ifdef TODOFIXTHIS
 #include "Button.h"
 #include "graphics.h"
 #include "graphics/VideoBuffer.h"

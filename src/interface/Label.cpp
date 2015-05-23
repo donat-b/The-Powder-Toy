@@ -1,4 +1,3 @@
-#ifdef NEWINTERFACE
 #include <algorithm>
 #include "Label.h"
 #include "graphics.h"
@@ -327,5 +326,3 @@ void Label::OnTick()
 	if (!IsClicked() && numClicks && lastClick+300 < SDL_GetTicks())
 		numClicks = 0;
 }
-
-#endif

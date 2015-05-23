@@ -1,4 +1,3 @@
-#ifdef NEWINTERFACE
 #include "VideoBuffer.h"
 #define INCLUDE_FONTDATA
 #include "font.h"
@@ -288,5 +287,3 @@ void VideoBuffer::DrawImage(pixel *img, int x, int y, int w, int h)
 			img++;
 		}
 }
-
-#endif

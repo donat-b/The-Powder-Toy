@@ -1,4 +1,3 @@
-#ifdef NEWINTERFACE
 #include "Window.h"
 #include "Engine.h"
 #include "Label.h"
@@ -170,5 +169,3 @@ void Window_::DoKeyRelease(int key, unsigned short character, unsigned char modi
 
 	OnKeyRelease(key, character, modifiers);
 }
-
-#endif

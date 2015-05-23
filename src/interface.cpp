@@ -66,6 +66,8 @@
 #include "simulation/ToolNumbers.h"
 #include "simulation/GolNumbers.h"
 
+#include "gui/profile/ProfileViewer.h"
+
 SDLMod sdl_mod;
 int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii, sdl_zoom_trig=0;
 #if defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
@@ -1298,7 +1300,10 @@ void draw_svf_ui(pixel *vid_buf, int alternate)// all the buttons at the bottom
 	//the login button
 	drawtext(vid_buf, XRES-122+BARSIZE/*388*/, YRES+(MENUSIZE-13), "\x84", 255, 255, 255, 255);
 	if (svf_login)
+	{
 		drawtextmax(vid_buf, XRES-104+BARSIZE/*406*/, YRES+(MENUSIZE-12), 66, svf_user, 255, 255, 255, 255);
+		drawdots(vid_buf, XRES+BARSIZE-108, YRES+(MENUSIZE-15), 12, c, c, c, 255);
+	}
 	else
 		drawtext(vid_buf, XRES-104+BARSIZE/*406*/, YRES+(MENUSIZE-12), "[sign in]", 255, 255, 255, 255);
 	drawrect(vid_buf, XRES-125+BARSIZE/*385*/, YRES+(MENUSIZE-16), 91, 14, 255, 255, 255, 255);
@@ -5096,6 +5101,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	ui_edit ed;
 	ui_copytext ctb;
 
+	const char *profileToOpen = "";
+
 	pixel *old_vid=(pixel *)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	if (!old_vid || !info)
 		return 0;
@@ -5464,10 +5471,11 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							if (b && !bq && mx > 61+(XRES/2) && mx < 61+(XRES/2)+textwidth(info->commentauthors[cc]) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll && my < YRES+MENUSIZE-76-ed.h+2)
 								if (sdl_mod & (KMOD_CTRL|KMOD_META)) //open profile
 								{
-									char link[128];
+									/*char link[128];
 									strcpy(link, "http://" SERVER "/User.html?Name=");
 									strcaturl(link, info->commentauthorsunformatted[cc]);
-									open_link(link);
+									open_link(link);*/
+									profileToOpen = info->commentauthorsunformatted[cc];
 								}
 								else if (sdl_mod & KMOD_SHIFT) //, or search for a user's saves
 								{
@@ -5854,6 +5862,13 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 
 		if (lasttime<TIMEOUT)
 			lasttime++;
+
+		if (strcmp(profileToOpen, ""))
+		{
+			ProfileViewer *temp = new ProfileViewer(profileToOpen);
+			delete temp;
+			profileToOpen = "";
+		}
 	}
 	//Prevent those mouse clicks being passed down.
 	while (!sdl_poll())

@@ -1,4 +1,3 @@
-#ifdef NEWINTERFACE
 #include <SDL/SDL.h>
 #include "Engine.h"
 #include "interface.h"
@@ -200,5 +199,3 @@ void Engine::CloseWindow(Window_ *window)
 			top = NULL;
 	}
 }
-
-#endif

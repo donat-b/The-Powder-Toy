@@ -82,10 +82,9 @@
 #include "simulation/ToolNumbers.h"
 #include "simulation/elements/LIFE.h"
 
-#ifdef NEWINTERFACE
+// new interface stuff
 #include "interface/Engine.h"
 #include "gui/profile/ProfileViewer.h"
-#endif
 
 pixel *vid_buf;
 
@@ -1892,10 +1891,6 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='1')
 			{
-#ifdef NEWINTERFACE
-				Engine* asdf = new Engine();
-				asdf->MainLoop();
-#endif
 				if (sdl_mod & (KMOD_CTRL|KMOD_META))
 					display_mode = display_mode&DISPLAY_AIRV ? display_mode&!DISPLAY_AIRV:display_mode|DISPLAY_AIRV;
 				else
@@ -2879,14 +2874,12 @@ int main(int argc, char *argv[])
 					}
 					else if (x>=(XRES+BARSIZE-(510-385)) && x<=(XRES+BARSIZE-(510-476)))
 					{
-#ifdef NEWINTERFACE
-						if (x <= XRES+BARSIZE-(510-399))
+						if (svf_login && x <= XRES+BARSIZE-108)
 						{
 							ProfileViewer *temp = new ProfileViewer(svf_user);
 							delete temp;
 						}
 						else
-#endif
 						{
 							login_ui(vid_buf);
 							if (svf_login)

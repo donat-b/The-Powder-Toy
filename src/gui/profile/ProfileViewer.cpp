@@ -1,4 +1,3 @@
-#ifdef NEWINTERFACE
 #include <sstream>
 #include "ProfileViewer.h"
 #include "interface/Engine.h"
@@ -46,13 +45,6 @@ void ProfileViewer::MainLoop()
 	delete asdf;
 }
 
-std::string NumberToString(int number)
-{
-	std::stringstream converter;
-	converter << number;
-	return converter.str();
-}
-
 void ProfileViewer::OnTick(float dt)
 {
 	if (profileInfoDownload && profileInfoDownload->CheckDone())
@@ -72,18 +64,18 @@ void ProfileViewer::OnTick(float dt)
 				ageLabel = new Label(Point(30, 19), Point(Label::AUTOSIZE, Label::AUTOSIZE), root["User"]["Age"].asString());
 			else
 				ageLabel = new Label(Point(30, 19), Point(Label::AUTOSIZE, Label::AUTOSIZE), "\bgNot Provided");
-			if (root["User"]["Website"].isString())
-				websiteLabel = new Label(Point(50, 31), Point(Label::AUTOSIZE, Label::AUTOSIZE), root["User"]["Website"].asString());
-			else
-				websiteLabel = new Label(Point(50, 31), Point(Label::AUTOSIZE, Label::AUTOSIZE), "\bgNot Provided");
 			if (root["User"]["Location"].isString())
-				locationLabel = new Label(Point(54, 43), Point(Label::AUTOSIZE, Label::AUTOSIZE), root["User"]["Location"].asString());
+				locationLabel = new Label(Point(54, 31), Point(Label::AUTOSIZE, Label::AUTOSIZE), root["User"]["Location"].asString());
 			else
-				locationLabel = new Label(Point(54, 43), Point(Label::AUTOSIZE, Label::AUTOSIZE), "\bgNot Provided");
+				locationLabel = new Label(Point(54, 31), Point(Label::AUTOSIZE, Label::AUTOSIZE), "\bgNot Provided");
+			if (root["User"]["Website"].isString())
+				websiteLabel = new Label(Point(50, 43), Point(Label::AUTOSIZE, Label::AUTOSIZE), root["User"]["Website"].asString());
+			else
+				websiteLabel = new Label(Point(50, 43), Point(Label::AUTOSIZE, Label::AUTOSIZE), "\bgNot Provided");
 			if (root["User"]["Biography"].isString())
-				biographyLabel = new Label(Point(8, 103), Point(240, Label::AUTOSIZE), root["User"]["Biography"].asCString(), true);
+				biographyLabel = new Label(Point(8, 115), Point(240, Label::AUTOSIZE), root["User"]["Biography"].asCString(), true);
 			else
-				biographyLabel = new Label(Point(8, 103), Point(240, Label::AUTOSIZE), "\bgNot Provided", true);
+				biographyLabel = new Label(Point(8, 115), Point(240, Label::AUTOSIZE), "\bgNot Provided", true);
 
 			this->AddComponent(ageLabel);
 			this->AddComponent(locationLabel);
@@ -105,7 +97,7 @@ void ProfileViewer::OnTick(float dt)
 		}
 		catch (std::exception &e)
 		{
-			biographyLabel = new Label(Point(8, 79), Point(230, Label::AUTOSIZE), "\brError parsing data from server", true);
+			biographyLabel = new Label(Point(8, 115), Point(230, Label::AUTOSIZE), "\brError parsing data from server", true);
 			this->AddComponent(biographyLabel);
 		}
 
@@ -138,13 +130,11 @@ void ProfileViewer::OnDraw(VideoBuffer *buf)
 	if (avatar)
 		buf->DrawImage(avatar, 210, 10, 40, 40);
 	buf->DrawText(10, 22, "Age:", 175, 175, 175, 255);
-	buf->DrawText(10, 34, "Website:", 175, 175, 175, 255);
-	buf->DrawText(10, 46, "Location:", 175, 175, 175, 255);
+	buf->DrawText(10, 34, "Location:", 175, 175, 175, 255);
+	buf->DrawText(10, 46, "Website:", 175, 175, 175, 255);
 	buf->DrawText(10, 58, "Saves:", 175, 175, 175, 255);
 	buf->DrawText(15, 70, "Count:", 175, 175, 175, 255);
 	buf->DrawText(15, 82, "Average Score:", 175, 175, 175, 255);
 	buf->DrawText(15, 94, "Highest Score:", 175, 175, 175, 255);
 	buf->DrawText(10, 106, "Biography:", 175, 175, 175, 255);
 }
-
-#endif

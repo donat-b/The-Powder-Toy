@@ -1,4 +1,3 @@
-#ifdef NEWINTERFACE
 #include <algorithm>
 #include "Textbox.h"
 #include "graphics/VideoBuffer.h"
@@ -158,4 +157,3 @@ void Textbox::OnDraw(VideoBuffer* vid)
 	else
 		vid->DrawRect(position.X-1, position.Y-1, size.X+2, size.Y+2, 150, 150, 150, 255);
 }
-#endif
