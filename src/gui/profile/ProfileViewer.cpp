@@ -4,17 +4,21 @@
 #include "interface/Engine.h"
 #include "interface/Label.h"
 #include "graphics/VideoBuffer.h"
-#include "common/json.h"
 #include "common/Point.h"
 #include "game/Download.h"
+#include "json/json.h"
 
 ProfileViewer::ProfileViewer(std::string profileName):
-	Window_(Point(CENTERED, CENTERED), Point(250, 300)),
+	Window_(Point(CENTERED, CENTERED), Point(260, 350)),
 	name(profileName),
 	avatar(NULL),
 	ageLabel(NULL),
 	websiteLabel(NULL),
-	biographyLabel(NULL)
+	locationLabel(NULL),
+	biographyLabel(NULL),
+	saveCountLabel(NULL),
+	saveAverageLabel(NULL),
+	highestVoteLabel(NULL)
 {
 	profileInfoDownload = new Download("http://" SERVER "/User.json?Name=" + name);
 	//profileInfoDownload->AuthHeaders();
@@ -42,25 +46,68 @@ void ProfileViewer::MainLoop()
 	delete asdf;
 }
 
+std::string NumberToString(int number)
+{
+	std::stringstream converter;
+	converter << number;
+	return converter.str();
+}
+
 void ProfileViewer::OnTick(float dt)
 {
 	if (profileInfoDownload && profileInfoDownload->CheckDone())
 	{
-		char *data = profileInfoDownload->Finish(NULL, NULL);
+		int length, status;
+		char *data = profileInfoDownload->Finish(&length, &status);
 
-		json::Object parsed = ParseJSON(data);
+		std::istringstream datastream(data);
+		Json::Value root;
 
-		//temp (TODO): convert number to string
-		std::stringstream converter;
-		converter << ((json::Number)parsed["User"]["Age"]).Value();
-		std::string age = converter.str();
+		try
+		{
+			datastream >> root;
 
-		ageLabel = new Label(Point(30, 19), Point(Label::AUTOSIZE, Label::AUTOSIZE), age);
-		websiteLabel = new Label(Point(50, 31), Point(Label::AUTOSIZE, Label::AUTOSIZE), ((json::String)parsed["User"]["Website"]).Value());
-		biographyLabel = new Label(Point(8, 43), Point(230, Label::AUTOSIZE), ((json::String)parsed["User"]["Biography"]).Value(), true);
-		this->AddComponent(ageLabel);
-		this->AddComponent(websiteLabel);
-		this->AddComponent(biographyLabel);
+			// We can't use default values here because the profile api actually puts null in the json
+			if (root["User"]["Age"].isInt())
+				ageLabel = new Label(Point(30, 19), Point(Label::AUTOSIZE, Label::AUTOSIZE), root["User"]["Age"].asString());
+			else
+				ageLabel = new Label(Point(30, 19), Point(Label::AUTOSIZE, Label::AUTOSIZE), "\bgNot Provided");
+			if (root["User"]["Website"].isString())
+				websiteLabel = new Label(Point(50, 31), Point(Label::AUTOSIZE, Label::AUTOSIZE), root["User"]["Website"].asString());
+			else
+				websiteLabel = new Label(Point(50, 31), Point(Label::AUTOSIZE, Label::AUTOSIZE), "\bgNot Provided");
+			if (root["User"]["Location"].isString())
+				locationLabel = new Label(Point(54, 43), Point(Label::AUTOSIZE, Label::AUTOSIZE), root["User"]["Location"].asString());
+			else
+				locationLabel = new Label(Point(54, 43), Point(Label::AUTOSIZE, Label::AUTOSIZE), "\bgNot Provided");
+			if (root["User"]["Biography"].isString())
+				biographyLabel = new Label(Point(8, 103), Point(240, Label::AUTOSIZE), root["User"]["Biography"].asCString(), true);
+			else
+				biographyLabel = new Label(Point(8, 103), Point(240, Label::AUTOSIZE), "\bgNot Provided", true);
+
+			this->AddComponent(ageLabel);
+			this->AddComponent(locationLabel);
+			this->AddComponent(websiteLabel);
+			this->AddComponent(biographyLabel);
+
+			// If we don't do this average score will have a ton of decimal points, round to 2 here
+			float average = root["User"]["Saves"]["AverageScore"].asFloat();
+			std::stringstream averageScore;
+			averageScore.precision(2);
+			averageScore << std::fixed << average;
+
+			saveCountLabel = new Label(Point(43,67), Point(Label::AUTOSIZE, Label::AUTOSIZE), root["User"]["Saves"]["Count"].asString());
+			saveAverageLabel = new Label(Point(84,79), Point(Label::AUTOSIZE, Label::AUTOSIZE), averageScore.str());
+			highestVoteLabel = new Label(Point(83,91), Point(Label::AUTOSIZE, Label::AUTOSIZE), root["User"]["Saves"]["HighestScore"].asString());
+			this->AddComponent(saveCountLabel);
+			this->AddComponent(saveAverageLabel);
+			this->AddComponent(highestVoteLabel);
+		}
+		catch (std::exception &e)
+		{
+			biographyLabel = new Label(Point(8, 79), Point(230, Label::AUTOSIZE), "\brError parsing data from server", true);
+			this->AddComponent(biographyLabel);
+		}
 
 		free(data);
 		profileInfoDownload = NULL;
@@ -89,10 +136,15 @@ void ProfileViewer::OnTick(float dt)
 void ProfileViewer::OnDraw(VideoBuffer *buf)
 {
 	if (avatar)
-		buf->DrawImage(avatar, 200, 10, 40, 40);
+		buf->DrawImage(avatar, 210, 10, 40, 40);
 	buf->DrawText(10, 22, "Age:", 175, 175, 175, 255);
 	buf->DrawText(10, 34, "Website:", 175, 175, 175, 255);
-	buf->DrawText(10, 46, "Biography:", 175, 175, 175, 255);
+	buf->DrawText(10, 46, "Location:", 175, 175, 175, 255);
+	buf->DrawText(10, 58, "Saves:", 175, 175, 175, 255);
+	buf->DrawText(15, 70, "Count:", 175, 175, 175, 255);
+	buf->DrawText(15, 82, "Average Score:", 175, 175, 175, 255);
+	buf->DrawText(15, 94, "Highest Score:", 175, 175, 175, 255);
+	buf->DrawText(10, 106, "Biography:", 175, 175, 175, 255);
 }
 
 #endif

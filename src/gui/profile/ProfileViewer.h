@@ -15,7 +15,8 @@ class ProfileViewer : public Window_
 	Download *avatarDownload;
 	pixel *avatar;
 
-	Label *usernameLabel, *ageLabel, *websiteLabel, *biographyLabel;
+	Label *usernameLabel, *ageLabel, *websiteLabel, *locationLabel, *biographyLabel;
+	Label *saveCountLabel, *saveAverageLabel, *highestVoteLabel;
 	void MainLoop();
 public:
 	ProfileViewer(std::string profileName);
