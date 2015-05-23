@@ -31,6 +31,8 @@ public:
 	virtual void OnTick() { }
 
 	virtual void OnDefocus() { }
+
+	friend class ScrollWindow;
 };
 
 #endif

@@ -8,7 +8,7 @@
 #include "json/json.h"
 
 ProfileViewer::ProfileViewer(std::string profileName):
-	Window_(Point(CENTERED, CENTERED), Point(260, 350)),
+	ScrollWindow(Point(CENTERED, CENTERED), Point(260, 350)),
 	name(profileName),
 	avatar(NULL),
 	ageLabel(NULL),
@@ -81,6 +81,8 @@ void ProfileViewer::OnTick(float dt)
 			this->AddComponent(locationLabel);
 			this->AddComponent(websiteLabel);
 			this->AddComponent(biographyLabel);
+			if (biographyLabel->GetSize().Y+115 > this->GetSize().Y)
+				this->SetScrollable(true, biographyLabel->GetSize().Y+117-this->GetSize().Y*2);
 
 			// If we don't do this average score will have a ton of decimal points, round to 2 here
 			float average = root["User"]["Saves"]["AverageScore"].asFloat();
@@ -128,13 +130,13 @@ void ProfileViewer::OnTick(float dt)
 void ProfileViewer::OnDraw(VideoBuffer *buf)
 {
 	if (avatar)
-		buf->DrawImage(avatar, 210, 10, 40, 40);
-	buf->DrawText(10, 22, "Age:", 175, 175, 175, 255);
-	buf->DrawText(10, 34, "Location:", 175, 175, 175, 255);
-	buf->DrawText(10, 46, "Website:", 175, 175, 175, 255);
-	buf->DrawText(10, 58, "Saves:", 175, 175, 175, 255);
-	buf->DrawText(15, 70, "Count:", 175, 175, 175, 255);
-	buf->DrawText(15, 82, "Average Score:", 175, 175, 175, 255);
-	buf->DrawText(15, 94, "Highest Score:", 175, 175, 175, 255);
-	buf->DrawText(10, 106, "Biography:", 175, 175, 175, 255);
+		buf->DrawImage(avatar, 210, 10-GetScrollPosition(), 40, 40);
+	buf->DrawText(10, 22-GetScrollPosition(), "Age:", 175, 175, 175, 255);
+	buf->DrawText(10, 34-GetScrollPosition(), "Location:", 175, 175, 175, 255);
+	buf->DrawText(10, 46-GetScrollPosition(), "Website:", 175, 175, 175, 255);
+	buf->DrawText(10, 58-GetScrollPosition(), "Saves:", 175, 175, 175, 255);
+	buf->DrawText(15, 70-GetScrollPosition(), "Count:", 175, 175, 175, 255);
+	buf->DrawText(15, 82-GetScrollPosition(), "Average Score:", 175, 175, 175, 255);
+	buf->DrawText(15, 94-GetScrollPosition(), "Highest Score:", 175, 175, 175, 255);
+	buf->DrawText(10, 106-GetScrollPosition(), "Biography:", 175, 175, 175, 255);
 }

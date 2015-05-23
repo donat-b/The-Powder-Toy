@@ -2,12 +2,12 @@
 #define PROFILEVIEWER_H
 
 #include <string>
-#include "interface/Window.h"
+#include "interface/ScrollWindow.h"
 #include "graphics.h"
 
 class Download;
 class Label;
-class ProfileViewer : public Window_
+class ProfileViewer : public ScrollWindow
 {
 	std::string name;
 	Download *profileInfoDownload;

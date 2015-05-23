@@ -8,14 +8,6 @@
 class VideoBuffer;
 class Window_
 {
-private:
-	Point position;
-	Point size;
-	VideoBuffer* videoBuffer;
-	std::vector<Component*> Components;
-	Component* focused;
-	Component* clicked;
-
 public:
 	Window_(Point position, Point size);
 	~Window_();
@@ -32,10 +24,12 @@ public:
 	void DoMouseMove(int x, int y, int dx, int dy);
 	void DoMouseDown(int x, int y, unsigned char button);
 	void DoMouseUp(int x, int y, unsigned char button);
-	void DoMouseWheel(int x, int y, int d);
+	virtual void DoMouseWheel(int x, int y, int d);
 	void DoKeyPress(int key, unsigned short character, unsigned char modifiers);
 	void DoKeyRelease(int key, unsigned short character, unsigned char modifiers);
 
+	Point GetPosition() { return position; }
+	Point GetSize() { return size; }
 	VideoBuffer* GetVid() { return videoBuffer; }
 
 	bool toDelete;
@@ -43,6 +37,9 @@ public:
 	static const int CENTERED = -1;
 
 protected:
+	Point position;
+	Point size;
+	std::vector<Component*> Components;
 
 	virtual void OnTick(float dt) { }
 	virtual void OnDraw(VideoBuffer *buf) { }
@@ -52,6 +49,11 @@ protected:
 	virtual void OnMouseWheel(int x, int y, int d) { }
 	virtual void OnKeyPress(int key, unsigned short character, unsigned char modifiers) { }
 	virtual void OnKeyRelease(int key, unsigned short character, unsigned char modifiers) { }
+
+private:
+	VideoBuffer* videoBuffer;
+	Component* focused;
+	Component* clicked;
 };
 
 #endif
