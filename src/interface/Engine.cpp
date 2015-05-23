@@ -1,4 +1,10 @@
 #include <SDL/SDL.h>
+#ifdef WIN
+#include <windows.h>
+//#include <Shellapi.h>
+#include "game/Menus.h"
+#include "update.h"
+#endif
 #include "Engine.h"
 #include "interface.h"
 #include "misc.h"
