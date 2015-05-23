@@ -20,7 +20,7 @@ void ScrollWindow::DoMouseWheel(int x, int y, int d)
 
 		for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 		{
-			(*iter)->position.Y -= (scrolled-oldScrolled);
+			(*iter)->SetPosition(Point((*iter)->GetPosition().X, (*iter)->GetPosition().Y-(scrolled-oldScrolled)));
 		}
 	}
 

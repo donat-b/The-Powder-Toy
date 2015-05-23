@@ -21,6 +21,7 @@ public:
 	bool IsFocused();
 	bool IsClicked();
 	Point GetPosition() { return position; }
+	void SetPosition(Point position_) { position = position_; }
 	Point GetSize() { return size; }
 
 	virtual void OnMouseDown(int x, int y, unsigned char button) { }
@@ -31,8 +32,6 @@ public:
 	virtual void OnTick() { }
 
 	virtual void OnDefocus() { }
-
-	friend class ScrollWindow;
 };
 
 #endif

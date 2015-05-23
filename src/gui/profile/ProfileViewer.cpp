@@ -81,7 +81,7 @@ void ProfileViewer::OnTick(float dt)
 			this->AddComponent(locationLabel);
 			this->AddComponent(websiteLabel);
 			this->AddComponent(biographyLabel);
-			if (biographyLabel->GetSize().Y+115 > this->GetSize().Y)
+			if (biographyLabel->GetSize().Y+117 > this->GetSize().Y)
 				this->SetScrollable(true, biographyLabel->GetSize().Y+117-this->GetSize().Y*2);
 
 			// If we don't do this average score will have a ton of decimal points, round to 2 here
