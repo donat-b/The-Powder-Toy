@@ -892,6 +892,18 @@ Better .desktop file and icon on Linux. Cancel mouse drawing when moving it
 in / out of the zoom window. Update internal script manager to 3.4. Now
 compiled using lua5.2. Some other minor bugfixes, especially to lua.
 
+Version 31.0 5/23/15
+Stickmen/signs are placed on mouseup, fix LIGH/TESC drawing bugs. Fix PSNS 
+corrupting the simulation. Fix PHOT+loop mode crash and PROT crash. Fix QRTZ 
+conduction not working at all. tpt.setdebug(0x20) for particle debugging key 
+shortcuts (use 'f' key + modifiers). Lots of simulation and lua updates from 
+tpt++. Save to disk option appears by default when not logged in. Add quick 
+save for local saves. Fix wall drawing with rectangle brush shapes. Scale 
+options take effect immediately, also use scale:2 by default when screen size 
+is large enough on first run. Enable the new interface code, used in the new 
+profile viewer interface. Click the key or ctrl+click a username online to 
+enter. Fix DRAY with .tmp=0.
+
 
 
 
