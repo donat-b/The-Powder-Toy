@@ -3147,7 +3147,6 @@ int main(int argc, char *argv[])
 				else
 				{
 					//plop tool (STKM, STKM2, FIGH)
-					ctrlzSnapshot();
 					activeTool->Click(Point(lx, ly));
 				}
 			}
