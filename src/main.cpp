@@ -815,7 +815,9 @@ void ParticleDebug(int mode, int x, int y)
 		else
 			logmessage << "Updated particles #" << debug_currentParticle << " through #" << i;
 	}
+#ifdef LUACONSOLE
 	luacon_log(mystrdup(logmessage.str().c_str()));
+#endif
 
 	// call simulation functions run before updating particles if we are updating #0
 	if (debug_currentParticle == 0)

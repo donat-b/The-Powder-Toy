@@ -1678,6 +1678,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Invalid datatype of anim data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
 			}
 		}
+#ifdef LUACONSOLE
 		else if (!strcmp(bson_iterator_key(&iter), "LuaCode"))
 		{
 			if (bson_iterator_type(&iter) == BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter)) == BSON_BIN_USER && (LuaCodeLen = bson_iterator_bin_len(&iter)) > 0)
@@ -1693,6 +1694,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Invalid datatype of anim data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter) == BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter)) == BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
 			}
 		}
+#endif
 		else if (!strcmp(bson_iterator_key(&iter), "palette"))
 		{
 			if(bson_iterator_type(&iter)==BSON_ARRAY)
