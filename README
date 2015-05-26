@@ -904,6 +904,9 @@ is large enough on first run. Enable the new interface code, used in the new
 profile viewer interface. Click the key or ctrl+click a username online to 
 enter. Fix DRAY with .tmp=0.
 
+Version 31.1 5/25/15
+Fix ctrl+z
+
 
 
 
