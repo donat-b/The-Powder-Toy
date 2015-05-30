@@ -449,7 +449,7 @@ void DrawPhotonWavelengths(pixel *vid, int x, int y, int h, int wl)
 
 void DrawRecordsInfo()
 {
-	int ytop = 230, num_parts = 0, totalselected = 0, x, y;
+	int ytop = 244, num_parts = 0, totalselected = 0, x, y;
 	float totaltemp = 0, totalpressure = 0;
 	for (int i = 0; i < NPART; i++)
 	{
@@ -493,28 +493,25 @@ void DrawRecordsInfo()
 			fillrect(vid_buf, 12, ytop+38, textwidth(infotext)+8, 15, 0, 0, 0, 140);
 			drawtext(vid_buf, 16, ytop+42, infotext, 255, 255, 255, 200);
 		}
-		sprintf(infotext,"Max FPS: %f", maxfps);
+		sprintf(infotext,"Number of Times Played: %i", timesplayed);
 		fillrect(vid_buf, 12, ytop+52, textwidth(infotext)+8, 15, 0, 0, 0, 140);
 		drawtext(vid_buf, 16, ytop+56, infotext, 255, 255, 255, 200);
-		sprintf(infotext,"Number of Times Played: %i", timesplayed);
-		fillrect(vid_buf, 12, ytop+66, textwidth(infotext)+8, 15, 0, 0, 0, 140);
-		drawtext(vid_buf, 16, ytop+70, infotext, 255, 255, 255, 200);
 		if (timesplayed)
 		{
 			GetTimeString((totaltime+currentTime-totalafktime-afktime)/timesplayed, timeinfotext, 0);
 			sprintf(infotext,"Average Time Played: %s", timeinfotext);
-			fillrect(vid_buf, 12, ytop+80, textwidth(infotext)+8, 15, 0, 0, 0, 140);
-			drawtext(vid_buf, 16, ytop+84, infotext, 255, 255, 255, 200);
+			fillrect(vid_buf, 12, ytop+66, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+			drawtext(vid_buf, 16, ytop+70, infotext, 255, 255, 255, 200);
 		}
 		if (num_parts)
 		{
 			sprintf(infotext,"Average Temp: %f C", totaltemp/num_parts-273.15f);
-			fillrect(vid_buf, 12, ytop+94, textwidth(infotext)+8, 15, 0, 0, 0, 140);
-			drawtext(vid_buf, 16, ytop+98, infotext, 255, 255, 255, 200);
+			fillrect(vid_buf, 12, ytop+80, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+			drawtext(vid_buf, 16, ytop+84, infotext, 255, 255, 255, 200);
 		}
 		sprintf(infotext,"Average Pressure: %f", totalpressure/(XRES*YRES/CELL/CELL));
-		fillrect(vid_buf, 12, ytop+108, textwidth(infotext)+8, 15, 0, 0, 0, 140);
-		drawtext(vid_buf, 16, ytop+112, infotext, 255, 255, 255, 200);
+		fillrect(vid_buf, 12, ytop+94, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+		drawtext(vid_buf, 16, ytop+98, infotext, 255, 255, 255, 200);
 		if (num_parts)
 		{
 			if (activeTools[0]->GetType() == GOL_TOOL)
@@ -523,8 +520,8 @@ void DrawRecordsInfo()
 				sprintf(infotext,"%%%s: %f", ptypes[activeTools[0]->GetID()].name,(float)totalselected/num_parts*100);
 			else
 				sprintf(infotext,"%%Empty: %f", (float)totalselected/XRES/YRES*100);
-			fillrect(vid_buf, 12, ytop+122, textwidth(infotext)+8, 15, 0, 0, 0, 140);
-			drawtext(vid_buf, 16, ytop+126, infotext, 255, 255, 255, 200);
+			fillrect(vid_buf, 12, ytop+108, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+			drawtext(vid_buf, 16, ytop+112, infotext, 255, 255, 255, 200);
 		}
 }
 

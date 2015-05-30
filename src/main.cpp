@@ -222,7 +222,6 @@ int totalafktime = 0;
 int afktime = 0;
 double totalfps = 0;
 int frames = 0;
-double maxfps = 0;
 int prevafktime = 0;
 int timesplayed = 0;
 
@@ -3230,8 +3229,6 @@ int main(int argc, char *argv[])
 		{
 			frames = frames + 1;
 			totalfps = totalfps + FPSB2;
-			if (FPSB2 > maxfps)
-				maxfps = FPSB2;
 		}
 		if (lastx == x && lasty == y)
 		{

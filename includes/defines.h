@@ -249,7 +249,6 @@ extern int totalafktime;
 extern int afktime;
 extern int frames;
 extern double totalfps;
-extern double maxfps;
 extern int prevafktime;
 extern int timesplayed;
 

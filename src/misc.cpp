@@ -277,7 +277,6 @@ void save_presets(int do_update)
 	cJSON_AddNumberToObject(recobj, "Total Time Played", ((double)currentTime/1000)+((double)totaltime/1000)-((double)totalafktime/1000)-((double)afktime/1000));
 	cJSON_AddNumberToObject(recobj, "Average FPS", totalfps/frames);
 	cJSON_AddNumberToObject(recobj, "Number of frames", frames);
-	cJSON_AddNumberToObject(recobj, "Max FPS", maxfps);
 	cJSON_AddNumberToObject(recobj, "Total AFK Time", ((double)totalafktime/1000)+((double)afktime/1000)+((double)prevafktime/1000));
 	cJSON_AddNumberToObject(recobj, "Times Played", timesplayed);
 
@@ -473,8 +472,6 @@ void load_presets(void)
 				totalfps = tmpobj->valuedouble;
 			if (tmpobj = cJSON_GetObjectItem(recobj, "Number of frames"))
 				frames = tmpobj->valueint; totalfps = totalfps * frames;
-			if (tmpobj = cJSON_GetObjectItem(recobj, "Max FPS"))
-				maxfps = tmpobj->valuedouble;
 			if (tmpobj = cJSON_GetObjectItem(recobj, "Total AFK Time"))
 				prevafktime = (int)((tmpobj->valuedouble)*1000);
 			if (tmpobj = cJSON_GetObjectItem(recobj, "Times Played"))
