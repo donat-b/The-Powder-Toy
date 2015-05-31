@@ -1,5 +1,4 @@
 #include "Button.h"
-#include "Window.h"
 #include "graphics/VideoBuffer.h"
 
 Button::Button(Point position, Point size, std::string text_):
@@ -16,7 +15,8 @@ void Button::OnMouseDown(int x, int y, unsigned char button)
 
 void Button::OnMouseUp(int x, int y, unsigned char button)
 {
-
+	//if (IsClicked() && isMouseInside && enabled)
+	//	enabled = !enabled;
 }
 
 void Button::OnMouseMoved(int x, int y, Point difference)
@@ -31,7 +31,11 @@ void Button::OnKeyPress(int key, unsigned short character, unsigned char modifie
 
 void Button::OnDraw(VideoBuffer* vid)
 {
-	if (!isMouseInside || (IsMouseDown() && !IsClicked()))
+	if (!enabled)
+	{
+		vid->DrawText(position.X+2, position.Y+3, text.c_str(), 140, 140, 140, 255);
+	}
+	else if (!isMouseInside || (IsMouseDown() && !IsClicked()))
 	{
 		// Mouse not inside button, or over button but click did not start on button
 		vid->DrawText(position.X+2, position.Y+3, text.c_str(), 255, 255, 255, 255);
@@ -52,10 +56,10 @@ void Button::OnDraw(VideoBuffer* vid)
 		}
 	}
 
-	//if (IsFocused())
+	if (enabled)
 		vid->DrawRect(position.X-1, position.Y-1, size.X+2, size.Y+2, 255, 255, 255, 255);
-	//else
-	//	vid->DrawRect(position.X-1, position.Y-1, size.X+2, size.Y+2, 150, 150, 150, 255);
+	else
+		vid->DrawRect(position.X-1, position.Y-1, size.X+2, size.Y+2, 140, 140, 140, 255);
 }
 
 void Button::OnTick()

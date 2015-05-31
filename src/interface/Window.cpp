@@ -60,7 +60,8 @@ void Window_::DoTick(float dt)
 {
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
-		(*iter)->OnTick();
+		if ((*iter)->IsVisible())
+			(*iter)->OnTick();
 	}
 
 	OnTick(dt);
@@ -71,7 +72,8 @@ void Window_::DoDraw()
 	videoBuffer->Clear();
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
-		(*iter)->OnDraw(videoBuffer);
+		if ((*iter)->IsVisible())
+			(*iter)->OnDraw(videoBuffer);
 	}
 
 	OnDraw(videoBuffer);
@@ -87,10 +89,14 @@ void Window_::DoMouseMove(int x, int y, int dx, int dy)
 		for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 		{
 			Component *temp = *iter;
-			int posX = x-this->position.X-temp->GetPosition().X, posY = y-this->position.Y-temp->GetPosition().Y;
-			// update isMouseInside for this component
-			temp->SetMouseInside(posX >= 0 && posX < temp->GetSize().X && posY >= 0 && posY < temp->GetSize().Y);
-			temp->OnMouseMoved(posX, posY, Point(dx, dy));
+			if (temp->IsVisible() && temp->IsEnabled())
+			{
+				Component *temp = *iter;
+				int posX = x-this->position.X-temp->GetPosition().X, posY = y-this->position.Y-temp->GetPosition().Y;
+				// update isMouseInside for this component
+				temp->SetMouseInside(posX >= 0 && posX < temp->GetSize().X && posY >= 0 && posY < temp->GetSize().Y);
+				temp->OnMouseMoved(posX, posY, Point(dx, dy));
+			}
 		}
 	}
 
@@ -109,15 +115,18 @@ void Window_::DoMouseDown(int x, int y, unsigned char button)
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
 		Component *temp = *iter;
-		int posX = x-this->position.X-temp->GetPosition().X, posY = y-this->position.Y-temp->GetPosition().Y;
-		bool inside = posX >= 0 && posX < temp->GetSize().X && posY >= 0 && posY < temp->GetSize().Y;
-		if (inside)
+		if (temp->IsVisible() && temp->IsEnabled())
 		{
-			focusedSomething = true;
-			FocusComponent(temp);
-			clicked = temp;
-			temp->OnMouseDown(posX, posY, button);
-			break;
+			int posX = x-this->position.X-temp->GetPosition().X, posY = y-this->position.Y-temp->GetPosition().Y;
+			bool inside = posX >= 0 && posX < temp->GetSize().X && posY >= 0 && posY < temp->GetSize().Y;
+			if (inside)
+			{
+				focusedSomething = true;
+				FocusComponent(temp);
+				clicked = temp;
+				temp->OnMouseDown(posX, posY, button);
+				break;
+			}
 		}
 	}
 	if (!focusedSomething)
@@ -132,11 +141,14 @@ void Window_::DoMouseUp(int x, int y, unsigned char button)
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
 		Component *temp = *iter;
-		int posX = x-this->position.X-temp->GetPosition().X, posY = y-this->position.Y-temp->GetPosition().Y;
-		bool inside = posX >= 0 && posX < temp->GetSize().X && posY >= 0 && posY < temp->GetSize().Y;
+		if (temp->IsVisible() && temp->IsEnabled())
+		{
+			int posX = x-this->position.X-temp->GetPosition().X, posY = y-this->position.Y-temp->GetPosition().Y;
+			bool inside = posX >= 0 && posX < temp->GetSize().X && posY >= 0 && posY < temp->GetSize().Y;
 
-		if (inside || IsClicked(temp))
-			temp->OnMouseUp(posX, posY, button);
+			if (inside || IsClicked(temp))
+				temp->OnMouseUp(posX, posY, button);
+		}
 	}
 	clicked = NULL;
 
@@ -147,7 +159,8 @@ void Window_::DoMouseWheel(int x, int y, int d)
 {
 	/*for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
-		(*iter)->OnMouseWheel(x, y, d);
+		if ((*iter)->IsVisible() && (*iter)->IsEnabled())
+			(*iter)->OnMouseWheel(x, y, d);
 	}*/
 
 	OnMouseWheel(x, y, d);
@@ -157,7 +170,7 @@ void Window_::DoKeyPress(int key, unsigned short character, unsigned char modifi
 {
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
-		if (IsFocused(*iter))
+		if (IsFocused(*iter) && (*iter)->IsVisible() && (*iter)->IsEnabled())
 			(*iter)->OnKeyPress(key, character, modifiers);
 	}
 
@@ -168,7 +181,7 @@ void Window_::DoKeyRelease(int key, unsigned short character, unsigned char modi
 {
 	/*for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
-		if (IsFocused(*iter))
+		if (IsFocused(*iter) && (*iter)->IsVisible() && (*iter)->IsEnabled())
 			(*iter)->OnKeyRelease(key, character, modifiers);
 	}*/
 

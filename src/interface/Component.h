@@ -12,20 +12,27 @@ class Component
 protected:
 	Point position;
 	Point size;
-	bool isMouseInside;
+	bool isMouseInside; // keeps track of if mouse is inside so child classes don't have to
+	bool visible; // ignore all events + tick and hide component
+	bool enabled; // ignore all events, still call tick and draw function
 
 public:
 	Component(Point position, Point size);
 
-	void SetParent(Window_ *parentWindow) { parent = parentWindow; }
-	Window_* GetParent() { return parent; }
 	bool IsFocused();
 	bool IsClicked();
 	bool IsMouseDown();
+
+	void SetParent(Window_ *parentWindow) { parent = parentWindow; }
+	Window_* GetParent() { return parent; }
 	Point GetPosition() { return position; }
 	void SetPosition(Point position_) { position = position_; }
 	Point GetSize() { return size; }
 	void SetMouseInside(bool mouseInside) { isMouseInside = mouseInside; } // used by Window.cpp
+	bool IsVisible() { return visible; }
+	void SetVisible(bool visible_) { visible = visible_; }
+	bool IsEnabled() { return enabled; }
+	void SetEnabled(bool enabled_) { enabled = enabled_; }
 
 	virtual void OnMouseDown(int x, int y, unsigned char button) { }
 	virtual void OnMouseUp(int x, int y, unsigned char button) { }

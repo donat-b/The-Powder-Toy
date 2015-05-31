@@ -266,11 +266,8 @@ void Label::OnKeyPress(int key, unsigned short character, unsigned char modifier
 			break;
 		}
 		case 'a':
-			//if (clicked)
-			{
-				cursorStart = 0;
-				cursor = clickPosition = text.length();
-			}
+			cursorStart = 0;
+			cursor = clickPosition = text.length();
 			break;
 		case SDLK_LEFT:
 		{
@@ -307,18 +304,23 @@ void Label::OnKeyPress(int key, unsigned short character, unsigned char modifier
 
 void Label::OnDraw(VideoBuffer* vid)
 {
-	//at some point there will be a redraw variable so this isn't done every frame
-	std::string mootext = text;
-	if (cursor != cursorStart || numClicks > 1)
+	if (enabled)
 	{
-		mootext.insert(cursorStart, "\x01");
-		mootext.insert(cursor+(cursor > cursorStart), "\x01");
+		//at some point there will be a redraw variable so this isn't done every frame
+		std::string mootext = text;
+		if (cursor != cursorStart || numClicks > 1)
+		{
+			mootext.insert(cursorStart, "\x01");
+			mootext.insert(cursor+(cursor > cursorStart), "\x01");
+		}
+		if (ShowCursor() && IsFocused())
+		{
+			mootext.insert(cursor+(cursor > cursorStart)*2/*+(cursor < cursorStart)*/, "\x02");
+		}
+		vid->DrawText(position.X+2, position.Y+3, mootext.c_str(), 255, 255, 255, 255);
 	}
-	if (ShowCursor() && IsFocused())
-	{
-		mootext.insert(cursor+(cursor > cursorStart)*2/*+(cursor < cursorStart)*/, "\x02");
-	}
-	vid->DrawText(position.X+2, position.Y+3, mootext.c_str(), 255, 255, 255, 255);
+	else
+		vid->DrawText(position.X+2, position.Y+3, text.c_str(), 140, 140, 140, 255);
 }
 
 void Label::OnTick()

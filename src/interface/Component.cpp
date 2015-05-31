@@ -5,7 +5,9 @@
 Component::Component(Point position, Point size) :
 	parent(NULL),
 	position(position),
-	size(size)
+	size(size),
+	visible(true),
+	enabled(true)
 {
 
 }

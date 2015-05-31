@@ -152,7 +152,7 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned char modifi
 void Textbox::OnDraw(VideoBuffer* vid)
 {
 	Label::OnDraw(vid);
-	if (IsFocused())
+	if (IsFocused() && enabled)
 		vid->DrawRect(position.X-1, position.Y-1, size.X+2, size.Y+2, 255, 255, 255, 255);
 	else
 		vid->DrawRect(position.X-1, position.Y-1, size.X+2, size.Y+2, 150, 150, 150, 255);
