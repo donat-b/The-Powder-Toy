@@ -12,6 +12,7 @@ class Component
 protected:
 	Point position;
 	Point size;
+	bool isMouseInside;
 
 public:
 	Component(Point position, Point size);
@@ -20,9 +21,11 @@ public:
 	Window_* GetParent() { return parent; }
 	bool IsFocused();
 	bool IsClicked();
+	bool IsMouseDown();
 	Point GetPosition() { return position; }
 	void SetPosition(Point position_) { position = position_; }
 	Point GetSize() { return size; }
+	void SetMouseInside(bool mouseInside) { isMouseInside = mouseInside; } // used by Window.cpp
 
 	virtual void OnMouseDown(int x, int y, unsigned char button) { }
 	virtual void OnMouseUp(int x, int y, unsigned char button) { }

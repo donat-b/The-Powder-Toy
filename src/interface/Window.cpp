@@ -6,12 +6,13 @@
 #include "graphics/VideoBuffer.h"
 
 Window_::Window_(Point position_, Point size_):
+	toDelete(false),
 	position(position_),
 	size(size_),
 	Components(NULL),
+	isMouseDown(false),
 	focused(NULL),
-	clicked(NULL),
-	toDelete(false)
+	clicked(NULL)
 {
 	if (position.X == CENTERED)
 		position.X = (XRES+BARSIZE-size.X)/2;
@@ -87,6 +88,8 @@ void Window_::DoMouseMove(int x, int y, int dx, int dy)
 		{
 			Component *temp = *iter;
 			int posX = x-this->position.X-temp->GetPosition().X, posY = y-this->position.Y-temp->GetPosition().Y;
+			// update isMouseInside for this component
+			temp->SetMouseInside(posX >= 0 && posX < temp->GetSize().X && posY >= 0 && posY < temp->GetSize().Y);
 			temp->OnMouseMoved(posX, posY, Point(dx, dy));
 		}
 	}
@@ -100,6 +103,7 @@ void Window_::DoMouseDown(int x, int y, unsigned char button)
 	{
 		toDelete = true;
 	}
+	isMouseDown = true;
 
 	bool focusedSomething = false;
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
@@ -124,6 +128,7 @@ void Window_::DoMouseDown(int x, int y, unsigned char button)
 
 void Window_::DoMouseUp(int x, int y, unsigned char button)
 {
+	isMouseDown = false;
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
 		Component *temp = *iter;

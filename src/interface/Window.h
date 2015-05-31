@@ -21,16 +21,17 @@ public:
 	void DoTick(float dt);
 	void DoDraw();
 
-	void DoMouseMove(int x, int y, int dx, int dy);
-	void DoMouseDown(int x, int y, unsigned char button);
-	void DoMouseUp(int x, int y, unsigned char button);
+	virtual void DoMouseMove(int x, int y, int dx, int dy);
+	virtual void DoMouseDown(int x, int y, unsigned char button);
+	virtual void DoMouseUp(int x, int y, unsigned char button);
 	virtual void DoMouseWheel(int x, int y, int d);
-	void DoKeyPress(int key, unsigned short character, unsigned char modifiers);
-	void DoKeyRelease(int key, unsigned short character, unsigned char modifiers);
+	virtual void DoKeyPress(int key, unsigned short character, unsigned char modifiers);
+	virtual void DoKeyRelease(int key, unsigned short character, unsigned char modifiers);
 
 	Point GetPosition() { return position; }
 	Point GetSize() { return size; }
 	VideoBuffer* GetVid() { return videoBuffer; }
+	bool IsMouseDown() { return isMouseDown; }
 
 	bool toDelete;
 
@@ -40,6 +41,7 @@ protected:
 	Point position;
 	Point size;
 	std::vector<Component*> Components;
+	bool isMouseDown; // need to keep track of this for some things like buttons
 
 	virtual void OnTick(float dt) { }
 	virtual void OnDraw(VideoBuffer *buf) { }

@@ -23,3 +23,10 @@ bool Component::IsClicked()
 		return parent->IsClicked(this);
 	return false;
 }
+
+bool Component::IsMouseDown()
+{
+	if (parent)
+		return parent->IsMouseDown();
+	return false;
+}

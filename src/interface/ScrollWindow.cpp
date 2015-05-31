@@ -20,7 +20,12 @@ void ScrollWindow::DoMouseWheel(int x, int y, int d)
 
 		for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 		{
+			Component *temp = *iter;
 			(*iter)->SetPosition(Point((*iter)->GetPosition().X, (*iter)->GetPosition().Y-(scrolled-oldScrolled)));
+
+			// update isMouseInside for this component
+			int posX = x-this->position.X-temp->GetPosition().X, posY = y-this->position.Y-temp->GetPosition().Y;
+			temp->SetMouseInside(posX >= 0 && posX < temp->GetSize().X && posY >= 0 && posY < temp->GetSize().Y);
 		}
 	}
 

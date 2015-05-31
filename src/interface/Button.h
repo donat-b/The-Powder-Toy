@@ -3,21 +3,16 @@
 
 #include <string>
 #include "common/Point.h"
+#include "Component.h"
 
 class VideoBuffer;
-class Button
+class Button : public Component
 {
 private:
-
-protected:
-	Point position;
-	Point size;
+	std::string text;
 
 public:
-	Button(Point position, Point size);
-
-	Point GetPosition() { return position; }
-	Point GetSize() { return size; }
+	Button(Point position, Point size, std::string text_);
 
 	virtual void OnMouseDown(int x, int y, unsigned char button);
 	virtual void OnMouseUp(int x, int y, unsigned char button);
