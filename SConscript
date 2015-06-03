@@ -363,10 +363,7 @@ if not GetOption('clean') and not GetOption('help'):
 	env = conf.Finish()
 
 if not msvc:
-	if platform == "Windows":
-		env.Append(CXXFLAGS=['-std=gnu++98'])
-	else:
-		env.Append(CXXFLAGS=['-std=c++98'])
+	env.Append(CXXFLAGS=['-std=c++11'])
 
 
 #Add platform specific flags and defines

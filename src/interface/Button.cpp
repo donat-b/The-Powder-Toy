@@ -3,9 +3,15 @@
 
 Button::Button(Point position, Point size, std::string text_):
 	Component(position, size),
-	text(text_)
+	text(text_),
+	callback(NULL)
 {
 
+}
+
+void Button::SetCallback(std::function<void(Button*)> callback_)
+{
+	callback = callback_;
 }
 
 void Button::OnMouseDown(int x, int y, unsigned char button)
@@ -15,8 +21,8 @@ void Button::OnMouseDown(int x, int y, unsigned char button)
 
 void Button::OnMouseUp(int x, int y, unsigned char button)
 {
-	//if (IsClicked() && isMouseInside && enabled)
-	//	enabled = !enabled;
+	if (IsClicked() && isMouseInside && enabled)
+		callback(this);
 }
 
 void Button::OnMouseMoved(int x, int y, Point difference)

@@ -2,6 +2,7 @@
 #define BUTTON_H
 
 #include <string>
+#include <functional>
 #include "common/Point.h"
 #include "Component.h"
 
@@ -10,9 +11,12 @@ class Button : public Component
 {
 private:
 	std::string text;
+	std::function<void(Button*)> callback;
 
 public:
 	Button(Point position, Point size, std::string text_);
+
+	void SetCallback(std::function<void(Button*)> callback_);
 
 	virtual void OnMouseDown(int x, int y, unsigned char button);
 	virtual void OnMouseUp(int x, int y, unsigned char button);
