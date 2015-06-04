@@ -36,7 +36,7 @@ char *http_async_req_stop(void *ctx, int *ret, int *len);
 void http_force_close(void *ctx);
 void http_async_req_close(void *ctx);
 
-char *http_multipart_post(const char *uri, const char *const *names, const char *const *parts, int *plens, const char *user, const char *pass, const char * session_id, int *ret, int *len);
+char *http_multipart_post(const char *uri, const char *const *names, const char *const *parts, size_t *plens, const char *user, const char *pass, const char * session_id, int *ret, int *len);
 
 const char *http_ret_text(int ret);
 

@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cstdlib>
 #include "Label.h"
 #include "graphics.h"
 #include "misc.h"

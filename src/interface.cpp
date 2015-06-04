@@ -2185,7 +2185,7 @@ void login_ui(pixel *vid_buf)
 		int dataStatus, dataLength;
 		const char *const postNames[] = { "Username", "Hash", NULL };
 		const char *const postDatas[] = { svf_user, totalHash };
-		int postLengths[] = { strlen(svf_user), 32 };
+		size_t postLengths[] = { strlen(svf_user), 32 };
 		char * data;
 		data = http_multipart_post(
 				  "http://" SERVER "/Login.json",
@@ -6372,19 +6372,22 @@ int execute_save(pixel *vid_buf)
 
 	const char *names[] = {"Name","Description", "Data:save.bin", "Thumb:thumb.bin", "Publish", "ID", NULL};
 	char *uploadparts[6];
-	int plens[6];
+	size_t plens[6];
 
 	uploadparts[0] = svf_name;
 	plens[0] = strlen(svf_name);
 	uploadparts[1] = svf_description;
 	plens[1] = strlen(svf_description);
-	uploadparts[2] = (char*)build_save(plens+2, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+	int len;
+	uploadparts[2] = (char*)build_save(&len, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+	plens[2] = len;
 	if (!uploadparts[2])
 	{
 		error_ui(vid_buf, 0, "Error creating save");
 		return 1;
 	}
-	uploadparts[3] = (char*)build_thumb(plens+3, 1);
+	uploadparts[3] = (char*)build_thumb(&len, 1);
+	plens[3] = len;
 	uploadparts[4] = (char*)((svf_publish==1)?"Public":"Private");
 	plens[4] = strlen((svf_publish==1)?"Public":"Private");
 
@@ -6497,7 +6500,7 @@ int execute_submit(pixel *vid_buf, char *id, char *message)
 	{
 		const char *const postNames[] = { "Comment", NULL };
 		const char *const postDatas[] = { message };
-		int postLengths[] = { strlen(message) };
+		size_t postLengths[] = { strlen(message) };
 		int dataLength;
 		char *url = (char*)malloc(sizeof(message)+sizeof(id) + 128);
 		//sprintf(url, "http://%s/Browse/Comments.json?ID=%s&Key=%s", SERVER, id, svf_session_key);
@@ -8215,26 +8218,26 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 	ui_checkbox *colour_cb;
 
 	int render_optioncount = 8;
-	int render_options[] = {RENDER_EFFE, RENDER_GLOW, RENDER_FIRE, RENDER_BLUR, RENDER_BASC, RENDER_BLOB, RENDER_SPRK, RENDER_NONE};
-	int render_optionicons[] = {0xE1, 0xDF, 0x9B, 0xC4, 0xDB, 0xBF, 0xDF, 0xDB};
-	char * render_desc[] = {"Effects", "Glow", "Fire", "Blur", "Basic", "Blob", "Spark", "None"};
+	const unsigned int render_options[] = {RENDER_EFFE, RENDER_GLOW, RENDER_FIRE, RENDER_BLUR, RENDER_BASC, RENDER_BLOB, RENDER_SPRK, RENDER_NONE};
+	const unsigned int render_optionicons[] = {0xE1, 0xDF, 0x9B, 0xC4, 0xDB, 0xBF, 0xDF, 0xDB};
+	const char * render_desc[] = {"Effects", "Glow", "Fire", "Blur", "Basic", "Blob", "Spark", "None"};
 
 #ifdef OGLR
 	int display_optioncount = 7;
-	int display_options[] = {DISPLAY_AIRC, DISPLAY_AIRP, DISPLAY_AIRV, DISPLAY_AIRH, DISPLAY_WARP, DISPLAY_PERS, DISPLAY_EFFE};
-	int display_optionicons[] = {0xD4, 0x99, 0x98, 0xBE, 0xDE, 0x9A, 0xE1};
-	char * display_desc[] = {"Air: Cracker", "Air: Pressure", "Air: Velocity", "Air: Heat", "Warp effect", "Persistent", "Effects"};
+	const unsigned int display_options[] = {DISPLAY_AIRC, DISPLAY_AIRP, DISPLAY_AIRV, DISPLAY_AIRH, DISPLAY_WARP, DISPLAY_PERS, DISPLAY_EFFE};
+	const unsigned int display_optionicons[] = {0xD4, 0x99, 0x98, 0xBE, 0xDE, 0x9A, 0xE1};
+	const char * display_desc[] = {"Air: Cracker", "Air: Pressure", "Air: Velocity", "Air: Heat", "Warp effect", "Persistent", "Effects"};
 #else
 	int display_optioncount = 6;
-	int display_options[] = {DISPLAY_AIRC, DISPLAY_AIRP, DISPLAY_AIRV, DISPLAY_AIRH, DISPLAY_WARP, DISPLAY_PERS};
-	int display_optionicons[] = {0xD4, 0x99, 0x98, 0xBE, 0xDE, 0x9A};
-	char * display_desc[] = {"Air: Cracker", "Air: Pressure", "Air: Velocity", "Air: Heat", "Warp effect", "Persistent"};
+	const unsigned int display_options[] = {DISPLAY_AIRC, DISPLAY_AIRP, DISPLAY_AIRV, DISPLAY_AIRH, DISPLAY_WARP, DISPLAY_PERS};
+	const unsigned int display_optionicons[] = {0xD4, 0x99, 0x98, 0xBE, 0xDE, 0x9A};
+	const char * display_desc[] = {"Air: Cracker", "Air: Pressure", "Air: Velocity", "Air: Heat", "Warp effect", "Persistent"};
 #endif
 
 	int colour_optioncount = 4;
-	int colour_options[] = {COLOUR_BASC, COLOUR_LIFE, COLOUR_HEAT, COLOUR_GRAD};
-	int colour_optionicons[] = {0xDB, 0xE0, 0xBE, 0xD3};
-	char * colour_desc[] = {"Basic", "Life", "Heat", "Heat Gradient"};
+	const unsigned int colour_options[] = {COLOUR_BASC, COLOUR_LIFE, COLOUR_HEAT, COLOUR_GRAD};
+	const unsigned int colour_optionicons[] = {0xDB, 0xE0, 0xBE, 0xD3};
+	const char * colour_desc[] = {"Basic", "Life", "Heat", "Heat Gradient"};
 
 	yoffset = 16;
 	xoffset = 0;

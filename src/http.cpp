@@ -68,6 +68,11 @@
 #define PCLOSE close
 #endif
 
+#ifdef _MSC_VER
+#include <BaseTsd.h> //for SSIZE_T
+typedef SSIZE_T ssize_t;
+#endif
+
 static int http_up = 0;
 static long http_timeout = 15;
 static int http_use_proxy = 0;
@@ -948,7 +953,7 @@ const char *http_ret_text(int ret)
 		return "Unknown Status Code";
 	}
 }
-char *http_multipart_post(const char *uri, const char *const *names, const char *const *parts, int *plens, const char *user, const char *pass, const char *session_id, int *ret, int *len)
+char *http_multipart_post(const char *uri, const char *const *names, const char *const *parts, size_t *plens, const char *user, const char *pass, const char *session_id, int *ret, int *len)
 {
 	void *ctx;
 	char *data = NULL, *tmp;
@@ -967,7 +972,7 @@ char *http_multipart_post(const char *uri, const char *const *names, const char 
 		{
 			own_plen = 1;
 			for (i=0; names[i]; i++) ;
-			plens = (int*)calloc(i, sizeof(int));
+			plens = (size_t*)calloc(i, sizeof(size_t));
 			for (i=0; names[i]; i++)
 				plens[i] = strlen(parts[i]);
 		}
@@ -978,7 +983,7 @@ retry:
 		memset(map, 0, 62*sizeof(int));
 		for (i=0; names[i]; i++)
 		{
-			for (j=0; j<plens[i]-blen; j++)
+			for (ssize_t j=0; j<(ssize_t)plens[i]-blen; j++)
 				if (!blen || !memcmp(parts[i]+j, boundary, blen))
 				{
 					ch = parts[i][j+blen];

@@ -19,6 +19,7 @@
 #define ELEMENTS_COMMON_H
 
 #include <cmath>
+#include <cstdlib>
 #include "simulation/ElementNumbers.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/Element.h"

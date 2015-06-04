@@ -1,6 +1,4 @@
-#ifndef MACOSX
-#include <malloc.h>
-#endif
+#include <stdlib.h>
 #include "defines.h"
 #include "Download.h"
 #include "DownloadManager.h"
