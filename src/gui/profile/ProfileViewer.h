@@ -7,6 +7,7 @@
 
 class Download;
 class Label;
+class Button;
 class ProfileViewer : public ScrollWindow
 {
 	std::string name;
@@ -16,13 +17,18 @@ class ProfileViewer : public ScrollWindow
 
 	Label *usernameLabel, *ageLabel, *websiteLabel, *locationLabel, *biographyLabel;
 	Label *saveCountLabel, *saveAverageLabel, *highestVoteLabel;
+	bool editingMode;
+
 	void MainLoop();
+
 public:
 	ProfileViewer(std::string profileName);
 	~ProfileViewer();
 
 	void OnTick(float dt);
 	void OnDraw(VideoBuffer *buf);
+
+	void EnableEditing();
 };
 
 #endif
