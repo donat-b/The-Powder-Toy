@@ -330,9 +330,9 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 	}
 		
 	//Incompatible cell size
-	if(inputData[5] > CELL)
+	if(inputData[5] != CELL)
 	{
-		fprintf(stderr, "Cell size mismatch\n");
+		fprintf(stderr, "Cell size mismatch: expected %i but got %i\n", inputData[5]);
 		goto fail;
 	}
 		

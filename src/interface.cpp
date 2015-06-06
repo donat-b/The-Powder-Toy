@@ -5827,7 +5827,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					if (svf_last)
 						free(svf_last);
 					svf_last = NULL;
-					error_ui(vid_buf, 0, "An Error Occurred");
+					error_ui(vid_buf, 0, "An error occurred when parsing the save");
 				}
 			}
 			else
