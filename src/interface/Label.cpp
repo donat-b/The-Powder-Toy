@@ -102,7 +102,7 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my
 					posY += 12;
 					wordStart = 0;
 					//update cursor position (newline check)
-					if (updateCursor && !updatedCursor && ((posX >= mx+3 && posY >= my+2) || (posY >= my+14)))
+					if (updateCursor && !updatedCursor && ((posX >= mx && posY >= my) || (posY >= my+12)))
 					{
 						cursor = i;
 						updatedCursor = true;
@@ -159,7 +159,7 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my
 					}
 				}
 				//update cursor position
-				if (updateCursor && !updatedCursor && ((posX >= mx+3 && posY >= my+2) || (posY >= my+14)))
+				if (updateCursor && !updatedCursor && ((posX >= mx && posY >= my) || (posY >= my+12)))
 				{
 					cursor = i+(posX==0);
 					updatedCursor = true;
@@ -171,7 +171,7 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my
 	if (!multiline)
 		textWidth = posX-1;
 	if (size.X == AUTOSIZE)
-		size.X = posX+3;
+		size.X = posX+5;
 	if (updateCursor)
 	{
 		//if cursor position wasn't found, probably goes at the end
@@ -191,7 +191,7 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my
 
 	//multiline labels have their Y size set automatically
 	if (size.Y = AUTOSIZE)
-		size.Y = posY+2;
+		size.Y = posY+3;
 }
 
 //this function moves the cursor a certain amount, and checks at the end for special characters to move past like \r, \b, and \0F
@@ -318,10 +318,10 @@ void Label::OnDraw(VideoBuffer* vid)
 		{
 			mootext.insert(cursor+(cursor > cursorStart)*2/*+(cursor < cursorStart)*/, "\x02");
 		}
-		vid->DrawText(position.X+2, position.Y+3, mootext.c_str(), 255, 255, 255, 255);
+		vid->DrawText(position.X+3, position.Y+4, mootext.c_str(), 255, 255, 255, 255);
 	}
 	else
-		vid->DrawText(position.X+2, position.Y+3, text.c_str(), 140, 140, 140, 255);
+		vid->DrawText(position.X+3, position.Y+4, text.c_str(), 140, 140, 140, 255);
 }
 
 void Label::OnTick()
