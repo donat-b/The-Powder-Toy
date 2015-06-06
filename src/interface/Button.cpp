@@ -9,7 +9,7 @@ Button::Button(Point position, Point size, std::string text_):
 
 }
 
-void Button::SetCallback(std::function<void(Button*)> callback_)
+void Button::SetCallback(ButtonAction *callback_)
 {
 	callback = callback_;
 }
@@ -22,7 +22,7 @@ void Button::OnMouseDown(int x, int y, unsigned char button)
 void Button::OnMouseUp(int x, int y, unsigned char button)
 {
 	if (IsClicked() && isMouseInside && enabled)
-		callback(this);
+		callback->ButtionActionCallback(this);
 }
 
 void Button::OnMouseMoved(int x, int y, Point difference)

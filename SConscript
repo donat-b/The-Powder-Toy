@@ -231,7 +231,9 @@ def findLibs(env, conf):
 				pass
 	else:
 		if not conf.CheckFramework("SDL"):
-			FatalError("SDL framework not found or not installed")
+			if not conf.CheckLib("SDL"):
+				FatalError("SDL development library not found or not installed")
+			#FatalError("SDL framework not found or not installed")
 
 	#look for SDL.h
 	if not conf.CheckCHeader('SDL/SDL.h'):
@@ -249,7 +251,7 @@ def findLibs(env, conf):
 			env.Append(CPPDEFINES=["LUAJIT"])
 			luaver = "luajit"
 		elif GetOption('lua52'):
-			if not conf.CheckLib(['lua5.2', 'lua-5.2', 'lua52']):
+			if not conf.CheckLib(['lua5.2', 'lua-5.2', 'lua52', 'lua']):
 				FatalError("lua5.2 development library not found or not installed")
 			env.Append(CPPDEFINES=["LUA_COMPAT_ALL"])
 			luaver = "lua5.2"
@@ -363,7 +365,10 @@ if not GetOption('clean') and not GetOption('help'):
 	env = conf.Finish()
 
 if not msvc:
-	env.Append(CXXFLAGS=['-std=c++11'])
+	if platform == "Windows":
+		env.Append(CXXFLAGS=['-std=gnu++98'])
+	else:
+		env.Append(CXXFLAGS=['-std=c++98'])
 
 
 #Add platform specific flags and defines
