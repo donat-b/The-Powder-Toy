@@ -17,9 +17,11 @@ class ProfileViewer : public ScrollWindow
 
 	Label *usernameLabel, *ageLabel, *websiteLabel, *locationLabel, *biographyLabel;
 	Label *saveCountLabel, *saveAverageLabel, *highestVoteLabel;
+	Button *enableEditingButton;
 	bool editingMode;
 
 	void MainLoop();
+	void LabelToTextbox(Label *label);
 
 public:
 	ProfileViewer(std::string profileName);

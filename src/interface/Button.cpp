@@ -9,6 +9,11 @@ Button::Button(Point position, Point size, std::string text_):
 
 }
 
+Button::~Button()
+{
+	delete callback;
+}
+
 void Button::SetCallback(ButtonAction *callback_)
 {
 	callback = callback_;

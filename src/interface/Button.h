@@ -22,6 +22,7 @@ private:
 
 public:
 	Button(Point position, Point size, std::string text_);
+	~Button();
 
 	void SetCallback(ButtonAction *callback_);
 
