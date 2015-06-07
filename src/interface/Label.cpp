@@ -16,10 +16,79 @@ Label::Label(Point position_, Point size_, std::string text_, bool multiline_) :
 	numClicks(0),
 	clickPosition(0)
 {
+	// remove non ascii chars, and newlines for non multiline labels
+	CleanText(true, false, !multiline);
 	UpdateDisplayText();
 }
 
-void FindWordPosition(const char *s, unsigned int position, unsigned int *cursorStart, unsigned int *cursorEnd, const char* spaces)
+void Label::SetText(std::string text_)
+{
+	text = text_;
+	UpdateDisplayText();
+}
+
+std::string Label::GetText()
+{
+	return text;
+}
+
+// Strips stuff from a string. Can strip all non ascii characters (excluding color and newlines), strip all color, or strip all newlines
+void Label::CleanText(bool ascii, bool color, bool newlines)
+{
+	for (int i = 0; i < text.size(); i++)
+	{
+		switch(text[i])
+		{
+		case '\b':
+			if (color)
+			{
+				text.erase(i, 2);
+				i--;
+			}
+			else
+				i++;
+			break;
+		case '\x0E':
+			if (color)
+			{
+				text.erase(i, 1);
+				i--;
+			}
+			break;
+		case '\x0F':
+			if (color)
+			{
+				text.erase(i, 4);
+				i--;
+			}
+			else
+				i += 3;
+			break;
+		// erase these without question, first are control characters used for the cursor
+		// second is used internally to denote automatically inserted newline
+		case '\x01':
+		case '\x02':
+		case '\r':
+			text.erase(i, 1);
+			i--;
+			break;
+		case '\n':
+			if (newlines)
+				text[i] = ' ';
+			break;
+		default:
+			// if less than ascii 20 or greater than ascii 126, delete
+			if (ascii && (text[i] < ' ' || text[i] > '~'))
+			{
+				text.erase(i, 1);
+				i--;
+			}
+			break;
+		}
+	}
+}
+
+void Label::FindWordPosition(const char *s, unsigned int position, unsigned int *cursorStart, unsigned int *cursorEnd, const char* spaces)
 {
 	unsigned int wordLength = 0, totalLength = 0, strLength = strlen(s);
 	while (totalLength < strLength)

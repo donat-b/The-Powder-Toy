@@ -9,7 +9,8 @@ class VideoBuffer;
 class Label : public Component
 {
 private:
-	void UpdateCursorTemp(int x, int y);
+	void CleanText(bool ascii, bool color, bool newlines);
+	void FindWordPosition(const char *s, unsigned int position, unsigned int *cursorStart, unsigned int *cursorEnd, const char* spaces);
 	unsigned int UpdateCursor(unsigned int position);
 	bool multiline;
 
