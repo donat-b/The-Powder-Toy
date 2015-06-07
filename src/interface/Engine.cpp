@@ -165,6 +165,8 @@ void Engine::MainLoop()
 	SDL_Event event;
 	while (top)
 	{
+		top->UpdateComponents();
+
 		sdl_mod = SDL_GetModState();
 		while (SDL_PollEvent(&event))
 		{

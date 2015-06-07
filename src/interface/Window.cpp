@@ -32,21 +32,33 @@ Window_::~Window_()
 
 void Window_::AddComponent(Component *other)
 {
-	//Maybe should do something if this component is already part of another window
+	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
+	{
+		// this component is already part of the window
+		if ((*iter) == other)
+		{
+			return;
+		}
+	}
 	Components.push_back(other);
 	other->SetParent(this);
+	other->SetVisible(false);
+	other->toAdd = true;
 }
 
 void Window_::RemoveComponent(Component *other)
 {
-	for (std::vector<Component*>::iterator iter = Components.end()-1, end = Components.begin(); iter != end; iter--)
+	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
 		if ((*iter) == other)
 		{
-			(*iter)->SetParent(NULL);
-			Components.erase(iter);
+			(*iter)->toDelete = true;
 		}
 	}
+	if (other == focused)
+		FocusComponent(NULL);
+	if (other == clicked)
+		clicked = NULL;
 }
 
 void Window_::FocusComponent(Component *toFocus)
@@ -54,6 +66,24 @@ void Window_::FocusComponent(Component *toFocus)
 	if (focused)
 		focused->OnDefocus();
 	focused = toFocus;
+}
+
+void Window_::UpdateComponents()
+{
+	for (std::vector<Component*>::iterator iter = Components.end()-1, end = Components.begin()-1; iter != end; iter--)
+	{
+		Component *c = *iter;
+		if (c->toDelete)
+		{
+			c->SetParent(NULL);
+			Components.erase(iter);
+			delete c;
+		}
+		else if (c->toAdd)
+		{
+			c->SetVisible(true);
+		}
+	}
 }
 
 void Window_::DoTick(float dt)

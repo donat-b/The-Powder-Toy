@@ -7,7 +7,9 @@ Component::Component(Point position, Point size) :
 	position(position),
 	size(size),
 	visible(true),
-	enabled(true)
+	enabled(true),
+	toDelete(false),
+	toAdd(false)
 {
 
 }

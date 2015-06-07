@@ -19,6 +19,10 @@ protected:
 public:
 	Component(Point position, Point size);
 
+	// delay deleting and adding components
+	bool toDelete;
+	bool toAdd;
+
 	bool IsFocused();
 	bool IsClicked();
 	bool IsMouseDown();
@@ -30,7 +34,7 @@ public:
 	Point GetSize() { return size; }
 	void SetMouseInside(bool mouseInside) { isMouseInside = mouseInside; } // used by Window.cpp
 	bool IsVisible() { return visible; }
-	void SetVisible(bool visible_) { visible = visible_; }
+	void SetVisible(bool visible_) { visible = visible_; toAdd = false; }
 	bool IsEnabled() { return enabled; }
 	void SetEnabled(bool enabled_) { enabled = enabled_; }
 
