@@ -39,12 +39,12 @@ void Button::OnDraw(VideoBuffer* vid)
 {
 	if (!enabled)
 	{
-		vid->DrawText(position.X+2, position.Y+3, text.c_str(), 140, 140, 140, 255);
+		vid->DrawText(position.X+2, position.Y+3, text, 140, 140, 140, 255);
 	}
 	else if (!isMouseInside || (IsMouseDown() && !IsClicked()))
 	{
 		// Mouse not inside button, or over button but click did not start on button
-		vid->DrawText(position.X+2, position.Y+3, text.c_str(), 255, 255, 255, 255);
+		vid->DrawText(position.X+2, position.Y+3, text, 255, 255, 255, 255);
 	}
 	else
 	{
@@ -52,13 +52,13 @@ void Button::OnDraw(VideoBuffer* vid)
 		{
 			// Button held down
 			vid->FillRect(position.X, position.Y, size.X, size.Y, 255, 255, 255, 255);
-			vid->DrawText(position.X+2, position.Y+3, text.c_str(), 0, 0, 0, 255);
+			vid->DrawText(position.X+2, position.Y+3, text, 0, 0, 0, 255);
 		}
 		else
 		{
 			// Mouse over button, not held down
 			vid->FillRect(position.X, position.Y, size.X, size.Y, 255, 255, 255, 100);
-			vid->DrawText(position.X+2, position.Y+3, text.c_str(), 255, 255, 255, 255);
+			vid->DrawText(position.X+2, position.Y+3, text, 255, 255, 255, 255);
 		}
 	}
 

@@ -1,6 +1,7 @@
 #ifndef VIDEOBUFFER_H
 #define VIDEOBUFFER_H
 
+#include <string>
 #include "graphics.h"
 
 class VideoBuffer
@@ -23,7 +24,7 @@ public:
 	void FillRect(int x, int y, int w, int h, int r, int g, int b, int a);
 
 	int DrawChar(int x, int y, unsigned char c, int r, int g, int b, int a);
-	int DrawText(int x, int y, const char *s, int r, int g, int b, int a);
+	int DrawText(int x, int y, std::string s, int r, int g, int b, int a);
 
 	void DrawImage(pixel *image, int x, int y, int w, int h);
 

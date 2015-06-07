@@ -70,13 +70,13 @@ TPT_INLINE void VideoBuffer::DrawPixel(int x, int y, int r, int g, int b, int a)
 
 void VideoBuffer::DrawLine(int x1, int y1, int x2, int y2, int r, int g, int b, int a)
 {
-	int dx, dy, sx, sy, e, x, y;
+	int dx, dy, startX, startY, e, x, y;
 	bool reverseXY = false;
 
 	dx = abs(x1-x2);
 	dy = abs(y1-y2);
-	sx = (x1<x2) ? 1 : -1;
-	sy = (y1<y2) ? 1 : -1;
+	startX = (x1<x2) ? 1 : -1;
+	startY = (y1<y2) ? 1 : -1;
 	x = x1;
 	y = y1;
 
@@ -96,15 +96,15 @@ void VideoBuffer::DrawLine(int x1, int y1, int x2, int y2, int r, int g, int b, 
 		if (e >= 0)
 		{
 			if (reverseXY)
-				x = x + sx;
+				x = x + startX;
 			else
-				y = y + sy;
+				y = y + startY;
 			e = e - (dx<<2);
 		}
 		if (reverseXY)
-			y = y + sy;
+			y = y + startY;
 		else
-			x = x + sx;
+			x = x + startX;
 		e = e + (dy<<2);
 	}
 }
@@ -173,7 +173,7 @@ TPT_INLINE int VideoBuffer::DrawChar(int x, int y, unsigned char c, int r, int g
 				ba = *(rp++);
 				bn = 8;
 			}
-			if (x+i >= 0 && y+j >= 0 && x+i < width && y+j < height && a != 0)
+			if (x+i >= 0 && y+j >= 0 && x+i < width && y+j < height)
 				DrawPixel(x+i, y+j, r, g, b, ((ba&3)*a)/3);
 			ba >>= 2;
 			bn -= 2;
@@ -181,50 +181,53 @@ TPT_INLINE int VideoBuffer::DrawChar(int x, int y, unsigned char c, int r, int g
 	return x + w;
 }
 
-int VideoBuffer::DrawText(int x, int y, const char *s, int r, int g, int b, int a)
+int VideoBuffer::DrawText(int x, int y, std::string s, int r, int g, int b, int a)
 {
-	int sx = x;
+	if (a == 0)
+		return x;
+	int startX = x;
 	bool highlight = false;
-	int oR = r, oG = g, oB = b;
-	for (; *s; s++)
+	int oldR = r, oldG = g, oldB = b;
+	for (int i = 0; i < s.length(); i++)
 	{
-		if (*s == '\n' || *s == '\r')
+		switch (s[i])
 		{
-			x = sx;
+		case '\n':
+		case '\r':
+			x = startX;
 			y += FONT_H+2;
-			if (highlight && (s[1] == '\n' || s[1] == '\r' || (s[1] == '\x01' && (s[2] == '\n' || s[2] == '\r'))))
+			if (highlight && s.length() > i+1 && (s[i+1] == '\n' || s[i+1] == '\r' || (s.length() > i+2 && s[i+1] == '\x01' && (s[i+2] == '\n' || s[i+2] == '\r'))))
 			{
 				FillRect(x, y-2, font_data[font_ptrs[' ']], FONT_H+2, 0, 0, 255, 127);
 			}
-		}
-		else if (*s == '\x0F')
-		{
-			if(!s[1] || !s[2] || !s[3]) break;
-			oR = r;
-			oG = g;
-			oB = b;
-			r = (unsigned char)s[1];
-			g = (unsigned char)s[2];
-			b = (unsigned char)s[3];
-			s += 3;
-		}
-		else if (*s == '\x0E')
-		{
-			r = oR;
-			g = oG;
-			b = oB;
-		}
-		else if (*s == '\x01')
-		{
+			break;
+		case '\x0F':
+			if (s.length() < i+3)
+				break;
+			oldR = r;
+			oldG = g;
+			oldB = b;
+			r = (unsigned char)s[i+1];
+			g = (unsigned char)s[i+2];
+			b = (unsigned char)s[i+3];
+			i += 3;
+			break;
+		case '\x0E':
+			r = oldR;
+			g = oldG;
+			b = oldB;
+			break;
+		case '\x01':
 			highlight = !highlight;
-		}
-		else if (*s == '\x02')
-		{
+			break;
+		case '\x02':
 			DrawLine(x, y-1, x, y+FONT_H-2, 255, 255, 255, 255);
-		}
-		else if (*s == '\b')
-		{
-			switch (s[1])
+			break;
+		// old color codes, expect a single character after them
+		case '\b':
+			if (s.length() < i+1)
+				break;
+			switch (s[i+1])
 			{
 			case 'w':
 				r = g = b = 255;
@@ -260,15 +263,14 @@ int VideoBuffer::DrawText(int x, int y, const char *s, int r, int g, int b, int 
 				r = 100;
 				break;
 			}
-			s++;
-		}
-		else
-		{
+			i++;
+			break;
+		default:
 			int oldX = x;
-			x = DrawChar(x, y, *(unsigned char *)s, r, g, b, a);
+			x = DrawChar(x, y, s[i], r, g, b, a);
 			if (highlight)
 			{
-				FillRect(oldX, y-2, font_data[font_ptrs[(int)(*(unsigned char *)s)]], FONT_H+2, 0, 0, 255, 127);
+				FillRect(oldX, y-2, font_data[font_ptrs[s[i]]], FONT_H+2, 0, 0, 255, 127);
 			}
 		}
 	}
@@ -277,13 +279,27 @@ int VideoBuffer::DrawText(int x, int y, const char *s, int r, int g, int b, int 
 
 void VideoBuffer::DrawImage(pixel *img, int x, int y, int w, int h)
 {
+	// image out of bounds (scrollable windows)
+	if (y < 0)
+	{
+		// only draw the height we need
+		if (y+h >= 0)
+		{
+			img -= y*h;
+			h += y;
+			y = 0;
+		}
+		else
+			return;
+	}
 	for (int j = 0; j < h; j++)
 		for (int i = 0; i < w; i++)
 		{
 			int r = PIXR(*img);
 			int g = PIXG(*img);
 			int b = PIXB(*img);
-			DrawPixel(x+i, y+j, r, g, b, 255);
+			if (x >= 0 && x < width && y < height)
+				DrawPixel(x+i, y+j, r, g, b, 255);
 			img++;
 		}
 }

@@ -387,10 +387,10 @@ void Label::OnDraw(VideoBuffer* vid)
 		{
 			mootext.insert(cursor+(cursor > cursorStart)*2/*+(cursor < cursorStart)*/, "\x02");
 		}
-		vid->DrawText(position.X+3, position.Y+4, mootext.c_str(), 255, 255, 255, 255);
+		vid->DrawText(position.X+3, position.Y+4, mootext, 255, 255, 255, 255);
 	}
 	else
-		vid->DrawText(position.X+3, position.Y+4, text.c_str(), 140, 140, 140, 255);
+		vid->DrawText(position.X+3, position.Y+4, text, 140, 140, 140, 255);
 }
 
 void Label::OnTick()
