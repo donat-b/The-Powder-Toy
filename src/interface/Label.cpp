@@ -24,6 +24,7 @@ Label::Label(Point position_, Point size_, std::string text_, bool multiline_) :
 void Label::SetText(std::string text_)
 {
 	text = text_;
+	CleanText(true, false, !multiline);
 	UpdateDisplayText();
 }
 
@@ -64,7 +65,7 @@ void Label::CleanText(bool ascii, bool color, bool newlines)
 			else
 				i += 3;
 			break;
-		// erase these without question, first are control characters used for the cursor
+		// erase these without question, first two are control characters used for the cursor
 		// second is used internally to denote automatically inserted newline
 		case '\x01':
 		case '\x02':

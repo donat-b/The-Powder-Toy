@@ -102,9 +102,12 @@ void Window_::DoDraw()
 	videoBuffer->Clear();
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
-		if ((*iter)->IsVisible())
+		if ((*iter)->IsVisible() && !IsFocused(*iter))
 			(*iter)->OnDraw(videoBuffer);
 	}
+	// draw the focused component on top
+	if (focused)
+		focused->OnDraw(videoBuffer);
 
 	OnDraw(videoBuffer);
 
