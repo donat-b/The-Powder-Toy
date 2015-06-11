@@ -72,6 +72,7 @@
 #include "simulation/WallNumbers.h"
 #include "simulation/ToolNumbers.h"
 #include "simulation/GolNumbers.h"
+#include "simulation/elements/EMP.h"
 #include "simulation/elements/FIGH.h"
 
 //unsigned cmode = CM_FIRE;
@@ -192,7 +193,6 @@ void main(void)\
 
 #endif
 
-int emp_decor = 0;
 pixel sampleColor = 0;
 int sandcolor = 0;
 int sandcolor_frame = 0;
@@ -751,7 +751,7 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 		return 26;
 	if (current->GetType() == ELEMENT_TOOL)
 	{
-		draw_tool_button(vid_buf, x, y, globalSim->elements[current->GetID()].Colour, globalSim->elements[current->GetID()].Name);
+		draw_tool_button(vid_buf, x, y, PIXPACK(globalSim->elements[current->GetID()].Colour), globalSim->elements[current->GetID()].Name);
 
 		//special case for erase tool
 		if (!current->GetID())
@@ -768,8 +768,8 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 	else if (current->GetType() == WALL_TOOL)
 	{
 		int ds = wallTypes[current->GetID()].drawstyle;
-		pixel color = wallTypes[current->GetID()].colour;
-		pixel glowColor = wallTypes[current->GetID()].eglow;
+		pixel color = PIXPACK(wallTypes[current->GetID()].colour);
+		pixel glowColor = PIXPACK(wallTypes[current->GetID()].eglow);
 		
 		if (ds==1)
 		{
@@ -931,11 +931,11 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 			drawtext(vid_buf, x+9, y+3, "\xA0", 255, 255, 255, 255);
 		}
 		else
-			draw_tool_button(vid_buf, x, y, toolTypes[current->GetID()].color, toolTypes[current->GetID()].name.c_str());
+			draw_tool_button(vid_buf, x, y, PIXPACK(toolTypes[current->GetID()].color), toolTypes[current->GetID()].name.c_str());
 	}
 	else if (current->GetType() == DECO_TOOL)
 	{
-		pixel color = decoTypes[current->GetID()].color;
+		pixel color = PIXPACK(decoTypes[current->GetID()].color);
 		for (j=1; j<15; j++)
 		{
 			for (i=1; i<27; i++)
@@ -975,14 +975,19 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 	}
 	else if (current->GetType() == GOL_TOOL)
 	{
-		draw_tool_button(vid_buf, x, y, golTypes[current->GetID()].colour, golTypes[current->GetID()].name.c_str());
+		draw_tool_button(vid_buf, x, y, PIXPACK(golTypes[current->GetID()].colour), golTypes[current->GetID()].name.c_str());
 	}
 	else if (current->GetType() == INVALID_TOOL)
 	{
 		if (current->GetID() >= FAV_START && current->GetID() < FAV_END)
-			draw_tool_button(vid_buf, x, y, fav[current->GetID()-FAV_START].colour, fav[current->GetID()-FAV_START].name);
+			draw_tool_button(vid_buf, x, y, PIXPACK(fav[current->GetID()-FAV_START].colour), fav[current->GetID()-FAV_START].name);
 		else if (current->GetID() >= HUD_START && current->GetID() < HUD_START+HUD_NUM)
-			draw_tool_button(vid_buf, x, y, hud_menu[current->GetID()-HUD_START].color?hud_menu[current->GetID()-HUD_START].color:globalSim->elements[((current->GetID()-HUD_START)*53)%(PT_NUM-1)+1].Colour, hud_menu[current->GetID()-HUD_START].name);
+		{
+			if (hud_menu[current->GetID()-HUD_START].color)
+				draw_tool_button(vid_buf, x, y, PIXPACK(hud_menu[current->GetID()-HUD_START].color), hud_menu[current->GetID()-HUD_START].name);
+			else
+				draw_tool_button(vid_buf, x, y, PIXPACK(globalSim->elements[((current->GetID()-HUD_START)*53)%(PT_NUM-1)+1].Colour), hud_menu[current->GetID()-HUD_START].name);
+		}
 	}
 	return 26;
 }
@@ -2361,13 +2366,13 @@ void xor_rect(pixel *vid, int x, int y, int w, int h)
 
 void draw_other(pixel *vid) // EMP effect
 {
-	int i, j;
-	if (emp_decor>0 && !sys_pause) emp_decor-=emp_decor/25+2;
-	if (emp_decor>40) emp_decor=40;
-	if (emp_decor<0) emp_decor = 0;
+	if (!sys_pause || framerender)
+		((EMP_ElementDataContainer*)globalSim->elementData[PT_EMP])->Deactivate();
 	if (!(render_mode & EFFECT)) // not in nothing mode
 		return;
-	if (emp_decor>0)
+
+	int emp_decor = ((EMP_ElementDataContainer*)globalSim->elementData[PT_EMP])->emp_decor;
+	if (emp_decor)
 	{
 #ifdef OGLR
 		float femp_decor = ((float)emp_decor)/255.0f;
@@ -2391,8 +2396,8 @@ void draw_other(pixel *vid) // EMP effect
 		if (g>255) g=255;
 		if (b>255) g=255;
 		if (a>255) a=255;
-		for (j=0; j<YRES; j++)
-			for (i=0; i<XRES; i++)
+		for (int j = 0; j < YRES; j++)
+			for (int i = 0; i < XRES; i++)
 			{
 				drawpixel(vid, i, j, r, g, b, a);
 			}
@@ -3790,8 +3795,8 @@ void draw_walls(pixel *vid)
 				wt = bmap[y][x];
 				if (wt<0 || wt>=WALLCOUNT)
 					continue;
-				pc = wallTypes[wt].colour;
-				gc = wallTypes[wt].eglow;
+				pc = PIXPACK(wallTypes[wt].colour);
+				gc = PIXPACK(wallTypes[wt].eglow);
 
 				if (finding)
 				{
@@ -3977,14 +3982,14 @@ void draw_walls(pixel *vid)
 				if (wallTypes[wt].eglow && emap[y][x])
 				{
 					// glow if electrified
-					pc = wallTypes[wt].eglow;
-					cr = fire_r[y][x] + PIXR(pc);
+					ARGBColour glow = wallTypes[wt].eglow;
+					cr = fire_r[y][x] + COLR(glow);
 					if (cr > 255) cr = 255;
 					fire_r[y][x] = cr;
-					cg = fire_g[y][x] + PIXG(pc);
+					cg = fire_g[y][x] + COLG(glow);
 					if (cg > 255) cg = 255;
 					fire_g[y][x] = cg;
-					cb = fire_b[y][x] + PIXB(pc);
+					cb = fire_b[y][x] + COLB(glow);
 					if (cb > 255) cb = 255;
 					fire_b[y][x] = cb;
 					
@@ -5322,19 +5327,19 @@ int draw_debug_info(pixel* vid, int lm, int lx, int ly, int cx, int cy, int line
 				int barSize = (int)(count * scale - 0.5f);
 				int barX = bars;//*2;
 
-				draw_line(vid_buf, xStart+barX, yBottom+3, xStart+barX, yBottom+2, PIXR(globalSim->elements[i].Colour), PIXG(globalSim->elements[i].Colour), PIXB(globalSim->elements[i].Colour), XRES+BARSIZE);
+				draw_line(vid_buf, xStart+barX, yBottom+3, xStart+barX, yBottom+2, COLR(globalSim->elements[i].Colour), COLG(globalSim->elements[i].Colour), COLB(globalSim->elements[i].Colour), XRES+BARSIZE);
 				if (globalSim->elementCount[i])
 				{
 					if (barSize > 256)
 					{
 						barSize = 256;
-						blendpixel(vid_buf, xStart+barX, yBottom-barSize-3, PIXR(globalSim->elements[i].Colour), PIXG(globalSim->elements[i].Colour), PIXB(globalSim->elements[i].Colour), 255);
-						blendpixel(vid_buf, xStart+barX, yBottom-barSize-5, PIXR(globalSim->elements[i].Colour), PIXG(globalSim->elements[i].Colour), PIXB(globalSim->elements[i].Colour), 255);
-						blendpixel(vid_buf, xStart+barX, yBottom-barSize-7, PIXR(globalSim->elements[i].Colour), PIXG(globalSim->elements[i].Colour), PIXB(globalSim->elements[i].Colour), 255);
+						blendpixel(vid_buf, xStart+barX, yBottom-barSize-3, COLR(globalSim->elements[i].Colour), COLG(globalSim->elements[i].Colour), COLB(globalSim->elements[i].Colour), 255);
+						blendpixel(vid_buf, xStart+barX, yBottom-barSize-5, COLR(globalSim->elements[i].Colour), COLG(globalSim->elements[i].Colour), COLB(globalSim->elements[i].Colour), 255);
+						blendpixel(vid_buf, xStart+barX, yBottom-barSize-7, COLR(globalSim->elements[i].Colour), COLG(globalSim->elements[i].Colour), COLB(globalSim->elements[i].Colour), 255);
 					}
 					else
 						draw_line(vid_buf, xStart+barX, yBottom-barSize-3, xStart+barX, yBottom-barSize-2, 255, 255, 255, XRES+BARSIZE);
-					draw_line(vid_buf, xStart+barX, yBottom-barSize, xStart+barX, yBottom, PIXR(globalSim->elements[i].Colour), PIXG(globalSim->elements[i].Colour), PIXB(globalSim->elements[i].Colour), XRES+BARSIZE);
+					draw_line(vid_buf, xStart+barX, yBottom-barSize, xStart+barX, yBottom, COLR(globalSim->elements[i].Colour), COLG(globalSim->elements[i].Colour), COLB(globalSim->elements[i].Colour), XRES+BARSIZE);
 				}
 				bars++;
 			}

@@ -4,6 +4,7 @@
 #include <stack>
 #include "Window.h"
 //#include "common/Singleton.h"
+#include "common/tpt-stdint.h"
 #include "common/Point.h"
 
 union SDL_Event;
@@ -23,6 +24,7 @@ private:
 	Window_ *top;
 
 	Point lastMousePosition;
+	uint32_t lastTick;
 };
 
 #endif

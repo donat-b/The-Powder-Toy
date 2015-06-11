@@ -25,59 +25,59 @@ int LIFE_update(UPDATE_FUNC_ARGS)
 
 int LIFE_graphics(GRAPHICS_FUNC_ARGS)
 {
-	pixel pc;
+	ARGBColour col;
 	if (cpart->ctype==NGT_LOTE)//colors for life states
 	{
 		if (cpart->tmp==2)
-			pc = PIXRGB(255, 128, 0);
+			col = COLRGB(255, 128, 0);
 		else if (cpart->tmp==1)
-			pc = PIXRGB(255, 255, 0);
+			col = COLRGB(255, 255, 0);
 		else
-			pc = PIXRGB(255, 0, 0);
+			col = COLRGB(255, 0, 0);
 	}
 	else if (cpart->ctype==NGT_FRG2)//colors for life states
 	{
 		if (cpart->tmp==2)
-			pc = PIXRGB(0, 100, 50);
+			col = COLRGB(0, 100, 50);
 		else
-			pc = PIXRGB(0, 255, 90);
+			col = COLRGB(0, 255, 90);
 	}
 	else if (cpart->ctype==NGT_STAR)//colors for life states
 	{
 		if (cpart->tmp==4)
-			pc = PIXRGB(0, 0, 128);
+			col = COLRGB(0, 0, 128);
 		else if (cpart->tmp==3)
-			pc = PIXRGB(0, 0, 150);
+			col = COLRGB(0, 0, 150);
 		else if (cpart->tmp==2)
-			pc = PIXRGB(0, 0, 190);
+			col = COLRGB(0, 0, 190);
 		else if (cpart->tmp==1)
-			pc = PIXRGB(0, 0, 230);
+			col = COLRGB(0, 0, 230);
 		else
-			pc = PIXRGB(0, 0, 70);
+			col = COLRGB(0, 0, 70);
 	}
 	else if (cpart->ctype==NGT_FROG)//colors for life states
 	{
 		if (cpart->tmp==2)
-			pc = PIXRGB(0, 100, 0);
+			col = COLRGB(0, 100, 0);
 		else
-			pc = PIXRGB(0, 255, 0);
+			col = COLRGB(0, 255, 0);
 	}
 	else if (cpart->ctype==NGT_BRAN)//colors for life states
 	{
 		if (cpart->tmp==1)
-			pc = PIXRGB(150, 150, 0);
+			col = COLRGB(150, 150, 0);
 		else
-			pc = PIXRGB(255, 255, 0);
+			col = COLRGB(255, 255, 0);
 	}
 	else if (cpart->ctype >= 0 && cpart->ctype < NGOL)
 	{
-		pc = golTypes[cpart->ctype].colour;
+		col = golTypes[cpart->ctype].colour;
 	}
 	else
-		pc = ptypes[cpart->type].pcolors;
-	*colr = PIXR(pc);
-	*colg = PIXG(pc);
-	*colb = PIXB(pc);
+		col = globalSim->elements[cpart->type].Colour;
+	*colr = COLR(col);
+	*colg = COLG(col);
+	*colb = COLB(col);
 	return 0;
 }
 

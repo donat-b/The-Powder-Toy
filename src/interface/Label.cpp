@@ -1,13 +1,14 @@
 #include <algorithm>
 #include <cstdlib>
+#include <SDL/SDL_keysym.h>
 #include "Label.h"
-#include "graphics.h"
 #include "misc.h"
 #include "graphics/VideoBuffer.h"
 
 Label::Label(Point position_, Point size_, std::string text_, bool multiline_) :
 	Component(position_, size_),
 	multiline(multiline_),
+	currentTick(0),
 	text(text_),
 	textWidth(0),
 	cursor(0),
@@ -89,23 +90,20 @@ void Label::CleanText(bool ascii, bool color, bool newlines)
 	}
 }
 
-void Label::FindWordPosition(const char *s, unsigned int position, unsigned int *cursorStart, unsigned int *cursorEnd, const char* spaces)
+void Label::FindWordPosition(unsigned int position, unsigned int *cursorStart, unsigned int *cursorEnd, const char* spaces)
 {
-	unsigned int wordLength = 0, totalLength = 0, strLength = strlen(s);
-	while (totalLength < strLength)
+	size_t foundPos = 0, currentPos = 0;
+	while (true)
 	{
-		wordLength = strcspn(s, spaces);
-		if (totalLength + wordLength >= position)
+		foundPos = text.find_first_of(spaces, currentPos);
+		if (foundPos == text.npos || foundPos >= position)
 		{
-			*cursorStart = totalLength;
-			*cursorEnd = totalLength+wordLength;
+			*cursorStart = currentPos;
+			*cursorEnd = foundPos;
 			return;
 		}
-		s += wordLength+1;
-		totalLength += wordLength+1;
+		currentPos = foundPos+1;
 	}
-	*cursorStart = totalLength;
-	*cursorEnd = totalLength+wordLength;
 }
 
 unsigned int Label::UpdateCursor(unsigned int position)
@@ -116,17 +114,17 @@ unsigned int Label::UpdateCursor(unsigned int position)
 		const char *spaces = " .,!?_():;~\n";
 		if (numClicks == 3)
 			spaces = "\n";
-		FindWordPosition(text.c_str(), position, &start, &end, spaces);
+		FindWordPosition(position, &start, &end, spaces);
 		if (start < clickPosition)
 		{
 			cursorStart = start;
-			FindWordPosition(text.c_str(), clickPosition, &start, &end, spaces);
+			FindWordPosition(clickPosition, &start, &end, spaces);
 			cursor = end;
 		}
 		else
 		{
 			cursorStart = end;
-			FindWordPosition(text.c_str(), clickPosition, &start, &end, spaces);
+			FindWordPosition(clickPosition, &start, &end, spaces);
 			cursor = start;
 		}
 	}
@@ -198,7 +196,7 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my
 				break;
 			default:
 				//normal character, add to the current width and check if it's too long
-				posX += charwidth(text[i]);
+				posX += VideoBuffer::CharSize(text[i]);
 				if (size.X != AUTOSIZE && posX >= size.X)
 				{
 					if (multiline)
@@ -292,7 +290,7 @@ void Label::OnMouseDown(int x, int y, unsigned char button)
 	if (button == 1)
 	{
 		numClicks++;
-		lastClick = SDL_GetTicks();
+		lastClick = currentTick;
 
 		UpdateDisplayText(true, true, x, y);
 	}
@@ -343,7 +341,7 @@ void Label::OnKeyPress(int key, unsigned short character, unsigned char modifier
 		case SDLK_LEFT:
 		{
 			unsigned int start, end;
-			FindWordPosition(text.c_str(), cursor-1, &start, &end, " .,!?\n");
+			FindWordPosition(cursor-1, &start, &end, " .,!?\n");
 			if (start < cursor)
 				MoveCursor(&cursor, start-cursor-(cursor > cursorStart));
 			break;
@@ -351,7 +349,7 @@ void Label::OnKeyPress(int key, unsigned short character, unsigned char modifier
 		case SDLK_RIGHT:
 		{
 			unsigned int start, end;
-			FindWordPosition(text.c_str(), cursor+1, &start, &end, " .,!?\n");
+			FindWordPosition(cursor+1, &start, &end, " .,!?\n");
 			MoveCursor(&cursor, end-cursor+!(cursor > cursorStart));
 			break;
 		}
@@ -394,8 +392,9 @@ void Label::OnDraw(VideoBuffer* vid)
 		vid->DrawText(position.X+3, position.Y+4, text, 140, 140, 140, 255);
 }
 
-void Label::OnTick()
+void Label::OnTick(uint32_t ticks)
 {
-	if (!IsClicked() && numClicks && lastClick+300 < SDL_GetTicks())
+	currentTick += ticks;
+	if (!IsClicked() && numClicks && lastClick+300 < currentTick)
 		numClicks = 0;
 }

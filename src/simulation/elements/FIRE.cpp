@@ -14,6 +14,7 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "graphics.h"
 
 int FIRE_update_legacy(UPDATE_FUNC_ARGS)
 {

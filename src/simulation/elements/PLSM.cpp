@@ -14,6 +14,7 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "graphics.h"
 
 int FIRE_update(UPDATE_FUNC_ARGS);
 

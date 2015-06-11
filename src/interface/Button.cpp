@@ -73,7 +73,7 @@ void Button::OnDraw(VideoBuffer* vid)
 		vid->DrawRect(position.X-1, position.Y-1, size.X+2, size.Y+2, 140, 140, 140, 255);
 }
 
-void Button::OnTick()
+void Button::OnTick(uint32_t ticks)
 {
 
 }

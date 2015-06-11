@@ -14,8 +14,8 @@ ProfileViewer::ProfileViewer(std::string profileName):
 	name(profileName),
 	avatar(NULL),
 	ageLabel(NULL),
-	websiteLabel(NULL),
 	locationLabel(NULL),
+	websiteLabel(NULL),
 	biographyLabel(NULL),
 	saveCountLabel(NULL),
 	saveAverageLabel(NULL),
@@ -49,7 +49,7 @@ void ProfileViewer::MainLoop()
 	delete asdf;
 }
 
-void ProfileViewer::OnTick(float dt)
+void ProfileViewer::OnTick(uint32_t ticks)
 {
 	if (profileInfoDownload && profileInfoDownload->CheckDone())
 	{
@@ -147,7 +147,7 @@ void ProfileViewer::OnTick(float dt)
 
 void ProfileViewer::LabelToTextbox(Label *label)
 {
-	Textbox *textbox = new Textbox(label->GetPosition(), label->GetSize(), label->GetText(), true);
+	Textbox *textbox = new Textbox(label->GetPosition(), label->GetSize(), label->GetText(), label->IsMultiline());
 	RemoveComponent(label);
 	AddComponent(textbox);
 }
@@ -157,6 +157,9 @@ void ProfileViewer::EnableEditing()
 	if (!editingMode)
 	{
 		editingMode = true;
+		LabelToTextbox(ageLabel);
+		LabelToTextbox(locationLabel);
+		LabelToTextbox(websiteLabel);
 		LabelToTextbox(biographyLabel);
 	}
 }

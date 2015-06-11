@@ -479,8 +479,8 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 					wt = change_wallpp(wallData[y*blockW+x]);
 					if (wt < 0 || wt >= WALLCOUNT)
 						continue;
-					pc = wallTypes[wt].colour;
-					gc = wallTypes[wt].eglow;
+					pc = PIXPACK(wallTypes[wt].colour);
+					gc = PIXPACK(wallTypes[wt].eglow);
 					if (wallTypes[wt].drawstyle==1)
 					{
 						for (i=0; i<CELL; i+=2)
@@ -2607,8 +2607,8 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 				continue;
 			rx = x*CELL;
 			ry = y*CELL;
-			pc = wallTypes[wt].colour;
-			gc = wallTypes[wt].eglow;
+			pc = PIXPACK(wallTypes[wt].colour);
+			gc = PIXPACK(wallTypes[wt].eglow);
 			if (wallTypes[wt].drawstyle==1)
 			{
 				for (i=0; i<CELL; i+=2)

@@ -2,7 +2,7 @@
 #define VIDEOBUFFER_H
 
 #include <string>
-#include "graphics.h"
+#include "Pixel.h"
 
 class VideoBuffer
 {
@@ -16,7 +16,7 @@ public:
 
 	void Clear();
 	void ClearRect(int x, int y, int w, int h);
-	void CopyVideoBuffer(pixel** vid, int x, int y);
+	void CopyVideoBuffer(pixel* vid, int vidWidth, int x, int y);
 
 	void DrawPixel(int x, int y, int r, int g, int b, int a);
 	void DrawLine(int x1, int y1, int x2, int y2, int r, int g, int b, int a);
@@ -25,6 +25,8 @@ public:
 
 	int DrawChar(int x, int y, unsigned char c, int r, int g, int b, int a);
 	int DrawText(int x, int y, std::string s, int r, int g, int b, int a);
+	static int CharSize(unsigned char c);
+	static int TextSize(std::string s, int maxHeight = 0);
 
 	void DrawImage(pixel *image, int x, int y, int w, int h);
 

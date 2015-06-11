@@ -1,7 +1,7 @@
 #ifndef WALLNUMBERS_H
 #define WALLNUMBERS_H
 #include <string>
-#include <graphics.h> //pixel, PIXPACK
+#include <graphics/ARGBColour.h>
 
 #define O_WL_WALLELEC	122
 #define O_WL_EWALL		123
@@ -49,8 +49,8 @@ struct wallType
 {
 	std::string name;
 	std::string identifier;
-	pixel colour;
-	pixel eglow; // if emap set, add this to fire glow
+	ARGBColour colour;
+	ARGBColour eglow; // if emap set, add this to fire glow
 	int drawstyle;
 	std::string descs;
 };
@@ -58,24 +58,24 @@ typedef struct wallType wallType;
 
 const wallType wallTypes[] =
 {
-	{"ERASE",			"DEFAULT_WL_ERASE",	PIXPACK(0x808080), PIXPACK(0x000000), -1, "Erases walls."},
-	{"CONDUCTIVE WALL",	"DEFAULT_WL_CNDTW",	PIXPACK(0xC0C0C0), PIXPACK(0x101010), 0,  "Blocks everything. Conductive."},
-	{"EWALL",			"DEFAULT_WL_EWALL",	PIXPACK(0x808080), PIXPACK(0x808080), 0,  "E-Wall. Becomes transparent when electricity is connected."},
-	{"DETECTOR",		"DEFAULT_WL_DTECT",	PIXPACK(0xFF8080), PIXPACK(0xFF2008), 1,  "Detector. Generates electricity when a particle is inside."},
-	{"STREAMLINE",		"DEFAULT_WL_STRM",	PIXPACK(0x808080), PIXPACK(0x000000), 0,  "Streamline. Creates a line that follows air movement."},
-	{"FAN",				"DEFAULT_WL_FAN",	PIXPACK(0x8080FF), PIXPACK(0x000000), 1,  "Fan. Accelerates air. Use the line tool to set direction and strength."},
-	{"LIQUID WALL",		"DEFAULT_WL_LIQD",	PIXPACK(0xC0C0C0), PIXPACK(0x101010), 2,  "Allows liquids, blocks all other particles. Conductive."},
-	{"ABSORB WALL",		"DEFAULT_WL_ABSRB",	PIXPACK(0x808080), PIXPACK(0x000000), 1,  "Absorbs particles but lets air currents through."},
-	{"WALL",			"DEFAULT_WL_WALL",	PIXPACK(0x808080), PIXPACK(0x000000), 3,  "Basic wall, blocks everything."},
-	{"AIRONLY WALL",	"DEFAULT_WL_AIR",	PIXPACK(0x3C3C3C), PIXPACK(0x000000), 1,  "Allows air, but blocks all particles."},
-	{"POWDER WALL",		"DEFAULT_WL_POWDR",	PIXPACK(0x575757), PIXPACK(0x000000), 1,  "Allows powders, blocks all other particles."},
-	{"CONDUCTOR",		"DEFAULT_WL_CNDTR",	PIXPACK(0xFFFF22), PIXPACK(0x101010), 2,  "Conductor. Allows all particles to pass through and conducts electricity."},
-	{"EHOLE",			"DEFAULT_WL_EHOLE",	PIXPACK(0x242424), PIXPACK(0x101010), 0,  "E-Hole. absorbs particles, releases them when powered."},
-	{"GAS WALL",		"DEFAULT_WL_GAS",	PIXPACK(0x579777), PIXPACK(0x000000), 1,  "Allows gases, blocks all other particles."},
-	{"GRAVITY WALL",	"DEFAULT_WL_GRVTY",	PIXPACK(0xFFEE00), PIXPACK(0xAA9900), 4,  "Gravity wall. Newtonian Gravity has no effect inside a box drawn with this."},
-	{"ENERGY WALL",		"DEFAULT_WL_ENRGY",	PIXPACK(0xFFAA00), PIXPACK(0xAA5500), 4,  "Allows energy particles, blocks all other particles."},
-	{"AIRBLOCK WALL",	"DEFAULT_WL_NOAIR",	PIXPACK(0xDCDCDC), PIXPACK(0x000000), 1,  "Allows all particles, but blocks air."},
-	{"ERASEALL",		"DEFAULT_WL_ERASEA",PIXPACK(0x808080), PIXPACK(0x000000), -1, "Erases walls, particles, and signs."}
+	{"ERASE",			"DEFAULT_WL_ERASE",	COLPACK(0x808080), COLPACK(0x000000), -1, "Erases walls."},
+	{"CONDUCTIVE WALL",	"DEFAULT_WL_CNDTW",	COLPACK(0xC0C0C0), COLPACK(0x101010), 0,  "Blocks everything. Conductive."},
+	{"EWALL",			"DEFAULT_WL_EWALL",	COLPACK(0x808080), COLPACK(0x808080), 0,  "E-Wall. Becomes transparent when electricity is connected."},
+	{"DETECTOR",		"DEFAULT_WL_DTECT",	COLPACK(0xFF8080), COLPACK(0xFF2008), 1,  "Detector. Generates electricity when a particle is inside."},
+	{"STREAMLINE",		"DEFAULT_WL_STRM",	COLPACK(0x808080), COLPACK(0x000000), 0,  "Streamline. Creates a line that follows air movement."},
+	{"FAN",				"DEFAULT_WL_FAN",	COLPACK(0x8080FF), COLPACK(0x000000), 1,  "Fan. Accelerates air. Use the line tool to set direction and strength."},
+	{"LIQUID WALL",		"DEFAULT_WL_LIQD",	COLPACK(0xC0C0C0), COLPACK(0x101010), 2,  "Allows liquids, blocks all other particles. Conductive."},
+	{"ABSORB WALL",		"DEFAULT_WL_ABSRB",	COLPACK(0x808080), COLPACK(0x000000), 1,  "Absorbs particles but lets air currents through."},
+	{"WALL",			"DEFAULT_WL_WALL",	COLPACK(0x808080), COLPACK(0x000000), 3,  "Basic wall, blocks everything."},
+	{"AIRONLY WALL",	"DEFAULT_WL_AIR",	COLPACK(0x3C3C3C), COLPACK(0x000000), 1,  "Allows air, but blocks all particles."},
+	{"POWDER WALL",		"DEFAULT_WL_POWDR",	COLPACK(0x575757), COLPACK(0x000000), 1,  "Allows powders, blocks all other particles."},
+	{"CONDUCTOR",		"DEFAULT_WL_CNDTR",	COLPACK(0xFFFF22), COLPACK(0x101010), 2,  "Conductor. Allows all particles to pass through and conducts electricity."},
+	{"EHOLE",			"DEFAULT_WL_EHOLE",	COLPACK(0x242424), COLPACK(0x101010), 0,  "E-Hole. absorbs particles, releases them when powered."},
+	{"GAS WALL",		"DEFAULT_WL_GAS",	COLPACK(0x579777), COLPACK(0x000000), 1,  "Allows gases, blocks all other particles."},
+	{"GRAVITY WALL",	"DEFAULT_WL_GRVTY",	COLPACK(0xFFEE00), COLPACK(0xAA9900), 4,  "Gravity wall. Newtonian Gravity has no effect inside a box drawn with this."},
+	{"ENERGY WALL",		"DEFAULT_WL_ENRGY",	COLPACK(0xFFAA00), COLPACK(0xAA5500), 4,  "Allows energy particles, blocks all other particles."},
+	{"AIRBLOCK WALL",	"DEFAULT_WL_NOAIR",	COLPACK(0xDCDCDC), COLPACK(0x000000), 1,  "Allows all particles, but blocks air."},
+	{"ERASEALL",		"DEFAULT_WL_ERASEA",COLPACK(0x808080), COLPACK(0x000000), -1, "Erases walls, particles, and signs."}
 };
 
 #endif

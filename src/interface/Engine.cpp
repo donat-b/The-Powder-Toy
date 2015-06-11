@@ -177,7 +177,11 @@ void Engine::MainLoop()
 				temp->toDelete = true;
 			}
 		}
-		top->DoTick(0);
+
+		uint32_t currentTick = SDL_GetTicks();
+		top->DoTick(currentTick-lastTick);
+		lastTick = currentTick;
+
 		top->DoDraw();
 		if (top->toDelete)
 			CloseWindow(top);

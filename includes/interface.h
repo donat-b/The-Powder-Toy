@@ -30,6 +30,7 @@
 #endif
 #endif
 #include "graphics.h"
+#include "graphics/ARGBColour.h"
 
 #define QM_TOGGLE	1
 
@@ -59,21 +60,21 @@ extern pixel* tabThumbnails[10];
 
 struct menu_wall
 {
-	pixel colour;
+	ARGBColour colour;
 	const char *descs;
 };
 typedef struct menu_wall menu_wall;
 
 const menu_wall colorlist[] =
 {
-	{PIXPACK(0xFF0000), "Red"},
-	{PIXPACK(0x00FF00), "Green"},
-	{PIXPACK(0x0000FF), "Blue"},
-	{PIXPACK(0xFFFF00), "Yellow"},
-	{PIXPACK(0xFF00FF), "Pink"},
-	{PIXPACK(0x00FFFF), "Cyan"},
-	{PIXPACK(0xFFFFFF), "White"},
-	{PIXPACK(0x000000), "Black"},
+	{COLPACK(0xFF0000), "Red"},
+	{COLPACK(0x00FF00), "Green"},
+	{COLPACK(0x0000FF), "Blue"},
+	{COLPACK(0xFFFF00), "Yellow"},
+	{COLPACK(0xFF00FF), "Pink"},
+	{COLPACK(0x00FFFF), "Cyan"},
+	{COLPACK(0xFFFFFF), "White"},
+	{COLPACK(0x000000), "Black"},
 };
 #define DECO_RED 260
 #define DECO_GREEN 261
@@ -375,7 +376,7 @@ void render_ui(pixel *vid_buf, int xcoord, int ycoord, int orientation);
 
 void simulation_ui(pixel *vid_buf);
 
-unsigned int decorations_ui(pixel *vid_buf, int *bsx, int *bsy, unsigned int savedColor);
+pixel decorations_ui(pixel *vid_buf, int *bsx, int *bsy, pixel savedColor);
 
 Uint8 mouse_get_state(int *x, int *y);
 

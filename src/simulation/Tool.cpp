@@ -343,10 +343,9 @@ Tool* DecoTool::Sample(Point position)
 	if (position.Y < 0 || position.Y >= YRES || position.X < 0 || position.X >= XRES)
 		return this;
 
-	unsigned int tempcolor = sampleColor;
-	int cr = PIXR(tempcolor);
-	int cg = PIXG(tempcolor);
-	int cb = PIXB(tempcolor);
+	int cr = PIXR(sampleColor);
+	int cg = PIXG(sampleColor);
+	int cb = PIXB(sampleColor);
 	if (cr || cg || cb)
 	{
 		if (cr && cr<255) cr++;

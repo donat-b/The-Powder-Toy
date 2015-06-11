@@ -16,6 +16,7 @@
 #ifndef SIMULATION_ELEMENTS_FIGH_H
 #define SIMULATION_ELEMENTS_FIGH_H 
 
+#include <cstring>
 #include "simulation/ElementDataContainer.h"
 #include "powder.h"
 

@@ -16,6 +16,7 @@
 #ifndef Simulation_h
 #define Simulation_h
 
+#include <cstddef> // offsetof, for FloodProp
 #include "simulation/Element.h"
 #include "powder.h"
 

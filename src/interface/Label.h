@@ -10,15 +10,17 @@ class Label : public Component
 {
 private:
 	void CleanText(bool ascii, bool color, bool newlines);
-	void FindWordPosition(const char *s, unsigned int position, unsigned int *cursorStart, unsigned int *cursorEnd, const char* spaces);
+	void FindWordPosition(unsigned int position, unsigned int *cursorStart, unsigned int *cursorEnd, const char* spaces);
 	unsigned int UpdateCursor(unsigned int position);
 	bool multiline;
+	uint32_t currentTick;
 
 protected:
 	std::string text;
 	int textWidth;
 	unsigned int cursor, cursorStart;
-	unsigned int lastClick, numClicks, clickPosition;
+	uint32_t lastClick;
+	unsigned int numClicks, clickPosition;
 
 	void UpdateDisplayText(bool updateCursor = false, bool firstClick = false, int mx = 0, int my = 0);
 	void MoveCursor(unsigned int *cursor, int amount);
@@ -29,6 +31,7 @@ public:
 
 	void SetText(std::string text_);
 	std::string GetText();
+	bool IsMultiline() { return multiline; }
 
 	virtual void OnMouseDown(int x, int y, unsigned char button);
 	virtual void OnMouseUp(int x, int y, unsigned char button);
@@ -36,7 +39,7 @@ public:
 	virtual void OnMouseMoved(int x, int y, Point difference);
 	virtual void OnKeyPress(int key, unsigned short character, unsigned char modifiers);
 	virtual void OnDraw(VideoBuffer* vid);
-	virtual void OnTick();
+	virtual void OnTick(uint32_t ticks);
 
 	static const int AUTOSIZE = -1;
 };

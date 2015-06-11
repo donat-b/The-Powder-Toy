@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include "VideoBuffer.h"
 #define INCLUDE_FONTDATA
 #include "font.h"
@@ -40,19 +41,19 @@ void VideoBuffer::ClearRect(int x, int y, int w, int h)
 		return;
 
 	for (int i = 0; i < h; i++)
-		memset(vid+(x+width*(y+i)), 0, sizeof(pixel)*w);
+		std::fill(&vid[x+width*(y+i)], &vid[x+w+width*(y+i)], 0);
 }
 
-void VideoBuffer::CopyVideoBuffer(pixel** vidPaste, int x, int y)
+void VideoBuffer::CopyVideoBuffer(pixel* vidPaste, int vidWidth, int x, int y)
 {
 	for (int i = 0; i < height; i++)
 	{
-		memcpy(*vidPaste+x+((y+i)*(XRES+BARSIZE)), vid+(width*i), sizeof(pixel)*width);
+		std::copy(&vid[width*i], &vid[width*(i+1)], &vidPaste[x+((y+i)*vidWidth)]);
 	}
 }
 
 //This function does NO bounds checking
-TPT_INLINE void VideoBuffer::DrawPixel(int x, int y, int r, int g, int b, int a)
+void VideoBuffer::DrawPixel(int x, int y, int r, int g, int b, int a)
 {
 	//if (x < 0 || y < 0 || x >= width || y >= height || a == 0)
 	//	return;
@@ -73,8 +74,8 @@ void VideoBuffer::DrawLine(int x1, int y1, int x2, int y2, int r, int g, int b, 
 	int dx, dy, startX, startY, e, x, y;
 	bool reverseXY = false;
 
-	dx = abs(x1-x2);
-	dy = abs(y1-y2);
+	dx = std::abs(x1-x2);
+	dy = std::abs(y1-y2);
 	startX = (x1<x2) ? 1 : -1;
 	startY = (y1<y2) ? 1 : -1;
 	x = x1;
@@ -160,7 +161,7 @@ void VideoBuffer::FillRect(int x, int y, int w, int h, int r, int g, int b, int 
 			DrawPixel(x+i, y+j, r, g, b, a);
 }
 
-TPT_INLINE int VideoBuffer::DrawChar(int x, int y, unsigned char c, int r, int g, int b, int a)
+int VideoBuffer::DrawChar(int x, int y, unsigned char c, int r, int g, int b, int a)
 {
 	int w, bn = 0, ba = 0;
 	char *rp = (char*)font_data + font_ptrs[c];
@@ -272,6 +273,49 @@ int VideoBuffer::DrawText(int x, int y, std::string s, int r, int g, int b, int 
 			{
 				FillRect(oldX, y-2, font_data[font_ptrs[s[i]]], FONT_H+2, 0, 0, 255, 127);
 			}
+		}
+	}
+	return x;
+}
+
+int VideoBuffer::CharSize(unsigned char c)
+{
+	return font_data[font_ptrs[static_cast<int>(c)]];
+}
+
+int VideoBuffer::TextSize(std::string s, int maxHeight)
+{
+	int x = 0;
+	int width = 0;
+	int height = 0;
+	for (int i = 0; i < s.length(); i++)
+	{
+		switch (s[i])
+		{
+		case '\n':
+		case '\r':
+			if (x > width)
+				width = 0;
+			x = 0;
+			height += FONT_H+2;
+			break;
+		case '\x0F':
+			if (s.length() < i+3)
+				break;
+			i += 3;
+			break;
+		case '\x0E':
+			break;
+			break;
+			break;
+		case '\b':
+			if (s.length() < i+1)
+				break;
+			i++;
+			break;
+		default:
+			x += CharSize(static_cast<unsigned char>(s[i]));
+			s.at(i);
 		}
 	}
 	return x;

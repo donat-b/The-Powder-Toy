@@ -321,7 +321,6 @@ void clear_sim()
 	memset(fvy, 0, sizeof(fvy));
 	make_kernel();
 	memset(photons, 0, sizeof(photons));
-	emp_decor = 0;
 	memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
 	memset(fire_r, 0, sizeof(fire_r));
 	memset(fire_g, 0, sizeof(fire_g));

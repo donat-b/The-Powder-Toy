@@ -15,7 +15,7 @@ class ProfileViewer : public ScrollWindow
 	Download *avatarDownload;
 	pixel *avatar;
 
-	Label *usernameLabel, *ageLabel, *websiteLabel, *locationLabel, *biographyLabel;
+	Label *usernameLabel, *ageLabel, *locationLabel, *websiteLabel, *biographyLabel;
 	Label *saveCountLabel, *saveAverageLabel, *highestVoteLabel;
 	Button *enableEditingButton;
 	bool editingMode;
@@ -27,7 +27,7 @@ public:
 	ProfileViewer(std::string profileName);
 	~ProfileViewer();
 
-	void OnTick(float dt);
+	void OnTick(uint32_t ticks);
 	void OnDraw(VideoBuffer *buf);
 
 	void EnableEditing();

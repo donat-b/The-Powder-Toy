@@ -2,6 +2,7 @@
 #define WINDOW_H
 
 #include <vector>
+#include "common/tpt-stdint.h"
 #include "common/Point.h"
 #include "Component.h"
 
@@ -19,7 +20,7 @@ public:
 	bool IsFocused(const Component *other) const { return other == focused; }
 	bool IsClicked(const Component *other) const { return other == clicked; }
 
-	void DoTick(float dt);
+	void DoTick(uint32_t ticks);
 	void DoDraw();
 
 	virtual void DoMouseMove(int x, int y, int dx, int dy);
@@ -44,7 +45,7 @@ protected:
 	std::vector<Component*> Components;
 	bool isMouseDown; // need to keep track of this for some things like buttons
 
-	virtual void OnTick(float dt) { }
+	virtual void OnTick(uint32_t ticks) { }
 	virtual void OnDraw(VideoBuffer *buf) { }
 	virtual void OnMouseMove(int x, int y, Point difference) { }
 	virtual void OnMouseDown(int x, int y, unsigned char button) { }

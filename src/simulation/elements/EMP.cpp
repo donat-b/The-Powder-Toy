@@ -14,6 +14,7 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "EMP.h"
 
 int EMP_update(UPDATE_FUNC_ARGS)
 {
@@ -35,9 +36,7 @@ int EMP_update(UPDATE_FUNC_ARGS)
 	return 0;
 ok:
 	parts[i].life=220;
-	emp_decor+=3;
-	if (emp_decor>40)
-		emp_decor=40;
+	((EMP_ElementDataContainer*)sim->elementData[PT_EMP])->Activate();
 	for (r = 0; r <= globalSim->parts_lastActiveIndex; r++)
 	{
 		t=parts[r].type;
@@ -198,4 +197,10 @@ void EMP_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Update = &EMP_update;
 	elem->Graphics = &EMP_graphics;
 	elem->Init = &EMP_init_element;
+
+	if (sim->elementData[t])
+	{
+		delete sim->elementData[t];
+	}
+	sim->elementData[t] = new EMP_ElementDataContainer;
 }

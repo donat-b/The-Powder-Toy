@@ -18,7 +18,7 @@
 #define POWDER_H
 
 #include "air.h"
-#include "graphics.h"
+#include "graphics/Pixel.h"
 #include "defines.h"
 #include "misc.h"
 

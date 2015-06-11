@@ -18,6 +18,7 @@
 #define CONSOLE_H
 
 #include <defines.h>
+#include <graphics/Pixel.h>
 extern int file_script;
 
 int console_parse_coords(const char *txt, int *x, int *y, char *err);

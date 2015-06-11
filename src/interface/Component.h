@@ -1,6 +1,7 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 
+#include "common/tpt-stdint.h"
 #include "common/Point.h"
 
 class VideoBuffer;
@@ -43,7 +44,7 @@ public:
 	virtual void OnMouseMoved(int x, int y, Point difference) { }
 	virtual void OnKeyPress(int key, unsigned short character, unsigned char modifiers) { }
 	virtual void OnDraw(VideoBuffer* vid) { }
-	virtual void OnTick() { }
+	virtual void OnTick(uint32_t ticks) { }
 
 	virtual void OnDefocus() { }
 };

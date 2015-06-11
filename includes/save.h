@@ -17,6 +17,7 @@
 #ifndef SAVE_H
 #define SAVE_H
 #include <simulation/ElementNumbers.h>
+#include "graphics/Pixel.h"
 
 //transforms a save when you move it around with the arrow keys, or rotate it
 void *transform_save(void *odata, int *size, matrix2d transform, vector2d translate);

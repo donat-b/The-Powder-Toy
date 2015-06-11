@@ -86,15 +86,15 @@ void Window_::UpdateComponents()
 	}
 }
 
-void Window_::DoTick(float dt)
+void Window_::DoTick(uint32_t ticks)
 {
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
 		if ((*iter)->IsVisible())
-			(*iter)->OnTick();
+			(*iter)->OnTick(ticks);
 	}
 
-	OnTick(dt);
+	OnTick(ticks);
 }
 
 void Window_::DoDraw()
@@ -111,7 +111,7 @@ void Window_::DoDraw()
 
 	OnDraw(videoBuffer);
 
-	videoBuffer->CopyVideoBuffer(&vid_buf, position.X, position.Y);
+	videoBuffer->CopyVideoBuffer(vid_buf, XRES+BARSIZE, position.X, position.Y);
 	drawrect(vid_buf, position.X, position.Y, size.X, size.Y, 255, 255, 255, 255);
 }
 

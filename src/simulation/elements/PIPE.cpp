@@ -16,6 +16,7 @@
 #include "simulation/ElementsCommon.h"
 #include "simulation/elements/PPIP.h"
 #include "simulation/elements/PRTI.h"
+#include "graphics.h"
 
 #define PFLAG_NORMALSPEED 0x00010000
 #define PFLAG_REVERSE 0x00020000

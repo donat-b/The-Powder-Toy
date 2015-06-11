@@ -3,11 +3,13 @@
 #include "air.h"
 #include "powder.h"
 #include "gravity.h"
+#include "graphics.h"
 #include "powdergraphics.h"
 #include "benchmark.h"
 #include "save.h"
 #include "common/Point.h"
 #include "simulation/Simulation.h"
+#include "graphics/Pixel.h"
 
 char *benchmark_file = NULL;
 double benchmark_loops_multiply = 1.0; // Increase for more accurate results (particularly on fast computers)

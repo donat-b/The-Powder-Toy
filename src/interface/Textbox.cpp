@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <SDL/SDL_keysym.h>
 #include "Textbox.h"
 #include "graphics/VideoBuffer.h"
 #include "misc.h"
@@ -46,10 +47,10 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned char modifi
 			break;
 		case 'v':
 		{
-			char* clipboard = clipboard_pull_text();
-			int len = strlen(clipboard), width = textwidth(clipboard);
+			std::string clipboard = clipboard_pull_text();
+			int len = clipboard.length(), width = VideoBuffer::TextSize(clipboard);
 			DeleteHighlight();
-			if (width+textWidth+2 >= size.X)
+			if (width+textWidth+3 >= size.X)
 				return;
 			text.insert(cursor, clipboard);
 
@@ -127,9 +128,9 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned char modifi
 	default:
 		if (key >= ' ' && key <= '~')
 		{
-			int width = charwidth(key);
+			int width = VideoBuffer::CharSize(key);
 			DeleteHighlight();
-			if (width+textWidth+1 >= size.X)
+			if (width+textWidth+3 >= size.X)
 				return;
 			text.insert(cursor++, 1, (char)key);
 			cursorStart = cursor;

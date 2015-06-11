@@ -122,12 +122,6 @@ extern unsigned char ZSIZE;
 
 #define NGOL 24
 
-#ifdef PIX16
-typedef unsigned short pixel;
-#else
-typedef unsigned int pixel;
-#endif
-
 #define SURF_RANGE     10
 #define NORMAL_MIN_EST 3
 #define NORMAL_INTERP  20
@@ -277,6 +271,7 @@ struct sign
 };
 typedef struct sign sign;
 
+#include "graphics/Pixel.h"
 struct stamp
 {
 	char name[11];

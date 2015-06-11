@@ -2998,7 +2998,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 				identifier << "DEFAULT_DECOR_COLOUR_" << colorlist[n-DECO_PRESET_START].descs;
 				over =  new Tool(DECO_TOOL, n, identifier.str());
 			}
-			draw_tool_button(vid_buf, presetx, y, colorlist[n-DECO_PRESET_START].colour, "");
+			draw_tool_button(vid_buf, presetx, y, PIXPACK(colorlist[n-DECO_PRESET_START].colour), "");
 			presetx += 31;
 		}
 	}
@@ -3281,7 +3281,7 @@ void menu_select_element(int b, Tool* over)
 		}
 		else if (toolID >= DECO_PRESET_START && toolID < DECO_PRESET_START+NUM_COLOR_PRESETS)
 		{
-			unsigned int newDecoColor = (255<<24)|colorlist[toolID-DECO_PRESET_START].colour;
+			unsigned int newDecoColor = (255<<24)|PIXPACK(colorlist[toolID-DECO_PRESET_START].colour);
 			if (newDecoColor != decocolor)
 				decocolor = newDecoColor;
 			else
