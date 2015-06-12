@@ -84,7 +84,18 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned char modifi
 			MoveCursor(&cursor, -1);
 			text.erase(cursor, cursorStart-cursor);
 			cursorStart = cursor;
+
+			int oldLines = std::count(text.begin(), text.begin()+cursor, '\r');
 			UpdateDisplayText();
+			int newLines = std::count(text.begin(), text.begin()+cursor, '\r');
+
+			//hack to make sure cursor is correct when a newline gets deleted
+			if (oldLines > newLines)
+			{
+				cursor += newLines-oldLines;
+				cursorStart = cursor;
+				UpdateDisplayText();
+			}
 		}
 		break;
 	case SDLK_DELETE:

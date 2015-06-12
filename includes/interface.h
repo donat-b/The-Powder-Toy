@@ -241,6 +241,7 @@ extern int dateformat;
 extern int show_ids;
 extern int fastquit;
 
+extern ARGBColour decocolor;
 extern ui_edit box_R;
 extern ui_edit box_G;
 extern ui_edit box_B;
@@ -376,7 +377,7 @@ void render_ui(pixel *vid_buf, int xcoord, int ycoord, int orientation);
 
 void simulation_ui(pixel *vid_buf);
 
-pixel decorations_ui(pixel *vid_buf, int *bsx, int *bsy, pixel savedColor);
+unsigned int decorations_ui(pixel *vid_buf, int *bsx, int *bsy, unsigned int savedColor);
 
 Uint8 mouse_get_state(int *x, int *y);
 

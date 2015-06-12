@@ -947,7 +947,7 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 				else if (current->GetID() == DECO_SMUDGE)
 					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(color), PIXG(color)-5*i, PIXB(color)+5*i);
 				else if (current->GetID() == DECO_DRAW || current->GetID() == DECO_CLEAR)
-					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(decocolor), PIXG(decocolor), PIXB(decocolor));
+					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXPACK(decocolor);
 				else
 					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = color;
 			}
@@ -955,7 +955,7 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 
 		if (current->GetID() == DECO_CLEAR)
 		{
-			color = PIXRGB((PIXR((decocolor))+127)%256, (PIXG((decocolor))+127)%256, (PIXB((decocolor))+127)%256);
+			color = PIXRGB((COLR(decocolor)+127)%256, (COLG(decocolor)+127)%256, (COLB(decocolor)+127)%256);
 			for (j=4; j<12; j++)
 			{
 				vid_buf[(XRES+BARSIZE)*(y+j)+(x+j+6)] = color;
@@ -965,13 +965,13 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 			}
 		}
 		else if (current->GetID() == DECO_ADD)
-			drawtext(vid_buf, x+12, y+5, "+", PIXR(decocolor), PIXG(decocolor), PIXB(decocolor), 255);
+			drawtext(vid_buf, x+12, y+5, "+", COLR(decocolor), COLG(decocolor), COLB(decocolor), 255);
 		else if (current->GetID() == DECO_SUBTRACT)
-			drawtext(vid_buf, x+12, y+5, "-", PIXR(decocolor), PIXG(decocolor), PIXB(decocolor), 255);
+			drawtext(vid_buf, x+12, y+5, "-", COLR(decocolor), COLG(decocolor), COLB(decocolor), 255);
 		else if (current->GetID() == DECO_MULTIPLY)
-			drawtext(vid_buf, x+12, y+4, "x", PIXR(decocolor), PIXG(decocolor), PIXB(decocolor), 255);
+			drawtext(vid_buf, x+12, y+4, "x", COLR(decocolor), COLG(decocolor), COLB(decocolor), 255);
 		else if (current->GetID() == DECO_DIVIDE)
-			drawtext(vid_buf, x+12, y+5, "/", PIXR(decocolor), PIXG(decocolor), PIXB(decocolor), 255);
+			drawtext(vid_buf, x+12, y+5, "/", COLR(decocolor), COLG(decocolor), COLB(decocolor), 255);
 	}
 	else if (current->GetType() == GOL_TOOL)
 	{
@@ -983,7 +983,7 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 			draw_tool_button(vid_buf, x, y, PIXPACK(fav[current->GetID()-FAV_START].colour), fav[current->GetID()-FAV_START].name);
 		else if (current->GetID() >= HUD_START && current->GetID() < HUD_START+HUD_NUM)
 		{
-			if (hud_menu[current->GetID()-HUD_START].color)
+			if (hud_menu[current->GetID()-HUD_START].color != COLPACK(0x000000))
 				draw_tool_button(vid_buf, x, y, PIXPACK(hud_menu[current->GetID()-HUD_START].color), hud_menu[current->GetID()-HUD_START].name);
 			else
 				draw_tool_button(vid_buf, x, y, PIXPACK(globalSim->elements[((current->GetID()-HUD_START)*53)%(PT_NUM-1)+1].Colour), hud_menu[current->GetID()-HUD_START].name);
@@ -2493,16 +2493,16 @@ void render_parts(pixel *vid, Point mousePos)
 				
 			//Defaults
 			pixel_mode = 0 | PMODE_FLAT;
-			cola = 255;
-			colr = PIXR(ptypes[t].pcolors);
-			colg = PIXG(ptypes[t].pcolors);
-			colb = PIXB(ptypes[t].pcolors);
+			cola = COLA(globalSim->elements[t].Colour); // always 255
+			colr = COLR(globalSim->elements[t].Colour);
+			colg = COLG(globalSim->elements[t].Colour);
+			colb = COLB(globalSim->elements[t].Colour);
 			firea = 0;
 			
-			deca = (parts[i].dcolour>>24)&0xFF;
-			decr = (parts[i].dcolour>>16)&0xFF;
-			decg = (parts[i].dcolour>>8)&0xFF;
-			decb = (parts[i].dcolour)&0xFF;
+			deca = COLA(parts[i].dcolour);
+			decr = COLR(parts[i].dcolour);
+			decg = COLG(parts[i].dcolour);
+			decb = COLB(parts[i].dcolour);
 				
 			/*if(display_mode == RENDER_NONE)
 			{
@@ -2653,9 +2653,9 @@ void render_parts(pixel *vid, Point mousePos)
 				}
 				else if (colour_mode & COLOUR_BASC)
 				{
-					colr = PIXR(ptypes[t].pcolors);
-					colg = PIXG(ptypes[t].pcolors);
-					colb = PIXB(ptypes[t].pcolors);
+					colr = COLR(globalSim->elements[t].Colour);
+					colg = COLG(globalSim->elements[t].Colour);
+					colb = COLB(globalSim->elements[t].Colour);
 					pixel_mode = PMODE_FLAT;
 				}
 
@@ -2773,9 +2773,9 @@ void render_parts(pixel *vid, Point mousePos)
 					{
 						if (cplayer->elem<PT_NUM)
 						{
-							colr = PIXR(ptypes[cplayer->elem].pcolors);
-							colg = PIXG(ptypes[cplayer->elem].pcolors);
-							colb = PIXB(ptypes[cplayer->elem].pcolors);
+							colr = COLR(globalSim->elements[cplayer->elem].Colour);
+							colg = COLG(globalSim->elements[cplayer->elem].Colour);
+							colb = COLB(globalSim->elements[cplayer->elem].Colour);
 						}
 						else
 						{
@@ -4532,9 +4532,9 @@ int render_thumb(void *thumb, int size, int bzip2, pixel *vid_buf, int px, int p
 					{
 						if (t>=PT_NUM)
 							goto corrupt;
-						r += PIXR(ptypes[t].pcolors);
-						g += PIXG(ptypes[t].pcolors);
-						b += PIXB(ptypes[t].pcolors);
+						r += COLR(globalSim->elements[t].Colour);
+						g += COLG(globalSim->elements[t].Colour);
+						b += COLB(globalSim->elements[t].Colour);
 						a ++;
 					}
 				}

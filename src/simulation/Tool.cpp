@@ -2,6 +2,7 @@
 #include "Tool.h"
 #include "interface.h"
 #include "powder.h"
+#include "graphics/ARGBColour.h"
 #include "Simulation.h"
 #include "WallNumbers.h"
 #include "ToolNumbers.h"
@@ -318,24 +319,24 @@ Tool(DECO_TOOL, decoID, decoTypes[decoID].identifier)
 }
 int DecoTool::DrawPoint(Brush* brush, Point position)
 {
-	unsigned int col = (ID == DECO_CLEAR) ? PIXRGB(0, 0, 0) : decocolor;
+	ARGBColour col = (ID == DECO_CLEAR) ? COLARGB(0, 0, 0, 0) : decocolor;
 	globalSim->CreateDecoBrush(position.X, position.Y, ID, col, brush);
 	return 0;
 }
 void DecoTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 {
-	unsigned int col = (ID == DECO_CLEAR) ? PIXRGB(0, 0, 0) : decocolor;
+	ARGBColour col = (ID == DECO_CLEAR) ? COLARGB(0, 0, 0, 0) : decocolor;
 	globalSim->CreateDecoLine(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, col, brush);
 }
 void DecoTool::DrawRect(Brush* brush, Point startPos, Point endPos)
 {
-	unsigned int col = (ID == DECO_CLEAR) ? PIXRGB(0, 0, 0) : decocolor;
+	ARGBColour col = (ID == DECO_CLEAR) ? COLARGB(0, 0, 0, 0) : decocolor;
 	globalSim->CreateDecoBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, col);
 }
 int DecoTool::FloodFill(Brush* brush, Point position)
 {
 	PropertyValue col;
-	col.UInteger = (ID == DECO_CLEAR) ? PIXRGB(0, 0, 0) : decocolor;
+	col.UInteger = (ID == DECO_CLEAR) ? COLARGB(0, 0, 0, 0) : decocolor;
 	return globalSim->FloodProp(position.X, position.Y, UInteger, col, offsetof(particle, dcolour));
 }
 Tool* DecoTool::Sample(Point position)
@@ -351,8 +352,8 @@ Tool* DecoTool::Sample(Point position)
 		if (cr && cr<255) cr++;
 		if (cg && cg<255) cg++;
 		if (cb && cb<255) cb++;
-		decocolor = (255 << 24) | PIXRGB(cr, cg, cb);
-		currR = PIXR(decocolor), currG = PIXG(decocolor), currB = PIXB(decocolor), currA = decocolor >> 24;
+		decocolor = COLARGB(255, cr, cg, cb);
+		currR = cr, currG = cg, currB = cb, currA = 255;
 		RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
 	}
 	return this;

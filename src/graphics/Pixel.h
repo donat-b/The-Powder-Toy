@@ -29,8 +29,6 @@
 typedef unsigned int pixel;
 
 #ifdef PIX32BGR
-BGR
-RGB
 
 #define PIXPACK(x) ((((x)>>16)&0x0000FF)|((x)&0x00FF00)|(((x)<<16)&0xFF0000))
 #define PIXCONV(x) ((((x)<<16)&0xFF0000)|((x)&0x00FF00)|(((x)>>16)&0x0000FF))

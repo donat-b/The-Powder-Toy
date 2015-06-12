@@ -617,7 +617,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 						}
 					}
 					else
-						vidBuf[(fullY+y)*fullW+(fullX+x)] = ptypes[type].pcolors;
+						vidBuf[(fullY+y)*fullW+(fullX+x)] = PIXPACK(globalSim->elements[type].Colour);
 					i+=3; //Skip Type and Descriptor
 					
 					//Skip temp
@@ -678,9 +678,9 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 						r = partsData[i++];
 						g = partsData[i++];
 						b = partsData[i++];
-						r = ((a*r + (255-a)*PIXR(ptypes[type].pcolors))>>8);
-						g = ((a*g + (255-a)*PIXG(ptypes[type].pcolors))>>8);
-						b = ((a*b + (255-a)*PIXB(ptypes[type].pcolors))>>8);
+						r = ((a*r + (255-a)*COLR(globalSim->elements[type].Colour))>>8);
+						g = ((a*g + (255-a)*COLG(globalSim->elements[type].Colour))>>8);
+						b = ((a*b + (255-a)*COLB(globalSim->elements[type].Colour))>>8);
 						vidBuf[(fullY+y)*fullW+(fullX+x)] = PIXRGB(r, g, b);
 					}
 					
@@ -1018,13 +1018,13 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 				}
 				
 				//Dcolour (optional), 4 bytes
-				if(partsptr[i].dcolour && (partsptr[i].dcolour & 0xFF000000))
+				if(partsptr[i].dcolour && COLA(partsptr[i].dcolour))
 				{
 					fieldDesc |= 1 << 6;
-					partsData[partsDataLen++] = (partsptr[i].dcolour&0xFF000000)>>24;
-					partsData[partsDataLen++] = (partsptr[i].dcolour&0x00FF0000)>>16;
-					partsData[partsDataLen++] = (partsptr[i].dcolour&0x0000FF00)>>8;
-					partsData[partsDataLen++] = (partsptr[i].dcolour&0x000000FF);
+					partsData[partsDataLen++] = COLA(partsptr[i].dcolour);
+					partsData[partsDataLen++] = COLR(partsptr[i].dcolour);
+					partsData[partsDataLen++] = COLG(partsptr[i].dcolour);
+					partsData[partsDataLen++] = COLB(partsptr[i].dcolour);
 				}
 				
 				//VX (optional), 1 byte
@@ -1146,10 +1146,10 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 						animData[animDataLen++] = animLength; //first byte stores data length, rest is length*4 bytes
 						for (int j = 0; j <= animLength; j++)
 						{
-							animData[animDataLen++] = (partsptr[i].animations[j]&0xFF000000)>>24;
-							animData[animDataLen++] = (partsptr[i].animations[j]&0x00FF0000)>>16;
-							animData[animDataLen++] = (partsptr[i].animations[j]&0x0000FF00)>>8;
-							animData[animDataLen++] = (partsptr[i].animations[j]&0x000000FF);
+							animData[animDataLen++] = COLA(partsptr[i].animations[j]);
+							animData[animDataLen++] = COLR(partsptr[i].animations[j]);
+							animData[animDataLen++] = COLG(partsptr[i].animations[j]);
+							animData[animDataLen++] = COLB(partsptr[i].animations[j]);
 						}
 					}
 
@@ -2249,10 +2249,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					if(fieldDescriptor & 0x40)
 					{
 						if(i+3 >= partsDataLen) goto fail;
-						partsptr[newIndex].dcolour = (((unsigned)partsData[i++]) << 24);
-						partsptr[newIndex].dcolour |= (((unsigned)partsData[i++]) << 16);
-						partsptr[newIndex].dcolour |= (((unsigned)partsData[i++]) << 8);
-						partsptr[newIndex].dcolour |= ((unsigned)partsData[i++]);
+						partsptr[newIndex].dcolour = COLARGB((unsigned)partsData[i++], (unsigned)partsData[i++], (unsigned)partsData[i++], (unsigned)partsData[i++]);
 					}
 					
 					//Read vx
@@ -2485,14 +2482,14 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					int origanimLen = animData[animDataPos++];
 					int animLen = std::min(origanimLen, globalSim->maxFrames-1); //read animation length, make sure it doesn't go past the current frame limit
 					partsptr[newIndex].ctype = animLen;
-					partsptr[newIndex].animations = (unsigned int*)calloc(globalSim->maxFrames, sizeof(unsigned int));
+					partsptr[newIndex].animations = (ARGBColour*)calloc(globalSim->maxFrames, sizeof(ARGBColour));
 					if (animDataPos+4*animLen > animDataLen || partsptr[newIndex].animations == NULL)
 						goto fail;
 
 					for (int j = 0; j < globalSim->maxFrames; j++)
 					{
 						if (j <= animLen) //read animation data
-							partsptr[newIndex].animations[j] = animData[animDataPos++]<<24 | animData[animDataPos++]<<16 | animData[animDataPos++]<<8 | animData[animDataPos++];
+							partsptr[newIndex].animations[j] = COLARGB(animData[animDataPos++], animData[animDataPos++], animData[animDataPos++], animData[animDataPos++]);
 						else //set the rest to 0
 							partsptr[newIndex].animations[j] = 0;
 					}
@@ -2714,7 +2711,7 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 					}
 				}
 				else
-					fb[y*w+x] = ptypes[j].pcolors;
+					fb[y*w+x] = PIXPACK(globalSim->elements[j].Colour);
 				m[(x-0)+(y-0)*w] = j;
 			}
 		}
@@ -3166,7 +3163,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					goto corrupt;
 				}
 				if (i <= NPART) {
-					parts[i-1].dcolour = d[p++]<<24;
+					parts[i-1].dcolour = (COLA(d[p++])<<24);
 				} else {
 					p++;
 				}
@@ -3184,7 +3181,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					goto corrupt;
 				}
 				if (i <= NPART) {
-					parts[i-1].dcolour |= d[p++]<<16;
+					parts[i-1].dcolour |= (COLR(d[p++])<<16);
 				} else {
 					p++;
 				}
@@ -3202,7 +3199,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					goto corrupt;
 				}
 				if (i <= NPART) {
-					parts[i-1].dcolour |= d[p++]<<8;
+					parts[i-1].dcolour |= (COLG(d[p++])<<8);
 				} else {
 					p++;
 				}
@@ -3220,7 +3217,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					goto corrupt;
 				}
 				if (i <= NPART) {
-					parts[i-1].dcolour |= d[p++];
+					parts[i-1].dcolour |= COLB(d[p++]);
 				} else {
 					p++;
 				}
@@ -3348,7 +3345,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 				// Replace invisible particles with something sensible and add decoration to hide it
 				x = (int)(parts[i-1].x+0.5f);
 				y = (int)(parts[i-1].y+0.5f);
-				parts[i-1].dcolour = 0xFF000000;
+				parts[i-1].dcolour = COLARGB(255, 0, 0, 0);
 				parts[i-1].type = PT_DMND;
 			}
 			if(ver<51 && ((ty>=78 && ty<=89) || (ty>=134 && ty<=146 && ty!=141))){

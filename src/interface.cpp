@@ -3281,7 +3281,7 @@ void menu_select_element(int b, Tool* over)
 		}
 		else if (toolID >= DECO_PRESET_START && toolID < DECO_PRESET_START+NUM_COLOR_PRESETS)
 		{
-			unsigned int newDecoColor = (255<<24)|PIXPACK(colorlist[toolID-DECO_PRESET_START].colour);
+			ARGBColour newDecoColor = colorlist[toolID-DECO_PRESET_START].colour;
 			if (newDecoColor != decocolor)
 				decocolor = newDecoColor;
 			else
@@ -3291,7 +3291,7 @@ void menu_select_element(int b, Tool* over)
 					activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOR_SET");
 				}
 			}
-			currR = PIXR(decocolor), currG = PIXG(decocolor), currB = PIXB(decocolor), currA = decocolor>>24;
+			currR = COLR(decocolor), currG = COLG(decocolor), currB = COLB(decocolor), currA = COLA(decocolor);
 			RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
 		}
 		else if ((sdl_mod & (KMOD_LALT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && ((ElementTool*)over)->GetID() >= 0)
@@ -7270,14 +7270,16 @@ void decoration_textbox_color(ui_edit* textbox, int *color, int *color2)
 	(*textbox).focus = 0;
 }
 
-int currR = 255, currG = 0, currB = 0, currA = 255;
+ARGBColour decocolor = COLARGB(255, 255, 0, 0);
+int currA = 255, currR = 255, currG = 0, currB = 0;
 int currH = 0, currS = 255, currV = 255;
 int on_left = 1, decobox_hidden = 0;
 
 int deco_disablestuff;
 void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 {
-	int i, t, hh, ss, vv, can_select_color = 1;
+	pixel t;
+	int i, hh, ss, vv, can_select_color = 1;
 	int cr = 255, cg = 0, cb = 0, ca = 255;
 	int th = currH, ts = currS, tv = currV;
 	int grid_offset_x;
@@ -7289,7 +7291,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 		can_select_color = 0;
 	if (!bq)
 		deco_disablestuff = 0;
-	currR = PIXR(decocolor), currG = PIXG(decocolor), currB = PIXB(decocolor), currA = decocolor>>24;
+	currR = COLR(decocolor), currG = COLG(decocolor), currB = COLB(decocolor), currA = COLA(decocolor);
 
 	/*for (i = 0; i <= parts_lastActiveIndex; i++)
 		if (parts[i].type == PT_ANIM)
@@ -7510,7 +7512,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 			{
 				int i;
 				for (i=0;i<NPART;i++)
-					parts[i].dcolour = 0;
+					parts[i].dcolour = COLARGB(0, 0, 0, 0);
 			}
 			deco_disablestuff = 1;
 	}
@@ -7639,7 +7641,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 		{
 			parts[i].tmp2 = 0;
 		}*/
-	decocolor = (currA<<24)|PIXRGB(currR,currG,currB);
+	decocolor = COLARGB(currA, currR, currG, currB);
 }
 struct savelist_e;
 typedef struct savelist_e savelist_e;

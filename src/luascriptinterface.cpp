@@ -2620,7 +2620,6 @@ int elements_element(lua_State * l)
 		{
 			lua_el_func[id] = 0;
 			lua_el_mode[id] = 0;
-			ptypes[id].update_func = NULL;
 		}
 		else
 			lua_pop(l, 1);
@@ -2722,7 +2721,6 @@ int elements_property(lua_State * l)
 			{
 				lua_el_func[id] = 0;
 				lua_el_mode[id] = 0;
-				ptypes[id].update_func = NULL;
 			}
 		}
 		else if(!strcmp(propertyName,"Graphics"))

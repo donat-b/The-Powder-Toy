@@ -17,6 +17,7 @@
 #define Simulation_h
 
 #include <cstddef> // offsetof, for FloodProp
+#include "graphics/ARGBColour.h"
 #include "simulation/Element.h"
 #include "powder.h"
 
@@ -101,11 +102,11 @@ public:
 	void CreatePropBox(int x1, int y1, int x2, int y2, PropertyType propType, PropertyValue propValue, size_t propOffset);
 	int FloodProp(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset);
 
-	void CreateDeco(int x, int y, int tool, unsigned int color);
-	void CreateDecoBrush(int x, int y, int tool, unsigned int color, Brush* brush);
-	void CreateDecoLine(int x1, int y1, int x2, int y2, int tool, unsigned int color, Brush* brush);
-	void CreateDecoBox(int x1, int y1, int x2, int y2, int tool, unsigned int color);
-	void FloodDeco(int x, int y, unsigned int color, unsigned int replace);
+	void CreateDeco(int x, int y, int tool, ARGBColour color);
+	void CreateDecoBrush(int x, int y, int tool, ARGBColour color, Brush* brush);
+	void CreateDecoLine(int x1, int y1, int x2, int y2, int tool, ARGBColour color, Brush* brush);
+	void CreateDecoBox(int x1, int y1, int x2, int y2, int tool, ARGBColour color);
+	void FloodDeco(int x, int y, ARGBColour color, ARGBColour replace);
 
 	// Functions defined here should hopefully be inlined
 	// Don't put anything that will change often here, since changes cause a lot of recompiling

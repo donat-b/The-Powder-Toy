@@ -628,7 +628,6 @@ void load_presets(void)
 		if (tmpobj = cJSON_GetObjectItem(root, "EXPL_unlocked"))
 		{
 			unlockedstuff |= 0x10;
-			ptypes[PT_EXPL].menu = 1;
 			ptypes[PT_EXPL].enabled = 1;
 			globalSim->elements[PT_EXPL].MenuVisible = 1;
 			globalSim->elements[PT_EXPL].Enabled = 1;

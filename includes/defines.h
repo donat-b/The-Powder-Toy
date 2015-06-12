@@ -246,7 +246,6 @@ extern double totalfps;
 extern int prevafktime;
 extern int timesplayed;
 
-extern unsigned int decocolor;
 extern int deco_disablestuff;
 
 extern int doUpdates;

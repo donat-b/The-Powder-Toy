@@ -70,11 +70,11 @@ int LCRY_update(UPDATE_FUNC_ARGS)
 
 int LCRY_graphics(GRAPHICS_FUNC_ARGS)
 {
-	if(decorations_enable && cpart->dcolour && cpart->dcolour&0xFF000000)
+	if(decorations_enable && cpart->dcolour && COLA(cpart->dcolour))
 	{
-		*colr = (cpart->dcolour>>16)&0xFF;
-		*colg = (cpart->dcolour>>8)&0xFF;
-		*colb = (cpart->dcolour)&0xFF;
+		*colr = COLR(cpart->dcolour);
+		*colg = COLG(cpart->dcolour);
+		*colb = COLB(cpart->dcolour);
 
 		if(cpart->tmp2<10){
 			*colr /= 10-cpart->tmp2;

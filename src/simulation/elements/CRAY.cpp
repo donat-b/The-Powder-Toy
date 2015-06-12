@@ -69,7 +69,7 @@ int CRAY_update(UPDATE_FUNC_ARGS)
 					if (!(r&0xFF))
 						continue;
 					if ((r&0xFF)==PT_SPRK && parts[r>>8].life==3) { //spark found, start creating
-						unsigned int colored = 0;
+						ARGBColour colored = COLARGB(0, 0, 0, 0);
 						int destroy = parts[r>>8].ctype==PT_PSCN;
 						int nostop = parts[r>>8].ctype==PT_INST;
 						int createSpark = (parts[r>>8].ctype==PT_INWR);
@@ -96,14 +96,14 @@ int CRAY_update(UPDATE_FUNC_ARGS)
 										docontinue = 0;
 								}
 							} else if ((r&0xFF)==PT_FILT) { // get color if passed through FILT
-								if (parts[r>>8].dcolour == 0xFF000000)
-									colored = 0xFF000000;
+								if (parts[r>>8].dcolour == COLRGB(0, 0, 0))
+									colored = COLRGB(0, 0, 0);
 								else if (parts[r>>8].tmp == 0)
 								{
 									colored = wavelengthToDecoColour(getWavelengths(&parts[r>>8]));
 								}
-								else if (colored == 0xFF000000)
-									colored = 0;
+								else if (colored == COLRGB(0, 0, 0))
+									colored = COLARGB(0, 0, 0, 0);
 								parts[r>>8].life = 4;
 							} else if ((r&0xFF) == PT_CRAY || nostop) {
 								docontinue = 1;

@@ -49,10 +49,10 @@ int ANIM_graphics(GRAPHICS_FUNC_ARGS)
 	//if decorations are even set (black deco has alpha set)
 	if (cpart->animations[cpart->tmp2])
 	{
-		*cola = (cpart->animations[cpart->tmp2]>>24)&0xFF;
-		*colr = (cpart->animations[cpart->tmp2]>>16)&0xFF;
-		*colg = (cpart->animations[cpart->tmp2]>>8)&0xFF;
-		*colb = (cpart->animations[cpart->tmp2])&0xFF;
+		*cola = COLA(cpart->animations[cpart->tmp2]);
+		*colr = COLR(cpart->animations[cpart->tmp2]);
+		*colg = COLG(cpart->animations[cpart->tmp2]);
+		*colb = COLB(cpart->animations[cpart->tmp2]);
 	}
 
 	if (cpart->life < 10)
@@ -68,7 +68,7 @@ int ANIM_graphics(GRAPHICS_FUNC_ARGS)
 
 void ANIM_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	sim->parts[i].animations = (unsigned int*)calloc(sim->maxFrames,sizeof(unsigned int));
+	sim->parts[i].animations = (ARGBColour*)calloc(sim->maxFrames, sizeof(ARGBColour));
 	if (!sim->parts[i].animations)
 		return;
 	memset(sim->parts[i].animations, 0, sizeof(*sim->parts[i].animations));

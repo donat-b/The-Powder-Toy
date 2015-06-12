@@ -18,7 +18,6 @@
 #define POWDER_H
 
 #include "air.h"
-#include "graphics/Pixel.h"
 #include "defines.h"
 #include "misc.h"
 
@@ -116,30 +115,19 @@ void PPIP_flood_trigger(Simulation* sim, int x, int y, int sparkedBy);
 struct part_type
 {
 	char *name;
-	pixel pcolors;
-	float advection;
-	float airdrag;
-	float airloss;
-	float loss;
-	float collision;
 	float gravity;
-	float diffusion;
-	float hotair;
 	int falldown;
 	int flammable;
 	int explosive;
 	int meltable;
 	int hardness;
-	int menu;
 	int enabled;
 	int weight;
-	int menusection;
 	float heat;
 	unsigned char hconduct;
 	char *descs;
 	char state;
 	unsigned int properties;
-	int (*update_func) (UPDATE_FUNC_ARGS);
 	int (*graphics_func) (GRAPHICS_FUNC_ARGS);
 };
 typedef struct part_type part_type;

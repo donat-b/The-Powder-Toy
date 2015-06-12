@@ -17,8 +17,8 @@
  * and other macros that were previously used)
  * 
  * This is used for the particle default colour so that the simulation
- * code doesn't depend on the pixel format. It will also be used for
- * dcolour.
+ * code doesn't depend on the pixel format. It is also used for
+ * dcolour and all the tool stuff.
  */
 
 #ifndef ARGBColour_h

@@ -46,7 +46,7 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 										parts[nr].ctype = colored;
 									parts[nr].temp = parts[i].temp;
 									if (isBlackDeco)
-										parts[nr].dcolour = 0xFF000000;
+										parts[nr].dcolour = COLRGB(0, 0, 0);
 								}
 							} else if (!destroy) {
 								if ((r&0xFF)==PT_BRAY)
@@ -77,7 +77,7 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 										break;
 									}
 									if (isBlackDeco)
-										parts[r>>8].dcolour = 0xFF000000;
+										parts[r>>8].dcolour = COLRGB(0, 0, 0);
 								} else if ((r&0xFF)==PT_FILT) {//get color if passed through FILT
 									if (parts[r>>8].tmp != 6)
 									{
@@ -85,7 +85,7 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 										if (!colored)
 											break;
 									}
-									isBlackDeco = (parts[r>>8].dcolour==0xFF000000);
+									isBlackDeco = (parts[r>>8].dcolour==COLRGB(0, 0, 0));
 									parts[r>>8].life = 4;
 								//this if prevents BRAY from stopping on certain materials
 								} else if ((r&0xFF)!=PT_STOR && (r&0xFF)!=PT_INWR && ((r&0xFF)!=PT_SPRK || parts[r>>8].ctype!=PT_INWR) && (r&0xFF)!=PT_ARAY && (r&0xFF)!=PT_WIFI && !((r&0xFF)==PT_SWCH && parts[r>>8].life>=10)) {
@@ -129,7 +129,7 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 									parts[r>>8].life = 1;
 									docontinue = 1;
 									if (isBlackDeco)
-										parts[r>>8].dcolour = 0xFF000000;
+										parts[r>>8].dcolour = COLRGB(0, 0, 0);
 								//this if prevents red BRAY from stopping on certain materials
 								} else if ((r&0xFF)==PT_STOR || (r&0xFF)==PT_INWR || ((r&0xFF)==PT_SPRK && parts[r>>8].ctype==PT_INWR) || (r&0xFF)==PT_ARAY || (r&0xFF)==PT_WIFI || (r&0xFF)==PT_FILT || ((r&0xFF)==PT_SWCH && parts[r>>8].life>=10)) {
 									if((r&0xFF)==PT_STOR)
@@ -139,7 +139,7 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 									}
 									else if ((r&0xFF)==PT_FILT)
 									{
-										isBlackDeco = (parts[r>>8].dcolour==0xFF000000);
+										isBlackDeco = (parts[r>>8].dcolour==COLRGB(0, 0, 0));
 										parts[r>>8].life = 2;
 									}
 									docontinue = 1;

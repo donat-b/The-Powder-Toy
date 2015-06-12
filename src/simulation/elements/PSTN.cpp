@@ -256,7 +256,7 @@ int PSTN_update(UPDATE_FUNC_ARGS)
 												if (parts[i].dcolour)
 												{
 													int colour = parts[i].dcolour;
-													parts[nr].dcolour=(colour&0xFF000000)|std::max((colour&0xFF0000)-0x3C0000,0)|std::max((colour&0xFF00)-0x3C00,0)|std::max((colour&0xFF)-0x3C,0);
+													parts[nr].dcolour = COLARGB(COLA(colour), std::max(COLR(colour)-60, 0), std::max(COLG(colour)-60, 0), std::max(COLB(colour)-60,0));
 												}
 											}
 										}

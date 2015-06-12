@@ -305,8 +305,8 @@ int VideoBuffer::TextSize(std::string s, int maxHeight)
 			i += 3;
 			break;
 		case '\x0E':
-			break;
-			break;
+		case '\x01':
+		case '\x02':
 			break;
 		case '\b':
 			if (s.length() < i+1)

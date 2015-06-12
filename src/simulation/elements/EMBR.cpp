@@ -60,10 +60,10 @@ int EMBR_graphics(GRAPHICS_FUNC_ARGS)
 
 	if (decorations_enable && cpart->dcolour)
 	{
-		int a = (cpart->dcolour>>24)&0xFF;
-		*colr = (a*((cpart->dcolour>>16)&0xFF) + (255-a)**colr) >> 8;
-		*colg = (a*((cpart->dcolour>>8)&0xFF) + (255-a)**colg) >> 8;
-		*colb = (a*((cpart->dcolour)&0xFF) + (255-a)**colb) >> 8;
+		int a = COLA(cpart->dcolour);
+		*colr = (a*COLR(cpart->dcolour) + (255-a)**colr) >> 8;
+		*colg = (a*COLG(cpart->dcolour) + (255-a)**colg) >> 8;
+		*colb = (a*COLB(cpart->dcolour) + (255-a)**colb) >> 8;
 	}
 	*firer = *colr;
 	*fireg = *colg;

@@ -2360,9 +2360,9 @@ int Simulation::FloodProp(int x, int y, PropertyType propType, PropertyValue pro
 	return did_something;
 }
 
-void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
+void Simulation::CreateDeco(int x, int y, int tool, ARGBColour color)
 {
-	int rp, tr = 0, tg = 0, tb = 0;
+	int rp, tr = 0, tg = 0, tb = 0, ta = 0;
 	float strength = 0.01f, colr, colg, colb, cola;
 	if (!InBounds(x, y))
 		return;
@@ -2379,7 +2379,7 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 		parts[rp>>8].dcolour = color;
 		break;
 	case DECO_CLEAR:
-		parts[rp>>8].dcolour = 0;
+		parts[rp>>8].dcolour = COLARGB(0, 0, 0, 0);
 		break;
 	case DECO_ADD:
 	case DECO_SUBTRACT:
@@ -2388,9 +2388,9 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 		if (!parts[rp>>8].dcolour)
 			return;
 		cola = COLA(color)/255.0f;
-		colr = (float)((parts[rp>>8].dcolour>>16)&0xFF);
-		colg = (float)((parts[rp>>8].dcolour>>8)&0xFF);
-		colb = (float)((parts[rp>>8].dcolour)&0xFF);
+		colr = (float)COLR(parts[rp>>8].dcolour);
+		colg = (float)COLG(parts[rp>>8].dcolour);
+		colb = (float)COLB(parts[rp>>8].dcolour);
 
 		if (tool == DECO_ADD)
 		{
@@ -2430,18 +2430,20 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 	case DECO_LIGHTEN:
 		if (!parts[rp>>8].dcolour)
 			return;
-		tr = (parts[rp>>8].dcolour>>16)&0xFF;
-		tg = (parts[rp>>8].dcolour>>8)&0xFF;
-		tb = (parts[rp>>8].dcolour)&0xFF;
-		parts[rp>>8].dcolour = ((parts[rp>>8].dcolour&0xFF000000)|(clamp_flt(tr+(255-tr)*0.02f+1, 0,255)<<16)|(clamp_flt(tg+(255-tg)*0.02f+1, 0,255)<<8)|clamp_flt(tb+(255-tb)*0.02f+1, 0,255));
+		tr = COLR(parts[rp>>8].dcolour);
+		tg = COLG(parts[rp>>8].dcolour);
+		tb = COLB(parts[rp>>8].dcolour);
+		ta = COLA(parts[rp>>8].dcolour);
+		parts[rp>>8].dcolour = COLARGB(ta, clamp_flt(tr+(255-tr)*0.02f+1, 0, 255), clamp_flt(tg+(255-tg)*0.02f+1, 0, 255), clamp_flt(tb+(255-tb)*0.02f+1, 0, 255));
 		break;
 	case DECO_DARKEN:
 		if (!parts[rp>>8].dcolour)
 			return;
-		tr = (parts[rp>>8].dcolour>>16)&0xFF;
-		tg = (parts[rp>>8].dcolour>>8)&0xFF;
-		tb = (parts[rp>>8].dcolour)&0xFF;
-		parts[rp>>8].dcolour = ((parts[rp>>8].dcolour&0xFF000000)|(clamp_flt(tr-(tr)*0.02f, 0,255)<<16)|(clamp_flt(tg-(tg)*0.02f, 0,255)<<8)|clamp_flt(tb-(tb)*0.02f, 0,255));
+		tr = COLR(parts[rp>>8].dcolour);
+		tg = COLG(parts[rp>>8].dcolour);
+		tb = COLB(parts[rp>>8].dcolour);
+		ta = COLA(parts[rp>>8].dcolour);
+		parts[rp>>8].dcolour = COLARGB(ta, clamp_flt(tr-(tr)*0.02f, 0, 255), clamp_flt(tg-(tg)*0.02f, 0, 255), clamp_flt(tb-(tb)*0.02f, 0, 255));
 		break;
 	case DECO_SMUDGE:
 		if (x >= CELL && x < XRES-CELL && y >= CELL && y < YRES-CELL)
@@ -2453,10 +2455,10 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 					if (abs(rx)+abs(ry) > 2 && (pmap[y+ry][x+rx]&0xFF) && parts[pmap[y+ry][x+rx]>>8].dcolour)
 					{
 						num++;
-						ta += (parts[pmap[y+ry][x+rx]>>8].dcolour>>24)&0xFF;
-						tr += (parts[pmap[y+ry][x+rx]>>8].dcolour>>16)&0xFF;
-						tg += (parts[pmap[y+ry][x+rx]>>8].dcolour>>8)&0xFF;
-						tb += (parts[pmap[y+ry][x+rx]>>8].dcolour)&0xFF;
+						ta += COLA(parts[pmap[y+ry][x+rx]>>8].dcolour);
+						tr += COLR(parts[pmap[y+ry][x+rx]>>8].dcolour);
+						tg += COLG(parts[pmap[y+ry][x+rx]>>8].dcolour);
+						tb += COLB(parts[pmap[y+ry][x+rx]>>8].dcolour);
 					}
 				}
 			if (num == 0)
@@ -2466,8 +2468,8 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 			tg = std::min(255,(int)((float)tg/num+.5));
 			tb = std::min(255,(int)((float)tb/num+.5));
 			if (!parts[rp>>8].dcolour)
-				ta = std::max(0,ta-3);
-			parts[rp>>8].dcolour = ((ta<<24)|(tr<<16)|(tg<<8)|tb);
+				ta = std::max(0, ta-3);
+			parts[rp>>8].dcolour = COLARGB(ta, tr, tg, tb);
 		}
 		break;
 	}
@@ -2479,7 +2481,7 @@ void Simulation::CreateDeco(int x, int y, int tool, unsigned int color)
 	}
 }
 
-void Simulation::CreateDecoBrush(int x, int y, int tool, unsigned int color, Brush* brush)
+void Simulation::CreateDecoBrush(int x, int y, int tool, ARGBColour color, Brush* brush)
 {
 	int rx = brush->GetRadius().X, ry = brush->GetRadius().Y;
 	if (rx <= 0) //workaround for rx == 0 crashing. todo: find a better fix later.
@@ -2520,7 +2522,7 @@ void Simulation::CreateDecoBrush(int x, int y, int tool, unsigned int color, Bru
 	}
 }
 
-void Simulation::CreateDecoLine(int x1, int y1, int x2, int y2, int tool, unsigned int color, Brush* brush)
+void Simulation::CreateDecoLine(int x1, int y1, int x2, int y2, int tool, ARGBColour color, Brush* brush)
 {
 	int x, y, dx, dy, sy;
 	bool reverseXY = abs(y2-y1) > abs(x2-x1);
@@ -2573,7 +2575,7 @@ void Simulation::CreateDecoLine(int x1, int y1, int x2, int y2, int tool, unsign
 	}
 }
 
-void Simulation::CreateDecoBox(int x1, int y1, int x2, int y2, int tool, unsigned int color)
+void Simulation::CreateDecoBox(int x1, int y1, int x2, int y2, int tool, ARGBColour color)
 {
 	if (x1 > x2)
 	{
@@ -2592,7 +2594,7 @@ void Simulation::CreateDecoBox(int x1, int y1, int x2, int y2, int tool, unsigne
 			CreateDeco(i, j, tool, color);
 }
 
-void Simulation::FloodDeco(int x, int y, unsigned int color, unsigned int replace)
+void Simulation::FloodDeco(int x, int y, ARGBColour color, ARGBColour replace)
 {
 	//TODO: implement
 }
@@ -2613,18 +2615,8 @@ void Simulation_Compat_CopyData(Simulation* sim)
 	for (int t=0; t<PT_NUM; t++)
 	{
 		ptypes[t].name = mystrdup(sim->elements[t].Name.c_str());
-		ptypes[t].pcolors = PIXRGB(COLR(sim->elements[t].Colour), COLG(sim->elements[t].Colour), COLB(sim->elements[t].Colour));
-		ptypes[t].menu = sim->elements[t].MenuVisible;
-		ptypes[t].menusection = sim->elements[t].MenuSection;
 		ptypes[t].enabled = sim->elements[t].Enabled;
-		ptypes[t].advection = sim->elements[t].Advection;
-		ptypes[t].airdrag = sim->elements[t].AirDrag;
-		ptypes[t].airloss = sim->elements[t].AirLoss;
-		ptypes[t].loss = sim->elements[t].Loss;
-		ptypes[t].collision = sim->elements[t].Collision;
 		ptypes[t].gravity = sim->elements[t].Gravity;
-		ptypes[t].diffusion = sim->elements[t].Diffusion;
-		ptypes[t].hotair = sim->elements[t].HotAir;
 		ptypes[t].falldown = sim->elements[t].Falldown;
 		ptypes[t].flammable = sim->elements[t].Flammable;
 		ptypes[t].explosive = sim->elements[t].Explosive;
@@ -2636,7 +2628,6 @@ void Simulation_Compat_CopyData(Simulation* sim)
 		ptypes[t].descs = mystrdup(sim->elements[t].Description.c_str());
 		ptypes[t].state = sim->elements[t].State;
 		ptypes[t].properties = sim->elements[t].Properties;
-		ptypes[t].update_func = sim->elements[t].Update;
 		ptypes[t].graphics_func = sim->elements[t].Graphics;
 
 		ptransitions[t].plt = sim->elements[t].LowPressureTransitionElement;

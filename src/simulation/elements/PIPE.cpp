@@ -145,7 +145,7 @@ void PIPE_transfer_pipe_to_part(particle *pipe, particle *part)
 		part->ctype = 0x3FFFFFFF;
 	part->tmp2 = 0;
 	part->flags = 0;
-	part->dcolour = 0;
+	part->dcolour = COLARGB(0, 0, 0, 0);
 }
 
 void PIPE_transfer_part_to_pipe(particle *part, particle *pipe)
@@ -486,9 +486,9 @@ int PIPE_graphics(GRAPHICS_FUNC_ARGS)
 			if (t == PT_PHOT && tpart.ctype == 0x40000000)
 				tpart.ctype = 0x3FFFFFFF;
 
-			*colr = PIXR(ptypes[t].pcolors);
-			*colg = PIXG(ptypes[t].pcolors);
-			*colb = PIXB(ptypes[t].pcolors);
+			*colr = PIXR(globalSim->elements[t].Colour);
+			*colg = PIXG(globalSim->elements[t].Colour);
+			*colb = PIXB(globalSim->elements[t].Colour);
 			if (ptypes[t].graphics_func)
 			{
 				(*(ptypes[t].graphics_func))(sim, &tpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb);

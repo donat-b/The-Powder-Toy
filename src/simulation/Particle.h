@@ -16,6 +16,8 @@
 #ifndef Particle_h
 #define Particle_h
 
+#include "graphics/ARGBColour.h"
+
 struct particle
 {
 	int type;
@@ -29,8 +31,8 @@ struct particle
 	int flags;
 	int tmp;
 	int tmp2;
-	unsigned int dcolour;
-	unsigned int *animations;
+	ARGBColour dcolour;
+	ARGBColour *animations;
 };
 typedef struct particle particle;
 

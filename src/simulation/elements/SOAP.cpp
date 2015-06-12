@@ -227,17 +227,17 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 				if ((r&0xFF)!=PT_SOAP)
 				{
 					blend = 0.85f;
-					tr = (float)((parts[r>>8].dcolour>>16)&0xFF);
-					tg = (float)((parts[r>>8].dcolour>>8)&0xFF);
-					tb = (float)((parts[r>>8].dcolour)&0xFF);
-					ta = (float)((parts[r>>8].dcolour>>24)&0xFF);
+					ta = (float)COLA(parts[r>>8].dcolour);
+					tr = (float)COLR(parts[r>>8].dcolour);
+					tg = (float)COLG(parts[r>>8].dcolour);
+					tb = (float)COLB(parts[r>>8].dcolour);
 					
+					na = (int)(ta*blend);
 					nr = (int)(tr*blend);
 					ng = (int)(tg*blend);
 					nb = (int)(tb*blend);
-					na = (int)(ta*blend);
 					
-					parts[r>>8].dcolour = nr<<16 | ng<<8 | nb | na<<24;
+					parts[r>>8].dcolour = COLARGB(na, nr, ng, nb);
 				}
 			}
 
