@@ -3163,7 +3163,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					goto corrupt;
 				}
 				if (i <= NPART) {
-					parts[i-1].dcolour = (COLA(d[p++])<<24);
+					parts[i-1].dcolour = (d[p++]<<24);
 				} else {
 					p++;
 				}
@@ -3181,7 +3181,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					goto corrupt;
 				}
 				if (i <= NPART) {
-					parts[i-1].dcolour |= (COLR(d[p++])<<16);
+					parts[i-1].dcolour |= (d[p++]<<16);
 				} else {
 					p++;
 				}
@@ -3199,7 +3199,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					goto corrupt;
 				}
 				if (i <= NPART) {
-					parts[i-1].dcolour |= (COLG(d[p++])<<8);
+					parts[i-1].dcolour |= (d[p++]<<8);
 				} else {
 					p++;
 				}
@@ -3217,7 +3217,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 					goto corrupt;
 				}
 				if (i <= NPART) {
-					parts[i-1].dcolour |= COLB(d[p++]);
+					parts[i-1].dcolour |= d[p++];
 				} else {
 					p++;
 				}
