@@ -12,12 +12,12 @@ private:
 	void CleanText(bool ascii, bool color, bool newlines);
 	void FindWordPosition(unsigned int position, unsigned int *cursorStart, unsigned int *cursorEnd, const char* spaces);
 	unsigned int UpdateCursor(unsigned int position);
-	bool multiline;
 	uint32_t currentTick;
 
 protected:
 	std::string text;
 	int textWidth;
+	bool multiline;
 	unsigned int cursor, cursorStart;
 	uint32_t lastClick;
 	unsigned int numClicks, clickPosition;

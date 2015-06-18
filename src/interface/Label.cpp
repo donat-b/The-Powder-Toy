@@ -7,10 +7,10 @@
 
 Label::Label(Point position_, Point size_, std::string text_, bool multiline_) :
 	Component(position_, size_),
-	multiline(multiline_),
 	currentTick(0),
 	text(text_),
 	textWidth(0),
+	multiline(multiline_),
 	cursor(0),
 	cursorStart(0),
 	lastClick(0),
@@ -149,7 +149,7 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my
 	{
 		//find end of word/line chars
 		int wordlen = text.substr(i).find_first_of(" .,!?\n");
-		if (wordlen == -1)
+		if (wordlen == text.npos)
 			wordlen = text.length();
 
 		//if a word starts in the last 1/3 of the line, it will get put on the next line if it's too long
@@ -207,6 +207,9 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my
 						{
 							replacePos = wordStart;
 							i = wordStart;
+							// make sure cursor moves back to word start if we inserted the cursor in to this word
+							if (updateCursor && updatedCursor && cursor >= wordStart)
+								cursor = wordStart-1;
 							wordStart = 0;
 						}
 
@@ -271,7 +274,7 @@ void Label::MoveCursor(unsigned int *cursor, int amount)
 
 	offset += amount;
 	//adjust for strange characters
-	if (cur+offset-1 >= 0 && (text[cur+offset-1] == '\b' || text[cur+offset-1] == '\r'))
+	if (cur+offset-1 >= 0 && (text[cur+offset-1] == '\b' || text[cur+offset] == '\r'))
 		offset += sign;
 	else if (cur+offset-3+(sign>0)*2 >= 0 && text[cur+offset-3+(sign>0)*2] == '\x0F') //when moving right, check 1 behind, when moving left, check 3 behind
 		offset += sign*3;
@@ -384,7 +387,7 @@ void Label::OnDraw(VideoBuffer* vid)
 		}
 		if (ShowCursor() && IsFocused())
 		{
-			mootext.insert(cursor+(cursor > cursorStart)*2/*+(cursor < cursorStart)*/, "\x02");
+			mootext.insert(cursor+(cursor > cursorStart)*2, "\x02");
 		}
 		vid->DrawText(position.X+3, position.Y+4, mootext, 255, 255, 255, 255);
 	}
