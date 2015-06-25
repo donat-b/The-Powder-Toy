@@ -278,16 +278,18 @@ int VideoBuffer::DrawText(int x, int y, std::string s, int r, int g, int b, int 
 	return x;
 }
 
+// static method that returns the width of a character
 int VideoBuffer::CharSize(unsigned char c)
 {
 	return font_data[font_ptrs[static_cast<int>(c)]];
 }
 
-int VideoBuffer::TextSize(std::string s, int maxHeight)
+// static method that returns the width and height of a string
+Point VideoBuffer::TextSize(std::string s, int maxWidth)
 {
 	int x = 0;
 	int width = 0;
-	int height = 0;
+	int height = FONT_H;
 	for (int i = 0; i < s.length(); i++)
 	{
 		switch (s[i])
@@ -295,7 +297,7 @@ int VideoBuffer::TextSize(std::string s, int maxHeight)
 		case '\n':
 		case '\r':
 			if (x > width)
-				width = 0;
+				width = x;
 			x = 0;
 			height += FONT_H+2;
 			break;
@@ -315,10 +317,18 @@ int VideoBuffer::TextSize(std::string s, int maxHeight)
 			break;
 		default:
 			x += CharSize(static_cast<unsigned char>(s[i]));
-			s.at(i);
+			if (maxWidth && x >= maxWidth)
+			{
+				if (x > width)
+					width = x;
+				x = 0;
+				height += FONT_H+2;
+			}
 		}
 	}
-	return x;
+	if (x > width)
+		width = x;
+	return Point(width, height);
 }
 
 void VideoBuffer::DrawImage(pixel *img, int x, int y, int w, int h)

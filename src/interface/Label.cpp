@@ -10,6 +10,7 @@ Label::Label(Point position_, Point size_, std::string text_, bool multiline_) :
 	currentTick(0),
 	text(text_),
 	textWidth(0),
+	textHeight(0),
 	multiline(multiline_),
 	cursor(0),
 	cursorStart(0),
@@ -17,15 +18,17 @@ Label::Label(Point position_, Point size_, std::string text_, bool multiline_) :
 	numClicks(0),
 	clickPosition(0)
 {
+	autosizeX = (size.X == AUTOSIZE);
+	autosizeY = (size.Y == AUTOSIZE);
 	// remove non ascii chars, and newlines for non multiline labels
-	CleanText(true, false, !multiline);
+	text = CleanText(text, true, false, !multiline);
 	UpdateDisplayText();
 }
 
 void Label::SetText(std::string text_)
 {
 	text = text_;
-	CleanText(true, false, !multiline);
+	text = CleanText(text, true, false, !multiline);
 	UpdateDisplayText();
 }
 
@@ -35,16 +38,16 @@ std::string Label::GetText()
 }
 
 // Strips stuff from a string. Can strip all non ascii characters (excluding color and newlines), strip all color, or strip all newlines
-void Label::CleanText(bool ascii, bool color, bool newlines)
+std::string Label::CleanText(std::string dirty, bool ascii, bool color, bool newlines)
 {
-	for (int i = 0; i < text.size(); i++)
+	for (int i = 0; i < dirty.size(); i++)
 	{
-		switch(text[i])
+		switch(dirty[i])
 		{
 		case '\b':
 			if (color)
 			{
-				text.erase(i, 2);
+				dirty.erase(i, 2);
 				i--;
 			}
 			else
@@ -53,14 +56,14 @@ void Label::CleanText(bool ascii, bool color, bool newlines)
 		case '\x0E':
 			if (color)
 			{
-				text.erase(i, 1);
+				dirty.erase(i, 1);
 				i--;
 			}
 			break;
 		case '\x0F':
 			if (color)
 			{
-				text.erase(i, 4);
+				dirty.erase(i, 4);
 				i--;
 			}
 			else
@@ -71,23 +74,24 @@ void Label::CleanText(bool ascii, bool color, bool newlines)
 		case '\x01':
 		case '\x02':
 		case '\r':
-			text.erase(i, 1);
+			dirty.erase(i, 1);
 			i--;
 			break;
 		case '\n':
 			if (newlines)
-				text[i] = ' ';
+				dirty[i] = ' ';
 			break;
 		default:
 			// if less than ascii 20 or greater than ascii 126, delete
-			if (ascii && (text[i] < ' ' || text[i] > '~'))
+			if (ascii && (dirty[i] < ' ' || dirty[i] > '~'))
 			{
-				text.erase(i, 1);
+				dirty.erase(i, 1);
 				i--;
 			}
 			break;
 		}
 	}
+	return dirty;
 }
 
 void Label::FindWordPosition(unsigned int position, unsigned int *cursorStart, unsigned int *cursorEnd, const char* spaces)
@@ -197,7 +201,7 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my
 			default:
 				//normal character, add to the current width and check if it's too long
 				posX += VideoBuffer::CharSize(text[i]);
-				if (size.X != AUTOSIZE && posX >= size.X)
+				if (!autosizeX && posX+4 >= size.X)
 				{
 					if (multiline)
 					{
@@ -239,10 +243,17 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my
 			}
 		}
 	}
-	if (!multiline)
-		textWidth = posX-1;
-	if (size.X == AUTOSIZE)
+	// update width and height depending on settings
+	if (autosizeX)
 		size.X = posX+5;
+	else if (!multiline)
+		textWidth = posX+5;
+
+	if (autosizeY)
+		size.Y = posY+3;
+	else if (multiline)
+		textHeight = posY+3;
+
 	if (updateCursor)
 	{
 		//if cursor position wasn't found, probably goes at the end
@@ -259,10 +270,6 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my
 		cursor = text.length();
 	if (cursorStart > text.length())
 		cursorStart = text.length();
-
-	//multiline labels have their Y size set automatically
-	if (size.Y = AUTOSIZE)
-		size.Y = posY+3;
 }
 
 //this function moves the cursor a certain amount, and checks at the end for special characters to move past like \r, \b, and \0F

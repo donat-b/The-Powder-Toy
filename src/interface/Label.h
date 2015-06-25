@@ -9,19 +9,20 @@ class VideoBuffer;
 class Label : public Component
 {
 private:
-	void CleanText(bool ascii, bool color, bool newlines);
 	void FindWordPosition(unsigned int position, unsigned int *cursorStart, unsigned int *cursorEnd, const char* spaces);
 	unsigned int UpdateCursor(unsigned int position);
 	uint32_t currentTick;
 
 protected:
 	std::string text;
-	int textWidth;
+	int textWidth, textHeight;
 	bool multiline;
 	unsigned int cursor, cursorStart;
 	uint32_t lastClick;
 	unsigned int numClicks, clickPosition;
+	bool autosizeX, autosizeY;
 
+	std::string CleanText(std::string dirty, bool ascii, bool color, bool newlines);
 	void UpdateDisplayText(bool updateCursor = false, bool firstClick = false, int mx = 0, int my = 0);
 	void MoveCursor(unsigned int *cursor, int amount);
 	virtual bool ShowCursor() { return false; }

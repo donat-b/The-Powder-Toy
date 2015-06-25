@@ -6,7 +6,9 @@
 class VideoBuffer;
 class Textbox : public Label
 {
-	bool DeleteHighlight();
+	Point sizeLimit;
+	bool DeleteHighlight(bool updateDisplayText);
+	void InsertText(std::string inserttext);
 
 protected:
 	bool ShowCursor() { return true; }
@@ -17,6 +19,10 @@ public:
 
 	virtual void OnKeyPress(int key, unsigned short character, unsigned char modifiers);
 	virtual void OnDraw(VideoBuffer* vid);
+
+	void SetAutoSize(bool X, bool Y, Point limit);
+
+	static const int NOSIZELIMIT = 0;
 };
 
 #endif
