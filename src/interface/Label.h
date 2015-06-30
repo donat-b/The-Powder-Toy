@@ -11,6 +11,7 @@ class Label : public Component
 private:
 	void FindWordPosition(unsigned int position, unsigned int *cursorStart, unsigned int *cursorEnd, const char* spaces);
 	unsigned int UpdateCursor(unsigned int position);
+	bool CheckPlaceCursor(bool updateCursor, unsigned int position, int posX, int posY);
 	uint32_t currentTick;
 
 protected:
@@ -18,12 +19,14 @@ protected:
 	int textWidth, textHeight;
 	bool multiline;
 	unsigned int cursor, cursorStart;
+	int cursorX, cursorY; // these two and cursorPosReset are used by Textboxes to make the up / down arrow keys work
+	bool cursorPosReset;
 	uint32_t lastClick;
 	unsigned int numClicks, clickPosition;
 	bool autosizeX, autosizeY;
 
 	std::string CleanText(std::string dirty, bool ascii, bool color, bool newlines);
-	void UpdateDisplayText(bool updateCursor = false, bool firstClick = false, int mx = 0, int my = 0);
+	void UpdateDisplayText(bool updateCursor = false, bool firstClick = false);
 	void MoveCursor(unsigned int *cursor, int amount);
 	virtual bool ShowCursor() { return false; }
 

@@ -153,7 +153,6 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned char modifi
 		{
 			MoveCursor(&cursor, -1);
 			cursorStart = cursor;
-			UpdateDisplayText();
 		}
 		break;
 	case SDLK_RIGHT:
@@ -168,6 +167,56 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned char modifi
 		{
 			MoveCursor(&cursor, 1);
 			cursorStart = cursor;
+		}
+		break;
+	case SDLK_UP:
+		if (cursor != cursorStart)
+		{
+			if (cursor < cursorStart)
+				cursorStart = cursor;
+			else
+				cursor = cursorStart;
+		}
+		else
+		{
+			if (cursorPosReset)
+			{
+				UpdateDisplayText();
+				cursorPosReset = false;
+			}
+			cursorY -= 12;
+			if (cursorY < 0)
+				cursorY = 0;
+			int cx = cursorX, cy = cursorY;
+			UpdateDisplayText(true, true);
+			// make sure these are set to what we want
+			cursorX = cx;
+			cursorY = cy;
+		}
+		break;
+	case SDLK_DOWN:
+		if (cursor != cursorStart)
+		{
+			if (cursor > cursorStart)
+				cursorStart = cursor;
+			else
+				cursor = cursorStart;
+		}
+		else
+		{
+			if (cursorPosReset)
+			{
+				UpdateDisplayText();
+				cursorPosReset = true;
+			}
+			cursorY += 12;
+			if (cursorY > size.Y)
+				cursorY = size.Y;
+			int cx = cursorX, cy = cursorY;
+			UpdateDisplayText(true, true);
+			// make sure these are set to what we want
+			cursorX = cx;
+			cursorY = cy;
 		}
 		break;
 	default:

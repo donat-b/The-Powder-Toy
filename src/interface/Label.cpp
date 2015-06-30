@@ -14,6 +14,9 @@ Label::Label(Point position_, Point size_, std::string text_, bool multiline_) :
 	multiline(multiline_),
 	cursor(0),
 	cursorStart(0),
+	cursorX(0),
+	cursorY(0),
+	cursorPosReset(false),
 	lastClick(0),
 	numClicks(0),
 	clickPosition(0)
@@ -30,6 +33,8 @@ void Label::SetText(std::string text_)
 	text = text_;
 	text = CleanText(text, true, false, !multiline);
 	UpdateDisplayText();
+	cursor = cursorStart = text.length();
+	cursorPosReset = true;
 }
 
 std::string Label::GetText()
@@ -135,8 +140,29 @@ unsigned int Label::UpdateCursor(unsigned int position)
 	return position;
 }
 
-//all-in-one function that updates displayText with \r, updates cursor position, and cuts string where needed
-void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my)
+// updates cursor, cursorX, and cursorY if needed and returns whether cursor position was found (used by UpdateDisplayText)
+bool Label::CheckPlaceCursor(bool updateCursor, unsigned int position, int posX, int posY)
+{
+	// we need to update cursor
+	if (updateCursor && ((posX >= cursorX && posY >= cursorY) || (posY >= cursorY+12)))
+	{
+		cursor = position;
+		cursorX = posX;
+		cursorY = posY;
+		return true;
+	}
+	// don't need to update cursor, but ensure cursorX and Y are right (cursor might have been changed due to typing a letter, etc.)
+	else if (!updateCursor && cursor <= position)
+	{
+		cursorX = posX;
+		cursorY = posY;
+		return true;
+	}
+	return false;
+}
+
+// all-in-one function that updates displayText with \r, updates cursor position, and cuts string where needed
+void Label::UpdateDisplayText(bool updateCursor, bool firstClick)
 {
 	int posX = 0, posY = 12, wordStart = 0, cursorOffset = 0;
 	bool updatedCursor = false;
@@ -144,11 +170,7 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my
 	//get back the original string by removing the inserted newlines
 	text.erase(std::remove(text.begin(), text.end(), '\r'), text.end());
 
-	if (updateCursor && my < -2)
-	{
-		cursor = 0;
-		updatedCursor = true;
-	}
+	updatedCursor = CheckPlaceCursor(updateCursor, 0, posX, posY);
 	for (unsigned int i = 0; i < text.length();)
 	{
 		//find end of word/line chars
@@ -174,11 +196,8 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my
 					posY += 12;
 					wordStart = 0;
 					//update cursor position (newline check)
-					if (updateCursor && !updatedCursor && ((posX >= mx && posY >= my) || (posY >= my+12)))
-					{
-						cursor = i;
-						updatedCursor = true;
-					}
+					if (!updatedCursor)
+						updatedCursor = CheckPlaceCursor(updateCursor, i, posX, posY);
 				}
 				else
 				{
@@ -234,11 +253,8 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick, int mx, int my
 					}
 				}
 				//update cursor position
-				if (updateCursor && !updatedCursor && ((posX >= mx && posY >= my) || (posY >= my+12)))
-				{
-					cursor = i+(posX==0);
-					updatedCursor = true;
-				}
+				if (!updatedCursor)
+					updatedCursor = CheckPlaceCursor(updateCursor, i+(posX==0), posX, posY);
 				break;
 			}
 		}
@@ -293,6 +309,7 @@ void Label::MoveCursor(unsigned int *cursor, int amount)
 		offset = text.length()-cur;
 
 	*cursor += offset;
+	cursorPosReset = true;
 }
 
 void Label::OnMouseDown(int x, int y, unsigned char button)
@@ -302,7 +319,9 @@ void Label::OnMouseDown(int x, int y, unsigned char button)
 		numClicks++;
 		lastClick = currentTick;
 
-		UpdateDisplayText(true, true, x, y);
+		cursorX = x;
+		cursorY = y;
+		UpdateDisplayText(true, true);
 	}
 }
 
@@ -310,7 +329,9 @@ void Label::OnMouseUp(int x, int y, unsigned char button)
 {
 	if (IsClicked() && button == 1)
 	{
-		UpdateDisplayText(true, false, x, y);
+		cursorX = x;
+		cursorY = y;
+		UpdateDisplayText(true, false);
 	}
 }
 
@@ -323,7 +344,9 @@ void Label::OnMouseMoved(int x, int y, Point difference)
 {
 	if (IsClicked())
 	{
-		UpdateDisplayText(true, false, x, y);
+		cursorX = x;
+		cursorY = y;
+		UpdateDisplayText(true, false);
 	}
 }
 

@@ -285,7 +285,7 @@ int VideoBuffer::CharSize(unsigned char c)
 }
 
 // static method that returns the width and height of a string
-Point VideoBuffer::TextSize(std::string s, int maxWidth)
+Point VideoBuffer::TextSize(std::string s)
 {
 	int x = 0;
 	int width = 0;
@@ -317,13 +317,6 @@ Point VideoBuffer::TextSize(std::string s, int maxWidth)
 			break;
 		default:
 			x += CharSize(static_cast<unsigned char>(s[i]));
-			if (maxWidth && x >= maxWidth)
-			{
-				if (x > width)
-					width = x;
-				x = 0;
-				height += FONT_H+2;
-			}
 		}
 	}
 	if (x > width)
