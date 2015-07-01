@@ -13,7 +13,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cstring>
 #include "simulation/ElementsCommon.h"
 #include "simulation/ElementDataContainer.h"
 
@@ -24,12 +23,12 @@ public:
 	bool wifi_lastframe;
 	WIFI_ElementDataContainer()
 	{
-		memset(wireless, 0, sizeof(wireless));
+		std::fill_n(&wireless[0][0], CHANNELS*2, 0);
 		wifi_lastframe = false;
 	}
 	virtual void Simulation_Cleared(Simulation *sim)
 	{
-		memset(wireless, 0, sizeof(wireless));
+		std::fill_n(&wireless[0][0], CHANNELS*2, 0);
 		wifi_lastframe = false;
 	}
 	virtual void Simulation_BeforeUpdate(Simulation *sim)

@@ -7,12 +7,19 @@
 
 Textbox::Textbox(Point position, Point size, std::string text, bool multiline):
 	Label(position, size, text, multiline),
-	sizeLimit(Point(NOSIZELIMIT, NOSIZELIMIT))
+	sizeLimit(Point(NOSIZELIMIT, NOSIZELIMIT)),
+	callback(NULL)
 {
 }
 
 Textbox::~Textbox()
 {
+	delete callback;
+}
+
+void Textbox::SetCallback(TextboxAction *callback_)
+{
+	callback = callback_;
 }
 
 //deletes any highlighted text, returns true if there was something deleted (cancels backspace/delete action)
@@ -31,7 +38,11 @@ bool Textbox::DeleteHighlight(bool updateDisplayText)
 		cursorStart = cursor;
 	}
 	if (updateDisplayText)
+	{
 		UpdateDisplayText();
+		if (callback)
+			callback->TextChangedCallback(this);
+	}
 	return true;
 }
 
@@ -67,6 +78,9 @@ void Textbox::InsertText(std::string inserttext)
 	//put cursor at end of the new paste, accounting for extra newlines
 	cursor += len+newLines-oldLines;
 	cursorStart = cursor;
+
+	if (callback)
+		callback->TextChangedCallback(this);
 }
 
 void Textbox::OnKeyPress(int key, unsigned short character, unsigned char modifiers)
@@ -119,6 +133,9 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned char modifi
 				cursor += newLines-oldLines;
 				cursorStart = cursor;
 			}
+
+			if (callback)
+				callback->TextChangedCallback(this);
 		}
 		break;
 	case SDLK_DELETE:
@@ -139,6 +156,9 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned char modifi
 				cursor += newLines-oldLines;
 				cursorStart = cursor;
 			}
+
+			if (callback)
+				callback->TextChangedCallback(this);
 		}
 		break;
 	case SDLK_LEFT:

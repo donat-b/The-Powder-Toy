@@ -114,19 +114,29 @@ void VideoBuffer::DrawRect(int x, int y, int w, int h, int r, int g, int b, int 
 {
 	if (x < 0)
 	{
-		w += x;
-		x = 0;
+		if (x+w-1 >= 0)
+		{
+			w += x;
+			x = 0;
+		}
+		else
+			return;
 	}
 	if (y < 0)
 	{
-		h += y;
-		y = 0;
+		if (y+h-1 >= 0)
+		{
+			h += y;
+			y = 0;
+		}
+		else
+			return;
 	}
 	for (int i = 0; i < w && x+i < width; i++)
 	{
 		if (y < height)
 			DrawPixel(x+i, y, r, g, b, a);
-		if (y+h < height)
+		if (y+h-1 < height)
 			DrawPixel(x+i, y+h-1, r, g, b, a);
 	}
 	for (int i = 1; i < h-1 && y+i < height; i++)
@@ -143,13 +153,23 @@ void VideoBuffer::FillRect(int x, int y, int w, int h, int r, int g, int b, int 
 {
 	if (x < 0)
 	{
-		w += x;
-		x = 0;
+		if (x+w >= 0)
+		{
+			w += x;
+			x = 0;
+		}
+		else
+			return;
 	}
 	if (y < 0)
 	{
-		h += y;
-		y = 0;
+		if (y+h >= 0)
+		{
+			h += y;
+			y = 0;
+		}
+		else
+			return;
 	}
 	if (x+w >= width)
 		w = width-x;

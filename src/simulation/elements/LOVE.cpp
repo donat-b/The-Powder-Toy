@@ -35,14 +35,14 @@ class LOVE_ElementDataContainer : public ElementDataContainer
 public:
 	LOVE_ElementDataContainer()
 	{
-		std::fill(&love[0][0], &love[0][0]+sizeof(love), false);
+		std::fill_n(&love[0][0], (XRES/9)*(YRES/9), false);
 	}
 	virtual void Simulation_BeforeUpdate(Simulation *sim)
 	{
 		if (sim->elementCount[PT_LOVE] <= 0)
 			return;
 		//set love to true in any grid space with an LOVE in it
-		std::fill(&love[0][0], &love[0][0]+sizeof(love), false);
+		std::fill_n(&love[0][0], (XRES/9)*(YRES/9), false);
 		for (int x = 9; x < ((XRES-4)/9)*9; x++)
 			for (int y = 9; y < (int)((YRES-4)/9)*9; y++)
 				if (pmap[y][x] && parts[pmap[y][x]>>8].type == PT_LOVE)

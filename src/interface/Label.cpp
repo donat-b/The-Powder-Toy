@@ -331,7 +331,7 @@ void Label::OnMouseUp(int x, int y, unsigned char button)
 	{
 		cursorX = x;
 		cursorY = y;
-		UpdateDisplayText(true, false);
+		UpdateDisplayText(true);
 	}
 }
 
@@ -346,7 +346,7 @@ void Label::OnMouseMoved(int x, int y, Point difference)
 	{
 		cursorX = x;
 		cursorY = y;
-		UpdateDisplayText(true, false);
+		UpdateDisplayText(true);
 	}
 }
 

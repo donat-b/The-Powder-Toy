@@ -6,6 +6,7 @@ Component::Component(Point position, Point size) :
 	parent(NULL),
 	position(position),
 	size(size),
+	isMouseInside(false),
 	visible(true),
 	enabled(true),
 	toDelete(false),

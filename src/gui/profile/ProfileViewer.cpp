@@ -79,16 +79,14 @@ void ProfileViewer::OnTick(uint32_t ticks)
 				else
 					websiteLabel = new Label(Point(49, 48), Point(Label::AUTOSIZE, Label::AUTOSIZE), "\x0F\xC0\xC0\xC0Not Provided");
 				if (root["User"]["Biography"].isString())
-					biographyLabel = new Label(Point(7, 133), Point(240, Label::AUTOSIZE), root["User"]["Biography"].asCString(), true);
+					biographyLabel = new Label(Point(7, 133), Point(246, Label::AUTOSIZE), root["User"]["Biography"].asCString(), true);
 				else
-					biographyLabel = new Label(Point(7, 133), Point(240, Label::AUTOSIZE), "\x0F\xC0\xC0\xC0Not Provided", true);
+					biographyLabel = new Label(Point(7, 133), Point(246, Label::AUTOSIZE), "\x0F\xC0\xC0\xC0Not Provided", true);
 
 				this->AddComponent(ageLabel);
 				this->AddComponent(locationLabel);
 				this->AddComponent(websiteLabel);
 				this->AddComponent(biographyLabel);
-				if (biographyLabel->GetSize().Y+168 > this->GetSize().Y)
-					this->SetScrollable(true, biographyLabel->GetSize().Y+186-this->GetSize().Y*2);
 
 				// If we don't do this average score will have a ton of decimal points, round to 2 here
 				float average = root["User"]["Saves"]["AverageScore"].asFloat();
@@ -112,21 +110,23 @@ void ProfileViewer::OnTick(uint32_t ticks)
 						dynamic_cast<ProfileViewer*>(button->GetParent())->EnableEditing();
 					}
 				};
-				enableEditingButton = new Button(Point(5, 149+biographyLabel->GetSize().Y), Point(100, 15), "test button");
+				enableEditingButton = new Button(Point(0, 149+biographyLabel->GetSize().Y), Point(this->size.X, 15), "test button");
 				enableEditingButton->SetCallback(new ProfileEditAction());
 				this->AddComponent(enableEditingButton);
+
+				ResizeArea(biographyLabel->GetSize().Y);
 			}
 			catch (std::exception &e)
 			{
 				// TODO: make a new version of error_ui because this is bad
-				biographyLabel = new Label(Point(7, 133), Point(230, Label::AUTOSIZE), "\brError parsing data from server", true);
+				biographyLabel = new Label(Point(7, 133), Point(246, Label::AUTOSIZE), "\brError parsing data from server", true);
 				this->AddComponent(biographyLabel);
 			}
 		}
 		else
 		{
 			// TODO: make a new version of error_ui because this is bad
-			biographyLabel = new Label(Point(7, 133), Point(230, Label::AUTOSIZE), "\brServer returned error", true);
+			biographyLabel = new Label(Point(7, 133), Point(246, Label::AUTOSIZE), "\brServer returned error", true);
 			this->AddComponent(biographyLabel);
 		}
 
@@ -154,13 +154,14 @@ void ProfileViewer::OnTick(uint32_t ticks)
 	}
 }
 
-void ProfileViewer::LabelToTextbox(Label *label)
+Textbox* ProfileViewer::LabelToTextbox(Label *label)
 {
 	Textbox *textbox = new Textbox(label->GetPosition(), label->GetSize(), label->GetText(), label->IsMultiline());
 	RemoveComponent(label);
 	AddComponent(textbox);
 	if (textbox->IsMultiline())
 		textbox->SetAutoSize(false, true, Point(Textbox::NOSIZELIMIT,Textbox::NOSIZELIMIT));
+	return textbox;
 }
 
 void ProfileViewer::EnableEditing()
@@ -168,11 +169,35 @@ void ProfileViewer::EnableEditing()
 	if (!editingMode)
 	{
 		editingMode = true;
-		LabelToTextbox(ageLabel);
-		LabelToTextbox(locationLabel);
-		LabelToTextbox(websiteLabel);
-		LabelToTextbox(biographyLabel);
+		ageLabel = LabelToTextbox(ageLabel);
+		locationLabel = LabelToTextbox(locationLabel);
+		websiteLabel = LabelToTextbox(websiteLabel);
+		biographyLabel = LabelToTextbox(biographyLabel);
+
+		// Enable editing when this button is clicked
+		class BiographyChangedAction : public TextboxAction
+		{
+		public:
+			virtual void TextChangedCallback(Textbox *textbox)
+			{
+				dynamic_cast<ProfileViewer*>(textbox->GetParent())->ResizeArea(textbox->GetSize().Y);
+			}
+		};
+		((Textbox*)biographyLabel)->SetCallback(new BiographyChangedAction());
 	}
+}
+
+void ProfileViewer::ResizeArea(int biographyLabelHeight)
+{
+	int yPos = 149+biographyLabelHeight;
+	if (yPos < this->size.Y-enableEditingButton->GetSize().Y)
+		yPos = this->size.Y-enableEditingButton->GetSize().Y;
+	enableEditingButton->SetPosition(Point(0, yPos-GetScrollPosition()));
+
+	if (enableEditingButton->GetPosition().Y+GetScrollPosition()+enableEditingButton->GetSize().Y >= this->size.Y)
+		this->SetScrollable(true, enableEditingButton->GetPosition().Y+GetScrollPosition()+enableEditingButton->GetSize().Y-this->size.Y);
+	else
+		this->SetScrollable(false, 0);
 }
 
 void ProfileViewer::OnDraw(VideoBuffer *buf)

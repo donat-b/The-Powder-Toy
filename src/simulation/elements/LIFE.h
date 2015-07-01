@@ -44,14 +44,14 @@ public:
 	int golGeneration;
 	LIFE_ElementDataContainer()
 	{
-		std::fill(&gol2[0][0][0], &gol2[0][0][0]+sizeof(gol2), 0);
+		std::fill_n(&gol2[0][0][0], YRES*XRES*9, 0);
 		golSpeed = 1;
 		golSpeedCounter = 0;
 		golGeneration = 0;
 	}
 	virtual void Simulation_Cleared(Simulation *sim)
 	{
-		std::fill(&gol2[0][0][0], &gol2[0][0][0]+sizeof(gol2), 0);
+		std::fill_n(&gol2[0][0][0], YRES*XRES*9, 0);
 		golSpeedCounter = 0;
 		golGeneration = 0;
 	}

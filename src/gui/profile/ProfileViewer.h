@@ -8,6 +8,7 @@
 class Download;
 class Label;
 class Button;
+class Textbox;
 class ProfileViewer : public ScrollWindow
 {
 	std::string name;
@@ -21,7 +22,7 @@ class ProfileViewer : public ScrollWindow
 	bool editingMode;
 
 	void MainLoop();
-	void LabelToTextbox(Label *label);
+	Textbox* LabelToTextbox(Label *label);
 
 public:
 	ProfileViewer(std::string profileName);
@@ -31,6 +32,7 @@ public:
 	void OnDraw(VideoBuffer *buf);
 
 	void EnableEditing();
+	void ResizeArea(int biographyLabelHeight);
 };
 
 #endif

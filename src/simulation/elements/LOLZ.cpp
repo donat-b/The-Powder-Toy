@@ -35,14 +35,14 @@ class LOLZ_ElementDataContainer : public ElementDataContainer
 public:
 	LOLZ_ElementDataContainer()
 	{
-		std::fill(&lolz[0][0], &lolz[0][0]+sizeof(lolz), false);
+		std::fill_n(&lolz[0][0], (XRES/9)*(YRES/9), false);
 	}
 	virtual void Simulation_BeforeUpdate(Simulation *sim)
 	{
 		if (sim->elementCount[PT_LOLZ] <= 0)
 			return;
 		//set lolz to true in any grid space with an LOLZ in it
-		std::fill(&lolz[0][0], &lolz[0][0]+sizeof(lolz), false);
+		std::fill_n(&lolz[0][0], (XRES/9)*(YRES/9), false);
 		for (int x = 9; x < ((XRES-4)/9)*9; x++)
 			for (int y = 9; y < (int)((YRES-4)/9)*9; y++)
 				if (pmap[y][x] && parts[pmap[y][x]>>8].type == PT_LOLZ)
