@@ -14,15 +14,10 @@ public:
 
 class Textbox : public Label
 {
-	Point sizeLimit;
-	TextboxAction *callback;
-	bool DeleteHighlight(bool updateDisplayText);
-	void InsertText(std::string inserttext);
-
-protected:
-	bool ShowCursor() { return true; }
-
 public:
+	static const int NOSIZELIMIT = 0; // Component size, not text size
+	enum texttype { TEXT, MULTILINE, NUMBER };
+
 	Textbox(Point position, Point size, std::string text, bool multiline = false);
 	~Textbox();
 
@@ -32,8 +27,20 @@ public:
 	virtual void OnDraw(VideoBuffer* vid);
 
 	void SetAutoSize(bool X, bool Y, Point limit);
+	void SetCharacterLimit(int characterLimit_) { characterLimit = characterLimit_; }
+	void SetType(texttype type_) { type = type_; }
 
-	static const int NOSIZELIMIT = 0;
+private:
+	Point sizeLimit;
+	unsigned int characterLimit;
+	TextboxAction *callback;
+	texttype type;
+
+	bool DeleteHighlight(bool updateDisplayText);
+	void InsertText(std::string inserttext);
+
+protected:
+	bool ShowCursor() { return true; }
 };
 
 #endif

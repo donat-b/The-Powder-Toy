@@ -15,6 +15,7 @@ public:
 	void SetScrollable(bool scroll, int maxScroll);
 	int GetScrollPosition() { return scrolled; }
 	void SetScrollPosition(int pos);
+	int GetMaxScrollSize() { return scrollSize; }
 
 protected:
 	void DoMouseWheel(int x, int y, int d);

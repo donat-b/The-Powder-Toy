@@ -8,7 +8,9 @@
 Textbox::Textbox(Point position, Point size, std::string text, bool multiline):
 	Label(position, size, text, multiline),
 	sizeLimit(Point(NOSIZELIMIT, NOSIZELIMIT)),
-	callback(NULL)
+	characterLimit(10000),
+	callback(NULL),
+	type(TEXT)
 {
 }
 
@@ -48,7 +50,7 @@ bool Textbox::DeleteHighlight(bool updateDisplayText)
 
 void Textbox::InsertText(std::string inserttext)
 {
-	inserttext = CleanText(inserttext, true, true, true);
+	inserttext = CleanText(inserttext, true, true, type != MULTILINE);
 	if (!inserttext.length())
 		return;
 
@@ -63,7 +65,8 @@ void Textbox::InsertText(std::string inserttext)
 	int oldLines = std::count(text.begin(), text.begin()+cursor+len, '\r');
 	UpdateDisplayText();
 	// this character doesn't fit, revert changes to string (not really a nice way to do this :|)
-	if (multiline ? (autosizeY ? sizeLimit.Y != NOSIZELIMIT && size.Y > sizeLimit.Y : textHeight > size.Y) : (autosizeX ? sizeLimit.X != NOSIZELIMIT && size.X > sizeLimit.X : textWidth > size.X))
+	if ((multiline ? (autosizeY ? sizeLimit.Y != NOSIZELIMIT && size.Y > sizeLimit.Y : textHeight > size.Y) : (autosizeX ? sizeLimit.X != NOSIZELIMIT && size.X > sizeLimit.X : textWidth > size.X))
+		|| text.length() > characterLimit)
 	{
 		text = oldText;
 		cursor = oldCursor;
@@ -239,8 +242,14 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned char modifi
 			cursorY = cy;
 		}
 		break;
+	case SDLK_RETURN:
+		if (this->type == MULTILINE)
+		{
+			InsertText("\n");
+		}
+		break;
 	default:
-		if (key >= ' ' && key <= '~')
+		if (this->type == NUMBER ? key >= '0' && key <= '9' : key >= ' ' && key <= '~')
 		{
 			std::stringstream convert;
 			convert << static_cast<char>(key);

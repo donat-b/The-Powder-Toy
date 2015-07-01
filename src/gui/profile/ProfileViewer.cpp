@@ -183,7 +183,8 @@ void ProfileViewer::EnableEditing()
 				dynamic_cast<ProfileViewer*>(textbox->GetParent())->ResizeArea(textbox->GetSize().Y);
 			}
 		};
-		((Textbox*)biographyLabel)->SetCallback(new BiographyChangedAction());
+		dynamic_cast<Textbox*>(biographyLabel)->SetCallback(new BiographyChangedAction());
+		dynamic_cast<Textbox*>(biographyLabel)->SetType(Textbox::MULTILINE);
 	}
 }
 
@@ -194,8 +195,14 @@ void ProfileViewer::ResizeArea(int biographyLabelHeight)
 		yPos = this->size.Y-enableEditingButton->GetSize().Y;
 	enableEditingButton->SetPosition(Point(0, yPos-GetScrollPosition()));
 
-	if (enableEditingButton->GetPosition().Y+GetScrollPosition()+enableEditingButton->GetSize().Y >= this->size.Y)
-		this->SetScrollable(true, enableEditingButton->GetPosition().Y+GetScrollPosition()+enableEditingButton->GetSize().Y-this->size.Y);
+	int maxScroll = enableEditingButton->GetPosition().Y+GetScrollPosition()+enableEditingButton->GetSize().Y-this->size.Y;
+	if (maxScroll >= 0)
+	{
+		int oldMaxScroll = this->GetMaxScrollSize();
+		this->SetScrollable(true, maxScroll);
+		if (this->GetScrollPosition() == oldMaxScroll)
+			this->SetScrollPosition(maxScroll);
+	}
 	else
 		this->SetScrollable(false, 0);
 }
