@@ -21,6 +21,8 @@ Textbox::~Textbox()
 
 void Textbox::SetCallback(TextboxAction *callback_)
 {
+	if (callback)
+		delete callback;
 	callback = callback_;
 }
 
@@ -66,7 +68,7 @@ void Textbox::InsertText(std::string inserttext)
 	UpdateDisplayText();
 	// this character doesn't fit, revert changes to string (not really a nice way to do this :|)
 	if ((multiline ? (autosizeY ? sizeLimit.Y != NOSIZELIMIT && size.Y > sizeLimit.Y : textHeight > size.Y) : (autosizeX ? sizeLimit.X != NOSIZELIMIT && size.X > sizeLimit.X : textWidth > size.X))
-		|| text.length() > characterLimit)
+	    || text.length() > characterLimit)
 	{
 		text = oldText;
 		cursor = oldCursor;

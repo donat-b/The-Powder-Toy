@@ -32,6 +32,7 @@ public:
 	void OnDraw(VideoBuffer *buf);
 
 	void EnableEditing();
+	void SaveProfile();
 	void ResizeArea(int biographyLabelHeight);
 };
 

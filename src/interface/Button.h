@@ -25,6 +25,7 @@ public:
 	~Button();
 
 	void SetCallback(ButtonAction *callback_);
+	void SetText(std::string text_) { text = text_; }
 
 	virtual void OnMouseDown(int x, int y, unsigned char button);
 	virtual void OnMouseUp(int x, int y, unsigned char button);

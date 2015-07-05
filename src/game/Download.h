@@ -1,5 +1,6 @@
 #ifndef DOWNLOAD_H
 #define DOWNLOAD_H
+#include <map>
 #include <string>
 
 class DownloadManager;
@@ -13,6 +14,10 @@ class Download
 	int downloadSize;
 	int downloadStatus;
 
+	const char *postData;
+	size_t postDataLength;
+	std::string postDataBoundary;
+
 	const char *userID;
 	const char *userSession;
 
@@ -24,6 +29,8 @@ public:
 	Download(std::string uri, bool keepAlive = false);
 	~Download();
 
+	void AddPostData(std::map<std::string, std::string> data);
+	void AddPostData(std::pair<std::string, std::string> data);
 	void AuthHeaders(const char *ID, const char *session);
 	void Start();
 	bool Reuse(std::string newuri);

@@ -20,8 +20,7 @@ ProfileViewer::ProfileViewer(std::string profileName):
 	saveCountLabel(NULL),
 	saveAverageLabel(NULL),
 	highestVoteLabel(NULL),
-	enableEditingButton(NULL),
-	editingMode(false)
+	enableEditingButton(NULL)
 {
 	profileInfoDownload = new Download("http://" SERVER "/User.json?Name=" + name);
 	//profileInfoDownload->AuthHeaders();
@@ -102,7 +101,7 @@ void ProfileViewer::OnTick(uint32_t ticks)
 				this->AddComponent(highestVoteLabel);
 
 				// Enable editing when this button is clicked
-				class ProfileEditAction : public ButtonAction
+				class EnableEditingAction : public ButtonAction
 				{
 				public:
 					virtual void ButtionActionCallback(Button *button)
@@ -110,8 +109,8 @@ void ProfileViewer::OnTick(uint32_t ticks)
 						dynamic_cast<ProfileViewer*>(button->GetParent())->EnableEditing();
 					}
 				};
-				enableEditingButton = new Button(Point(0, 149+biographyLabel->GetSize().Y), Point(this->size.X, 15), "test button");
-				enableEditingButton->SetCallback(new ProfileEditAction());
+				enableEditingButton = new Button(Point(0, 149+biographyLabel->GetSize().Y), Point(this->size.X, 15), "Enable Editing");
+				enableEditingButton->SetCallback(new EnableEditingAction());
 				this->AddComponent(enableEditingButton);
 
 				ResizeArea(biographyLabel->GetSize().Y);
@@ -166,26 +165,39 @@ Textbox* ProfileViewer::LabelToTextbox(Label *label)
 
 void ProfileViewer::EnableEditing()
 {
-	if (!editingMode)
-	{
-		editingMode = true;
-		ageLabel = LabelToTextbox(ageLabel);
-		locationLabel = LabelToTextbox(locationLabel);
-		websiteLabel = LabelToTextbox(websiteLabel);
-		biographyLabel = LabelToTextbox(biographyLabel);
+	ageLabel = LabelToTextbox(ageLabel);
+	locationLabel = LabelToTextbox(locationLabel);
+	websiteLabel = LabelToTextbox(websiteLabel);
+	biographyLabel = LabelToTextbox(biographyLabel);
 
-		// Enable editing when this button is clicked
-		class BiographyChangedAction : public TextboxAction
+	// Enable editing when this button is clicked
+	class BiographyChangedAction : public TextboxAction
+	{
+	public:
+		virtual void TextChangedCallback(Textbox *textbox)
 		{
-		public:
-			virtual void TextChangedCallback(Textbox *textbox)
-			{
-				dynamic_cast<ProfileViewer*>(textbox->GetParent())->ResizeArea(textbox->GetSize().Y);
-			}
-		};
-		dynamic_cast<Textbox*>(biographyLabel)->SetCallback(new BiographyChangedAction());
-		dynamic_cast<Textbox*>(biographyLabel)->SetType(Textbox::MULTILINE);
-	}
+			dynamic_cast<ProfileViewer*>(textbox->GetParent())->ResizeArea(textbox->GetSize().Y);
+		}
+	};
+	dynamic_cast<Textbox*>(biographyLabel)->SetCallback(new BiographyChangedAction());
+	dynamic_cast<Textbox*>(biographyLabel)->SetType(Textbox::MULTILINE);
+
+	// Enable editing when this button is clicked
+	class ProfileSaveAction : public ButtonAction
+	{
+	public:
+		virtual void ButtionActionCallback(Button *button)
+		{
+			dynamic_cast<ProfileViewer*>(button->GetParent())->SaveProfile();
+		}
+	};
+	enableEditingButton->SetCallback(new ProfileSaveAction());
+	enableEditingButton->SetText("Save");
+}
+
+void ProfileViewer::SaveProfile()
+{
+	enableEditingButton->SetText("test");
 }
 
 void ProfileViewer::ResizeArea(int biographyLabelHeight)

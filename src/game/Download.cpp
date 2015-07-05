@@ -13,6 +13,9 @@ Download::Download(std::string uri_, bool keepAlive):
 	downloadFinished(false),
 	downloadCanceled(false),
 	downloadStarted(false),
+	postData(NULL),
+	postDataLength(0),
+	postDataBoundary(""),
 	userID(NULL),
 	userSession(NULL)
 {
@@ -20,7 +23,7 @@ Download::Download(std::string uri_, bool keepAlive):
 	DownloadManager::Ref().AddDownload(this);
 }
 
-//called by download thread itself if download was canceled
+// called by download thread itself if download was canceled
 Download::~Download()
 {
 	if (http && (keepAlive || downloadCanceled))
@@ -29,25 +32,43 @@ Download::~Download()
 		free(downloadData);
 }
 
-//add userID and sessionID headers to the download. Must be done after download starts for some reason
+// add post data to a request
+void Download::AddPostData(std::map<std::string, std::string> data)
+{
+	postDataBoundary = FindBoundary(data, "");
+	std::string ret = GetMultipartMessage(data, postDataBoundary);
+	postData = ret.c_str();
+	postDataLength = ret.length();
+}
+void Download::AddPostData(std::pair<std::string, std::string> data)
+{
+	std::map<std::string, std::string> postData;
+	postData.insert(data);
+	AddPostData(postData);
+}
+
+// add userID and sessionID headers to the download. Must be done after download starts for some reason
 void Download::AuthHeaders(const char *ID, const char *session)
 {
 	userID = ID;
 	userSession = session;
 }
 
-//start the download thread
+// start the download thread
 void Download::Start()
 {
 	if (CheckStarted() || CheckDone())
 		return;
-	http = http_async_req_start(http, uri.c_str(), NULL, 0, keepAlive ? 1 : 0);
+	http = http_async_req_start(http, uri.c_str(), postData, postDataLength, keepAlive ? 1 : 0);
+	// add the necessary headers
 	if (userID || userSession)
 		http_auth_headers(http, userID, NULL, userSession);
+	if (postDataBoundary.length())
+		http_add_multipart_header(http, postDataBoundary);
 	downloadStarted = true;
 }
 
-//for persistent connections (keepAlive = true), reuse the open connection to make another request
+// for persistent connections (keepAlive = true), reuse the open connection to make another request
 bool Download::Reuse(std::string newuri)
 {
 	if (!keepAlive || !CheckDone() || CheckCanceled())
@@ -61,11 +82,12 @@ bool Download::Reuse(std::string newuri)
 	return true;
 }
 
-//finish the download (only call after CheckDone() returns true, or it will block)
+// finish the download (if called before the download is done, this will block)
 char* Download::Finish(int *length, int *status)
 {
 	if (CheckCanceled())
-		return NULL; //shouldn't happen but just in case
+		return NULL; // shouldn't happen but just in case
+	while (!CheckDone()); // block
 	downloadStarted = false;
 	if (length)
 		*length = downloadSize;
@@ -78,7 +100,7 @@ char* Download::Finish(int *length, int *status)
 	return ret;
 }
 
-//returns the download size and progress (if the download has the correct length headers)
+// returns the download size and progress (if the download has the correct length headers)
 void Download::CheckProgress(int *total, int *done)
 {
 	if (!CheckDone() && http)
@@ -87,25 +109,25 @@ void Download::CheckProgress(int *total, int *done)
 		*total = *done = 0;
 }
 
-//returns true if the download has finished
+// returns true if the download has finished
 bool Download::CheckDone()
 {
 	return downloadFinished;
 }
 
-//returns true if the download was canceled
+// returns true if the download was canceled
 bool Download::CheckCanceled()
 {
 	return downloadCanceled;
 }
 
-//returns true if the download is running
+// returns true if the download is running
 bool Download::CheckStarted()
 {
 	return downloadStarted;
 }
 
-//calcels the download, the download thread will delete the Download* when it finishes (do not use Download in any way after canceling)
+// cancels the download, the download thread will delete the Download* when it finishes (do not use Download in any way after canceling)
 void Download::Cancel()
 {
 	downloadCanceled = true;

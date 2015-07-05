@@ -56,6 +56,7 @@
 #include "save.h"
 #include "hud.h"
 #include "cJSON.h"
+#include "json/json.h"
 #include "update.h"
 
 #include "game/Menus.h"
@@ -6496,76 +6497,45 @@ int execute_submit(pixel *vid_buf, char *id, char *message)
 	int status;
 	char *result;
 
-	if (1)//strlen(svf_session_key))
-	{
-		const char *const postNames[] = { "Comment", NULL };
-		const char *const postDatas[] = { message };
-		size_t postLengths[] = { strlen(message) };
-		int dataLength;
-		char *url = (char*)malloc(sizeof(message)+sizeof(id) + 128);
-		//sprintf(url, "http://%s/Browse/Comments.json?ID=%s&Key=%s", SERVER, id, svf_session_key);
-		sprintf(url, "http://%s/Browse/Comments.json?ID=%s", SERVER, id);
-		result = http_multipart_post(url, postNames, postDatas, postLengths, svf_user_id, NULL, svf_session_id, &status, &dataLength);
-		free(url);
+	std::stringstream url;
+	url <<  "http://" << SERVER << "/Browse/Comments.json?ID=" << id;
+	Download *comment = new Download(url.str());
+	comment->AuthHeaders(svf_user_id, svf_session_id);
+	comment->AddPostData(std::pair<std::string, std::string>("Comment", message));
 
-		if (status!=200)
-		{
-			error_ui(vid_buf, status, http_ret_text(status));
-			if (result)
-				free(result);
-			return 1;
-		}
-		else
-		{
-			cJSON *root, *tmpobj;
-			if (root = cJSON_Parse((const char*)result))
-			{
-				tmpobj = cJSON_GetObjectItem(root, "Status");
-				if (tmpobj && tmpobj->type == cJSON_Number && tmpobj->valueint != 1)
-				{
-					tmpobj = cJSON_GetObjectItem(root, "Error");
-					if (tmpobj && tmpobj->type == cJSON_String)
-					{
-						error_ui(vid_buf, 0, tmpobj->valuestring);
-					}
-					else
-						error_ui(vid_buf, 0, "Could not read response");
-					return 1;
-				}
-			}
-		}
+	comment->Start();
+	result = comment->Finish(NULL, &status);
+
+
+	if (status != 200)
+	{
+		error_ui(vid_buf, status, http_ret_text(status));
+		if (result)
+			free(result);
+		return 1;
 	}
 	else
 	{
-		char *names[] = {"ID", "Message", NULL};
-		char *parts[2];
+		std::istringstream datastream(result);
+		Json::Value root;
 
-		parts[0] = id;
-		parts[1] = message;
-
-		result = http_multipart_post(
-					 "http://" SERVER "/Comment.api",
-					 names, parts, NULL,
-					 svf_user_id, /*svf_pass*/NULL, svf_session_id,
-					 &status, NULL);
-
-		if (status!=200)
+		try
 		{
-			error_ui(vid_buf, status, http_ret_text(status));
-			if (result)
-				free(result);
-			return 1;
+			datastream >> root;
+			// assume everything is fine if an empty [] is returned
+			int status = root.get("Status", 1).asInt();
+			if (status != 1)
+			{
+				const char *err = root["Error"].asCString();
+				error_ui(vid_buf, 0, err);
+			}
 		}
-		if (result && strncmp(result, "OK", 2))
+		catch (std::exception &e)
 		{
-			error_ui(vid_buf, 0, result);
-			free(result);
-			return 1;
+			error_ui(vid_buf, 0, "Could not read response");
 		}
 	}
-
-	if (result)
-		free(result);
+	free(result);
 	return 0;
 }
 

@@ -16,6 +16,8 @@ Button::~Button()
 
 void Button::SetCallback(ButtonAction *callback_)
 {
+	if (callback)
+		delete callback;
 	callback = callback_;
 }
 

@@ -17,6 +17,9 @@
 #ifndef HTTP_H
 #define HTTP_H
 
+#include <map>
+#include <string>
+
 void millisleep(long int t);
 
 void http_init(char *proxy);
@@ -36,6 +39,9 @@ char *http_async_req_stop(void *ctx, int *ret, int *len);
 void http_force_close(void *ctx);
 void http_async_req_close(void *ctx);
 
+std::string FindBoundary(std::map<std::string, std::string>, std::string boundary);
+std::string GetMultipartMessage(std::map<std::string, std::string>, std::string boundary);
+void http_add_multipart_header(void *ctx, std::string boundary);
 char *http_multipart_post(const char *uri, const char *const *names, const char *const *parts, size_t *plens, const char *user, const char *pass, const char * session_id, int *ret, int *len);
 
 const char *http_ret_text(int ret);
