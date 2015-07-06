@@ -5688,7 +5688,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				{
 					std::stringstream browserLink;
 					browserLink << "http://" << SERVER << "/Browse/View.html?ID=" << save_id;
-					open_link(browserLink.str().c_str());
+					open_link(browserLink.str());
 				}
 			}
 			//Submit Button
@@ -6714,20 +6714,16 @@ int execute_vote(pixel *vid_buf, char *id, char *action)
 		free(result);
 	return 1;
 }
-void open_link(const char *uri)
+void open_link(std::string uri)
 {
 #ifdef WIN
-	ShellExecute(0, "OPEN", uri, NULL, NULL, 0);
+	ShellExecute(0, "OPEN", uri.c_str(), NULL, NULL, 0);
 #elif MACOSX
-	char *cmd = (char*)malloc(7+strlen(uri));
-	strcpy(cmd, "open ");
-	strappend(cmd, uri);
-	system(cmd);
+	std::string command = "open " + uri;
+	system(command.c_str());
 #elif LIN
-	char *cmd = (char*)malloc(11+strlen(uri));
-	strcpy(cmd, "xdg-open ");
-	strappend(cmd, uri);
-	system(cmd);
+	std::string command = "xdg-open " + uri;
+	system(command.c_str());
 #else
 	printf("Cannot open browser\n");
 #endif

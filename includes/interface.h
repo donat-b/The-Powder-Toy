@@ -17,6 +17,7 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 #include <vector>
+#include <string>
 #ifdef SDL_R_INC
 #include <SDL.h>
 #else
@@ -364,7 +365,7 @@ void execute_unfav(pixel *vid_buf, char *id);
 
 int execute_vote(pixel *vid_buf, char *id, char *action);
 
-void open_link(const char *uri);
+void open_link(std::string uri);
 
 int report_ui(pixel *vid_buf, char *save_id, bool bug);
 

@@ -19,8 +19,7 @@ class ProfileViewer : public ScrollWindow
 
 	Label *usernameLabel, *ageLabel, *locationLabel, *websiteLabel, *biographyLabel;
 	Label *saveCountLabel, *saveAverageLabel, *highestVoteLabel;
-	Button *enableEditingButton;
-	bool editingMode;
+	Button *enableEditingButton, *openProfileButton, *avatarUploadButton;
 
 	void MainLoop();
 
@@ -31,8 +30,12 @@ public:
 	void OnTick(uint32_t ticks);
 	void OnDraw(VideoBuffer *buf);
 
+	// callback functions for all the buttons
 	void EnableEditing();
 	void SaveProfile();
+	void OpenProfile();
+	void OpenProfileEdit();
+	void UploadAvatar();
 	void ResizeArea(int biographyLabelHeight);
 };
 

@@ -20,8 +20,7 @@ ProfileViewer::ProfileViewer(std::string profileName):
 	biographyLabel(NULL),
 	saveCountLabel(NULL),
 	saveAverageLabel(NULL),
-	highestVoteLabel(NULL),
-	enableEditingButton(NULL)
+	highestVoteLabel(NULL)
 {
 	profileInfoDownload = new Download("http://" SERVER "/User.json?Name=" + name);
 	//profileInfoDownload->AuthHeaders();
@@ -32,6 +31,47 @@ ProfileViewer::ProfileViewer(std::string profileName):
 
 	usernameLabel = new Label(Point(7, 6), Point(Label::AUTOSIZE, Label::AUTOSIZE), name);
 	this->AddComponent(usernameLabel);
+
+	avatarUploadButton = new Button(Point(211, 11), Point(38, 38), "\n\x81");
+	// Enable editing when this button is clicked
+	class UploadAvatarAction : public ButtonAction
+	{
+	public:
+		virtual void ButtionActionCallback(Button *button)
+		{
+			dynamic_cast<ProfileViewer*>(button->GetParent())->UploadAvatar();
+		}
+	};
+	avatarUploadButton->SetCallback(new UploadAvatarAction());
+	this->AddComponent(avatarUploadButton);
+
+	// Enable editing when this button is clicked
+	class EnableEditingAction : public ButtonAction
+	{
+	public:
+		virtual void ButtionActionCallback(Button *button)
+		{
+			dynamic_cast<ProfileViewer*>(button->GetParent())->EnableEditing();
+		}
+	};
+	enableEditingButton = new Button(Point(0, size.Y-15), Point(this->size.X/2-1, 15), "Enable Editing");
+	enableEditingButton->SetCallback(new EnableEditingAction());
+	enableEditingButton->SetEnabled(false);
+	this->AddComponent(enableEditingButton);
+
+	// Open profile online when this button is clicked
+	class OpenProfileAction : public ButtonAction
+	{
+	public:
+		virtual void ButtionActionCallback(Button *button)
+		{
+			dynamic_cast<ProfileViewer*>(button->GetParent())->OpenProfile();
+		}
+	};
+	openProfileButton = new Button(Point(size.X/2, size.Y-15), Point(this->size.X/2, 15), "Open Profile Online");
+	openProfileButton->SetCallback(new OpenProfileAction());
+	this->AddComponent(openProfileButton);
+
 	MainLoop();
 }
 
@@ -73,7 +113,7 @@ void ProfileViewer::OnTick(uint32_t ticks)
 					ageLabel = new Label(Point(29, 20), Point(Label::AUTOSIZE, Label::AUTOSIZE), "\x0F\xC0\xC0\xC0Not Provided");
 					ageLabel->SetEnabled(false);
 				}
-				if (!root["User"]["Location"].isString())
+				if (root["User"]["Location"].isString())
 					locationLabel = new Label(Point(53, 34), Point(Label::AUTOSIZE, Label::AUTOSIZE), root["User"]["Location"].asString());
 				else
 				{
@@ -113,19 +153,7 @@ void ProfileViewer::OnTick(uint32_t ticks)
 				this->AddComponent(saveAverageLabel);
 				this->AddComponent(highestVoteLabel);
 
-				// Enable editing when this button is clicked
-				class EnableEditingAction : public ButtonAction
-				{
-				public:
-					virtual void ButtionActionCallback(Button *button)
-					{
-						dynamic_cast<ProfileViewer*>(button->GetParent())->EnableEditing();
-					}
-				};
-				enableEditingButton = new Button(Point(0, 149+biographyLabel->GetSize().Y), Point(this->size.X, 15), "Enable Editing");
-				enableEditingButton->SetCallback(new EnableEditingAction());
-				this->AddComponent(enableEditingButton);
-
+				enableEditingButton->SetEnabled(true);
 				ResizeArea(biographyLabel->GetSize().Y);
 			}
 			catch (std::exception &e)
@@ -193,7 +221,7 @@ void ProfileViewer::EnableEditing()
 	dynamic_cast<Textbox*>(biographyLabel)->SetCallback(new BiographyChangedAction());
 	dynamic_cast<Textbox*>(biographyLabel)->SetType(Textbox::MULTILINE);
 
-	// Enable editing when this button is clicked
+	// Save profile when this button is clicked
 	class ProfileSaveAction : public ButtonAction
 	{
 	public:
@@ -204,6 +232,18 @@ void ProfileViewer::EnableEditing()
 	};
 	enableEditingButton->SetCallback(new ProfileSaveAction());
 	enableEditingButton->SetText("Save");
+
+	// Open profile editor online when this button is clicked
+	class ProfileEditAction : public ButtonAction
+	{
+	public:
+		virtual void ButtionActionCallback(Button *button)
+		{
+			dynamic_cast<ProfileViewer*>(button->GetParent())->OpenProfileEdit();
+		}
+	};
+	openProfileButton->SetCallback(new ProfileEditAction());
+	openProfileButton->SetText("Edit profile online");
 }
 
 void ProfileViewer::SaveProfile()
@@ -222,12 +262,28 @@ void ProfileViewer::SaveProfile()
 	ParseServerReturn(ret, status);
 }
 
+void ProfileViewer::OpenProfile()
+{
+	open_link("http://powdertoy.co.uk/User.html?Name="+name);
+}
+
+void ProfileViewer::OpenProfileEdit()
+{
+	open_link("http://powdertoy.co.uk/Profile.html");
+}
+
+void ProfileViewer::UploadAvatar()
+{
+	open_link("http://powdertoy.co.uk/Profile/Avatar.html");
+}
+
 void ProfileViewer::ResizeArea(int biographyLabelHeight)
 {
 	int yPos = 149+biographyLabelHeight;
 	if (yPos < this->size.Y-enableEditingButton->GetSize().Y)
 		yPos = this->size.Y-enableEditingButton->GetSize().Y;
 	enableEditingButton->SetPosition(Point(0, yPos-GetScrollPosition()));
+	openProfileButton->SetPosition(Point(size.X/2, yPos-GetScrollPosition()));
 
 	int maxScroll = enableEditingButton->GetPosition().Y+GetScrollPosition()+enableEditingButton->GetSize().Y-this->size.Y;
 	if (maxScroll >= 0)
