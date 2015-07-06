@@ -52,10 +52,12 @@ void DownloadManager::Start()
 
 void DownloadManager::Update()
 {
+	unsigned int numActiveDownloads;
 	while (!managerShutdown)
 	{
 		if (downloads.size())
 		{
+			numActiveDownloads = 0;
 			pthread_mutex_lock(&downloadLock);
 			for (size_t i = 0; i < downloads.size(); i++)
 			{
@@ -78,11 +80,12 @@ void DownloadManager::Update()
 							download->http = NULL;
 					}
 					lastUsed = time(NULL);
+					numActiveDownloads++;
 				}
 			}
 			pthread_mutex_unlock(&downloadLock);
 		}
-		if (time(NULL) > lastUsed+HTTP_TIMEOUT*2)
+		if (time(NULL) > lastUsed+HTTP_TIMEOUT*2 && !numActiveDownloads)
 		{
 			pthread_mutex_lock(&downloadLock);
 			managerRunning = false;

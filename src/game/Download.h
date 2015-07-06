@@ -14,8 +14,7 @@ class Download
 	int downloadSize;
 	int downloadStatus;
 
-	const char *postData;
-	size_t postDataLength;
+	std::string postData;
 	std::string postDataBoundary;
 
 	const char *userID;

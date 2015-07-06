@@ -6492,7 +6492,38 @@ int execute_delete(pixel *vid_buf, char *id)
 	return 1;
 }
 
-int execute_submit(pixel *vid_buf, char *id, char *message)
+bool ParseServerReturn(char *result, int status)
+{
+	if (status != 200)
+	{
+		error_ui(vid_buf, status, http_ret_text(status));
+		return true;
+	}
+
+	std::istringstream datastream(result);
+	Json::Value root;
+
+	try
+	{
+		datastream >> root;
+		// assume everything is fine if an empty [] is returned
+		int status = root.get("Status", 1).asInt();
+		if (status != 1)
+		{
+			const char *err = root["Error"].asCString();
+			error_ui(vid_buf, 0, err);
+			return true;
+		}
+	}
+	catch (std::exception &e)
+	{
+		error_ui(vid_buf, 0, "Could not read response");
+		return true;
+	}
+	return false;
+}
+
+bool execute_submit(pixel *vid_buf, char *id, char *message)
 {
 	int status;
 	char *result;
@@ -6507,36 +6538,8 @@ int execute_submit(pixel *vid_buf, char *id, char *message)
 	result = comment->Finish(NULL, &status);
 
 
-	if (status != 200)
-	{
-		error_ui(vid_buf, status, http_ret_text(status));
-		if (result)
-			free(result);
-		return 1;
-	}
-	else
-	{
-		std::istringstream datastream(result);
-		Json::Value root;
-
-		try
-		{
-			datastream >> root;
-			// assume everything is fine if an empty [] is returned
-			int status = root.get("Status", 1).asInt();
-			if (status != 1)
-			{
-				const char *err = root["Error"].asCString();
-				error_ui(vid_buf, 0, err);
-			}
-		}
-		catch (std::exception &e)
-		{
-			error_ui(vid_buf, 0, "Could not read response");
-		}
-	}
-	free(result);
-	return 0;
+	bool ret = ParseServerReturn(result, status);
+	return ret;
 }
 
 int execute_report(pixel *vid_buf, char *id, char *reason)

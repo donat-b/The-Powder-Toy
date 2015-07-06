@@ -13,8 +13,7 @@ Download::Download(std::string uri_, bool keepAlive):
 	downloadFinished(false),
 	downloadCanceled(false),
 	downloadStarted(false),
-	postData(NULL),
-	postDataLength(0),
+	postData(""),
 	postDataBoundary(""),
 	userID(NULL),
 	userSession(NULL)
@@ -36,9 +35,7 @@ Download::~Download()
 void Download::AddPostData(std::map<std::string, std::string> data)
 {
 	postDataBoundary = FindBoundary(data, "");
-	std::string ret = GetMultipartMessage(data, postDataBoundary);
-	postData = ret.c_str();
-	postDataLength = ret.length();
+	postData = GetMultipartMessage(data, postDataBoundary);
 }
 void Download::AddPostData(std::pair<std::string, std::string> data)
 {
@@ -59,7 +56,7 @@ void Download::Start()
 {
 	if (CheckStarted() || CheckDone())
 		return;
-	http = http_async_req_start(http, uri.c_str(), postData, postDataLength, keepAlive ? 1 : 0);
+	http = http_async_req_start(http, uri.c_str(), postData.c_str(), postData.length(), keepAlive ? 1 : 0);
 	// add the necessary headers
 	if (userID || userSession)
 		http_auth_headers(http, userID, NULL, userSession);

@@ -1,4 +1,5 @@
 #include <sstream>
+#include "json/json.h"
 #include "ProfileViewer.h"
 #include "interface/Engine.h"
 #include "interface/Label.h"
@@ -7,7 +8,7 @@
 #include "graphics/VideoBuffer.h"
 #include "common/Point.h"
 #include "game/Download.h"
-#include "json/json.h"
+#include "interface.h"
 
 ProfileViewer::ProfileViewer(std::string profileName):
 	ScrollWindow(Point(CENTERED, CENTERED), Point(260, 350)),
@@ -68,19 +69,31 @@ void ProfileViewer::OnTick(uint32_t ticks)
 				if (root["User"]["Age"].isInt())
 					ageLabel = new Label(Point(29, 20), Point(Label::AUTOSIZE, Label::AUTOSIZE), root["User"]["Age"].asString());
 				else
+				{
 					ageLabel = new Label(Point(29, 20), Point(Label::AUTOSIZE, Label::AUTOSIZE), "\x0F\xC0\xC0\xC0Not Provided");
-				if (root["User"]["Location"].isString())
+					ageLabel->SetEnabled(false);
+				}
+				if (!root["User"]["Location"].isString())
 					locationLabel = new Label(Point(53, 34), Point(Label::AUTOSIZE, Label::AUTOSIZE), root["User"]["Location"].asString());
 				else
+				{
 					locationLabel = new Label(Point(53, 34), Point(Label::AUTOSIZE, Label::AUTOSIZE), "\x0F\xC0\xC0\xC0Not Provided");
+					locationLabel->SetEnabled(false);
+				}
 				if (root["User"]["Website"].isString())
 					websiteLabel = new Label(Point(49, 48), Point(Label::AUTOSIZE, Label::AUTOSIZE), root["User"]["Website"].asString());
 				else
+				{
 					websiteLabel = new Label(Point(49, 48), Point(Label::AUTOSIZE, Label::AUTOSIZE), "\x0F\xC0\xC0\xC0Not Provided");
+					websiteLabel->SetEnabled(false);
+				}
 				if (root["User"]["Biography"].isString())
 					biographyLabel = new Label(Point(7, 133), Point(246, Label::AUTOSIZE), root["User"]["Biography"].asCString(), true);
 				else
+				{
 					biographyLabel = new Label(Point(7, 133), Point(246, Label::AUTOSIZE), "\x0F\xC0\xC0\xC0Not Provided", true);
+					biographyLabel->SetEnabled(false);
+				}
 
 				this->AddComponent(ageLabel);
 				this->AddComponent(locationLabel);
@@ -153,22 +166,20 @@ void ProfileViewer::OnTick(uint32_t ticks)
 	}
 }
 
-Textbox* ProfileViewer::LabelToTextbox(Label *label)
-{
-	Textbox *textbox = new Textbox(label->GetPosition(), label->GetSize(), label->GetText(), label->IsMultiline());
-	RemoveComponent(label);
-	AddComponent(textbox);
-	if (textbox->IsMultiline())
-		textbox->SetAutoSize(false, true, Point(Textbox::NOSIZELIMIT,Textbox::NOSIZELIMIT));
-	return textbox;
-}
-
 void ProfileViewer::EnableEditing()
 {
-	ageLabel = LabelToTextbox(ageLabel);
-	locationLabel = LabelToTextbox(locationLabel);
-	websiteLabel = LabelToTextbox(websiteLabel);
-	biographyLabel = LabelToTextbox(biographyLabel);
+	RemoveComponent(locationLabel);
+	locationLabel = new Textbox(locationLabel->GetPosition(), Point(size.X-110, locationLabel->GetSize().Y), locationLabel->IsEnabled() ? locationLabel->GetText() : "");
+	AddComponent(locationLabel);
+
+	/*RemoveComponent(websiteLabel);
+	websiteLabel = new Textbox(websiteLabel->GetPosition(), Point(size.X-110, websiteLabel->GetSize().Y), websiteLabel->IsEnabled() ? websiteLabel->GetText() : "");
+	AddComponent(websiteLabel);*/
+
+	RemoveComponent(biographyLabel);
+	biographyLabel = new Textbox(biographyLabel->GetPosition(), biographyLabel->GetSize(), biographyLabel->IsEnabled() ? biographyLabel->GetText() : "", true);
+	dynamic_cast<Textbox*>(biographyLabel)->SetAutoSize(false, true, Point(Textbox::NOSIZELIMIT,Textbox::NOSIZELIMIT));
+	AddComponent(biographyLabel);
 
 	// Enable editing when this button is clicked
 	class BiographyChangedAction : public TextboxAction
@@ -197,7 +208,18 @@ void ProfileViewer::EnableEditing()
 
 void ProfileViewer::SaveProfile()
 {
-	enableEditingButton->SetText("test");
+	profileSaveDownload = new Download("http://" SERVER "/Profile.json");
+	profileSaveDownload->AuthHeaders(svf_user_id, svf_session_id);
+	std::map<std::string, std::string> postData;
+	postData.insert(std::pair<std::string, std::string>("Location", locationLabel->GetText()));
+	postData.insert(std::pair<std::string, std::string>("Biography", biographyLabel->GetText()));
+	//postData.insert(std::pair<std::string, std::string>("Website", websiteLabel->GetText()));
+	profileSaveDownload->AddPostData(postData);
+
+	profileSaveDownload->Start();
+	int status;
+	char * ret = profileSaveDownload->Finish(NULL, &status);
+	ParseServerReturn(ret, status);
 }
 
 void ProfileViewer::ResizeArea(int biographyLabelHeight)

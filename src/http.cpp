@@ -1020,7 +1020,7 @@ std::string GetMultipartMessage(std::map<std::string, std::string> parts, std::s
 		data << "Content-transfer-encoding: binary" << "\r\n";
 
 		// colon p
-		size_t colonP = name.find('c');
+		size_t colonP = name.find(':');
 		if (colonP != name.npos)
 		{
 			// used to upload files (save data)
@@ -1042,7 +1042,8 @@ std::string GetMultipartMessage(std::map<std::string, std::string> parts, std::s
 // add the header needed to make POSTS work
 void http_add_multipart_header(void *ctx, std::string boundary)
 {
-	http_async_add_header(ctx, "Content-type", ("multipart/form-data, boundary=" + boundary).c_str());
+	std::string header = "multipart/form-data, boundary=" + boundary;
+	http_async_add_header(ctx, "Content-type", header.c_str());
 }
 
 char *http_multipart_post(const char *uri, const char *const *names, const char *const *parts, size_t *plens, const char *user, const char *pass, const char *session_id, int *ret, int *len)

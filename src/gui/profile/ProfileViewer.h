@@ -14,6 +14,7 @@ class ProfileViewer : public ScrollWindow
 	std::string name;
 	Download *profileInfoDownload;
 	Download *avatarDownload;
+	Download *profileSaveDownload;
 	pixel *avatar;
 
 	Label *usernameLabel, *ageLabel, *locationLabel, *websiteLabel, *biographyLabel;
@@ -22,7 +23,6 @@ class ProfileViewer : public ScrollWindow
 	bool editingMode;
 
 	void MainLoop();
-	Textbox* LabelToTextbox(Label *label);
 
 public:
 	ProfileViewer(std::string profileName);

@@ -354,7 +354,9 @@ int execute_delete(pixel *vid_buf, char *id);
 int execute_report(pixel *vid_buf, char *id, char *reason);
 int execute_bug(pixel *vid_buf, char *feedback);
 
-int execute_submit(pixel *vid_buf, char *id, char *message);
+bool ParseServerReturn(char *result, int status);
+
+bool execute_submit(pixel *vid_buf, char *id, char *message);
 
 void execute_fav(pixel *vid_buf, char *id);
 

@@ -39,7 +39,9 @@ void Label::SetText(std::string text_)
 
 std::string Label::GetText()
 {
-	return text;
+	std::string fixed = text;
+	fixed.erase(std::remove(fixed.begin(), fixed.end(), '\r'), fixed.end()); //strip special newlines
+	return fixed;
 }
 
 // Strips stuff from a string. Can strip all non ascii characters (excluding color and newlines), strip all color, or strip all newlines
