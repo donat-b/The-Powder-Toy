@@ -36,9 +36,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-#ifdef WIN
-#include <SDL/SDL_syswm.h>
-#endif
 
 #include "http.h"
 #include "md5.h"
