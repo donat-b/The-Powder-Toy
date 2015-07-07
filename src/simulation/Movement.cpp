@@ -59,7 +59,7 @@ void Simulation::CreateGainPhoton(int pp)
 	if ((pmap[ny][nx] & 0xFF) != PT_GLOW)
 		return;
 
-	int i = globalSim->part_create(-1, nx, ny, PT_PHOT);
+	int i = part_create(-1, nx, ny, PT_PHOT);
 	if (i < 0)
 		return;
 
@@ -86,7 +86,7 @@ void Simulation::CreateCherenkovPhoton(int pp)
 	if (hypotf(parts[pp].vx, parts[pp].vy) < 1.44f)
 		return;
 
-	int i = globalSim->part_create(-1, nx, ny, PT_PHOT);
+	int i = part_create(-1, nx, ny, PT_PHOT);
 	if (i < 0)
 		return;
 
@@ -114,6 +114,178 @@ void Simulation::CreateCherenkovPhoton(int pp)
 	parts[i].vx *= r;
 	parts[i].vy *= r;
 }
+
+// ************************* //
+// Photon movement functions //
+// ************************* //
+
+// create sparks from PHOT when hitting PSCN and NSCN
+void Simulation::PhotoelectricEffect(int nx, int ny)
+{
+	unsigned r = pmap[ny][nx];
+
+	if ((r&0xFF) == PT_PSCN)
+	{
+		if ((pmap[ny][nx-1] & 0xFF) == PT_NSCN || (pmap[ny][nx+1] & 0xFF) == PT_NSCN ||
+		    (pmap[ny-1][nx] & 0xFF) == PT_NSCN || (pmap[ny+1][nx] & 0xFF) == PT_NSCN)
+			spark_conductive_attempt(r>>8, nx, ny);
+	}
+}
+
+unsigned Simulation::DirectionToMap(float dx, float dy, int t)
+{
+	// TODO:
+	// Adding extra directions causes some inaccuracies.
+	// Not adding them causes problems with some diagonal surfaces (photons absorbed instead of reflected).
+	// For now, don't add them.
+	// Solution may involve more intelligent setting of initial i0 value in find_next_boundary?
+	// or rewriting normal/boundary finding code
+
+	return (dx >= 0) |
+		   (((dx + dy) >= 0) << 1) |     /*  567  */
+		   ((dy >= 0) << 2) |            /*  4+0  */
+		   (((dy - dx) >= 0) << 3) |     /*  321  */
+		   ((dx <= 0) << 4) |
+		   (((dx + dy) <= 0) << 5) |
+		   ((dy <= 0) << 6) |
+		   (((dy - dx) <= 0) << 7);
+	/*
+	return (dx >= -0.001) |
+		   (((dx + dy) >= -0.001) << 1) |     //  567
+		   ((dy >= -0.001) << 2) |            //  4+0
+		   (((dy - dx) >= -0.001) << 3) |     //  321
+		   ((dx <= 0.001) << 4) |
+		   (((dx + dy) <= 0.001) << 5) |
+		   ((dy <= 0.001) << 6) |
+		   (((dy - dx) <= 0.001) << 7);
+	}*/
+}
+
+bool Simulation::IsBlocking(int t, int x, int y)
+{
+	if (t & REFRACT) {
+		if (x<0 || y<0 || x>=XRES || y>=YRES)
+			return false;
+		if ((pmap[y][x] & 0xFF) == PT_GLAS)
+			return true;
+		return false;
+	}
+
+	return !EvalMove(t, x, y);
+}
+
+bool Simulation::IsBoundary(int pt, int x, int y)
+{
+	if (!IsBlocking(pt, x, y))
+		return false;
+	if (IsBlocking(pt, x, y-1) && IsBlocking(pt, x, y+1) && IsBlocking(pt, x-1, y) && IsBlocking(pt, x+1, y))
+		return false;
+	return true;
+}
+
+bool Simulation::FindNextBoundary(int pt, int *x, int *y, int dm, int *em)
+{
+	static int dx[8] = { 1, 1, 0, -1, -1, -1, 0, 1 };
+	static int dy[8] = { 0, 1, 1, 1, 0, -1, -1, -1 };
+	static int de[8] = { 0x83, 0x07, 0x0E, 0x1C, 0x38, 0x70, 0xE0, 0xC1 };
+
+	if (*x <= 0 || *x >= XRES-1 || *y <= 0 || *y >= YRES-1)
+		return false;
+
+	int i0;
+	if (*em != -1)
+	{
+		i0 = *em;
+		dm &= de[i0];
+	}
+	else
+		i0 = 0;
+
+	int i;
+	for (int ii = 0; ii < 8; ii++)
+	{
+		i = (ii + i0) & 7;
+		if ((dm & (1 << i)) && IsBoundary(pt, *x+dx[i], *y+dy[i]))
+		{
+			*x += dx[i];
+			*y += dy[i];
+			*em = i;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool Simulation::GetNormal(int pt, int x, int y, float dx, float dy, float *nx, float *ny)
+{
+	if (!dx && !dy)
+		return false;
+
+	if (!IsBoundary(pt, x, y))
+		return false;
+
+	int ldm = DirectionToMap(-dy, dx, pt);
+	int rdm = DirectionToMap(dy, -dx, pt);
+	int lx = x, rx = x;
+	int ly = y, ry = y;
+	int lv = 1, rv = 1;
+	int lm = -1, rm = -1;
+
+	int j = 0;
+	for (int i = 0; i < SURF_RANGE; i++)
+	{
+		if (lv)
+			lv = FindNextBoundary(pt, &lx, &ly, ldm, &lm);
+		if (rv)
+			rv = FindNextBoundary(pt, &rx, &ry, rdm, &rm);
+		j += lv + rv;
+		if (!lv && !rv)
+			break;
+	}
+
+	if (j < NORMAL_MIN_EST)
+		return false;
+
+	if ((lx == rx) && (ly == ry))
+		return false;
+
+	float ex = (float)rx - lx;
+	float ey = (float)ry - ly;
+	float r = 1.0f/hypot(ex, ey);
+	*nx =  ey * r;
+	*ny = -ex * r;
+
+	return true;
+}
+
+bool Simulation::GetNormalInterp(int pt, float x0, float y0, float dx, float dy, float *nx, float *ny)
+{
+	dx /= NORMAL_FRAC;
+	dy /= NORMAL_FRAC;
+
+	int i, x, y;
+	for (i = 0; i < NORMAL_INTERP; i++)
+	{
+		x = (int)(x0 + 0.5f);
+		y = (int)(y0 + 0.5f);
+		if (IsBoundary(pt, x, y))
+			break;
+		x0 += dx;
+		y0 += dy;
+	}
+	if (i >= NORMAL_INTERP)
+		return false;
+
+	if (pt == PT_PHOT)
+		PhotoelectricEffect(x, y);
+
+	return GetNormal(pt, x, y, dx, dy, nx, ny);
+}
+
+// ************************* //
+// Actual movement functions //
+// ************************* //
 
 void Simulation::InitCanMove()
 {
@@ -277,8 +449,8 @@ unsigned char Simulation::EvalMove(int pt, int nx, int ny, unsigned *rr)
 		*rr = r;
 	if (pt>=PT_NUM || (r&0xFF)>=PT_NUM)
 		return 0;
-	result = globalSim->can_move[pt][r&0xFF];
-	if (result==3)
+	result = can_move[pt][r&0xFF];
+	if (result == 3)
 	{
 		if ((pt==PT_PHOT || pt==PT_ELEC) && (r&0xFF)==PT_LCRY)
 			result = (parts[r>>8].life > 5)? 2 : 0;
@@ -386,9 +558,9 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 		}
 		if (((r&0xFF)==PT_PRTI || (r&0xFF)==PT_PPTI) && (ptypes[parts[i].type].properties & TYPE_ENERGY))
 		{
-			PortalChannel *channel = ((PRTI_ElementDataContainer*)globalSim->elementData[PT_PRTI])->GetParticleChannel(globalSim, r>>8);
+			PortalChannel *channel = ((PRTI_ElementDataContainer*)elementData[PT_PRTI])->GetParticleChannel(this, r>>8);
 			int slot = PRTI_ElementDataContainer::GetSlot(x-nx,y-ny);
-			if (channel->StoreParticle(globalSim, i, slot))
+			if (channel->StoreParticle(this, i, slot))
 				return -1;
 		}
 		return 0;
@@ -456,7 +628,7 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 				parts[i].ctype = 0;
 				parts[i].tmp2 = 0x1;
 
-				create_part(r>>8, x, y, PT_ELEC);
+				part_create(r>>8, x, y, PT_ELEC);
 				return -1;
 			}
 		}
@@ -493,12 +665,12 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 	if ((r&0xFF)==PT_VOID || (r&0xFF)==PT_PVOD) //this is where void eats particles
 	{
 		//void ctype already checked in eval_move
-		kill_part(i);
+		part_kill(i);
 		return 0;
 	}
 	else if ((r&0xFF)==PT_BHOL || (r&0xFF)==PT_NBHL) //this is where blackhole eats particles
 	{
-		kill_part(i);
+		part_kill(i);
 		if (!legacy_enable)
 		{
 			parts[r>>8].temp = restrict_flt(parts[r>>8].temp+parts[i].temp/2, MIN_TEMP, MAX_TEMP);//3.0f;
@@ -513,7 +685,7 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 			{
 				parts[r>>8].temp = restrict_flt(parts[r>>8].temp- (MAX_TEMP-parts[i].temp)/2, MIN_TEMP, MAX_TEMP);
 			}
-			kill_part(i);
+			part_kill(i);
 			return 0;
 		}
 	}
@@ -524,7 +696,7 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 			if (parts[r>>8].life < 6000)
 				parts[r>>8].life += 1;
 			parts[r>>8].temp = 0;
-			kill_part(i);
+			part_kill(i);
 			return 0;
 		}
 	}
@@ -533,7 +705,7 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 		if (ptypes[parts[i].type].properties & TYPE_ENERGY)
 		{
 			parts[r>>8].tmp += 20;
-			kill_part(i);
+			part_kill(i);
 			return 0;
 		}
 	}
@@ -542,7 +714,7 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 	{
 		if (ptypes[r&0xFF].properties & PROP_NEUTABSORB)
 		{
-			kill_part(i);
+			part_kill(i);
 			return 0;
 		}
 	}
@@ -564,7 +736,8 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 	e = r >> 8; //e is now the particle number at r (pmap[ny][nx])
 	if (r)//the swap part, if we make it this far, swap
 	{
-		if (parts[i].type==PT_NEUT) {
+		if (parts[i].type==PT_NEUT)
+		{
 			// target material is NEUTPENETRATE, meaning it gets moved around when neutron passes
 			unsigned s = pmap[y][x];
 			if (s && !(ptypes[s&0xFF].properties&PROP_NEUTPENETRATE))
@@ -636,10 +809,10 @@ int Simulation::Move(int i, int x, int y, float nxf, float nyf)
 			nx = (int)(nxf+0.5f);
 			ny = (int)(nyf+0.5f);
 
-			//kill_part if particle is out of bounds (below eval_move would return before kill)
+			//kill particle if particle is out of bounds (below eval_move would return before kill)
 			if (OutOfBounds(nx, ny))
 			{
-				kill_part(i);
+				part_kill(i);
 				return -1;
 			}
 			//make sure there isn't something blocking it on the other side
@@ -652,11 +825,11 @@ int Simulation::Move(int i, int x, int y, float nxf, float nyf)
 				stickman = &player;
 			else if (t == PT_STKM2)
 				stickman = &player2;
-			else if (t == PT_FIGH && parts[i].tmp >= 0 && parts[i].tmp < ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->MaxFighters())
-				stickman = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get((unsigned char)parts[i].tmp);
+			else if (t == PT_FIGH && parts[i].tmp >= 0 && parts[i].tmp < ((FIGH_ElementDataContainer*)elementData[PT_FIGH])->MaxFighters())
+				stickman = ((FIGH_ElementDataContainer*)elementData[PT_FIGH])->Get((unsigned char)parts[i].tmp);
 
 			if (stickman)
-				for (int i = 0; i < 16; i+=2)
+				for (int i = 0; i < 16; i += 2)
 				{
 					stickman->legs[i] += diffx;
 					stickman->legs[i+1] += diffy;
@@ -668,14 +841,20 @@ int Simulation::Move(int i, int x, int y, float nxf, float nyf)
 	parts[i].y = nyf;
 	if (ny!=y || nx!=x)
 	{
-		if ((int)(pmap[y][x]>>8)==i) pmap[y][x] = 0;
-		else if ((pmap[y][x]&0xFF)==PT_PINV && (parts[pmap[y][x]>>8].tmp2>>8)==i) parts[pmap[y][x]>>8].tmp2 = 0;
-		else if ((int)(photons[y][x]>>8)==i) photons[y][x] = 0;
-		if (OutOfBounds(nx, ny))//kill_part if particle is out of bounds
+		if ((int)(pmap[y][x]>>8)==i)
+			pmap[y][x] = 0;
+		else if ((pmap[y][x]&0xFF)==PT_PINV && (parts[pmap[y][x]>>8].tmp2>>8)==i)
+			parts[pmap[y][x]>>8].tmp2 = 0;
+		else if ((int)(photons[y][x]>>8)==i)
+			photons[y][x] = 0;
+
+		//kill particle if particle is out of bounds
+		if (OutOfBounds(nx, ny))
 		{
-			kill_part(i);
+			part_kill(i);
 			return -1;
 		}
+
 		if (ptypes[t].properties & TYPE_ENERGY)
 			photons[ny][nx] = t|(i<<8);
 		else if (t && (pmap[ny][nx]&0xFF) != PT_PINV && (t!=PT_MOVS || !(pmap[ny][nx]&0xFF) || (pmap[ny][nx]&0xFF) == PT_MOVS))

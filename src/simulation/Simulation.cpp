@@ -93,7 +93,7 @@ void Simulation::Clear()
 	instantActivation = true;
 }
 
-void Simulation::recountElements()
+void Simulation::RecountElements()
 {
 	memset(elementCount, 0, sizeof(elementCount));
 	for (int i = 0; i < NPART; i++)
@@ -1039,7 +1039,7 @@ bool Simulation::UpdateParticle(int i)
 				if ((rt == PT_GLAS && lt != PT_GLAS) || (rt != PT_GLAS && lt == PT_GLAS))
 				{
 					float nrx, nry;
-					if (!get_normal_interp(REFRACT|t, parts[i].x, parts[i].y, parts[i].vx, parts[i].vy, &nrx, &nry))
+					if (!GetNormalInterp(REFRACT|t, parts[i].x, parts[i].y, parts[i].vx, parts[i].vy, &nrx, &nry))
 					{
 						part_kill(i);
 						return true;
@@ -1118,7 +1118,7 @@ bool Simulation::UpdateParticle(int i)
 			if (r&0xFF)
 				parts[i].ctype &= elements[r&0xFF].PhotonReflectWavelengths;
 
-			if (get_normal_interp(t, parts[i].x, parts[i].y, parts[i].vx, parts[i].vy, &nrx, &nry))
+			if (GetNormalInterp(t, parts[i].x, parts[i].y, parts[i].vx, parts[i].vy, &nrx, &nry))
 			{
 				float dp = nrx*parts[i].vx + nry*parts[i].vy;
 				parts[i].vx -= 2.0f*dp*nrx;

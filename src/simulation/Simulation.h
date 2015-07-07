@@ -58,7 +58,7 @@ public:
 	void InitElements();
 	void InitElement(char* name, int id);
 	void Clear();
-	void recountElements();
+	void RecountElements();
 	int part_create(int p, int x, int y, int t, int v = -1);
 	void part_kill(int i);
 	bool part_change_type(int i, int x, int y, int t);
@@ -111,11 +111,9 @@ public:
 	unsigned char can_move[PT_NUM][PT_NUM];
 	bool OutOfBounds(int x, int y);
 	bool IsWallBlocking(int x, int y, int type);
-	void CreateGainPhoton(int pp);
-	void CreateCherenkovPhoton(int pp);
+	bool GetNormalInterp(int pt, float x0, float y0, float dx, float dy, float *nx, float *ny);
 	void InitCanMove();
 	unsigned char EvalMove(int pt, int nx, int ny, unsigned *rr = NULL);
-	int TryMove(int i, int x, int y, int nx, int ny);
 	int DoMove(int i, int x, int y, float nxf, float nyf);
 	int Move(int i, int x, int y, float nxf, float nyf);
 
@@ -166,6 +164,19 @@ public:
 		else if ((photons[y][x]>>8)==i)
 			photons[y][x] = 0;
 	}
+
+private:
+	// some movement functions are private
+	void CreateGainPhoton(int pp);
+	void CreateCherenkovPhoton(int pp);
+	void PhotoelectricEffect(int nx, int ny);
+	unsigned DirectionToMap(float dx, float dy, int t);
+	bool IsBlocking(int t, int x, int y);
+	bool IsBoundary(int pt, int x, int y);
+	bool FindNextBoundary(int pt, int *x, int *y, int dm, int *em);
+	bool GetNormal(int pt, int x, int y, float dx, float dy, float *nx, float *ny);
+
+	int TryMove(int i, int x, int y, int nx, int ny);
 };
 
 void Simulation_Compat_CopyData(Simulation *sim);

@@ -174,7 +174,6 @@ extern int pmap_count[YRES][XRES];
 
 extern unsigned photons[YRES][XRES];
 
-int get_normal_interp(int pt, float x0, float y0, float dx, float dy, float *nx, float *ny);
 int get_wavelength_bin(int *wm);
 
 void kill_part(int i);
