@@ -3788,8 +3788,9 @@ void draw_walls(pixel *vid)
 			if (bmap[y][x])
 			{
 				unsigned char wt = bmap[y][x];
-				if (wt<0 || wt>=WALLCOUNT)
+				if (wt >= WALLCOUNT)
 					continue;
+				unsigned char powered = emap[y][x];
 				pixel pc = PIXPACK(wallTypes[wt].colour);
 				pixel gc = PIXPACK(wallTypes[wt].eglow);
 
@@ -3817,74 +3818,115 @@ void draw_walls(pixel *vid)
 					}
 				}
 
-				// special rendering for some walls
-				if (wt == WL_EWALL)
+				switch (wallTypes[wt].drawstyle)
 				{
-					if (emap[y][x])
+				case 0:
+					if (wt == WL_EWALL)
 					{
-						for (int j = 0; j < CELL; j++)
-							for (int i =0; i < CELL; i++)
-								if (i&j&1)
-									vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = pc;
-					}
-					else
-					{
-						for (int j = 0; j < CELL; j++)
-							for (int i = 0; i < CELL; i++)
-								if (!(i&j&1))
-									vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = pc;
-					}
-				}
-				else if (wt == WL_WALLELEC)
-				{
-					for (int j = 0; j < CELL; j++)
-						for (int i = 0; i < CELL; i++)
+						if (powered)
 						{
-							if (!((y*CELL+j)%2) && !((x*CELL+i)%2))
-								vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = pc;
-							else
-								vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = PIXPACK(0x808080);
+							for (int j = 0; j < CELL; j++)
+								for (int i =0; i < CELL; i++)
+									if (i&j&1)
+										vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = pc;
 						}
-				}
-				else if (wt == WL_EHOLE)
-				{
-					if (emap[y][x])
+						else
+						{
+							for (int j = 0; j < CELL; j++)
+								for (int i = 0; i < CELL; i++)
+									if (!(i&j&1))
+										vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = pc;
+						}
+					}
+					else if (wt == WL_WALLELEC)
 					{
 						for (int j = 0; j < CELL; j++)
 							for (int i = 0; i < CELL; i++)
-								vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = PIXPACK(0x242424);
-						for (int j = 0; j < CELL; j += 2)
-							for (int i = 0; i < CELL; i += 2)
-								vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = PIXPACK(0x000000);
+							{
+								if (!((y*CELL+j)%2) && !((x*CELL+i)%2))
+									vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = pc;
+								else
+									vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = PIXPACK(0x808080);
+							}
 					}
-					else
+					else if (wt == WL_EHOLE)
 					{
-						for (int j = 0; j < CELL; j += 2)
-							for (int i =0; i < CELL; i += 2)
-								vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = PIXPACK(0x242424);
+						if (powered)
+						{
+							for (int j = 0; j < CELL; j++)
+								for (int i = 0; i < CELL; i++)
+									vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = PIXPACK(0x242424);
+							for (int j = 0; j < CELL; j += 2)
+								for (int i = 0; i < CELL; i += 2)
+									vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = PIXPACK(0x000000);
+						}
+						else
+						{
+							for (int j = 0; j < CELL; j += 2)
+								for (int i =0; i < CELL; i += 2)
+									vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = PIXPACK(0x242424);
+						}
 					}
-				}
-				// standard wall patterns
-				else if (wallTypes[wt].drawstyle == 1)
-				{
+					else if (wt == WL_STREAM)
+					{
+						float xf = x*CELL + CELL*0.5f;
+						float yf = y*CELL + CELL*0.5f;
+						int oldX = (int)(xf+0.5f), oldY = (int)(yf+0.5f);
+						int newX, newY;
+						float xVel = vx[y][x]*0.125f, yVel = vy[y][x]*0.125f;
+						// there is no velocity here, draw a streamline and continue
+						if (!xVel && !yVel)
+						{
+							drawtext(vid, x*CELL, y*CELL-2, "\x8D", 255, 255, 255, 128);
+							drawpixel(vid, oldX, oldY, 255, 255, 255, 255);
+							continue;
+						}
+						bool changed = false;
+						for (int t = 0; t < 1024; t++)
+						{
+							newX = (int)(xf+0.5f);
+							newY = (int)(yf+0.5f);
+							if (newX != oldX || newY != oldY)
+							{
+								changed = true;
+								oldX = newX;
+								oldY = newY;
+							}
+							if (changed && (newX<0 || newX>=XRES || newY<0 || newY>=YRES))
+								break;
+							addpixel(vid, newX, newY, 255, 255, 255, 64);
+							// cache velocity and other checks so we aren't running them constantly
+							if (changed)
+							{
+								int wallX = newX/CELL;
+								int wallY = newY/CELL;
+								xVel = vx[wallY][wallX]*0.125f;
+								yVel = vy[wallY][wallX]*0.125f;
+								if (wallX != x && wallY != y && bmap[wallY][wallX] == WL_STREAM)
+									break;
+							}
+							xf += xVel;
+							yf += yVel;
+						}
+						drawtext(vid, x*CELL, y*CELL-2, "\x8D", 255, 255, 255, 128);
+					}
+					break;
+				case 1:
 					for (int j = 0; j < CELL; j += 2)
 						for (int i = (j>>1)&1; i < CELL; i += 2)
 							vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = pc;
-				}
-				else if (wallTypes[wt].drawstyle == 2)
-				{
+					break;
+				case 2:
 					for (int j = 0; j < CELL; j += 2)
 						for (int i = 0; i < CELL; i += 2)
 							vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = pc;
-				}
-				else if (wallTypes[wt].drawstyle == 3 || (wallTypes[wt].drawstyle == -1 && secret_els))
-				{
+					break;
+				case 3:
 					for (int j = 0; j < CELL; j++)
 						for (int i = 0; i < CELL; i++)
 							vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = pc;
-				}
-				else if (wallTypes[wt].drawstyle == 4)
-				{
+					break;
+				case 4:
 					for (int j = 0; j < CELL; j++)
 						for (int i = 0; i < CELL; i++)
 							if (i == j)
@@ -3893,77 +3935,79 @@ void draw_walls(pixel *vid)
 								vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = gc;
 							else
 								vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = PIXPACK(0x202020);
+					break;
 				}
 
 				// when in blob view, draw some blobs...
 				if (render_mode & PMODE_BLOB)
 				{
-					if (wt == WL_EWALL)
+					switch (wallTypes[wt].drawstyle)
 					{
-						if (emap[y][x])
+					case 0:
+						if (wt == WL_EWALL)
+						{
+							if (powered)
+							{
+								for (int j = 0; j < CELL; j++)
+									for (int i =0; i < CELL; i++)
+										if (i&j&1)
+											drawblob(vid, (x*CELL+i), (y*CELL+j), 0x80, 0x80, 0x80);
+							}
+							else
+							{
+								for (int j = 0; j < CELL; j++)
+									for (int i = 0; i < CELL; i++)
+										if (!(i&j&1))
+											drawblob(vid, (x*CELL+i), (y*CELL+j), 0x80, 0x80, 0x80);
+							}
+						}
+						else if (wt == WL_WALLELEC)
 						{
 							for (int j = 0; j < CELL; j++)
 								for (int i =0; i < CELL; i++)
-									if (i&j&1)
+								{
+									if (!((y*CELL+j)%2) && !((x*CELL+i)%2))
+										drawblob(vid, (x*CELL+i), (y*CELL+j), PIXR(pc), PIXG(pc), PIXB(pc));
+									else
 										drawblob(vid, (x*CELL+i), (y*CELL+j), 0x80, 0x80, 0x80);
+								}
 						}
-						else
+						else if (wt == WL_EHOLE)
 						{
-							for (int j = 0; j < CELL; j++)
-								for (int i = 0; i < CELL; i++)
-									if (!(i&j&1))
-										drawblob(vid, (x*CELL+i), (y*CELL+j), 0x80, 0x80, 0x80);
-						}
-					}
-					else if (wt == WL_WALLELEC)
-					{
-						for (int j = 0; j < CELL; j++)
-							for (int i =0; i < CELL; i++)
+							if (powered)
 							{
-								if (!((y*CELL+j)%2) && !((x*CELL+i)%2))
-									drawblob(vid, (x*CELL+i), (y*CELL+j), PIXR(pc), PIXG(pc), PIXB(pc));
-								else
-									drawblob(vid, (x*CELL+i), (y*CELL+j), 0x80, 0x80, 0x80);
+								for (int j = 0; j < CELL; j++)
+									for (int i = 0; i < CELL; i++)
+										drawblob(vid, (x*CELL+i), (y*CELL+j), 0x24, 0x24, 0x24);
+								for (int j = 0; j < CELL; j += 2)
+									for (int i = 0; i < CELL; i += 2)
+										// looks bad if drawing black blobs
+										vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = PIXPACK(0x000000);
 							}
-					}
-					else if (wt == WL_EHOLE)
-					{
-						if (emap[y][x])
-						{
-							for (int j = 0; j < CELL; j++)
-								for (int i = 0; i < CELL; i++)
-									drawblob(vid, (x*CELL+i), (y*CELL+j), 0x24, 0x24, 0x24);
-							for (int j = 0; j < CELL; j += 2)
-								for (int i = 0; i < CELL; i += 2)
-									vid[(y*CELL+j)*(XRES+BARSIZE)+(x*CELL+i)] = PIXPACK(0x000000);
+							else
+							{
+								for (int j = 0; j < CELL; j += 2)
+									for (int i = 0; i < CELL; i += 2)
+										drawblob(vid, (x*CELL+i), (y*CELL+j), 0x24, 0x24, 0x24);
+							}
 						}
-						else
-						{
-							for (int j = 0; j < CELL; j += 2)
-								for (int i = 0; i < CELL; i += 2)
-									drawblob(vid, (x*CELL+i), (y*CELL+j), 0x24, 0x24, 0x24);
-						}
-					}
-					else if (wallTypes[wt].drawstyle == 1)
-					{
+						break;
+					 case 1:
 						for (int j = 0; j < CELL; j += 2)
 							for (int i = (j>>1)&1; i < CELL; i += 2)
 								drawblob(vid, (x*CELL+i), (y*CELL+j), PIXR(pc), PIXG(pc), PIXB(pc));
-					}
-					else if (wallTypes[wt].drawstyle == 2)
-					{
+						break;
+					case 2:
 						for (int j = 0; j < CELL; j += 2)
 							for (int i = 0; i < CELL; i+=2)
 								drawblob(vid, (x*CELL+i), (y*CELL+j), PIXR(pc), PIXG(pc), PIXB(pc));
-					}
-					else if (wallTypes[wt].drawstyle == 3)
-					{
+						break;
+					case 3:
 						for (int j = 0; j < CELL; j++)
 							for (int i = 0; i < CELL; i++)
 								drawblob(vid, (x*CELL+i), (y*CELL+j), PIXR(pc), PIXG(pc), PIXB(pc));
-					}
-					else if (wallTypes[wt].drawstyle == 4)
-					{
+						break;
+					case 4:
 						for (int j = 0; j < CELL; j++)
 							for (int i = 0; i < CELL; i++)
 								if (i == j)
@@ -3972,10 +4016,11 @@ void draw_walls(pixel *vid)
 									drawblob(vid, (x*CELL+i), (y*CELL+j), PIXR(gc), PIXG(gc), PIXB(gc));
 								else
 									drawblob(vid, (x*CELL+i), (y*CELL+j), 0x20, 0x20, 0x20);
+						break;
 					}
 				}
 
-				if (wallTypes[wt].eglow && emap[y][x] && (render_mode & FIRE_BLEND))
+				if (wallTypes[wt].eglow && powered && (render_mode & FIRE_BLEND))
 				{
 					// glow if electrified
 					ARGBColour glow = wallTypes[wt].eglow;
@@ -3994,53 +4039,6 @@ void draw_walls(pixel *vid)
 					fire_g[y][x] = cg;
 					fire_b[y][x] = cb;
 				}
-			}
-
-	// draw streamlines
-	for (int y = 0; y < YRES/CELL; y++)
-		for (int x = 0; x < XRES/CELL; x++)
-			if (bmap[y][x] == WL_STREAM)
-			{
-				float xf = x*CELL + CELL*0.5f;
-				float yf = y*CELL + CELL*0.5f;
-				int oldX = (int)(xf+0.5f), oldY = (int)(yf+0.5f);
-				int newX, newY;
-				float xVel = vx[y][x]*0.125f, yVel = vy[y][x]*0.125f;
-				// there is no velocity here, draw a streamline and continue
-				if (!xVel && !yVel)
-				{
-					drawtext(vid, x*CELL, y*CELL-2, "\x8D", 255, 255, 255, 128);
-					drawpixel(vid, oldX, oldY, 255, 255, 255, 255);
-					continue;
-				}
-				bool changed = false;
-				for (int t = 0; t < 1024; t++)
-				{
-					newX = (int)(xf+0.5f);
-					newY = (int)(yf+0.5f);
-					if (newX != oldX || newY != oldY)
-					{
-						changed = true;
-						oldX = newX;
-						oldY = newY;
-					}
-					if (changed && (newX<0 || newX>=XRES || newY<0 || newY>=YRES))
-						break;
-					addpixel(vid, newX, newY, 255, 255, 255, 64);
-					// cache velocity and other checks so we aren't running them constantly
-					if (changed)
-					{
-						int wallX = newX/CELL;
-						int wallY = newY/CELL;
-						xVel = vx[wallY][wallX]*0.125f;
-						yVel = vy[wallY][wallX]*0.125f;
-						if (wallX != x && wallY != y && bmap[wallY][wallX] == WL_STREAM)
-							break;
-					}
-					xf += xVel;
-					yf += yVel;
-				}
-				drawtext(vid, x*CELL, y*CELL-2, "\x8D", 255, 255, 255, 128);
 			}
 }
 
