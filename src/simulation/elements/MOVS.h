@@ -196,7 +196,7 @@ public:
 						rotate(&tmp, &tmp2, movingSolid->rotationOld);
 					float nx = parts[movingSolid->index-1].x + tmp;
 					float ny = parts[movingSolid->index-1].y + tmp2;
-					move(i,(int)(parts[i].x+.5f),(int)(parts[i].y+.5f),nx,ny);
+					sim->Move(i,(int)(parts[i].x+.5f),(int)(parts[i].y+.5f),nx,ny);
 
 					if (sim->msRotation)
 					{
@@ -216,7 +216,7 @@ public:
 					parts[i].vx = movingSolid->vx;
 					parts[i].vy = movingSolid->vy;
 				}
-				if (OutOfBounds((int)(parts[i].x+.5f), (int)(parts[i].y+.5f)))//kill_part if particle is out of bounds
+				if (sim->OutOfBounds((int)(parts[i].x+.5f), (int)(parts[i].y+.5f)))//kill_part if particle is out of bounds
 					kill_part(i);
 			}
 		}

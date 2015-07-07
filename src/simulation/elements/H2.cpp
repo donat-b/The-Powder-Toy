@@ -88,7 +88,7 @@ int H2_update(UPDATE_FUNC_ARGS)
 				parts[j].tmp = 0x1;
 			}
 			rx = x+rand()%3-1, ry = y+rand()%3-1, rt = pmap[ry][rx]&0xFF;
-			if (can_move[PT_PLSM][rt] || rt == PT_H2)
+			if (sim->can_move[PT_PLSM][rt] || rt == PT_H2)
 			{
 				j = sim->part_create(-3,x+rand()%3-1,y+rand()%3-1,PT_PLSM);
 				if (j > -1)

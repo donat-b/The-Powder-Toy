@@ -48,13 +48,11 @@ public:
 	int debug_currentParticle;
 	bool forceStackingCheck;
 
-	//settings
+	// settings
 	bool msRotation; //for moving solids
 	int maxFrames;   //for animated LCRY
 	bool instantActivation; //electronics are instantly activated
 	
-
-
 	Simulation();
 	~Simulation();
 	void InitElements();
@@ -78,6 +76,7 @@ public:
 	void spark_conductive(int i, int x, int y);
 	bool spark_conductive_attempt(int i, int x, int y);
 
+	// Element drawing functions
 	int lightningRecreate; //timer for when LIGH can be created again
 	int CreateParts(int x, int y, int c, int flags, bool fill, Brush* brush = NULL);
 	int CreatePartFlags(int x, int y, int c, int flags);
@@ -108,9 +107,20 @@ public:
 	void CreateDecoBox(int x1, int y1, int x2, int y2, int tool, ARGBColour color);
 	void FloodDeco(int x, int y, ARGBColour color, ARGBColour replace);
 
+	// movement, functions implemented in Movement.cpp
+	unsigned char can_move[PT_NUM][PT_NUM];
+	bool OutOfBounds(int x, int y);
+	bool IsWallBlocking(int x, int y, int type);
+	void CreateGainPhoton(int pp);
+	void CreateCherenkovPhoton(int pp);
+	void InitCanMove();
+	unsigned char EvalMove(int pt, int nx, int ny, unsigned *rr = NULL);
+	int TryMove(int i, int x, int y, int nx, int ny);
+	int DoMove(int i, int x, int y, float nxf, float nyf);
+	int Move(int i, int x, int y, float nxf, float nyf);
+
 	// Functions defined here should hopefully be inlined
 	// Don't put anything that will change often here, since changes cause a lot of recompiling
-
 	bool IsElement(int t) const
 	{
 		return (t>0 && t<PT_NUM && elements[t].Enabled);

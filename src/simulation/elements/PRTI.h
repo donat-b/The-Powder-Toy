@@ -17,6 +17,7 @@
 #define SIMULATION_ELEMENTS_PRTI_H 
 
 #include <cstring>
+#include <algorithm>
 #include "simulation/ElementDataContainer.h"
 #include "powder.h"
 
@@ -94,7 +95,7 @@ public:
 		if (rx>1 || ry>1 || rx<-1 || ry<-1)
 		{
 			// scale down if larger than +-1
-			float rmax = std::max(fabsf((float)rx), fabsf((float)ry));
+			float rmax = std::max(std::abs(rx), std::abs(ry));
 			rx = (int)(rx/rmax);
 			ry = (int)(ry/rmax);
 		}

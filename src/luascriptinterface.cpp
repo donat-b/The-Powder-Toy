@@ -1252,12 +1252,12 @@ int simulation_canMove(lua_State * l)
 	
 	if (lua_gettop(l) < 3)
 	{
-		lua_pushnumber(l, can_move[movingElement][destinationElement]);
+		lua_pushnumber(l, globalSim->can_move[movingElement][destinationElement]);
 		return 1;
 	}
 	else
 	{
-		can_move[movingElement][destinationElement] = (unsigned char)luaL_checkint(l, 3);
+		globalSim->can_move[movingElement][destinationElement] = (unsigned char)luaL_checkint(l, 3);
 		return 0;
 	}
 }
@@ -2527,7 +2527,7 @@ int elements_loadDefault(lua_State * l)
 	}
 
 	FillMenus();
-	init_can_move();
+	globalSim->InitCanMove();
 	memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
 	return 0;
 }
@@ -2639,7 +2639,7 @@ int elements_element(lua_State * l)
 
 		Simulation_Compat_CopyData(globalSim);
 		FillMenus();
-		init_can_move();
+		globalSim->InitCanMove();
 		graphicscache[id].isready = 0;
 
 		lua_pop(l, 1);
@@ -2689,7 +2689,7 @@ int elements_property(lua_State * l)
 				if (modifiedStuff & LUACON_EL_MODIFIED_MENUS)
 					FillMenus();
 				if (modifiedStuff & LUACON_EL_MODIFIED_CANMOVE)
-					init_can_move();
+					globalSim->InitCanMove();
 				if (modifiedStuff & LUACON_EL_MODIFIED_GRAPHICS)
 					graphicscache[id].isready = 0;
 			}

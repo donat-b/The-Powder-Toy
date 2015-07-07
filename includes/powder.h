@@ -177,16 +177,6 @@ extern unsigned photons[YRES][XRES];
 int get_normal_interp(int pt, float x0, float y0, float dx, float dy, float *nx, float *ny);
 int get_wavelength_bin(int *wm);
 
-int OutOfBounds(int x, int y);
-int move(int i, int x, int y, float nxf, float nyf);
-int do_move(int i, int x, int y, float nxf, float nyf);
-int try_move(int i, int x, int y, int nx, int ny);
-int eval_move(int pt, int nx, int ny, unsigned *rr = NULL);
-
-extern unsigned char can_move[PT_NUM][PT_NUM];
-void init_can_move();
-int IsWallBlocking(int x, int y, int type);
-
 void kill_part(int i);
 
 int interactWavelengths(particle* cpart, int origWl);

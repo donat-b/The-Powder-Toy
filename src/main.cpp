@@ -1154,7 +1154,7 @@ int main(int argc, char *argv[])
 	currentBrush = new Brush(Point(5, 5), CIRCLE_BRUSH);
 
 	cb_parts = (particle*)calloc(sizeof(particle), NPART);
-	init_can_move();
+	mainSim->InitCanMove();
 
 #ifdef LUACONSOLE
 	luacon_open();

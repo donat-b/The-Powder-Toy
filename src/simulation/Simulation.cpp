@@ -212,7 +212,7 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 		// If there isn't a particle but there is a wall, check whether the new particle is allowed to be in it
 		//   (not "!=2" for wall check because eval_move returns 1 for moving into empty space)
 		// If there's no particle and no wall, assume creation is allowed
-		if (pmap[y][x] ? (eval_move(t, x, y)!=2) : (bmap[y/CELL][x/CELL] && eval_move(t, x, y)==0))
+		if (pmap[y][x] ? (EvalMove(t, x, y)!=2) : (bmap[y/CELL][x/CELL] && EvalMove(t, x, y)==0))
 		{
 			return -1;
 		}
@@ -1004,7 +1004,7 @@ bool Simulation::UpdateParticle(int i)
 			}
 			//block if particle can't move (0), or some special cases where it returns 1 (can_move = 3 but returns 1 meaning particle will be eaten)
 			//also photons are still blocked (slowed down) by any particle (even ones it can move through), and absorb wall also blocks particles
-			int eval = eval_move(t, fin_x, fin_y);
+			int eval = EvalMove(t, fin_x, fin_y);
 			if (!eval || (can_move[t][pmap[fin_y][fin_x]&0xFF] == 3 && eval == 1) || (t == PT_PHOT && pmap[fin_y][fin_x]) || bmap[fin_y/CELL][fin_x/CELL]==WL_DESTROYALL)
 			{
 				// found an obstacle
@@ -1025,13 +1025,13 @@ bool Simulation::UpdateParticle(int i)
 	if (t == PT_STKM || t == PT_STKM2 || t == PT_FIGH)
 	{
 		//head movement, let head pass through anything
-		move(i, x, y, parts[i].x+parts[i].vx, parts[i].y+parts[i].vy);
+		Move(i, x, y, parts[i].x+parts[i].vx, parts[i].y+parts[i].vy);
 	}
 	else if (elements[t].Properties & TYPE_ENERGY)
 	{
 		if (t == PT_PHOT)
 		{
-			if (eval_move(PT_PHOT, fin_x, fin_y))
+			if (EvalMove(PT_PHOT, fin_x, fin_y))
 			{
 				int rt = pmap[fin_y][fin_x] & 0xFF;
 				int lt = pmap[y][x] & 0xFF;
@@ -1084,13 +1084,13 @@ bool Simulation::UpdateParticle(int i)
 		if (stagnant)
 		{
 			// cast coords as int then back to float for compatibility with existing saves
-			if (!do_move(i, x, y, (float)fin_x, (float)fin_y) && parts[i].type)
+			if (!DoMove(i, x, y, (float)fin_x, (float)fin_y) && parts[i].type)
 			{
 				part_kill(i);
 				return true;
 			}
 		}
-		else if (!do_move(i, x, y, fin_xf, fin_yf))
+		else if (!DoMove(i, x, y, fin_xf, fin_yf))
 		{
 			float nrx, nry;
 			if (parts[i].type == PT_NONE)
@@ -1144,7 +1144,7 @@ bool Simulation::UpdateParticle(int i)
 	// gases and solids (but not powders)
 	else if (elements[t].Falldown == 0)
 	{
-		if (!do_move(i, x, y, fin_xf, fin_yf))
+		if (!DoMove(i, x, y, fin_xf, fin_yf))
 		{
 			if (parts[i].type == PT_NONE)
 				return true;
@@ -1154,11 +1154,11 @@ bool Simulation::UpdateParticle(int i)
 			if (fin_x < x-ISTP) fin_x = x-ISTP;
 			if (fin_y > y+ISTP) fin_y = y+ISTP;
 			if (fin_y < y-ISTP) fin_y = y-ISTP;
-			if (do_move(i, x, y, 0.25f+(float)(2*x-fin_x), 0.25f+fin_y))
+			if (DoMove(i, x, y, 0.25f+(float)(2*x-fin_x), 0.25f+fin_y))
 			{
 				parts[i].vx *= elements[t].Collision;
 			}
-			else if (do_move(i, x, y, 0.25f+fin_x, 0.25f+(float)(2*y-fin_y)))
+			else if (DoMove(i, x, y, 0.25f+fin_x, 0.25f+(float)(2*y-fin_y)))
 			{
 				parts[i].vy *= elements[t].Collision;
 			}
@@ -1178,16 +1178,16 @@ bool Simulation::UpdateParticle(int i)
 			if (!flood_water(x, y, i, y, parts[i].flags&FLAG_WATEREQUAL))
 				return false;
 		}
-		if (!do_move(i, x, y, fin_xf, fin_yf))
+		if (!DoMove(i, x, y, fin_xf, fin_yf))
 		{
 			if (parts[i].type == PT_NONE)
 				return true;
-			if (fin_x != x && do_move(i, x, y, fin_xf, clear_yf))
+			if (fin_x != x && DoMove(i, x, y, fin_xf, clear_yf))
 			{
 				parts[i].vx *= elements[t].Collision;
 				parts[i].vy *= elements[t].Collision;
 			}
-			else if (fin_y != y && do_move(i, x, y, clear_xf, fin_yf))
+			else if (fin_y != y && DoMove(i, x, y, clear_xf, fin_yf))
 			{
 				parts[i].vx *= elements[t].Collision;
 				parts[i].vy *= elements[t].Collision;
@@ -1209,7 +1209,7 @@ bool Simulation::UpdateParticle(int i)
 						mv = fabsf(dx);
 					dx /= mv;
 					dy /= mv;
-					if (do_move(i, x, y, clear_xf+dx, clear_yf+dy))
+					if (DoMove(i, x, y, clear_xf+dx, clear_yf+dy))
 					{
 						parts[i].vx *= elements[t].Collision;
 						parts[i].vy *= elements[t].Collision;
@@ -1218,7 +1218,7 @@ bool Simulation::UpdateParticle(int i)
 					float swappage = dx;
 					dx = dy*r;
 					dy = -swappage*r;
-					if (do_move(i, x, y, clear_xf+dx, clear_yf+dy))
+					if (DoMove(i, x, y, clear_xf+dx, clear_yf+dy))
 					{
 						parts[i].vx *= elements[t].Collision;
 						parts[i].vy *= elements[t].Collision;
@@ -1241,14 +1241,14 @@ bool Simulation::UpdateParticle(int i)
 					for (int j=clear_x+r; j>=0 && j>=clear_x-rt && j<clear_x+rt && j<XRES; j+=r)
 					{
 						if (((pmap[fin_y][j]&0xFF)!=t || bmap[fin_y/CELL][j/CELL])
-							&& (s=do_move(i, x, y, (float)j, fin_yf)))
+							&& (s=DoMove(i, x, y, (float)j, fin_yf)))
 						{
 							nx = (int)(parts[i].x+0.5f);
 							ny = (int)(parts[i].y+0.5f);
 							break;
 						}
 						if (fin_y!=clear_y && ((pmap[clear_y][j]&0xFF)!=t || bmap[clear_y/CELL][j/CELL])
-							&& (s=do_move(i, x, y, (float)j, clear_yf)))
+							&& (s=DoMove(i, x, y, (float)j, clear_yf)))
 						{
 							nx = (int)(parts[i].x+0.5f);
 							ny = (int)(parts[i].y+0.5f);
@@ -1264,13 +1264,13 @@ bool Simulation::UpdateParticle(int i)
 					if (s == 1)
 						for (int j=ny+r; j>=0 && j<YRES && j>=ny-rt && j<ny+rt; j+=r)
 						{
-							if (((pmap[j][nx]&0xFF)!=t || bmap[j/CELL][nx/CELL]) && do_move(i, nx, ny, (float)nx, (float)j))
+							if (((pmap[j][nx]&0xFF)!=t || bmap[j/CELL][nx/CELL]) && DoMove(i, nx, ny, (float)nx, (float)j))
 								break;
 							if ((pmap[j][nx]&255)!=t || (bmap[j/CELL][nx/CELL] && bmap[j/CELL][nx/CELL]!=WL_STREAM))
 								break;
 						}
 					else if (s==-1) {} // particle is out of bounds
-					else if ((clear_x!=x||clear_y!=y) && do_move(i, x, y, clear_xf, clear_yf)) {}
+					else if ((clear_x!=x||clear_y!=y) && DoMove(i, x, y, clear_xf, clear_yf)) {}
 					else parts[i].flags |= FLAG_STAGNANT;
 					parts[i].vx *= elements[t].Collision;
 					parts[i].vy *= elements[t].Collision;
@@ -1343,7 +1343,7 @@ bool Simulation::UpdateParticle(int i)
 							break;
 						if ((pmap[ny][nx]&0xFF)!=t || bmap[ny/CELL][nx/CELL])
 						{
-							s = do_move(i, x, y, nxf, nyf);
+							s = DoMove(i, x, y, nxf, nyf);
 							if (s)
 							{
 								// Movement was successful
@@ -1400,14 +1400,14 @@ bool Simulation::UpdateParticle(int i)
 							// If the space is anything except the same element (a wall, empty space, or occupied by a particle of a different element), try to move into it
 							if ((pmap[ny][nx]&0xFF)!=t || bmap[ny/CELL][nx/CELL])
 							{
-								s = do_move(i, clear_x, clear_y, nxf, nyf);
+								s = DoMove(i, clear_x, clear_y, nxf, nyf);
 								if (s || bmap[ny/CELL][nx/CELL]!=WL_STREAM)
 									break; // found the edge of the liquid and movement into it succeeded, so stop moving down
 							}
 						}
 					}
 					else if (s==-1) {} // particle is out of bounds
-					else if ((clear_x!=x || clear_y!=y) && do_move(i, x, y, clear_xf, clear_yf)) {} // try moving to the last clear position
+					else if ((clear_x!=x || clear_y!=y) && DoMove(i, x, y, clear_xf, clear_yf)) {} // try moving to the last clear position
 					else parts[i].flags |= FLAG_STAGNANT;
 					parts[i].vx *= elements[t].Collision;
 					parts[i].vy *= elements[t].Collision;
@@ -1415,7 +1415,7 @@ bool Simulation::UpdateParticle(int i)
 				else
 				{
 					// if interpolation was done, try moving to last clear position
-					if ((clear_x!=x || clear_y!=y) && do_move(i, x, y, clear_xf, clear_yf)) {}
+					if ((clear_x!=x || clear_y!=y) && DoMove(i, x, y, clear_xf, clear_yf)) {}
 					else parts[i].flags |= FLAG_STAGNANT;
 					parts[i].vx *= elements[t].Collision;
 					parts[i].vy *= elements[t].Collision;

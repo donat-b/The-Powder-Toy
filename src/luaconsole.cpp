@@ -703,7 +703,7 @@ int luacon_elementwrite(lua_State* l)
 		if (modified_stuff & LUACON_EL_MODIFIED_MENUS)
 			FillMenus();
 		if (modified_stuff & LUACON_EL_MODIFIED_CANMOVE)
-			init_can_move();
+			globalSim->InitCanMove();
 		if (modified_stuff & LUACON_EL_MODIFIED_GRAPHICS)
 			memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
 	}
