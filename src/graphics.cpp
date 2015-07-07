@@ -17,7 +17,7 @@
 
 #include <math.h>
 #include <sstream>
-#ifdef SDL_R_INC
+#ifdef SDL_R_INCL
 #include <SDL.h>
 #else
 #include <SDL/SDL.h>
@@ -25,7 +25,7 @@
 #include <bzlib.h>
 #include <climits>
 #if defined(WIN) || defined(LIN)
-#ifdef SDL_R_INC
+#ifdef SDL_R_INCL
 #include <SDL_syswm.h>
 #else
 #include <SDL/SDL_syswm.h>

@@ -17,7 +17,7 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 #include <string>
-#ifdef SDL_R_INC
+#ifdef SDL_R_INCL
 #include <SDL.h>
 #else
 #include <SDL/SDL.h>

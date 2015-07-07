@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#ifdef SDL_R_INC
+#ifdef SDL_R_INCL
 #include <SDL.h>
 #else
 #include <SDL/SDL.h>

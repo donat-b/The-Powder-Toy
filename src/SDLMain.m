@@ -5,7 +5,7 @@
     Feel free to customize this file to suit your needs
 */
 
-#ifdef SDL_R_INC
+#ifdef SDL_R_INCL
 #include <SDL.h>
 #else
 #include <SDL/SDL.h>
