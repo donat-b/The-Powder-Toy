@@ -1,4 +1,8 @@
+#ifdef SDL_R_INCL
+#include <SDL.h>
+#else
 #include <SDL/SDL.h>
+#endif
 #ifdef WIN
 #include <windows.h>
 //#include <Shellapi.h>

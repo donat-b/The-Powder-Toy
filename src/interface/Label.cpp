@@ -1,6 +1,10 @@
 #include <algorithm>
 #include <cstdlib>
+#ifdef SDL_R_INCL
+#include <SDL_keysym.h>
+#else
 #include <SDL/SDL_keysym.h>
+#endif
 #include "Label.h"
 #include "misc.h"
 #include "graphics/VideoBuffer.h"
