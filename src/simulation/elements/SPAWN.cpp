@@ -15,13 +15,6 @@
 
 #include "simulation/ElementsCommon.h"
 
-int SPAWN_update(UPDATE_FUNC_ARGS)
-{
-	if (globalSim->elementCount[PT_STKM]<=0)
-		sim->part_create(-1, x, y, PT_STKM);
-	return 0;
-}
-
 bool SPAWN_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 {
 	return (sim->elementCount[t]<=0);

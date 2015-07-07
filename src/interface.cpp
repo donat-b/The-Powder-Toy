@@ -7426,8 +7426,6 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 				currV = my - 5;
 				HSV_to_RGB(currH,currS,tv,&currR,&currG,&currB);
 				deco_disablestuff = 1;
-				if (activeTools[0]->GetIdentifier() != "DEFAULT_DECOR_SET")
-					activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOR_SET");
 			}
 			HSV_to_RGB(currH,currS,tv,&cr,&cg,&cb);
 			//clearrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6,12,12);
@@ -7453,8 +7451,6 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 				currS = ts;
 				HSV_to_RGB(th,ts,currV,&currR,&currG,&currB);
 				deco_disablestuff = 1;
-				if (activeTools[0]->GetIdentifier() != "DEFAULT_DECOR_SET")
-					activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOR_SET");
 			}
 			HSV_to_RGB(th,ts,currV,&cr,&cg,&cb);
 			//clearrect(vid_buf, window_offset_x + onleft_button_offset_x +1, window_offset_y +255+6,12,12);
