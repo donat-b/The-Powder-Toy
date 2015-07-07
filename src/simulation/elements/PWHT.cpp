@@ -73,21 +73,10 @@ int PWHT_flood(UPDATE_FUNC_ARGS)
 
 int PWHT_update(UPDATE_FUNC_ARGS)
 {
-	int r = pmap[y-1][x];
 	if (parts[i].life < 10)
 		return 0;
-	if ((r&0xFF) == PT_PWHT)
-	{
-		for (int rx=-1; rx<2; rx++)
-			for (int ry=-1; ry<2; ry++)
-				if (BOUNDS_CHECK)
-				{
-					if ((pmap[y+ry][x+rx]&0xFF) == PT_PWHT)
-						kill_part(pmap[y+ry][x+rx]>>8);
-				}
-		return 1;
-	}
-	else if (r&0xFF)
+	int r = pmap[y-1][x];
+	if (r&0xFF)
 	{
 		if (!parts[i].ctype && !parts[i].tmp2)
 		{
@@ -109,6 +98,12 @@ int PWHT_graphics(GRAPHICS_FUNC_ARGS)
 	*colb += lifemod;
 	return 0;
 }
+
+bool PWHT_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
+{
+	return (y > 0 && (pmap[y-1][x]&0xFF) != PT_PWHT) && (y < YRES-1 && (pmap[y+1][x]&0xFF) != PT_PWHT);
+}
+
 void PWHT_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_PWHT";
@@ -156,5 +151,6 @@ void PWHT_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &PWHT_update;
 	elem->Graphics = &PWHT_graphics;
+	elem->Func_Create_Allowed = &PWHT_create_allowed;
 	elem->Init = &PWHT_init_element;
 }

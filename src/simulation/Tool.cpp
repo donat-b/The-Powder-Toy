@@ -68,6 +68,8 @@ int Tool::FloodFill(Brush* brush, Point position)
 	switch (ID)
 	{
 	case PT_LIGH:
+	case PT_PWHT:
+	case PT_MOVS:
 		return 0;
 	case PT_TESC:
 	{
