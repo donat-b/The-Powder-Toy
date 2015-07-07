@@ -2106,16 +2106,10 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		freeIndices = (int*)calloc(sizeof(int), NPART);
 		partsSimIndex = (unsigned*)calloc(NPART, sizeof(unsigned));
 		partsCount = 0;
-		for (i = 0; i<NPART; i++)
+		for (int i = 0; i < NPART; i++)
 		{
-			//Ensure ALL parts (even photons) are in the pmap so we can overwrite, keep a track of indices we can use
-			if (partsptr[i].type)
-			{
-				x = (int)(partsptr[i].x+0.5f);
-				y = (int)(partsptr[i].y+0.5f);
-				pmap[y][x] = (i<<8)|1;
-			}
-			else
+			// keep a track of indices we can use
+			if (!partsptr[i].type)
 				freeIndices[freeIndicesCount++] = i;
 		}
 		i = 0;
@@ -2138,18 +2132,26 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					y = saved_y + fullY;
 					fieldDescriptor = partsData[i+1];
 					fieldDescriptor |= partsData[i+2] << 8;
-					if(x >= XRES || x < 0 || y >= YRES || y < 0)
+					if (x >= XRES || x < 0 || y >= YRES || y < 0)
 					{
 						fprintf(stderr, "Out of range [%d]: %d %d, [%d, %d], [%d, %d]\n", i, x, y, (unsigned)partsData[i+1], (unsigned)partsData[i+2], (unsigned)partsData[i+3], (unsigned)partsData[i+4]);
 						goto fail;
 					}
-					if(partsData[i] >= PT_NUM)
+					if (partsData[i] >= PT_NUM)
 						partsData[i] = PT_DMND;	//Replace all invalid elements with diamond
-					if(pmap[y][x] && posCount==0) // Check posCount to make sure an existing particle is not replaced twice if two particles are saved in that position
+					if (pmap[y][x] && posCount==0) // Check posCount to make sure an existing particle is not replaced twice if two particles are saved in that position
 					{
 						//Replace existing particle or allocated block
 						newIndex = pmap[y][x]>>8;
 						globalSim->elementCount[parts[newIndex].type]--;
+						pmap[y][x] = 0;
+					}
+					else if(photons[y][x] && posCount==0)
+					{
+						//Replace existing particle or allocated block
+						newIndex = photons[y][x]>>8;
+						globalSim->elementCount[parts[newIndex].type]--;
+						photons[y][x] = 0;
 					}
 					else if(freeIndicesIndex<freeIndicesCount)
 					{

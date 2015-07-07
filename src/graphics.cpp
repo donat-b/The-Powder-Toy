@@ -4020,7 +4020,7 @@ void draw_walls(pixel *vid)
 					}
 				}
 
-				if (wallTypes[wt].eglow && powered && (render_mode & FIRE_BLEND))
+				if (wallTypes[wt].eglow && powered)
 				{
 					// glow if electrified
 					ARGBColour glow = wallTypes[wt].eglow;
