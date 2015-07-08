@@ -97,7 +97,7 @@ void CO2_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Gravity = 0.1f;
 	elem->Diffusion = 1.0f;
 	elem->HotAir = 0.000f	* CFDS;
-	elem->Falldown = 1;
+	elem->Falldown = 0;
 
 	elem->Flammable = 0;
 	elem->Explosive = 0;
