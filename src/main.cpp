@@ -2670,6 +2670,39 @@ int main(int argc, char *argv[])
 			if (newToolTip.length())
 				UpdateToolTip(newToolTip, Point(16, YRES-24), TOOLTIP, -1);
 		}
+		else if (mx < XRES && my < YRES)
+		{
+			int signID = InsideSign(mx, my, false);
+			if (signID != -1)
+			{
+				char type = signs[signID].text[1];
+				if (type == 'c' || type == 't' || type == 's')
+				{
+					char buff[256];
+					memset(buff, 0, sizeof(buff));
+
+					int sldr;
+					for (sldr = 3; signs[signID].text[sldr] != '|'; sldr++)
+						buff[sldr-3] = signs[signID].text[sldr];
+					buff[sldr-3] = 0;
+
+					std::stringstream tooltip;
+					switch (type)
+					{
+					case 'c':
+						tooltip << "Go to save ID:" << buff;
+						break;
+					case 't':
+						tooltip << "Open forum thread " << buff << " in browser";
+						break;
+					case 's':
+						tooltip << "Search for " << buff;
+						break;
+					}
+					UpdateToolTip(tooltip.str(), Point(16, YRES-24), TOOLTIP, -1);
+				}
+			}
+		}
 		
 		if (!sdl_zoom_trig && zoom_en==1)
 			zoom_en = 0;
