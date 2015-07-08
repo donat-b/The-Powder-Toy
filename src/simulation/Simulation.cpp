@@ -50,7 +50,7 @@ Simulation::Simulation():
 	instantActivation(true),
 	lightningRecreate(0)
 {
-	memset(elementData, 0, sizeof(elementData));
+	std::fill(&elementData[0], &elementData[PT_NUM], static_cast<ElementDataContainer*>(NULL));
 	Clear();
 }
 
@@ -86,7 +86,7 @@ void Simulation::Clear()
 			elementData[t]->Simulation_Cleared(this);
 		}
 	}
-	memset(elementCount, 0, sizeof(elementCount));
+	std::fill(&elementCount[0], &elementCount[PT_NUM], 0);
 	pfree = 0;
 	parts_lastActiveIndex = NPART-1;
 
@@ -95,7 +95,7 @@ void Simulation::Clear()
 
 void Simulation::RecountElements()
 {
-	memset(elementCount, 0, sizeof(elementCount));
+	std::fill(&elementCount[0], &elementCount[PT_NUM], 0);
 	for (int i = 0; i < NPART; i++)
 		if (parts[i].type)
 			elementCount[parts[i].type]++;
@@ -257,13 +257,13 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 	// Fancy dust effects for powder types
 	if ((elements[t].Properties & TYPE_PART) && pretty_powder)
 	{
-		int colr, colg, colb;
-		colr = (int)(COLR(elements[t].Colour)+sandcolor*1.3f+(rand()%40)-20+(rand()%30)-15);
-		colg = (int)(COLG(elements[t].Colour)+sandcolor*1.3f+(rand()%40)-20+(rand()%30)-15);
-		colb = (int)(COLB(elements[t].Colour)+sandcolor*1.3f+(rand()%40)-20+(rand()%30)-15);
-		colr = colr>255 ? 255 : (colr<0 ? 0 : colr);
-		colg = colg>255 ? 255 : (colg<0 ? 0 : colg);
-		colb = colb>255 ? 255 : (colb<0 ? 0 : colb);
+		int sandcolor = (int)(20.0f*sin((float)(currentTick%360)*(M_PI/180.0f)));
+		int colr = (int)(COLR(elements[t].Colour)+sandcolor*1.3f+(rand()%40)-20+(rand()%30)-15);
+		int colg = (int)(COLG(elements[t].Colour)+sandcolor*1.3f+(rand()%40)-20+(rand()%30)-15);
+		int colb = (int)(COLB(elements[t].Colour)+sandcolor*1.3f+(rand()%40)-20+(rand()%30)-15);
+		colr = std::max(0, std::min(255, colr));
+		colg = std::max(0, std::min(255, colg));
+		colb = std::max(0, std::min(255, colb));
 		parts[i].dcolour = COLARGB(rand()%150, colr, colg, colb);
 	}
 
@@ -398,9 +398,9 @@ void Simulation::RecalcFreeParticles()
 	int lastPartUsed = 0;
 	int lastPartUnused = -1;
 
-	memset(pmap, 0, sizeof(pmap));
-	memset(pmap_count, 0, sizeof(pmap_count));
-	memset(photons, 0, sizeof(photons));
+	std::fill_n(&pmap[0][0], XRES*YRES, 0);
+	std::fill_n(&pmap_count[0][0], XRES*YRES, 0);
+	std::fill_n(&photons[0][0], XRES*YRES, 0);
 
 	NUM_PARTS = 0;
 	for (int i = 0; i <= parts_lastActiveIndex; i++)//the particle loop that resets the pmap/photon maps every frame, to update them.
@@ -2299,9 +2299,10 @@ int Simulation::FloodProp(int x, int y, PropertyType propType, PropertyValue pro
 	if (!r)
 		return 0;
 	int parttype = (r&0xFF);
-	char * bitmap = (char*)malloc(XRES*YRES); //Bitmap for checking
-	if (!bitmap) return -1;
-	memset(bitmap, 0, XRES*YRES);
+	char *bitmap = new char[XRES*YRES]; //Bitmap for checking
+	if (!bitmap)
+		return -1;
+	std::fill_n(&bitmap[0], XRES*YRES, 0);
 	try
 	{
 		CoordStack cs;
@@ -2363,10 +2364,10 @@ int Simulation::FloodProp(int x, int y, PropertyType propType, PropertyValue pro
 	catch (std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
-		free(bitmap);
+		delete[] bitmap;
 		return -1;
 	}
-	free(bitmap);
+	delete[] bitmap;
 	return did_something;
 }
 

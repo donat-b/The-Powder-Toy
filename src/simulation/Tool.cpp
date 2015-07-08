@@ -1,5 +1,6 @@
 #include <sstream>
 #include "Tool.h"
+#include "graphics.h"
 #include "interface.h"
 #include "powder.h"
 #include "graphics/ARGBColour.h"

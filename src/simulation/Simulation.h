@@ -52,6 +52,9 @@ public:
 	bool msRotation; //for moving solids
 	int maxFrames;   //for animated LCRY
 	bool instantActivation; //electronics are instantly activated
+
+	// misc Simulation variables
+	unsigned int lightningRecreate; //timer for when LIGH can be created again
 	
 	Simulation();
 	~Simulation();
@@ -78,7 +81,6 @@ public:
 	bool spark_conductive_attempt(int i, int x, int y);
 
 	// Element drawing functions
-	int lightningRecreate; //timer for when LIGH can be created again
 	int CreateParts(int x, int y, int c, int flags, bool fill, Brush* brush = NULL);
 	int CreatePartFlags(int x, int y, int c, int flags);
 	void CreateLine(int x1, int y1, int x2, int y2, int c, int flags, Brush* brush = NULL);

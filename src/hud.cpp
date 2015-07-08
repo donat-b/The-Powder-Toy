@@ -2,6 +2,7 @@
 
 #include "defines.h"
 #include "gravity.h"
+#include "graphics.h"
 #include "hud.h"
 #include "interface.h"
 #include "luaconsole.h"

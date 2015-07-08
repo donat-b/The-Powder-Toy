@@ -66,12 +66,8 @@
 
 #include "gui/profile/ProfileViewer.h"
 
-SDLMod sdl_mod;
+unsigned char sdl_mod;
 int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii, sdl_zoom_trig=0;
-#if defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
-SDL_SysWMinfo sdl_wminfo;
-Atom XA_CLIPBOARD, XA_TARGETS, XA_UTF8_STRING, XA_NET_FRAME_EXTENTS;
-#endif
 
 char *shift_0="`1234567890-=[]\\;',./";
 char *shift_1="~!@#$%^&*()_+{}|:\"<>?";
@@ -3670,7 +3666,7 @@ int EventProcess(SDL_Event event)
 	case SDL_KEYDOWN:
 		sdl_key = event.key.keysym.sym;
 		sdl_ascii = event.key.keysym.unicode;
-		sdl_mod = SDL_GetModState();//event.key.keysym.mod;
+		sdl_mod = static_cast<unsigned char>(SDL_GetModState());
 		if (event.key.keysym.sym=='q' && (sdl_mod & (KMOD_CTRL|KMOD_META)))
 		{
 			if (confirm_ui(vid_buf, "You are about to quit", "Are you sure you want to quit?", "Quit"))
@@ -3686,7 +3682,7 @@ int EventProcess(SDL_Event event)
 		break;
 	case SDL_KEYUP:
 		sdl_rkey = event.key.keysym.sym;
-		sdl_mod = SDL_GetModState();//event.key.keysym.mod;
+		sdl_mod = static_cast<unsigned char>(SDL_GetModState());
 #ifdef LUACONSOLE
 		if (main_loop && !deco_disablestuff && sdl_rkey && !luacon_keyevent(sdl_rkey, sdl_mod, LUACON_KUP))
 			sdl_rkey = 0;
@@ -3800,7 +3796,7 @@ int sdl_poll(void)
 			return ret;
 	}
 
-	sdl_mod = SDL_GetModState();
+	sdl_mod = static_cast<unsigned char>(SDL_GetModState());
 	limit_fps();
 	return 0;
 }
@@ -8733,7 +8729,7 @@ void simulation_ui(pixel * vid_buf)
 	}
 }
 
-Uint8 mouse_get_state(int *x, int *y)
+int mouse_get_state(int *x, int *y)
 {
 	//Wrapper around SDL_GetMouseState to divide by sdl_scale
 	Uint8 sdl_b;

@@ -83,6 +83,10 @@ unsigned int *display_modes;
 unsigned int display_mode;
 gcache_item *graphicscache;
 
+#if defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
+SDL_SysWMinfo sdl_wminfo;
+Atom XA_CLIPBOARD, XA_TARGETS, XA_UTF8_STRING, XA_NET_FRAME_EXTENTS;
+#endif
 SDL_Surface *sdl_scrn;
 int sdl_scale = 1;
 
@@ -194,8 +198,6 @@ void main(void)\
 #endif
 
 pixel sampleColor = 0;
-int sandcolor = 0;
-int sandcolor_frame = 0;
 
 unsigned char fire_r[YRES/CELL][XRES/CELL];
 unsigned char fire_g[YRES/CELL][XRES/CELL];
@@ -5061,7 +5063,6 @@ int sdl_open()
 		return 0;
 	}
 	SDL_EnableUNICODE(1);
-	SDL_SetModState(sdl_mod);
 	//SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 #if defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);

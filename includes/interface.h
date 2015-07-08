@@ -18,19 +18,8 @@
 #define INTERFACE_H
 #include <vector>
 #include <string>
-#ifdef SDL_R_INCL
-#include <SDL.h>
-#else
-#include <SDL/SDL.h>
-#endif
-#if defined(WIN) || defined(LIN)
-#ifdef SDL_R_INCL
-#include <SDL_syswm.h>
-#else
-#include <SDL/SDL_syswm.h>
-#endif
-#endif
-#include "graphics.h"
+#include "defines.h"
+#include "graphics/Pixel.h"
 #include "graphics/ARGBColour.h"
 
 #define QM_TOGGLE	1
@@ -178,12 +167,8 @@ struct command_history {
 extern command_history *last_command;
 extern command_history *last_command_result;
 
-extern SDLMod sdl_mod;
+extern unsigned char sdl_mod;
 extern int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii, sdl_zoom_trig;
-#if defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
-extern SDL_SysWMinfo sdl_wminfo;
-extern Atom XA_CLIPBOARD, XA_TARGETS, XA_UTF8_STRING, XA_NET_FRAME_EXTENTS;
-#endif
 
 extern char *shift_0;
 extern char *shift_1;
@@ -325,6 +310,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i);
 void menu_draw_text(Tool* over, int y);
 void menu_select_element(int b, Tool* over);
 
+union SDL_Event;
 int EventProcess(SDL_Event event);
 int sdl_poll(void);
 
@@ -380,7 +366,7 @@ void render_ui(pixel *vid_buf, int xcoord, int ycoord, int orientation);
 
 void simulation_ui(pixel *vid_buf);
 
-Uint8 mouse_get_state(int *x, int *y);
+int mouse_get_state(int *x, int *y);
 
 bool mouse_coords_window_to_sim(int *mouseX, int *mouseY);
 

@@ -3,6 +3,7 @@
 #else
 #include <SDL/SDL.h>
 #endif
+#include "graphics.h"
 #ifdef WIN
 #include <windows.h>
 //#include <Shellapi.h>

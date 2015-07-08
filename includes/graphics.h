@@ -16,12 +16,22 @@
  */
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
-#include <string>
+
 #ifdef SDL_R_INCL
 #include <SDL.h>
 #else
 #include <SDL/SDL.h>
 #endif
+
+#if defined(WIN) || defined(LIN)
+#ifdef SDL_R_INCL
+#include <SDL_syswm.h>
+#else
+#include <SDL/SDL_syswm.h>
+#endif
+#endif
+
+#include <string>
 #include "defines.h"
 #include "graphics/Pixel.h"
 
@@ -33,13 +43,14 @@ extern unsigned int colour_mode;
 extern unsigned int *display_modes;
 extern unsigned int display_mode;
 
+#if defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
+extern SDL_SysWMinfo sdl_wminfo;
+extern Atom XA_CLIPBOARD, XA_TARGETS, XA_UTF8_STRING, XA_NET_FRAME_EXTENTS;
+#endif
 extern SDL_Surface *sdl_scrn;
 extern int sdl_scale;
 extern int savedWindowX;
 extern int savedWindowY;
-
-extern int sandcolor;
-extern int sandcolor_frame;
 
 extern unsigned char fire_r[YRES/CELL][XRES/CELL];
 extern unsigned char fire_g[YRES/CELL][XRES/CELL];

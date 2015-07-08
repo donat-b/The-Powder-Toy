@@ -33,6 +33,7 @@ extern "C"
 
 #include "defines.h"
 #include "powder.h"
+#include "graphics.h"
 #include "gravity.h"
 #include "http.h"
 #include "console.h"

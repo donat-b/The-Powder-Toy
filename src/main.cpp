@@ -1412,13 +1412,6 @@ int main(int argc, char *argv[])
 				gravity_mask();
 			gravwl_timeout--;
 		}
-			
-		//Pretty powders, colour cycle
-		//sandcolour_r = 0;
-		//sandcolour_g = 0;
-		sandcolor = (int)(20.0f*sin((float)sandcolor_frame*(M_PI/180.0f)));
-		sandcolor_frame++;
-		sandcolor_frame%=360;
 
 #ifdef OGLR
 		part_vbuf = vid_buf;
