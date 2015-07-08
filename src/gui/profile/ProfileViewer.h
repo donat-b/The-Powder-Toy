@@ -3,7 +3,7 @@
 
 #include <string>
 #include "interface/ScrollWindow.h"
-#include "graphics.h"
+#include "graphics/Pixel.h"
 
 class Download;
 class Label;

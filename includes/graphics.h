@@ -82,21 +82,9 @@ extern gcache_item *graphicscache;
 
 void prepare_graphicscache();
 
-char * generate_gradient(pixel * colours, float * points, int pointcount, int size);
-
 void draw_other(pixel *vid);
 
 void draw_rgba_image(pixel *vid, unsigned char *data, int x, int y, float a);
-
-void *ptif_pack(pixel *src, int w, int h, int *result_size);
-
-pixel *ptif_unpack(void *datain, int size, int *w, int *h);
-
-pixel *resample_img_nn(pixel *src, int sw, int sh, int rw, int rh);
-
-pixel *resample_img(pixel *src, int sw, int sh, int rw, int rh);
-
-pixel *rescale_img(pixel *src, int sw, int sh, int *qw, int *qh, int f);
 
 void render_gravlensing(pixel *src, pixel * dst);
 

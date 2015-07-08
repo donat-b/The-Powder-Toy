@@ -6,7 +6,7 @@
 #include "graphics.h"
 #ifdef WIN
 #include <windows.h>
-//#include <Shellapi.h>
+#include <shellapi.h>
 #include "game/Menus.h"
 #include "update.h"
 #endif
