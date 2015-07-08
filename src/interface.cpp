@@ -6500,7 +6500,11 @@ bool ParseServerReturn(char *result, int status)
 	{
 		datastream >> root;
 		// assume everything is fine if an empty [] is returned
-		int status = root.get("Status", 1).asInt();
+		if (root.size() == 0)
+		{
+			return false;
+		}
+		int status = root["Status"].asInt();
 		if (status != 1)
 		{
 			const char *err = root["Error"].asCString();
@@ -6510,6 +6514,12 @@ bool ParseServerReturn(char *result, int status)
 	}
 	catch (std::exception &e)
 	{
+		if (strstr(result, "Error: ") == result)
+		{
+			status = atoi(result+7);
+			error_ui(vid_buf, status, http_ret_text(status));
+			return true;
+		}
 		error_ui(vid_buf, 0, "Could not read response");
 		return true;
 	}

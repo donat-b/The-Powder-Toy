@@ -907,6 +907,13 @@ enter. Fix DRAY with .tmp=0.
 Version 31.1 5/25/15
 Fix ctrl+z
 
+Version 31.2 7/8/15
+Fix crash when scrolling in profile viewer. Update profile viewer to allow
+editing biography/location, add buttons to open the profile or edit the
+profile / avatar on the website. Large internal code refactors. Make active
+walls less glowy. Improvements to PWHT and BALL drawing. Tooltips when
+hovering over link signs. Simulation updates from tpt++.
+
 
 
 

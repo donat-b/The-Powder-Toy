@@ -168,6 +168,7 @@ bool Engine::EventProcess(SDL_Event event)
 void Engine::MainLoop()
 {
 	SDL_Event event;
+	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 	while (top)
 	{
 		top->UpdateComponents();

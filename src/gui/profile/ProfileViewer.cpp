@@ -32,32 +32,41 @@ ProfileViewer::ProfileViewer(std::string profileName):
 	usernameLabel = new Label(Point(7, 6), Point(Label::AUTOSIZE, Label::AUTOSIZE), name);
 	this->AddComponent(usernameLabel);
 
-	avatarUploadButton = new Button(Point(211, 11), Point(38, 38), "\n\x81");
-	// Enable editing when this button is clicked
-	class UploadAvatarAction : public ButtonAction
+	bool ownProfile = std::string(svf_user) == name;
+	if (ownProfile)
 	{
-	public:
-		virtual void ButtionActionCallback(Button *button)
+		avatarUploadButton = new Button(Point(211, 11), Point(38, 38), "\n\x81");
+		// Enable editing when this button is clicked
+		class UploadAvatarAction : public ButtonAction
 		{
-			dynamic_cast<ProfileViewer*>(button->GetParent())->UploadAvatar();
-		}
-	};
-	avatarUploadButton->SetCallback(new UploadAvatarAction());
-	this->AddComponent(avatarUploadButton);
+		public:
+			virtual void ButtionActionCallback(Button *button)
+			{
+				dynamic_cast<ProfileViewer*>(button->GetParent())->UploadAvatar();
+			}
+		};
+		avatarUploadButton->SetCallback(new UploadAvatarAction());
+		this->AddComponent(avatarUploadButton);
 
-	// Enable editing when this button is clicked
-	class EnableEditingAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button)
+		// Enable editing when this button is clicked
+		class EnableEditingAction : public ButtonAction
 		{
-			dynamic_cast<ProfileViewer*>(button->GetParent())->EnableEditing();
-		}
-	};
-	enableEditingButton = new Button(Point(0, size.Y-15), Point(this->size.X/2-1, 15), "Enable Editing");
-	enableEditingButton->SetCallback(new EnableEditingAction());
-	enableEditingButton->SetEnabled(false);
-	this->AddComponent(enableEditingButton);
+		public:
+			virtual void ButtionActionCallback(Button *button)
+			{
+				dynamic_cast<ProfileViewer*>(button->GetParent())->EnableEditing();
+			}
+		};
+		enableEditingButton = new Button(Point(0, size.Y-15), Point(this->size.X/2-1, 15), "Enable Editing");
+		enableEditingButton->SetCallback(new EnableEditingAction());
+		enableEditingButton->SetEnabled(false);
+		this->AddComponent(enableEditingButton);
+	}
+	else
+	{
+		avatarUploadButton = NULL;
+		enableEditingButton = NULL;
+	}
 
 	// Open profile online when this button is clicked
 	class OpenProfileAction : public ButtonAction
@@ -68,7 +77,10 @@ ProfileViewer::ProfileViewer(std::string profileName):
 			dynamic_cast<ProfileViewer*>(button->GetParent())->OpenProfile();
 		}
 	};
-	openProfileButton = new Button(Point(size.X/2, size.Y-15), Point(this->size.X/2, 15), "Open Profile Online");
+	if (ownProfile)
+		openProfileButton = new Button(Point(size.X/2, size.Y-15), Point(this->size.X/2, 15), "Open Profile Online");
+	else
+		openProfileButton = new Button(Point(0, size.Y-15), Point(this->size.X, 15), "Open Profile Online");
 	openProfileButton->SetCallback(new OpenProfileAction());
 	this->AddComponent(openProfileButton);
 
@@ -153,7 +165,8 @@ void ProfileViewer::OnTick(uint32_t ticks)
 				this->AddComponent(saveAverageLabel);
 				this->AddComponent(highestVoteLabel);
 
-				enableEditingButton->SetEnabled(true);
+				if (enableEditingButton)
+					enableEditingButton->SetEnabled(true);
 				ResizeArea(biographyLabel->GetSize().Y);
 			}
 			catch (std::exception &e)
@@ -280,12 +293,17 @@ void ProfileViewer::UploadAvatar()
 void ProfileViewer::ResizeArea(int biographyLabelHeight)
 {
 	int yPos = 149+biographyLabelHeight;
-	if (yPos < this->size.Y-enableEditingButton->GetSize().Y)
-		yPos = this->size.Y-enableEditingButton->GetSize().Y;
-	enableEditingButton->SetPosition(Point(0, yPos-GetScrollPosition()));
-	openProfileButton->SetPosition(Point(size.X/2, yPos-GetScrollPosition()));
+	if (yPos < this->size.Y-openProfileButton->GetSize().Y)
+		yPos = this->size.Y-openProfileButton->GetSize().Y;
+	if (enableEditingButton)
+	{
+		enableEditingButton->SetPosition(Point(0, yPos-GetScrollPosition()));
+		openProfileButton->SetPosition(Point(size.X/2, yPos-GetScrollPosition()));
+	}
+	else
+		openProfileButton->SetPosition(Point(0, yPos-GetScrollPosition()));
 
-	int maxScroll = enableEditingButton->GetPosition().Y+GetScrollPosition()+enableEditingButton->GetSize().Y-this->size.Y;
+	int maxScroll = yPos+openProfileButton->GetSize().Y-this->size.Y;
 	if (maxScroll >= 0)
 	{
 		int oldMaxScroll = this->GetMaxScrollSize();
