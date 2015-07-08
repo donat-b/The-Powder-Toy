@@ -189,8 +189,6 @@ int get_brush_flags();
 
 int create_part(int p, int x, int y, int t);
 
-void delete_part(int x, int y, int flags);
-
 int is_wire(int x, int y);
 
 int is_wire_off(int x, int y);

@@ -59,7 +59,7 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 						{
 							int type = pmap[yCurrent][xCurrent]&0xFF, p;
 							if (overwrite)
-								delete_part(xCopyTo, yCopyTo, 0);
+								sim->part_delete(xCopyTo, yCopyTo);
 							if (type == PT_SPRK)
 								p = sim->part_create(-1, xCopyTo, yCopyTo, PT_METL);
 							else

@@ -37,7 +37,7 @@ int BOMB_update(UPDATE_FUNC_ARGS)
 							if ((pow((float)nxi,2.0f))/(pow((float)rad,2.0f))+(pow((float)nxj,2.0f))/(pow((float)rad,2.0f))<=1)
 
 								if ((pmap[y+nxj][x+nxi]&0xFF)!=PT_VIBR && !(ptypes[pmap[y+nxj][x+nxi]&0xFF].properties&PROP_INDESTRUCTIBLE) && !(ptypes[pmap[y+nxj][x+nxi]&0xFF].properties&PROP_CLONE) && !(ptypes[r&0xFF].properties&PROP_BREAKABLECLONE)) {
-									delete_part(x+nxi, y+nxj, 0);
+									sim->part_delete(x+nxi, y+nxj);
 									pv[(y+nxj)/CELL][(x+nxi)/CELL] += 0.1f;
 									nb = sim->part_create(-3, x+nxi, y+nxj, PT_EMBR);
 									if (nb!=-1) {

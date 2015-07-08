@@ -284,13 +284,19 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 	return i;
 }
 
-bool Simulation::part_change_type(int i, int x, int y, int t)//changes the type of particle number i, to t.  This also changes pmap at the same time.
+// changes the type of particle number i, to t. This also changes pmap at the same time.
+bool Simulation::part_change_type(int i, int x, int y, int t)
 {
 	if (x<0 || y<0 || x>=XRES || y>=YRES || i>=NPART || t<0 || t>=PT_NUM)
 		return false;
 
-	if (t==parts[i].type)
+	if (t == parts[i].type)
 		return true;
+	if (!elements[t].Enabled)
+	{
+		part_kill(i);
+		return true;
+	}
 	if (elements[parts[i].type].Properties&PROP_INDESTRUCTIBLE)
 		return false;
 	if (elements[t].Func_Create_Allowed)
@@ -301,10 +307,8 @@ bool Simulation::part_change_type(int i, int x, int y, int t)//changes the type 
 
 
 	int oldType = parts[i].type;
-	if (oldType) elementCount[oldType]--;
-
-	if (!elements[t].Enabled)
-		t = PT_NONE;
+	if (oldType)
+		elementCount[oldType]--;
 
 	parts[i].type = t;
 	pmap_remove(i, x, y);
@@ -324,23 +328,16 @@ bool Simulation::part_change_type(int i, int x, int y, int t)//changes the type 
 	return true;
 }
 
-//Used by lua to change type and delete any particle specific info, and also keep pmap / elementCount up to date
+// used by lua to change type while deleting any particle specific info, and also keep pmap / elementCount up to date
 void Simulation::part_change_type_force(int i, int t)
 {
 	int x = (int)(parts[i].x), y = (int)(parts[i].y);
 	if (t<0 || t>=PT_NUM)
 		return;
-	/*if (elements[t].Func_Create_Allowed)
-	{
-		if (!(*(elements[t].Func_Create_Allowed))(this, i, x, y, t))
-		{
-			part_kill(i);
-			return;
-		}
-	}*/
 
 	int oldType = parts[i].type;
-	if (oldType) elementCount[oldType]--;
+	if (oldType)
+		elementCount[oldType]--;
 	parts[i].type = t;
 	pmap_remove(i, x, y);
 	if (t)
@@ -359,14 +356,13 @@ void Simulation::part_change_type_force(int i, int t)
 	}
 }
 
-void Simulation::part_kill(int i)//kills particle number i
+// kills particle ID #i
+void Simulation::part_kill(int i)
 {
-	int x, y;
+	int x = (int)(parts[i].x+0.5f);
+	int y = (int)(parts[i].y+0.5f);
+
 	int t = parts[i].type;
-
-	x = (int)(parts[i].x+0.5f);
-	y = (int)(parts[i].y+0.5f);
-
 	if (t && elements[t].Func_ChangeType)
 	{
 		(*(elements[t].Func_ChangeType))(this, i, x, y, t, PT_NONE);
@@ -376,8 +372,24 @@ void Simulation::part_kill(int i)//kills particle number i
 		pmap_remove(i, x, y);
 	if (t == PT_NONE) // TODO: remove this? (//This shouldn't happen anymore, but it's here just in case)
 		return;
-	if (t) elementCount[t]--;
+	elementCount[t]--;
 	part_free(i);
+}
+
+// calls kill_part with the particle located at (x,y)
+void Simulation::part_delete(int x, int y)
+{
+	if (x<0 || y<0 || x>=XRES || y>=YRES)
+		return;
+
+	unsigned i;
+	if (photons[y][x])
+		i = photons[y][x];
+	else
+		i = pmap[y][x];
+
+	if (i)
+		part_kill(i>>8);
 }
 
 /* Recalculates the pfree/parts[].life linked list for particles with ID <= parts_lastActiveIndex.
@@ -1589,14 +1601,16 @@ int Simulation::CreateParts(int x, int y, int c, int flags, bool fill, Brush* br
 
 int Simulation::CreatePartFlags(int x, int y, int c, int flags)
 {
-	//delete
-	if (c == 0 && !(flags&BRUSH_REPLACEMODE))
-		delete_part(x, y, flags);
 	//specific delete
-	else if ((flags&BRUSH_SPECIFIC_DELETE) && !(flags&BRUSH_REPLACEMODE))
+	if ((flags&BRUSH_SPECIFIC_DELETE) && !(flags&BRUSH_REPLACEMODE))
 	{
-		if (((ElementTool*)activeTools[2])->GetID() > 0 || (pmap[y][x]&0xFF) == ((ElementTool*)activeTools[2])->GetID() || (photons[y][x]&0xFF) == ((ElementTool*)activeTools[2])->GetID())
-			delete_part(x, y, flags);
+		if ((pmap[y][x]&0xFF)== ((ElementTool*)activeTools[2])->GetID() || ((ElementTool*)activeTools[2])->GetID() <= 0)//specific deletion
+			part_delete(x, y);
+	}
+	//delete
+	else if (c == 0 && !(flags&BRUSH_REPLACEMODE))
+	{
+		part_delete(x, y);
 	}
 	//replace mode
 	else if (flags&BRUSH_REPLACEMODE)
@@ -1607,7 +1621,7 @@ int Simulation::CreatePartFlags(int x, int y, int c, int flags)
 			return 0;
 		if (pmap[y][x])
 		{
-			delete_part(x, y, flags);
+			part_delete(x, y);
 			if (c != 0)
 				part_create(-2, x, y, c&0xFF, c>>8);
 		}
@@ -1820,7 +1834,7 @@ void Simulation::CreateWall(int x, int y, int wall)
 		for (int i = 0; i < CELL; i++)
 			for (int j = 0; j < CELL; j++)
 			{
-				delete_part(x*CELL+i, y*CELL+j, 0);
+				part_delete(x*CELL+i, y*CELL+j);
 			}
 		for (int i = 0; i < MAXSIGNS; i++)
 			if (signs[i].text[0])

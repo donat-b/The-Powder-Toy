@@ -103,28 +103,6 @@ int create_part(int p, int x, int y, int tv)
 	return i;
 }
 
-TPT_INLINE void delete_part(int x, int y, int flags)//calls kill_part with the particle located at x,y
-{
-	unsigned i;
-
-	if (x<0 || y<0 || x>=XRES || y>=YRES)
-		return;
-	if (photons[y][x]) {
-		i = photons[y][x];
-	} else {
-		i = pmap[y][x];
-	}
-
-	if (!i)
-		return;
-	if (!(flags&BRUSH_SPECIFIC_DELETE) || parts[i>>8].type == ((ElementTool*)activeTools[2])->GetID() || ((ElementTool*)activeTools[2])->GetID() <= 0)//specific deletion
-	{
-		kill_part(i>>8);
-	}
-	else
-		return;
-}
-
 TPT_INLINE int is_wire(int x, int y)
 {
 	return bmap[y][x]==WL_DETECT || bmap[y][x]==WL_EWALL || bmap[y][x]==WL_ALLOWLIQUID || bmap[y][x]==WL_WALLELEC || bmap[y][x]==WL_ALLOWALLELEC || bmap[y][x]==WL_EHOLE;

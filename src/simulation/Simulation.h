@@ -61,6 +61,7 @@ public:
 	void RecountElements();
 	int part_create(int p, int x, int y, int t, int v = -1);
 	void part_kill(int i);
+	void part_delete(int x, int y);
 	bool part_change_type(int i, int x, int y, int t);
 	void part_change_type_force(int i, int t);
 

@@ -473,7 +473,7 @@ int simulation_partProperty(lua_State * l)
 int simulation_partKill(lua_State * l)
 {
 	if (lua_gettop(l) == 2)
-		delete_part(lua_tointeger(l, 1), lua_tointeger(l, 2), 0);
+		globalSim->part_delete(lua_tointeger(l, 1), lua_tointeger(l, 2));
 	else
 	{
 		int i = lua_tointeger(l, 1);
