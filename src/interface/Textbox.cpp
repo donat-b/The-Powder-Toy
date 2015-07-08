@@ -255,10 +255,10 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned char modifi
 		}
 		break;
 	default:
-		if (this->type == NUMBER ? key >= '0' && key <= '9' : key >= ' ' && key <= '~')
+		if (this->type == NUMBER ? character >= '0' && character <= '9' : character >= ' ' && character <= '~')
 		{
 			std::stringstream convert;
-			convert << static_cast<char>(key);
+			convert << static_cast<char>(character);
 			InsertText(convert.str());
 		}
 		break;
