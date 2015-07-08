@@ -382,14 +382,10 @@ void Simulation::part_delete(int x, int y)
 	if (x<0 || y<0 || x>=XRES || y>=YRES)
 		return;
 
-	unsigned i;
 	if (photons[y][x])
-		i = photons[y][x];
-	else
-		i = pmap[y][x];
-
-	if (i)
-		part_kill(i>>8);
+		part_kill(photons[y][x]>>8);
+	else if (pmap[y][x])
+		part_kill(pmap[y][x]>>8);
 }
 
 /* Recalculates the pfree/parts[].life linked list for particles with ID <= parts_lastActiveIndex.

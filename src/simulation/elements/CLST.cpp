@@ -30,7 +30,7 @@ int CLST_update(UPDATE_FUNC_ARGS)
 				{
 					if (!(rand()%1500))
 					{
-						part_change_type(i, x, y, PT_PSTS);
+						sim->part_create(i, x, y, PT_PSTS);
 						kill_part(r>>8);
 					}
 				}
