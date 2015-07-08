@@ -20,9 +20,9 @@ class Download
 	const char *userID;
 	const char *userSession;
 
-	bool downloadFinished;
-	bool downloadCanceled;
-	bool downloadStarted;
+	volatile bool downloadFinished;
+	volatile bool downloadCanceled;
+	volatile bool downloadStarted;
 
 public:
 	Download(std::string uri, bool keepAlive = false);

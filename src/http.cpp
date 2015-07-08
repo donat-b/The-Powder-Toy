@@ -821,6 +821,9 @@ const char *http_ret_text(int ret)
 {
 	switch (ret)
 	{
+	case 0:
+		return "Status code 0 (bug?)";
+
 	case 100:
 		return "Continue";
 	case 101:
