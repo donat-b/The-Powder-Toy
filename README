@@ -914,6 +914,9 @@ profile / avatar on the website. Large internal code refactors. Make active
 walls less glowy. Improvements to PWHT and BALL drawing. Tooltips when
 hovering over link signs. Simulation updates from tpt++.
 
+Version 31.2 (build 58) 7/8/15
+Fix error message when commenting on saves, fix ALT modifier key.
+
 
 
 
