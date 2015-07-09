@@ -27,8 +27,8 @@ public:
 	virtual void DoMouseDown(int x, int y, unsigned char button);
 	virtual void DoMouseUp(int x, int y, unsigned char button);
 	virtual void DoMouseWheel(int x, int y, int d);
-	virtual void DoKeyPress(int key, unsigned short character, unsigned char modifiers);
-	virtual void DoKeyRelease(int key, unsigned short character, unsigned char modifiers);
+	virtual void DoKeyPress(int key, unsigned short character, unsigned short modifiers);
+	virtual void DoKeyRelease(int key, unsigned short character, unsigned short modifiers);
 
 	Point GetPosition() { return position; }
 	Point GetSize() { return size; }

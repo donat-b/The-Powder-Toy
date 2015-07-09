@@ -23,7 +23,7 @@ public:
 
 	void SetCallback(TextboxAction *callback_);
 
-	virtual void OnKeyPress(int key, unsigned short character, unsigned char modifiers);
+	virtual void OnKeyPress(int key, unsigned short character, unsigned short modifiers);
 	virtual void OnDraw(VideoBuffer* vid);
 
 	void SetAutoSize(bool X, bool Y, Point limit);

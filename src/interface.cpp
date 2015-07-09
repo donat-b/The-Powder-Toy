@@ -66,7 +66,7 @@
 
 #include "gui/profile/ProfileViewer.h"
 
-unsigned char sdl_mod;
+unsigned short sdl_mod;
 int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii, sdl_zoom_trig=0;
 
 char *shift_0="`1234567890-=[]\\;',./";
@@ -3666,7 +3666,7 @@ int EventProcess(SDL_Event event)
 	case SDL_KEYDOWN:
 		sdl_key = event.key.keysym.sym;
 		sdl_ascii = event.key.keysym.unicode;
-		sdl_mod = static_cast<unsigned char>(SDL_GetModState());
+		sdl_mod = static_cast<unsigned short>(SDL_GetModState());
 		if (event.key.keysym.sym=='q' && (sdl_mod & (KMOD_CTRL|KMOD_META)))
 		{
 			if (confirm_ui(vid_buf, "You are about to quit", "Are you sure you want to quit?", "Quit"))
@@ -3682,7 +3682,7 @@ int EventProcess(SDL_Event event)
 		break;
 	case SDL_KEYUP:
 		sdl_rkey = event.key.keysym.sym;
-		sdl_mod = static_cast<unsigned char>(SDL_GetModState());
+		sdl_mod = static_cast<unsigned short>(SDL_GetModState());
 #ifdef LUACONSOLE
 		if (main_loop && !deco_disablestuff && sdl_rkey && !luacon_keyevent(sdl_rkey, sdl_mod, LUACON_KUP))
 			sdl_rkey = 0;
@@ -3796,7 +3796,7 @@ int sdl_poll(void)
 			return ret;
 	}
 
-	sdl_mod = static_cast<unsigned char>(SDL_GetModState());
+	sdl_mod = static_cast<unsigned short>(SDL_GetModState());
 	limit_fps();
 	return 0;
 }

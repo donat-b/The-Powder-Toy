@@ -167,7 +167,7 @@ struct command_history {
 extern command_history *last_command;
 extern command_history *last_command_result;
 
-extern unsigned char sdl_mod;
+extern unsigned short sdl_mod;
 extern int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii, sdl_zoom_trig;
 
 extern char *shift_0;

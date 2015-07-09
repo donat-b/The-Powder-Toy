@@ -54,7 +54,7 @@ bool Engine::EventProcess(SDL_Event event)
 	switch (event.type)
 	{
 	case SDL_KEYDOWN:
-		top->DoKeyPress(event.key.keysym.sym, event.key.keysym.unicode, (unsigned char)sdl_mod);
+		top->DoKeyPress(event.key.keysym.sym, event.key.keysym.unicode, static_cast<unsigned short>(sdl_mod));
 
 		if (event.key.keysym.sym == SDLK_ESCAPE)
 			return true;
@@ -69,7 +69,7 @@ bool Engine::EventProcess(SDL_Event event)
 		break;
 
 	case SDL_KEYUP:
-		top->DoKeyRelease(event.key.keysym.sym, event.key.keysym.unicode, (unsigned char)sdl_mod);
+		top->DoKeyRelease(event.key.keysym.sym, event.key.keysym.unicode, static_cast<unsigned short>(sdl_mod));
 		break;
 	case SDL_MOUSEBUTTONDOWN:
 		if (event.button.button == SDL_BUTTON_WHEELUP)
@@ -173,7 +173,7 @@ void Engine::MainLoop()
 	{
 		top->UpdateComponents();
 
-		sdl_mod = SDL_GetModState();
+		sdl_mod = static_cast<unsigned short>(SDL_GetModState());
 		while (SDL_PollEvent(&event))
 		{
 			int ret = EventProcess(event);

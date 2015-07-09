@@ -199,7 +199,7 @@ void Window_::DoMouseWheel(int x, int y, int d)
 	OnMouseWheel(x, y, d);
 }
 
-void Window_::DoKeyPress(int key, unsigned short character, unsigned char modifiers)
+void Window_::DoKeyPress(int key, unsigned short character, unsigned short modifiers)
 {
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
@@ -210,7 +210,7 @@ void Window_::DoKeyPress(int key, unsigned short character, unsigned char modifi
 	OnKeyPress(key, character, modifiers);
 }
 
-void Window_::DoKeyRelease(int key, unsigned short character, unsigned char modifiers)
+void Window_::DoKeyRelease(int key, unsigned short character, unsigned short modifiers)
 {
 	/*for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{

@@ -92,7 +92,7 @@ void Textbox::InsertText(std::string inserttext)
 		callback->TextChangedCallback(this);
 }
 
-void Textbox::OnKeyPress(int key, unsigned short character, unsigned char modifiers)
+void Textbox::OnKeyPress(int key, unsigned short character, unsigned short modifiers)
 {
 	Label::OnKeyPress(key, character, modifiers);
 	if (modifiers & (KMOD_CTRL|KMOD_META))
