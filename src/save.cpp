@@ -2251,7 +2251,11 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					if(fieldDescriptor & 0x40)
 					{
 						if(i+3 >= partsDataLen) goto fail;
-						partsptr[newIndex].dcolour = COLARGB((unsigned)partsData[i++], (unsigned)partsData[i++], (unsigned)partsData[i++], (unsigned)partsData[i++]);
+						unsigned char alpha = partsData[i++];
+						unsigned char red = partsData[i++];
+						unsigned char green = partsData[i++];
+						unsigned char blue = partsData[i++];
+						partsptr[newIndex].dcolour = COLARGB(alpha, red, green, blue);
 					}
 					
 					//Read vx
@@ -2493,7 +2497,13 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					for (int j = 0; j < globalSim->maxFrames; j++)
 					{
 						if (j <= animLen) //read animation data
-							partsptr[newIndex].animations[j] = COLARGB(animData[animDataPos++], animData[animDataPos++], animData[animDataPos++], animData[animDataPos++]);
+						{
+							unsigned char alpha = animData[animDataPos++];
+							unsigned char red = animData[animDataPos++];
+							unsigned char green = animData[animDataPos++];
+							unsigned char blue = animData[animDataPos++];
+							partsptr[newIndex].animations[j] = COLARGB(alpha, red, green, blue);
+						}
 						else //set the rest to 0
 							partsptr[newIndex].animations[j] = 0;
 					}
