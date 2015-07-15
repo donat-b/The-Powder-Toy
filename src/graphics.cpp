@@ -3033,9 +3033,9 @@ void render_parts(pixel *vid, Point mousePos)
 				}
 				if ((pixel_mode & EFFECT_DBGLINES) && DEBUG_MODE && !(display_mode&DISPLAY_PERS))
 				{
-					if (mousePos.X == nx && mousePos.Y == ny)//draw lines connecting wifi/portal channels
+					// draw lines connecting wifi/portal channels
+					if (mousePos.X == nx && mousePos.Y == ny && (i == pmap[ny][nx]>>8))
 					{
-						int z;
 						int type = parts[i].type, tmp = (int)((parts[i].temp-73.15f)/100+1), othertmp;
 						int type2 = parts[i].type;
 						if (type == PT_PRTI || type == PT_PPTI)
@@ -3046,9 +3046,9 @@ void render_parts(pixel *vid, Point mousePos)
 							type2 = PT_PPTI;
 						else if (type == PT_PRTO)
 							type2 = PT_PPTO;
-						for (z = 0; z<NPART; z++)
+						for (int z = 0; z < sim->parts_lastActiveIndex; z++)
 						{
-							if (parts[z].type && (parts[z].type==type||parts[z].type==type2))
+							if (parts[z].type==type || parts[z].type==type2)
 							{
 								othertmp = (int)((parts[z].temp-73.15f)/100+1); 
 								if (tmp == othertmp)
