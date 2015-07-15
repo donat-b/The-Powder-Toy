@@ -37,6 +37,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef ANDROID
+#include <SDL/SDL_screenkeyboard.h>
+#endif
+
 #include "http.h"
 #include "md5.h"
 #include "font.h"
@@ -309,7 +313,11 @@ void ui_edit_init(ui_edit *ed, int x, int y, int w, int h)
 	ed->nx = 1;
 	ed->def = "";
 	strcpy(ed->str, "");
+#ifdef ANDROID
+	ed->focus = 0;
+#else
 	ed->focus = 1;
+#endif
 	ed->alwaysFocus = 0;
 	ed->hide = 0;
 	ed->multiline = 0;
@@ -419,8 +427,10 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 	char ch, ts[2], echo[1024], *str = ed->str;
 	int l, i;
 
-	if (ed->alwaysFocus)
+	if (ed->alwaysFocus && !ed->focus)
+	{
 		ed->focus = 1;
+	}
 	if (ed->cursor>ed->cursorstart)
 	{
 		ed->highlightstart = ed->cursorstart;
@@ -446,7 +456,9 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			ed->overDelete = 2;
 		if (!mb && mbq && ed->overDelete == 2)
 		{
+#ifndef ANDROID
 			ed->focus = 1;
+#endif
 			ed->cursor = 0;
 			ed->str[0] = 0;
 			if (!ed->numClicks)
@@ -455,6 +467,20 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 	}
 	else if (mb && (ed->focus || !mbq) && mx>=ed->x-ed->nx && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+(ed->multiline?ed->h:11)) //clicking / dragging over textbox
 	{
+#ifdef ANDROID
+		if (ed->focus == 0)
+		{
+			// keyboard without text input is a lot nicer
+			// but for some reason none of the keys work, and mouse input is never sent through
+			// unless you try to press a key where for some reason it clicks the thing under that key
+			//SDL_ANDROID_ToggleScreenKeyboardWithoutTextInput();
+
+			// blocking fullscreen keyboard
+			SDL_ANDROID_ToggleScreenKeyboardTextInput(ed->str);
+			// clear current text because it will get overridden
+			sprintf(ed->str, "");
+		}
+#endif
 		ed->focus = 1;
 		ed->overDelete = 0;
 		ed->cursor = textposxy(str, ed->w-14, mx-ed->x, my-ed->y);
@@ -463,7 +489,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 	}
 	else if (mb && !mbq) //a first click anywhere outside
 	{
-		if (!ed->alwaysFocus)
+		if (!ed->alwaysFocus && ed->focus)
 		{
 			ed->focus = 0;
 			ed->cursor = ed->cursorstart = 0;
@@ -7016,7 +7042,9 @@ int console_ui(pixel *vid_buf)
 	ed.multiline = 1;
 	ed.limit = 1023;
 	ed.resizable = 1;
+#ifndef ANDROID
 	ed.alwaysFocus = 1;
+#endif
 
 	if (!old_buf)
 		return 0;
@@ -7100,10 +7128,12 @@ int console_ui(pixel *vid_buf)
 
 		strncpy(laststr, ed.str, 256);
 		commandHeight = ui_edit_draw(vid_buf, &ed);
+#ifndef ANDROID
 		if (focusTextbox)
 			ed.alwaysFocus = 1;
 		else
 			ed.alwaysFocus = 0;
+#endif
 		ui_edit_process(mx, my, b, bq, &ed);
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 #ifdef OGLR

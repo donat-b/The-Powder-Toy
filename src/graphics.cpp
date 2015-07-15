@@ -31,6 +31,9 @@
 #include <SDL/SDL_syswm.h>
 #endif
 #endif
+#ifdef ANDROID
+#include <SDL/SDL_screenkeyboard.h>
+#endif
 
 #ifdef OGLR
 #ifdef MACOSX
@@ -4545,12 +4548,16 @@ int sdl_open()
 		fprintf(stderr, "Initializing SDL: %s\n", SDL_GetError());
 		return 0;
 	}
+#ifndef ANDROID
+	// scale to screen size, android does this for us automatically
 	if (!sdl_opened && firstRun)
 	{
 		const SDL_VideoInfo *info = SDL_GetVideoInfo();
-		if (sdl_scale == 1 && info->current_w > ((XRES+BARSIZE)*2) && info->current_h > ((YRES+MENUSIZE)*2))
+		// at least 50 pixels of buffer space just to be safe
+		if (sdl_scale == 1 && info->current_w-50 > ((XRES+BARSIZE)*2) && info->current_h-50 > ((YRES+MENUSIZE)*2))
 			sdl_scale = 2;
 	}
+#endif
 	
 #ifdef WIN
 	SDL_VERSION(&SysInfo.version);
@@ -4784,6 +4791,11 @@ int sdl_open()
 	sdl_wminfo.info.x11.unlock_func();
 #elif WIN
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+#endif
+
+#ifdef ANDROID
+	// hide overlay buttons that just get in the way
+	SDL_ANDROID_SetScreenKeyboardShown(0);
 #endif
 
 	//if (screen_err)
