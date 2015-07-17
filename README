@@ -917,6 +917,10 @@ hovering over link signs. Simulation updates from tpt++.
 Version 31.2 (build 58) 7/8/15
 Fix error message when commenting on saves, fix ALT modifier key.
 
+Version 31.2 (build 59 - OS X) 7/15/15
+Fix all deco loading as white on OS X. Fix freeze when hovering mouse over a
+massive amount of stacked portals.
+
 
 
 
