@@ -6963,9 +6963,10 @@ void console_limit_history(int limit, command_history *commandList)
 
 // draws and processes all the history, which are in ui_labels (which aren't very nice looking, but get the job done).
 // returns if one of them is focused, to fix copying (since the textbox is usually always focused and would overwrite the copy after)
-int console_draw_history(command_history *commandList, command_history *commandresultList, int limit, int divideX, int mx, int my, int b, int bq)
+ui_label * console_draw_history(command_history *commandList, command_history *commandresultList, int limit, int divideX, int mx, int my, int b, int bq)
 {
-	int cc, focused = 0;
+	int cc;
+	ui_label * focused = NULL;
 	for (cc = 0; cc < limit; cc++)
 	{
 		if (commandList == NULL)
@@ -6979,8 +6980,10 @@ int console_draw_history(command_history *commandList, command_history *commandr
 		ui_label_process(mx, my, b, bq, &commandList->command);
 		ui_label_draw(vid_buf, &commandresultList->command);
 		ui_label_process(mx, my, b, bq, &commandresultList->command);
-		if (commandList->command.focus || commandresultList->command.focus)
-			focused = 1;
+		if (commandList->command.focus)
+			focused = &commandList->command;
+		if (commandresultList->command.focus)
+			focused = &commandresultList->command;
 
 		if (commandList->prev_command == NULL)
 			break;
@@ -7033,10 +7036,11 @@ int divideX = XRES/2-50;
 int console_ui(pixel *vid_buf)
 {
 	int i, mx, my, b = 0, bq, selectedCommand = -1, commandHeight = 12;
-	char *match = 0, laststr[1024] = "", draggingDivindingLine = 0, focusTextbox = 1;
+	char *match = 0, laststr[1024] = "", draggingDivindingLine = 0;
 	pixel *old_buf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	command_history *currentcommand = last_command;
 	command_history *currentcommand_result = last_command_result;
+	ui_label * focused = NULL;
 	ui_edit ed;
 	ui_edit_init(&ed, 15, 207, divideX-15, 14);
 	ed.multiline = 1;
@@ -7084,6 +7088,12 @@ int console_ui(pixel *vid_buf)
 			if (!b)
 				draggingDivindingLine = 1;
 		}
+		// click to the left of a command to copy command to textbox (for android)
+		if (focused && b && !bq && mx >= 0 && mx <= 12 && my >= focused->y-4 && my <= focused->y+focused->h)
+		{
+			strncpy(ed.str, focused->str, 1023);
+			selectedCommand = -1;
+		}
 
 		//draw most of the things to the screen
 		memcpy(vid_buf,old_buf,(XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
@@ -7099,7 +7109,7 @@ int console_ui(pixel *vid_buf)
 		//draw the visible console history
 		currentcommand = last_command;
 		currentcommand_result = last_command_result;
-		focusTextbox = !console_draw_history(currentcommand, currentcommand_result, 11, divideX, mx, my, b, bq);
+		focused = console_draw_history(currentcommand, currentcommand_result, 11, divideX, mx, my, b, bq);
 
 		//find matches, for tab autocomplete
 		if (strcmp(laststr,ed.str))
@@ -7124,12 +7134,17 @@ int console_ui(pixel *vid_buf)
 		if (match)
 			drawtext(vid_buf,ed.x+textwidth(ed.str)-textwidth(match),ed.y,matches[i].command,255,255,255,127);
 
-		drawtext(vid_buf, 5, 207, ">", 255, 255, 255, 240);
+		if (strlen(ed.str))
+			drawtext(vid_buf, 3, 207, "\xCB", 255, 50, 50, 240);
+		else
+			drawtext(vid_buf, 5, 207, ">", 255, 255, 255, 240);
+		if (focused)
+			drawtext(vid_buf, 3, focused->y-2, "\xCA", 255, 50, 50, 240);
 
 		strncpy(laststr, ed.str, 256);
 		commandHeight = ui_edit_draw(vid_buf, &ed);
 #ifndef ANDROID
-		if (focusTextbox)
+		if (focused)
 			ed.alwaysFocus = 1;
 		else
 			ed.alwaysFocus = 0;
@@ -7146,7 +7161,7 @@ int console_ui(pixel *vid_buf)
 			match[strlen(matches[i].command)] = '\0';
 			ed.cursor = ed.cursorstart = strlen(ed.str);
 		}
-		if (sdl_key==SDLK_RETURN) //execute the command, create a new history item
+		if (sdl_key==SDLK_RETURN || (b && !bq && strlen(ed.str) && mx >= 0 && mx <= 12 && my >= 205 && my <= 219)) //execute the command, create a new history item
 		{
 			char *command = mystrdup(ed.str);
 			char *result = NULL;
@@ -7193,6 +7208,7 @@ int console_ui(pixel *vid_buf)
 			strcpy(ed.str, "");
 			ed.cursor = ed.cursorstart = 0;
 			selectedCommand = -1;
+			focused = NULL;
 		}
 		if (sdl_key==SDLK_ESCAPE || (sdl_key==SDLK_BACKQUOTE && !(sdl_mod & (KMOD_SHIFT))) || !console_mode) // exit the console
 		{
