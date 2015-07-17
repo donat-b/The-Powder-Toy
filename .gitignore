@@ -1,6 +1,7 @@
 powder.def
 powder.pref
 .sconsign.dblite
+/.sconf_temp/
 config.log
 *.lua
 *.lib
@@ -14,8 +15,14 @@ config.log
 *.sh
 *.py
 *.png
-*The-Powder-Toy*
-*jacob1smod*
+
+# QT Creator project files
+*.config
+*.creator
+*.files
+*.includes
+*.user
+
 /stamps/
 /Saves/
 /scripts/
@@ -43,4 +50,3 @@ config.log
 /includes/dirent.h
 /includes/zlib.h
 /includes/zconf.h
-/.sconf_temp/
