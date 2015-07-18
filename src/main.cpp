@@ -1866,6 +1866,9 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='o')
 			{
+#ifdef ANDROID
+				catalogue_ui(vid_buf);
+#else
 				if  (sdl_mod & (KMOD_CTRL|KMOD_META))
 				{
 					catalogue_ui(vid_buf);
@@ -1876,6 +1879,7 @@ int main(int argc, char *argv[])
 					if (old_menu)
 						UpdateToolTip("Experimental old menu activated, press 'o' to turn off", Point(XCNTR-textwidth("Experimental old menu activated, press 'o' to turn off")/2, YCNTR-10), INFOTIP, 500);
 				}
+#endif
 			}
 			if(sdl_key=='e')
 			{

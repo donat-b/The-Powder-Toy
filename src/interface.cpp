@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sstream>
+#include <algorithm>
 #include <bzlib.h>
 #include <math.h>
 #include <time.h>
@@ -2907,11 +2908,11 @@ void menu_ui_v2(pixel *vid_buf, int i)
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 		DrawToolTips();
-		fillrect(vid_buf, menuStartPosition-menuIconWidth-width-4, y-5, width+16, height+16+rows, 0, 0, 0, 100);
-		drawrect(vid_buf, menuStartPosition-menuIconWidth-width-4, y-5, width+16, height+16+rows, 255, 255, 255, 255);
-		fillrect(vid_buf, menuStartPosition-menuIconWidth+14, someStrangeYValue, 15, FONT_H+4, 0, 0, 0, 100);
-		drawrect(vid_buf, menuStartPosition-menuIconWidth+13, someStrangeYValue, 16, FONT_H+4, 255, 255, 255, 255);
-		drawrect(vid_buf, menuStartPosition-menuIconWidth+12, someStrangeYValue+1, 1, FONT_H+2, 0, 0, 0, 255);
+		fillrect(vid_buf, menuStartPosition-width-21, y-5, width+16, height+16+rows, 0, 0, 0, 100);
+		drawrect(vid_buf, menuStartPosition-width-21, y-5, width+16, height+16+rows, 255, 255, 255, 255);
+		fillrect(vid_buf, menuStartPosition-3, someStrangeYValue, 15, FONT_H+4, 0, 0, 0, 100);
+		drawrect(vid_buf, menuStartPosition-5, someStrangeYValue, 16, FONT_H+4, 255, 255, 255, 255);
+		drawrect(vid_buf, menuStartPosition-5, someStrangeYValue+1, 1, FONT_H+2, 0, 0, 0, 255);
 		drawchar(vid_buf, menuStartPosition+1, /*(12*i)+2*/((YRES/numMenus)*i)+((YRES/numMenus)/2)+5, menuSections[i]->icon, 255, 255, 255, 255);
 		if (i) //if not in walls
 			drawtext(vid_buf, 12, 12, "\bgPress 'o' to return to the original menu", 255, 255, 255, 255);
@@ -2955,16 +2956,39 @@ void menu_ui_v2(pixel *vid_buf, int i)
 }
 
 //current menu function
+Tool *originalOver = NULL;
+#define ANDROID
+#ifdef ANDROID
+int originalmx = 0, currentScroll = 0;
+bool draggingMenu = false;
+#endif
 void menu_ui_v3(pixel *vid_buf, int i, int b, int bq, int mx, int my)
 {
 	Tool* over = menu_draw(mx, my, b, bq, i);
 	if (over)
 	{
 		menu_draw_text(over, YRES-9);
-		menu_select_element(b, over);
+		if (b && !bq)
+			originalOver = over;
+		else if (!b && bq && over == originalOver && std::abs(originalmx-mx) < 10)
+			menu_select_element(bq, over);
+		else if (!b && !bq)
+			originalOver = NULL;
 	}
+#ifdef ANDROID
+	if (mx>=menuStartPosition && mx<XRES+BARSIZE-1)
+		currentScroll = 0;
+#endif
+}
+#ifdef ANDROID
+void scrollbar(int fwidth, int scroll, int y)
+{
+	int scrollSize = (int)((float)(menuStartPosition-menuIconWidth)/fwidth * (menuStartPosition-menuIconWidth));
+	int scrollbarx = (int)((float)scroll*XRES/(XRES-8-fwidth)/menuStartPosition * (scrollSize-menuStartPosition));
+	fillrect(vid_buf, scrollbarx+(menuStartPosition-scrollSize), y+19, scrollSize, 3, 200, 200, 200, 255);
 }
 
+#else
 int scrollbar(int fwidth, int mx, int y)
 {
 	int scrollSize, scrollbarx;
@@ -2983,6 +3007,7 @@ int scrollbar(int fwidth, int mx, int y)
 	location = ((float)menuStartPosition-3)/((float)(mx-(menuStartPosition-2)));
 	return (int)(overflow / location);
 }
+#endif
 
 Tool* menu_draw(int mx, int my, int b, int bq, int i)
 {
@@ -3000,7 +3025,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 
 		if (i == SC_FAV2 || i == SC_HUD)
 			i2 = SC_FAV;
-		x = menuStartPosition-35;
+		x = menuStartPosition-39;
 		y = (((YRES/GetNumMenus())*i2)+((YRES/GetNumMenus())/2))-(height/2)+(FONT_H/2)+11;
 	}
 
@@ -3012,7 +3037,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 		int presetx = 6;
 		for (n = DECO_PRESET_START; n < DECO_PRESET_START+NUM_COLOR_PRESETS; n++)
 		{
-			if (!bq && mx>=presetx-1 && mx<presetx+27 && my>=y && my< y+15)
+			if (mx>=presetx-1 && mx<presetx+27 && my>=y && my< y+15)
 			{
 				drawrect(vid_buf, presetx-1, y-1, 29, 17, 255, 55, 55, 255);
 				std::stringstream identifier;
@@ -3038,7 +3063,30 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 	//fancy scrolling
 	if ((!old_menu || i >= SC_FAV) && fwidth > menuStartPosition)
 	{
+#ifdef ANDROID
+		if (!draggingMenu || (b && !bq))
+		{
+			originalmx = mx;
+			xoff = currentScroll;
+			if (b && !bq && my > YRES && mx < menuStartPosition)
+				draggingMenu = true;
+		}
+		else if ((b || bq) && (my > YRES || draggingMenu))
+		{
+			xoff = currentScroll+originalmx-mx;
+			if (xoff < -fwidth+XRES-8)
+				xoff = -fwidth+XRES-8;
+			if (xoff > 0)
+				xoff = 0;
+			if (!b)
+				currentScroll = xoff;
+		}
+		else
+			xoff = currentScroll;
+		scrollbar(fwidth, xoff, y);
+#else
 		xoff = scrollbar(fwidth, mx, y);
+#endif
 	}
 
 	//main loop, draws the tools and figures out which tool you are hovering over / selecting
@@ -3064,16 +3112,16 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 			x -= 31;
 			continue;
 		}
-		if (old_menu && x-26<=60 && i < SC_FAV)
+		if (old_menu && x <= menuStartPosition-17*31 && i < SC_FAV)
 		{
-			x = menuStartPosition-35;
+			x = menuStartPosition-39;
 			y += 19;
 		}
 		x -= draw_tool_xy(vid_buf, x-xoff, y, current)+5;
 
 		if (i == SC_HUD) //HUD menu is special and should hopefully be removed someday ...
 		{
-			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
+			if (mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
 			{
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 				over = current;
@@ -3086,7 +3134,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 		else
 		{
 			//if mouse inside button
-			if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my<y+15)
+			if (mx>=x+32-xoff && mx<x+58-xoff && my>=y && my<y+15)
 			{
 				over = current;
 				//draw rectangles around hovered on tools

@@ -2652,9 +2652,13 @@ int luatpt_oldmenu(lua_State *l)
 		lua_pushnumber(l, old_menu);
 		return 1;
 	}
+#ifdef ANDROID
+	return luaL_error(l, "Old menu not supported on android");
+#else
 	int oldmenu = luaL_checkint(l, 1);
 	old_menu = oldmenu;
 	return 0;
+#endif
 }
 
 char* LuaCode = NULL;

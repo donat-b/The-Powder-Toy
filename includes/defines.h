@@ -73,7 +73,7 @@
 #else
 #define MENUSIZE 40
 #ifdef ANDROID
-#defined BARSIZE 30
+#define BARSIZE 30
 #else
 #define BARSIZE 17
 #endif

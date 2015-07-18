@@ -633,8 +633,10 @@ void load_presets(void)
 			globalSim->elements[PT_EXPL].Enabled = 1;
 			FillMenus();
 		}
+#ifndef ANDROID
 		if (tmpobj = cJSON_GetObjectItem(root, "old_menu"))
 			old_menu = 1;
+#endif
 		if (tmpobj = cJSON_GetObjectItem(root, "alt_find"))
 			finding |= 0x8;
 		if (tmpobj = cJSON_GetObjectItem(root, "dateformat"))
