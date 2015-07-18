@@ -72,7 +72,7 @@
 #define BARSIZE 0
 #else
 #define MENUSIZE 40
-#ifdef ANDROID
+#ifdef TOUCHUI
 #define BARSIZE 30
 #else
 #define BARSIZE 17
@@ -302,6 +302,7 @@ extern int saveURIOpen;
 extern int do_open;
 extern int sys_pause;
 extern int sys_shortcuts;
+extern bool ignoreMouseClicks;
 extern int legacy_enable; //Used to disable new features such as heat, will be set by commandline or save.
 extern pixel *vid_buf;
 

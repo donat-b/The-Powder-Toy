@@ -38,10 +38,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef ANDROID
-#include <SDL/SDL_screenkeyboard.h>
-#endif
-
 #include "http.h"
 #include "md5.h"
 #include "font.h"
@@ -314,7 +310,7 @@ void ui_edit_init(ui_edit *ed, int x, int y, int w, int h)
 	ed->nx = 1;
 	ed->def = "";
 	strcpy(ed->str, "");
-#ifdef ANDROID
+#ifdef TOUCHUI
 	ed->focus = 0;
 #else
 	ed->focus = 1;
@@ -457,7 +453,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			ed->overDelete = 2;
 		if (!mb && mbq && ed->overDelete == 2)
 		{
-#ifndef ANDROID
+#ifndef TOUCHUI
 			ed->focus = 1;
 #endif
 			ed->cursor = 0;
@@ -468,16 +464,10 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 	}
 	else if (mb && (ed->focus || !mbq) && mx>=ed->x-ed->nx && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+(ed->multiline?ed->h:11)) //clicking / dragging over textbox
 	{
-#ifdef ANDROID
+#ifdef TOUCHUI
 		if (ed->focus == 0)
 		{
-			// keyboard without text input is a lot nicer
-			// but for some reason none of the keys work, and mouse input is never sent through
-			// unless you try to press a key where for some reason it clicks the thing under that key
-			//SDL_ANDROID_ToggleScreenKeyboardWithoutTextInput();
-
-			// blocking fullscreen keyboard
-			SDL_ANDROID_ToggleScreenKeyboardTextInput(ed->str);
+			ShowOnScreenKeyboard(ed->str);
 			// clear current text because it will get overridden
 			sprintf(ed->str, "");
 		}
@@ -2957,8 +2947,7 @@ void menu_ui_v2(pixel *vid_buf, int i)
 
 //current menu function
 Tool *originalOver = NULL;
-#define ANDROID
-#ifdef ANDROID
+#ifdef TOUCHUI
 int originalmx = 0, currentScroll = 0;
 bool draggingMenu = false;
 #endif
@@ -2975,12 +2964,12 @@ void menu_ui_v3(pixel *vid_buf, int i, int b, int bq, int mx, int my)
 		else if (!b && !bq)
 			originalOver = NULL;
 	}
-#ifdef ANDROID
+#ifdef TOUCHUI
 	if (mx>=menuStartPosition && mx<XRES+BARSIZE-1)
 		currentScroll = 0;
 #endif
 }
-#ifdef ANDROID
+#ifdef TOUCHUI
 void scrollbar(int fwidth, int scroll, int y)
 {
 	int scrollSize = (int)((float)(menuStartPosition-menuIconWidth)/fwidth * (menuStartPosition-menuIconWidth));
@@ -3063,7 +3052,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 	//fancy scrolling
 	if ((!old_menu || i >= SC_FAV) && fwidth > menuStartPosition)
 	{
-#ifdef ANDROID
+#ifdef TOUCHUI
 		if (!draggingMenu || (b && !bq))
 		{
 			originalmx = mx;
@@ -3133,23 +3122,8 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 		}
 		else
 		{
-			//if mouse inside button
-			if (mx>=x+32-xoff && mx<x+58-xoff && my>=y && my<y+15)
-			{
-				over = current;
-				//draw rectangles around hovered on tools
-				if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL|KMOD_META) && ((ElementTool*)current)->GetID() >= 0)
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-				else if (sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL|KMOD_META))
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
-				else
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
-
-				if (b && ((ToolTool*)current)->GetID() == TOOL_PROP)
-					prop_edit_ui(vid_buf);
-			}
 			//draw rectangles around selected tools
-			else if (activeTools[0]->GetIdentifier() == current->GetIdentifier())
+			if (activeTools[0]->GetIdentifier() == current->GetIdentifier())
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 			else if (activeTools[1]->GetIdentifier() == current->GetIdentifier())
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
@@ -3157,10 +3131,33 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
 			else if (i == SC_FAV && menuSections[i]->tools.end()-iter <= locked)
 				fillrect(vid_buf, x+31-xoff, y, 27, 15, 0, 0, 255, 127);
+
+			//if mouse inside button
+			if (mx>=x+32-xoff && mx<x+58-xoff && my>=y && my<y+15)
+			{
+				over = current;
+#ifndef TOUCHUI
+				//draw rectangles around hovered on tools
+				if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL|KMOD_META) && ((ElementTool*)current)->GetID() >= 0)
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
+				else if (sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL|KMOD_META))
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
+				else
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
+#endif
+
+				if (b && ((ToolTool*)current)->GetID() == TOOL_PROP)
+					prop_edit_ui(vid_buf);
+			}
 		}
 	}
+#ifdef TOUCHUI
 	if (fwidth > menuStartPosition && std::abs(originalmx-mx) > 10)
+	{
+		originalOver = NULL;
 		return NULL;
+	}
+#endif
 	return over;
 }
 
@@ -3468,7 +3465,7 @@ char tabNames[10][255];
 pixel* tabThumbnails[10];
 int quickoptionsThumbnailFade = 0;
 int clickedQuickoption = -1, hoverQuickoption = -1;
-void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
+void QuickoptionsMenu(pixel *vid_buf, int b, int bq, int x, int y)
 {
 	int i = 0;
 	bool isQuickoptionClicked = false, switchTabsOverride = false;
@@ -3621,7 +3618,8 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 			{
 				//toggle show_tabs
 				if (clickedQuickoption == 0)
-					*(quickmenu[clickedQuickoption].variable) = !(*(quickmenu[clickedQuickoption].variable));
+					ShowOnScreenKeyboard("");
+					//*(quickmenu[clickedQuickoption].variable) = !(*(quickmenu[clickedQuickoption].variable));
 				//start a new tab
 				else if (clickedQuickoption == num_tabs + 1)
 				{
@@ -3692,6 +3690,11 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 		draw_image(vid_buf, tabThumbnails[hoverQuickoption-1], (XRES+BARSIZE)/3, YRES/3, (XRES+BARSIZE)/3+1, YRES/3, quickoptionsThumbnailFade*21);
 		quickoptionsThumbnailFade--;
 	}
+}
+
+void QuickoptionsMenuTouch(pixel *vid_buf, int b, int bq, int x, int y)
+{
+
 }
 
 SDLKey MapNumpad(SDLKey key)
@@ -3868,6 +3871,9 @@ int sdl_poll(void)
 
 	while (SDL_PollEvent(&event))
 	{
+		char *test = new char[8];
+		sprintf(test, "%i", event.type);
+		luacon_log(test);
 		int ret = EventProcess(event);
 		if (ret)
 			return ret;
@@ -7097,7 +7103,7 @@ int console_ui(pixel *vid_buf)
 	ed.multiline = 1;
 	ed.limit = 1023;
 	ed.resizable = 1;
-#ifndef ANDROID
+#ifndef TOUCHUI
 	ed.alwaysFocus = 1;
 #endif
 
@@ -7194,7 +7200,7 @@ int console_ui(pixel *vid_buf)
 
 		strncpy(laststr, ed.str, 256);
 		commandHeight = ui_edit_draw(vid_buf, &ed);
-#ifndef ANDROID
+#ifndef TOUCHUI
 		if (focused)
 			ed.alwaysFocus = 1;
 		else
@@ -8425,7 +8431,7 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 		}
 		else
 		{
-			quickoptions_menu(vid_buf, b, bq, mx, my);
+			QuickoptionsMenu(vid_buf, b, bq, mx, my);
 			if (scrollMenus)
 				DrawMenusTouch(vid_buf, 0, 0, 0, 0);
 			else

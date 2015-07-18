@@ -2652,8 +2652,8 @@ int luatpt_oldmenu(lua_State *l)
 		lua_pushnumber(l, old_menu);
 		return 1;
 	}
-#ifdef ANDROID
-	return luaL_error(l, "Old menu not supported on android");
+#ifdef TOUCHUI
+	return luaL_error(l, "Old menu not supported when using the touch interface");
 #else
 	int oldmenu = luaL_checkint(l, 1);
 	old_menu = oldmenu;

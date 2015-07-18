@@ -176,6 +176,7 @@ bool firstRun = false;
 int do_open = 0;
 int sys_pause = 0;
 int sys_shortcuts = 1;
+bool ignoreMouseClicks = false;
 int legacy_enable = 0; //Used to disable new features such as heat, will be set by save.
 int aheat_enable; //Ambient heat
 int decorations_enable = 1;
@@ -209,7 +210,7 @@ float toolStrength = 1.0f;
 int autosave = 0;
 int realistic = 0;
 int unlockedstuff = 0x08;
-#ifdef ANDROID
+#ifdef TOUCHUI
 bool scrollMenus = true;
 #else
 bool scrollMenus = false;
@@ -1871,7 +1872,7 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='o')
 			{
-#ifdef ANDROID
+#ifdef TOUCHUI
 				catalogue_ui(vid_buf);
 #else
 				if  (sdl_mod & (KMOD_CTRL|KMOD_META))
@@ -2390,8 +2391,18 @@ int main(int argc, char *argv[])
 		}
 #endif
 
-		bq = bc; // bq is previous mouse state
-		bc = b = mouse_get_state(&x, &y); // b is current mouse state
+		if (ignoreMouseClicks)
+		{
+			b = bq = bc = 0;
+			// not sure if we get any kind of event for when keyboard goes away, so keep checking for when the keyboard is gone
+			if (!IsOnScreenKeyboardShown())
+				ignoreMouseClicks = false;
+		}
+		else
+		{
+			bq = bc; // bq is previous mouse state
+			bc = b = mouse_get_state(&x, &y); // b is current mouse state
+		}
 
 		if (old_version)
 		{
@@ -2462,7 +2473,7 @@ int main(int argc, char *argv[])
 
 		if (scrollMenus)
 		{
-			quickoptions_menu(vid_buf, b, bq, mx, my);
+			QuickoptionsMenu(vid_buf, b, bq, x, y);
 
 			int hover = DrawMenusTouch(vid_buf, b, bq, x, y);
 			if (hover >= 0)
@@ -2479,7 +2490,7 @@ int main(int argc, char *argv[])
 		}
 		else if (!old_menu)
 		{
-			quickoptions_menu(vid_buf, b, bq, x, y);
+			QuickoptionsMenu(vid_buf, b, bq, x, y);
 
 			int hover = DrawMenus(vid_buf, active_menu, y);
 			if (hover >= 0 && x>=menuStartPosition && x<XRES+BARSIZE-1)

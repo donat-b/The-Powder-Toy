@@ -240,7 +240,9 @@ extern int currH;
 extern int currS;
 extern int currV;
 
-void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y);
+void QuickoptionsMenu(pixel *vid_buf, int b, int bq, int x, int y);
+
+void QuickoptionsMenuTouch(pixel *vid_buf, int b, int bq, int x, int y);
 
 extern int propSelected;
 extern char propValue[255];

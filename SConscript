@@ -40,6 +40,7 @@ def AddSconsOption(name, default, hasArgs, help):
 AddSconsOption('win', False, False, "Target Windows")
 AddSconsOption('lin', False, False, "Target Linux")
 AddSconsOption('mac', False, False, "Target Mac OS X")
+AddSconsOption('touchui', False, False, "Enable the touchscreen interface")
 AddSconsOption('msvc', False, False, "Use the Microsoft Visual Studio compiler")
 AddSconsOption("tool", False, True, "Tool prefix appended before gcc/g++")
 
@@ -472,6 +473,9 @@ elif GetOption("no-warnings"):
 		env.Append(CCFLAGS=['/W0'])
 	else:
 		env.Append(CCFLAGS=['-w'])
+
+if GetOption("touchui"):
+	env.Append(CPPDEFINES=["TOUCHUI"])
 
 
 #Generate list of sources to compile

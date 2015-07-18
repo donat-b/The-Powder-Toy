@@ -35,6 +35,9 @@
 #endif
 #include <sstream>
 #include <math.h>
+#ifdef ANDROID
+#include <SDL/SDL_screenkeyboard.h>
+#endif
 
 #ifdef LIN
 #include "images.h"
@@ -633,7 +636,7 @@ void load_presets(void)
 			globalSim->elements[PT_EXPL].Enabled = 1;
 			FillMenus();
 		}
-#ifndef ANDROID
+#ifndef TOUCHUI
 		if (tmpobj = cJSON_GetObjectItem(root, "old_menu"))
 			old_menu = 1;
 #endif
@@ -1288,6 +1291,28 @@ void RGB_to_HSV(int r,int g,int b,int *h,int *s,int *v)//convert 0-255 RGB value
 		*s = (int)(255.0*((x - a)/x));
 		*v = (int)(255.0*x);
 	}
+}
+
+void ShowOnScreenKeyboard(const char *str)
+{
+#ifdef ANDROID
+	// keyboard without text input is a lot nicer
+	// but for some reason none of the keys work, and mouse input is never sent through
+	// unless you try to press a key where for some reason it clicks the thing under that key
+	//SDL_ANDROID_ToggleScreenKeyboardWithoutTextInput();
+	//ignoreMouseClicks = true;
+
+	// blocking fullscreen keyboard
+	SDL_ANDROID_ToggleScreenKeyboardTextInput(str);
+#endif
+}
+
+bool IsOnScreenKeyboardShown()
+{
+#ifdef ANDROID
+	return SDL_IsScreenKeyboardShown(NULL);
+#endif
+	return false;
 }
 
 Tool* GetToolFromIdentifier(std::string identifier)
