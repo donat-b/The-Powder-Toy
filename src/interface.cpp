@@ -2970,7 +2970,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int b, int bq, int mx, int my)
 		menu_draw_text(over, YRES-9);
 		if (b && !bq)
 			originalOver = over;
-		else if (!b && bq && over == originalOver && std::abs(originalmx-mx) < 10)
+		else if (!b && bq && over == originalOver)
 			menu_select_element(bq, over);
 		else if (!b && !bq)
 			originalOver = NULL;
@@ -3159,6 +3159,8 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 				fillrect(vid_buf, x+31-xoff, y, 27, 15, 0, 0, 255, 127);
 		}
 	}
+	if (fwidth > menuStartPosition && std::abs(originalmx-mx) > 10)
+		return NULL;
 	return over;
 }
 
@@ -8424,7 +8426,10 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 		else
 		{
 			quickoptions_menu(vid_buf, b, bq, mx, my);
-			DrawMenus(vid_buf, active_menu, my);
+			if (scrollMenus)
+				DrawMenusTouch(vid_buf, 0, 0, 0, 0);
+			else
+				DrawMenus(vid_buf, active_menu, my);
 		}
 		draw_svf_ui(vid_buf, sdl_mod & (KMOD_CTRL|KMOD_META));
 		

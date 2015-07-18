@@ -101,6 +101,8 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* currents);
 
 int DrawMenus(pixel *vid_buf, int hover, int mouseY);
 
+int DrawMenusTouch(pixel *vid_buf, int b, int bq, int mx, int my);
+
 void drawpixel(pixel *vid, int x, int y, int r, int g, int b, int a);
 
 int addchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a);

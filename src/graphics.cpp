@@ -732,6 +732,73 @@ int DrawMenus(pixel *vid_buf, int hover, int mouseY)
 	return ret;
 }
 
+bool draggingMenuSections = false;
+int menuOffset = 0, menuStart = 0;
+int DrawMenusTouch(pixel *vid_buf, int b, int bq, int mx, int my)
+{
+	int xStart = menuStartPosition-2, y = YRES-70+menuOffset+1;
+
+	// draw menu icons
+	for (int i = 0; i < SC_TOTAL; i++)
+	{
+		if (menuSections[i]->enabled)
+		{
+			if (y >= YRES-70-16*4 && y <= YRES-70+16*4)
+			{
+				drawrect(vid_buf, xStart+1, y, 14, 14, 255, 255, 255, 255);
+				drawchar(vid_buf, xStart+4, y+2, menuSections[i]->icon, 255, 255, 255, 255);
+			}
+			y += 16;
+		}
+	}
+	// fade out the icons on the edges
+	for (int i = 0; i < 31; i++)
+	{
+		for (int x = xStart; x < xStart+menuIconWidth; x++)
+		{
+			drawpixel(vid_buf, x, YRES-70-16*3+i, 0, 0, 0, 255-i*8);
+			drawpixel(vid_buf, x, YRES-70+16*4-i-1, 0, 0, 0, 255-i*8);
+		}
+	}
+	fillrect(vid_buf, xStart, YRES-70-16*4-1, menuIconWidth, 16, 0, 0, 0, 255);
+	fillrect(vid_buf, xStart, YRES-70+16*4, menuIconWidth, 16, 0, 0, 0, 255);
+
+	// green box
+	drawrect(vid_buf, xStart+1, YRES-70+1, 14, 14, 0, 255, 0, 255);
+
+	// box around the entire thing
+	draw_line(vid_buf, xStart-1, YRES-70-16*3-1, xStart+menuIconWidth, YRES-70-16*3-1, 150, 150, 150, XRES+BARSIZE);
+	draw_line(vid_buf, xStart-1, YRES-70+16*4, xStart+menuIconWidth, YRES-70+16*4, 150, 150, 150, XRES+BARSIZE);
+	draw_line(vid_buf, xStart-1, YRES-70-16*3-1, xStart-1, YRES-70+16*4, 150, 150, 150, XRES+BARSIZE);
+	draw_line(vid_buf, xStart+menuIconWidth, YRES-70-16*3-1, xStart+menuIconWidth, YRES-70+16*4, 150, 150, 150, XRES+BARSIZE);
+
+	// scrolling logic
+	if (b && !bq && mx > xStart && my >= YRES-70-16*3 && my <= YRES-70+16*4)
+	{
+		draggingMenuSections = true;
+		menuStart = my-menuOffset;
+	}
+	else if (b && draggingMenuSections)
+	{
+		int menuSize = (GetNumMenus()-1)*-16;
+		menuOffset = my-menuStart;
+		if (menuOffset > 0)
+			menuOffset = 0;
+		else if (menuOffset < menuSize)
+			menuOffset = menuSize;
+	}
+	else if (draggingMenuSections)
+	{
+		draggingMenuSections = false;
+		if (bq)
+		{
+			menuOffset = (menuOffset-8)/16*16;
+		}
+	}
+
+	return draggingMenuSections ? (menuOffset-8)/-16 : -1;
+}
+
 //draws a pixel, identical to blendpixel(), except blendpixel has OpenGL support
 TPT_INLINE void drawpixel(pixel *vid, int x, int y, int r, int g, int b, int a)
 {

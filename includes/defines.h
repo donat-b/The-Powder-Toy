@@ -239,6 +239,7 @@ extern int autosave;
 extern int realistic;
 extern int loop_time;
 extern int unlockedstuff;
+extern bool scrollMenus;
 extern int old_menu;
 extern int decobox_hidden;
 

@@ -209,6 +209,11 @@ float toolStrength = 1.0f;
 int autosave = 0;
 int realistic = 0;
 int unlockedstuff = 0x08;
+#ifdef ANDROID
+bool scrollMenus = true;
+#else
+bool scrollMenus = false;
+#endif
 int old_menu = 0;
 int loop_time = 0;
 int doUpdates = 2;
@@ -2455,12 +2460,28 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		if (!old_menu)
+		if (scrollMenus)
+		{
+			quickoptions_menu(vid_buf, b, bq, mx, my);
+
+			int hover = DrawMenusTouch(vid_buf, b, bq, x, y);
+			if (hover >= 0)
+			{
+				UpdateToolTip(menuSections[hover]->name, Point(menuStartPosition-5-textwidth(menuSections[hover]->name.c_str()), YRES-67), QTIP, -1);
+				if (hover == SC_DECO && active_menu != SC_DECO)
+					last_active_menu = active_menu;
+				if (hover == SC_FAV)
+					active_menu = last_fav_menu;
+				else
+					active_menu = hover;
+			}
+			menu_ui_v3(vid_buf, active_menu, b, bq, x, y); //draw the elements in the current menu
+		}
+		else if (!old_menu)
 		{
 			quickoptions_menu(vid_buf, b, bq, x, y);
 
 			int hover = DrawMenus(vid_buf, active_menu, y);
-
 			if (hover >= 0 && x>=menuStartPosition && x<XRES+BARSIZE-1)
 			{
 				UpdateToolTip(menuSections[hover]->name, Point(menuStartPosition-5-textwidth(menuSections[hover]->name.c_str()), std::min(((y-8)/16)*16+12, YRES-9)), QTIP, -1);
