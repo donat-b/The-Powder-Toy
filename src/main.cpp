@@ -2457,9 +2457,9 @@ int main(int argc, char *argv[])
 
 			int hover = DrawMenus(vid_buf, active_menu, y);
 
-			if (hover >= 0 && x>=XRES-2 && x<XRES+BARSIZE-1)
+			if (hover >= 0 && x>=menuStartPosition && x<XRES+BARSIZE-1)
 			{
-				UpdateToolTip(menuSections[hover]->name, Point(XRES-5-textwidth(menuSections[hover]->name.c_str()), std::min(((y-8)/16)*16+12, YRES-9)), QTIP, -1);
+				UpdateToolTip(menuSections[hover]->name, Point(menuStartPosition-5-textwidth(menuSections[hover]->name.c_str()), std::min(((y-8)/16)*16+12, YRES-9)), QTIP, -1);
 				if (((hover != SC_DECO && !b) || (hover == SC_DECO && b && !bq)))
 				{
 					if (hover == SC_DECO && active_menu != SC_DECO)
@@ -2560,7 +2560,7 @@ int main(int argc, char *argv[])
 			old_version = 0;
 			b = 0;
 		}
-		if (y > YRES+MENUSIZE-BARSIZE) //mouse checks for buttons at the bottom, to draw mouseover texts
+		if (y > YRES+MENUSIZE-menuIconWidth) //mouse checks for buttons at the bottom, to draw mouseover texts
 		{
 			std::string newToolTip = "";
 			if (x>=1 && x<=17)
@@ -2861,7 +2861,7 @@ int main(int argc, char *argv[])
 		else if (b)
 		{
 			UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
-			if (y > YRES+MENUSIZE-BARSIZE)//check if mouse is on menu buttons
+			if (y > YRES+MENUSIZE-menuIconWidth)//check if mouse is on menu buttons
 			{
 				if (!lb && !bq)//mouse is NOT held down, so it is a first click
 				{

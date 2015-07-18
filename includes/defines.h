@@ -72,11 +72,17 @@
 #define BARSIZE 0
 #else
 #define MENUSIZE 40
+#ifdef ANDROID
+#defined BARSIZE 30
+#else
 #define BARSIZE 17
+#endif
 #endif
 #define XRES	612
 #define YRES	384
 #define NPART XRES*YRES
+const int menuStartPosition = XRES+BARSIZE-17;
+const int menuIconWidth = 17;
 
 #define XCNTR   306
 #define YCNTR   192

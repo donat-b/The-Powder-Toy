@@ -460,7 +460,7 @@ void draw_tool_button(pixel *vid_buf, int x, int y, pixel color, std::string nam
 int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 {
 	int i, j;
-	if (x > XRES-26 || x < 0)
+	if (x > menuStartPosition-28 || x < 0)
 		return 26;
 	if (current->GetType() == ELEMENT_TOOL)
 	{

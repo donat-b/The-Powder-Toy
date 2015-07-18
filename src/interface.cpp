@@ -2867,12 +2867,12 @@ void old_menu_v2(int active_menu, int x, int y, int b, int bq)
 	for (int i = 0; i < numMenus; i++)
 	{
 		if (i < SC_FAV)
-			drawchar(vid_buf, XRES+1, /*(12*i)+2*/((YRES/numMenus)*i)+((YRES/numMenus)/2)+5, menuSections[i]->icon, 255, 255, 255, 255);
+			drawchar(vid_buf, menuStartPosition+1, /*(12*i)+2*/((YRES/numMenus)*i)+((YRES/numMenus)/2)+5, menuSections[i]->icon, 255, 255, 255, 255);
 	}
 	//check mouse position to see if it is on a menu section
 	for (int i = 0; i < numMenus; i++)
 	{
-		if (!b && i < SC_FAV && x>= XRES+1 && x< XRES+BARSIZE-1 && y>= ((YRES/numMenus)*i)+((YRES/numMenus)/2)+3 && y<((YRES/numMenus)*i)+((YRES/numMenus)/2)+17)
+		if (!b && i < SC_FAV && x>=menuStartPosition+1 && x<XRES+BARSIZE-1 && y>= ((YRES/numMenus)*i)+((YRES/numMenus)/2)+3 && y<((YRES/numMenus)*i)+((YRES/numMenus)/2)+17)
 			menu_ui_v2(vid_buf, i); //draw the elements in the current menu if mouse inside
 	}
 }
@@ -2907,11 +2907,12 @@ void menu_ui_v2(pixel *vid_buf, int i)
 		bq = b;
 		b = mouse_get_state(&mx, &my);
 		DrawToolTips();
-		fillrect(vid_buf, (XRES-BARSIZE-width)-4, y-5, width+16, height+16+rows, 0, 0, 0, 100);
-		drawrect(vid_buf, (XRES-BARSIZE-width)-4, y-5, width+16, height+16+rows, 255, 255, 255, 255);
-		fillrect(vid_buf, (XRES-BARSIZE)+14, someStrangeYValue, 15, FONT_H+4, 0, 0, 0, 100);
-		drawrect(vid_buf, (XRES-BARSIZE)+13, someStrangeYValue, 16, FONT_H+4, 255, 255, 255, 255);
-		drawrect(vid_buf, (XRES-BARSIZE)+12, someStrangeYValue+1, 1, FONT_H+2, 0, 0, 0, 255);
+		fillrect(vid_buf, menuStartPosition-menuIconWidth-width-4, y-5, width+16, height+16+rows, 0, 0, 0, 100);
+		drawrect(vid_buf, menuStartPosition-menuIconWidth-width-4, y-5, width+16, height+16+rows, 255, 255, 255, 255);
+		fillrect(vid_buf, menuStartPosition-menuIconWidth+14, someStrangeYValue, 15, FONT_H+4, 0, 0, 0, 100);
+		drawrect(vid_buf, menuStartPosition-menuIconWidth+13, someStrangeYValue, 16, FONT_H+4, 255, 255, 255, 255);
+		drawrect(vid_buf, menuStartPosition-menuIconWidth+12, someStrangeYValue+1, 1, FONT_H+2, 0, 0, 0, 255);
+		drawchar(vid_buf, menuStartPosition+1, /*(12*i)+2*/((YRES/numMenus)*i)+((YRES/numMenus)/2)+5, menuSections[i]->icon, 255, 255, 255, 255);
 		if (i) //if not in walls
 			drawtext(vid_buf, 12, 12, "\bgPress 'o' to return to the original menu", 255, 255, 255, 255);
 		
@@ -2925,7 +2926,7 @@ void menu_ui_v2(pixel *vid_buf, int i)
 
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 		memcpy(vid_buf, old_vid, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
-		if (!(mx>=(XRES-BARSIZE-width)-4 && my>=sy-5 && my<sy+height+14) || (mx >= XRES-BARSIZE && !(my >= someStrangeYValue && my <= someStrangeYValue+FONT_H+4)))
+		if (!(mx>=(menuStartPosition-menuIconWidth-width)-4 && my>=sy-5 && my<sy+height+14) || (mx >= menuStartPosition-menuIconWidth+13 && !(my >= someStrangeYValue && my <= someStrangeYValue+FONT_H+4)))
 		{
 			break;
 		}
@@ -2968,18 +2969,18 @@ int scrollbar(int fwidth, int mx, int y)
 {
 	int scrollSize, scrollbarx;
 	float overflow, location;
-	if (mx > XRES)
-		mx = XRES;
+	if (mx > menuStartPosition)
+		mx = menuStartPosition;
 	//if (mx < 15) //makes scrolling a little nicer at edges but apparently if you put hundreds of elements in a menu it makes the end not show ...
 	//	mx = 15;
-	scrollSize = (int)(((float)(XRES-BARSIZE))/((float)fwidth) * ((float)XRES-BARSIZE));
-	scrollbarx = (int)(((float)mx/((float)XRES))*(float)(XRES-scrollSize));
-	if (scrollSize+scrollbarx>XRES)
-		scrollbarx = XRES-scrollSize;
+	scrollSize = (int)(((float)(menuStartPosition-menuIconWidth))/((float)fwidth) * ((float)menuStartPosition-menuIconWidth));
+	scrollbarx = (int)(((float)mx/((float)menuStartPosition))*(float)(menuStartPosition-scrollSize));
+	if (scrollSize+scrollbarx>menuStartPosition)
+		scrollbarx = menuStartPosition-scrollSize;
 	fillrect(vid_buf, scrollbarx, y+19, scrollSize, 3, 200, 200, 200, 255);
 
-	overflow = (float)fwidth-XRES+10;
-	location = ((float)XRES-3)/((float)(mx-(XRES-2)));
+	overflow = (float)fwidth-menuStartPosition+10;
+	location = ((float)menuStartPosition-3)/((float)(mx-(menuStartPosition-2)));
 	return (int)(overflow / location);
 }
 
@@ -2989,7 +2990,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 	Tool* over = NULL;
 	if (!old_menu || i >= SC_FAV)
 	{
-		x = XRES-BARSIZE-18;
+		x = menuStartPosition-35;
 		y = YRES+1;
 	}
 	else
@@ -2999,7 +3000,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 
 		if (i == SC_FAV2 || i == SC_HUD)
 			i2 = SC_FAV;
-		x = XRES-BARSIZE-23;
+		x = menuStartPosition-35;
 		y = (((YRES/GetNumMenus())*i2)+((YRES/GetNumMenus())/2))-(height/2)+(FONT_H/2)+11;
 	}
 
@@ -3035,7 +3036,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 	}
 
 	//fancy scrolling
-	if ((!old_menu || i >= SC_FAV) && fwidth > XRES-BARSIZE)
+	if ((!old_menu || i >= SC_FAV) && fwidth > menuStartPosition)
 	{
 		xoff = scrollbar(fwidth, mx, y);
 	}
@@ -3058,14 +3059,14 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 			}
 		}
 		//if it's offscreen to the right or left, draw nothing
-		if (x-xoff > XRES-26 || x-xoff < 0)
+		if (x-xoff > menuStartPosition-28 || x-xoff < 0)
 		{
 			x -= 31;
 			continue;
 		}
 		if (old_menu && x-26<=60 && i < SC_FAV)
 		{
-			x = XRES-BARSIZE-23;
+			x = menuStartPosition-35;
 			y += 19;
 		}
 		x -= draw_tool_xy(vid_buf, x-xoff, y, current)+5;
@@ -3441,7 +3442,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 				}
 				if(x >= (XRES+BARSIZE)-16 && x <= (XRES+BARSIZE)-2 && y >= (i*16)+1 && y <= (i*16)+15)
 				{
-					UpdateToolTip(quickmenu[i].name, Point((XRES - 5) - textwidth(quickmenu[i].name), (i*16)+6), QTIP, -1);
+					UpdateToolTip(quickmenu[i].name, Point(menuStartPosition-5-textwidth(quickmenu[i].name), (i*16)+6), QTIP, -1);
 
 					if (b == 1 && !bq)
 					{
@@ -3505,7 +3506,7 @@ void quickoptions_menu(pixel *vid_buf, int b, int bq, int x, int y)
 				}
 				else
 					toolTip = tabNames[i-1];
-				UpdateToolTip(toolTip, Point((XRES - 5) - textwidth(toolTip.c_str()), (i*16)+6), QTIP, -1);
+				UpdateToolTip(toolTip, Point(menuStartPosition-5-textwidth(toolTip.c_str()), (i*16)+6), QTIP, -1);
 
 				if (i > 0 && i <= num_tabs && tab_num != i)
 				{
