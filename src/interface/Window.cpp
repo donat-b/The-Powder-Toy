@@ -11,6 +11,7 @@ Window_::Window_(Point position_, Point size_):
 	size(size_),
 	Components(NULL),
 	isMouseDown(false),
+	ignoreQuits(false),
 	focused(NULL),
 	clicked(NULL)
 {
@@ -99,7 +100,9 @@ void Window_::DoTick(uint32_t ticks)
 
 void Window_::DoDraw()
 {
-	videoBuffer->Clear();
+	// too lazy to create another variable which is temporary anyway
+	if (!ignoreQuits)
+		videoBuffer->Clear();
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
 		if ((*iter)->IsVisible() && !IsFocused(*iter))
@@ -112,7 +115,9 @@ void Window_::DoDraw()
 	OnDraw(videoBuffer);
 
 	videoBuffer->CopyVideoBuffer(vid_buf, XRES+BARSIZE, position.X, position.Y);
-	drawrect(vid_buf, position.X, position.Y, size.X, size.Y, 255, 255, 255, 255);
+	// TODO: use videobuffer function for this ...
+	if (position.X > 0 || position.Y > 0 || size.X < XRES+BARSIZE-1 || size.Y < YRES+MENUSIZE-1)
+		drawrect(vid_buf, position.X, position.Y, size.X, size.Y, 255, 255, 255, 255);
 }
 
 void Window_::DoMouseMove(int x, int y, int dx, int dy)
@@ -219,4 +224,9 @@ void Window_::DoKeyRelease(int key, unsigned short character, unsigned short mod
 	}*/
 
 	OnKeyRelease(key, character, modifiers);
+}
+
+void Window_::VideoBufferHack()
+{
+	std::copy(&vid_buf[0], &vid_buf[(XRES+BARSIZE)*(YRES+MENUSIZE)], &videoBuffer->GetVid()[0]);
 }

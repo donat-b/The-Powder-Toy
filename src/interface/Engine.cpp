@@ -54,9 +54,10 @@ bool Engine::EventProcess(SDL_Event event)
 	switch (event.type)
 	{
 	case SDL_KEYDOWN:
+		sdl_mod = static_cast<unsigned short>(SDL_GetModState());
 		top->DoKeyPress(event.key.keysym.sym, event.key.keysym.unicode, static_cast<unsigned short>(sdl_mod));
 
-		if (event.key.keysym.sym == SDLK_ESCAPE)
+		if (event.key.keysym.sym == SDLK_ESCAPE && top->CanQuit())
 			return true;
 		else if (event.key.keysym.sym == 'q' && (sdl_mod & (KMOD_CTRL|KMOD_META)))
 		{
@@ -69,6 +70,7 @@ bool Engine::EventProcess(SDL_Event event)
 		break;
 
 	case SDL_KEYUP:
+		sdl_mod = static_cast<unsigned short>(SDL_GetModState());
 		top->DoKeyRelease(event.key.keysym.sym, event.key.keysym.unicode, static_cast<unsigned short>(sdl_mod));
 		break;
 	case SDL_MOUSEBUTTONDOWN:
@@ -89,8 +91,8 @@ bool Engine::EventProcess(SDL_Event event)
 		lastMousePosition = Point(event.motion.x/sdl_scale, event.motion.y/sdl_scale);
 		break;
 	case SDL_QUIT:
-		//if (fastquit)
-		//	has_quit = 1;
+		if (fastquit)
+			has_quit = 1;
 		return true;
 
 	// Special events are handled here (copy/paste on linux, open on windows)
@@ -173,7 +175,6 @@ void Engine::MainLoop()
 	{
 		top->UpdateComponents();
 
-		sdl_mod = static_cast<unsigned short>(SDL_GetModState());
 		while (SDL_PollEvent(&event))
 		{
 			int ret = EventProcess(event);
@@ -189,8 +190,11 @@ void Engine::MainLoop()
 		lastTick = currentTick;
 
 		top->DoDraw();
-		if (top->toDelete)
+		if (top->toDelete || has_quit)
+		{
+			delete top;
 			CloseWindow(top);
+		}
 		sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf /*potato->GetVid()->GetVid()*/, XRES+BARSIZE);
 		//memset(vid_buf, 0, (XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
 		limit_fps();

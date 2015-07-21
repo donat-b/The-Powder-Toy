@@ -84,6 +84,7 @@
 
 // new interface stuff
 #include "interface/Engine.h"
+#include "gui/game/PowderToy.h"
 #include "gui/profile/ProfileViewer.h"
 
 pixel *vid_buf;
@@ -160,7 +161,6 @@ typedef struct
 	pixel *vid;
 } upstruc;
 
-static const char *old_ver_msg = "A new version is available - click here!";
 char new_message_msg[255];
 float mheat = 0.0f;
 
@@ -176,7 +176,6 @@ bool firstRun = false;
 int do_open = 0;
 int sys_pause = 0;
 int sys_shortcuts = 1;
-bool ignoreMouseClicks = false;
 int legacy_enable = 0; //Used to disable new features such as heat, will be set by save.
 int aheat_enable; //Ambient heat
 int decorations_enable = 1;
@@ -188,7 +187,6 @@ int framerender = 0;
 int pretty_powder = 0;
 char edgeMode = 0;
 int MSIGN =-1;
-int frameidx = 0;
 int limitFPS = 60;
 int main_loop = 1;
 std::string favMenu[18];
@@ -710,39 +708,6 @@ char http_proxy_string[256] = "";
 
 unsigned char last_major=0, last_minor=0, last_build=0, update_flag=0;
 
-#ifdef WIN
-#ifdef _64BIT
-	#define UPDATE_ARCH "Windows64"
-#else
-	#define UPDATE_ARCH "Windows32"
-#endif
-#elif LIN
-#ifdef _64BIT
-	#define UPDATE_ARCH "Linux64"
-#else
-	#define UPDATE_ARCH "Linux32"
-#endif
-#elif MACOSX
-	#define UPDATE_ARCH "MacOSX"
-#else
-	#define UPDATE_ARCH "Unknown"
-#endif
-
-#if defined X86_SSE3
-	#define UPDATE_CPU "SSE3"
-#elif defined X86_SSE2
-	#define UPDATE_CPU "SSE2"
-#elif defined X86_SSE
-	#define UPDATE_CPU "SSE"
-#else
-	#define UPDATE_CPU "Unknown"
-#endif
-
-const char update_uri[] = "http://" UPDATESERVER "/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
-const char changelog_uri[] = "http://" UPDATESERVER "/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
-const char update_uri_alt[] = "http://" UPDATESERVERALT "/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
-const char changelog_uri_alt[] = "http://" UPDATESERVERALT "/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
-
 void ctrlzSnapshot()
 {
 	int cbx, cby, cbi;
@@ -1094,13 +1059,14 @@ void SigHandler(int signal)
 	}
 }
 
-int main(int argc, char *argv[])
-{
+//int main(int argc, char *argv[])
+//{
 	pixel *part_vbuf; //Extra video buffer
 	pixel *part_vbuf_store;
-	int i, j, bq, bc = 0, old_version=0, old_ver_len = 0, new_message_len=0, afk = 0, afkstart = 0;
-	int x = XRES, y = YRES, line_x, line_y, b = 0, lb = 0, lx = 0, ly = 0, lm = 0;//, tx, ty;
-	int mx = 0, my = 0, lastx = 1, lasty = 0;
+	int new_message_len = 0;
+	int afk = 0, afkstart = 0, lastx = 1, lasty = 0; // afk tracking for stats
+	int line_x, line_y, lb = 0, lx = 0, ly = 0, lm = 0;
+	int mx = 0, my = 0;
 	bool mouseInZoom = false;
 	int load_mode=0, load_w=0, load_h=0, load_x=0, load_y=0, load_size=0;
 	void *load_data=NULL;
@@ -1108,13 +1074,14 @@ int main(int argc, char *argv[])
 	int save_mode=0, save_x=0, save_y=0, save_w=0, save_h=0, copy_mode=0;
 	int username_flash = 0, username_flash_t = 1;
 	int saveOpenError = 0;
-	int benchmark_enable = 0;
-	Download *versionCheck = NULL, *sessionCheck = NULL;
-	char *changelog;
+	Download *sessionCheck = NULL;
 #if !defined(DEBUG) && !defined(_DEBUG)
 	int signal_hooks = 0;
 #endif
 
+int main(int argc, char *argv[])
+{
+	bool benchmark_enable = false;
 	//init some new c++ stuff
 	Simulation *mainSim = new Simulation();
 	mainSim->InitElements();
@@ -1131,7 +1098,7 @@ int main(int argc, char *argv[])
 	part_vbuf_store = part_vbuf;
 	pers_bg = (pixel*)calloc((XRES+BARSIZE)*YRES, PIXELSIZE);
 
-	for (i = 0; i < PT_NUM; i++)
+	for (int i = 0; i < PT_NUM; i++)
 		if (!ptypes[i].name)
 		{
 			ptypes[i].name = "";
@@ -1171,7 +1138,7 @@ int main(int argc, char *argv[])
 	TRON_init_graphics();
 	init_color_boxes();
 
-	for (i=1; i<argc; i++)
+	for (int i = 1; i < argc; i++)
 	{
 		if (!strncmp(argv[i], "ddir", 5) && i+1<argc)
 		{
@@ -1201,7 +1168,7 @@ int main(int argc, char *argv[])
 	memset(parts, 0, sizeof(particle)*NPART);
 	clear_sim();
 
-	for (i=1; i<argc; i++)
+	for (int i = 1; i < argc; i++)
 	{
 		if (!strncmp(argv[i], "scale:", 6))
 		{
@@ -1301,7 +1268,7 @@ int main(int argc, char *argv[])
 		}
 		else if (!strcmp(argv[i], "benchmark"))
 		{
-			benchmark_enable = 1;
+			benchmark_enable = true;
 			if (i+1<argc)
 			{
 				benchmark_file = argv[i+1];
@@ -1334,16 +1301,6 @@ int main(int argc, char *argv[])
 		error_ui(vid_buf, 0, "Unable to open save file.");
 	}
 
-	if (doUpdates && strcmp(svf_user, "jacob1"))
-	{
-		if (doUpdates == 2)
-			versionCheck = new Download(changelog_uri_alt);
-		else
-			versionCheck = new Download(changelog_uri);
-		if (svf_login)
-			versionCheck->AuthHeaders(svf_user, NULL); //username instead of session
-		versionCheck->Start();
-	}
 	if (svf_login)
 	{
 		sessionCheck = new Download("http://" SERVER "/Login.api?Action=CheckSession");
@@ -1374,7 +1331,7 @@ int main(int argc, char *argv[])
 		luacon_openscriptmanager();
 	luacon_openmultiplayer();
 #endif
-	for (i = 0; i < 10; i++)
+	for (int i = 0; i < 10; i++)
 	{
 		sprintf(tabNames[i], "Untitled Simulation %i", i+1);
 		tabThumbnails[i] = NULL;
@@ -1382,7 +1339,7 @@ int main(int argc, char *argv[])
 	if (tab_load(1, true))
 	{
 		char fn[64];
-		for (i = 2; i <= 9; i++)
+		for (int i = 2; i <= 9; i++)
 		{
 			sprintf(fn, "tabs" PATH_SEP "%d.stm", i);
 			if (file_exists(fn))
@@ -1400,24 +1357,21 @@ int main(int argc, char *argv[])
 
 	UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 10235);
 
-	while (!sdl_poll()) //the main loop
+	Engine *engine = new Engine();
+	PowderToy *the_game = new PowderToy(); // you just lost
+	engine->ShowWindow(the_game);
+	engine->MainLoop();
+	delete engine;
+
+	return 0;
+}
+
+	//while (!sdl_poll()) //the main loop
+int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_mod, int x, int y, int sdl_wheel)
+{
+	if (true)
 	{
 		main_loop = 2;
-		frameidx++;
-		frameidx %= 30;
-		if (!sys_pause||framerender) //only update air if not paused
-		{
-			update_air();
-			if(aheat_enable)
-				update_airh();
-		}
-
-		if(gravwl_timeout)
-		{
-			if(gravwl_timeout==1)
-				gravity_mask();
-			gravwl_timeout--;
-		}
 
 #ifdef OGLR
 		part_vbuf = vid_buf;
@@ -1431,36 +1385,8 @@ int main(int argc, char *argv[])
 		}
 #endif
 		render_before(part_vbuf);
-		
-		if(debug_flags & (DEBUG_PERFORMANCE_CALC|DEBUG_PERFORMANCE_FRAME))
-		{
-#ifdef WIN
-#elif MACOSX
-#else
-				struct timespec ts;
-				clock_gettime(CLOCK_REALTIME, &ts);
-				debug_perf_time = ts.tv_nsec;
-#endif
-		}
-		
-		globalSim->Tick(); //update everything
-			
-		if(debug_flags & (DEBUG_PERFORMANCE_CALC|DEBUG_PERFORMANCE_FRAME))
-		{
-#ifdef WIN
-#elif MACOSX
-#else
-				struct timespec ts;
-				clock_gettime(CLOCK_REALTIME, &ts);
-				
-				debug_perf_partitime[debug_perf_iend]  = ts.tv_nsec - debug_perf_time;
-				
-				debug_perf_time = ts.tv_nsec;
-#endif
-		}
-
 		render_after(part_vbuf, vid_buf, Point(mx, my));
-		
+
 		if (load_mode)//draw preview of stamp
 		{
 			draw_image(vid_buf, load_img, load_x, load_y, load_w, load_h, 128);
@@ -1535,25 +1461,25 @@ int main(int argc, char *argv[])
 		if (zoom_en)
 			render_zoom(vid_buf);
 
-		if(debug_flags & (DEBUG_PERFORMANCE_CALC|DEBUG_PERFORMANCE_FRAME))
+		if (!sys_pause||framerender) //only update air if not paused
 		{
-#ifdef WIN
-#elif defined(MACOSX)
-#else
-				struct timespec ts;
-				clock_gettime(CLOCK_REALTIME, &ts);
-				
-				debug_perf_frametime[debug_perf_iend]  = ts.tv_nsec - debug_perf_time;
-#endif
-			debug_perf_iend++;
-			debug_perf_iend %= DEBUG_PERF_FRAMECOUNT;
-			debug_perf_istart++;
-			debug_perf_istart %= DEBUG_PERF_FRAMECOUNT;
+			update_air();
+			if(aheat_enable)
+				update_airh();
+		}
+
+		if (gravwl_timeout)
+		{
+			if (gravwl_timeout == 1)
+				gravity_mask();
+			gravwl_timeout--;
 		}
 		
 		gravity_update_async(); //Check for updated velocity maps from gravity thread
 		if (!sys_pause||framerender) //Only update if not paused
 			memset(gravmap, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float)); //Clear the old gravmap
+
+		globalSim->Tick(); //update everything
 
 		if (framerender)
 			framerender--;
@@ -1569,31 +1495,6 @@ int main(int argc, char *argv[])
 			draw_debug_info(vid_buf, lm, lx, ly, x, y, line_x, line_y);
 		}
 
-		if (versionCheck && versionCheck->CheckDone())
-		{
-			int len, status;
-			char *ver_data = versionCheck->Finish(&len, &status);
-			if (status == 200 && ver_data)
-			{
-				int count, buildnum, major, minor;
-				if (sscanf(ver_data, "%d %d %d%n", &buildnum, &major, &minor, &count) == 3)
-					if (buildnum > MOD_BUILD_VERSION)
-					{
-						old_version = 1;
-						changelog = (char*)malloc((len-count)*sizeof(char)+64);
-						sprintf(changelog, "\bbYour version: %d.%d (%d)\nNew version: %d.%d (%d)\n\n\bwChangeLog:\n%s", MOD_VERSION, MOD_MINOR_VERSION, MOD_BUILD_VERSION, major, minor, buildnum, &ver_data[count+2]);
-					}
-				old_ver_len = textwidth(old_ver_msg);
-				free(ver_data);
-			}
-			else
-			{
-				const char *temp = "Error, could not find update server. Press Ctrl+u to go check for a newer version manually on the tpt website";
-				UpdateToolTip(temp, Point(XCNTR-textwidth(temp)/2, YCNTR-10), INFOTIP, 2500);
-				UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 0);
-			}
-			versionCheck = NULL;
-		}
 		if (saveDataOpen)
 		{
 			//Clear all settings and simulation data
@@ -1748,13 +1649,6 @@ int main(int argc, char *argv[])
 		{
 			if (load_mode != 1)
 				stickmen_keys();
-			if (sdl_key=='q' || sdl_key==SDLK_ESCAPE)
-			{
-				if (confirm_ui(vid_buf, "You are about to quit", "Are you sure you want to quit?", "Quit"))
-				{
-					break;
-				}
-			}
 			if (sdl_key=='i' && (sdl_mod & (KMOD_CTRL|KMOD_META)))
 			{
 				if(confirm_ui(vid_buf, "Install Powder Toy", "You are about to install The Powder Toy", "Install"))
@@ -1817,9 +1711,9 @@ int main(int argc, char *argv[])
 				if (sdl_key=='k')
 				{
 					int reorder = 1;
-					j = stamp_ui(vid_buf, &reorder);
-					if (j >= 0)
-						load_data = stamp_load(j, &load_size, reorder);
+					int stampID = stamp_ui(vid_buf, &reorder);
+					if (stampID >= 0)
+						load_data = stamp_load(stampID, &load_size, reorder);
 					else
 						load_data = NULL;
 				}
@@ -2116,7 +2010,7 @@ int main(int argc, char *argv[])
 				int nx, ny;
 				if (sdl_mod & (KMOD_CTRL|KMOD_META))
 				{
-					for (i=0; i < NPART; i++)
+					for (int i = 0; i < NPART; i++)
 						if (parts[i].type == PT_SPRK)
 						{
 							if (parts[i].ctype >= 0 && parts[i].ctype < PT_NUM && ptypes[parts[i].ctype].enabled)
@@ -2130,14 +2024,14 @@ int main(int argc, char *argv[])
 				}
 				else
 				{
-					for (nx = 0; nx < XRES/CELL; nx++)
-						for (ny = 0; ny < YRES/CELL; ny++)
+					for (int nx = 0; nx < XRES/CELL; nx++)
+						for (int ny = 0; ny < YRES/CELL; ny++)
 						{
 							pv[ny][nx] = 0;
 							vx[ny][nx] = 0;
 							vy[ny][nx] = 0;
 						}
-					for (i=0; i < NPART; i++)
+					for (int i = 0; i < NPART; i++)
 						if (parts[i].type == PT_QRTZ || parts[i].type == PT_GLAS || parts[i].type == PT_TUNG)
 						{
 							parts[i].pavg[0] = parts[i].pavg[1] = 0;
@@ -2391,26 +2285,6 @@ int main(int argc, char *argv[])
 		}
 #endif
 
-		if (ignoreMouseClicks)
-		{
-			b = bq = bc = 0;
-			// not sure if we get any kind of event for when keyboard goes away, so keep checking for when the keyboard is gone
-			if (!IsOnScreenKeyboardShown())
-				ignoreMouseClicks = false;
-		}
-		else
-		{
-			bq = bc; // bq is previous mouse state
-			bc = b = mouse_get_state(&x, &y); // b is current mouse state
-		}
-
-		if (old_version)
-		{
-			clearrect(vid_buf, XRES-20-old_ver_len, YRES-23, old_ver_len+8, 16);
-			drawtext(vid_buf, XRES-16-old_ver_len, YRES-19, old_ver_msg, 255, 216, 32, 255);
-			drawrect(vid_buf, XRES-19-old_ver_len, YRES-22, old_ver_len+5, 13, 255, 216, 32, 255);
-		}
-
 		if (svf_messages)
 		{
 			sprintf(new_message_msg, "You have %d new message%s, Click to view", svf_messages, (svf_messages>1)?"s":"");
@@ -2422,17 +2296,17 @@ int main(int argc, char *argv[])
 		}
 
 #ifdef LUACONSOLE
-		if(bc && bq)
+		if(b && bq)
 		{
-			if(!luacon_mouseevent(x, y, bc, LUACON_MPRESS, 0))
+			if(!luacon_mouseevent(x, y, b, LUACON_MPRESS, 0))
 				b = 0;
 		}
-		else if(bc && !bq)
+		else if(b && !bq)
 		{
-			if(!luacon_mouseevent(x, y, bc, LUACON_MDOWN, 0))
+			if(!luacon_mouseevent(x, y, b, LUACON_MDOWN, 0))
 				b = 0;
 		}
-		else if(!bc && bq)
+		else if(!b && bq)
 		{
 			if(!luacon_mouseevent(x, y, bq, LUACON_MUP, 0))
 				b = 0;
@@ -2568,34 +2442,6 @@ int main(int argc, char *argv[])
 			update_flag = 0;
 		}
 
-		if (b && !bq && x>=(XRES-19-old_ver_len) &&
-		        x<=(XRES-14) && y>=(YRES-22) && y<=(YRES-9) && old_version)
-		{
-			if (b == 1 && confirm_ui(vid_buf, "\bwDo you want to update Jacob1's Mod?", changelog, "\btUpdate"))
-			{
-				char *tmp;
-				free(changelog);
-				if (doUpdates == 2)
-					tmp = download_ui(vid_buf, update_uri_alt, &i);
-				else
-					tmp = download_ui(vid_buf, update_uri, &i);
-
-				if (tmp)
-				{
-					save_presets(1);
-					if (update_start(tmp, i))
-					{
-						update_cleanup();
-						save_presets(0);
-						error_ui(vid_buf, 0, "Update failed - try downloading a new version.");
-					}
-					else
-						return 0;
-				}
-			}
-			old_version = 0;
-			b = 0;
-		}
 		if (y > YRES+MENUSIZE-menuIconWidth) //mouse checks for buttons at the bottom, to draw mouseover texts
 		{
 			std::string newToolTip = "";
@@ -2928,7 +2774,7 @@ int main(int argc, char *argv[])
 					else if (x>=(XRES+BARSIZE-(510-367)) && x<=(XRES+BARSIZE-(510-383)))
 					{
 						NewSim();
-						for (i=0; i<NPART-1; i++)
+						for (int i = 0; i < NPART-1; i++)
 							parts[i].life = i+1;
 						parts[NPART-1].life = -1;
 						globalSim->pfree = 0;
@@ -2938,7 +2784,7 @@ int main(int argc, char *argv[])
 						if (svf_login && x <= XRES+BARSIZE-108)
 						{
 							ProfileViewer *temp = new ProfileViewer(svf_user);
-							delete temp;
+							//delete temp;
 						}
 						else
 						{
@@ -3088,8 +2934,8 @@ int main(int argc, char *argv[])
 						//WIND tool works before you even draw the line while holding shift
 						if (((ToolTool*)activeTool)->GetID() == TOOL_WIND)
 						{
-							for (j = -currentBrush->GetRadius().Y; j <= currentBrush->GetRadius().Y; j++)
-								for (i = -currentBrush->GetRadius().X; i <= currentBrush->GetRadius().X; i++)
+							for (int j = -currentBrush->GetRadius().Y; j <= currentBrush->GetRadius().Y; j++)
+								for (int i = -currentBrush->GetRadius().X; i <= currentBrush->GetRadius().X; i++)
 									if (lx+i>0 && ly+j>0 && lx+i<XRES && ly+j<YRES && currentBrush->IsInside(i, j))
 									{
 										vx[(ly+j)/CELL][(lx+i)/CELL] += (line_x-lx)*0.002f;
@@ -3329,10 +3175,10 @@ int main(int argc, char *argv[])
 		if (console_mode)
 		{
 			if (console_ui(vid_buf) == -1)
-				break;
+				return false;
 		}
 
-		sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf, XRES+BARSIZE);
+		//sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf, XRES+BARSIZE);
 
 		//Setting an element for the stick man
 		if (globalSim->elementCount[PT_STKM]<=0)
@@ -3363,7 +3209,11 @@ int main(int argc, char *argv[])
 		}
 #endif
 	}
-	
+	return true;
+}
+
+void main_end_hack()
+{
 	SaveWindowPosition();
 	DownloadManager::Ref().Shutdown();
 	http_done();
@@ -3383,7 +3233,7 @@ int main(int argc, char *argv[])
 #endif
 	if (part_vbuf_store)
 		free(part_vbuf_store);
-	for (i = 1; i < 10; i++)
+	for (int i = 1; i < 10; i++)
 	{
 		char name[30] = {0};
 		sprintf(name,"tabs%s%d.stm",PATH_SEP,i);
@@ -3394,6 +3244,5 @@ int main(int argc, char *argv[])
 #else
 	rmdir("tabs");
 #endif
-	return 0;
 }
 #endif

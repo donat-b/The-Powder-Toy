@@ -36,7 +36,9 @@
 #include <errno.h>
 #endif
 
-#include <update.h>
+#include "update.h"
+#include "interface.h"
+#include "misc.h"
 
 char *exe_name(void)
 {
@@ -80,6 +82,33 @@ char *exe_name(void)
 		return NULL;
 	}
 	return name;
+}
+
+bool confirm_update(const char *changelog)
+{
+	if (confirm_ui(vid_buf, "\bwDo you want to update Jacob1's Mod?", changelog, "\btUpdate"))
+	{
+		char *tmp;
+		int len;
+		if (doUpdates == 2)
+			tmp = download_ui(vid_buf, update_uri_alt, &len);
+		else
+			tmp = download_ui(vid_buf, update_uri, &len);
+
+		if (tmp)
+		{
+			save_presets(1);
+			if (update_start(tmp, len))
+			{
+				update_cleanup();
+				save_presets(0);
+				error_ui(vid_buf, 0, "Update failed - try downloading a new version.");
+			}
+			else
+				return false;
+		}
+	}
+	return true;
 }
 
 int update_start(char *data, int len)

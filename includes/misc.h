@@ -70,7 +70,7 @@ void HSV_to_RGB(int h,int s,int v,int *r,int *g,int *b);
 
 void RGB_to_HSV(int r,int g,int b,int *h,int *s,int *v);
 
-void ShowOnScreenKeyboard(const char *str);
+bool ShowOnScreenKeyboard(const char *str);
 bool IsOnScreenKeyboardShown();
 
 #ifdef __cplusplus

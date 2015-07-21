@@ -3499,11 +3499,6 @@ int persist_counter = 0;
 void render_after(pixel *part_vbuf, pixel *vid_buf, Point mousePos)
 {
 	render_parts(part_vbuf, mousePos); //draw particles
-	draw_other(part_vbuf);
-#ifndef RENDERER
-	if (((WallTool*)activeTools[activeToolID])->GetID() == WL_GRAV)
-		draw_grav_zones(part_vbuf);
-#endif
 	if (vid_buf && (display_mode & DISPLAY_PERS))
 	{
 		if (!persist_counter)
@@ -3519,6 +3514,11 @@ void render_after(pixel *part_vbuf, pixel *vid_buf, Point mousePos)
 #ifndef OGLR
 	if (render_mode & FIREMODE)
 		render_fire(part_vbuf);
+#endif
+	draw_other(part_vbuf);
+#ifndef RENDERER
+	if (((WallTool*)activeTools[activeToolID])->GetID() == WL_GRAV)
+		draw_grav_zones(part_vbuf);
 #endif
 
 	render_signs(part_vbuf);
@@ -3923,21 +3923,7 @@ void render_gravlensing(pixel *src, pixel * dst)
 				if (b>255)
 					b = 255;
 				dst[ny*(XRES+BARSIZE)+nx] = PIXRGB(r,g,b);
-				//	addpixel(dst, nx, ny, PIXR(src[ry*(XRES+BARSIZE)+rx]), PIXG(src[gy*(XRES+BARSIZE)+gx]), PIXB(src[by*(XRES+BARSIZE)+bx]), 255);
 			}
-
-			/*rx = nx+(gravxf[(ny*XRES)+nx]*0.5f);
-			ry = ny+(gravyf[(ny*XRES)+nx]*0.5f);
-			gx = nx+(gravxf[(ny*XRES)+nx]*0.75f);
-			gy = ny+(gravyf[(ny*XRES)+nx]*0.75f);
-			bx = nx+(gravxf[(ny*XRES)+nx]);
-			by = ny+(gravyf[(ny*XRES)+nx]);
-			if(rx > 0 && rx < XRES && ry > 0 && ry < YRES && gravp[ny/CELL][nx/CELL]*0.5f > -8.0f)
-				addpixel(dst, rx, ry, PIXR(src[ry*(XRES+BARSIZE)+rx]), 0, 0, 255);
-			if(gx > 0 && gx < XRES && gy > 0 && gy < YRES && gravp[ny/CELL][nx/CELL]*0.75f > -8.0f)
-				addpixel(dst, gx, gy, 0, PIXG(src[ry*(XRES+BARSIZE)+rx]), 0, 255);
-			if(bx > 0 && bx < XRES && by > 0 && by < YRES && gravp[ny/CELL][nx/CELL] > -8.0f)
-				addpixel(dst, bx, by, 0, 0, PIXB(src[ry*(XRES+BARSIZE)+rx]), 255);*/
 		}
 	}
 }
@@ -5017,59 +5003,6 @@ float maxAverage = 0.0f; //for debug mode
 int draw_debug_info(pixel* vid, int lm, int lx, int ly, int cx, int cy, int line_x, int line_y)
 {
 	char infobuf[256];
-	if(debug_flags & DEBUG_PERFORMANCE_FRAME || debug_flags & DEBUG_PERFORMANCE_CALC)
-	{
-		int t1, t2, x = 0, i = debug_perf_istart;
-		float partiavg = 0, frameavg = 0;
-		while(i != debug_perf_iend)
-		{
-			partiavg += abs(debug_perf_partitime[i]/100000);
-			frameavg += abs(debug_perf_frametime[i]/100000);
-			if(debug_flags & DEBUG_PERFORMANCE_CALC)
-				t1 = abs(debug_perf_partitime[i]/100000);
-			else
-				t1 = 0;
-				
-			if(debug_flags & DEBUG_PERFORMANCE_FRAME)
-				t2 = abs(debug_perf_frametime[i]/100000);
-			else
-				t2 = 0;
-				
-			if(t1 > YRES)
-				t1 = YRES;
-			if(t1+t2 > YRES)
-				t2 = YRES-t1;
-				
-			if(t1>0)
-				draw_line(vid, x, YRES, x, YRES-t1, 0, 255, 120, XRES+BARSIZE);
-			if(t2>0)	
-				draw_line(vid, x, YRES-t1, x, YRES-(t1+t2), 255, 120, 0, XRES+BARSIZE);
-				
-			i++;
-			x++;
-			i %= DEBUG_PERF_FRAMECOUNT;
-		}
-		
-		if(debug_flags & DEBUG_PERFORMANCE_CALC)
-			t1 = abs((int)(partiavg / x));
-		else
-			t1 = 0;
-			
-		if(debug_flags & DEBUG_PERFORMANCE_FRAME)
-			t2 = abs((int)(frameavg / x));
-		else
-			t2 = 0;
-		
-		if(t1 > YRES)
-			t1 = YRES;
-		if(t1+t2 > YRES)
-			t2 = YRES-t1;
-		
-		if(t1>0)
-			fillrect(vid, x, YRES-t1-1, 5, t1+2, 0, 255, 0, 255);
-		if(t2>0)	
-			fillrect(vid, x, (YRES-t1)-t2-1, 5, t2+1, 255, 0, 0, 255);
-	}
 	if(debug_flags & DEBUG_DRAWTOOL)
 	{
 		if(lm == 1) //Line tool

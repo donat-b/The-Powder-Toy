@@ -356,8 +356,6 @@ void Label::OnMouseMoved(int x, int y, Point difference)
 	}
 }
 
-int lastx = 0;
-int lasty = 0;
 void Label::OnKeyPress(int key, unsigned short character, unsigned short modifiers)
 {
 	if (modifiers & (KMOD_CTRL|KMOD_META))

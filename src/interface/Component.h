@@ -1,6 +1,7 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 
+#include "graphics/ARGBColour.h"
 #include "common/tpt-stdint.h"
 #include "common/Point.h"
 
@@ -16,6 +17,8 @@ protected:
 	bool isMouseInside; // keeps track of if mouse is inside so child classes don't have to
 	bool visible; // ignore all events + tick and hide component
 	bool enabled; // ignore all events, still call tick and draw function
+
+	ARGBColour color;
 
 public:
 	Component(Point position, Point size);
@@ -38,6 +41,8 @@ public:
 	void SetVisible(bool visible_) { visible = visible_; toAdd = false; }
 	bool IsEnabled() { return enabled; }
 	void SetEnabled(bool enabled_) { enabled = enabled_; }
+	void SetColor(ARGBColour newColor) { color = newColor; }
+	ARGBColour GetColor() { return color; }
 
 	virtual void OnMouseDown(int x, int y, unsigned char button) { }
 	virtual void OnMouseUp(int x, int y, unsigned char button) { }

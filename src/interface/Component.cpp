@@ -9,6 +9,7 @@ Component::Component(Point position, Point size) :
 	isMouseInside(false),
 	visible(true),
 	enabled(true),
+	color(COLRGB(255, 255, 255)),
 	toDelete(false),
 	toAdd(false)
 {

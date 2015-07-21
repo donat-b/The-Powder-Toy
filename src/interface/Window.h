@@ -11,7 +11,7 @@ class Window_
 {
 public:
 	Window_(Point position, Point size);
-	~Window_();
+	virtual ~Window_();
 
 	void AddComponent(Component *other);
 	void RemoveComponent(Component *other);
@@ -34,6 +34,7 @@ public:
 	Point GetSize() { return size; }
 	VideoBuffer* GetVid() { return videoBuffer; }
 	bool IsMouseDown() { return isMouseDown; }
+	bool CanQuit() { return !ignoreQuits; }
 
 	bool toDelete;
 
@@ -44,6 +45,7 @@ protected:
 	Point size;
 	std::vector<Component*> Components;
 	bool isMouseDown; // need to keep track of this for some things like buttons
+	bool ignoreQuits;
 
 	virtual void OnTick(uint32_t ticks) { }
 	virtual void OnDraw(VideoBuffer *buf) { }
@@ -51,9 +53,10 @@ protected:
 	virtual void OnMouseDown(int x, int y, unsigned char button) { }
 	virtual void OnMouseUp(int x, int y, unsigned char button) { }
 	virtual void OnMouseWheel(int x, int y, int d) { }
-	virtual void OnKeyPress(int key, unsigned short character, unsigned char modifiers) { }
-	virtual void OnKeyRelease(int key, unsigned short character, unsigned char modifiers) { }
+	virtual void OnKeyPress(int key, unsigned short character, unsigned short modifiers) { }
+	virtual void OnKeyRelease(int key, unsigned short character, unsigned short modifiers) { }
 
+	void VideoBufferHack();
 private:
 	VideoBuffer* videoBuffer;
 	Component* focused;

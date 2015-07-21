@@ -467,9 +467,9 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 #ifdef TOUCHUI
 		if (ed->focus == 0)
 		{
-			ShowOnScreenKeyboard(ed->str);
-			// clear current text because it will get overridden
-			sprintf(ed->str, "");
+			if (ShowOnScreenKeyboard(ed->str))
+				// clear current text because it will get overridden
+				sprintf(ed->str, "");
 		}
 #endif
 		ed->focus = 1;
@@ -2022,12 +2022,12 @@ void copytext_ui(pixel *vid_buf, char *top, char *txt, char *copytxt)
 			break;
 	}
 }
-bool confirm_ui(pixel *vid_buf, char *top, char *msg, char *btn)
+bool confirm_ui(pixel *vid_buf, const char *top, const char *msg, const char *btn)
 {
 	int x0=(XRES-240)/2,y0=YRES/2,b=1,bq,mx,my,textheight;
 	bool ret = false;
 
-	textheight = textwrapheight(msg, 224);
+	textheight = textwrapheight((char*)msg, 224);
 	y0 -= (52+textheight)/2;
 	if (y0<2)
 		y0 = 2;
@@ -3692,9 +3692,51 @@ void QuickoptionsMenu(pixel *vid_buf, int b, int bq, int x, int y)
 	}
 }
 
-void QuickoptionsMenuTouch(pixel *vid_buf, int b, int bq, int x, int y)
+void TouchShowKeyboard()
+{
+	ShowOnScreenKeyboard("");
+}
+
+void TouchReloadSim()
+{
+	parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+	ctrlzSnapshot();
+}
+
+void TouchClearSim()
+{
+	clear_sim();
+}
+
+void TouchCreateStamp()
 {
 
+}
+
+void TouchOpenStamps()
+{
+
+}
+
+void TouchToggleSetting()
+{
+
+}
+
+void TouchOpenSettings()
+{
+
+}
+
+int clickedTouchButton = -1;
+void QuickoptionsMenuTouch(pixel *vid_buf, int b, int bq, int x, int y)
+{
+	/*unsigned int i = 0;
+	while(touchButtons[i].icon != NULL)
+	{
+		drawrect(vid_buf, XRES+2);
+		i++;
+	}*/
 }
 
 SDLKey MapNumpad(SDLKey key)
@@ -3755,18 +3797,10 @@ int EventProcess(SDL_Event event)
 				return 1;
 			}
 		}
-#ifdef LUACONSOLE
-		if (main_loop && !deco_disablestuff && sdl_key && !luacon_keyevent(sdl_key, sdl_mod, LUACON_KDOWN))
-			sdl_key = 0;
-#endif
 		break;
 	case SDL_KEYUP:
 		sdl_rkey = event.key.keysym.sym;
 		sdl_mod = static_cast<unsigned short>(SDL_GetModState());
-#ifdef LUACONSOLE
-		if (main_loop && !deco_disablestuff && sdl_rkey && !luacon_keyevent(sdl_rkey, sdl_mod, LUACON_KUP))
-			sdl_rkey = 0;
-#endif
 		break;
 	case SDL_MOUSEBUTTONDOWN:
 		if (event.button.button == SDL_BUTTON_WHEELUP)
@@ -3871,9 +3905,6 @@ int sdl_poll(void)
 
 	while (SDL_PollEvent(&event))
 	{
-		char *test = new char[8];
-		sprintf(test, "%i", event.type);
-		luacon_log(test);
 		int ret = EventProcess(event);
 		if (ret)
 			return ret;

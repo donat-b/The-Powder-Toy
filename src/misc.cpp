@@ -1293,7 +1293,7 @@ void RGB_to_HSV(int r,int g,int b,int *h,int *s,int *v)//convert 0-255 RGB value
 	}
 }
 
-void ShowOnScreenKeyboard(const char *str)
+bool ShowOnScreenKeyboard(const char *str)
 {
 #ifdef ANDROID
 	// keyboard without text input is a lot nicer
@@ -1304,7 +1304,9 @@ void ShowOnScreenKeyboard(const char *str)
 
 	// blocking fullscreen keyboard
 	SDL_ANDROID_ToggleScreenKeyboardTextInput(str);
+	return true;
 #endif
+	return false;
 }
 
 bool IsOnScreenKeyboardShown()

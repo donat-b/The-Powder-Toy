@@ -48,6 +48,34 @@ const quick_option quickmenu[] =
 extern char tabNames[10][255];
 extern pixel* tabThumbnails[10];
 
+void TouchShowKeyboard();
+void TouchReloadSim();
+void TouchClearSim();
+void TouchCreateStamp();
+void TouchOpenStamps();
+void TouchToggleSetting();
+void TouchOpenSettings();
+struct hold_button
+{
+	const char *icon;
+	const char *held_icon;
+	const char *name;
+	const char *held_name;
+	bool held;
+	void (*callback)();
+	void (*held_callback)();
+};
+typedef struct quick_option quick_option;
+
+const hold_button touchButtons[] =
+{
+	{"T", "M", "Show keyboard", "", false, &TouchShowKeyboard, NULL},
+	{"E", "O",  "Reload simulation", "Clear simulation", true,  &TouchReloadSim, &TouchClearSim},
+	{"S", "O",  "Create stamp", "Load stamp", true,  &TouchCreateStamp, &TouchOpenStamps},
+	{"T", "O",  "Newtonian gravity", "Open settings", true,  &TouchToggleSetting, &TouchOpenSettings},
+	{NULL}
+};
+
 struct menu_wall
 {
 	ARGBColour colour;
@@ -226,6 +254,7 @@ extern int hud_menunum;
 extern int dateformat;
 extern int show_ids;
 extern int fastquit;
+extern int has_quit;
 
 extern ARGBColour decocolor;
 extern ui_edit box_R;
@@ -289,7 +318,7 @@ void info_box_overlay(pixel *vid_buf, char *msg);
 
 char *input_ui(pixel *vid_buf, char *title, char *prompt, char *text, char *shadow);
 
-bool confirm_ui(pixel *vid_buf, char *top, char *msg, char *btn);
+bool confirm_ui(pixel *vid_buf, const char *top, const char *msg, const char *btn);
 
 void login_ui(pixel *vid_buf);
 

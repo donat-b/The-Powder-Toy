@@ -47,11 +47,6 @@
 #define SCRIPTSERVER "powdertoy.co.uk"
 #define STATICSERVER "static.powdertoy.co.uk"
 
-#ifndef UPDATESERVER
-	#define UPDATESERVER "178.219.36.155" // change this to check for updates on a different server
-	#define UPDATESERVERALT "mniip.com" // alternate update server (same as above)
-#endif
-
 #define LOCAL_SAVE_DIR "Saves"
 
 #define THUMB_CACHE_SIZE 256
@@ -184,9 +179,7 @@ union PropertyValue
 #define DEBUG_PARTS				0x0001
 #define DEBUG_ELEMENTPOPULATION	0x0002
 #define DEBUG_DRAWTOOL			0x0004
-#define DEBUG_PERFORMANCE_CALC	0x0008
-#define DEBUG_PERFORMANCE_FRAME	0x0010
-#define DEBUG_PARTICLE_UPDATES	0x0020
+#define DEBUG_PARTICLE_UPDATES	0x0008
 
 typedef unsigned char uint8;
 
@@ -286,7 +279,6 @@ struct stamp
 };
 typedef struct stamp stamp;
 
-extern int frameidx;
 extern int MSIGN;
 extern int console_mode;
 extern bool REPLACE_MODE;
@@ -302,7 +294,6 @@ extern int saveURIOpen;
 extern int do_open;
 extern int sys_pause;
 extern int sys_shortcuts;
-extern bool ignoreMouseClicks;
 extern int legacy_enable; //Used to disable new features such as heat, will be set by commandline or save.
 extern pixel *vid_buf;
 
@@ -326,4 +317,7 @@ void del_stamp(int d);
 int set_scale(int scale, int kiosk);
 void dump_frame(pixel *src, int w, int h, int pitch);
 void ctrlzSnapshot();
+
+int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_mod, int x, int y, int sdl_wheel);
+void main_end_hack();
 #endif
