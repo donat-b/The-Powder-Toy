@@ -80,6 +80,7 @@ public:
 		for (int i = 0; i < MAX_MOVING_SOLIDS; i++)
 			movingSolids[i].Simulation_Cleared();
 		numBalls = 0;
+		creatingSolid = 0;
 	}
 
 	void CreateMovingSolidCenter(int i)
