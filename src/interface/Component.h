@@ -22,6 +22,7 @@ protected:
 
 public:
 	Component(Point position, Point size);
+	virtual ~Component() { }
 
 	// delay deleting and adding components
 	bool toDelete;
@@ -43,6 +44,12 @@ public:
 	void SetEnabled(bool enabled_) { enabled = enabled_; }
 	void SetColor(ARGBColour newColor) { color = newColor; }
 	ARGBColour GetColor() { return color; }
+
+	// can be used to line up components
+	Point Right(Point diff) { return Point(position.X + size.X + diff.X, position.Y+diff.Y); }
+	Point Left(Point diff) { return Point(position.X - diff.X, position.Y - diff.Y); }
+	Point Above(Point diff) { return Point(position.X - diff.X, position.Y - diff.Y); }
+	Point Below(Point diff) { return Point(position.X + diff.X, position.Y + size.Y + diff.Y); }
 
 	virtual void OnMouseDown(int x, int y, unsigned char button) { }
 	virtual void OnMouseUp(int x, int y, unsigned char button) { }

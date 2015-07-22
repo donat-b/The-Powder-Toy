@@ -44,6 +44,7 @@ void ScrollWindow::SetScrollable(bool scroll, int maxScroll)
 
 void ScrollWindow::SetScrollPosition(int pos)
 {
+	bool alreadyInside = false;
 	int oldScrolled = scrolled;
 	scrolled = pos;
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
@@ -51,8 +52,14 @@ void ScrollWindow::SetScrollPosition(int pos)
 		Component *temp = *iter;
 		temp->SetPosition(Point(temp->GetPosition().X, temp->GetPosition().Y-(scrolled-oldScrolled)));
 
-		// update isMouseInside for this component
 		int posX = lastMouseX-this->position.X-temp->GetPosition().X, posY = lastMouseY-this->position.Y-temp->GetPosition().Y;
-		temp->SetMouseInside(posX >= 0 && posX < temp->GetSize().X && posY >= 0 && posY < temp->GetSize().Y);
+		// update isMouseInside for this component
+		if (!alreadyInside && posX >= 0 && posX < temp->GetSize().X && posY >= 0 && posY < temp->GetSize().Y)
+		{
+			temp->SetMouseInside(true);
+			alreadyInside = true;
+		}
+		else
+			temp->SetMouseInside(false);
 	}
 }

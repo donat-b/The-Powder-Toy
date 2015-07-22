@@ -285,7 +285,7 @@ void ToolTool::Click(Point position)
 {
 	if (ID == TOOL_SIGN)
 	{
-		add_sign_ui(vid_buf, position.X, position.Y);
+		openSign = true;
 	}
 }
 

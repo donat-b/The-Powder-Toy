@@ -16,8 +16,10 @@
  */
 
 #ifdef LUACONSOLE
-#include <math.h>
+#include <cmath>
+#include <cstring>
 
+#include "SDLCompat.h"
 #if defined(LIN) || defined(MACOSX)
 #include <sys/stat.h>
 #include <sys/types.h>

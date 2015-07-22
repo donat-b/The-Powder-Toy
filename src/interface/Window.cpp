@@ -122,6 +122,7 @@ void Window_::DoDraw()
 
 void Window_::DoMouseMove(int x, int y, int dx, int dy)
 {
+	bool alreadyInside = false;
 	if (dx || dy)
 	{
 		for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
@@ -132,7 +133,13 @@ void Window_::DoMouseMove(int x, int y, int dx, int dy)
 				Component *temp = *iter;
 				int posX = x-this->position.X-temp->GetPosition().X, posY = y-this->position.Y-temp->GetPosition().Y;
 				// update isMouseInside for this component
-				temp->SetMouseInside(posX >= 0 && posX < temp->GetSize().X && posY >= 0 && posY < temp->GetSize().Y);
+				if (!alreadyInside && posX >= 0 && posX < temp->GetSize().X && posY >= 0 && posY < temp->GetSize().Y)
+				{
+					temp->SetMouseInside(true);
+					alreadyInside = true;
+				}
+				else
+					temp->SetMouseInside(false);
 				temp->OnMouseMoved(posX, posY, Point(dx, dy));
 			}
 		}

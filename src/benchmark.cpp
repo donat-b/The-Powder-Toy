@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <math.h>
+#include "SDLCompat.h"
+
 #include "air.h"
 #include "powder.h"
 #include "gravity.h"

@@ -10,10 +10,11 @@
 #include <sys/stat.h>
 
 #include "defines.h"
-#include "luascriptinterface.h"
-#include "interface.h"
-#include "powder.h"
+#include "graphics.h"
 #include "gravity.h"
+#include "interface.h"
+#include "luascriptinterface.h"
+#include "powder.h"
 #include "powdergraphics.h"
 #include "save.h"
 

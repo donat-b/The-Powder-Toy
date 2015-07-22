@@ -1,4 +1,5 @@
-#include <time.h>
+#include <ctime>
+#include <cstring>
 
 #include "defines.h"
 #include "gravity.h"

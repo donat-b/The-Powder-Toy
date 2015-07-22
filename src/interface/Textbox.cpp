@@ -1,10 +1,6 @@
 #include <algorithm>
 #include <sstream>
-#ifdef SDL_R_INCL
-#include <SDL_keysym.h>
-#else
-#include <SDL/SDL_keysym.h>
-#endif
+#include "SDLCompat.h"
 #include "Textbox.h"
 #include "graphics/VideoBuffer.h"
 #include "misc.h"

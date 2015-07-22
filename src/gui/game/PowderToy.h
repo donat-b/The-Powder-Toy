@@ -10,22 +10,10 @@ class VideoBuffer;
 class Download;
 class PowderToy : public Window_
 {
+	Point mouse;
 	int lastMouseDown, heldKey, heldKeyAscii, releasedKey;
 	unsigned short heldModifier;
 	int mouseWheel;
-
-	// bottom bar buttons
-	Button *openInBrowserButton;
-	Button *reloadButton;
-	Button *saveButton;
-	Button *upvoteButton;
-	Button *downvoteButton;
-	Button *reportBugButton;
-	Button *optionsButton;
-	Button *clearSimButton;
-	Button *loginButton;
-	Button *renderOptionsButton;
-	Button *pauseButton;
 
 	// update stuff
 	Download *versionCheck;
@@ -44,6 +32,23 @@ public:
 	void OnMouseWheel(int x, int y, int d);
 	void OnKeyPress(int key, unsigned short character, unsigned short modifiers);
 	void OnKeyRelease(int key, unsigned short character, unsigned short modifiers);
+
+	// bottom bar buttons
+	Button *openBrowserButton;
+	Button *reloadButton;
+	Button *saveButton;
+	Button *upvoteButton;
+	Button *downvoteButton;
+	Button *reportBugButton;
+	Button *optionsButton;
+	Button *clearSimButton;
+	Button *loginButton;
+	Button *renderOptionsButton;
+	Button *pauseButton;
+
+	void OpenBrowser();
+	void ReloadSave(unsigned char b);
+	void DoSave();
 };
 
 #endif

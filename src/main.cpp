@@ -27,11 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#ifdef SDL_R_INCL
-#include <SDL.h>
-#else
-#include <SDL/SDL.h>
-#endif
+#include "SDLCompat.h"
 #include <bzlib.h>
 #include <time.h>
 #include <pthread.h>
@@ -83,6 +79,7 @@
 #include "simulation/elements/LIFE.h"
 
 // new interface stuff
+#include "graphics/VideoBuffer.h"
 #include "interface/Engine.h"
 #include "gui/game/PowderToy.h"
 #include "gui/profile/ProfileViewer.h"
@@ -1079,6 +1076,10 @@ void SigHandler(int signal)
 	int signal_hooks = 0;
 #endif
 
+bool openConsole = false;
+bool openSign = false;
+bool openProp = false;
+PowderToy *the_game;
 int main(int argc, char *argv[])
 {
 	bool benchmark_enable = false;
@@ -1358,7 +1359,7 @@ int main(int argc, char *argv[])
 	UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 10235);
 
 	Engine *engine = new Engine();
-	PowderToy *the_game = new PowderToy(); // you just lost
+	the_game = new PowderToy(); // you just lost
 	engine->ShowWindow(the_game);
 	engine->MainLoop();
 	delete engine;
@@ -2800,22 +2801,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 							}
 						}
 					}
-					else if (x >= 1 && x <= 17)
-					{
-						if (sdl_mod & (KMOD_CTRL|KMOD_META))
-						{
-							catalogue_ui(vid_buf);
-						}
-						else
-						{
-							search_ui(vid_buf);
-							memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
-							memset(fire_r, 0, sizeof(fire_r));
-							memset(fire_g, 0, sizeof(fire_g));
-							memset(fire_b, 0, sizeof(fire_b));
-						}
-					}
-					else if (x >= 37 && x <= 187)
+					/*else if (x >= 37 && x <= 187)
 					{
 						if (!svf_login || (sdl_mod & (KMOD_CTRL|KMOD_META)))
 						{
@@ -2874,19 +2860,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 									break;
 							b = bq = 0;
 						}
-					}
-					else if (x>=19 && x<=35 && svf_last)
-					{
-						//int tpval = sys_pause;
-						if (b == 1 || !strncmp(svf_id,"",8))
-						{
-							parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-							ctrlzSnapshot();
-						}
-						else
-							open_ui(vid_buf, svf_id, NULL, 0);
-						//sys_pause = tpval;
-					}
+					}*/
 					else if (x>=(XRES+BARSIZE-(510-476)) && x<=(XRES+BARSIZE-(510-491)))
 					{
 						render_ui(vid_buf, XRES+BARSIZE-(510-491)+1, YRES+22, 3);
@@ -3080,7 +3054,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 						{
 							//this is a hack so we can edit clickable signs when sign tool is selected (normal signs are handled in activeTool->Click())
 							if (signTool)
-								add_sign_ui(vid_buf, mx, my);
+								openSign = true;
 							else if (signs[signID].text[1] == 'b')
 							{
 								if (pmap[signs[signID].y][signs[signID].x])
@@ -3174,8 +3148,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 
 		if (console_mode)
 		{
-			if (console_ui(vid_buf) == -1)
-				return false;
+			openConsole = true;
 		}
 
 		//sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf, XRES+BARSIZE);

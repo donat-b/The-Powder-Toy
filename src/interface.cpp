@@ -15,6 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "SDLCompat.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -48,6 +50,7 @@
 #include "console.h"
 #include "luaconsole.h"
 #include "gravity.h"
+#include "graphics.h"
 #include "images.h"
 
 #include "powdergraphics.h"
@@ -1227,23 +1230,24 @@ void ui_richtext_process(int mx, int my, int mb, int mbq, ui_richtext *ed)
 
 void draw_svf_ui(pixel *vid_buf, int alternate)// all the buttons at the bottom
 {
+	/*int yPos = 300;
 	//the open browser button
 	if(alternate)
 	{
-		fillrect(vid_buf, 0, YRES+(MENUSIZE-16)-1, 18, 16, 255, 255, 255, 255);
-		drawtext(vid_buf, 4, YRES+(MENUSIZE-14), "\x81", 0, 0, 0, 255);
+		fillrect(vid_buf, 0, yPos-1, 18, 16, 255, 255, 255, 255);
+		drawtext(vid_buf, 4, yPos-2, "\x81", 0, 0, 0, 255);
 	} else {
-		drawtext(vid_buf, 4, YRES+(MENUSIZE-14), "\x81", 255, 255, 255, 255);
-		drawrect(vid_buf, 1, YRES+(MENUSIZE-16), 16, 14, 255, 255, 255, 255);
-	}
+		drawtext(vid_buf, 4, yPos, "\x81", 255, 255, 255, 255);
+		drawrect(vid_buf, 1, yPos-2, 16, 14, 255, 255, 255, 255);
+	}*/
 
 	// the reload button
 	int c = (svf_last) ? 255 : 128;
-	drawtext(vid_buf, 23, YRES+(MENUSIZE-14), "\x91", c, c, c, 255);
-	drawrect(vid_buf, 19, YRES+(MENUSIZE-16), 16, 14, c, c, c, 255);
+	//drawtext(vid_buf, 23, YRES+(MENUSIZE-14), "\x91", c, c, c, 255);
+	//drawrect(vid_buf, 19, YRES+(MENUSIZE-16), 16, 14, c, c, c, 255);*/
 
 	// the save sim button
-	if (!svf_login || alternate)
+	/*if (!svf_login || alternate)
 	{
 		c = !svf_login ? 255 : 0;
 		if (!svf_login)
@@ -1256,7 +1260,7 @@ void draw_svf_ui(pixel *vid_buf, int alternate)// all the buttons at the bottom
 		else
 			drawtext(vid_buf, 58, YRES+(MENUSIZE-12), "[save to disk]", c, c, c, 255);
 		if (svf_fileopen)
-			drawdots(vid_buf, 55, YRES+(MENUSIZE-15), 12, c, c, c, 255);
+			drawdots(vid_buf, 55, Y199RES+(MENUSIZE-15), 12, c, c, c, 255);
 	}
 	else
 	{
@@ -1269,7 +1273,7 @@ void draw_svf_ui(pixel *vid_buf, int alternate)// all the buttons at the bottom
 		drawrect(vid_buf, 37, YRES+(MENUSIZE-16), 150, 14, c, c, c, 255);
 		if (svf_open && svf_own)
 			drawdots(vid_buf, 55, YRES+(MENUSIZE-15), 12, c, c, c, 255);
-	}
+	}*/
 
 	c = (svf_login && svf_open) ? 255 : 128;
 
@@ -2743,7 +2747,7 @@ int save_name_ui(pixel *vid_buf)
 			drawtext(vid_buf, x0+8, y0+8, "Upload new simulation:", 255, 255, 255, 255);
 		else
 			drawtext(vid_buf, x0+8, y0+8, "Modify simulation properties:", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+10, y0+23, "\x82", 192, 192, 192, 255);
+		drawtext(vid_buf, x0+10, y0+22, "\x82", 192, 192, 192, 255);
 		drawrect(vid_buf, x0+8, y0+20, 176, 16, 192, 192, 192, 255); //rectangle around title box
 
 		drawrect(vid_buf, x0+8, y0+40, 176, 124, 192, 192, 192, 255); //rectangle around description box
@@ -3145,9 +3149,6 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 				else
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 #endif
-
-				if (b && ((ToolTool*)current)->GetID() == TOOL_PROP)
-					prop_edit_ui(vid_buf);
 			}
 		}
 	}
@@ -3393,9 +3394,10 @@ void menu_select_element(int b, Tool* over)
 			}
 			else
 			{
-
 				activeTools[0] = over;
 				activeToolID = 0;
+				if (over->GetID() == TOOL_PROP)
+					openProp = true;
 			}
 		}
 	}
@@ -3449,6 +3451,8 @@ void menu_select_element(int b, Tool* over)
 			{
 				activeTools[1] = over;
 				activeToolID = 1;
+				if (over->GetID() == TOOL_PROP)
+					openProp = true;
 				while (pos < last)
 				{
 					favMenu[pos] = favMenu[pos+1];
@@ -5696,7 +5700,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			bc = openable?255:150;
 			drawrect(vid_buf, 50, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, bc);
 			drawtext(vid_buf, 73, YRES+MENUSIZE-63, "Open", 255, 255, 255, bc);
-			drawtext(vid_buf, 58, YRES+MENUSIZE-64, "\x81", 255, 255, 255, bc);
+			drawtext(vid_buf, 58, YRES+MENUSIZE-62, "\x81", 255, 255, 255, bc);
 			//Fav Button
 			bc = svf_login?255:150;
 			drawrect(vid_buf, 100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, bc);
@@ -5720,7 +5724,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			bc = 255;
 			drawrect(vid_buf, 250, YRES+MENUSIZE-68, 107, 18, 255, 255, 255, bc);
 			drawtext(vid_buf, 273, YRES+MENUSIZE-63, "Open in Browser", 255, 255, 255, bc);
-			drawtext(vid_buf, 258, YRES+MENUSIZE-64, "\x81", 255, 255, 255, bc);
+			drawtext(vid_buf, 258, YRES+MENUSIZE-62, "\x81", 255, 255, 255, bc);
 
 			//Open Button
 			//if (sdl_key==SDLK_RETURN && openable) {
@@ -5915,6 +5919,12 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					svf_fileopen = 0;
 					retval = 1;
 					ctrlzSnapshot();
+
+					memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
+					memset(fire_r, 0, sizeof(fire_r));
+					memset(fire_g, 0, sizeof(fire_g));
+					memset(fire_b, 0, sizeof(fire_b));
+
 					break;
 				}
 				else
@@ -5974,7 +5984,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		if (strcmp(profileToOpen, ""))
 		{
 			ProfileViewer *temp = new ProfileViewer(profileToOpen);
-			delete temp;
 			profileToOpen = "";
 		}
 	}
@@ -7051,7 +7060,7 @@ void console_limit_history(int limit, command_history *commandList)
 
 // draws and processes all the history, which are in ui_labels (which aren't very nice looking, but get the job done).
 // returns if one of them is focused, to fix copying (since the textbox is usually always focused and would overwrite the copy after)
-ui_label * console_draw_history(command_history *commandList, command_history *commandresultList, int limit, int divideX, int mx, int my, int b, int bq)
+ui_label * console_draw_history(pixel *vid_buf, command_history *commandList, command_history *commandresultList, int limit, int divideX, int mx, int my, int b, int bq)
 {
 	int cc;
 	ui_label * focused = NULL;
@@ -7197,7 +7206,7 @@ int console_ui(pixel *vid_buf)
 		//draw the visible console history
 		currentcommand = last_command;
 		currentcommand_result = last_command_result;
-		focused = console_draw_history(currentcommand, currentcommand_result, 11, divideX, mx, my, b, bq);
+		focused = console_draw_history(vid_buf, currentcommand, currentcommand_result, 11, divideX, mx, my, b, bq);
 
 		//find matches, for tab autocomplete
 		if (strcmp(laststr,ed.str))

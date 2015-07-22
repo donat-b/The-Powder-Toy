@@ -32,6 +32,7 @@ protected:
 
 public:
 	Label(Point position, Point size, std::string text, bool multiline = false);
+	virtual ~Label() { }
 
 	void SetText(std::string text_);
 	std::string GetText();

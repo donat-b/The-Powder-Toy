@@ -35,6 +35,7 @@
 #endif
 #include <sstream>
 #include <math.h>
+#include <SDLCompat.h>
 #ifdef ANDROID
 #include <SDL/SDL_screenkeyboard.h>
 #endif

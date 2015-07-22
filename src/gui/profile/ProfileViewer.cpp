@@ -35,12 +35,12 @@ ProfileViewer::ProfileViewer(std::string profileName):
 	bool ownProfile = std::string(svf_user) == name;
 	if (ownProfile)
 	{
-		avatarUploadButton = new Button(Point(211, 11), Point(38, 38), "\n\x81");
+		avatarUploadButton = new Button(Point(210, 10), Point(40, 40), "\n\x81");
 		// Enable editing when this button is clicked
 		class UploadAvatarAction : public ButtonAction
 		{
 		public:
-			virtual void ButtionActionCallback(Button *button)
+			virtual void ButtionActionCallback(Button *button, unsigned char b)
 			{
 				dynamic_cast<ProfileViewer*>(button->GetParent())->UploadAvatar();
 			}
@@ -52,12 +52,12 @@ ProfileViewer::ProfileViewer(std::string profileName):
 		class EnableEditingAction : public ButtonAction
 		{
 		public:
-			virtual void ButtionActionCallback(Button *button)
+			virtual void ButtionActionCallback(Button *button, unsigned char b)
 			{
 				dynamic_cast<ProfileViewer*>(button->GetParent())->EnableEditing();
 			}
 		};
-		enableEditingButton = new Button(Point(0, size.Y-15), Point(this->size.X/2-1, 15), "Enable Editing");
+		enableEditingButton = new Button(Point(0, size.Y-15), Point(this->size.X/2+1, 16), "Enable Editing");
 		enableEditingButton->SetCallback(new EnableEditingAction());
 		enableEditingButton->SetEnabled(false);
 		this->AddComponent(enableEditingButton);
@@ -72,15 +72,15 @@ ProfileViewer::ProfileViewer(std::string profileName):
 	class OpenProfileAction : public ButtonAction
 	{
 	public:
-		virtual void ButtionActionCallback(Button *button)
+		virtual void ButtionActionCallback(Button *button, unsigned char b)
 		{
 			dynamic_cast<ProfileViewer*>(button->GetParent())->OpenProfile();
 		}
 	};
 	if (ownProfile)
-		openProfileButton = new Button(Point(size.X/2, size.Y-15), Point(this->size.X/2, 15), "Open Profile Online");
+		openProfileButton = new Button(Point(size.X/2, size.Y-15), Point(this->size.X/2, 16), "Open Profile Online");
 	else
-		openProfileButton = new Button(Point(0, size.Y-15), Point(this->size.X, 15), "Open Profile Online");
+		openProfileButton = new Button(Point(0, size.Y-15), Point(this->size.X, 16), "Open Profile Online");
 	openProfileButton->SetCallback(new OpenProfileAction());
 	this->AddComponent(openProfileButton);
 
@@ -238,7 +238,7 @@ void ProfileViewer::EnableEditing()
 	class ProfileSaveAction : public ButtonAction
 	{
 	public:
-		virtual void ButtionActionCallback(Button *button)
+		virtual void ButtionActionCallback(Button *button, unsigned char b)
 		{
 			dynamic_cast<ProfileViewer*>(button->GetParent())->SaveProfile();
 		}
@@ -250,7 +250,7 @@ void ProfileViewer::EnableEditing()
 	class ProfileEditAction : public ButtonAction
 	{
 	public:
-		virtual void ButtionActionCallback(Button *button)
+		virtual void ButtionActionCallback(Button *button, unsigned char b)
 		{
 			dynamic_cast<ProfileViewer*>(button->GetParent())->OpenProfileEdit();
 		}
@@ -293,8 +293,8 @@ void ProfileViewer::UploadAvatar()
 void ProfileViewer::ResizeArea(int biographyLabelHeight)
 {
 	int yPos = 149+biographyLabelHeight;
-	if (yPos < this->size.Y-openProfileButton->GetSize().Y)
-		yPos = this->size.Y-openProfileButton->GetSize().Y;
+	if (yPos < this->size.Y-openProfileButton->GetSize().Y+1)
+		yPos = this->size.Y-openProfileButton->GetSize().Y+1;
 	if (enableEditingButton)
 	{
 		enableEditingButton->SetPosition(Point(0, yPos-GetScrollPosition()));
@@ -303,7 +303,7 @@ void ProfileViewer::ResizeArea(int biographyLabelHeight)
 	else
 		openProfileButton->SetPosition(Point(0, yPos-GetScrollPosition()));
 
-	int maxScroll = yPos+openProfileButton->GetSize().Y-this->size.Y;
+	int maxScroll = yPos+openProfileButton->GetSize().Y-1-this->size.Y;
 	if (maxScroll >= 0)
 	{
 		int oldMaxScroll = this->GetMaxScrollSize();

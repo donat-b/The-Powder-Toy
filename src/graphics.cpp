@@ -15,22 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <math.h>
+#include <cmath>
 #include <sstream>
-#ifdef SDL_R_INCL
-#include <SDL.h>
-#else
-#include <SDL/SDL.h>
-#endif
 #include <bzlib.h>
 #include <climits>
-#if defined(WIN) || defined(LIN)
-#ifdef SDL_R_INCL
-#include <SDL_syswm.h>
-#else
-#include <SDL/SDL_syswm.h>
-#endif
-#endif
+
+#include "SDLCompat.h"
 #ifdef ANDROID
 #include <SDL/SDL_screenkeyboard.h>
 #endif
@@ -834,7 +824,10 @@ TPT_INLINE int drawchar(pixel *vid, int x, int y, int c, int r, int g, int b, in
 {
 	int i, j, w, bn = 0, ba = 0;
 	char *rp = (char*)font_data + font_ptrs[c];
+	signed char t, l;
 	w = *(rp++);
+	t = *(rp++);
+	l = *(rp++);
 	for (j=0; j<FONT_H; j++)
 		for (i=0; i<w; i++)
 		{
@@ -843,7 +836,7 @@ TPT_INLINE int drawchar(pixel *vid, int x, int y, int c, int r, int g, int b, in
 				ba = *(rp++);
 				bn = 8;
 			}
-			drawpixel(vid, x+i, y+j, r, g, b, ((ba&3)*a)/3);
+			drawpixel(vid, x+i+l, y+j+t, r, g, b, ((ba&3)*a)/3);
 			ba >>= 2;
 			bn -= 2;
 		}
@@ -854,7 +847,10 @@ int addchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a)
 {
 	int i, j, w, bn = 0, ba = 0;
 	char *rp = (char*)font_data + font_ptrs[c];
+	signed char t, l;
 	w = *(rp++);
+	t = *(rp++);
+	l = *(rp++);
 	for (j=0; j<FONT_H; j++)
 		for (i=0; i<w; i++)
 		{
@@ -864,7 +860,7 @@ int addchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a)
 				bn = 8;
 			}
 			{
-			addpixel(vid, x+i, y+j, r, g, b, ((ba&3)*a)/3);
+			addpixel(vid, x+i+l, y+j+t, r, g, b, ((ba&3)*a)/3);
 			}
 			ba >>= 2;
 			bn -= 2;

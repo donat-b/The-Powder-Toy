@@ -318,6 +318,9 @@ int set_scale(int scale, int kiosk);
 void dump_frame(pixel *src, int w, int h, int pitch);
 void ctrlzSnapshot();
 
+extern bool openConsole;
+extern bool openSign;
+extern bool openProp;
 int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_mod, int x, int y, int sdl_wheel);
 void main_end_hack();
 #endif

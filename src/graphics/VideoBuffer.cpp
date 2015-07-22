@@ -183,9 +183,11 @@ void VideoBuffer::FillRect(int x, int y, int w, int h, int r, int g, int b, int 
 
 int VideoBuffer::DrawChar(int x, int y, unsigned char c, int r, int g, int b, int a)
 {
-	int w, bn = 0, ba = 0;
+	int bn = 0, ba = 0;
 	char *rp = (char*)font_data + font_ptrs[c];
-	w = *(rp++);
+	int w = *(rp++);
+	signed char t = *(rp++);
+	signed char l = *(rp++);
 	for (int j = 0; j < FONT_H; j++)
 		for (int i = 0; i < w; i++)
 		{
@@ -194,8 +196,8 @@ int VideoBuffer::DrawChar(int x, int y, unsigned char c, int r, int g, int b, in
 				ba = *(rp++);
 				bn = 8;
 			}
-			if (x+i >= 0 && y+j >= 0 && x+i < width && y+j < height)
-				DrawPixel(x+i, y+j, r, g, b, ((ba&3)*a)/3);
+			if (x+i+l >= 0 && y+j+t >= 0 && x+i+l < width && y+j+t < height)
+				DrawPixel(x+i+l, y+j+t, r, g, b, ((ba&3)*a)/3);
 			ba >>= 2;
 			bn -= 2;
 		}

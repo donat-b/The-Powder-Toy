@@ -1,8 +1,4 @@
-#ifdef SDL_R_INCL
-#include <SDL.h>
-#else
-#include <SDL/SDL.h>
-#endif
+#include "SDLCompat.h"
 #include "graphics.h"
 #ifdef WIN
 #include <windows.h>
