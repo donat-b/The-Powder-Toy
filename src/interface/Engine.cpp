@@ -16,7 +16,10 @@
 
 Engine::Engine():
 	windows(std::stack<Window_*>()),
-	top(NULL)
+	top(NULL),
+	lastMousePosition(Point(0, 0)),
+	lastModifiers(0),
+	lastTick(SDL_GetTicks())
 {
 
 }
@@ -50,7 +53,7 @@ bool Engine::EventProcess(SDL_Event event)
 	switch (event.type)
 	{
 	case SDL_KEYDOWN:
-		sdl_mod = static_cast<unsigned short>(SDL_GetModState());
+		lastModifiers = sdl_mod = static_cast<unsigned short>(SDL_GetModState());
 		top->DoKeyPress(event.key.keysym.sym, event.key.keysym.unicode, static_cast<unsigned short>(sdl_mod));
 
 		if (event.key.keysym.sym == SDLK_ESCAPE && top->CanQuit())
@@ -66,26 +69,35 @@ bool Engine::EventProcess(SDL_Event event)
 		break;
 
 	case SDL_KEYUP:
-		sdl_mod = static_cast<unsigned short>(SDL_GetModState());
+		lastModifiers = sdl_mod = static_cast<unsigned short>(SDL_GetModState());
 		top->DoKeyRelease(event.key.keysym.sym, event.key.keysym.unicode, static_cast<unsigned short>(sdl_mod));
 		break;
 	case SDL_MOUSEBUTTONDOWN:
+	{
+		int mx = event.motion.x/sdl_scale, my = event.motion.y/sdl_scale;
 		if (event.button.button == SDL_BUTTON_WHEELUP)
-			top->DoMouseWheel(event.motion.x/sdl_scale, event.motion.y/sdl_scale, 1);
+			top->DoMouseWheel(mx, my, 1);
 		else if (event.button.button == SDL_BUTTON_WHEELDOWN)
-			top->DoMouseWheel(event.motion.x/sdl_scale, event.motion.y/sdl_scale, -1);
+			top->DoMouseWheel(mx, my, -1);
 		else
-			top->DoMouseDown(event.motion.x/sdl_scale, event.motion.y/sdl_scale, event.button.button);
-		lastMousePosition = Point(event.motion.x/sdl_scale, event.motion.y/sdl_scale);
+			top->DoMouseDown(mx, my, event.button.button);
+		lastMousePosition = Point(mx, my);
 		break;
+	}
 	case SDL_MOUSEBUTTONUP:
-		top->DoMouseUp(event.motion.x/sdl_scale, event.motion.y/sdl_scale, event.button.button);
-		lastMousePosition = Point(event.motion.x/sdl_scale, event.motion.y/sdl_scale);
+	{
+		int mx = event.motion.x/sdl_scale, my = event.motion.y/sdl_scale;
+		top->DoMouseUp(mx, my, event.button.button);
+		lastMousePosition = Point(mx, my);
 		break;
+	}
 	case SDL_MOUSEMOTION:
-		top->DoMouseMove(event.motion.x/sdl_scale, event.motion.y/sdl_scale, event.motion.x/sdl_scale-lastMousePosition.X, event.motion.y/sdl_scale-lastMousePosition.Y);
-		lastMousePosition = Point(event.motion.x/sdl_scale, event.motion.y/sdl_scale);
+	{
+		int mx = event.motion.x/sdl_scale, my = event.motion.y/sdl_scale;
+		top->DoMouseMove(mx, my, mx-lastMousePosition.X, my-lastMousePosition.Y);
+		lastMousePosition = Point(mx, my);
 		break;
+	}
 	case SDL_QUIT:
 		if (fastquit)
 			has_quit = 1;
@@ -100,7 +112,8 @@ bool Engine::EventProcess(SDL_Event event)
 		XEvent xe = event.syswm.msg->event.xevent;
 		if (xe.type==SelectionClear)
 		{
-			if (clipboard_text!=NULL) {
+			if (clipboard_text!=NULL)
+			{
 				free(clipboard_text);
 				clipboard_text = NULL;
 			}
@@ -169,6 +182,27 @@ void Engine::MainLoop()
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 	while (top)
 	{
+		// weird thing done when entering old interfaces that use sdl_poll loops
+		if (sendNewEvents)
+		{
+			int mx, my;
+			SDL_GetMouseState(&mx, &my);
+			mx /= sdl_scale;
+			my /= sdl_scale;
+			if (Point(mx, my) != lastMousePosition)
+			{
+				top->DoMouseMove(mx, my, mx-lastMousePosition.X, my-lastMousePosition.Y);
+				lastMousePosition = Point(mx, my);
+			}
+
+			unsigned short modState = SDL_GetModState();
+			if (modState != lastModifiers)
+			{
+				top->DoKeyPress(-1, 0, modState);
+				lastModifiers = modState;
+			}
+			sendNewEvents = false;
+		}
 		top->UpdateComponents();
 
 		while (SDL_PollEvent(&event))

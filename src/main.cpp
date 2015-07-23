@@ -1076,6 +1076,7 @@ void SigHandler(int signal)
 	int signal_hooks = 0;
 #endif
 
+bool sendNewEvents = false;
 bool openConsole = false;
 bool openSign = false;
 bool openProp = false;

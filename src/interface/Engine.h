@@ -3,12 +3,12 @@
 
 #include <stack>
 #include "Window.h"
-//#include "common/Singleton.h"
+#include "common/Singleton.h"
 #include "common/tpt-stdint.h"
 #include "common/Point.h"
 
 union SDL_Event;
-class Engine// : public Singleton<Engine>
+class Engine : public Singleton<Engine>
 {
 public:
 	Engine();
@@ -24,6 +24,7 @@ private:
 	Window_ *top;
 
 	Point lastMousePosition;
+	unsigned short lastModifiers;
 	uint32_t lastTick;
 };
 

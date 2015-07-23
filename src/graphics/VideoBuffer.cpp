@@ -189,7 +189,7 @@ int VideoBuffer::DrawChar(int x, int y, unsigned char c, int r, int g, int b, in
 	signed char t = *(rp++);
 	signed char l = *(rp++);
 	for (int j = 0; j < FONT_H; j++)
-		for (int i = 0; i < w; i++)
+		for (int i = 0; i < w && i < FONT_W; i++)
 		{
 			if (!bn)
 			{

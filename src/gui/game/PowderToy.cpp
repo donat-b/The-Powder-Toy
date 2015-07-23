@@ -3,7 +3,6 @@
 
 #include "PowderToy.h"
 #include "defines.h"
-#include "graphics.h"
 #include "interface.h"
 #include "luaconsole.h"
 #include "powder.h"
@@ -13,6 +12,7 @@
 #include "game/Download.h"
 #include "game/ToolTip.h"
 #include "interface/Button.h"
+#include "interface/Engine.h"
 #include "interface/Window.h"
 #include "graphics/VideoBuffer.h"
 
@@ -123,14 +123,14 @@ void PowderToy::DoSave()
 			void *saveData = build_save(&saveSize, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts);
 			if (!saveData)
 			{
-				UpdateToolTip("Error creating save", Point(XCNTR-textwidth("Error Saving")/2, YCNTR-10), INFOTIP, 1000);
+				UpdateToolTip("Error creating save", Point(XCNTR-VideoBuffer::TextSize("Error Saving").X/2, YCNTR-10), INFOTIP, 1000);
 			}
 			else
 			{
 				if (DoLocalSave(svf_filename, saveData, saveSize, true))
-					UpdateToolTip("Error writing local save", Point(XCNTR-textwidth("Error Saving")/2, YCNTR-10), INFOTIP, 1000);
+					UpdateToolTip("Error writing local save", Point(XCNTR-VideoBuffer::TextSize("Error Saving").X/2, YCNTR-10), INFOTIP, 1000);
 				else
-					UpdateToolTip("Updated successfully", Point(XCNTR-textwidth("Saved Successfully")/2, YCNTR-10), INFOTIP, 1000);
+					UpdateToolTip("Updated successfully", Point(XCNTR-VideoBuffer::TextSize("Saved Successfully").X/2, YCNTR-10), INFOTIP, 1000);
 			}
 		}
 		// local save
@@ -150,7 +150,7 @@ void PowderToy::DoSave()
 				}
 				else
 				{
-					UpdateToolTip("Error Saving", Point(XCNTR-textwidth("Error Saving")/2, YCNTR-10), INFOTIP, 1000);
+					UpdateToolTip("Error Saving", Point(XCNTR-VideoBuffer::TextSize("Error Saving").X/2, YCNTR-10), INFOTIP, 1000);
 				}
 			}
 		}
@@ -159,11 +159,11 @@ void PowderToy::DoSave()
 		{
 			if (execute_save(vid_buf))
 			{
-				UpdateToolTip("Error Saving", Point(XCNTR-textwidth("Error Saving")/2, YCNTR-10), INFOTIP, 1000);
+				UpdateToolTip("Error Saving", Point(XCNTR-VideoBuffer::TextSize("Error Saving").X/2, YCNTR-10), INFOTIP, 1000);
 			}
 			else
 			{
-				UpdateToolTip("Saved Successfully", Point(XCNTR-textwidth("Saved Successfully")/2, YCNTR-10), INFOTIP, 1000);
+				UpdateToolTip("Saved Successfully", Point(XCNTR-VideoBuffer::TextSize("Saved Successfully").X/2, YCNTR-10), INFOTIP, 1000);
 			}
 		}
 	}
@@ -249,21 +249,13 @@ void PowderToy::OnTick(uint32_t ticks)
 	bool ctrl = (heldModifier & (KMOD_CTRL|KMOD_META)) ? true : false;
 	openBrowserButton->Invert(ctrl);
 	saveButton->Invert(svf_login && ctrl);
-	std::string saveButtonText = "\x82  ";
-	ARGBColour dotColor = 0;
+	std::string saveButtonText = "\x82 ";
 	if (!svf_login || ctrl)
 	{
 		if (svf_fileopen)
 			saveButtonText += svf_filename;
 		else
 			saveButtonText += "[save to disk]";
-		if (svf_fileopen)
-		{
-			if (svf_login && ctrl)
-				dotColor = COLPACK(0x000000);
-			else
-				dotColor = COLPACK(0xFFFFFF);
-		}
 	}
 	else
 	{
@@ -271,13 +263,6 @@ void PowderToy::OnTick(uint32_t ticks)
 			saveButtonText += svf_name;
 		else
 			saveButtonText += "[untitled simulation]";
-		if (svf_open && svf_own)
-			dotColor = COLPACK(0xFFFFFF);
-	}
-	if (dotColor)
-	{
-		for (int i = 0; i <= 12; i+= 2)
-			drawpixel(vid_buf, saveButton->GetPosition().X+18, saveButton->GetPosition().Y+i, COLR(dotColor), COLG(dotColor), COLB(dotColor), 255);
 	}
 	saveButton->SetText(saveButtonText);
 
@@ -286,7 +271,17 @@ void PowderToy::OnTick(uint32_t ticks)
 
 void PowderToy::OnDraw(VideoBuffer *buf)
 {
-
+	ARGBColour dotColor = 0;
+	bool ctrl = (heldModifier & (KMOD_CTRL|KMOD_META)) ? true : false;
+	if (svf_fileopen && svf_login && ctrl)
+		dotColor = COLPACK(0x000000);
+	else if ((!svf_login && svf_fileopen) || (svf_open && svf_own && !ctrl))
+		dotColor = COLPACK(0xFFFFFF);
+	if (dotColor)
+	{
+		for (int i = 1; i <= 13; i+= 2)
+			buf->DrawPixel(saveButton->GetPosition().X+18, saveButton->GetPosition().Y+i, COLR(dotColor), COLG(dotColor), COLB(dotColor), 255);
+	}
 }
 
 void PowderToy::OnMouseMove(int x, int y, Point difference)
@@ -311,13 +306,16 @@ void PowderToy::OnMouseWheel(int x, int y, int d)
 
 void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short modifiers)
 {
+	heldModifier = modifiers;
+	// key -1 is fake event sent in order to update modifiers when in other interfaces
+	if (key == -1)
+		return;
 	heldKey = key;
 	heldKeyAscii = character;
-	heldModifier = static_cast<unsigned short>(modifiers);
 
 #ifdef LUACONSOLE
-		if (!deco_disablestuff && !luacon_keyevent(key, modifiers, LUACON_KDOWN))
-			key = 0;
+	if (key != -1 && !deco_disablestuff && !luacon_keyevent(key, modifiers, LUACON_KDOWN))
+		key = 0;
 #endif
 
 	switch (key)
@@ -334,8 +332,11 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 
 void PowderToy::OnKeyRelease(int key, unsigned short character, unsigned short modifiers)
 {
+	heldModifier = modifiers;
+	// key -1 is fake event sent in order to update modifiers when in other interfaces
+	if (key == -1)
+		return;
 	releasedKey = key;
-	heldModifier = static_cast<unsigned short>(modifiers);
 
 #ifdef LUACONSOLE
 	if (!deco_disablestuff && !luacon_keyevent(key, modifiers, LUACON_KUP))

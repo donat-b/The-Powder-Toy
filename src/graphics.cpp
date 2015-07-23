@@ -822,14 +822,13 @@ TPT_INLINE void drawpixel(pixel *vid, int x, int y, int r, int g, int b, int a)
 
 TPT_INLINE int drawchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a)
 {
-	int i, j, w, bn = 0, ba = 0;
+	int bn = 0, ba = 0;
 	char *rp = (char*)font_data + font_ptrs[c];
-	signed char t, l;
-	w = *(rp++);
-	t = *(rp++);
-	l = *(rp++);
-	for (j=0; j<FONT_H; j++)
-		for (i=0; i<w; i++)
+	int w = *(rp++);
+	signed char t = *(rp++);
+	signed char l = *(rp++);
+	for (int j = 0; j < FONT_H; j++)
+		for (int i = 0; i < w && i<FONT_W; i++)
 		{
 			if (!bn)
 			{
@@ -845,14 +844,13 @@ TPT_INLINE int drawchar(pixel *vid, int x, int y, int c, int r, int g, int b, in
 
 int addchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a)
 {
-	int i, j, w, bn = 0, ba = 0;
+	int bn = 0, ba = 0;
 	char *rp = (char*)font_data + font_ptrs[c];
-	signed char t, l;
-	w = *(rp++);
-	t = *(rp++);
-	l = *(rp++);
-	for (j=0; j<FONT_H; j++)
-		for (i=0; i<w; i++)
+	int w = *(rp++);
+	signed char t = *(rp++);
+	signed char l = *(rp++);
+	for (int j = 0; j < FONT_H; j++)
+		for (int i = 0; i < w && i < FONT_W; i++)
 		{
 			if (!bn)
 			{

@@ -2747,7 +2747,7 @@ int save_name_ui(pixel *vid_buf)
 			drawtext(vid_buf, x0+8, y0+8, "Upload new simulation:", 255, 255, 255, 255);
 		else
 			drawtext(vid_buf, x0+8, y0+8, "Modify simulation properties:", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+10, y0+22, "\x82", 192, 192, 192, 255);
+		drawtext(vid_buf, x0+10, y0+24, "\x82", 192, 192, 192, 255);
 		drawrect(vid_buf, x0+8, y0+20, 176, 16, 192, 192, 192, 255); //rectangle around title box
 
 		drawrect(vid_buf, x0+8, y0+40, 176, 124, 192, 192, 192, 255); //rectangle around description box
@@ -3916,6 +3916,7 @@ int sdl_poll(void)
 
 	sdl_mod = static_cast<unsigned short>(SDL_GetModState());
 	limit_fps();
+	sendNewEvents = true;
 	return 0;
 }
 

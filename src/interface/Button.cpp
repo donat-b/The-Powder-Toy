@@ -22,6 +22,20 @@ void Button::SetCallback(ButtonAction *callback_)
 	callback = callback_;
 }
 
+void Button::SetText(std::string text_)
+{
+	text = text_;
+	// ensure text isn't too big for button, maybe not too efficient
+	if (VideoBuffer::TextSize(text) > size)
+	{
+		text += "...";
+		while (text.length() > 3 && VideoBuffer::TextSize(text) > size)
+		{
+			text.erase(text.length()-4, 1);
+		}
+	}
+}
+
 void Button::OnMouseDown(int x, int y, unsigned char button)
 {
 

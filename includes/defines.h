@@ -318,6 +318,7 @@ int set_scale(int scale, int kiosk);
 void dump_frame(pixel *src, int w, int h, int pitch);
 void ctrlzSnapshot();
 
+extern bool sendNewEvents;
 extern bool openConsole;
 extern bool openSign;
 extern bool openProp;

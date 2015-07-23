@@ -30,7 +30,7 @@ public:
 	virtual ~Button();
 
 	void SetCallback(ButtonAction *callback_);
-	void SetText(std::string text_) { text = text_; }
+	void SetText(std::string text_);
 	void SetAlign(TextAlign align) { alignment = align; }
 	void Invert(bool invert) { inverted = invert; }
 
