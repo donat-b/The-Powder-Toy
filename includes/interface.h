@@ -372,15 +372,13 @@ int execute_delete(pixel *vid_buf, char *id);
 int execute_report(pixel *vid_buf, char *id, char *reason);
 int execute_bug(pixel *vid_buf, char *feedback);
 
-bool ParseServerReturn(char *result, int status);
+bool ParseServerReturn(char *result, int status, bool json);
 
 bool execute_submit(pixel *vid_buf, char *id, char *message);
 
 void execute_fav(pixel *vid_buf, char *id);
 
 void execute_unfav(pixel *vid_buf, char *id);
-
-int execute_vote(pixel *vid_buf, char *id, char *action);
 
 void open_link(std::string uri);
 

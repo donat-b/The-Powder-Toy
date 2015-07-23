@@ -1275,7 +1275,7 @@ void draw_svf_ui(pixel *vid_buf, int alternate)// all the buttons at the bottom
 			drawdots(vid_buf, 55, YRES+(MENUSIZE-15), 12, c, c, c, 255);
 	}*/
 
-	c = (svf_login && svf_open) ? 255 : 128;
+	/*c = (svf_login && svf_open) ? 255 : 128;
 
 	//the vote buttons
 	drawrect(vid_buf, 189, YRES+(MENUSIZE-16), 38, 14, c, c, c, 255);
@@ -1291,18 +1291,18 @@ void draw_svf_ui(pixel *vid_buf, int alternate)// all the buttons at the bottom
 	}
 	drawtext(vid_buf, 192, YRES+(MENUSIZE-12), "\xCB", 0, 187, 18, c);
 	drawtext(vid_buf, 205, YRES+(MENUSIZE-12), "Vote", 0, 187, 18, c);
-	drawtext(vid_buf, 229, YRES+(MENUSIZE-14), "\xCA", 187, 40, 0, c);
+	drawtext(vid_buf, 229, YRES+(MENUSIZE-14), "\xCA", 187, 40, 0, c);*/
 
 	c = svf_open ? 255 : 128;
 
 	//the tags button
-	drawtext(vid_buf, 246, YRES+(MENUSIZE-15), "\x83", c, c, c, 255);
+	drawtext(vid_buf, 249, YRES+(MENUSIZE-15), "\x83", c, c, c, 255);
 	if (svf_tags[0])
-		drawtextmax(vid_buf, 264, YRES+(MENUSIZE-12), XRES+BARSIZE-445, svf_tags, c, c, c, 255);
+		drawtextmax(vid_buf, 267, YRES+(MENUSIZE-12), XRES+BARSIZE-448, svf_tags, c, c, c, 255);
 	else
-		drawtext(vid_buf, 264, YRES+(MENUSIZE-12), "[no tags set]", c, c, c, 255);
+		drawtext(vid_buf, 267, YRES+(MENUSIZE-12), "[no tags set]", c, c, c, 255);
 
-	drawrect(vid_buf, 243, YRES+(MENUSIZE-16), XRES+BARSIZE-420, 14, c, c, c, 255);
+	drawrect(vid_buf, 246, YRES+(MENUSIZE-16), XRES+BARSIZE-417, 14, c, c, c, 255);
 
 	//Report bugs
 	drawtext(vid_buf, XRES+BARSIZE-173, YRES+(MENUSIZE-14), "\xE7", 255, 255, 255, 255);
@@ -6609,43 +6609,60 @@ int execute_delete(pixel *vid_buf, char *id)
 	return 1;
 }
 
-bool ParseServerReturn(char *result, int status)
+bool ParseServerReturn(char *result, int status, bool json)
 {
+	// no server response, return "Malformed Response"
+	if (status == 200 && !result)
+	{
+		status = 603;
+	}
 	if (status != 200)
 	{
 		error_ui(vid_buf, status, http_ret_text(status));
 		return true;
 	}
 
-	std::istringstream datastream(result);
-	Json::Value root;
-
-	try
+	if (json)
 	{
-		datastream >> root;
-		// assume everything is fine if an empty [] is returned
-		if (root.size() == 0)
+		std::istringstream datastream(result);
+		Json::Value root;
+
+		try
 		{
-			return false;
+			datastream >> root;
+			// assume everything is fine if an empty [] is returned
+			if (root.size() == 0)
+			{
+				return false;
+			}
+			int status = root["Status"].asInt();
+			if (status != 1)
+			{
+				const char *err = root["Error"].asCString();
+				error_ui(vid_buf, 0, err);
+				return true;
+			}
 		}
-		int status = root["Status"].asInt();
-		if (status != 1)
+		catch (std::exception &e)
 		{
-			const char *err = root["Error"].asCString();
-			error_ui(vid_buf, 0, err);
+			// sometimes the server returns a 200 with the text "Error: 401"
+			if (strstr(result, "Error: ") == result)
+			{
+				status = atoi(result+7);
+				error_ui(vid_buf, status, http_ret_text(status));
+				return true;
+			}
+			error_ui(vid_buf, 0, "Could not read response");
 			return true;
 		}
 	}
-	catch (std::exception &e)
+	else
 	{
-		if (strstr(result, "Error: ") == result)
+		if (strncmp((const char *)result, "OK", 2))
 		{
-			status = atoi(result+7);
-			error_ui(vid_buf, status, http_ret_text(status));
+			error_ui(vid_buf, 0, result);
 			return true;
 		}
-		error_ui(vid_buf, 0, "Could not read response");
-		return true;
 	}
 	return false;
 }
@@ -6665,7 +6682,7 @@ bool execute_submit(pixel *vid_buf, char *id, char *message)
 	result = comment->Finish(NULL, &status);
 
 
-	bool ret = ParseServerReturn(result, status);
+	bool ret = ParseServerReturn(result, status, true);
 	return ret;
 }
 
@@ -6806,41 +6823,6 @@ void execute_unfav(pixel *vid_buf, char *id)
 		free(result);
 }
 
-int execute_vote(pixel *vid_buf, char *id, char *action)
-{
-	int status;
-	char *result;
-
-	const char *const names[] = {"ID", "Action", NULL};
-	const char *parts[2];
-
-	parts[0] = id;
-	parts[1] = action;
-
-	result = http_multipart_post(
-	             "http://" SERVER "/Vote.api",
-	             names, parts, NULL,
-	             svf_user_id, /*svf_pass*/NULL, svf_session_id,
-	             &status, NULL);
-
-	if (status!=200)
-	{
-		error_ui(vid_buf, status, http_ret_text(status));
-		if (result)
-			free(result);
-		return 0;
-	}
-	if (result && strncmp(result, "OK", 2))
-	{
-		error_ui(vid_buf, 0, result);
-		free(result);
-		return 0;
-	}
-
-	if (result)
-		free(result);
-	return 1;
-}
 void open_link(std::string uri)
 {
 #ifdef WIN
@@ -7237,7 +7219,7 @@ int console_ui(pixel *vid_buf)
 		else
 			drawtext(vid_buf, 5, 207, ">", 255, 255, 255, 240);
 		if (focused)
-			drawtext(vid_buf, 3, focused->y-2, "\xCA", 255, 50, 50, 240);
+			drawtext(vid_buf, 3, focused->y, "\xCA", 255, 50, 50, 240);
 
 		strncpy(laststr, ed.str, 256);
 		commandHeight = ui_edit_draw(vid_buf, &ed);
@@ -7560,7 +7542,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	if (decobox_hidden)
 		drawtext(vid_buf, 297, YRES+5, "\xCB", 255, 255, 255, 255);
 	else
-		drawtext(vid_buf, 297, YRES+2, "\xCA", 255, 255, 255, 255);
+		drawtext(vid_buf, 297, YRES+4, "\xCA", 255, 255, 255, 255);
 
 	if(can_select_color && !decobox_hidden && mx >= window_offset_x && my >= 2 && mx <= window_offset_x+255+4+10+5 && my <= 2+255+20)//in the main window
 	{

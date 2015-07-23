@@ -15,9 +15,24 @@ class PowderToy : public Window_
 	unsigned short heldModifier;
 	int mouseWheel;
 
-	// update stuff
+	// website stuff
 	Download *versionCheck;
 	std::string changelog;
+	Download *voteDownload;
+
+	// bottom bar buttons
+	Button *openBrowserButton;
+	Button *reloadButton;
+	Button *saveButton;
+	Button *upvoteButton;
+	Button *downvoteButton;
+	Button *reportBugButton;
+	Button *optionsButton;
+	Button *clearSimButton;
+	Button *loginButton;
+	Button *renderOptionsButton;
+	Button *pauseButton;
+
 public:
 	PowderToy();
 	~PowderToy();
@@ -33,22 +48,10 @@ public:
 	void OnKeyPress(int key, unsigned short character, unsigned short modifiers);
 	void OnKeyRelease(int key, unsigned short character, unsigned short modifiers);
 
-	// bottom bar buttons
-	Button *openBrowserButton;
-	Button *reloadButton;
-	Button *saveButton;
-	Button *upvoteButton;
-	Button *downvoteButton;
-	Button *reportBugButton;
-	Button *optionsButton;
-	Button *clearSimButton;
-	Button *loginButton;
-	Button *renderOptionsButton;
-	Button *pauseButton;
-
 	void OpenBrowser();
 	void ReloadSave(unsigned char b);
 	void DoSave();
+	void DoVote(bool up);
 };
 
 #endif

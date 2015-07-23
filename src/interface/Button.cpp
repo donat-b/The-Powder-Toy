@@ -5,8 +5,8 @@ Button::Button(Point position, Point size, std::string text_):
 	Component(position, size),
 	text(text_),
 	callback(NULL),
-	inverted(false),
-	alignment(CENTER)
+	alignment(CENTER),
+	state(NORMAL)
 {
 
 }
@@ -26,10 +26,10 @@ void Button::SetText(std::string text_)
 {
 	text = text_;
 	// ensure text isn't too big for button, maybe not too efficient
-	if (VideoBuffer::TextSize(text) > size)
+	if (VideoBuffer::TextSize(text)+Point(2, 0) >= size)
 	{
 		text += "...";
-		while (text.length() > 3 && VideoBuffer::TextSize(text) > size)
+		while (text.length() > 3 && VideoBuffer::TextSize(text)+Point(2, 0) >= size)
 		{
 			text.erase(text.length()-4, 1);
 		}
@@ -66,17 +66,27 @@ void Button::OnDraw(VideoBuffer* vid)
 		vid->DrawRect(position.X, position.Y, size.X, size.Y, COLR(color)*.55f, COLG(color)*.55f, COLB(color)*.55f, 255);
 
 	ARGBColour textColor;
+	ARGBColour backgroundColor = 0;
 	if (!enabled)
 	{
+		if (state == INVERTED)
+			backgroundColor = color;
+		else if (state == HIGHLIGHTED)
+			backgroundColor = COLARGB(100, COLR(color), COLG(color), COLB(color));
 		textColor = COLRGB((int)(COLR(color)*.55f), (int)(COLG(color)*.55f), (int)(COLB(color)*.55f));
 	}
 	// Mouse not inside button, or over button but click did not start on button
 	else if (!isMouseInside || (IsMouseDown() && !IsClicked()))
 	{
-		if (inverted)
+		if (state == INVERTED)
 		{
 			textColor = COLRGB(255-COLR(color), 255-COLG(color), 255-COLB(color));
-			vid->FillRect(position.X, position.Y, size.X, size.Y, COLR(color), COLG(color), COLB(color), 255);
+			backgroundColor = color;
+		}
+		else if (state == HIGHLIGHTED)
+		{
+			backgroundColor = COLARGB(100, COLR(color), COLG(color), COLB(color));
+			textColor = color;
 		}
 		else
 			textColor = color;
@@ -86,31 +96,33 @@ void Button::OnDraw(VideoBuffer* vid)
 		// Button held down
 		if (IsClicked())
 		{
-			if (inverted)
-			{
+			if (state == INVERTED)
 				textColor = color;
-			}
 			else
 			{
-				vid->FillRect(position.X, position.Y, size.X, size.Y, COLR(color), COLG(color), COLB(color), 255);
+				backgroundColor = color;
 				textColor = COLPACK(0x000000);
 			}
 		}
 		// Mouse over button, not held down
 		else
 		{
-			if (inverted)
+			if (state == INVERTED || state == HIGHLIGHTED)
 			{
-				vid->FillRect(position.X, position.Y, size.X, size.Y, COLR(color), COLG(color), COLB(color), 155);
+				backgroundColor = COLARGB(155, COLR(color), COLG(color), COLB(color));
 				textColor = color;
 			}
 			else
 			{
-				vid->FillRect(position.X, position.Y, size.X, size.Y, COLR(color), COLG(color), COLB(color), 100);
+				backgroundColor = COLARGB(100, COLR(color), COLG(color), COLB(color));
 				textColor = color;
 			}
 		}
 	}
+	// background color (if required)
+	if (backgroundColor)
+		vid->FillRect(position.X, position.Y, size.X, size.Y, COLR(backgroundColor), COLG(backgroundColor), COLB(backgroundColor), COLA(backgroundColor));
+
 	if (alignment == LEFT)
 		vid->DrawText(position.X+2, position.Y+4, text, COLR(textColor), COLG(textColor), COLB(textColor), COLA(textColor));
 	else

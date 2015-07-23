@@ -18,12 +18,13 @@ class Button : public Component
 {
 public:
 	enum TextAlign { LEFT, CENTER };
+	enum State { NORMAL, HIGHLIGHTED, INVERTED };
 
 private:
 	std::string text;
 	ButtonAction *callback;
-	bool inverted;
 	TextAlign alignment;
+	State state;
 
 public:
 	Button(Point position, Point size, std::string text_);
@@ -32,7 +33,7 @@ public:
 	void SetCallback(ButtonAction *callback_);
 	void SetText(std::string text_);
 	void SetAlign(TextAlign align) { alignment = align; }
-	void Invert(bool invert) { inverted = invert; }
+	void SetState(State state_) { state = state_; }
 
 	virtual void OnMouseDown(int x, int y, unsigned char button);
 	virtual void OnMouseUp(int x, int y, unsigned char button);

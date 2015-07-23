@@ -29,7 +29,8 @@ PowderToy::PowderToy():
 	releasedKey(0),
 	heldModifier(0),
 	mouseWheel(0),
-	versionCheck(NULL)
+	versionCheck(NULL),
+	voteDownload(NULL)
 {
 	ignoreQuits = true;
 
@@ -83,9 +84,32 @@ PowderToy::PowderToy():
 	saveButton->SetAlign(Button::LEFT);
 	saveButton->SetCallback(new SaveAction());
 	AddComponent(saveButton);
-	/*upvoteButton;
-	downvoteButton;
-	reportBugButton;
+
+	class VoteAction : public ButtonAction
+	{
+		bool voteType;
+	public:
+		VoteAction(bool up):
+			ButtonAction()
+		{
+			voteType = up;
+		}
+
+		virtual void ButtionActionCallback(Button *button, unsigned char b)
+		{
+			dynamic_cast<PowderToy*>(button->GetParent())->DoVote(voteType);
+		}
+	};
+	upvoteButton = new Button(saveButton->Right(Point(1, 0)), Point(40, 15), "\xCB Vote");
+	upvoteButton->SetColor(COLRGB(0, 187, 18));
+	upvoteButton->SetCallback(new VoteAction(true));
+	AddComponent(upvoteButton);
+
+	downvoteButton = new Button(upvoteButton->Right(Point(0, 0)), Point(16, 15), "\xCA");
+	downvoteButton->SetColor(COLRGB(187, 40, 0));
+	downvoteButton->SetCallback(new VoteAction(false));
+	AddComponent(downvoteButton);
+	/*reportBugButton;
 	optionsButton;
 	clearSimButton;
 	loginButton;
@@ -169,6 +193,18 @@ void PowderToy::DoSave()
 	}
 }
 
+void PowderToy::DoVote(bool up)
+{
+	voteDownload = new Download("http://" SERVER "/Vote.api");
+	voteDownload->AuthHeaders(svf_user_id, svf_session_id);
+	std::map<std::string, std::string> postData;
+	postData.insert(std::pair<std::string, std::string>("ID", svf_id));
+	postData.insert(std::pair<std::string, std::string>("Action", up ? "Up" : "Down"));
+	voteDownload->AddPostData(postData);
+	voteDownload->Start();
+	svf_myvote = up ? 1 : -1; // will be reset later upon error
+}
+
 void PowderToy::ConfirmUpdate()
 {
 	confirm_update(changelog.c_str());
@@ -212,7 +248,6 @@ void PowderToy::OnTick(uint32_t ticks)
 					updateButton->SetCallback(new DoUpdateAction());
 					AddComponent(updateButton);
 				}
-			free(ver_data);
 		}
 		else
 		{
@@ -220,7 +255,20 @@ void PowderToy::OnTick(uint32_t ticks)
 			UpdateToolTip(temp, Point(XCNTR-VideoBuffer::TextSize(temp).X/2, YCNTR-10), INFOTIP, 2500);
 			UpdateToolTip("", Point(16, 20), INTROTIP, 0);
 		}
+		if (ver_data)
+			free(ver_data);
 		versionCheck = NULL;
+	}
+	if (voteDownload && voteDownload->CheckDone())
+	{
+		int status;
+		char *ret = voteDownload->Finish(NULL, &status);
+		if (ParseServerReturn(ret, status, false))
+			svf_myvote = 0;
+		else
+			UpdateToolTip("Voted Successfully", Point(XCNTR-VideoBuffer::TextSize("Voted Successfully").X/2, YCNTR-10), INFOTIP, 1000);
+		free(ret);
+		voteDownload = NULL;
 	}
 
 	if (openConsole)
@@ -247,8 +295,8 @@ void PowderToy::OnTick(uint32_t ticks)
 
 	reloadButton->SetEnabled(svf_last ? true : false);
 	bool ctrl = (heldModifier & (KMOD_CTRL|KMOD_META)) ? true : false;
-	openBrowserButton->Invert(ctrl);
-	saveButton->Invert(svf_login && ctrl);
+	openBrowserButton->SetState(ctrl ? Button::INVERTED : Button::NORMAL);
+	saveButton->SetState((svf_login && ctrl) ? Button::INVERTED : Button::NORMAL);
 	std::string saveButtonText = "\x82 ";
 	if (!svf_login || ctrl)
 	{
@@ -265,6 +313,11 @@ void PowderToy::OnTick(uint32_t ticks)
 			saveButtonText += "[untitled simulation]";
 	}
 	saveButton->SetText(saveButtonText);
+	bool votesAllowed = svf_login && svf_open && svf_own == 0 && svf_myvote == 0;
+	upvoteButton->SetEnabled(votesAllowed);
+	downvoteButton->SetEnabled(votesAllowed);
+	upvoteButton->SetState(svf_myvote == 1 ? Button::HIGHLIGHTED : Button::NORMAL);
+	downvoteButton->SetState(svf_myvote == -1 ? Button::HIGHLIGHTED : Button::NORMAL);
 
 	VideoBufferHack();
 }

@@ -2507,7 +2507,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					}
 				}
 			}
-			else if (x>=243 && x<=((XRES+BARSIZE-(510-333))))
+			else if (x>=246 && x<=((XRES+BARSIZE-(510-333))))
 			{
 				if (svf_open)
 				{
@@ -2749,22 +2749,8 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			{
 				if (!lb && !bq)//mouse is NOT held down, so it is a first click
 				{
-					if (x>=189 && x<=226 && svf_login && svf_open && svf_myvote==0 && svf_own==0)
-					{
-						if (execute_vote(vid_buf, svf_id, "Up"))
-						{
-							svf_myvote = 1;
-						}
-					}
-					else if (x>=228 && x<=241 && svf_login && svf_open && svf_myvote==0 && svf_own==0)
-					{
-						if (execute_vote(vid_buf, svf_id, "Down"))
-						{
-							svf_myvote = -1;
-						}
-					}
 					//tags
-					else if (x>=243 && x<=(XRES+BARSIZE-(510-333)) && svf_open)
+					if (x>=246 && x<=(XRES+BARSIZE-(510-333)) && svf_open)
 						tag_list_ui(vid_buf);
 					else if (x>=((XRES+BARSIZE-(510-335))) && x<((XRES+BARSIZE-(510-350))))
 						report_ui(vid_buf, NULL, true);
@@ -2802,66 +2788,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 							}
 						}
 					}
-					/*else if (x >= 37 && x <= 187)
-					{
-						if (!svf_login || (sdl_mod & (KMOD_CTRL|KMOD_META)))
-						{
-							// local quick save
-							if (x <= 55 && svf_fileopen)
-							{
-								int saveSize;
-								void *saveData = build_save(&saveSize, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts);
-								if (!saveData)
-								{
-									UpdateToolTip("Error creating save", Point(XCNTR-textwidth("Error Saving")/2, YCNTR-10), INFOTIP, 1000);
-								}
-								else
-								{
-									if (DoLocalSave(svf_filename, saveData, saveSize, true))
-										UpdateToolTip("Error writing local save", Point(XCNTR-textwidth("Error Saving")/2, YCNTR-10), INFOTIP, 1000);
-									else
-										UpdateToolTip("Updated successfully", Point(XCNTR-textwidth("Saved Successfully")/2, YCNTR-10), INFOTIP, 1000);
-								}
-							}
-							// local save
-							else
-								save_filename_ui(vid_buf);
-						}
-						else
-						{
-							// local save
-							if (!svf_open || !svf_own || x>55)
-							{
-								if (save_name_ui(vid_buf)) {
-									if (!execute_save(vid_buf) && svf_id[0])
-									{
-										copytext_ui(vid_buf, "Save ID", "Saved successfully!", svf_id);
-									}
-									else
-									{
-										UpdateToolTip("Error Saving", Point(XCNTR-textwidth("Error Saving")/2, YCNTR-10), INFOTIP, 1000);
-									}
-								}
-							}
-							// local quick save
-							else
-							{
-								if (execute_save(vid_buf))
-								{
-									UpdateToolTip("Error Saving", Point(XCNTR-textwidth("Error Saving")/2, YCNTR-10), INFOTIP, 1000);
-								}
-								else
-								{
-									UpdateToolTip("Saved Successfully", Point(XCNTR-textwidth("Saved Successfully")/2, YCNTR-10), INFOTIP, 1000);
-								}
-							}
-							// hacky thing
-							while (!sdl_poll())
-								if (!mouse_get_state(&x, &y))
-									break;
-							b = bq = 0;
-						}
-					}*/
 					else if (x>=(XRES+BARSIZE-(510-476)) && x<=(XRES+BARSIZE-(510-491)))
 					{
 						render_ui(vid_buf, XRES+BARSIZE-(510-491)+1, YRES+22, 3);

@@ -272,7 +272,7 @@ void ProfileViewer::SaveProfile()
 	profileSaveDownload->Start();
 	int status;
 	char * ret = profileSaveDownload->Finish(NULL, &status);
-	ParseServerReturn(ret, status);
+	ParseServerReturn(ret, status, true);
 }
 
 void ProfileViewer::OpenProfile()
