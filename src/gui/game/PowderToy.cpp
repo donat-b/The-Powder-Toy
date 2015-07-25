@@ -61,6 +61,13 @@ PowderToy::PowderToy():
 		sessionCheck = NULL;
 
 	// start placing the bottom row of buttons, starting from the left
+#ifdef TOUCHUI
+	const int ySize = 16;
+	const int xOffset = 0;
+#else
+	const int ySize = 16;
+	const int xOffset = 1;
+#endif
 	class OpenBrowserAction : public ButtonAction
 	{
 	public:
@@ -69,7 +76,7 @@ PowderToy::PowderToy():
 			dynamic_cast<PowderToy*>(button->GetParent())->OpenBrowser();
 		}
 	};
-	openBrowserButton = new Button(Point(1, YRES+MENUSIZE-16), Point(17, 15), "\x81");
+	openBrowserButton = new Button(Point(xOffset, YRES+MENUSIZE-16), Point(18-xOffset, ySize), "\x81");
 	openBrowserButton->SetCallback(new OpenBrowserAction());
 	AddComponent(openBrowserButton);
 
@@ -81,7 +88,7 @@ PowderToy::PowderToy():
 			dynamic_cast<PowderToy*>(button->GetParent())->ReloadSave(b);
 		}
 	};
-	reloadButton = new Button(openBrowserButton->Right(Point(1, 0)), Point(17, 15), "\x91");
+	reloadButton = new Button(openBrowserButton->Right(Point(1, 0)), Point(17, ySize), "\x91");
 	reloadButton->SetCallback(new ReloadAction());
 	reloadButton->SetEnabled(false);
 	AddComponent(reloadButton);
@@ -94,7 +101,7 @@ PowderToy::PowderToy():
 			dynamic_cast<PowderToy*>(button->GetParent())->DoSave();
 		}
 	};
-	saveButton = new Button(reloadButton->Right(Point(1, 0)), Point(151, 15), "\x82 [untitled simulation]");
+	saveButton = new Button(reloadButton->Right(Point(1, 0)), Point(151, ySize), "\x82 [untitled simulation]");
 	saveButton->SetAlign(Button::LEFT);
 	saveButton->SetCallback(new SaveAction());
 	AddComponent(saveButton);
@@ -114,12 +121,12 @@ PowderToy::PowderToy():
 			dynamic_cast<PowderToy*>(button->GetParent())->DoVote(voteType);
 		}
 	};
-	upvoteButton = new Button(saveButton->Right(Point(1, 0)), Point(40, 15), "\xCB Vote");
+	upvoteButton = new Button(saveButton->Right(Point(1, 0)), Point(40, ySize), "\xCB Vote");
 	upvoteButton->SetColor(COLRGB(0, 187, 18));
 	upvoteButton->SetCallback(new VoteAction(true));
 	AddComponent(upvoteButton);
 
-	downvoteButton = new Button(upvoteButton->Right(Point(0, 0)), Point(16, 15), "\xCA");
+	downvoteButton = new Button(upvoteButton->Right(Point(0, 0)), Point(16, ySize), "\xCA");
 	downvoteButton->SetColor(COLRGB(187, 40, 0));
 	downvoteButton->SetCallback(new VoteAction(false));
 	AddComponent(downvoteButton);
@@ -134,7 +141,7 @@ PowderToy::PowderToy():
 			dynamic_cast<PowderToy*>(button->GetParent())->TogglePause();
 		}
 	};
-	pauseButton = new Button(Point(XRES+BARSIZE-16, openBrowserButton->GetPosition().Y), Point(15, 15), "\x90");
+	pauseButton = new Button(Point(XRES+BARSIZE-15-xOffset, openBrowserButton->GetPosition().Y), Point(15-xOffset, ySize), "\x90");
 	pauseButton->SetCallback(new PauseAction());
 	AddComponent(pauseButton);
 
@@ -146,7 +153,7 @@ PowderToy::PowderToy():
 			dynamic_cast<PowderToy*>(button->GetParent())->RenderOptions();
 		}
 	};
-	renderOptionsButton = new Button(pauseButton->Left(Point(18, 0)), Point(17, 15), "\x0F\xFF\x01\x01\xD8\x0F\x01\xFF\x01\xD9\x0F\x01\x01\xFF\xDA");
+	renderOptionsButton = new Button(pauseButton->Left(Point(18, 0)), Point(17, ySize), "\x0F\xFF\x01\x01\xD8\x0F\x01\xFF\x01\xD9\x0F\x01\x01\xFF\xDA");
 	renderOptionsButton->SetCallback(new RenderOptionsAction());
 	AddComponent(renderOptionsButton);
 
@@ -158,7 +165,7 @@ PowderToy::PowderToy():
 			dynamic_cast<PowderToy*>(button->GetParent())->LoginButton();
 		}
 	};
-	loginButton = new Button(renderOptionsButton->Left(Point(96, 0)), Point(95, 15), "\x84 [sign in]");
+	loginButton = new Button(renderOptionsButton->Left(Point(96, 0)), Point(95, ySize), "\x84 [sign in]");
 	loginButton->SetAlign(Button::LEFT);
 	loginButton->SetCallback(new LoginButtonAction());
 	AddComponent(loginButton);
@@ -171,7 +178,7 @@ PowderToy::PowderToy():
 			NewSim();
 		}
 	};
-	clearSimButton = new Button(loginButton->Left(Point(18, 0)), Point(17, 15), "\x92");
+	clearSimButton = new Button(loginButton->Left(Point(18, 0)), Point(17, ySize), "\x92");
 	clearSimButton->SetCallback(new ClearSimAction());
 	AddComponent(clearSimButton);
 
@@ -183,7 +190,7 @@ PowderToy::PowderToy():
 			dynamic_cast<PowderToy*>(button->GetParent())->OpenOptions();
 		}
 	};
-	optionsButton = new Button(clearSimButton->Left(Point(16, 0)), Point(15, 15), "\xCF");
+	optionsButton = new Button(clearSimButton->Left(Point(16, 0)), Point(15, ySize), "\xCF");
 	optionsButton->SetCallback(new OpenOptionsAction());
 	AddComponent(optionsButton);
 
@@ -195,7 +202,7 @@ PowderToy::PowderToy():
 			dynamic_cast<PowderToy*>(button->GetParent())->ReportBug();
 		}
 	};
-	reportBugButton = new Button(optionsButton->Left(Point(16, 0)), Point(15, 15), "\xE7");
+	reportBugButton = new Button(optionsButton->Left(Point(16, 0)), Point(15, ySize), "\xE7");
 	reportBugButton->SetCallback(new ReportBugAction());
 	AddComponent(reportBugButton);
 
@@ -208,7 +215,7 @@ PowderToy::PowderToy():
 		}
 	};
 	Point tagsPos = downvoteButton->Right(Point(1, 0));
-	openTagsButton = new Button(tagsPos, Point((reportBugButton->Left(Point(1, 0))-tagsPos).X, 15), "\x83 [no tags set]");
+	openTagsButton = new Button(tagsPos, Point((reportBugButton->Left(Point(1, 0))-tagsPos).X, ySize), "\x83 [no tags set]");
 	openTagsButton->SetAlign(Button::LEFT);
 	openTagsButton->SetCallback(new OpenTagsAction());
 	AddComponent(openTagsButton);
@@ -551,6 +558,7 @@ void PowderToy::OnTick(uint32_t ticks)
 		openTagsButton->SetText("\x83 [no tags set]");
 	openTagsButton->SetEnabled(svf_open);
 
+	// set login button text, key turns green or red depending on whether session check succeeded
 	if (svf_login)
 	{
 		std::string loginButtonText;
@@ -605,11 +613,12 @@ void PowderToy::OnDraw(VideoBuffer *buf)
 			buf->DrawText(iconPos.X, iconPos.Y, "\xC9", 35, 127, 232, 255);
 			buf->DrawText(iconPos.X, iconPos.Y, "\xC7", 255, 255, 255, 255);
 		}
-		else if (true)
+		// amd logo
+		/*else if (true)
 		{
 			Point iconPos = loginButton->Right(Point(-12, 3));
 			buf->DrawText(iconPos.X, iconPos.Y, "\x97", 0, 230, 153, 255);
-		}
+		}*/
 	}
 }
 

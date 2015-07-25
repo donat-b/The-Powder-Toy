@@ -76,7 +76,11 @@ void Button::OnDraw(VideoBuffer* vid)
 		textColor = COLRGB((int)(COLR(color)*.55f), (int)(COLG(color)*.55f), (int)(COLB(color)*.55f));
 	}
 	// Mouse not inside button, or over button but click did not start on button
+#ifdef TOUCHUI
+	else if (!isMouseInside || !IsMouseDown())
+#else
 	else if (!isMouseInside || (IsMouseDown() && !IsClicked()))
+#endif
 	{
 		if (state == INVERTED)
 		{

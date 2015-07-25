@@ -143,7 +143,7 @@ void VideoBuffer::DrawRect(int x, int y, int w, int h, int r, int g, int b, int 
 	{
 		if (x < width)
 			DrawPixel(x, y+i, r, g, b, a);
-		if (x+w < width)
+		if (x+w <= width)
 			DrawPixel(x+w-1, y+i, r, g, b, a);
 	}
 }

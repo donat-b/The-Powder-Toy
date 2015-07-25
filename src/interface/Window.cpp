@@ -150,10 +150,12 @@ void Window_::DoMouseMove(int x, int y, int dx, int dy)
 
 void Window_::DoMouseDown(int x, int y, unsigned char button)
 {
+#ifndef TOUCHUI
 	if (x < position.X || x > position.X+size.X || y < position.Y || y > position.Y+size.Y)
 	{
 		toDelete = true;
 	}
+#endif
 	isMouseDown = true;
 
 	bool focusedSomething = false;
