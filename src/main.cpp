@@ -1303,12 +1303,6 @@ int main(int argc, char *argv[])
 		error_ui(vid_buf, 0, "Unable to open save file.");
 	}
 
-	if (svf_login)
-	{
-		sessionCheck = new Download("http://" SERVER "/Login.api?Action=CheckSession");
-		sessionCheck->AuthHeaders(svf_user_id, svf_session_id);
-		sessionCheck->Start();
-	}
 #ifdef LUACONSOLE
 	char *autorun_result = NULL;
 	if (file_exists("autorun.lua") && luacon_eval("dofile(\"autorun.lua\")", &autorun_result)) //Autorun lua script
@@ -1515,107 +1509,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			saveDataOpenSize = 0;
 			saveDataOpen = NULL;
 		}
-		if (sessionCheck)
-		{
-			if (sessionCheck->CheckDone())
-			{
-				int status;
-				char *check_data = sessionCheck->Finish(NULL, &status);
-				if (status == 200 && check_data)
-				{
-					if (!strncmp(check_data, "EXPIRED", 7))
-					{
-						//Session expired
-						printf("Session expired");
-						strcpy(svf_user, "");
-						strcpy(svf_pass, "");
-						strcpy(svf_user_id, "");
-						strcpy(svf_session_id, "");
-						svf_login = 0;
-						svf_own = 0;
-						svf_admin = 0;
-						svf_mod = 0;
-						svf_messages = 0;
-					}
-					else if (!strncmp(check_data, "BANNED", 6))
-					{
-						//User banned
-						printf("Session expired due to ban");
-						strcpy(svf_user, "");
-						strcpy(svf_pass, "");
-						strcpy(svf_user_id, "");
-						strcpy(svf_session_id, "");
-						svf_login = 0;
-						svf_own = 0;
-						svf_admin = 0;
-						svf_mod = 0;
-						svf_messages = 0;
-						error_ui(vid_buf, 0, "Unable to log in\nYour account has been suspended, consider reading the rules.");
-					}
-					else if (!strncmp(check_data, "OK", 2))
-					{
-						//Session valid
-						if (strlen(check_data) > 2)
-						{
-							//User is elevated
-							if (!strncmp(check_data+3, "ADMIN", 5))
-							{
-								//Check for messages
-								svf_messages = atoi(check_data+9);
-								svf_admin = 1;
-								svf_mod = 0;
-							}
-							else if (!strncmp(check_data+3, "MOD", 3))
-							{
-								//Check for messages
-								svf_messages = atoi(check_data+7);
-								svf_admin = 0;
-								svf_mod = 1;
-							}
-							else
-							{
-								//Check for messages
-								svf_messages = atoi(check_data+3);
-							}
-						}
-					}
-					else
-					{
-						//No idea, but log the user out anyway
-						strcpy(svf_user, "");
-						strcpy(svf_pass, "");
-						strcpy(svf_user_id, "");
-						strcpy(svf_session_id, "");
-						svf_login = 0;
-						svf_own = 0;
-						svf_admin = 0;
-						svf_mod = 0;
-						svf_messages = 0;
-					}
-					save_presets(0);
-					free(check_data);
-				}
-				sessionCheck = NULL;
-			}
-			else
-			{
-				clearrect(vid_buf, XRES-124+BARSIZE/*385*/, YRES+(MENUSIZE-15), 90, 13);
-				drawrect(vid_buf, XRES-125+BARSIZE/*385*/, YRES+(MENUSIZE-16), 91, 14, 255, 255, 255, 255);
-				drawtext(vid_buf, XRES-122+BARSIZE/*388*/, YRES+(MENUSIZE-13), "\x84", 255, 255, 255, 255);
-				if (username_flash>30) {
-					username_flash_t = -1;
-					username_flash = 30;
-				} else if (username_flash<0) {
-					username_flash_t = 1;
-					username_flash = 0;
-				}
-				username_flash += username_flash_t;
-				if (svf_login)
-					drawtext(vid_buf, XRES-104+BARSIZE/*406*/, YRES+(MENUSIZE-12), svf_user, 255, 255, 255, 175-(username_flash*5));
-				else
-					drawtext(vid_buf, XRES-104+BARSIZE/*406*/, YRES+(MENUSIZE-12), "[checking]", 255, 255, 255, 255);
-			}
-		}
+
 		if(saveURIOpen)
 		{
 			char saveURIOpenString[512];
@@ -2767,33 +2661,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 						parts[NPART-1].life = -1;
 						globalSim->pfree = 0;
 					}
-					else if (x>=(XRES+BARSIZE-(510-385)) && x<=(XRES+BARSIZE-(510-476)))
-					{
-						if (svf_login && x <= XRES+BARSIZE-108)
-						{
-							ProfileViewer *temp = new ProfileViewer(svf_user);
-							//delete temp;
-						}
-						else
-						{
-							login_ui(vid_buf);
-							if (svf_login)
-							{
-								save_presets(0);
-								if (sessionCheck)
-								{
-									sessionCheck->Cancel();
-									sessionCheck = NULL;
-								}
-							}
-						}
-					}
-					else if (x>=(XRES+BARSIZE-(510-476)) && x<=(XRES+BARSIZE-(510-491)))
-					{
-						render_ui(vid_buf, XRES+BARSIZE-(510-491)+1, YRES+22, 3);
-					}
-					else if (x>=(XRES+BARSIZE-(510-494)) && x<=(XRES+BARSIZE-(510-509)))
-						sys_pause = !sys_pause;
 					lb = 0;
 				}
 			}

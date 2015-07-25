@@ -320,7 +320,7 @@ char *input_ui(pixel *vid_buf, char *title, char *prompt, char *text, char *shad
 
 bool confirm_ui(pixel *vid_buf, const char *top, const char *msg, const char *btn);
 
-void login_ui(pixel *vid_buf);
+bool login_ui(pixel *vid_buf);
 
 int stamp_ui(pixel *vid_buf, int *reorder);
 

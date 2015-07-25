@@ -1230,70 +1230,7 @@ void ui_richtext_process(int mx, int my, int mb, int mbq, ui_richtext *ed)
 
 void draw_svf_ui(pixel *vid_buf, int alternate)// all the buttons at the bottom
 {
-	/*int yPos = 300;
-	//the open browser button
-	if(alternate)
-	{
-		fillrect(vid_buf, 0, yPos-1, 18, 16, 255, 255, 255, 255);
-		drawtext(vid_buf, 4, yPos-2, "\x81", 0, 0, 0, 255);
-	} else {
-		drawtext(vid_buf, 4, yPos, "\x81", 255, 255, 255, 255);
-		drawrect(vid_buf, 1, yPos-2, 16, 14, 255, 255, 255, 255);
-	}*/
-
-	// the reload button
-	int c = (svf_last) ? 255 : 128;
-	//drawtext(vid_buf, 23, YRES+(MENUSIZE-14), "\x91", c, c, c, 255);
-	//drawrect(vid_buf, 19, YRES+(MENUSIZE-16), 16, 14, c, c, c, 255);*/
-
-	// the save sim button
-	/*if (!svf_login || alternate)
-	{
-		c = !svf_login ? 255 : 0;
-		if (!svf_login)
-			drawrect(vid_buf, 37, YRES+(MENUSIZE-16), 150, 14, 255, 255, 255, 255);
-		else
-			fillrect(vid_buf, 36, YRES+(MENUSIZE-16)-1, 152, 16, 255, 255, 255, 255);
-		drawtext(vid_buf, 40, YRES+(MENUSIZE-14), "\x82", c, c, c, 255);
-		if (svf_fileopen)
-			drawtext(vid_buf, 58, YRES+(MENUSIZE-12), svf_filename, c, c, c, 255);
-		else
-			drawtext(vid_buf, 58, YRES+(MENUSIZE-12), "[save to disk]", c, c, c, 255);
-		if (svf_fileopen)
-			drawdots(vid_buf, 55, Y199RES+(MENUSIZE-15), 12, c, c, c, 255);
-	}
-	else
-	{
-		c = svf_login ? 255 : 128;
-		drawtext(vid_buf, 40, YRES+(MENUSIZE-14), "\x82", c, c, c, 255);
-		if (svf_open)
-			drawtextmax(vid_buf, 58, YRES+(MENUSIZE-12), 125, svf_name, c, c, c, 255);
-		else
-			drawtext(vid_buf, 58, YRES+(MENUSIZE-12), "[untitled simulation]", c, c, c, 255);
-		drawrect(vid_buf, 37, YRES+(MENUSIZE-16), 150, 14, c, c, c, 255);
-		if (svf_open && svf_own)
-			drawdots(vid_buf, 55, YRES+(MENUSIZE-15), 12, c, c, c, 255);
-	}*/
-
-	/*c = (svf_login && svf_open) ? 255 : 128;
-
-	//the vote buttons
-	drawrect(vid_buf, 189, YRES+(MENUSIZE-16), 38, 14, c, c, c, 255);
-	drawrect(vid_buf, 227, YRES+(MENUSIZE-16), 14, 14, c, c, c, 255);
-
-	if (svf_myvote==1 && (svf_login && svf_open))
-	{
-		fillrect(vid_buf, 189, YRES+(MENUSIZE-16), 38, 14, 0, 108, 10, 255);
-	}
-	else if (svf_myvote==-1 && (svf_login && svf_open))
-	{
-		fillrect(vid_buf, 227, YRES+(MENUSIZE-16), 14, 14, 108, 10, 0, 255);
-	}
-	drawtext(vid_buf, 192, YRES+(MENUSIZE-12), "\xCB", 0, 187, 18, c);
-	drawtext(vid_buf, 205, YRES+(MENUSIZE-12), "Vote", 0, 187, 18, c);
-	drawtext(vid_buf, 229, YRES+(MENUSIZE-14), "\xCA", 187, 40, 0, c);*/
-
-	c = svf_open ? 255 : 128;
+	int c = svf_open ? 255 : 128;
 
 	//the tags button
 	drawtext(vid_buf, 249, YRES+(MENUSIZE-15), "\x83", c, c, c, 255);
@@ -1312,55 +1249,11 @@ void draw_svf_ui(pixel *vid_buf, int alternate)// all the buttons at the bottom
 	drawtext(vid_buf, XRES-139+BARSIZE/*371*/, YRES+(MENUSIZE-14), "\x92", 255, 255, 255, 255);
 	drawrect(vid_buf, XRES-143+BARSIZE/*367*/, YRES+(MENUSIZE-16), 16, 14, 255, 255, 255, 255);
 
-	//the login button
-	drawtext(vid_buf, XRES-122+BARSIZE/*388*/, YRES+(MENUSIZE-13), "\x84", 255, 255, 255, 255);
-	if (svf_login)
-	{
-		drawtextmax(vid_buf, XRES-104+BARSIZE/*406*/, YRES+(MENUSIZE-12), 66, svf_user, 255, 255, 255, 255);
-		drawdots(vid_buf, XRES+BARSIZE-108, YRES+(MENUSIZE-15), 12, c, c, c, 255);
-	}
-	else
-		drawtext(vid_buf, XRES-104+BARSIZE/*406*/, YRES+(MENUSIZE-12), "[sign in]", 255, 255, 255, 255);
-	drawrect(vid_buf, XRES-125+BARSIZE/*385*/, YRES+(MENUSIZE-16), 91, 14, 255, 255, 255, 255);
-
-	//the pause button
-	if (sys_pause)
-	{
-		fillrect(vid_buf, XRES-17+BARSIZE/*493*/, YRES+(MENUSIZE-17), 16, 16, 255, 255, 255, 255);
-		drawtext(vid_buf, XRES-14+BARSIZE/*496*/, YRES+(MENUSIZE-14), "\x90", 0, 0, 0, 255);
-	}
-	else
-	{
-		drawtext(vid_buf, XRES-14+BARSIZE/*496*/, YRES+(MENUSIZE-14), "\x90", 255, 255, 255, 255);
-		drawrect(vid_buf, XRES-16+BARSIZE/*494*/, YRES+(MENUSIZE-16), 14, 14, 255, 255, 255, 255);
-	}
-
 	//The simulation options button, used to be the heat sim button
 	{
 		drawtext(vid_buf, XRES-156+BARSIZE/*481*/, YRES+(MENUSIZE-13), "\xCF", 255, 255, 255, 255);
 		drawrect(vid_buf, XRES-159+BARSIZE/*494*/, YRES+(MENUSIZE-16), 14, 14, 255, 255, 255, 255);
 	}
-
-	//the view mode button
-	addchar(vid_buf, XRES-29+BARSIZE, YRES+(MENUSIZE-13), 0xD8, 255, 0, 0, 255);
-	addchar(vid_buf, XRES-29+BARSIZE, YRES+(MENUSIZE-13), 0xD9, 0, 255, 0, 255);
-	addchar(vid_buf, XRES-29+BARSIZE, YRES+(MENUSIZE-13), 0xDA, 0, 0, 255, 255);
-	drawrect(vid_buf, XRES-32+BARSIZE/*478*/, YRES+(MENUSIZE-16), 14, 14, 255, 255, 255, 255);
-
-	// special icons for admin/mods
-	if (svf_admin)
-	{
-		drawtext(vid_buf, XRES-45+BARSIZE/*463*/, YRES+(MENUSIZE-14), "\xC9", 232, 127, 35, 255);
-		drawtext(vid_buf, XRES-45+BARSIZE/*463*/, YRES+(MENUSIZE-14), "\xC7", 255, 255, 255, 255);
-		drawtext(vid_buf, XRES-45+BARSIZE/*463*/, YRES+(MENUSIZE-14), "\xC8", 255, 255, 255, 255);
-	}
-	else if (svf_mod)
-	{
-		drawtext(vid_buf, XRES-45+BARSIZE/*463*/, YRES+(MENUSIZE-14), "\xC9", 35, 127, 232, 255);
-		drawtext(vid_buf, XRES-45+BARSIZE/*463*/, YRES+(MENUSIZE-14), "\xC7", 255, 255, 255, 255);
-	}
-	//else if (amd)
-	//	drawtext(vid_buf, XRES-45+BARSIZE/*463*/, YRES+(MENUSIZE-14), "\x97", 0, 230, 153, 255); //Why is this here?
 }
 
 void error_ui(pixel *vid_buf, int err, const char *txt)
@@ -2097,7 +1990,7 @@ bool confirm_ui(pixel *vid_buf, const char *top, const char *msg, const char *bt
 	return ret;
 }
 
-void login_ui(pixel *vid_buf)
+bool login_ui(pixel *vid_buf)
 {
 	int x0=(XRES+BARSIZE-192)/2,y0=(YRES+MENUSIZE-80)/2,b=1,bq,mx,my;
 	ui_edit ed1,ed2;
@@ -2166,7 +2059,7 @@ void login_ui(pixel *vid_buf)
 			if (mx>=x0+97 && mx<x0+192 && my>=y0+64 && my<=y0+80)
 				break;
 			if (mx < x0 || my < y0 || mx > x0+192 || my > y0+80)
-				return;
+				return false;
 		}
 
 		if (sdl_key==SDLK_RETURN || sdl_key==SDLK_TAB)
@@ -2179,7 +2072,7 @@ void login_ui(pixel *vid_buf)
 		if (sdl_key==SDLK_ESCAPE)
 		{
 			if (!ed1.focus && !ed2.focus)
-				return;
+				return false;
 			ed1.focus = 0;
 			ed2.focus = 0;
 		}
@@ -2277,13 +2170,19 @@ void login_ui(pixel *vid_buf)
 				}
 			}
 			else
+			{
 				error_ui(vid_buf, 0, "Could not read response");
+				goto fail;
+			}
 		}
 		else
+		{
 			error_ui(vid_buf, dataStatus, http_ret_text(dataStatus));
+			goto fail;
+		}
 		if (data)
 			free(data);
-		return;
+		return true;
 	}
 
 fail:
@@ -2297,6 +2196,7 @@ fail:
 	svf_mod = 0;
 	svf_messages = 0;
 	save_presets(0);
+	return false;
 }
 
 int stamp_ui(pixel *vid_buf, int *reorder)
@@ -6635,7 +6535,7 @@ bool ParseServerReturn(char *result, int status, bool json)
 			{
 				return false;
 			}
-			int status = root["Status"].asInt();
+			int status = root.get("Status", 1).asInt();
 			if (status != 1)
 			{
 				const char *err = root["Error"].asCString();

@@ -15,9 +15,14 @@ class PowderToy : public Window_
 	unsigned short heldModifier;
 	int mouseWheel;
 
+	// notifications
+	int numNotifications;
+	Button * AddNotification(std::string message);
+
 	// website stuff
 	Download *versionCheck;
 	std::string changelog;
+	Download *sessionCheck; // really a tpt++ version check but it does session too and has nice things
 	Download *voteDownload;
 
 	// bottom bar buttons
@@ -29,6 +34,8 @@ class PowderToy : public Window_
 	Button *reportBugButton;
 	Button *optionsButton;
 	Button *clearSimButton;
+	unsigned int loginCheckTicks;
+	int loginFinished;
 	Button *loginButton;
 	Button *renderOptionsButton;
 	Button *pauseButton;
@@ -52,6 +59,9 @@ public:
 	void ReloadSave(unsigned char b);
 	void DoSave();
 	void DoVote(bool up);
+	void LoginButton();
+	void RenderOptions();
+	void TogglePause();
 };
 
 #endif

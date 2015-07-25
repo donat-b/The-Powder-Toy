@@ -222,8 +222,8 @@ void Engine::MainLoop()
 		top->DoDraw();
 		if (top->toDelete || has_quit)
 		{
-			delete top;
 			CloseWindow(top);
+			delete top;
 		}
 		sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf /*potato->GetVid()->GetVid()*/, XRES+BARSIZE);
 		//memset(vid_buf, 0, (XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);

@@ -824,9 +824,11 @@ TPT_INLINE int drawchar(pixel *vid, int x, int y, int c, int r, int g, int b, in
 {
 	int bn = 0, ba = 0;
 	char *rp = (char*)font_data + font_ptrs[c];
-	int w = *(rp++);
-	signed char t = *(rp++);
-	signed char l = *(rp++);
+	signed char w = *(rp++);
+	unsigned char flags = *(rp++);
+	signed char t = (flags&0x4) ? -flags&0x3 : flags&0x3;
+	signed char l = (flags&0x20) ? -(flags>>3)&0x7 : (flags>>3)&0x7;
+	flags >>= 6;
 	for (int j = 0; j < FONT_H; j++)
 		for (int i = 0; i < w && i<FONT_W; i++)
 		{
@@ -839,16 +841,18 @@ TPT_INLINE int drawchar(pixel *vid, int x, int y, int c, int r, int g, int b, in
 			ba >>= 2;
 			bn -= 2;
 		}
-	return x + w;
+	return x + (flags&0x01 ? 0 : w);
 }
 
 int addchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a)
 {
 	int bn = 0, ba = 0;
 	char *rp = (char*)font_data + font_ptrs[c];
-	int w = *(rp++);
-	signed char t = *(rp++);
-	signed char l = *(rp++);
+	signed char w = *(rp++);
+	unsigned char flags = *(rp++);
+	signed char t = (flags&0x4) ? -flags&0x3 : flags&0x3;
+	signed char l = (flags&0x20) ? -(flags>>3)&0x7 : (flags>>3)&0x7;
+	flags >>= 6;
 	for (int j = 0; j < FONT_H; j++)
 		for (int i = 0; i < w && i < FONT_W; i++)
 		{
@@ -863,7 +867,7 @@ int addchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a)
 			ba >>= 2;
 			bn -= 2;
 		}
-	return x + w;
+	return x + (flags&0x1 ? 0 : w);
 }
 
 int drawtext(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a)
@@ -1401,7 +1405,8 @@ void drawdots(pixel *vid, int x, int y, int h, int r, int g, int b, int a)
 
 int charwidth(unsigned char c)
 {
-	return font_data[font_ptrs[(int)c]];
+	short font_ptr = font_ptrs[static_cast<int>(c)];
+	return (font_data[font_ptr+1]&0x40) ? 0 : font_data[font_ptr];
 }
 
 int textwidth(const char *s)
@@ -1428,7 +1433,7 @@ int textwidth(const char *s)
 		}
 		else
 		{
-			x += font_data[font_ptrs[(int)(*(unsigned char *)s)]];
+			x += charwidth(*s);
 			if (x > maxX)
 				maxX = x;
 		}
@@ -1441,7 +1446,7 @@ int drawtextmax(pixel *vid, int x, int y, int w, char *s, int r, int g, int b, i
 	w += x-5;
 	for (; *s; s++)
 	{
-		if (x+font_data[font_ptrs[(int)(*(unsigned char *)s)]]>=w && x+textwidth(s)>=w+5)
+		if (x+charwidth(*s)>=w && x+textwidth(s)>=w+5)
 			break;
 		x = drawchar(vid, x, y, *(unsigned char *)s, r, g, b, a);
 	}
@@ -1476,7 +1481,7 @@ int textnwidth(char *s, int n)
 				n--;
 		}
 		else
-			x += font_data[font_ptrs[(int)(*(unsigned char *)s)]];
+			x += charwidth(*s);
 		n--;
 	}
 	return x-1;
@@ -1524,13 +1529,13 @@ void textnpos(char *s, int n, int w, int *cx, int *cy)
 					n--;
 			}
 			else
-				x += font_data[font_ptrs[(int)(*(unsigned char *)s)]];
+				x += charwidth(*s);
 			if (x>=w)
 			{
 				x = 0;
 				y += FONT_H+2;
 				if (*(s+1)==' ')
-					x -= font_data[font_ptrs[(int)(' ')]];
+					x -= charwidth(' ');
 			}
 			n--;
 		}
@@ -1564,7 +1569,7 @@ int textwidthx(char *s, int w)
 			if (!*s)
 				break;
 		}
-		cw = font_data[font_ptrs[(int)(*(unsigned char *)s)]];
+		cw = charwidth(*s);
 		if (x+(cw/2) >= w)
 			break;
 		x += cw;
@@ -1601,8 +1606,8 @@ void textsize(char * s, int *width, int *height)
 		}
 		else
 		{
-			cWidth += font_data[font_ptrs[(int)(*(unsigned char *)s)]];
-			if(cWidth>lWidth)
+			cWidth += charwidth(*s);
+			if (cWidth>lWidth)
 				lWidth = cWidth;
 		}
 	}
@@ -1649,7 +1654,7 @@ int textposxy(char *s, int width, int w, int h)
 				if (!*s)
 					break;
 			}
-			cw = font_data[font_ptrs[(int)(*(unsigned char *)s)]];
+			cw = charwidth(*s);
 			if ((x+(cw/2) >= w && y+6 >= h)||(y+6 >= h+FONT_H+2))
 				return n++;
 			x += cw;
@@ -1657,7 +1662,7 @@ int textposxy(char *s, int width, int w, int h)
 				x = 0;
 				y += FONT_H+2;
 				if (*(s+1)==' ')
-					x -= font_data[font_ptrs[(int)(' ')]];
+					x -= charwidth(' ');
 			}
 			n++;
 		}
@@ -1708,7 +1713,7 @@ int textwrapheight(char *s, int width)
 					if (*s==' ')
 						continue;
 				}
-				cw = font_data[font_ptrs[(int)(*(unsigned char *)s)]];
+				cw = charwidth(*s);
 				x += cw;
 			}
 		}

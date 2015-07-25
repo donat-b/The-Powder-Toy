@@ -26,7 +26,7 @@ public:
 
 	int DrawChar(int x, int y, unsigned char c, int r, int g, int b, int a);
 	int DrawText(int x, int y, std::string s, int r, int g, int b, int a);
-	static int CharSize(unsigned char c);
+	static signed char CharSize(unsigned char c);
 	static Point TextSize(std::string s);
 
 	void DrawImage(pixel *image, int x, int y, int w, int h);

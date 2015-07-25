@@ -107,7 +107,12 @@ void Button::OnDraw(VideoBuffer* vid)
 		// Mouse over button, not held down
 		else
 		{
-			if (state == INVERTED || state == HIGHLIGHTED)
+			if (state == INVERTED)
+			{
+				backgroundColor = COLARGB(200, COLR(color), COLG(color), COLB(color));
+				textColor = COLRGB(255-COLR(color), 255-COLG(color), 255-COLB(color));
+			}
+			else if (state == HIGHLIGHTED)
 			{
 				backgroundColor = COLARGB(155, COLR(color), COLG(color), COLB(color));
 				textColor = color;

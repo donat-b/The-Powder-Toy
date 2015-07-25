@@ -186,8 +186,10 @@ int VideoBuffer::DrawChar(int x, int y, unsigned char c, int r, int g, int b, in
 	int bn = 0, ba = 0;
 	char *rp = (char*)font_data + font_ptrs[c];
 	int w = *(rp++);
-	signed char t = *(rp++);
-	signed char l = *(rp++);
+	unsigned char flags = *(rp++);
+	signed char t = (flags&0x4) ? -(flags&0x3) : flags&0x3;
+	signed char l = (flags&0x20) ? -((flags>>3)&0x3) : (flags>>3)&0x3;
+	flags >>= 6;
 	for (int j = 0; j < FONT_H; j++)
 		for (int i = 0; i < w && i < FONT_W; i++)
 		{
@@ -201,7 +203,7 @@ int VideoBuffer::DrawChar(int x, int y, unsigned char c, int r, int g, int b, in
 			ba >>= 2;
 			bn -= 2;
 		}
-	return x + w;
+	return x + (flags&0x1 ? 0 : w);
 }
 
 int VideoBuffer::DrawText(int x, int y, std::string s, int r, int g, int b, int a)
@@ -301,9 +303,10 @@ int VideoBuffer::DrawText(int x, int y, std::string s, int r, int g, int b, int 
 }
 
 // static method that returns the width of a character
-int VideoBuffer::CharSize(unsigned char c)
+signed char VideoBuffer::CharSize(unsigned char c)
 {
-	return font_data[font_ptrs[static_cast<int>(c)]];
+	short font_ptr = font_ptrs[static_cast<int>(c)];
+	return (font_data[font_ptr+1]&0x40) ? 0 : font_data[font_ptr];
 }
 
 // static method that returns the width and height of a string
