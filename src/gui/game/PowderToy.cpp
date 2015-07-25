@@ -28,7 +28,6 @@ PowderToy::PowderToy():
 	Window_(Point(0, 0), Point(XRES+BARSIZE, YRES+MENUSIZE)),
 	lastMouseDown(0),
 	heldKey(0),
-	heldKeyAscii(0),
 	releasedKey(0),
 	heldModifier(0),
 	mouseWheel(0),
@@ -365,14 +364,14 @@ Button * PowderToy::AddNotification(std::string message)
 	numNotifications++;
 	return notificationButton;
 }
-
+#include <iostream>
 void PowderToy::OnTick(uint32_t ticks)
 {
 	int mouseX, mouseY;
 	int mouseDown = mouse_get_state(&mouseX, &mouseY);
-	main_loop_temp(mouseDown, lastMouseDown, heldKey, heldKeyAscii, heldModifier, mouseX, mouseY, mouseWheel);
+	main_loop_temp(mouseDown, lastMouseDown, heldKey, releasedKey, heldModifier, mouseX, mouseY, mouseWheel);
 	lastMouseDown = mouseDown;
-	heldKey = heldKeyAscii = releasedKey = mouseWheel = 0;
+	heldKey = releasedKey = mouseWheel = 0;
 
 	if (!loginFinished)
 		loginCheckTicks = (loginCheckTicks+1)%51;
@@ -641,7 +640,6 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 	if (key == -1)
 		return;
 	heldKey = key;
-	heldKeyAscii = character;
 
 #ifdef LUACONSOLE
 	if (key != -1 && !deco_disablestuff && !luacon_keyevent(key, modifiers, LUACON_KDOWN))

@@ -11,7 +11,7 @@ class Download;
 class PowderToy : public Window_
 {
 	Point mouse;
-	int lastMouseDown, heldKey, heldKeyAscii, releasedKey;
+	int lastMouseDown, heldKey, releasedKey;
 	unsigned short heldModifier;
 	int mouseWheel;
 

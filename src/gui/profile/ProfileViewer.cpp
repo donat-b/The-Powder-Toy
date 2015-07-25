@@ -1,4 +1,5 @@
 #include <sstream>
+#include "SDLCompat.h"
 #include "json/json.h"
 #include "ProfileViewer.h"
 #include "interface/Engine.h"
@@ -84,21 +85,13 @@ ProfileViewer::ProfileViewer(std::string profileName):
 	openProfileButton->SetCallback(new OpenProfileAction());
 	this->AddComponent(openProfileButton);
 
-	MainLoop();
+	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 }
 
 ProfileViewer::~ProfileViewer()
 {
 	free(avatar);
-}
-
-// To be removed later when there is a main engine loop for the entire game
-void ProfileViewer::MainLoop()
-{
-	Engine *asdf = new Engine();
-	asdf->ShowWindow(this);
-	asdf->MainLoop();
-	delete asdf;
+	SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 }
 
 void ProfileViewer::OnTick(uint32_t ticks)

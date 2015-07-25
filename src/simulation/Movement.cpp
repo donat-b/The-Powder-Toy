@@ -3,6 +3,7 @@
 #include "WallNumbers.h"
 #include "simulation/elements/PRTI.h"
 #include "simulation/elements/FIGH.h"
+#include "simulation/elements/STKM.h"
 
 bool Simulation::OutOfBounds(int x, int y)
 {
@@ -820,11 +821,11 @@ int Simulation::Move(int i, int x, int y, float nxf, float nyf)
 				return -1;
 
 			//adjust stickmen legs
-			playerst* stickman = NULL;
+			Stickman *stickman = NULL;
 			if (t == PT_STKM)
-				stickman = &player;
+				stickman = ((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman1();
 			else if (t == PT_STKM2)
-				stickman = &player2;
+				stickman = ((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman2();
 			else if (t == PT_FIGH && parts[i].tmp >= 0 && parts[i].tmp < ((FIGH_ElementDataContainer*)elementData[PT_FIGH])->MaxFighters())
 				stickman = ((FIGH_ElementDataContainer*)elementData[PT_FIGH])->Get((unsigned char)parts[i].tmp);
 

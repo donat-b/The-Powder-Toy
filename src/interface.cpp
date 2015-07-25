@@ -3792,73 +3792,6 @@ int sdl_poll(void)
 	return 0;
 }
 
-void stickmen_keys()
-{
-	//  4
-	//1 8 2
-	if (sdl_key == SDLK_RIGHT)
-	{
-		player.comm = (int)(player.comm)|0x02;  //Go right command
-	}
-	if (sdl_key == SDLK_LEFT)
-	{
-		player.comm = (int)(player.comm)|0x01;  //Go left command
-	}
-	if (sdl_key == SDLK_DOWN && ((int)(player.comm)&0x08)!=0x08)
-	{
-		player.comm = (int)(player.comm)|0x08;  //Use element command
-	}
-	if (sdl_key == SDLK_UP && ((int)(player.comm)&0x04)!=0x04)
-	{
-		player.comm = (int)(player.comm)|0x04;  //Jump command
-	}
-
-	if (sdl_key == SDLK_d)
-	{
-		player2.comm = (int)(player2.comm)|0x02;  //Go right command
-	}
-	if (sdl_key == SDLK_a)
-	{
-		player2.comm = (int)(player2.comm)|0x01;  //Go left command
-	}
-	if (sdl_key == SDLK_s && ((int)(player2.comm)&0x08)!=0x08)
-	{
-		player2.comm = (int)(player2.comm)|0x08;  //Use element command
-	}
-	if (sdl_key == SDLK_w && ((int)(player2.comm)&0x04)!=0x04)
-	{
-		player2.comm = (int)(player2.comm)|0x04;  //Jump command
-	}
-
-	if (sdl_rkey == SDLK_RIGHT || sdl_rkey == SDLK_LEFT)
-	{
-		player.pcomm = player.comm;  //Saving last movement
-		player.comm = (int)(player.comm)&12;  //Stop command
-	}
-	if (sdl_rkey == SDLK_UP)
-	{
-		player.comm = (int)(player.comm)&11;
-	}
-	if (sdl_rkey == SDLK_DOWN)
-	{
-		player.comm = (int)(player.comm)&7;
-	}
-
-	if (sdl_rkey == SDLK_d || sdl_rkey == SDLK_a)
-	{
-		player2.pcomm = player2.comm;  //Saving last movement
-		player2.comm = (int)(player2.comm)&12;  //Stop command
-	}
-	if (sdl_rkey == SDLK_w)
-	{
-		player2.comm = (int)(player2.comm)&11;
-	}
-	if (sdl_rkey == SDLK_s)
-	{
-		player2.comm = (int)(player2.comm)&7;
-	}
-}
-
 int pastFPS = 0;
 float FPSB2 = 60.0f;
 double frameTimeAvg = 0.0, correctedFrameTimeAvg = 60.0;
@@ -3871,6 +3804,7 @@ void limit_fps()
 	{
 		double offset = 1000.0 / limitFPS - frameTimeAvg;
 		if (offset > 0)
+			//millisleep((Uint32)(offset + 0.5));
 			SDL_Delay((Uint32)(offset + 0.5));
 	}
 

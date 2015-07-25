@@ -93,23 +93,6 @@ class Simulation;
 
 void TRON_init_graphics();
 
-struct playerst
-{
-	char comm;           //command cell
-	char pcomm;          //previous command
-	int elem;            //element power
-	float legs[16];      //legs' positions
-	float accs[8];       //accelerations
-	char spwn;           //if stick man was spawned
-	unsigned int frames; //frames since last particle spawn - used when spawning LIGH
-	int spawnID;         //id of the SPWN particle
-	char rocketBoots;
-};
-typedef struct playerst playerst;
-
-int run_stickman(playerst* playerp, UPDATE_FUNC_ARGS);
-void STKM_init_legs(playerst* playerp, int i);
-void STKM_interact(Simulation* sim, playerst* playerp, int i, int x, int y);
 void PPIP_flood_trigger(Simulation* sim, int x, int y, int sparkedBy);
 
 struct part_type
@@ -153,9 +136,6 @@ extern part_transition ptransitions[PT_NUM];
 
 #define CHANNELS ((int)(MAX_TEMP-73)/100+2)
 extern const particle emptyparticle;
-
-extern playerst player;
-extern playerst player2;
 
 extern int airMode;
 

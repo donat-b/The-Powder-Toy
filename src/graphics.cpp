@@ -67,6 +67,7 @@
 #include "simulation/GolNumbers.h"
 #include "simulation/elements/EMP.h"
 #include "simulation/elements/FIGH.h"
+#include "simulation/elements/STKM.h"
 
 //unsigned cmode = CM_FIRE;
 unsigned int *render_modes;
@@ -2532,12 +2533,12 @@ void render_parts(pixel *vid, Point mousePos)
 					char buff[20];  //Buffer for HP
 					int s;
 					int legr, legg, legb;
-					playerst *cplayer;
-					if(t==PT_STKM)
-						cplayer = &player;
-					else if(t==PT_STKM2)
-						cplayer = &player2;
-					else if(t==PT_FIGH && parts[i].tmp >= 0 && parts[i].tmp < ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->MaxFighters())
+					Stickman *cplayer;
+					if (t == PT_STKM)
+						cplayer = ((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman1();
+					else if (t == PT_STKM2)
+						cplayer = ((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman2();
+					else if (t == PT_FIGH && parts[i].tmp >= 0 && parts[i].tmp < ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->MaxFighters())
 						cplayer = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get(parts[i].tmp);
 					else
 						continue;

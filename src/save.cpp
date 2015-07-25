@@ -36,6 +36,7 @@
 #include "simulation/elements/PPIP.h"
 #include "simulation/elements/LIFE.h"
 #include "simulation/elements/MOVS.h"
+#include "simulation/elements/STKM.h"
 
 //Pop
 pixel *prerender_save(void *save, int size, int *width, int *height)
@@ -2316,36 +2317,25 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					}
 
 					// no more particle properties to load, so we can change type here without messing up loading
-					if ((globalSim->elementCount[PT_STKM]>0 && partsptr[newIndex].type==PT_STKM) || (globalSim->elementCount[PT_STKM2]>0 && partsptr[newIndex].type==PT_STKM2))
+					if (partsptr[newIndex].type == PT_STKM)
 					{
-						partsptr[newIndex].type = PT_NONE;
-					}
-					else if (partsptr[newIndex].type == PT_STKM)
-					{
-						STKM_init_legs(&player, newIndex);
-						player.elem = PT_DUST;
-						if (parts[newIndex].ctype == OLD_SPC_AIR)
-							parts[newIndex].ctype = SPC_AIR;
+						if (globalSim->elementCount[PT_STKM] > 0)
+							partsptr[newIndex].type = PT_NONE;
+						else
+							((STKM_ElementDataContainer*)globalSim->elementData[PT_STKM])->NewStickman1(newIndex, parts[newIndex].ctype);
 					}
 					else if (partsptr[newIndex].type == PT_STKM2)
 					{
-						STKM_init_legs(&player2, newIndex);
-						player2.elem = PT_DUST;
-						if (parts[newIndex].ctype == OLD_SPC_AIR)
-							parts[newIndex].ctype = SPC_AIR;
+						if (globalSim->elementCount[PT_STKM2] > 0)
+							partsptr[newIndex].type = PT_NONE;
+						else
+							((STKM_ElementDataContainer*)globalSim->elementData[PT_STKM])->NewStickman2(newIndex, parts[newIndex].ctype);
 					}
 					else if (partsptr[newIndex].type == PT_FIGH)
 					{
 						partsptr[newIndex].tmp = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Alloc();
 						if (partsptr[newIndex].tmp >= 0)
-						{
-							playerst* figh = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get((unsigned char)partsptr[newIndex].tmp);
-							figh->spwn = 1;
-							figh->elem = PT_DUST;
-							STKM_init_legs(figh, newIndex);
-							if (parts[newIndex].ctype == OLD_SPC_AIR)
-								parts[newIndex].ctype = SPC_AIR;
-						}
+							((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->NewFighter(globalSim, partsptr[newIndex].tmp, newIndex, parts[newIndex].ctype);
 						else
 							partsptr[newIndex].type = PT_NONE;
 					}
@@ -2354,14 +2344,14 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						if (globalSim->elementCount[PT_SPAWN])
 							partsptr[newIndex].type = PT_NONE;
 						else
-							player.spawnID = newIndex;
+							((STKM_ElementDataContainer*)globalSim->elementData[PT_STKM])->GetStickman1()->spawnID = newIndex;
 					}
 					else if (partsptr[newIndex].type == PT_SPAWN2)
 					{
 						if (globalSim->elementCount[PT_SPAWN2])
 							partsptr[newIndex].type = PT_NONE;
 						else
-							player2.spawnID = newIndex;
+							((STKM_ElementDataContainer*)globalSim->elementData[PT_STKM])->GetStickman2()->spawnID = newIndex;
 					}
 					if (partsptr[newIndex].type == PT_SOAP)
 						partsptr[newIndex].ctype &= ~6; // delete all soap connections, but it looks like if tmp & tmp2 were saved to 3 bytes, connections would load properly
@@ -3299,54 +3289,43 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 		// no more particle properties to load, so we can change type here without messing up loading
 		if (i && i<=NPART)
 		{
-			if ((globalSim->elementCount[PT_STKM]>0 && ty==PT_STKM) || (globalSim->elementCount[PT_STKM2]>0 && ty==PT_STKM2))
+			if (parts[i-1].type == PT_STKM)
 			{
-				parts[i-1].type = PT_NONE;
-			}
-			else if (parts[i-1].type == PT_STKM)
-			{
-				STKM_init_legs(&player, i-1);
-				player.elem = PT_DUST;
-				if (parts[i-1].ctype == OLD_SPC_AIR)
-					parts[i-1].ctype = SPC_AIR;
+				if (globalSim->elementCount[PT_STKM] > 0)
+					parts[i-1].type = PT_NONE;
+				else
+					((STKM_ElementDataContainer*)globalSim->elementData[PT_STKM])->NewStickman1(i-1, parts[i-1].ctype);
 			}
 			else if (parts[i-1].type == PT_STKM2)
 			{
-				STKM_init_legs(&player2, i-1);
-				player2.elem = PT_DUST;
-				if (parts[i-1].ctype == OLD_SPC_AIR)
-					parts[i-1].ctype = SPC_AIR;
+				if (globalSim->elementCount[PT_STKM2] > 0)
+					parts[i-1].type = PT_NONE;
+				else
+					((STKM_ElementDataContainer*)globalSim->elementData[PT_STKM])->NewStickman2(i-1, parts[i-1].ctype);
+			}
+			else if (parts[i-1].type == PT_FIGH)
+			{
+				parts[i-1].tmp = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Alloc();
+				if (parts[i-1].tmp >= 0)
+					((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->NewFighter(globalSim, parts[i-1].tmp, i-1, parts[i-1].ctype);
+				else
+					parts[i-1].type = PT_NONE;
 			}
 			else if (parts[i-1].type == PT_SPAWN)
 			{
 				if (globalSim->elementCount[PT_SPAWN])
 					parts[i-1].type = PT_NONE;
 				else
-					player.spawnID = i-1;
+					((STKM_ElementDataContainer*)globalSim->elementData[PT_STKM])->GetStickman1()->spawnID = i-1;
 			}
 			else if (parts[i-1].type == PT_SPAWN2)
 			{
 				if (globalSim->elementCount[PT_SPAWN2])
 					parts[i-1].type = PT_NONE;
 				else
-					player2.spawnID = i-1;
+					((STKM_ElementDataContainer*)globalSim->elementData[PT_STKM])->GetStickman2()->spawnID = i-1;
 			}
-			else if (parts[i-1].type == PT_FIGH)
-			{
-				parts[i-1].tmp = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Alloc();
-				if (parts[i-1].tmp >= 0)
-				{
-					playerst* figh = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get((unsigned char)parts[i-1].tmp);
-					figh->spwn = 1;
-					figh->elem = PT_DUST;
-					STKM_init_legs(figh, i-1);
-					if (parts[i-1].ctype == OLD_SPC_AIR)
-						parts[i-1].ctype = SPC_AIR;
-				}
-				else
-					parts[i-1].type = PT_NONE;
-			}
-			if (parts[i-1].type == PT_MOVS)
+			else if (parts[i-1].type == PT_MOVS)
 			{
 				parts[i-1].pavg[0] = (float)parts[i-1].tmp;
 				parts[i-1].pavg[1] = (float)parts[i-1].tmp2;

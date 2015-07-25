@@ -14,6 +14,7 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "simulation/elements/STKM.h"
 
 #define LIGHTING_POWER 0.65
 
@@ -224,12 +225,12 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 						parts[r>>8].life = 99;
 					break;
 				case PT_STKM:
-					if (player.elem != PT_LIGH)
-						parts[r>>8].life-=powderful/100;
+					if (((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman1()->elem != PT_LIGH)
+						parts[r>>8].life -= powderful/100;
 					break;
 				case PT_STKM2:
-					if (player2.elem != PT_LIGH)
-						parts[r>>8].life-=powderful/100;
+					if (((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman2()->elem != PT_LIGH)
+						parts[r>>8].life -= powderful/100;
 					break;
 				default:
 					break;

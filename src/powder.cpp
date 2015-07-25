@@ -32,9 +32,6 @@ part_type ptypes[PT_NUM];
 part_transition ptransitions[PT_NUM];
 unsigned int platent[PT_NUM];
 
-playerst player;
-playerst player2;
-
 particle *parts;
 particle *cb_parts;
 

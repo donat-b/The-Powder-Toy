@@ -17,14 +17,15 @@
 #define SIMULATION_ELEMENTS_FIGH_H 
 
 #include <cstring>
-#include "simulation/ElementDataContainer.h"
 #include "powder.h"
+#include "simulation/ElementDataContainer.h"
+#include "STKM.h"
 
 class FIGH_ElementDataContainer : public ElementDataContainer
 {
 private:
 	static const int maxFighters = 100;
-	playerst fighters[maxFighters];
+	Stickman fighters[maxFighters];
 	int usedCount;
 public:	
 	FIGH_ElementDataContainer() :
@@ -32,10 +33,12 @@ public:
 	{
 		memset(fighters, 0, sizeof(fighters));
 	}
-	playerst *Get(unsigned char i)
+
+	Stickman * Get(unsigned char i)
 	{
 		return fighters+i;
 	}
+
 	int Alloc()
 	{
 		if (usedCount>=maxFighters) return -1;
@@ -50,6 +53,7 @@ public:
 		}
 		else return -1;
 	}
+
 	// Mark a specific fighter as allocated - used for portals
 	void AllocSpecific(unsigned char i)
 	{
@@ -59,6 +63,7 @@ public:
 			usedCount++;
 		}
 	}
+
 	void Free(unsigned char i)
 	{
 		if (fighters[i].spwn)
@@ -67,16 +72,21 @@ public:
 			usedCount--;
 		}
 	}
+
 	// Returns true if there are free slots for additional fighters to go in
 	bool CanAlloc()
 	{
 		return (usedCount<maxFighters);
 	}
+
+	void NewFighter(Simulation *sim, int fighterID, int i, int elem);
+
 	virtual void Simulation_Cleared(Simulation *sim)
 	{
 		memset(fighters, 0, sizeof(fighters));
 		usedCount = 0;
 	}
+
 	int MaxFighters()
 	{
 		return maxFighters;

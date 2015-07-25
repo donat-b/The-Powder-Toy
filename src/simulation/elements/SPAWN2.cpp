@@ -14,6 +14,7 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "simulation/elements/STKM.h"
 
 bool SPAWN2_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 {
@@ -22,8 +23,9 @@ bool SPAWN2_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 
 void SPAWN2_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
 {
-	if (player2.spawnID == i)
-		player2.spawnID = -1;
+	Stickman *player2 = ((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman2();
+	if (player2->spawnID == i)
+		player2->spawnID = -1;
 }
 
 void SPAWN2_init_element(ELEMENT_INIT_FUNC_ARGS)

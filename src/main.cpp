@@ -77,6 +77,7 @@
 #include "simulation/Tool.h"
 #include "simulation/ToolNumbers.h"
 #include "simulation/elements/LIFE.h"
+#include "simulation/elements/STKM.h"
 
 // new interface stuff
 #include "graphics/VideoBuffer.h"
@@ -341,8 +342,6 @@ void clear_sim()
 			hv[y][x] = outside_temp; //Set to room temperature (or whatever the default air temp was changed to)
 		}
 	}
-	player.spawnID = player2.spawnID = -1;
-	player.spwn = player2.spwn = 0;
 	finding &= 0x8;
 	if(edgeMode == 1)
 		draw_bframe();
@@ -817,7 +816,7 @@ int main(int argc, char *argv[])
 	Simulation *mainSim = new Simulation();
 	mainSim->InitElements();
 	globalSim = mainSim;
-	
+
 	colour_mode = COLOUR_DEFAULT;
 	init_display_modes();
 	TRON_init_graphics();
@@ -826,26 +825,22 @@ int main(int argc, char *argv[])
 	parts = (particle*)calloc(sizeof(particle), NPART);
 	pers_bg = (pixel*)calloc((XRES+BARSIZE)*YRES, PIXELSIZE);
 	clear_sim();
-	
+
 	prepare_alpha(CELL, 1.0f);
 	prepare_graphicscache();
 	flm_data = generate_gradient(flm_data_colours, flm_data_pos, flm_data_points, 200);
 	plasma_data = generate_gradient(plasma_data_colours, plasma_data_pos, plasma_data_points, 200);
-	
-	player.elem = player2.elem = PT_DUST;
-	player.frames = player2.frames = 0;
-	player.rocketBoots = 0;
 
 	sprintf(ppmfilename, "%s.ppm", argv[2]);
 	sprintf(ptifilename, "%s.pti", argv[2]);
 	sprintf(ptismallfilename, "%s-small.pti", argv[2]);
-	
+
 	if (load_data && load_size)
 	{
 		int parsestate = 0;
 		//parsestate = parse_save(load_data, load_size, 1, 0, 0);
 		parsestate = parse_save(load_data, load_size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-		
+
 		//decorations_enable = 0;
 		render_before(vid_buf);
 		render_after(vid_buf, vid_buf, Point(0,0));
@@ -857,7 +852,7 @@ int main(int argc, char *argv[])
 		}
 		render_before(vid_buf);
 		render_after(vid_buf, vid_buf, Point(0,0));
-		
+
 		if (parsestate>0)
 		{
 			//return 0;
@@ -905,7 +900,7 @@ int main(int argc, char *argv[])
 		
 		return 1;
 	}
-	
+
 	return 0;
 }
 #else
@@ -1353,11 +1348,10 @@ int main(int argc, char *argv[])
 
 	UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 10235);
 
-	Engine *engine = new Engine();
 	the_game = new PowderToy(); // you just lost
-	engine->ShowWindow(the_game);
-	engine->MainLoop();
-	delete engine;
+	Engine::Ref().ShowWindow(the_game);
+	Engine::Ref().MainLoop();
+	//delete engine;
 
 	return 0;
 }
@@ -1543,7 +1537,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		if (!deco_disablestuff && sys_shortcuts==1)//all shortcuts can be disabled by lua scripts
 		{
 			if (load_mode != 1)
-				stickmen_keys();
+				((STKM_ElementDataContainer*)globalSim->elementData[PT_STKM])->HandleKeys(sdl_key, sdl_rkey);
 			if (sdl_key=='i' && (sdl_mod & (KMOD_CTRL|KMOD_META)))
 			{
 				if(confirm_ui(vid_buf, "Install Powder Toy", "You are about to install The Powder Toy", "Install"))
@@ -2480,7 +2474,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				}
 			}
 		}
-		
+
 		if (!sdl_zoom_trig && zoom_en==1)
 			zoom_en = 0;
 
@@ -2921,24 +2915,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		}
 
 		//sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf, XRES+BARSIZE);
-
-		//Setting an element for the stick man
-		if (globalSim->elementCount[PT_STKM]<=0)
-		{
-			int sr = ((ElementTool*)activeTools[1])->GetID();
-			if ((sr>0 && sr<PT_NUM && ptypes[sr].enabled && ptypes[sr].falldown>0) || sr == PT_NEUT || sr == PT_PHOT || sr == PT_LIGH)
-				player.elem = sr;
-			else
-				player.elem = PT_DUST;
-		}
-		if (globalSim->elementCount[PT_STKM2]<=0)
-		{
-			int sr = ((ElementTool*)activeTools[1])->GetID();
-			if ((sr>0 && sr<PT_NUM && ptypes[sr].enabled && ptypes[sr].falldown>0) || sr == PT_NEUT || sr == PT_PHOT || sr == PT_LIGH)
-				player2.elem = sr;
-			else
-				player2.elem = PT_DUST;
-		}
 
 #if !defined(DEBUG) && !defined(_DEBUG)
 		if (!signal_hooks)

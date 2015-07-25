@@ -15,9 +15,16 @@
 
 #include "simulation/ElementsCommon.h"
 #include "simulation/elements/FIGH.h"
+#include "simulation/ToolNumbers.h"
 
 int STKM_graphics(GRAPHICS_FUNC_ARGS);
-void STKM_init_legs(playerst* playerp, int i);
+
+void FIGH_ElementDataContainer::NewFighter(Simulation *sim, int fighterID, int i, int elem)
+{
+	((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->InitLegs(&fighters[fighterID], i);
+	fighters[i].elem = (elem == OLD_SPC_AIR) ? SPC_AIR : elem;
+	fighters[i].spwn = 1;
+}
 
 int FIGH_update(UPDATE_FUNC_ARGS)
 {
@@ -27,32 +34,32 @@ int FIGH_update(UPDATE_FUNC_ARGS)
 		return 1;
 	}
 
-	playerst* figh = ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Get((unsigned char)parts[i].tmp);
+	Stickman * figh = ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Get((unsigned char)parts[i].tmp);
+	Stickman * player = ((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman1();
+	Stickman * player2 = ((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman2();
 
-	int tarx = 0, tary = 0;
-
-	parts[i].tmp2 = 0; //0 - stay in place, 1 - seek a stick man
+	parts[i].tmp2 = 0; //0 - stay in place, 1 - seek a stickman
 
 	//Set target coords
-	if (globalSim->elementCount[PT_STKM2]>0)
+	int tarx = 0, tary = 0;
+	if (sim->elementCount[PT_STKM2] > 0)
 	{
-		if (globalSim->elementCount[PT_STKM]>0 && (pow(player.legs[2]-x, 2) + pow(player.legs[3]-y, 2)) <=
-			(pow(player2.legs[2]-x, 2) + pow(player2.legs[3]-y, 2)))
+		if (sim->elementCount[PT_STKM] > 0 && (pow(player->legs[2]-x, 2) + pow(player->legs[3]-y, 2)) <= (pow(player2->legs[2]-x, 2) + pow(player2->legs[3]-y, 2)))
 		{
-			tarx = (int)player.legs[2];
-			tary = (int)player.legs[3];
+			tarx = (int)player->legs[2];
+			tary = (int)player->legs[3];
 		}
 		else
 		{
-			tarx = (int)player2.legs[2];
-			tary = (int)player2.legs[3];
+			tarx = (int)player2->legs[2];
+			tary = (int)player2->legs[3];
 		}
 		parts[i].tmp2 = 1;
 	}
-	else if (globalSim->elementCount[PT_STKM]>0)
+	else if (sim->elementCount[PT_STKM] > 0)
 	{
-		tarx = (int)player.legs[2];
-		tary = (int)player.legs[3];
+		tarx = (int)player->legs[2];
+		tary = (int)player->legs[3];
 		parts[i].tmp2 = 1;
 	}
 
@@ -110,7 +117,7 @@ int FIGH_update(UPDATE_FUNC_ARGS)
 
 	figh->pcomm = figh->comm;
 
-	run_stickman(figh, UPDATE_FUNC_SUBCALL_ARGS);
+	((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->Run(figh, UPDATE_FUNC_SUBCALL_ARGS);
 	return 0;
 }
 
@@ -125,12 +132,7 @@ void FIGH_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
 	{
 		sim->parts[i].tmp = ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Alloc();
 		if (sim->parts[i].tmp >= 0)
-		{
-			playerst* figh = ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Get((unsigned char)sim->parts[i].tmp);
-			figh->spwn = 1;
-			figh->elem = PT_DUST;
-			STKM_init_legs(figh, i);
-		}
+			((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->NewFighter(sim, sim->parts[i].tmp, i, PT_DUST);
 	}
 	else
 	{

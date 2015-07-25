@@ -343,8 +343,6 @@ union SDL_Event;
 int EventProcess(SDL_Event event);
 int sdl_poll(void);
 
-void stickmen_keys();
-
 void limit_fps();
 
 void set_cmode(int cm);

@@ -179,7 +179,6 @@ bool Engine::EventProcess(SDL_Event event)
 void Engine::MainLoop()
 {
 	SDL_Event event;
-	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 	while (top)
 	{
 		// weird thing done when entering old interfaces that use sdl_poll loops
@@ -223,30 +222,31 @@ void Engine::MainLoop()
 		if (top->toDelete || has_quit)
 		{
 			CloseWindow(top);
-			delete top;
 		}
 		sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf /*potato->GetVid()->GetVid()*/, XRES+BARSIZE);
 		//memset(vid_buf, 0, (XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
 		limit_fps();
 	}
-	SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 }
 
 void Engine::ShowWindow(Window_ *window)
 {
-	windows.push(window);
-	if (top == NULL)
-		top = window;
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE+1, YRES+MENUSIZE+1, 0, 0, 0, 100);
+	windows.push(window);
+	top = window;
 }
 
 void Engine::CloseWindow(Window_ *window)
 {
 	if (window == windows.top())
 	{
+		delete top;
 		windows.pop();
 		if (windows.size())
+		{
 			top = windows.top();
+			top->FocusComponent(NULL);
+		}
 		else
 			top = NULL;
 	}

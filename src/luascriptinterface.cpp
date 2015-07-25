@@ -27,6 +27,7 @@
 #include "simulation/ToolNumbers.h"
 #include "simulation/Tool.h"
 #include "simulation/elements/FIGH.h"
+#include "simulation/elements/STKM.h"
 
 /*
 
@@ -1395,11 +1396,11 @@ int simulation_stickman(lua_State *l)
 
 	if (num < 1 || num > ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->MaxFighters()+2)
 		return luaL_error(l, "invalid stickmen number %d", num);
-	playerst *stick;
+	Stickman *stick;
 	if (num == 1)
-		stick = &player;
+		stick = ((STKM_ElementDataContainer*)globalSim->elementData[PT_STKM])->GetStickman1();
 	else if (num == 2)
-		stick = &player2;
+		stick = ((STKM_ElementDataContainer*)globalSim->elementData[PT_STKM])->GetStickman2();
 	else
 		stick = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get((unsigned char)(num-3));
 

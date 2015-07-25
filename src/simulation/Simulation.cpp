@@ -478,12 +478,6 @@ void Simulation::UpdateBefore()
 		}
 	}
 
-	//create stickmen if the current one has been deleted
-	if (elementCount[PT_STKM] <= 0 && player.spawnID >= 0)
-		part_create(-1, (int)parts[player.spawnID].x, (int)parts[player.spawnID].y, PT_STKM);
-	else if (elementCount[PT_STKM2] <= 0 && player2.spawnID >= 0)
-		part_create(-1, (int)parts[player2.spawnID].x, (int)parts[player2.spawnID].y, PT_STKM2);
-
 	//check for excessive stacked particles, create BHOL if found
 	if (forceStackingCheck || !(rand()%10))
 	{

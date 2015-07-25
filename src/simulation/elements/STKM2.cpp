@@ -14,33 +14,33 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "simulation/elements/STKM.h"
 
 int STKM_graphics(GRAPHICS_FUNC_ARGS);
-void STKM_init_legs(playerst* playerp, int i);
 
 int STKM2_update(UPDATE_FUNC_ARGS)
 {
-	run_stickman(&player2, UPDATE_FUNC_SUBCALL_ARGS);
+	((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->Run(((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman2(), UPDATE_FUNC_SUBCALL_ARGS);
 	return 0;
 }
 
 bool STKM2_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 {
-	return globalSim->elementCount[PT_STKM2]<=0 && !player2.spwn;
+	return sim->elementCount[PT_STKM2]<=0 && !((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman2()->spwn;
 }
 
 void STKM2_create(ELEMENT_CREATE_FUNC_ARGS)
 {
 	int id = sim->part_create(-3, x, y, PT_SPAWN2);
 	if (id >= 0)
-		player2.spawnID = id;
+		((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman2()->spawnID = id;
 }
 
 void STKM2_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
 {
-	if (to==PT_STKM2)
+	if (to == PT_STKM2)
 	{
-		STKM_init_legs(&player2, i);
+		((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->InitLegs(((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman2(), i);
 	}
 }
 

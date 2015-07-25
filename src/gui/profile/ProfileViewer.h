@@ -21,8 +21,6 @@ class ProfileViewer : public ScrollWindow
 	Label *saveCountLabel, *saveAverageLabel, *highestVoteLabel;
 	Button *enableEditingButton, *openProfileButton, *avatarUploadButton;
 
-	void MainLoop();
-
 public:
 	ProfileViewer(std::string profileName);
 	~ProfileViewer();
