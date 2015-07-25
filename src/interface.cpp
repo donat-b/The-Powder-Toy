@@ -1000,7 +1000,7 @@ void ui_checkbox_draw(pixel *vid_buf, ui_checkbox *ed)
 	int w = 12;
 	if (ed->checked)
 	{
-		drawtext(vid_buf, ed->x+2, ed->y+2, "\xCF", 128, 128, 128, 255);
+		drawtext(vid_buf, ed->x-1, ed->y-1, "\xCF", 128, 128, 128, 255);
 	}
 	if (ed->focus)
 	{
@@ -1225,34 +1225,6 @@ void ui_richtext_process(int mx, int my, int mb, int mbq, ui_richtext *ed)
 				break;
 			}
 		}
-	}
-}
-
-void draw_svf_ui(pixel *vid_buf, int alternate)// all the buttons at the bottom
-{
-	int c = svf_open ? 255 : 128;
-
-	//the tags button
-	drawtext(vid_buf, 249, YRES+(MENUSIZE-15), "\x83", c, c, c, 255);
-	if (svf_tags[0])
-		drawtextmax(vid_buf, 267, YRES+(MENUSIZE-12), XRES+BARSIZE-448, svf_tags, c, c, c, 255);
-	else
-		drawtext(vid_buf, 267, YRES+(MENUSIZE-12), "[no tags set]", c, c, c, 255);
-
-	drawrect(vid_buf, 246, YRES+(MENUSIZE-16), XRES+BARSIZE-417, 14, c, c, c, 255);
-
-	//Report bugs
-	drawtext(vid_buf, XRES+BARSIZE-173, YRES+(MENUSIZE-14), "\xE7", 255, 255, 255, 255);
-	drawrect(vid_buf, XRES+BARSIZE-175, YRES+(MENUSIZE-16), 14, 14, 255, 255, 255, 255);
-
-	//the clear sim button------------some of the commented values are wrong
-	drawtext(vid_buf, XRES-139+BARSIZE/*371*/, YRES+(MENUSIZE-14), "\x92", 255, 255, 255, 255);
-	drawrect(vid_buf, XRES-143+BARSIZE/*367*/, YRES+(MENUSIZE-16), 16, 14, 255, 255, 255, 255);
-
-	//The simulation options button, used to be the heat sim button
-	{
-		drawtext(vid_buf, XRES-156+BARSIZE/*481*/, YRES+(MENUSIZE-13), "\xCF", 255, 255, 255, 255);
-		drawrect(vid_buf, XRES-159+BARSIZE/*494*/, YRES+(MENUSIZE-16), 14, 14, 255, 255, 255, 255);
 	}
 }
 
@@ -2647,7 +2619,7 @@ int save_name_ui(pixel *vid_buf)
 			drawtext(vid_buf, x0+8, y0+8, "Upload new simulation:", 255, 255, 255, 255);
 		else
 			drawtext(vid_buf, x0+8, y0+8, "Modify simulation properties:", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+10, y0+24, "\x82", 192, 192, 192, 255);
+		drawtext(vid_buf, x0+9, y0+21, "\x82", 192, 192, 192, 255);
 		drawrect(vid_buf, x0+8, y0+20, 176, 16, 192, 192, 192, 255); //rectangle around title box
 
 		drawrect(vid_buf, x0+8, y0+40, 176, 124, 192, 192, 192, 255); //rectangle around description box
@@ -8360,7 +8332,6 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 			else
 				DrawMenus(vid_buf, active_menu, my);
 		}
-		draw_svf_ui(vid_buf, sdl_mod & (KMOD_CTRL|KMOD_META));
 		
 		clearrect(vid_buf, xcoord-1, ycoord-1, xsize+3, ysize+3);
 		drawrect(vid_buf, xcoord, ycoord, xsize, ysize, 192, 192, 192, 255);

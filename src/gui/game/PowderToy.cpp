@@ -61,8 +61,7 @@ PowderToy::PowderToy():
 	else
 		sessionCheck = NULL;
 
-	int yPos = YRES+MENUSIZE-16;
-
+	// start placing the bottom row of buttons, starting from the left
 	class OpenBrowserAction : public ButtonAction
 	{
 	public:
@@ -71,7 +70,7 @@ PowderToy::PowderToy():
 			dynamic_cast<PowderToy*>(button->GetParent())->OpenBrowser();
 		}
 	};
-	openBrowserButton = new Button(Point(1, yPos), Point(17, 15), "\x81");
+	openBrowserButton = new Button(Point(1, YRES+MENUSIZE-16), Point(17, 15), "\x81");
 	openBrowserButton->SetCallback(new OpenBrowserAction());
 	AddComponent(openBrowserButton);
 
@@ -125,9 +124,6 @@ PowderToy::PowderToy():
 	downvoteButton->SetColor(COLRGB(187, 40, 0));
 	downvoteButton->SetCallback(new VoteAction(false));
 	AddComponent(downvoteButton);
-	/*reportBugButton;
-	optionsButton;
-	clearSimButton;*/
 
 
 	// We now start placing buttons from the right side, because tags button is in the middle and uses whatever space is leftover
@@ -139,7 +135,7 @@ PowderToy::PowderToy():
 			dynamic_cast<PowderToy*>(button->GetParent())->TogglePause();
 		}
 	};
-	pauseButton = new Button(Point(XRES+BARSIZE-16, yPos), Point(15, 15), "\x90");
+	pauseButton = new Button(Point(XRES+BARSIZE-16, openBrowserButton->GetPosition().Y), Point(15, 15), "\x90");
 	pauseButton->SetCallback(new PauseAction());
 	AddComponent(pauseButton);
 
@@ -163,10 +159,60 @@ PowderToy::PowderToy():
 			dynamic_cast<PowderToy*>(button->GetParent())->LoginButton();
 		}
 	};
-	loginButton = new Button(renderOptionsButton->Left(Point(91, 0)), Point(90, 15), "\x84 [sign in]");
+	loginButton = new Button(renderOptionsButton->Left(Point(96, 0)), Point(95, 15), "\x84 [sign in]");
 	loginButton->SetAlign(Button::LEFT);
 	loginButton->SetCallback(new LoginButtonAction());
 	AddComponent(loginButton);
+
+	class ClearSimAction : public ButtonAction
+	{
+	public:
+		virtual void ButtionActionCallback(Button *button, unsigned char b)
+		{
+			NewSim();
+		}
+	};
+	clearSimButton = new Button(loginButton->Left(Point(18, 0)), Point(17, 15), "\x92");
+	clearSimButton->SetCallback(new ClearSimAction());
+	AddComponent(clearSimButton);
+
+	class OpenOptionsAction : public ButtonAction
+	{
+	public:
+		virtual void ButtionActionCallback(Button *button, unsigned char b)
+		{
+			dynamic_cast<PowderToy*>(button->GetParent())->OpenOptions();
+		}
+	};
+	optionsButton = new Button(clearSimButton->Left(Point(16, 0)), Point(15, 15), "\xCF");
+	optionsButton->SetCallback(new OpenOptionsAction());
+	AddComponent(optionsButton);
+
+	class ReportBugAction : public ButtonAction
+	{
+	public:
+		virtual void ButtionActionCallback(Button *button, unsigned char b)
+		{
+			dynamic_cast<PowderToy*>(button->GetParent())->ReportBug();
+		}
+	};
+	reportBugButton = new Button(optionsButton->Left(Point(16, 0)), Point(15, 15), "\xE7");
+	reportBugButton->SetCallback(new ReportBugAction());
+	AddComponent(reportBugButton);
+
+	class OpenTagsAction : public ButtonAction
+	{
+	public:
+		virtual void ButtionActionCallback(Button *button, unsigned char b)
+		{
+			dynamic_cast<PowderToy*>(button->GetParent())->OpenTags();
+		}
+	};
+	Point tagsPos = downvoteButton->Right(Point(1, 0));
+	openTagsButton = new Button(tagsPos, Point((reportBugButton->Left(Point(1, 0))-tagsPos).X, 15), "\x83 [no tags set]");
+	openTagsButton->SetAlign(Button::LEFT);
+	openTagsButton->SetCallback(new OpenTagsAction());
+	AddComponent(openTagsButton);
 }
 
 void PowderToy::OpenBrowser()
@@ -255,6 +301,21 @@ void PowderToy::DoVote(bool up)
 	voteDownload->AddPostData(postData);
 	voteDownload->Start();
 	svf_myvote = up ? 1 : -1; // will be reset later upon error
+}
+
+void PowderToy::OpenTags()
+{
+	tag_list_ui(vid_buf);
+}
+
+void PowderToy::ReportBug()
+{
+	report_ui(vid_buf, NULL, true);
+}
+
+void PowderToy::OpenOptions()
+{
+	simulation_ui(vid_buf);
 }
 
 void PowderToy::LoginButton()
@@ -484,6 +545,13 @@ void PowderToy::OnTick(uint32_t ticks)
 	downvoteButton->SetEnabled(votesAllowed);
 	upvoteButton->SetState(svf_myvote == 1 ? Button::HIGHLIGHTED : Button::NORMAL);
 	downvoteButton->SetState(svf_myvote == -1 ? Button::HIGHLIGHTED : Button::NORMAL);
+
+	if (svf_tags[0])
+		openTagsButton->SetText(svf_tags);
+	else
+		openTagsButton->SetText("\x83 [no tags set]");
+	openTagsButton->SetEnabled(svf_open);
+
 	if (svf_login)
 	{
 		std::string loginButtonText;

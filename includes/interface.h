@@ -302,8 +302,6 @@ void ui_richtext_draw(pixel *vid_buf, ui_richtext *ed);
 void ui_richtext_settext(char *text, ui_richtext *ed);
 void ui_richtext_process(int mx, int my, int mb, int mbq, ui_richtext *ed);
 
-void draw_svf_ui(pixel *vid_buf, int alternate);
-
 void error_ui(pixel *vid_buf, int err, const char *txt);
 
 void element_search_ui(pixel *vid_buf, Tool** sl, Tool** sr);

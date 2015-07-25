@@ -1483,7 +1483,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		memset(vid_buf+((XRES+BARSIZE)*YRES), 0, (PIXELSIZE*(XRES+BARSIZE))*MENUSIZE);//clear menu areas
 		clearrect(vid_buf, XRES, 1, BARSIZE, YRES-1);
 
-		draw_svf_ui(vid_buf, sdl_mod & (KMOD_CTRL|KMOD_META));
 		DrawToolTips();
 		
 		if(debug_flags)
@@ -2639,31 +2638,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		else if (b)
 		{
 			UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
-			if (y > YRES+MENUSIZE-menuIconWidth)//check if mouse is on menu buttons
-			{
-				if (!lb && !bq)//mouse is NOT held down, so it is a first click
-				{
-					//tags
-					if (x>=246 && x<=(XRES+BARSIZE-(510-333)) && svf_open)
-						tag_list_ui(vid_buf);
-					else if (x>=((XRES+BARSIZE-(510-335))) && x<((XRES+BARSIZE-(510-350))))
-						report_ui(vid_buf, NULL, true);
-					else if (x>=(XRES+BARSIZE-(510-351)) && x<(XRES+BARSIZE-(510-366)))
-					{
-						//legacy_enable = !legacy_enable;
-						simulation_ui(vid_buf);
-					}
-					else if (x>=(XRES+BARSIZE-(510-367)) && x<=(XRES+BARSIZE-(510-383)))
-					{
-						NewSim();
-						for (int i = 0; i < NPART-1; i++)
-							parts[i].life = i+1;
-						parts[NPART-1].life = -1;
-						globalSim->pfree = 0;
-					}
-					lb = 0;
-				}
-			}
+
 			if (tmpMouseInZoom != mouseInZoom && !lm)
 				b = lb = 0;
 			else if ((y<YRES && x<XRES) || lb)// mouse is in playing field

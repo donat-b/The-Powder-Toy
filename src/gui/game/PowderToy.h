@@ -31,6 +31,7 @@ class PowderToy : public Window_
 	Button *saveButton;
 	Button *upvoteButton;
 	Button *downvoteButton;
+	Button *openTagsButton;
 	Button *reportBugButton;
 	Button *optionsButton;
 	Button *clearSimButton;
@@ -59,6 +60,9 @@ public:
 	void ReloadSave(unsigned char b);
 	void DoSave();
 	void DoVote(bool up);
+	void OpenTags();
+	void ReportBug();
+	void OpenOptions();
 	void LoginButton();
 	void RenderOptions();
 	void TogglePause();
