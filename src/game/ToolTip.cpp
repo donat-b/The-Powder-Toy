@@ -13,12 +13,13 @@ ToolTip::ToolTip(std::string tip_, Point location_, int ID_, int alpha_):
 		alpha = alpha_;
 }
 
+// update the visibility / text / location of a tooltip
 void ToolTip::UpdateToolTip(std::string toolTip, Point location_, int alpha_)
 {
 	tip = toolTip;
 	location = location_;
 	//alpha_ == -1 is used for fading in tooltips for some reason (gets reduced by 5 every frame in draw still)
-	if (alpha_ == -1 && alpha < 255)
+	if (alpha_ <= -1 && alpha < 255)
 	{
 		alpha += 15;
 		if (alpha > 255)
@@ -29,9 +30,34 @@ void ToolTip::UpdateToolTip(std::string toolTip, Point location_, int alpha_)
 		alpha = alpha_;
 }
 
+// add or replace a tooltip on the screen
+void ToolTip::AddToScreen()
+{
+	// make sure tooltip is in current on screen tooltips list, if not then add it
+	ToolTip *foundTip = NULL;
+	for (unsigned int i = 0; i < toolTips.size(); i++)
+		if (toolTips[i]->GetID() == ID)
+		{
+			foundTip = toolTips[i];
+			break;
+		}
+	if (!foundTip)
+	{
+		if (ID != INTROTIP || alpha > 255)
+		{
+			foundTip = new ToolTip(tip, location, ID, alpha);
+			toolTips.push_back(foundTip);
+		}
+		else
+			return;
+	}
+
+	foundTip->UpdateToolTip(tip, location, alpha);
+}
+
 bool ToolTip::DrawToolTip()
 {
-	if (alpha)
+	if (alpha > 0)
 	{
 		if (ID == INFOTIP || ID == ELEMENTTIP)
 			drawtext_outline(vid_buf, location.X, location.Y, tip.c_str(), 255, 255, 255, std::min(alpha, 255), 0, 0, 0, std::min(alpha, 255));

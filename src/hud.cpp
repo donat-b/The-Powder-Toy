@@ -16,6 +16,8 @@
 #include "simulation/GolNumbers.h"
 #include "simulation/elements/LIFE.h"
 
+#include "gui/game/PowderToy.h"
+
 char uitext[512] = "";
 char heattext[256] = "";
 char coordtext[128] = "";
@@ -368,9 +370,9 @@ void DrawHud(int introTextAlpha, int qTipAlpha)
 		fillrect(vid_buf, 12, 12, textwidth(uitext)+8, 15, 0, 0, 0, (int)(introTextInvert/2));
 		drawtext(vid_buf, 16, 16, uitext, 32, 216, 255, (int)(introTextInvert*.8));
 	}
-	if (sdl_zoom_trig||zoom_en)
+	if (the_game->ZoomWindowShown())
 	{
-		if (zoom_wx)
+		if (the_game->GetZoomWindowPosition().X >= XRES/2)
 			heatx = XRES-16-heatlength;
 		else
 			heatx = 16;
@@ -392,7 +394,7 @@ void DrawHud(int introTextAlpha, int qTipAlpha)
 	}
 	if (DEBUG_MODE && strlen(coordtext) > 0)
 	{
-		if ((sdl_zoom_trig||zoom_en) && !zoom_wx)
+		if (the_game->ZoomWindowShown() && the_game->GetZoomWindowPosition().X < XRES/2)
 		{
 			if (coordlength > heatlength)
 			{

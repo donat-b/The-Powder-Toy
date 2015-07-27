@@ -45,22 +45,22 @@ struct Point
 
 	inline bool operator > (const Point& other) const
 	{
-		return (X > other.X || Y > other.Y);
+		return (X > other.X && Y > other.Y);
 	}
 
 	inline bool operator >= (const Point& other) const
 	{
-		return (X >= other.X || Y >= other.Y);
+		return (X >= other.X && Y >= other.Y);
 	}
 
 	inline bool operator < (const Point& other) const
 	{
-		return (X < other.X || Y < other.Y);
+		return (X < other.X && Y < other.Y);
 	}
 
 	inline bool operator <= (const Point& other) const
 	{
-		return (X <= other.X || Y <= other.Y);
+		return (X <= other.X && Y <= other.Y);
 	}
 
 	inline void operator = (const Point& other)

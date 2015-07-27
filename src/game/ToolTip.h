@@ -19,9 +19,11 @@ public:
 	ToolTip(std::string tip_, Point location_, int ID_, int alpha_);
 
 	void UpdateToolTip(std::string toolTip, Point location_, int alpha_);
+	void AddToScreen();
 	bool DrawToolTip();
 	int GetID() { return ID; }
 	int GetAlpha() { return alpha; }
+	void SetTip(std::string tooltip) { tip = tooltip; }
 };
 
 extern std::vector<ToolTip*> toolTips;

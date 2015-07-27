@@ -69,6 +69,8 @@
 #include "simulation/elements/FIGH.h"
 #include "simulation/elements/STKM.h"
 
+#include "gui/game/PowderToy.h"
+
 //unsigned cmode = CM_FIRE;
 unsigned int *render_modes;
 unsigned int render_mode;
@@ -696,6 +698,7 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 	return 26;
 }
 
+#ifndef TOUCHUI
 int DrawMenus(pixel *vid_buf, int hover, int mouseY)
 {
 	int y = YRES+MENUSIZE-32, ret = -1;
@@ -722,6 +725,7 @@ int DrawMenus(pixel *vid_buf, int hover, int mouseY)
 	}
 	return ret;
 }
+#else
 
 bool draggingMenuSections = false;
 int menuOffset = 0, menuStart = 0;
@@ -789,6 +793,7 @@ int DrawMenusTouch(pixel *vid_buf, int b, int bq, int mx, int my)
 
 	return draggingMenuSections ? (menuOffset-8)/-16 : -1;
 }
+#endif
 
 //draws a pixel, identical to blendpixel(), except blendpixel has OpenGL support
 TPT_INLINE void drawpixel(pixel *vid, int x, int y, int r, int g, int b, int a)
@@ -827,8 +832,8 @@ TPT_INLINE int drawchar(pixel *vid, int x, int y, int c, int r, int g, int b, in
 	char *rp = (char*)font_data + font_ptrs[c];
 	signed char w = *(rp++);
 	unsigned char flags = *(rp++);
-	signed char t = (flags&0x4) ? -flags&0x3 : flags&0x3;
-	signed char l = (flags&0x20) ? -(flags>>3)&0x7 : (flags>>3)&0x7;
+	signed char t = (flags&0x4) ? -(flags&0x3) : flags&0x3;
+	signed char l = (flags&0x20) ? -((flags>>3)&0x3) : (flags>>3)&0x3;
 	flags >>= 6;
 	for (int j = 0; j < FONT_H; j++)
 		for (int i = 0; i < w && i<FONT_W; i++)
@@ -851,8 +856,8 @@ int addchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a)
 	char *rp = (char*)font_data + font_ptrs[c];
 	signed char w = *(rp++);
 	unsigned char flags = *(rp++);
-	signed char t = (flags&0x4) ? -flags&0x3 : flags&0x3;
-	signed char l = (flags&0x20) ? -(flags>>3)&0x7 : (flags>>3)&0x7;
+	signed char t = (flags&0x4) ? -(flags&0x3) : flags&0x3;
+	signed char l = (flags&0x20) ? -((flags>>3)&0x3) : (flags>>3)&0x3;
 	flags >>= 6;
 	for (int j = 0; j < FONT_H; j++)
 		for (int i = 0; i < w && i < FONT_W; i++)
@@ -4153,113 +4158,39 @@ void dim_copy_pers(pixel *dst, pixel *src) //for persistent view, reduces rgb sl
 	}
 }
 
-void render_zoom(pixel *img) //draws the zoom box
+void render_zoom(pixel *img)
 {
-#ifdef OGLR
-	int origBlendSrc, origBlendDst;
-	float zcx1, zcx0, zcy1, zcy0, yfactor, xfactor, i; //X-Factor is shit, btw
-	xfactor = 1.0f/(float)XRES;
-	yfactor = 1.0f/(float)YRES;
+	Point zoomedOnPosition = the_game->GetZoomedOnPosition();
+	Point zoomWindowPosition = the_game->GetZoomWindowPosition();
+	int zoomSize = the_game->GetZoomWindowSize();
+	int zoomFactor = the_game->GetZoomWindowFactor();
 
-	zcx0 = (zoom_x)*xfactor;
-	zcx1 = (zoom_x+ZSIZE)*xfactor;
-	zcy0 = (zoom_y)*yfactor;
-	zcy1 = ((zoom_y+ZSIZE))*yfactor;
+	// zoom window border
+	drawrect(img, zoomWindowPosition.X-2, zoomWindowPosition.Y-2, zoomSize*zoomFactor+2, zoomSize*zoomFactor+2, 192, 192, 192, 255);
+	drawrect(img, zoomWindowPosition.X-1, zoomWindowPosition.Y-1, zoomSize*zoomFactor, zoomSize*zoomFactor, 0, 0, 0, 255);
+	clearrect(img, zoomWindowPosition.X, zoomWindowPosition.Y, zoomSize*zoomFactor, zoomSize*zoomFactor);
 
-	glGetIntegerv(GL_BLEND_SRC, &origBlendSrc);
-	glGetIntegerv(GL_BLEND_DST, &origBlendDst);
-	glBlendFunc(GL_ONE, GL_ZERO);
+	// zoomed pixels themselves
+	for (int j = 0; j < zoomSize; j++)
+		for (int i = 0; i < zoomSize; i++)
+		{
+			pixel pix = img[(j+zoomedOnPosition.Y)*(XRES+BARSIZE) + (i+zoomedOnPosition.X)];
+			for (int y = 0; y < zoomFactor-1; y++)
+				for (int x = 0; x < zoomFactor-1; x++)
+					img[(j*zoomFactor+y+zoomWindowPosition.Y)*(XRES+BARSIZE) + (i*zoomFactor+x+zoomWindowPosition.X)] = pix;
+		}
 
-	glEnable( GL_TEXTURE_2D );
-	//glReadBuffer(GL_AUX0);
-	glBindTexture(GL_TEXTURE_2D, partsFboTex);
-
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	glBegin(GL_QUADS);
-	glTexCoord2d(zcx1, zcy1);
-	glVertex3f((zoom_wx+ZSIZE*ZFACTOR)*sdl_scale, (YRES+MENUSIZE-(zoom_wy+ZSIZE*ZFACTOR))*sdl_scale, 1.0);
-	glTexCoord2d(zcx0, zcy1);
-	glVertex3f(zoom_wx*sdl_scale, (YRES+MENUSIZE-(zoom_wy+ZSIZE*ZFACTOR))*sdl_scale, 1.0);
-	glTexCoord2d(zcx0, zcy0);
-	glVertex3f(zoom_wx*sdl_scale, (YRES+MENUSIZE-zoom_wy)*sdl_scale, 1.0);
-	glTexCoord2d(zcx1, zcy0);
-	glVertex3f((zoom_wx+ZSIZE*ZFACTOR)*sdl_scale, (YRES+MENUSIZE-zoom_wy)*sdl_scale, 1.0);
-	glEnd();
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glDisable( GL_TEXTURE_2D );
-	
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
-	glLineWidth(sdl_scale);
-	glEnable(GL_LINE_SMOOTH);
-	glBegin(GL_LINES);
-	glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
-	for(i = 0; i < ZSIZE; i++)
+	// draw box showing where zoom window is
+	for (int j = -1; j <= zoomSize; j++)
 	{
-		glVertex2f((zoom_wx+ZSIZE*ZFACTOR)*sdl_scale, (YRES+MENUSIZE-(zoom_wy+ZSIZE*ZFACTOR)+i*ZFACTOR)*sdl_scale);
-		glVertex2f(zoom_wx*sdl_scale, (YRES+MENUSIZE-(zoom_wy+ZSIZE*ZFACTOR)+i*ZFACTOR)*sdl_scale);
-		glVertex2f((zoom_wx+i*ZFACTOR)*sdl_scale, (YRES+MENUSIZE-(zoom_wy+ZSIZE*ZFACTOR))*sdl_scale);
-		glVertex2f((zoom_wx+i*ZFACTOR)*sdl_scale, (YRES+MENUSIZE-zoom_wy)*sdl_scale);
+		xor_pixel(zoomedOnPosition.X+j, zoomedOnPosition.Y-1, img);
+		xor_pixel(zoomedOnPosition.X+j, zoomedOnPosition.Y+zoomSize, img);
 	}
-	glEnd();
-	
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	glBegin(GL_LINE_STRIP);
-	glVertex3i((zoom_wx-1)*sdl_scale, (YRES+MENUSIZE-zoom_wy)*sdl_scale, 0);
-	glVertex3i((zoom_wx-1)*sdl_scale, (YRES+MENUSIZE-(zoom_wy+ZSIZE*ZFACTOR))*sdl_scale, 0);
-	glVertex3i((zoom_wx+ZSIZE*ZFACTOR)*sdl_scale, (YRES+MENUSIZE-(zoom_wy+ZSIZE*ZFACTOR))*sdl_scale, 0);
-	glVertex3i((zoom_wx+ZSIZE*ZFACTOR)*sdl_scale, (YRES+MENUSIZE-zoom_wy)*sdl_scale, 0);
-	glVertex3i((zoom_wx-1)*sdl_scale, (YRES+MENUSIZE-zoom_wy)*sdl_scale, 0);
-	glEnd();
-	glDisable(GL_LINE_SMOOTH);
-	
-	glDisable(GL_LINE_SMOOTH);
-
-	if(zoom_en)
-	{	
-		glEnable(GL_COLOR_LOGIC_OP);
-		//glEnable(GL_LINE_SMOOTH);
-		glLogicOp(GL_XOR);
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		glBegin(GL_LINE_STRIP);
-		glVertex3i((zoom_x-1)*sdl_scale, (YRES+MENUSIZE-(zoom_y-1))*sdl_scale, 0);
-		glVertex3i((zoom_x-1)*sdl_scale, (YRES+MENUSIZE-(zoom_y+ZSIZE))*sdl_scale, 0);
-		glVertex3i((zoom_x+ZSIZE)*sdl_scale, (YRES+MENUSIZE-(zoom_y+ZSIZE))*sdl_scale, 0);
-		glVertex3i((zoom_x+ZSIZE)*sdl_scale, (YRES+MENUSIZE-(zoom_y-1))*sdl_scale, 0);
-		glVertex3i((zoom_x-1)*sdl_scale, (YRES+MENUSIZE-(zoom_y-1))*sdl_scale, 0);
-		glEnd();
-		glDisable(GL_COLOR_LOGIC_OP);
-	}
-	glLineWidth(1);
-	glBlendFunc(origBlendSrc, origBlendDst);
-#else
-	int x, y, i, j;
-	pixel pix;
-	drawrect(img, zoom_wx-2, zoom_wy-2, ZSIZE*ZFACTOR+2, ZSIZE*ZFACTOR+2, 192, 192, 192, 255);
-	drawrect(img, zoom_wx-1, zoom_wy-1, ZSIZE*ZFACTOR, ZSIZE*ZFACTOR, 0, 0, 0, 255);
-	clearrect(img, zoom_wx, zoom_wy, ZSIZE*ZFACTOR, ZSIZE*ZFACTOR);
-	for (j=0; j<ZSIZE; j++)
-		for (i=0; i<ZSIZE; i++)
-		{
-			pix = img[(j+zoom_y)*(XRES+BARSIZE)+(i+zoom_x)];
-			for (y=0; y<ZFACTOR-1; y++)
-				for (x=0; x<ZFACTOR-1; x++)
-					img[(j*ZFACTOR+y+zoom_wy)*(XRES+BARSIZE)+(i*ZFACTOR+x+zoom_wx)] = pix;
-		}
-	if (zoom_en)
+	for (int j = 0; j < zoomSize; j++)
 	{
-		for (j=-1; j<=ZSIZE; j++)
-		{
-			xor_pixel(zoom_x+j, zoom_y-1, img);
-			xor_pixel(zoom_x+j, zoom_y+ZSIZE, img);
-		}
-		for (j=0; j<ZSIZE; j++)
-		{
-			xor_pixel(zoom_x-1, zoom_y+j, img);
-			xor_pixel(zoom_x+ZSIZE, zoom_y+j, img);
-		}
+		xor_pixel(zoomedOnPosition.X-1, zoomedOnPosition.Y+j, img);
+		xor_pixel(zoomedOnPosition.X+zoomSize, zoomedOnPosition.Y+j, img);
 	}
-#endif
 }
 
 int render_thumb(void *thumb, int size, int bzip2, pixel *vid_buf, int px, int py, int scl)

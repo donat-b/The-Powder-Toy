@@ -185,7 +185,7 @@ int VideoBuffer::DrawChar(int x, int y, unsigned char c, int r, int g, int b, in
 {
 	int bn = 0, ba = 0;
 	char *rp = (char*)font_data + font_ptrs[c];
-	int w = *(rp++);
+	signed char w = *(rp++);
 	unsigned char flags = *(rp++);
 	signed char t = (flags&0x4) ? -(flags&0x3) : flags&0x3;
 	signed char l = (flags&0x20) ? -((flags>>3)&0x3) : (flags>>3)&0x3;

@@ -1,12 +1,15 @@
 #include "Button.h"
+#include "game/ToolTip.h"
 #include "graphics/VideoBuffer.h"
 
 Button::Button(Point position, Point size, std::string text_):
 	Component(position, size),
 	text(text_),
+	tooltip(NULL),
 	callback(NULL),
 	alignment(CENTER),
-	state(NORMAL)
+	state(NORMAL),
+	timeHeldDown(0)
 {
 
 }
@@ -14,12 +17,7 @@ Button::Button(Point position, Point size, std::string text_):
 Button::~Button()
 {
 	delete callback;
-}
-
-void Button::SetCallback(ButtonAction *callback_)
-{
-	delete callback;
-	callback = callback_;
+	delete tooltip;
 }
 
 void Button::SetText(std::string text_)
@@ -36,6 +34,18 @@ void Button::SetText(std::string text_)
 	}
 }
 
+void Button::SetTooltipText(std::string newTooltip)
+{
+	if (tooltip)
+		tooltip->SetTip(newTooltip);
+}
+
+void Button::SetCallback(ButtonAction *callback_)
+{
+	delete callback;
+	callback = callback_;
+}
+
 void Button::OnMouseDown(int x, int y, unsigned char button)
 {
 
@@ -44,7 +54,12 @@ void Button::OnMouseDown(int x, int y, unsigned char button)
 void Button::OnMouseUp(int x, int y, unsigned char button)
 {
 	if (IsClicked() && isMouseInside && enabled && callback)
-		callback->ButtionActionCallback(this, button);
+	{
+		if (state == HOLD)
+			callback->ButtionActionCallback(this, IsHeld() ? 4 : button);
+		else
+			callback->ButtionActionCallback(this, button);
+	}
 }
 
 void Button::OnMouseMoved(int x, int y, Point difference)
@@ -75,10 +90,11 @@ void Button::OnDraw(VideoBuffer* vid)
 			backgroundColor = COLARGB(100, COLR(color), COLG(color), COLB(color));
 		textColor = COLRGB((int)(COLR(color)*.55f), (int)(COLG(color)*.55f), (int)(COLB(color)*.55f));
 	}
-	// Mouse not inside button, or over button but click did not start on button
 #ifdef TOUCHUI
-	else if (!isMouseInside || !IsMouseDown())
+	// Mouse not inside button, Mouse not down, or over button but click did not start on button
+	else if (!isMouseInside || !IsMouseDown() || (IsMouseDown() && !IsClicked()))
 #else
+	// Mouse not inside button, or over button but click did not start on button
 	else if (!isMouseInside || (IsMouseDown() && !IsClicked()))
 #endif
 	{
@@ -97,11 +113,25 @@ void Button::OnDraw(VideoBuffer* vid)
 	}
 	else
 	{
-		// Button held down
+		// button clicked and held down
 		if (IsClicked())
 		{
 			if (state == INVERTED)
 				textColor = color;
+			else if (state == HOLD)
+			{
+				if (IsHeld())
+				{
+					textColor = COLPACK(0x000000);
+					backgroundColor = COLARGB(255, COLR(color), COLG(color), COLB(color));
+				}
+				else
+				{
+					unsigned int heldAmount = std::min((int)(timeHeldDown/20), 100);
+					textColor = color;
+					backgroundColor = COLARGB(100+heldAmount, COLR(color), COLG(color), COLB(color));
+				}
+			}
 			else
 			{
 				backgroundColor = color;
@@ -133,15 +163,31 @@ void Button::OnDraw(VideoBuffer* vid)
 		vid->FillRect(position.X, position.Y, size.X, size.Y, COLR(backgroundColor), COLG(backgroundColor), COLB(backgroundColor), COLA(backgroundColor));
 
 	if (alignment == LEFT)
-		vid->DrawText(position.X+2, position.Y+4, text, COLR(textColor), COLG(textColor), COLB(textColor), COLA(textColor));
+	{
+		Point textSize = VideoBuffer::TextSize(text);
+		vid->DrawText(position.X+2, position.Y+(size.Y-textSize.Y)/2+1, text, COLR(textColor), COLG(textColor), COLB(textColor), COLA(textColor));
+	}
 	else
 	{
-		int textWidth = VideoBuffer::TextSize(text).X;
-		vid->DrawText(position.X+(size.X-textWidth)/2+1, position.Y+4, text, COLR(textColor), COLG(textColor), COLB(textColor), COLA(textColor));
+		Point textSize = VideoBuffer::TextSize(text);
+		vid->DrawText(position.X+(size.X-textSize.X)/2+1, position.Y+(size.Y-textSize.Y)/2+1, text, COLR(textColor), COLG(textColor), COLB(textColor), COLA(textColor));
 	}
 }
 
 void Button::OnTick(uint32_t ticks)
 {
+#ifdef TOUCHUI
+	if (isMouseInside && IsMouseDown() && tooltip)
+#else
+	if (isMouseInside && tooltip)
+#endif
+		tooltip->AddToScreen();
 
+	if (state == HOLD)
+	{
+		if (IsClicked())
+			timeHeldDown += ticks;
+		else
+			timeHeldDown = 0;
+	}
 }

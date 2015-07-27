@@ -201,6 +201,9 @@ void Engine::MainLoop()
 				lastModifiers = modState;
 			}
 			sendNewEvents = false;
+
+			// make sure key repeat is off, breaks stuff
+			SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 		}
 		top->UpdateComponents();
 
@@ -234,6 +237,13 @@ void Engine::ShowWindow(Window_ *window)
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE+1, YRES+MENUSIZE+1, 0, 0, 0, 100);
 	windows.push(window);
 	top = window;
+
+	// update mouse position on any new windows
+	int mx, my;
+	SDL_GetMouseState(&mx, &my);
+	mx /= sdl_scale;
+	my /= sdl_scale;
+	top->DoMouseMove(mx, my, 0, 0);
 }
 
 void Engine::CloseWindow(Window_ *window)

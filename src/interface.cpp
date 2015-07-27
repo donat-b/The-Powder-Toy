@@ -68,10 +68,11 @@
 #include "simulation/ToolNumbers.h"
 #include "simulation/GolNumbers.h"
 
+#include "gui/game/PowderToy.h"
 #include "gui/profile/ProfileViewer.h"
 
 unsigned short sdl_mod;
-int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii, sdl_zoom_trig=0;
+int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii;
 
 char *shift_0="`1234567890-=[]\\;',./";
 char *shift_1="~!@#$%^&*()_+{}|:\"<>?";
@@ -122,12 +123,6 @@ char server_motd[512] = "";
 
 char *tag_names[TAG_MAX];
 int tag_votes[TAG_MAX];
-
-int zoom_en = 0;
-int zoom_x=(XRES-ZSIZE_D)/2, zoom_y=(YRES-ZSIZE_D)/2;
-int zoom_wx=0, zoom_wy=0;
-unsigned char ZFACTOR = 8;
-unsigned char ZSIZE = 32;
 
 int hud_menunum = 0;
 int has_quit = 0;
@@ -2619,7 +2614,7 @@ int save_name_ui(pixel *vid_buf)
 			drawtext(vid_buf, x0+8, y0+8, "Upload new simulation:", 255, 255, 255, 255);
 		else
 			drawtext(vid_buf, x0+8, y0+8, "Modify simulation properties:", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+9, y0+21, "\x82", 192, 192, 192, 255);
+		drawtext(vid_buf, x0+9, y0+25, "\x82", 192, 192, 192, 255);
 		drawrect(vid_buf, x0+8, y0+20, 176, 16, 192, 192, 192, 255); //rectangle around title box
 
 		drawrect(vid_buf, x0+8, y0+40, 176, 124, 192, 192, 192, 255); //rectangle around description box
@@ -3494,8 +3489,7 @@ void QuickoptionsMenu(pixel *vid_buf, int b, int bq, int x, int y)
 			{
 				//toggle show_tabs
 				if (clickedQuickoption == 0)
-					ShowOnScreenKeyboard("");
-					//*(quickmenu[clickedQuickoption].variable) = !(*(quickmenu[clickedQuickoption].variable));
+					*(quickmenu[clickedQuickoption].variable) = !(*(quickmenu[clickedQuickoption].variable));
 				//start a new tab
 				else if (clickedQuickoption == num_tabs + 1)
 				{
@@ -3566,53 +3560,6 @@ void QuickoptionsMenu(pixel *vid_buf, int b, int bq, int x, int y)
 		draw_image(vid_buf, tabThumbnails[hoverQuickoption-1], (XRES+BARSIZE)/3, YRES/3, (XRES+BARSIZE)/3+1, YRES/3, quickoptionsThumbnailFade*21);
 		quickoptionsThumbnailFade--;
 	}
-}
-
-void TouchShowKeyboard()
-{
-	ShowOnScreenKeyboard("");
-}
-
-void TouchReloadSim()
-{
-	parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-	ctrlzSnapshot();
-}
-
-void TouchClearSim()
-{
-	clear_sim();
-}
-
-void TouchCreateStamp()
-{
-
-}
-
-void TouchOpenStamps()
-{
-
-}
-
-void TouchToggleSetting()
-{
-
-}
-
-void TouchOpenSettings()
-{
-
-}
-
-int clickedTouchButton = -1;
-void QuickoptionsMenuTouch(pixel *vid_buf, int b, int bq, int x, int y)
-{
-	/*unsigned int i = 0;
-	while(touchButtons[i].icon != NULL)
-	{
-		drawrect(vid_buf, XRES+2);
-		i++;
-	}*/
 }
 
 SDLKey MapNumpad(SDLKey key)
@@ -5507,7 +5454,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			bc = openable?255:150;
 			drawrect(vid_buf, 50, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, bc);
 			drawtext(vid_buf, 73, YRES+MENUSIZE-63, "Open", 255, 255, 255, bc);
-			drawtext(vid_buf, 58, YRES+MENUSIZE-66, "\x81", 255, 255, 255, bc);
+			drawtext(vid_buf, 58, YRES+MENUSIZE-62, "\2", 255, 255, 255, bc);
 			//Fav Button
 			bc = svf_login?255:150;
 			drawrect(vid_buf, 100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, bc);
@@ -5531,7 +5478,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			bc = 255;
 			drawrect(vid_buf, 250, YRES+MENUSIZE-68, 107, 18, 255, 255, 255, bc);
 			drawtext(vid_buf, 273, YRES+MENUSIZE-63, "Open in Browser", 255, 255, 255, bc);
-			drawtext(vid_buf, 258, YRES+MENUSIZE-66, "\x81", 255, 255, 255, bc);
+			drawtext(vid_buf, 258, YRES+MENUSIZE-62, "\x81", 255, 255, 255, bc);
 
 			//Open Button
 			//if (sdl_key==SDLK_RETURN && openable) {
@@ -7424,7 +7371,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 		if (b && !bq && mx >= 294 && mx <= 295+14 && my >= YRES+1 && my<= YRES+15)
 		{
 			decobox_hidden = !decobox_hidden;
-			zoom_en = 0;
+			the_game->HideZoomWindow();
 		}
 	}
 	if (sdl_key==SDLK_RIGHT)
@@ -7527,7 +7474,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 			box_R.cursor = strlen(box_R.str);
 		}
 	}
-	if (sdl_zoom_trig)
+	if (the_game->ZoomWindowShown())
 		decobox_hidden = 1;
 	/*if(sdl_key=='b' || sdl_key==SDLK_ESCAPE)
 	{
@@ -8263,10 +8210,11 @@ void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
 		else
 		{
 			QuickoptionsMenu(vid_buf, b, bq, mx, my);
-			if (scrollMenus)
+#ifdef TOUCHUI
 				DrawMenusTouch(vid_buf, 0, 0, 0, 0);
-			else
+#else
 				DrawMenus(vid_buf, active_menu, my);
+#endif
 		}
 		
 		clearrect(vid_buf, xcoord-1, ycoord-1, xsize+3, ysize+3);
@@ -8699,13 +8647,20 @@ bool mouse_coords_window_to_sim(int *mouseX, int *mouseY)
 		*mouseY = YRES-1;
 
 	//Change mouse coords to take zoom window into account
-	if (zoom_en && *mouseX >= zoom_wx && *mouseY >= zoom_wy
-		&& *mouseX < (zoom_wx+ZFACTOR*ZSIZE)
-		&& *mouseY < (zoom_wy+ZFACTOR*ZSIZE))
+	if (the_game->ZoomWindowShown())
 	{
-		*mouseX = ((*mouseX-zoom_wx)/ZFACTOR)+zoom_x;
-		*mouseY = ((*mouseY-zoom_wy)/ZFACTOR)+zoom_y;
-		return true;
+		Point zoomedOnPosition = the_game->GetZoomedOnPosition();
+		Point zoomWindowPosition = the_game->GetZoomWindowPosition();
+		int zoomSize = the_game->GetZoomWindowSize();
+		int zoomFactor = the_game->GetZoomWindowFactor();
+
+		Point mouse = Point(*mouseX, *mouseY);
+		if (mouse >= zoomWindowPosition && mouse < Point(zoomWindowPosition.X+zoomFactor*zoomSize, zoomWindowPosition.Y+zoomFactor*zoomSize))
+		{
+			*mouseX = ((*mouseX-zoomWindowPosition.X)/zoomFactor) + zoomedOnPosition.X;
+			*mouseY = ((*mouseY-zoomWindowPosition.Y)/zoomFactor) + zoomedOnPosition.Y;
+			return true;
+		}
 	}
 	return false;
 }

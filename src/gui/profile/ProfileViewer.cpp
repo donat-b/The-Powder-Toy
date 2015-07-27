@@ -36,7 +36,7 @@ ProfileViewer::ProfileViewer(std::string profileName):
 	bool ownProfile = std::string(svf_user) == name;
 	if (ownProfile)
 	{
-		avatarUploadButton = new Button(Point(210, 10), Point(40, 40), "\n\x81");
+		avatarUploadButton = new Button(Point(210, 10), Point(40, 40), "\x81");
 		// Enable editing when this button is clicked
 		class UploadAvatarAction : public ButtonAction
 		{

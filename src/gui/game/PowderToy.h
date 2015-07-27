@@ -25,6 +25,15 @@ class PowderToy : public Window_
 	Download *sessionCheck; // really a tpt++ version check but it does session too and has nice things
 	Download *voteDownload;
 
+	// zoom
+	bool placingZoom;
+	bool placingZoomTouch; // clicked the zoom button, zoom window won't be drawn until user clicks
+	bool zoomEnabled;
+	Point zoomedOnPosition;
+	Point zoomWindowPosition;
+	int zoomSize;
+	int zoomFactor;
+
 	// bottom bar buttons
 	Button *openBrowserButton;
 	Button *reloadButton;
@@ -41,11 +50,31 @@ class PowderToy : public Window_
 	Button *renderOptionsButton;
 	Button *pauseButton;
 
+	// these buttons only appear when using the touchscreen interface
+#ifdef TOUCHUI
+	Button *openConsoleButton;
+	Button *eraseButton;
+	Button *settingsButton;
+	Button *zoomButton;
+	Button *stampButton;
+#endif
+
 public:
 	PowderToy();
 	~PowderToy();
 
 	void ConfirmUpdate();
+	bool MouseClicksIgnored();
+
+	// zoom window stuff
+	bool ZoomWindowShown() { return placingZoom || zoomEnabled; }
+	bool PlacingZoomWindow() { return placingZoom; }
+	void UpdateZoomCoordinates(Point mouse);
+	void HideZoomWindow();
+	Point GetZoomedOnPosition() { return zoomedOnPosition; }
+	Point GetZoomWindowPosition() { return zoomWindowPosition; }
+	int GetZoomWindowSize() { return zoomSize; }
+	int GetZoomWindowFactor() { return zoomFactor; }
 
 	void OnTick(uint32_t ticks);
 	void OnDraw(VideoBuffer *buf);
@@ -66,6 +95,14 @@ public:
 	void LoginButton();
 	void RenderOptions();
 	void TogglePause();
+
+#ifdef TOUCHUI
+	void OpenConsole(bool alt);
+	void ToggleErase(bool alt);
+	void ToggleSetting(bool alt);
+	void StartZoom(bool alt);
+	void SaveStamp(bool alt);
+#endif
 };
 
 #endif

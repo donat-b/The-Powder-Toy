@@ -206,11 +206,6 @@ float toolStrength = 1.0f;
 int autosave = 0;
 int realistic = 0;
 int unlockedstuff = 0x08;
-#ifdef TOUCHUI
-bool scrollMenus = true;
-#else
-bool scrollMenus = false;
-#endif
 int old_menu = 0;
 int loop_time = 0;
 int doUpdates = 2;
@@ -1407,7 +1402,12 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy and then cut (right click = cancel)", Point(16, YRES-24), TOOLTIP, 255);
 		}
 
-		if (zoom_en!=1 && !load_mode && !save_mode)//draw normal cursor
+		if (the_game->MouseClicksIgnored())
+		{
+			// if you open and close zoom window while drawing, the drawing continues when you release it ... prevent that here
+			lb = 0;
+		}
+		else if (!load_mode && !save_mode)//draw normal cursor
 		{
 			if (lm != 2)
 				if (lm && (sdl_mod & KMOD_ALT))
@@ -1448,7 +1448,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				}
 			}
 		}
-		if (zoom_en)
+		if (the_game->ZoomWindowShown())
 			render_zoom(vid_buf);
 
 		if (!sys_pause||framerender) //only update air if not paused
@@ -1761,16 +1761,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					currentBrush->SetShape((currentBrush->GetShape()+1)%BRUSH_NUM);
 			}
 			if (sdl_key==SDLK_LEFTBRACKET) {
-				if (sdl_zoom_trig)
-				{
-					ZSIZE -= 1;
-					if (ZSIZE>60)
-						ZSIZE = 60;
-					if (ZSIZE<2)
-						ZSIZE = 2;
-					ZFACTOR = 256/ZSIZE;
-				}
-				else
+				if (!the_game->PlacingZoomWindow())
 				{
 					if (sdl_mod & (KMOD_LALT|KMOD_RALT) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_META)))
 					{
@@ -1791,16 +1782,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				}
 			}
 			if (sdl_key==SDLK_RIGHTBRACKET) {
-				if (sdl_zoom_trig)
-				{
-					ZSIZE += 1;
-					if (ZSIZE>60)
-						ZSIZE = 60;
-					if (ZSIZE<2)
-						ZSIZE = 2;
-					ZFACTOR = 256/ZSIZE;
-				}
-				else
+				if (!the_game->PlacingZoomWindow())
 				{
 					if (sdl_mod & (KMOD_LALT|KMOD_RALT) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_META)))
 					{
@@ -2133,16 +2115,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					globalSim->forceStackingCheck = true;
 					globalSim->RecountElements();
 				}
-				else
-				{
-					if (sdl_mod & KMOD_ALT)//toggle
-						sdl_zoom_trig = (!sdl_zoom_trig)*2;
-					else
-						sdl_zoom_trig = 1;
-				}
 			}
-			if (sdl_rkey == 'z' && sdl_zoom_trig==1)//if ==2 then it was toggled with alt+z, don't turn off on keyup
-				sdl_zoom_trig = 0;
 		}
 #ifdef INTERNAL
 		int counterthing;
@@ -2207,17 +2180,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 
 		if (sdl_wheel)
 		{
-			if (sdl_zoom_trig)//zoom window change
-			{
-				ZSIZE += sdl_wheel;
-				if (ZSIZE>60)
-					ZSIZE = 60;
-				if (ZSIZE<2)
-					ZSIZE = 2;
-				ZFACTOR = 256/ZSIZE;
-				//sdl_wheel = 0;
-			}
-			else //change brush size
+			if (!the_game->PlacingZoomWindow())
 			{
 				if (!(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_META)))
 				{
@@ -2234,24 +2197,21 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			}
 		}
 
-		if (scrollMenus)
+#ifdef TOUCHUI
+		int hover = DrawMenusTouch(vid_buf, b, bq, x, y);
+		if (hover >= 0)
 		{
-			QuickoptionsMenu(vid_buf, b, bq, x, y);
-
-			int hover = DrawMenusTouch(vid_buf, b, bq, x, y);
-			if (hover >= 0)
-			{
-				UpdateToolTip(menuSections[hover]->name, Point(menuStartPosition-5-textwidth(menuSections[hover]->name.c_str()), YRES-67), QTIP, -1);
-				if (hover == SC_DECO && active_menu != SC_DECO)
-					last_active_menu = active_menu;
-				if (hover == SC_FAV)
-					active_menu = last_fav_menu;
-				else
-					active_menu = hover;
-			}
-			menu_ui_v3(vid_buf, active_menu, b, bq, x, y); //draw the elements in the current menu
+			UpdateToolTip(menuSections[hover]->name, Point(menuStartPosition-5-textwidth(menuSections[hover]->name.c_str()), YRES-67), QTIP, -1);
+			if (hover == SC_DECO && active_menu != SC_DECO)
+				last_active_menu = active_menu;
+			if (hover == SC_FAV)
+				active_menu = last_fav_menu;
+			else
+				active_menu = hover;
 		}
-		else if (!old_menu)
+		menu_ui_v3(vid_buf, active_menu, b, bq, x, y); //draw the elements in the current menu
+#else
+		if (!old_menu)
 		{
 			QuickoptionsMenu(vid_buf, b, bq, x, y);
 
@@ -2272,9 +2232,9 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			menu_ui_v3(vid_buf, active_menu, b, bq, x, y); //draw the elements in the current menu
 		}
 		else
-		{
 			old_menu_v2(active_menu, x, y, b, bq);
-		}
+#endif
+
 		//TODO: only when entering / exiting menu
 		if (active_menu == SC_DECO && activeTools[0]->GetType() != DECO_TOOL)
 		{
@@ -2331,117 +2291,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			update_flag = 0;
 		}
 
-		if (y > YRES+MENUSIZE-menuIconWidth) //mouse checks for buttons at the bottom, to draw mouseover texts
-		{
-			std::string newToolTip = "";
-			if (x>=1 && x<=17)
-			{
-				if(sdl_mod & (KMOD_CTRL|KMOD_META))
-					newToolTip = "Open a simulation from your hard drive \bg(ctrl+o)";
-				else
-					newToolTip = "Find & open a simulation";
-			}
-			else if (x>=19 && x<=35)
-			{
-				if (svf_open)
-					newToolTip = "Reload the simulation \bg(ctrl+r)";
-			}
-			else if (x>=37 && x<=187)
-			{
-				if (!svf_login || (sdl_mod & (KMOD_CTRL|KMOD_META)))
-				{
-					if (svf_fileopen && x <= 55)
-					{
-						newToolTip = "Overwrite the open simulation on your hard drive.";
-					}
-					else
-					{
-						if (!svf_login)
-							newToolTip = "Save the simulation to your hard drive. Login to save online.";
-						else
-							newToolTip = "Save the simulation to your hard drive";
-					}
-				}
-				else
-				{
-					if (svf_open && svf_own)
-					{
-						if (x <= 55)
-							newToolTip = "Reupload the current simulation";
-						else
-							newToolTip = "Modify simulation properties";
-					}
-					else
-						newToolTip = "Upload a new simulation";
-				}
-			}
-			if (x>=189 && x<=241)
-			{
-				if (svf_login && svf_open)
-				{
-					if (svf_myvote == 1)
-						newToolTip = "You like this";
-					else if (svf_myvote == -1)
-						newToolTip = "You dislike this";
-					else
-					{
-						if (svf_own)
-							newToolTip = "You cannot vote on your own save";
-						else if (x <= 226)
-							newToolTip = "Like this save";
-						else if (x >= 228)
-							newToolTip = "Dislike this save";
-					}
-				}
-			}
-			else if (x>=246 && x<=((XRES+BARSIZE-(510-333))))
-			{
-				if (svf_open)
-				{
-					if (svf_own)
-						newToolTip = "Add and remove simulation tags";
-					else
-						newToolTip = "Add simulation tags";
-				}
-			}
-			else if (x>=((XRES+BARSIZE-(510-335))) && x<((XRES+BARSIZE-(510-350))))
-			{
-				newToolTip = "Report bugs and feedback to jacob1";
-			}
-			else if (x>=((XRES+BARSIZE-(510-351))) && x<((XRES+BARSIZE-(510-366))))
-			{
-				newToolTip = "Simulation options";
-			}
-			else if (x>=((XRES+BARSIZE-(510-367))) && x<((XRES+BARSIZE-(510-383))))
-			{
-				newToolTip = "Erase all particles and walls";
-			}
-			else if (x>=((XRES+BARSIZE-(510-385))) && x<=((XRES+BARSIZE-(510-476))))
-			{
-				if (svf_admin)
-					newToolTip = "Annuit C\245ptis";
-				else if (svf_mod)
-					newToolTip = "You're a moderator";
-				else if (svf_login)
-					newToolTip = "Sign into the Simulation Server under a new name";
-				else
-					newToolTip = "Sign into the Simulation Server";
-			}
-			else if (x>=((XRES+BARSIZE-(510-476))) && x<=((XRES+BARSIZE-(510-491))))
-			{
-				newToolTip = "Renderer options";
-			}
-			else if (x>=((XRES+BARSIZE-(510-494))) && x<=((XRES+BARSIZE-(510-509))))
-			{
-				if (sys_pause)
-					newToolTip = "Resume the simulation \bg(space)";
-				else
-					newToolTip = "Pause the simulation \bg(space)";
-			}
-			if (newToolTip.length())
-				UpdateToolTip(newToolTip, Point(16, YRES-24), TOOLTIP, -1);
-		}
-		else if (mx < XRES && my < YRES)
+		if (mx < XRES && my < YRES)
 		{
 			int signID = InsideSign(mx, my, false);
 			if (signID != -1)
@@ -2475,32 +2325,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			}
 		}
 
-		if (!sdl_zoom_trig && zoom_en==1)
-			zoom_en = 0;
 
-		if (sdl_key=='z' && !(sdl_mod & (KMOD_CTRL|KMOD_META)) && zoom_en==2 && sys_shortcuts==1)
-			zoom_en = 1;
-
-
-		//update coordinates for zoom window before it is placed
-		if (sdl_zoom_trig && zoom_en < 2)
-		{
-			int zoomX = x-ZSIZE/2;
-			int zoomY = y-ZSIZE/2;
-			if (zoomX < 0)
-				zoomX = 0;
-			else if (zoomX > XRES-ZSIZE)
-				zoomX = XRES-ZSIZE;
-			if (zoomY < 0)
-				zoomY = 0;
-			else if (zoomY > YRES-ZSIZE)
-				zoomY = YRES-ZSIZE;
-			zoom_x = zoomX;
-			zoom_y = zoomY;
-			zoom_wx = (x<XRES/2) ? XRES-ZSIZE*ZFACTOR : 0;
-			zoom_wy = 0;
-			zoom_en = 1;
-		}
 		//update coordinates for stamp preview before it is placed
 		if (load_mode)
 		{
@@ -2533,14 +2358,9 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		}
 
 		//mouse clicks ignored when placing zoom
-		if (sdl_zoom_trig && zoom_en < 2)
+		if (the_game->MouseClicksIgnored())
 		{
-			if (!b && bq)
-			{
-				zoom_en = 2;
-				sdl_zoom_trig = 0;
-				lb = lm = 0;
-			}
+			// certain thing the main window handles need prevent stuff from being drawn to the screen
 		}
 		//mouse clicks ignored when placing stamps
 		else if (load_mode)

@@ -5,12 +5,14 @@
 #include "PowderToy.h"
 #include "defines.h"
 #include "interface.h"
+#include "gravity.h"
 #include "luaconsole.h"
 #include "powder.h"
 #include "save.h"
 #include "update.h"
 
 #include "game/Download.h"
+#include "game/Menus.h"
 #include "game/ToolTip.h"
 #include "interface/Button.h"
 #include "interface/Engine.h"
@@ -33,6 +35,12 @@ PowderToy::PowderToy():
 	mouseWheel(0),
 	numNotifications(0),
 	voteDownload(NULL),
+	placingZoom(false),
+	zoomEnabled(false),
+	zoomedOnPosition(0, 0),
+	zoomWindowPosition(0, 0),
+	zoomSize(32),
+	zoomFactor(8),
 	loginCheckTicks(0),
 	loginFinished(0)
 {
@@ -64,9 +72,11 @@ PowderToy::PowderToy():
 #ifdef TOUCHUI
 	const int ySize = 16;
 	const int xOffset = 0;
+	const int tooltipAlpha = 255;
 #else
 	const int ySize = 16;
 	const int xOffset = 1;
+	const int tooltipAlpha = -2;
 #endif
 	class OpenBrowserAction : public ButtonAction
 	{
@@ -78,6 +88,7 @@ PowderToy::PowderToy():
 	};
 	openBrowserButton = new Button(Point(xOffset, YRES+MENUSIZE-16), Point(18-xOffset, ySize), "\x81");
 	openBrowserButton->SetCallback(new OpenBrowserAction());
+	openBrowserButton->SetTooltip(new ToolTip("Find & open a simulation", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(openBrowserButton);
 
 	class ReloadAction : public ButtonAction
@@ -91,6 +102,10 @@ PowderToy::PowderToy():
 	reloadButton = new Button(openBrowserButton->Right(Point(1, 0)), Point(17, ySize), "\x91");
 	reloadButton->SetCallback(new ReloadAction());
 	reloadButton->SetEnabled(false);
+#ifdef TOUCHUI
+	reloadButton->SetState(Button::HOLD);
+#endif
+	reloadButton->SetTooltip(new ToolTip("Reload the simulation \bg(ctrl+r)", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(reloadButton);
 
 	class SaveAction : public ButtonAction
@@ -104,6 +119,7 @@ PowderToy::PowderToy():
 	saveButton = new Button(reloadButton->Right(Point(1, 0)), Point(151, ySize), "\x82 [untitled simulation]");
 	saveButton->SetAlign(Button::LEFT);
 	saveButton->SetCallback(new SaveAction());
+	saveButton->SetTooltip(new ToolTip("Upload a new simulation", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(saveButton);
 
 	class VoteAction : public ButtonAction
@@ -124,11 +140,13 @@ PowderToy::PowderToy():
 	upvoteButton = new Button(saveButton->Right(Point(1, 0)), Point(40, ySize), "\xCB Vote");
 	upvoteButton->SetColor(COLRGB(0, 187, 18));
 	upvoteButton->SetCallback(new VoteAction(true));
+	upvoteButton->SetTooltip(new ToolTip("Like this save", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(upvoteButton);
 
 	downvoteButton = new Button(upvoteButton->Right(Point(0, 0)), Point(16, ySize), "\xCA");
 	downvoteButton->SetColor(COLRGB(187, 40, 0));
 	downvoteButton->SetCallback(new VoteAction(false));
+	downvoteButton->SetTooltip(new ToolTip("Disike this save", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(downvoteButton);
 
 
@@ -143,6 +161,7 @@ PowderToy::PowderToy():
 	};
 	pauseButton = new Button(Point(XRES+BARSIZE-15-xOffset, openBrowserButton->GetPosition().Y), Point(15-xOffset, ySize), "\x90");
 	pauseButton->SetCallback(new PauseAction());
+	pauseButton->SetTooltip(new ToolTip("Pause the simulation \bg(space)", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(pauseButton);
 
 	class RenderOptionsAction : public ButtonAction
@@ -155,6 +174,7 @@ PowderToy::PowderToy():
 	};
 	renderOptionsButton = new Button(pauseButton->Left(Point(18, 0)), Point(17, ySize), "\x0F\xFF\x01\x01\xD8\x0F\x01\xFF\x01\xD9\x0F\x01\x01\xFF\xDA");
 	renderOptionsButton->SetCallback(new RenderOptionsAction());
+	renderOptionsButton->SetTooltip(new ToolTip("Renderer options", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(renderOptionsButton);
 
 	class LoginButtonAction : public ButtonAction
@@ -168,6 +188,7 @@ PowderToy::PowderToy():
 	loginButton = new Button(renderOptionsButton->Left(Point(96, 0)), Point(95, ySize), "\x84 [sign in]");
 	loginButton->SetAlign(Button::LEFT);
 	loginButton->SetCallback(new LoginButtonAction());
+	loginButton->SetTooltip(new ToolTip("Sign into the Simulation Server", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(loginButton);
 
 	class ClearSimAction : public ButtonAction
@@ -180,6 +201,7 @@ PowderToy::PowderToy():
 	};
 	clearSimButton = new Button(loginButton->Left(Point(18, 0)), Point(17, ySize), "\x92");
 	clearSimButton->SetCallback(new ClearSimAction());
+	clearSimButton->SetTooltip(new ToolTip("Erase all particles and walls", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(clearSimButton);
 
 	class OpenOptionsAction : public ButtonAction
@@ -192,6 +214,7 @@ PowderToy::PowderToy():
 	};
 	optionsButton = new Button(clearSimButton->Left(Point(16, 0)), Point(15, ySize), "\xCF");
 	optionsButton->SetCallback(new OpenOptionsAction());
+	optionsButton->SetTooltip(new ToolTip("Simulation options", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(optionsButton);
 
 	class ReportBugAction : public ButtonAction
@@ -204,6 +227,7 @@ PowderToy::PowderToy():
 	};
 	reportBugButton = new Button(optionsButton->Left(Point(16, 0)), Point(15, ySize), "\xE7");
 	reportBugButton->SetCallback(new ReportBugAction());
+	reportBugButton->SetTooltip(new ToolTip("Report bugs and feedback to jacob1", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(reportBugButton);
 
 	class OpenTagsAction : public ButtonAction
@@ -218,7 +242,75 @@ PowderToy::PowderToy():
 	openTagsButton = new Button(tagsPos, Point((reportBugButton->Left(Point(1, 0))-tagsPos).X, ySize), "\x83 [no tags set]");
 	openTagsButton->SetAlign(Button::LEFT);
 	openTagsButton->SetCallback(new OpenTagsAction());
+	openTagsButton->SetTooltip(new ToolTip("Add simulation tags", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(openTagsButton);
+
+#ifdef TOUCHUI
+	class OpenConsoleAction : public ButtonAction
+	{
+	public:
+		virtual void ButtionActionCallback(Button *button, unsigned char b)
+		{
+			dynamic_cast<PowderToy*>(button->GetParent())->OpenConsole(b == 4);
+		}
+	};
+	openConsoleButton = new Button(Point(XRES+1, 0), Point(BARSIZE-1, 25), "C");
+	openConsoleButton->SetState(Button::HOLD);
+	openConsoleButton->SetCallback(new OpenConsoleAction());
+	AddComponent(openConsoleButton);
+
+	class EraseAction : public ButtonAction
+	{
+	public:
+		virtual void ButtionActionCallback(Button *button, unsigned char b)
+		{
+			dynamic_cast<PowderToy*>(button->GetParent())->ToggleErase(b == 4);
+		}
+	};
+	eraseButton = new Button(openConsoleButton->Below(Point(0, 1)), Point(BARSIZE-1, 25), "E");
+	eraseButton->SetState(Button::HOLD);
+	eraseButton->SetCallback(new EraseAction());
+	AddComponent(eraseButton);
+
+	class SettingAction : public ButtonAction
+	{
+	public:
+		virtual void ButtionActionCallback(Button *button, unsigned char b)
+		{
+			dynamic_cast<PowderToy*>(button->GetParent())->ToggleSetting(b == 4);
+		}
+	};
+	settingsButton = new Button(eraseButton->Below(Point(0, 1)), Point(BARSIZE-1, 25), "N");
+	settingsButton->SetState(Button::HOLD);
+	settingsButton->SetCallback(new SettingAction());
+	AddComponent(settingsButton);
+
+	class ZoomAction : public ButtonAction
+	{
+	public:
+		virtual void ButtionActionCallback(Button *button, unsigned char b)
+		{
+			dynamic_cast<PowderToy*>(button->GetParent())->StartZoom(b == 4);
+		}
+	};
+	zoomButton = new Button(settingsButton->Below(Point(0, 1)), Point(BARSIZE-1, 25), "Z");
+	zoomButton->SetState(Button::HOLD);
+	zoomButton->SetCallback(new ZoomAction());
+	AddComponent(zoomButton);
+
+	class StampAction : public ButtonAction
+	{
+	public:
+		virtual void ButtionActionCallback(Button *button, unsigned char b)
+		{
+			dynamic_cast<PowderToy*>(button->GetParent())->SaveStamp(b == 4);
+		}
+	};
+	stampButton = new Button(zoomButton->Below(Point(0, 1)), Point(BARSIZE-1, 25), "S");
+	stampButton->SetState(Button::HOLD);
+	stampButton->SetCallback(new StampAction());
+	AddComponent(stampButton);
+#endif
 }
 
 void PowderToy::OpenBrowser()
@@ -299,6 +391,8 @@ void PowderToy::DoSave()
 
 void PowderToy::DoVote(bool up)
 {
+	if (voteDownload != NULL)
+		return;
 	voteDownload = new Download("http://" SERVER "/Vote.api");
 	voteDownload->AuthHeaders(svf_user_id, svf_session_id);
 	std::map<std::string, std::string> postData;
@@ -357,9 +451,135 @@ void PowderToy::TogglePause()
 	sys_pause = !sys_pause;
 }
 
+#ifdef TOUCHUI
+void PowderToy::OpenConsole(bool alt)
+{
+	if (alt)
+		ShowOnScreenKeyboard("");
+	else
+		console_mode = 1;
+}
+
+void PowderToy::ToggleErase(bool alt)
+{
+	if (alt)
+		NewSim();
+	else
+	{
+		Tool *temp = activeTools[1];
+		activeTools[1] = activeTools[0];
+		activeTools[0] = temp;
+	}
+}
+
+void PowderToy::ToggleSetting(bool alt)
+{
+	if (alt)
+		simulation_ui(vid_buf);
+	else
+	{
+		if (active_menu == SC_DECO)
+			decorations_enable = !decorations_enable;
+		else
+		{
+			if (!ngrav_enable)
+				start_grav_async();
+			else
+				stop_grav_async();
+			ngrav_enable = !ngrav_enable;
+		}
+	}
+}
+
+void PowderToy::StartZoom(bool alt)
+{
+	if (ZoomWindowShown() || placingZoomTouch)
+		HideZoomWindow();
+	else
+	{
+		placingZoomTouch = true;
+		UpdateZoomCoordinates(mouse);
+	}
+}
+
+void PowderToy::SaveStamp(bool alt)
+{
+	/*if (alt)
+	{
+		if (load_mode)
+		{
+			free(load_img);
+			free(load_data);
+			load_mode = 0;
+			load_data = NULL;
+			load_img = NULL;
+			return;
+		}
+		UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
+
+		int reorder = 1;
+		int stampID = stamp_ui(vid_buf, &reorder);
+		if (stampID >= 0)
+			load_data = stamp_load(stampID, &load_size, reorder);
+		else
+			load_data = NULL;
+
+		if (load_data)
+		{
+			load_img = prerender_save(load_data, load_size, &load_w, &load_h);
+			if (load_img)
+				load_mode = 1;
+			else
+			{
+				free(load_data);
+				load_data = NULL;
+			}
+		}
+	}
+	else
+	{
+		UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
+		save_mode = 1;
+	}*/
+}
+
+#endif
+
 void PowderToy::ConfirmUpdate()
 {
 	confirm_update(changelog.c_str());
+}
+
+bool PowderToy::MouseClicksIgnored()
+{
+	return PlacingZoomWindow();
+}
+
+void PowderToy::UpdateZoomCoordinates(Point mouse)
+{
+	int zoomX = mouse.X-zoomSize/2;
+	int zoomY = mouse.Y-zoomSize/2;
+	if (zoomX < 0)
+		zoomX = 0;
+	else if (zoomX > XRES-zoomSize)
+		zoomX = XRES-zoomSize;
+	if (zoomY < 0)
+		zoomY = 0;
+	else if (zoomY > YRES-zoomSize)
+		zoomY = YRES-zoomSize;
+	zoomedOnPosition = Point(zoomX, zoomY);
+
+	if (mouse.X < XRES/2)
+		zoomWindowPosition = Point(XRES-zoomSize*zoomFactor-1, 1);
+	else
+		zoomWindowPosition = Point(1, 1);
+}
+
+void PowderToy::HideZoomWindow()
+{
+	placingZoom = false;
+	placingZoomTouch = false;
+	zoomEnabled = false;
 }
 
 Button * PowderToy::AddNotification(std::string message)
@@ -526,54 +746,130 @@ void PowderToy::OnTick(uint32_t ticks)
 		openProp = false;
 	}
 
+	// a ton of stuff with the buttons on the bottom row has to be updated
+	// later, this will only be done when an event happens
 	reloadButton->SetEnabled(svf_last ? true : false);
 	bool ctrl = (heldModifier & (KMOD_CTRL|KMOD_META)) ? true : false;
 	openBrowserButton->SetState(ctrl ? Button::INVERTED : Button::NORMAL);
 	saveButton->SetState((svf_login && ctrl) ? Button::INVERTED : Button::NORMAL);
 	std::string saveButtonText = "\x82 ";
+	std::string saveButtonTip;
 	if (!svf_login || ctrl)
 	{
+		// button text
 		if (svf_fileopen)
 			saveButtonText += svf_filename;
 		else
 			saveButtonText += "[save to disk]";
+
+		// button tooltip
+		if (svf_fileopen && mouse.X <= saveButton->GetPosition().X+18)
+			saveButtonTip = "Overwrite the open simulation on your hard drive.";
+		else
+		{
+			if (!svf_login)
+				saveButtonTip = "Save the simulation to your hard drive. Login to save online.";
+			else
+				saveButtonTip = "Save the simulation to your hard drive";
+		}
 	}
 	else
 	{
+		// button text
 		if (svf_open)
 			saveButtonText += svf_name;
 		else
 			saveButtonText += "[untitled simulation]";
+
+		// button tooltip
+		if (svf_open && svf_own)
+		{
+			if (mouse.X <= saveButton->GetPosition().X+18)
+				saveButtonTip = "Reupload the current simulation";
+			else
+				saveButtonTip = "Modify simulation properties";
+		}
+		else
+			saveButtonTip = "Upload a new simulation";
 	}
 	saveButton->SetText(saveButtonText);
+	saveButton->SetTooltipText(saveButtonTip);
+
 	bool votesAllowed = svf_login && svf_open && svf_own == 0 && svf_myvote == 0;
-	upvoteButton->SetEnabled(votesAllowed);
-	downvoteButton->SetEnabled(votesAllowed);
+	upvoteButton->SetEnabled(votesAllowed && voteDownload == NULL);
+	downvoteButton->SetEnabled(votesAllowed && voteDownload == NULL);
 	upvoteButton->SetState(svf_myvote == 1 ? Button::HIGHLIGHTED : Button::NORMAL);
 	downvoteButton->SetState(svf_myvote == -1 ? Button::HIGHLIGHTED : Button::NORMAL);
+	if (svf_myvote == 1)
+	{
+		upvoteButton->SetTooltipText("You like this");
+		downvoteButton->SetTooltipText("You like this");
+	}
+	else if (svf_myvote == -1)
+	{
+		upvoteButton->SetTooltipText("You dislike this");
+		downvoteButton->SetTooltipText("You dislike this");
+	}
+	else
+	{
+		upvoteButton->SetTooltipText("Like this save");
+		downvoteButton->SetTooltipText("Dislike this save");
+	}
 
 	if (svf_tags[0])
 		openTagsButton->SetText(svf_tags);
 	else
 		openTagsButton->SetText("\x83 [no tags set]");
 	openTagsButton->SetEnabled(svf_open);
+	if (svf_own)
+		openTagsButton->SetTooltipText("Add and remove simulation tags");
+	else
+		openTagsButton->SetTooltipText("Add simulation tags");
 
 	// set login button text, key turns green or red depending on whether session check succeeded
+	std::string loginButtonText;
+	std::string loginButtonTip;
 	if (svf_login)
 	{
-		std::string loginButtonText;
 		if (loginFinished == 1)
-			loginButtonText = "\x0F\x01\xFF\x01\x84\x0E ";
+		{
+			loginButtonText = "\x0F\x01\xFF\x01\x84\x0E " + std::string(svf_user);
+			if (mouse.X <= loginButton->GetPosition().X+18)
+				loginButtonTip = "View and edit your profile";
+			else if (svf_mod && mouse.X >= loginButton->Right(Point(-15, 0)).X)
+				loginButtonTip = "You're a moderator";
+			else if (svf_admin && mouse.X >= loginButton->Right(Point(-15, 0)).X)
+				loginButtonTip = "Annuit C\245ptis";
+			else
+				loginButtonTip = "Sign into the simulation server under a new name";
+		}
 		else if (loginFinished == -1)
-			loginButtonText = "\x0F\xFF\x01\x01\x84\x0E ";
+		{
+			loginButtonText = "\x0F\xFF\x01\x01\x84\x0E " + std::string(svf_user);
+			loginButtonTip = "Could not validate login";
+		}
 		else
-			loginButtonText = "\x84 ";
-		loginButton->SetText(loginButtonText + svf_user);
+		{
+			loginButtonText = "\x84 " + std::string(svf_user);
+			loginButtonTip = "Waiting for login server ...";
+		}
 	}
 	else
-		loginButton->SetText("\x84 [sign in]");
-	pauseButton->SetState(sys_pause ? Button::INVERTED : Button::NORMAL);
+	{
+		loginButtonText = "\x84 [sign in]";
+		loginButtonTip = "Sign into the Simulation Server";
+	}
+	loginButton->SetText(loginButtonText);
+	loginButton->SetTooltipText(loginButtonTip);
 
+	pauseButton->SetState(sys_pause ? Button::INVERTED : Button::NORMAL);
+	if (sys_pause)
+		pauseButton->SetTooltipText("Resume the simulation \bg(space)");
+	else
+		pauseButton->SetTooltipText("Pause the simulation \bg(space)");
+
+	if (placingZoomTouch)
+		UpdateToolTip("\x0F\xEF\xEF\020Click any location to place a zoom window (volume keys to resize, click zoom button to cancel)", Point(16, YRES-24), TOOLTIP, 255);
 	VideoBufferHack();
 }
 
@@ -625,25 +921,48 @@ void PowderToy::OnDraw(VideoBuffer *buf)
 void PowderToy::OnMouseMove(int x, int y, Point difference)
 {
 	mouse = Point(x, y);
+	if (placingZoom)
+		UpdateZoomCoordinates(mouse);
 }
 
 void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 {
-
+	if (placingZoomTouch)
+	{
+		if (x < XRES && y < YRES)
+		{
+			placingZoomTouch = false;
+			placingZoom = true;
+			UpdateZoomCoordinates(mouse);
+		}
+	}
 }
 
 void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 {
-
+	if (placingZoom)
+	{
+		placingZoom = false;
+		zoomEnabled = true;
+	}
 }
 
 void PowderToy::OnMouseWheel(int x, int y, int d)
 {
 	mouseWheel += d;
+	if (PlacingZoomWindow())
+	{
+		zoomSize += d;
+		zoomSize = std::max(2, std::min(zoomSize, 60));
+		zoomFactor = 256/zoomSize;
+	}
 }
 
 void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short modifiers)
 {
+	if ((modifiers & (KMOD_CTRL|KMOD_META)) && !(heldModifier & (KMOD_CTRL|KMOD_META)))
+		openBrowserButton->SetTooltipText("Open a simulation from your hard drive \bg(ctrl+o)");
+
 	heldModifier = modifiers;
 	// key -1 is fake event sent in order to update modifiers when in other interfaces
 	if (key == -1)
@@ -655,6 +974,10 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		key = 0;
 #endif
 
+	// lua can disable all key shortcuts
+	if (!sys_shortcuts)
+		return;
+
 	switch (key)
 	{
 	case 'q':
@@ -664,11 +987,45 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 			this->ignoreQuits = false;
 			this->toDelete = true;
 		}
+		break;
+	case 'z':
+		// don't do anything if this is a ctrl+z (undo)
+		if (modifiers & (KMOD_CTRL|KMOD_META))
+			break;
+		if (ZoomWindowShown())
+		{
+			HideZoomWindow();
+		}
+		else
+		{
+			placingZoom = true;
+			UpdateZoomCoordinates(mouse);
+		}
+		break;
+	case SDLK_LEFTBRACKET:
+		if (PlacingZoomWindow())
+		{
+			zoomSize -= 1;
+			zoomSize = std::max(2, std::min(zoomSize, 60));
+			zoomFactor = 256/zoomSize;
+		}
+		break;
+	case SDLK_RIGHTBRACKET:
+		if (PlacingZoomWindow())
+		{
+			zoomSize += 1;
+			zoomSize = std::max(2, std::min(zoomSize, 60));
+			zoomFactor = 256/zoomSize;
+		}
+		break;
 	}
 }
 
 void PowderToy::OnKeyRelease(int key, unsigned short character, unsigned short modifiers)
 {
+	if (!(modifiers & (KMOD_CTRL|KMOD_META)) && (heldModifier & (KMOD_CTRL|KMOD_META)))
+		openBrowserButton->SetTooltipText("Find & open a simulation");
+
 	heldModifier = modifiers;
 	// key -1 is fake event sent in order to update modifiers when in other interfaces
 	if (key == -1)
@@ -679,4 +1036,12 @@ void PowderToy::OnKeyRelease(int key, unsigned short character, unsigned short m
 	if (!deco_disablestuff && !luacon_keyevent(key, modifiers, LUACON_KUP))
 		key = 0;
 #endif
+
+	switch (key)
+	{
+	case 'z':
+		if (placingZoom)
+			HideZoomWindow();
+		break;
+	}
 }

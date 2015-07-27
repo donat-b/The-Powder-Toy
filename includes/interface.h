@@ -48,34 +48,6 @@ const quick_option quickmenu[] =
 extern char tabNames[10][255];
 extern pixel* tabThumbnails[10];
 
-void TouchShowKeyboard();
-void TouchReloadSim();
-void TouchClearSim();
-void TouchCreateStamp();
-void TouchOpenStamps();
-void TouchToggleSetting();
-void TouchOpenSettings();
-struct hold_button
-{
-	const char *icon;
-	const char *held_icon;
-	const char *name;
-	const char *held_name;
-	bool held;
-	void (*callback)();
-	void (*held_callback)();
-};
-typedef struct quick_option quick_option;
-
-const hold_button touchButtons[] =
-{
-	{"T", "M", "Show keyboard", "", false, &TouchShowKeyboard, NULL},
-	{"E", "O",  "Reload simulation", "Clear simulation", true,  &TouchReloadSim, &TouchClearSim},
-	{"S", "O",  "Create stamp", "Load stamp", true,  &TouchCreateStamp, &TouchOpenStamps},
-	{"T", "O",  "Newtonian gravity", "Open settings", true,  &TouchToggleSetting, &TouchOpenSettings},
-	{NULL}
-};
-
 struct menu_wall
 {
 	ARGBColour colour;
@@ -196,7 +168,7 @@ extern command_history *last_command;
 extern command_history *last_command_result;
 
 extern unsigned short sdl_mod;
-extern int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii, sdl_zoom_trig;
+extern int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii;
 
 extern char *shift_0;
 extern char *shift_1;
@@ -246,10 +218,6 @@ extern char search_expr[256];
 extern char *tag_names[TAG_MAX];
 extern int tag_votes[TAG_MAX];
 
-extern int zoom_en;
-extern int zoom_x, zoom_y;
-extern int zoom_wx, zoom_wy;
-
 extern int hud_menunum;
 extern int dateformat;
 extern int show_ids;
@@ -270,8 +238,6 @@ extern int currS;
 extern int currV;
 
 void QuickoptionsMenu(pixel *vid_buf, int b, int bq, int x, int y);
-
-void QuickoptionsMenuTouch(pixel *vid_buf, int b, int bq, int x, int y);
 
 extern int propSelected;
 extern char propValue[255];

@@ -311,12 +311,16 @@ tpt.partsdata = nil");
 
 void luacon_openmultiplayer()
 {
+#ifndef TOUCHUI
 	luaopen_multiplayer(l);
+#endif
 }
 
 void luacon_openscriptmanager()
 {
+#ifndef TOUCHUI
 	luaopen_scriptmanager(l);
+#endif
 }
 
 #ifndef FFI

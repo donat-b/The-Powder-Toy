@@ -89,11 +89,6 @@ const int menuIconWidth = 17;
 #define MAXSIGNS 16
 #define TAG_MAX 256
 
-#define ZSIZE_D	16
-#define ZFACTOR_D	8
-extern unsigned char ZFACTOR;
-extern unsigned char ZSIZE;
-
 #define CELL    4
 #define ISTP    (CELL/2)
 #define CFDS	(4.0f/CELL)
@@ -232,7 +227,6 @@ extern int autosave;
 extern int realistic;
 extern int loop_time;
 extern int unlockedstuff;
-extern bool scrollMenus;
 extern int old_menu;
 extern int decobox_hidden;
 
@@ -322,6 +316,10 @@ extern bool sendNewEvents;
 extern bool openConsole;
 extern bool openSign;
 extern bool openProp;
+#ifdef __cplusplus
+class PowderToy;
+extern PowderToy *the_game;
+#endif
 int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_mod, int x, int y, int sdl_wheel);
 void main_end_hack();
 #endif
