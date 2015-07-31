@@ -3892,9 +3892,9 @@ void render_signs(pixel *vid_buf)
 			{
 				bq = b;
 				mouse_get_state(&mx, &my);
-				mouse_coords_window_to_sim(&mx, &my);
-				signs[i].x = mx;
-				signs[i].y = my;
+				Point cursor = the_game->AdjustCoordinates(Point(mx, my));
+				signs[i].x = cursor.X;
+				signs[i].y = cursor.Y;
 			}
 		}
 }

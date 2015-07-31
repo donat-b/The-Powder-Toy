@@ -10,7 +10,12 @@ class VideoBuffer;
 class Download;
 class PowderToy : public Window_
 {
+public:
+	enum StampState { NONE, LOAD, COPY, CUT, SAVE, SAVE2 };
+
+private:
 	Point mouse;
+	Point cursor;
 	int lastMouseDown, heldKey, releasedKey;
 	unsigned short heldModifier;
 	int mouseWheel;
@@ -33,6 +38,14 @@ class PowderToy : public Window_
 	Point zoomWindowPosition;
 	int zoomSize;
 	int zoomFactor;
+
+	// loading stamps
+	StampState state;
+	Point loadPos;
+	Point loadSize;
+	void *stampData;
+	int stampSize;
+	pixel *stampImg;
 
 	// bottom bar buttons
 	Button *openBrowserButton;
@@ -65,6 +78,7 @@ public:
 
 	void ConfirmUpdate();
 	bool MouseClicksIgnored();
+	Point AdjustCoordinates(Point mouse);
 
 	// zoom window stuff
 	bool ZoomWindowShown() { return placingZoom || zoomEnabled; }
@@ -75,6 +89,13 @@ public:
 	Point GetZoomWindowPosition() { return zoomWindowPosition; }
 	int GetZoomWindowSize() { return zoomSize; }
 	int GetZoomWindowFactor() { return zoomFactor; }
+
+	// stamp stuff (so main() can get needed info)
+	void UpdateStampCoordinates(Point cursor);
+	StampState GetState() { return state; }
+	Point GetStampPos() { return loadPos; }
+	Point GetStampSize() { return loadSize; }
+	pixel * GetStampImg() { return stampImg; }
 
 	void OnTick(uint32_t ticks);
 	void OnDraw(VideoBuffer *buf);

@@ -1499,7 +1499,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		return 1;
 	}
 	
-	if(replace)
+	if (replace > 0)
 	{
 		//Remove everything
 		clear_sim();
@@ -1726,7 +1726,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for element palette: %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_ARRAY);
 			}
 		}
-		else if (!strcmp(bson_iterator_key(&iter), "legacyEnable") && replace)
+		else if (!strcmp(bson_iterator_key(&iter), "legacyEnable") && replace > 0)
 		{
 			if(bson_iterator_type(&iter)==BSON_BOOL)
 			{
@@ -1737,7 +1737,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if (!strcmp(bson_iterator_key(&iter), "gravityEnable") && replace)
+		else if (!strcmp(bson_iterator_key(&iter), "gravityEnable") && replace > 0)
 		{
 			if(bson_iterator_type(&iter)==BSON_BOOL)
 			{
@@ -1759,7 +1759,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if (!strcmp(bson_iterator_key(&iter), "waterEEnabled") && replace)
+		else if (!strcmp(bson_iterator_key(&iter), "waterEEnabled") && replace > 0)
 		{
 			if(bson_iterator_type(&iter)==BSON_BOOL)
 			{
@@ -1770,7 +1770,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if (!strcmp(bson_iterator_key(&iter), "paused") && (!sys_pause || replace == 2))
+		else if (!strcmp(bson_iterator_key(&iter), "paused") && replace >= 0 && (!sys_pause || replace == 2))
 		{
 			if(bson_iterator_type(&iter)==BSON_BOOL)
 			{
@@ -1781,7 +1781,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if (!strcmp(bson_iterator_key(&iter), "gravityMode") && replace)
+		else if (!strcmp(bson_iterator_key(&iter), "gravityMode") && replace > 0)
 		{
 			if(bson_iterator_type(&iter)==BSON_INT)
 			{
@@ -1792,7 +1792,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if (!strcmp(bson_iterator_key(&iter), "airMode") && replace)
+		else if (!strcmp(bson_iterator_key(&iter), "airMode") && replace > 0)
 		{
 			if(bson_iterator_type(&iter)==BSON_INT)
 			{
@@ -1836,7 +1836,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong value for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if (!strcmp(bson_iterator_key(&iter), "msrotation") && replace)
+		else if (!strcmp(bson_iterator_key(&iter), "msrotation") && replace > 0)
 		{
 			if(bson_iterator_type(&iter)==BSON_BOOL)
 			{
@@ -1847,7 +1847,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if (!strcmp(bson_iterator_key(&iter), "decorations_enable") && replace)
+		else if (!strcmp(bson_iterator_key(&iter), "decorations_enable") && replace > 0)
 		{
 			if(bson_iterator_type(&iter)==BSON_BOOL)
 			{
@@ -1858,7 +1858,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if (!strcmp(bson_iterator_key(&iter), "hud_enable") && replace)
+		else if (!strcmp(bson_iterator_key(&iter), "hud_enable") && replace > 0)
 		{
 			if(bson_iterator_type(&iter)==BSON_BOOL)
 			{
@@ -1869,7 +1869,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if (!strcmp(bson_iterator_key(&iter), "aheat_enable") && replace)
+		else if (!strcmp(bson_iterator_key(&iter), "aheat_enable") && replace > 0)
 		{
 			if(bson_iterator_type(&iter)==BSON_BOOL)
 			{
@@ -2144,14 +2144,16 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					{
 						//Replace existing particle or allocated block
 						newIndex = pmap[y][x]>>8;
-						globalSim->elementCount[parts[newIndex].type]--;
+						if (replace >= 0)
+							globalSim->elementCount[parts[newIndex].type]--;
 						pmap[y][x] = 0;
 					}
 					else if(photons[y][x] && posCount==0)
 					{
 						//Replace existing particle or allocated block
 						newIndex = photons[y][x]>>8;
-						globalSim->elementCount[parts[newIndex].type]--;
+						if (replace >= 0)
+							globalSim->elementCount[parts[newIndex].type]--;
 						photons[y][x] = 0;
 					}
 					else if(freeIndicesIndex<freeIndicesCount)
@@ -2316,6 +2318,9 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						}
 					}
 
+					// don't do any of the below stuff when shifting stamps (transform_save)
+					if (replace < 0)
+						continue;
 					// no more particle properties to load, so we can change type here without messing up loading
 					if (partsptr[newIndex].type == PT_STKM)
 					{
@@ -2418,7 +2423,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				}
 			}
 		}
-		if (movsData)
+		if (movsData && replace >= 0)
 		{
 			int movsDataPos = 0, numBalls = ((MOVS_ElementDataContainer*)globalSim->elementData[PT_MOVS])->GetNumBalls();
 			int solids[MAX_MOVING_SOLIDS]; //solids is a map of the old .tmp2 it was saved with, to the new ball number it is getting
@@ -2467,7 +2472,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				}
 			}
 		}
-		if (animData)
+		if (animData && replace >= 0)
 		{
 			int animDataPos = 0;
 			for (unsigned i = 0; i < partsCount; i++)
@@ -3595,7 +3600,7 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 	vector2d vel;
 	vector2d cornerso[4];
 	unsigned char *odatac = (unsigned char*)odata;
-	if (parse_save(odata, *size, 0, 0, 0, bmapo, vxo, vyo, pvo, fvxo, fvyo, signst, partst, pmapt))
+	if (parse_save(odata, *size, -1, 0, 0, bmapo, vxo, vyo, pvo, fvxo, fvyo, signst, partst, pmapt))
 	{
 		free(bmapo);
 		free(bmapn);
@@ -3612,7 +3617,7 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 		free(vyn);
 		free(pvo);
 		free(pvn);
-		return odata;
+		return NULL;
 	}
 	w = odatac[6]*CELL;
 	h = odatac[7]*CELL;

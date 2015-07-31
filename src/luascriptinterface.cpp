@@ -21,6 +21,7 @@
 #include "game/Brush.h"
 #include "game/Menus.h"
 #include "game/ToolTip.h"
+#include "gui/game/PowderToy.h"
 #include "graphics/ARGBColour.h"
 #include "simulation/Simulation.h"
 #include "simulation/WallNumbers.h"
@@ -1139,9 +1140,9 @@ int simulation_adjustCoords(lua_State * l)
 {
 	int x = luaL_optint(l,1,0);
 	int y = luaL_optint(l,2,0);
-	mouse_coords_window_to_sim(&x, &y);
-	lua_pushinteger(l, x);
-	lua_pushinteger(l, y);
+	Point cursor = the_game->AdjustCoordinates(Point(x, y));
+	lua_pushinteger(l, cursor.X);
+	lua_pushinteger(l, cursor.Y);
 	return 2;
 }
 

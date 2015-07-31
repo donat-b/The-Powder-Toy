@@ -8633,34 +8633,3 @@ int mouse_get_state(int *x, int *y)
 	*y = sdl_y/sdl_scale;
 	return sdl_b;
 }
-
-bool mouse_coords_window_to_sim(int *mouseX, int *mouseY)
-{
-	//adjust coords into the simulation area
-	if (*mouseX < 0)
-		*mouseX = 0;
-	else if (*mouseX >= XRES)
-		*mouseX = XRES-1;
-	if (*mouseY < 0)
-		*mouseY = 0;
-	else if (*mouseY >= YRES)
-		*mouseY = YRES-1;
-
-	//Change mouse coords to take zoom window into account
-	if (the_game->ZoomWindowShown())
-	{
-		Point zoomedOnPosition = the_game->GetZoomedOnPosition();
-		Point zoomWindowPosition = the_game->GetZoomWindowPosition();
-		int zoomSize = the_game->GetZoomWindowSize();
-		int zoomFactor = the_game->GetZoomWindowFactor();
-
-		Point mouse = Point(*mouseX, *mouseY);
-		if (mouse >= zoomWindowPosition && mouse < Point(zoomWindowPosition.X+zoomFactor*zoomSize, zoomWindowPosition.Y+zoomFactor*zoomSize))
-		{
-			*mouseX = ((*mouseX-zoomWindowPosition.X)/zoomFactor) + zoomedOnPosition.X;
-			*mouseY = ((*mouseY-zoomWindowPosition.Y)/zoomFactor) + zoomedOnPosition.Y;
-			return true;
-		}
-	}
-	return false;
-}

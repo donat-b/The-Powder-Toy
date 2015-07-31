@@ -359,8 +359,6 @@ void simulation_ui(pixel *vid_buf);
 
 int mouse_get_state(int *x, int *y);
 
-bool mouse_coords_window_to_sim(int *mouseX, int *mouseY);
-
 void converttotime(char *timestamp, char **timestring, int show_day, int show_year, int show_time);
 
 #endif

@@ -1055,9 +1055,6 @@ void SigHandler(int signal)
 	int line_x, line_y, lb = 0, lx = 0, ly = 0, lm = 0;
 	int mx = 0, my = 0;
 	bool mouseInZoom = false;
-	int load_mode=0, load_w=0, load_h=0, load_x=0, load_y=0, load_size=0;
-	void *load_data=NULL;
-	pixel *load_img=NULL;
 	int save_mode=0, save_x=0, save_y=0, save_w=0, save_h=0, copy_mode=0;
 	int username_flash = 0, username_flash_t = 1;
 	int saveOpenError = 0;
@@ -1372,10 +1369,12 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		render_before(part_vbuf);
 		render_after(part_vbuf, vid_buf, Point(mx, my));
 
-		if (load_mode)//draw preview of stamp
+		if (the_game->GetState() == PowderToy::LOAD)//draw preview of stamp
 		{
-			draw_image(vid_buf, load_img, load_x, load_y, load_w, load_h, 128);
-			xor_rect(vid_buf, load_x, load_y, load_w, load_h);
+			Point loadPos = the_game->GetStampPos();
+			Point loadSize = the_game->GetStampSize();
+			draw_image(vid_buf, the_game->GetStampImg(), loadPos.X, loadPos.Y, loadSize.X, loadSize.Y, 128);
+			xor_rect(vid_buf, loadPos.X, loadPos.Y, loadSize.X, loadSize.Y);
 		}
 
 		if (save_mode)//draw dotted lines for selection
@@ -1407,7 +1406,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			// if you open and close zoom window while drawing, the drawing continues when you release it ... prevent that here
 			lb = 0;
 		}
-		else if (!load_mode && !save_mode)//draw normal cursor
+		else if (!save_mode)//draw normal cursor
 		{
 			if (lm != 2)
 				if (lm && (sdl_mod & KMOD_ALT))
@@ -1536,7 +1535,9 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 
 		if (!deco_disablestuff && sys_shortcuts==1)//all shortcuts can be disabled by lua scripts
 		{
-			if (load_mode != 1)
+			if (sdl_key)
+				UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
+			if (the_game->GetState() != PowderToy::LOAD)
 				((STKM_ElementDataContainer*)globalSim->elementData[PT_STKM])->HandleKeys(sdl_key, sdl_rkey);
 			if (sdl_key=='i' && (sdl_mod & (KMOD_CTRL|KMOD_META)))
 			{
@@ -1586,40 +1587,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					}
 				}
 			}
-			if (sdl_key=='l' || sdl_key=='k')
-			{
-				if (load_mode)
-				{
-					free(load_img);
-					free(load_data);
-					load_mode = 0;
-					load_data = NULL;
-					load_img = NULL;
-				}
-				UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
-				if (sdl_key=='k')
-				{
-					int reorder = 1;
-					int stampID = stamp_ui(vid_buf, &reorder);
-					if (stampID >= 0)
-						load_data = stamp_load(stampID, &load_size, reorder);
-					else
-						load_data = NULL;
-				}
-				else
-					load_data = stamp_load(0, &load_size, 1);
-				if (load_data)
-				{
-					load_img = prerender_save(load_data, load_size, &load_w, &load_h);
-					if (load_img)
-						load_mode = 1;
-					else
-					{
-						free(load_data);
-						load_data = NULL;
-					}
-				}
-			}
 			if (sdl_key=='s')
 			{
 				//if stkm2 is out, you must be holding right ctrl, else just either ctrl
@@ -1628,13 +1595,12 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				//if stkm2 is out, you must be holding left ctrl, else not be holding ctrl at all
 				else if ((globalSim->elementCount[PT_STKM2]>0 && (sdl_mod&(KMOD_LCTRL|KMOD_LMETA))) || (globalSim->elementCount[PT_STKM2]<=0 && !(sdl_mod&(KMOD_CTRL|KMOD_META))))
 				{
-					UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
 					save_mode = 1;
 				}
 			}
 			if (sdl_key=='r') 
 			{
-				if (load_mode != 1)
+				if (the_game->GetState() != PowderToy::LOAD)
 				{
 					if (sdl_mod & (KMOD_CTRL|KMOD_META))
 					{
@@ -1647,7 +1613,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			}
 			else if (sdl_key == SDLK_F5)
 			{
-				if (load_mode != 1)
+				if (the_game->GetState() != PowderToy::LOAD)
 				{
 					parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 					ctrlzSnapshot();
@@ -2009,7 +1975,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			}
 			if (sdl_key=='p' || sdl_key == SDLK_F2)
 				dump_frame(vid_buf, XRES, YRES, XRES+BARSIZE);
-			if (sdl_key=='v'&&(sdl_mod & (KMOD_CTRL|KMOD_META)))
+			/*if (sdl_key=='v'&&(sdl_mod & (KMOD_CTRL|KMOD_META)))
 			{
 				if (clipboard_ready==1 && clipboard_data)
 				{
@@ -2030,45 +1996,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 						}
 					}
 				}
-			}
-			if (load_mode==1)
-			{
-				matrix2d transform = m2d_identity;
-				vector2d translate = v2d_zero;
-				void *ndata;
-				bool doTransform = true;
-				if (sdl_key=='r' && (sdl_mod & (KMOD_CTRL|KMOD_META)) && (sdl_mod & (KMOD_SHIFT)))
-				{
-					transform = m2d_new(1,0,0,-1); //vertical invert
-				}
-				else if (sdl_key=='r' && (sdl_mod & (KMOD_SHIFT)))
-				{
-					transform = m2d_new(-1,0,0,1); //horizontal invert
-				}
-				else if (sdl_key=='r')
-				{
-					transform = m2d_new(0,1,-1,0); //rotate anticlockwise 90 degrees
-				}
-				else if (sdl_key==SDLK_LEFT)
-					translate = v2d_new(-1,0);
-				else if (sdl_key==SDLK_RIGHT)
-					translate = v2d_new(1,0);
-				else if (sdl_key==SDLK_UP)
-					translate = v2d_new(0,-1);
-				else if (sdl_key==SDLK_DOWN)
-					translate = v2d_new(0,1);
-				else
-					doTransform = false;
-
-				if (doTransform)
-				{
-					ndata = transform_save(load_data, &load_size, transform, translate);
-					if (ndata!=load_data) free(load_data);
-					free(load_img);
-					load_data = ndata;
-					load_img = prerender_save(load_data, load_size, &load_w, &load_h);
-				}
-			}
+			}*/
 			if (sdl_key=='x'&&(sdl_mod & (KMOD_CTRL|KMOD_META)))
 			{
 				save_mode = 1;
@@ -2263,7 +2191,12 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		my = y;
 		//change mouse position while it is in a zoom window
 		//tmpMouseInZoom is used later, so that it only interrupts drawing, not things like copying / saving stamps
-		bool tmpMouseInZoom = mouse_coords_window_to_sim(&mx, &my);
+		Point cursor = the_game->AdjustCoordinates(Point(x, y));
+		mx = cursor.X;
+		my = cursor.Y;
+		bool tmpMouseInZoom = false;
+		if (x >= 0 && y >= 0 && x < XRES && y < YRES)
+			tmpMouseInZoom = (x != mx || y != my);
 
 		if (b && !bq && x>=(XRES-19-new_message_len) &&
 		        x<=(XRES-14) && y>=(YRES-37) && y<=(YRES-24) && svf_messages)
@@ -2326,16 +2259,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		}
 
 
-		//update coordinates for stamp preview before it is placed
-		if (load_mode)
-		{
-			load_x = CELL*((mx-load_w/2+CELL/2)/CELL);
-			load_y = CELL*((my-load_h/2+CELL/2)/CELL);
-			if (load_x+load_w>XRES) load_x=XRES-load_w;
-			if (load_y+load_h>YRES) load_y=YRES-load_h;
-			if (load_x<0) load_x=0;
-			if (load_y<0) load_y=0;
-		}
 		//update coordinates for initial copy area before it is decided
 		if (save_mode == 1)
 		{
@@ -2361,31 +2284,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		if (the_game->MouseClicksIgnored())
 		{
 			// certain thing the main window handles need prevent stuff from being drawn to the screen
-		}
-		//mouse clicks ignored when placing stamps
-		else if (load_mode)
-		{
-			if (!b && bq)
-			{
-				if (bq != 1 || y > YRES+MENUSIZE-BARSIZE)
-				{
-					free(load_data);
-					load_data = NULL;
-					free(load_img);
-					load_img = NULL;
-					load_mode = 0;
-				}
-				else if (bq == 1)
-				{
-					ctrlzSnapshot();
-					parse_save(load_data, load_size, 0, load_x, load_y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-					free(load_data);
-					load_data = NULL;
-					free(load_img);
-					load_img = NULL;
-					load_mode = 0;
-				}
-			}
 		}
 		//mouse clicks ignored when saving stamps
 		else if (save_mode == 1)

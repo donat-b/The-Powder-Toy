@@ -50,7 +50,11 @@ void SetCurrentHud()
 void SetRightHudText(int x, int y)
 {
 	if (x >= 0 && x < XRES && y >= 0 && y < YRES)
-		mouse_coords_window_to_sim(&x, &y);
+	{
+		Point cursor = the_game->AdjustCoordinates(Point(x, y));
+		x = cursor.X;
+		y = cursor.Y;
+	}
 	sprintf(heattext,"");
 	sprintf(coordtext,"");
 	if (y>=0 && y<YRES && x>=0 && x<XRES)

@@ -8,6 +8,7 @@
 #include "gravity.h"
 #include "luaconsole.h"
 #include "powder.h"
+#include "misc.h"
 #include "save.h"
 #include "update.h"
 
@@ -28,6 +29,8 @@ PowderToy::~PowderToy()
 
 PowderToy::PowderToy():
 	Window_(Point(0, 0), Point(XRES+BARSIZE, YRES+MENUSIZE)),
+	mouse(Point(0, 0)),
+	cursor(Point(0, 0)),
 	lastMouseDown(0),
 	heldKey(0),
 	releasedKey(0),
@@ -41,6 +44,12 @@ PowderToy::PowderToy():
 	zoomWindowPosition(0, 0),
 	zoomSize(32),
 	zoomFactor(8),
+	state(NONE),
+	loadPos(Point(0, 0)),
+	loadSize(Point(0, 0)),
+	stampData(NULL),
+	stampSize(0),
+	stampImg(NULL),
 	loginCheckTicks(0),
 	loginFinished(0)
 {
@@ -552,7 +561,31 @@ void PowderToy::ConfirmUpdate()
 
 bool PowderToy::MouseClicksIgnored()
 {
-	return PlacingZoomWindow();
+	return PlacingZoomWindow() || state == LOAD;
+}
+
+Point PowderToy::AdjustCoordinates(Point mouse)
+{
+	//adjust coords into the simulation area
+	if (mouse.X < 0)
+		mouse.X= 0;
+	else if (mouse.X >= XRES)
+		mouse.X = XRES-1;
+	if (mouse.Y < 0)
+		mouse.Y = 0;
+	else if (mouse.Y >= YRES)
+		mouse.Y = YRES-1;
+
+	//Change mouse coords to take zoom window into account
+	if (ZoomWindowShown())
+	{
+		if (mouse >= zoomWindowPosition && mouse < Point(zoomWindowPosition.X+zoomFactor*zoomSize, zoomWindowPosition.Y+zoomFactor*zoomSize))
+		{
+			mouse.X = ((mouse.X-zoomWindowPosition.X)/zoomFactor) + zoomedOnPosition.X;
+			mouse.Y = ((mouse.Y-zoomWindowPosition.Y)/zoomFactor) + zoomedOnPosition.Y;
+		}
+	}
+	return mouse;
 }
 
 void PowderToy::UpdateZoomCoordinates(Point mouse)
@@ -573,6 +606,20 @@ void PowderToy::UpdateZoomCoordinates(Point mouse)
 		zoomWindowPosition = Point(XRES-zoomSize*zoomFactor-1, 1);
 	else
 		zoomWindowPosition = Point(1, 1);
+}
+
+void PowderToy::UpdateStampCoordinates(Point cursor)
+{
+	loadPos.X = CELL*((cursor.X-loadSize.X/2+CELL/2)/CELL);
+	loadPos.Y = CELL*((cursor.Y-loadSize.Y/2+CELL/2)/CELL);
+	if (loadPos.X < 0)
+		loadPos.X = 0;
+	else if (loadPos.X + loadSize.X > XRES)
+		loadPos.X = XRES - loadSize.X;
+	if (loadPos.Y < 0)
+		loadPos.Y = 0;
+	else if (loadPos.Y + loadSize.Y > YRES)
+		loadPos.Y = YRES - loadSize.Y;
 }
 
 void PowderToy::HideZoomWindow()
@@ -735,9 +782,8 @@ void PowderToy::OnTick(uint32_t ticks)
 	}
 	if (openSign)
 	{
-		int mx = mouseX, my = mouseY;
-		mouse_coords_window_to_sim(&mx, &my);
-		add_sign_ui(GetVid()->GetVid(), mx, my);
+		Point cursor = AdjustCoordinates(Point(mouseX, mouseY));
+		add_sign_ui(GetVid()->GetVid(), cursor.Y, cursor.Y);
 		openSign = false;
 	}
 	if (openProp)
@@ -921,8 +967,13 @@ void PowderToy::OnDraw(VideoBuffer *buf)
 void PowderToy::OnMouseMove(int x, int y, Point difference)
 {
 	mouse = Point(x, y);
+	cursor = AdjustCoordinates(mouse);
 	if (placingZoom)
 		UpdateZoomCoordinates(mouse);
+	if (state == LOAD)
+	{
+		UpdateStampCoordinates(cursor);
+	}
 }
 
 void PowderToy::OnMouseDown(int x, int y, unsigned char button)
@@ -944,6 +995,19 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 	{
 		placingZoom = false;
 		zoomEnabled = true;
+	}
+	if (state == LOAD)
+	{
+		if (button == 1 && y < YRES+MENUSIZE-16)
+		{
+			ctrlzSnapshot();
+			parse_save(stampData, stampSize, 0, loadPos.X, loadPos.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+		}
+		free(stampData);
+		stampData = NULL;
+		free(stampImg);
+		stampImg = NULL;
+		state = NONE;
 	}
 }
 
@@ -978,6 +1042,59 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 	if (!sys_shortcuts)
 		return;
 
+	if (state == LOAD)
+	{
+		matrix2d transform = m2d_identity;
+		vector2d translate = v2d_zero;
+		bool doTransform = true;
+
+		switch (key)
+		{
+		case 'r':
+			// vertical invert
+			if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (sdl_mod & KMOD_SHIFT))
+			{
+				transform = m2d_new(1, 0, 0, -1);
+			}
+			// horizontal invert
+			else if (sdl_mod & KMOD_SHIFT)
+			{
+				transform = m2d_new(-1, 0, 0, 1);
+			}
+			// rotate anticlockwise 90 degrees
+			else
+			{
+				transform = m2d_new(0, 1, -1, 0);
+			}
+			break;
+		case SDLK_LEFT:
+			translate = v2d_new(-1, 0);
+			break;
+		case SDLK_RIGHT:
+			translate = v2d_new(1, 0);
+			break;
+		case SDLK_UP:
+			translate = v2d_new(0, -1);
+			break;
+		case SDLK_DOWN:
+			translate = v2d_new(0, -1);
+			break;
+		default:
+			doTransform = false;
+		}
+
+		if (doTransform)
+		{
+			void *newData = transform_save(stampData, &stampSize, transform, translate);
+			if (!newData)
+				return;
+			free(stampData);
+			stampData = newData;
+			free(stampImg);
+			stampImg = prerender_save(stampData, stampSize, &loadSize.X, &loadSize.Y);
+			return;
+		}
+	}
 	switch (key)
 	{
 	case 'q':
@@ -987,6 +1104,49 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 			this->ignoreQuits = false;
 			this->toDelete = true;
 		}
+		break;
+	case 'k':
+	case 'l':
+		// if we are placing a stamp, cancel that to load the new one
+		if (state == LOAD)
+		{
+			free(stampImg);
+			free(stampData);
+			state = NONE;
+		}
+		// open stamp interface
+		if (key == 'k')
+		{
+			int reorder = 1;
+			int stampID = stamp_ui(vid_buf, &reorder);
+			if (stampID >= 0)
+				stampData = stamp_load(stampID, &stampSize, reorder);
+			else
+				stampData = NULL;
+		}
+		// else, open most recent stamp
+		else
+			stampData = stamp_load(0, &stampSize, 1);
+
+		// if a stamp was actually loaded
+		if (stampData)
+		{
+			int width, height;
+			stampImg = prerender_save(stampData, stampSize, &width, &height);
+			if (stampImg)
+			{
+				state = LOAD;
+				loadSize = Point(width, height);
+				UpdateStampCoordinates(cursor);
+			}
+			else
+			{
+				free(stampData);
+				stampData = NULL;
+			}
+		}
+		else
+			stampImg = NULL;
 		break;
 	case 'z':
 		// don't do anything if this is a ctrl+z (undo)
