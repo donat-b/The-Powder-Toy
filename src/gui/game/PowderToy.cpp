@@ -15,16 +15,18 @@
 #include "game/Download.h"
 #include "game/Menus.h"
 #include "game/ToolTip.h"
+#include "graphics/VideoBuffer.h"
 #include "interface/Button.h"
 #include "interface/Engine.h"
 #include "interface/Window.h"
-#include "graphics/VideoBuffer.h"
+#include "simulation/Simulation.h"
 
 #include "gui/profile/ProfileViewer.h"
 
 PowderToy::~PowderToy()
 {
 	main_end_hack();
+	free(clipboardData);
 }
 
 PowderToy::PowderToy():
@@ -39,6 +41,7 @@ PowderToy::PowderToy():
 	numNotifications(0),
 	voteDownload(NULL),
 	placingZoom(false),
+	placingZoomTouch(false),
 	zoomEnabled(false),
 	zoomedOnPosition(0, 0),
 	zoomWindowPosition(0, 0),
@@ -47,11 +50,18 @@ PowderToy::PowderToy():
 	state(NONE),
 	loadPos(Point(0, 0)),
 	loadSize(Point(0, 0)),
+	savedInitial(false),
 	stampData(NULL),
 	stampSize(0),
 	stampImg(NULL),
+	waitToDraw(false),
+	savePos(Point(0, 0)),
+	saveSize(Point(0, 0)),
+	clipboardData(NULL),
+	clipboardSize(0),
 	loginCheckTicks(0),
-	loginFinished(0)
+	loginFinished(0),
+	ignoreMouseUp(false)
 {
 	ignoreQuits = true;
 
@@ -513,43 +523,55 @@ void PowderToy::StartZoom(bool alt)
 
 void PowderToy::SaveStamp(bool alt)
 {
-	/*if (alt)
+	if (alt)
 	{
-		if (load_mode)
+		// if we are loading a stamp, cancel that and free all memory
+		if (state == LOAD)
 		{
-			free(load_img);
-			free(load_data);
-			load_mode = 0;
-			load_data = NULL;
-			load_img = NULL;
-			return;
+			free(stampData);
+			stampData = NULL;
+			free(stampImg);
+			stampImg = NULL;
+			state = NONE;
 		}
-		UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
 
 		int reorder = 1;
 		int stampID = stamp_ui(vid_buf, &reorder);
 		if (stampID >= 0)
-			load_data = stamp_load(stampID, &load_size, reorder);
+			stampData = stamp_load(stampID, &stampSize, reorder);
 		else
-			load_data = NULL;
+			stampData = NULL;
 
-		if (load_data)
+		if (stampData)
 		{
-			load_img = prerender_save(load_data, load_size, &load_w, &load_h);
-			if (load_img)
-				load_mode = 1;
+			stampImg = prerender_save(stampData, stampSize, &loadSize.X, &loadSize.Y);
+			if (stampImg)
+			{
+				state = LOAD;
+				ignoreMouseUp = true;
+				waitToDraw = true;
+			}
 			else
 			{
-				free(load_data);
-				load_data = NULL;
+				free(stampData);
+				stampData = NULL;
 			}
 		}
 	}
 	else
 	{
-		UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
-		save_mode = 1;
-	}*/
+		// if we are loading a stamp, cancel that and free all memory
+		if (state == LOAD)
+		{
+			free(stampData);
+			stampData = NULL;
+			free(stampImg);
+			stampImg = NULL;
+		}
+		state = SAVE;
+		savedInitial = false;
+		ignoreMouseUp = true;
+	}
 }
 
 #endif
@@ -561,7 +583,7 @@ void PowderToy::ConfirmUpdate()
 
 bool PowderToy::MouseClicksIgnored()
 {
-	return PlacingZoomWindow() || state == LOAD;
+	return PlacingZoomWindow() || state != NONE;
 }
 
 Point PowderToy::AdjustCoordinates(Point mouse)
@@ -649,6 +671,7 @@ void PowderToy::OnTick(uint32_t ticks)
 
 	if (!loginFinished)
 		loginCheckTicks = (loginCheckTicks+1)%51;
+	waitToDraw = false;
 
 	if (versionCheck && versionCheck->CheckDone())
 	{
@@ -686,8 +709,7 @@ void PowderToy::OnTick(uint32_t ticks)
 			UpdateToolTip(temp, Point(XCNTR-VideoBuffer::TextSize(temp).X/2, YCNTR-10), INFOTIP, 2500);
 			UpdateToolTip("", Point(16, 20), INTROTIP, 0);
 		}
-		if (ver_data)
-			free(ver_data);
+		free(ver_data);
 		versionCheck = NULL;
 	}
 	if (sessionCheck && sessionCheck->CheckDone())
@@ -757,6 +779,7 @@ void PowderToy::OnTick(uint32_t ticks)
 				loginFinished = -1;
 			}
 		}
+		free(ret);
 		sessionCheck = NULL;
 	}
 	if (voteDownload && voteDownload->CheckDone())
@@ -916,6 +939,10 @@ void PowderToy::OnTick(uint32_t ticks)
 
 	if (placingZoomTouch)
 		UpdateToolTip("\x0F\xEF\xEF\020Click any location to place a zoom window (volume keys to resize, click zoom button to cancel)", Point(16, YRES-24), TOOLTIP, 255);
+	if (state == SAVE || state == COPY)
+		UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy (right click = cancel)", Point(16, YRES-24), TOOLTIP, 255);
+	else if (state == CUT)
+		UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy and then cut (right click = cancel)", Point(16, YRES-24), TOOLTIP, 255);
 	VideoBufferHack();
 }
 
@@ -974,10 +1001,28 @@ void PowderToy::OnMouseMove(int x, int y, Point difference)
 	{
 		UpdateStampCoordinates(cursor);
 	}
+	else if (state == SAVE || state == COPY || state == CUT)
+	{
+		if (savedInitial)
+		{
+			saveSize.X = cursor.X + 1 - savePos.X;
+			saveSize.Y = cursor.Y + 1 - savePos.Y;
+			if (savePos.X + saveSize.X < 0)
+				saveSize.X = 0;
+			else if (savePos.X + saveSize.X > XRES)
+				saveSize.X = XRES - savePos.X;
+			if (savePos.Y + saveSize.Y < 0)
+				saveSize.Y = 0;
+			else if (savePos.Y + saveSize.Y > YRES)
+				saveSize.Y = YRES - savePos.Y;
+		}
+	}
 }
 
 void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 {
+	mouse = Point(x, y);
+	cursor = AdjustCoordinates(mouse);
 	if (placingZoomTouch)
 	{
 		if (x < XRES && y < YRES)
@@ -987,16 +1032,38 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 			UpdateZoomCoordinates(mouse);
 		}
 	}
+	else if (state == SAVE || state == COPY || state == CUT)
+	{
+		// right click cancel
+		if (button == 4)
+		{
+			state = NONE;
+		}
+		// placing initial coordinate
+		else if (!savedInitial)
+		{
+			savePos = cursor;
+			saveSize = Point(1, 1);
+			savedInitial = true;
+		}
+	}
 }
 
 void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 {
+	mouse = Point(x, y);
+	cursor = AdjustCoordinates(mouse);
 	if (placingZoom)
 	{
 		placingZoom = false;
 		zoomEnabled = true;
 	}
-	if (state == LOAD)
+	else if (ignoreMouseUp)
+	{
+		// ignore mouse up when some touch ui buttons on the right side are pressed
+		ignoreMouseUp = false;
+	}
+	else if (state == LOAD)
 	{
 		if (button == 1 && y < YRES+MENUSIZE-16)
 		{
@@ -1007,6 +1074,46 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 		stampData = NULL;
 		free(stampImg);
 		stampImg = NULL;
+		state = NONE;
+	}
+	else if (state == SAVE || state == COPY || state == CUT)
+	{
+		// already placed initial coordinate. If they haven't ... no idea what happened here
+		// mouse could be 4 if strange stuff with zoom window happened so do nothing and reset state in that case too
+		if (savedInitial && button == 1)
+		{
+			// make sure size isn't negative
+			if (saveSize.X < 0)
+			{
+				savePos.X = savePos.X + saveSize.X - 1;
+				saveSize.X = abs(saveSize.X) + 2;
+			}
+			if (saveSize.Y < 0)
+			{
+				savePos.Y = savePos.Y + saveSize.Y - 1;
+				saveSize.Y = abs(saveSize.Y) + 2;
+			}
+			if (saveSize.X > 0 && saveSize.Y > 0)
+			{
+				switch (state)
+				{
+				case COPY:
+					free(clipboardData);
+					clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+					break;
+				case CUT:
+					free(clipboardData);
+					clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+					if (clipboardData)
+						clear_area(savePos.X, savePos.Y, saveSize.X, saveSize.Y);
+					break;
+				case SAVE:
+					// function returns the stamp name which we don't want, so free it
+					free(stamp_save(savePos.X, savePos.Y, saveSize.X, saveSize.Y));
+					break;
+				}
+			}
+		}
 		state = NONE;
 	}
 }
@@ -1042,6 +1149,8 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 	if (!sys_shortcuts)
 		return;
 
+	// loading a stamp, special handling here
+	// if stamp was transformed, key presses get ignored
 	if (state == LOAD)
 	{
 		matrix2d transform = m2d_identity;
@@ -1052,12 +1161,12 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		{
 		case 'r':
 			// vertical invert
-			if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (sdl_mod & KMOD_SHIFT))
+			if ((modifiers & (KMOD_CTRL|KMOD_META)) && (sdl_mod & KMOD_SHIFT))
 			{
 				transform = m2d_new(1, 0, 0, -1);
 			}
 			// horizontal invert
-			else if (sdl_mod & KMOD_SHIFT)
+			else if (modifiers & KMOD_SHIFT)
 			{
 				transform = m2d_new(-1, 0, 0, 1);
 			}
@@ -1095,6 +1204,8 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 			return;
 		}
 	}
+
+	// handle normal keypresses
 	switch (key)
 	{
 	case 'q':
@@ -1103,6 +1214,22 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		{
 			this->ignoreQuits = false;
 			this->toDelete = true;
+		}
+		break;
+	case 's':
+		//if stkm2 is out, you must be holding left ctrl, else not be holding ctrl at all
+		if (globalSim->elementCount[PT_STKM2] > 0 ? (modifiers&(KMOD_LCTRL|KMOD_LMETA)) : !(sdl_mod&(KMOD_CTRL|KMOD_META)))
+		{
+			// if we are loading a stamp, cancel that and free all memory
+			if (state == LOAD)
+			{
+				free(stampData);
+				stampData = NULL;
+				free(stampImg);
+				stampImg = NULL;
+			}
+			state = SAVE;
+			savedInitial = false;
 		}
 		break;
 	case 'k':
@@ -1137,6 +1264,7 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 			{
 				state = LOAD;
 				loadSize = Point(width, height);
+				waitToDraw = true;
 				UpdateStampCoordinates(cursor);
 			}
 			else
@@ -1147,6 +1275,36 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		}
 		else
 			stampImg = NULL;
+		break;
+	case 'x':
+		if (modifiers & (KMOD_CTRL|KMOD_META))
+		{
+			// if we are loading a stamp, cancel that and free all memory
+			if (state == LOAD)
+			{
+				free(stampData);
+				stampData = NULL;
+				free(stampImg);
+				stampImg = NULL;
+			}
+			state = CUT;
+			savedInitial = false;
+		}
+		break;
+	case 'c':
+		if (modifiers & (KMOD_CTRL|KMOD_META))
+		{
+			// if we are loading a stamp, cancel that and free all memory
+			if (state == LOAD)
+			{
+				free(stampData);
+				stampData = NULL;
+				free(stampImg);
+				stampImg = NULL;
+			}
+			state = COPY;
+			savedInitial = false;
+		}
 		break;
 	case 'z':
 		// don't do anything if this is a ctrl+z (undo)
@@ -1160,6 +1318,30 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		{
 			placingZoom = true;
 			UpdateZoomCoordinates(mouse);
+		}
+		break;
+	case 'v':
+		if ((modifiers & (KMOD_CTRL|KMOD_META)) && clipboardData)
+		{
+			if (stampData)
+				free(stampData);
+			stampData = malloc(clipboardSize);
+			if (stampData)
+			{
+				memcpy(stampData, clipboardData, clipboardSize);
+				stampSize = clipboardSize;
+				stampImg = prerender_save(stampData, stampSize, &loadSize.X, &loadSize.Y);
+				if (stampImg)
+				{
+					state = LOAD;
+					UpdateStampCoordinates(cursor);
+				}
+				else
+				{
+					free(stampData);
+					stampData = NULL;
+				}
+			}
 		}
 		break;
 	case SDLK_LEFTBRACKET:

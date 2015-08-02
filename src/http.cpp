@@ -711,10 +711,8 @@ void http_async_get_length(void *ctx, int *total, int *done)
 
 void http_force_close(void *ctx)
 {
-#ifdef LIN
 	struct http_ctx *cx = (struct http_ctx*)ctx;
 	cx->state = HTS_DONE;
-#endif
 }
 
 void http_async_req_close(void *ctx)

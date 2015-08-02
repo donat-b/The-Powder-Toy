@@ -1055,7 +1055,6 @@ void SigHandler(int signal)
 	int line_x, line_y, lb = 0, lx = 0, ly = 0, lm = 0;
 	int mx = 0, my = 0;
 	bool mouseInZoom = false;
-	int save_mode=0, save_x=0, save_y=0, save_w=0, save_h=0, copy_mode=0;
 	int username_flash = 0, username_flash_t = 1;
 	int saveOpenError = 0;
 	Download *sessionCheck = NULL;
@@ -1367,46 +1366,60 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		}
 #endif
 		render_before(part_vbuf);
+		globalSim->Tick(); //update everything
 		render_after(part_vbuf, vid_buf, Point(mx, my));
 
-		if (the_game->GetState() == PowderToy::LOAD)//draw preview of stamp
+		// draw preview of stamp
+		if (the_game->GetState() == PowderToy::LOAD && !the_game->PlacingZoomWindow())
 		{
 			Point loadPos = the_game->GetStampPos();
 			Point loadSize = the_game->GetStampSize();
-			draw_image(vid_buf, the_game->GetStampImg(), loadPos.X, loadPos.Y, loadSize.X, loadSize.Y, 128);
-			xor_rect(vid_buf, loadPos.X, loadPos.Y, loadSize.X, loadSize.Y);
+			pixel *img = the_game->GetStampImg();
+			if (img)
+			{
+				draw_image(vid_buf, img, loadPos.X, loadPos.Y, loadSize.X, loadSize.Y, 128);
+				xor_rect(vid_buf, loadPos.X, loadPos.Y, loadSize.X, loadSize.Y);
+			}
 		}
-
-		if (save_mode)//draw dotted lines for selection
+		// draw dotted lines for selection
+		// other modes besides LOAD and NONE are SAVE, CUT, and COPY, which all select an area like this
+		else if (the_game->GetState() != PowderToy::NONE && !the_game->PlacingZoomWindow())
 		{
-			int savex = save_x, savey = save_y, savew = save_w, saveh = save_h;
-			if (savew < 0)
+			if (the_game->PlacedInitialStampCoordinate())
 			{
-				savex = savex + savew - 1;
-				savew = abs(savew) + 2;
+				Point savePos = the_game->GetSavePos();
+				Point saveSize = the_game->GetSaveSize();
+
+				if (saveSize.X < 0)
+				{
+					savePos.X = savePos.X + saveSize.X - 1;
+					saveSize.X = abs(saveSize.X) + 2;
+				}
+				if (saveSize.Y < 0)
+				{
+					savePos.Y = savePos.Y + saveSize.Y - 1;
+					saveSize.Y = abs(saveSize.Y) + 2;
+				}
+				// dim the area not inside the selected area
+				fillrect(vid_buf, -1, -1, savePos.X+1, YRES+1, 0, 0, 0, 100);
+				fillrect(vid_buf, savePos.X-1, -1, saveSize.X+1, savePos.Y+1, 0, 0, 0, 100);
+				fillrect(vid_buf, savePos.X-1, savePos.Y+saveSize.Y-1, saveSize.X+1, YRES-savePos.Y-saveSize.Y+1, 0, 0, 0, 100);
+				fillrect(vid_buf, savePos.X+saveSize.X-1, -1, XRES-savePos.X-saveSize.X+1, YRES+1, 0, 0, 0, 100);
+				// dotted rectangle
+				xor_rect(vid_buf, savePos.X, savePos.Y, saveSize.X, saveSize.Y);
 			}
-			if (saveh < 0)
-			{
-				savey = savey + saveh - 1;
-				saveh = abs(saveh) + 2;
-			}
-			fillrect(vid_buf,-1,-1,savex+1,YRES,0,0,0,100);
-			fillrect(vid_buf,savex-1,-1,savew+1,savey+1,0,0,0,100);
-			fillrect(vid_buf,savex-1,savey+saveh-1,savew+1,YRES-savey-saveh+1,0,0,0,100);
-			fillrect(vid_buf,savex+savew-1,-1,XRES-savex-savew+1,YRES+1,0,0,0,100);
-			xor_rect(vid_buf, savex, savey, savew, saveh);
-			if (copy_mode != 2)
-				UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy (right click = cancel)", Point(16, YRES-24), TOOLTIP, 255);
 			else
-				UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy and then cut (right click = cancel)", Point(16, YRES-24), TOOLTIP, 255);
+				fillrect(vid_buf, -1, -1, XRES+1, YRES+1, 0, 0, 0, 100);
 		}
 
+		// placing zoom window, or placing / loading stamps
 		if (the_game->MouseClicksIgnored())
 		{
 			// if you open and close zoom window while drawing, the drawing continues when you release it ... prevent that here
 			lb = 0;
 		}
-		else if (!save_mode)//draw normal cursor
+		// draw normal cursor
+		else
 		{
 			if (lm != 2)
 				if (lm && (sdl_mod & KMOD_ALT))
@@ -1467,8 +1480,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		gravity_update_async(); //Check for updated velocity maps from gravity thread
 		if (!sys_pause||framerender) //Only update if not paused
 			memset(gravmap, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float)); //Clear the old gravmap
-
-		globalSim->Tick(); //update everything
 
 		if (framerender)
 			framerender--;
@@ -1589,14 +1600,9 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			}
 			if (sdl_key=='s')
 			{
-				//if stkm2 is out, you must be holding right ctrl, else just either ctrl
+				// if stkm2 is out, you must be holding right ctrl, else just either ctrl
 				if ((globalSim->elementCount[PT_STKM2]>0 && (sdl_mod&KMOD_RCTRL)) || (globalSim->elementCount[PT_STKM2]<=0 && (sdl_mod&(KMOD_CTRL|KMOD_META))))
 					tab_save(tab_num, 1);
-				//if stkm2 is out, you must be holding left ctrl, else not be holding ctrl at all
-				else if ((globalSim->elementCount[PT_STKM2]>0 && (sdl_mod&(KMOD_LCTRL|KMOD_LMETA))) || (globalSim->elementCount[PT_STKM2]<=0 && !(sdl_mod&(KMOD_CTRL|KMOD_META))))
-				{
-					save_mode = 1;
-				}
 			}
 			if (sdl_key=='r') 
 			{
@@ -1975,38 +1981,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			}
 			if (sdl_key=='p' || sdl_key == SDLK_F2)
 				dump_frame(vid_buf, XRES, YRES, XRES+BARSIZE);
-			/*if (sdl_key=='v'&&(sdl_mod & (KMOD_CTRL|KMOD_META)))
-			{
-				if (clipboard_ready==1 && clipboard_data)
-				{
-					if (load_data)
-						free(load_data);
-					load_data = malloc(clipboard_length);
-					if (load_data)
-					{
-						memcpy(load_data, clipboard_data, clipboard_length);
-						load_size = clipboard_length;
-						load_img = prerender_save(load_data, load_size, &load_w, &load_h);
-						if (load_img)
-							load_mode = 1;
-						else
-						{
-							free(load_data);
-							load_data = NULL;
-						}
-					}
-				}
-			}*/
-			if (sdl_key=='x'&&(sdl_mod & (KMOD_CTRL|KMOD_META)))
-			{
-				save_mode = 1;
-				copy_mode = 2;
-			}
-			if (sdl_key=='c'&&(sdl_mod & (KMOD_CTRL|KMOD_META)))
-			{
-				save_mode = 1;
-				copy_mode = 1;
-			}
 			//TODO: Superseded by new display mode switching, need some keyboard shortcuts
 			/*else if (sdl_key=='c')
 			{
@@ -2258,93 +2232,10 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			}
 		}
 
-
-		//update coordinates for initial copy area before it is decided
-		if (save_mode == 1)
-		{
-			save_x = mx;
-			save_y = my;
-			if (save_x >= XRES) save_x = XRES-1;
-			if (save_y >= YRES) save_y = YRES-1;
-			save_w = 1;
-			save_h = 1;
-		}
-		//update coordinates for copy area before it is selected
-		if (save_mode == 2)
-		{
-			save_w = mx + 1 - save_x;
-			save_h = my + 1 - save_y;
-			if (save_w+save_x>XRES) save_w = XRES-save_x;
-			if (save_h+save_y>YRES) save_h = YRES-save_y;
-			if (save_w+save_x<0) save_w = 0;
-			if (save_h+save_y<0) save_h = 0;
-		}
-
-		//mouse clicks ignored when placing zoom
+		//mouse clicks ignored when placing zoom, or when loading / saving stamps
 		if (the_game->MouseClicksIgnored())
 		{
 			// certain thing the main window handles need prevent stuff from being drawn to the screen
-		}
-		//mouse clicks ignored when saving stamps
-		else if (save_mode == 1)
-		{
-			if (b == 1)
-			{
-				save_mode = 2;
-			}
-			else if (!b && bq == 4)
-			{
-				save_mode = 0;
-				copy_mode = 0;
-			}
-		}
-		//mouse clicks ignored when saving stamps
-		else if (save_mode == 2)
-		{
-			if (!b && bq)
-			{
-				if (bq != 4) //mouse could be 4 if strange stuff with zoom window happened
-				{
-					if (save_w < 0)
-					{
-						save_x = save_x + save_w - 1;
-						save_w = abs(save_w) + 2;
-					}
-					if (save_h < 0)
-					{
-						save_y = save_y + save_h - 1;
-						save_h = abs(save_h) + 2;
-					}
-					if (save_h > 0 && save_w > 0)
-					{
-						if (copy_mode==1)//CTRL-C, copy
-						{
-							if (clipboard_data)
-								free(clipboard_data);
-							clipboard_data = build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts);
-							if (clipboard_data)
-								clipboard_ready = 1;
-						}
-						else if (copy_mode==2)//CTRL-X, cut
-						{
-							if (clipboard_data)
-								free(clipboard_data);
-							clipboard_data = build_save(&clipboard_length, save_x, save_y, save_w, save_h, bmap, vx, vy, pv, fvx, fvy, signs, parts);
-							if (clipboard_data)
-							{
-								clipboard_ready = 1;
-								clear_area(save_x, save_y, save_w, save_h);
-							}
-						}
-						else//normal save
-						{
-							stamp_save(save_x, save_y, save_w, save_h);
-						}
-					}
-				}
-				copy_mode = 0;
-				save_mode = 0;
-			}
 		}
 		//there is a click
 		else if (b)

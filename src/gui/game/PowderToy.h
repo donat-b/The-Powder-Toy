@@ -11,7 +11,7 @@ class Download;
 class PowderToy : public Window_
 {
 public:
-	enum StampState { NONE, LOAD, COPY, CUT, SAVE, SAVE2 };
+	enum StampState { NONE, LOAD, COPY, CUT, SAVE };
 
 private:
 	Point mouse;
@@ -46,6 +46,14 @@ private:
 	void *stampData;
 	int stampSize;
 	pixel *stampImg;
+	bool waitToDraw; // wait a frame to draw stamp after load, because it will be in the wrong spot until another mouse event comes in
+
+	// saving stamps
+	bool savedInitial;
+	Point savePos;
+	Point saveSize;
+	void *clipboardData;
+	int clipboardSize;
 
 	// bottom bar buttons
 	Button *openBrowserButton;
@@ -71,6 +79,7 @@ private:
 	Button *zoomButton;
 	Button *stampButton;
 #endif
+	bool ignoreMouseUp;
 
 public:
 	PowderToy();
@@ -95,7 +104,10 @@ public:
 	StampState GetState() { return state; }
 	Point GetStampPos() { return loadPos; }
 	Point GetStampSize() { return loadSize; }
-	pixel * GetStampImg() { return stampImg; }
+	pixel * GetStampImg() { return waitToDraw ? NULL : stampImg; }
+	Point GetSavePos() { return savePos; }
+	Point GetSaveSize() { return saveSize; }
+	bool PlacedInitialStampCoordinate() { return savedInitial; }
 
 	void OnTick(uint32_t ticks);
 	void OnDraw(VideoBuffer *buf);
