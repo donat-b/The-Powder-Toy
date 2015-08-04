@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <sstream>
 #include "SDLCompat.h"
 #include "json/json.h"
@@ -55,6 +56,13 @@ PowderToy::PowderToy():
 	stampSize(0),
 	stampImg(NULL),
 	waitToDraw(false),
+#ifdef TOUCHUI
+	stampClickedPos(Point(0, 0)),
+	stampClickedOffset(Point(0, 0)),
+	initialLoadPos(Point(0, 0)),
+	stampQuadrant(0),
+	stampMoving(false),
+#endif
 	savePos(Point(0, 0)),
 	saveSize(Point(0, 0)),
 	clipboardData(NULL),
@@ -529,10 +537,10 @@ void PowderToy::SaveStamp(bool alt)
 		if (state == LOAD)
 		{
 			free(stampData);
-			stampData = NULL;
 			free(stampImg);
 			stampImg = NULL;
 			state = NONE;
+			stampMoving = false;
 		}
 
 		int reorder = 1;
@@ -548,6 +556,9 @@ void PowderToy::SaveStamp(bool alt)
 			if (stampImg)
 			{
 				state = LOAD;
+				loadPos.X = CELL*((XRES-loadSize.X+CELL)/2/CELL);
+				loadPos.Y = CELL*((YRES-loadSize.Y+CELL)/2/CELL);
+				stampClickedPos = Point(XRES, YRES)/2;
 				ignoreMouseUp = true;
 				waitToDraw = true;
 			}
@@ -589,14 +600,7 @@ bool PowderToy::MouseClicksIgnored()
 Point PowderToy::AdjustCoordinates(Point mouse)
 {
 	//adjust coords into the simulation area
-	if (mouse.X < 0)
-		mouse.X= 0;
-	else if (mouse.X >= XRES)
-		mouse.X = XRES-1;
-	if (mouse.Y < 0)
-		mouse.Y = 0;
-	else if (mouse.Y >= YRES)
-		mouse.Y = YRES-1;
+	mouse.Clamp(Point(0, 0), Point(XRES-1, YRES-1));
 
 	//Change mouse coords to take zoom window into account
 	if (ZoomWindowShown())
@@ -612,17 +616,8 @@ Point PowderToy::AdjustCoordinates(Point mouse)
 
 void PowderToy::UpdateZoomCoordinates(Point mouse)
 {
-	int zoomX = mouse.X-zoomSize/2;
-	int zoomY = mouse.Y-zoomSize/2;
-	if (zoomX < 0)
-		zoomX = 0;
-	else if (zoomX > XRES-zoomSize)
-		zoomX = XRES-zoomSize;
-	if (zoomY < 0)
-		zoomY = 0;
-	else if (zoomY > YRES-zoomSize)
-		zoomY = YRES-zoomSize;
-	zoomedOnPosition = Point(zoomX, zoomY);
+	zoomedOnPosition = mouse-Point(zoomSize/2, zoomSize/2);
+	zoomedOnPosition.Clamp(Point(0, 0), Point(XRES-zoomSize, YRES-zoomSize));
 
 	if (mouse.X < XRES/2)
 		zoomWindowPosition = Point(XRES-zoomSize*zoomFactor-1, 1);
@@ -630,18 +625,12 @@ void PowderToy::UpdateZoomCoordinates(Point mouse)
 		zoomWindowPosition = Point(1, 1);
 }
 
-void PowderToy::UpdateStampCoordinates(Point cursor)
+void PowderToy::UpdateStampCoordinates(Point cursor, Point offset)
 {
 	loadPos.X = CELL*((cursor.X-loadSize.X/2+CELL/2)/CELL);
 	loadPos.Y = CELL*((cursor.Y-loadSize.Y/2+CELL/2)/CELL);
-	if (loadPos.X < 0)
-		loadPos.X = 0;
-	else if (loadPos.X + loadSize.X > XRES)
-		loadPos.X = XRES - loadSize.X;
-	if (loadPos.Y < 0)
-		loadPos.Y = 0;
-	else if (loadPos.Y + loadSize.Y > YRES)
-		loadPos.Y = YRES - loadSize.Y;
+	loadPos -= offset;
+	loadPos.Clamp(Point(0, 0), Point(XRES, YRES)-loadSize);
 }
 
 void PowderToy::HideZoomWindow()
@@ -999,7 +988,12 @@ void PowderToy::OnMouseMove(int x, int y, Point difference)
 		UpdateZoomCoordinates(mouse);
 	if (state == LOAD)
 	{
+#ifdef TOUCHUI
+		if (stampMoving)
+			UpdateStampCoordinates(cursor, stampClickedOffset);
+#else
 		UpdateStampCoordinates(cursor);
+#endif
 	}
 	else if (state == SAVE || state == COPY || state == CUT)
 	{
@@ -1032,6 +1026,29 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 			UpdateZoomCoordinates(mouse);
 		}
 	}
+#ifdef TOUCHUI
+	else if (state == LOAD)
+	{
+		stampClickedPos = cursor;
+		initialLoadPos = loadPos;
+		//stampClickedOffset = cursor-(loadPos+loadSize/2);
+		UpdateStampCoordinates(cursor);
+		stampClickedOffset = loadPos-initialLoadPos;
+		loadPos -= stampClickedOffset;
+		if (cursor.IsInside(loadPos, loadPos+loadSize))
+			stampMoving = true;
+		// calculate which side of the stamp this touch is on
+		else
+		{
+			int xOffset = (loadSize.X-loadSize.Y)/2;
+			Point diff = cursor-(loadPos+loadSize/2);
+			if (std::abs(diff.X)-xOffset > std::abs(diff.Y))
+				stampQuadrant = (diff.X > 0) ? 3 : 1; // right : left
+			else
+				stampQuadrant = (diff.Y > 0) ? 2 : 0; // down : up
+		}
+	}
+#endif
 	else if (state == SAVE || state == COPY || state == CUT)
 	{
 		// right click cancel
@@ -1065,11 +1082,66 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 	}
 	else if (state == LOAD)
 	{
-		if (button == 1 && y < YRES+MENUSIZE-16)
+		if (button == 3 || y >= YRES+MENUSIZE-16)
 		{
-			ctrlzSnapshot();
-			parse_save(stampData, stampSize, 0, loadPos.X, loadPos.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+			free(stampData);
+			stampData = NULL;
+			free(stampImg);
+			stampImg = NULL;
+			state = NONE;
+#ifdef TOUCHUI
+			stampMoving = false;
+#endif
+			return;
 		}
+#ifdef TOUCHUI
+		if (loadPos != initialLoadPos)
+		{
+			stampMoving = false;
+			return;
+		}
+		else if (cursor.IsInside(Point(0, 0), Point(XRES, YRES)) && !cursor.IsInside(loadPos, loadPos+loadSize))
+		{
+			// figure out which side this touch started and ended on (arbitrary direction numbers)
+			// imagine 4 quadrants coming out of the stamp, with the edges diagonally starting directly from each corner
+			// if you tap the screen in one of these corners, it shifts the stamp one pixel in that direction
+			// if you move between quadrants you can rotate in that direction
+			// or flip horizontally / vertically by dragging accross the stamp without touching the side quadrants
+			int quadrant, xOffset = (loadSize.X-loadSize.Y)/2;
+			Point diff = cursor-(loadPos+loadSize/2);
+			if (std::abs(diff.X)-xOffset > std::abs(diff.Y))
+				quadrant = (diff.X > 0) ? 3 : 1; // right : left
+			else
+				quadrant = (diff.Y > 0) ? 2 : 0; // down : up
+
+			matrix2d transform = m2d_identity;
+			vector2d translate = v2d_zero;
+			// shift (arrow keys)
+			if (quadrant == stampQuadrant)
+				translate = v2d_new((quadrant-2)%2, (quadrant-1)%2);
+			// rotate 90 degrees
+			else if (quadrant%2 != stampQuadrant%2)
+				transform = m2d_new(0, (quadrant-stampQuadrant+1)%4 == 0 ? -1 : 1, (quadrant-stampQuadrant+1)%4 == 0 ? 1 : -1, 0);
+			// flip 180
+			else
+				transform = m2d_new((quadrant%2)*-2+1, 0, 0, (quadrant%2)*2-1);
+
+			// actual transformation is done here
+			void *newData = transform_save(stampData, &stampSize, transform, translate);
+			if (!newData)
+				return;
+			free(stampData);
+			stampData = newData;
+			free(stampImg);
+			stampImg = prerender_save(stampData, stampSize, &loadSize.X, &loadSize.Y);
+			return;
+		}
+		else if (!stampMoving)
+			return;
+		stampMoving = false;
+#endif
+		ctrlzSnapshot();
+		parse_save(stampData, stampSize, 0, loadPos.X, loadPos.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 		free(stampData);
 		stampData = NULL;
 		free(stampImg);
@@ -1186,7 +1258,7 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 			translate = v2d_new(0, -1);
 			break;
 		case SDLK_DOWN:
-			translate = v2d_new(0, -1);
+			translate = v2d_new(0, 1);
 			break;
 		default:
 			doTransform = false;
@@ -1237,9 +1309,13 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		// if we are placing a stamp, cancel that to load the new one
 		if (state == LOAD)
 		{
-			free(stampImg);
 			free(stampData);
+			free(stampImg);
+			stampImg = NULL;
 			state = NONE;
+#ifdef TOUCHUI
+			stampMoving = false;
+#endif
 		}
 		// open stamp interface
 		if (key == 'k')

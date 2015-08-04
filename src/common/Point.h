@@ -32,6 +32,24 @@ struct Point
 		Y(0)
 	{ }
 
+	void Clamp(Point min, Point max)
+	{
+		if (X < min.X)
+			X = min.X;
+		else if (X > max.X)
+			X = max.X;
+
+		if (Y < min.Y)
+			Y = min.Y;
+		else if (Y > max.Y)
+			Y = max.Y;
+	}
+
+	bool IsInside(Point topLeft, Point bottomRight)
+	{
+		return X >= topLeft.X && X < bottomRight.X && Y >= topLeft.Y && Y < bottomRight.Y;
+	}
+
 	//some basic operator overloads
 	inline bool operator == (const Point& other) const
 	{
@@ -79,6 +97,16 @@ struct Point
 		return Point(X-other.X, Y-other.Y);
 	}
 
+	inline Point operator * (const int other)
+	{
+		return Point(X*other, Y*other);
+	}
+
+	inline Point operator / (const int other)
+	{
+		return Point(X/other, Y/other);
+	}
+
 	inline void operator += (const Point& other)
 	{
 		X += other.X;
@@ -91,4 +119,5 @@ struct Point
 		Y -= other.Y;
 	}
 }; typedef struct Point Point;
+
 #endif

@@ -47,6 +47,14 @@ private:
 	int stampSize;
 	pixel *stampImg;
 	bool waitToDraw; // wait a frame to draw stamp after load, because it will be in the wrong spot until another mouse event comes in
+	// touch ui stuff for rotating / moving stamps
+#ifdef TOUCHUI
+	Point stampClickedPos;
+	Point stampClickedOffset;
+	Point initialLoadPos;
+	int stampQuadrant;
+	bool stampMoving;
+#endif
 
 	// saving stamps
 	bool savedInitial;
@@ -100,7 +108,7 @@ public:
 	int GetZoomWindowFactor() { return zoomFactor; }
 
 	// stamp stuff (so main() can get needed info)
-	void UpdateStampCoordinates(Point cursor);
+	void UpdateStampCoordinates(Point cursor, Point offset = Point(0, 0));
 	StampState GetState() { return state; }
 	Point GetStampPos() { return loadPos; }
 	Point GetStampSize() { return loadSize; }
