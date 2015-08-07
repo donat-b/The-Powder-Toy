@@ -4021,6 +4021,13 @@ int search_ui(pixel *vid_buf)
 {
 	int nmp=-1,uih=0,nyu,nyd,b=1,bq,mx=0,my=0,mxq=0,myq=0,mmt=0,gi,gj,gx,gy,pos,i,mp,dp,dap,own,last_own=search_own,last_fav=search_fav,page_count=0,last_page=0,last_date=0,j,w,h,st=0,lv;
 	int is_p1=0, exp_res=GRID_X*GRID_Y, tp, view_own=0, last_p1_extra=0, motdswap = rand()%2;
+#ifdef TOUCHUI
+	const int xOffset = 10;
+#else
+	const int xOffset = 0;
+#endif
+	int touchOffset = 0, initialOffset = 0;
+	bool dragging = false;
 	int thumb_drawn[GRID_X*GRID_Y];
 	pixel *v_buf = (pixel *)malloc(((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 	pixel *bthumb_rsdata = NULL;
@@ -4065,7 +4072,7 @@ int search_ui(pixel *vid_buf)
 			break;
 	}
 
-	ui_edit_init(&ed, 65, 13, XRES-200, 14);
+	ui_edit_init(&ed, 65+xOffset, 13, XRES-200, 14);
 	ed.def = "[search terms]";
 	ed.cursor = ed.cursorstart = strlen(search_expr);
 	strcpy(ed.str, search_expr);
@@ -4094,106 +4101,107 @@ int search_ui(pixel *vid_buf)
 
 		memcpy(vid_buf, v_buf, ((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 
-		drawtext(vid_buf, 11, 13, "Search:", 192, 192, 192, 255);
+		drawtext(vid_buf, 11+xOffset, 13, "Search:", 192, 192, 192, 255);
 		if (!saveListDownload || saveListDownload->CheckStarted())
-			drawtext(vid_buf, 51, 11, "\x8E", 192, 160, 32, 255);
+			drawtext(vid_buf, 51+xOffset, 11, "\x8E", 192, 160, 32, 255);
 		else
-			drawtext(vid_buf, 51, 11, "\x8E", 32, 64, 160, 255);
-		drawtext(vid_buf, 51, 11, "\x8F", 255, 255, 255, 255);
-		drawrect(vid_buf, 48, 8, XRES-182, 16, 192, 192, 192, 255);
+			drawtext(vid_buf, 51+xOffset, 11, "\x8E", 32, 64, 160, 255);
+		drawtext(vid_buf, 51+xOffset, 11, "\x8F", 255, 255, 255, 255);
+		drawrect(vid_buf, 48+xOffset, 8, XRES-182, 16, 192, 192, 192, 255);
 
 		if (!svf_login || search_fav)
 		{
 			search_own = 0;
-			drawrect(vid_buf, XRES-64+16, 8, 56, 16, 96, 96, 96, 255);
-			drawtext(vid_buf, XRES-61+16, 11, "\x94", 96, 80, 16, 255);
-			drawtext(vid_buf, XRES-61+16, 11, "\x93", 128, 128, 128, 255);
-			drawtext(vid_buf, XRES-46+16, 13, "My Own", 128, 128, 128, 255);
+			drawrect(vid_buf, XRES-64+16+xOffset, 8, 56, 16, 96, 96, 96, 255);
+			drawtext(vid_buf, XRES-61+16+xOffset, 11, "\x94", 96, 80, 16, 255);
+			drawtext(vid_buf, XRES-61+16+xOffset, 11, "\x93", 128, 128, 128, 255);
+			drawtext(vid_buf, XRES-46+16+xOffset, 13, "My Own", 128, 128, 128, 255);
 		}
 		else if (search_own)
 		{
-			fillrect(vid_buf, XRES-65+16, 7, 58, 18, 255, 255, 255, 255);
-			drawtext(vid_buf, XRES-61+16, 11, "\x94", 192, 160, 64, 255);
-			drawtext(vid_buf, XRES-61+16, 11, "\x93", 32, 32, 32, 255);
-			drawtext(vid_buf, XRES-46+16, 13, "My Own", 0, 0, 0, 255);
+			fillrect(vid_buf, XRES-65+16+xOffset, 7, 58, 18, 255, 255, 255, 255);
+			drawtext(vid_buf, XRES-61+16+xOffset, 11, "\x94", 192, 160, 64, 255);
+			drawtext(vid_buf, XRES-61+16+xOffset, 11, "\x93", 32, 32, 32, 255);
+			drawtext(vid_buf, XRES-46+16+xOffset, 13, "My Own", 0, 0, 0, 255);
 		}
 		else
 		{
-			drawrect(vid_buf, XRES-64+16, 8, 56, 16, 192, 192, 192, 255);
-			drawtext(vid_buf, XRES-61+16, 11, "\x94", 192, 160, 32, 255);
-			drawtext(vid_buf, XRES-61+16, 11, "\x93", 255, 255, 255, 255);
-			drawtext(vid_buf, XRES-46+16, 13, "My Own", 255, 255, 255, 255);
+			drawrect(vid_buf, XRES-64+16+xOffset, 8, 56, 16, 192, 192, 192, 255);
+			drawtext(vid_buf, XRES-61+16+xOffset, 11, "\x94", 192, 160, 32, 255);
+			drawtext(vid_buf, XRES-61+16+xOffset, 11, "\x93", 255, 255, 255, 255);
+			drawtext(vid_buf, XRES-46+16+xOffset, 13, "My Own", 255, 255, 255, 255);
 		}
 
 		if(!svf_login)
 		{
 			search_fav = 0;
-			drawrect(vid_buf, XRES-134, 8, 16, 16, 192, 192, 192, 255);
-			drawtext(vid_buf, XRES-130, 11, "\xCC", 120, 120, 120, 255);
+			drawrect(vid_buf, XRES-134+xOffset, 8, 16, 16, 192, 192, 192, 255);
+			drawtext(vid_buf, XRES-130+xOffset, 11, "\xCC", 120, 120, 120, 255);
 		}
 		else if (search_fav)
 		{
-			fillrect(vid_buf, XRES-134, 7, 18, 18, 255, 255, 255, 255);
-			drawtext(vid_buf, XRES-130, 11, "\xCC", 192, 160, 64, 255);
+			fillrect(vid_buf, XRES-134+xOffset, 7, 18, 18, 255, 255, 255, 255);
+			drawtext(vid_buf, XRES-130+xOffset, 11, "\xCC", 192, 160, 64, 255);
 		}
 		else
 		{
-			drawrect(vid_buf, XRES-134, 8, 16, 16, 192, 192, 192, 255);
-			drawtext(vid_buf, XRES-130, 11, "\xCC", 192, 160, 32, 255);
+			drawrect(vid_buf, XRES-134+xOffset, 8, 16, 16, 192, 192, 192, 255);
+			drawtext(vid_buf, XRES-130+xOffset, 11, "\xCC", 192, 160, 32, 255);
 		}
 
 		if(search_fav)
 		{
 			search_date = 0;
-			drawrect(vid_buf, XRES-129+16, 8, 60, 16, 96, 96, 96, 255);
-			drawtext(vid_buf, XRES-126+16, 11, "\xA9", 44, 48, 32, 255);
-			drawtext(vid_buf, XRES-126+16, 11, "\xA8", 32, 44, 32, 255);
-			drawtext(vid_buf, XRES-126+16, 11, "\xA7", 128, 128, 128, 255);
-			drawtext(vid_buf, XRES-111+16, 13, "By votes", 128, 128, 128, 255);
+			drawrect(vid_buf, XRES-129+16+xOffset, 8, 60, 16, 96, 96, 96, 255);
+			drawtext(vid_buf, XRES-126+16+xOffset, 11, "\xA9", 44, 48, 32, 255);
+			drawtext(vid_buf, XRES-126+16+xOffset, 11, "\xA8", 32, 44, 32, 255);
+			drawtext(vid_buf, XRES-126+16+xOffset, 11, "\xA7", 128, 128, 128, 255);
+			drawtext(vid_buf, XRES-111+16+xOffset, 13, "By votes", 128, 128, 128, 255);
 		}
 		else if (search_date)
 		{
-			fillrect(vid_buf, XRES-130+16, 7, 62, 18, 255, 255, 255, 255);
-			drawtext(vid_buf, XRES-126+16, 11, "\xA6", 32, 32, 32, 255);
-			drawtext(vid_buf, XRES-111+16, 13, "By date", 0, 0, 0, 255);
+			fillrect(vid_buf, XRES-130+16+xOffset, 7, 62, 18, 255, 255, 255, 255);
+			drawtext(vid_buf, XRES-126+16+xOffset, 11, "\xA6", 32, 32, 32, 255);
+			drawtext(vid_buf, XRES-111+16+xOffset, 13, "By date", 0, 0, 0, 255);
 		}
 		else
 		{
-			drawrect(vid_buf, XRES-129+16, 8, 60, 16, 192, 192, 192, 255);
-			drawtext(vid_buf, XRES-126+16, 11, "\xA9", 144, 48, 32, 255);
-			drawtext(vid_buf, XRES-126+16, 11, "\xA8", 32, 144, 32, 255);
-			drawtext(vid_buf, XRES-126+16, 11, "\xA7", 255, 255, 255, 255);
-			drawtext(vid_buf, XRES-111+16, 13, "By votes", 255, 255, 255, 255);
+			drawrect(vid_buf, XRES-129+16+xOffset, 8, 60, 16, 192, 192, 192, 255);
+			drawtext(vid_buf, XRES-126+16+xOffset, 11, "\xA9", 144, 48, 32, 255);
+			drawtext(vid_buf, XRES-126+16+xOffset, 11, "\xA8", 32, 144, 32, 255);
+			drawtext(vid_buf, XRES-126+16+xOffset, 11, "\xA7", 255, 255, 255, 255);
+			drawtext(vid_buf, XRES-111+16+xOffset, 13, "By votes", 255, 255, 255, 255);
 		}
 
+		ui_edit_draw(vid_buf, &ed);
+
+#ifndef TOUCHUI
 		if (search_page)
 		{
-			drawtext(vid_buf, 4, YRES+MENUSIZE-16, "\x96", 255, 255, 255, 255);
-			drawrect(vid_buf, 1, YRES+MENUSIZE-20, 16, 16, 255, 255, 255, 255);
+			drawtext(vid_buf, 4+xOffset, YRES+MENUSIZE-16, "\x96", 255, 255, 255, 255);
+			drawrect(vid_buf, 1+xOffset, YRES+MENUSIZE-20, 16, 16, 255, 255, 255, 255);
 		}
-		else if (page_count > exp_res && !(search_own || search_fav || search_date) && !strcmp(ed.str,""))
+		else if (page_count > exp_res && !(search_own || search_fav || search_date) && !strlen(ed.str) < 4)
 		{
 			if (p1_extra)
-				drawtext(vid_buf, 4, YRES+MENUSIZE-17, "\x85", 255, 255, 255, 255);
+				drawtext(vid_buf, 4+xOffset, YRES+MENUSIZE-17, "\x85", 255, 255, 255, 255);
 			else
-				drawtext(vid_buf, 4, YRES+MENUSIZE-17, "\x89", 255, 255, 255, 255);
-			drawrect(vid_buf, 1, YRES+MENUSIZE-20, 15, 15, 255, 255, 255, 255);
+				drawtext(vid_buf, 4+xOffset, YRES+MENUSIZE-17, "\x89", 255, 255, 255, 255);
+			drawrect(vid_buf, 1+xOffset, YRES+MENUSIZE-20, 15, 15, 255, 255, 255, 255);
 		}
 		if (page_count > exp_res)
 		{
-			drawtext(vid_buf, XRES-15, YRES+MENUSIZE-16, "\x95", 255, 255, 255, 255);
-			drawrect(vid_buf, XRES-18, YRES+MENUSIZE-20, 16, 16, 255, 255, 255, 255);
+			drawtext(vid_buf, XRES-15+xOffset, YRES+MENUSIZE-16, "\x95", 255, 255, 255, 255);
+			drawrect(vid_buf, XRES-18+xOffset, YRES+MENUSIZE-20, 16, 16, 255, 255, 255, 255);
 		}
 		if (page_count)
 		{
 			char pagecount[16];
 			sprintf(pagecount,"Page %i",search_page+1);
-			drawtext(vid_buf, (XRES-textwidth(pagecount))/2, YRES+MENUSIZE-10, pagecount, 255, 255, 255, 255);
+			drawtext(vid_buf, (XRES-textwidth(pagecount))/2+xOffset, YRES+MENUSIZE-10, pagecount, 255, 255, 255, 255);
 		}
 
-		ui_edit_draw(vid_buf, &ed);
-
-		if ((b && !bq && mx>=1 && mx<=17 && my>=YRES+MENUSIZE-20 && my<YRES+MENUSIZE-4) || sdl_wheel>0)
+		if ((b && !bq && mx>=1+xOffset && mx<=17+xOffset && my>=YRES+MENUSIZE-20 && my<YRES+MENUSIZE-4) || sdl_wheel>0)
 		{
 			if (search_page)
 				search_page --;
@@ -4202,7 +4210,7 @@ int search_ui(pixel *vid_buf)
 			sdl_wheel = 0;
 			uih = 1;
 		}
-		if ((b && !bq && mx>=XRES-18 && mx<=XRES-1 && my>=YRES+MENUSIZE-20 && my<YRES+MENUSIZE-4) || sdl_wheel<0)
+		if ((b && !bq && mx>=XRES-18+xOffset && mx<=XRES-1+xOffset && my>=YRES+MENUSIZE-20 && my<YRES+MENUSIZE-4) || sdl_wheel<0)
 		{
 			if (page_count>exp_res)
 			{
@@ -4212,6 +4220,7 @@ int search_ui(pixel *vid_buf)
 			sdl_wheel = 0;
 			uih = 1;
 		}
+#endif
 
 		tp = -1;
 		if (is_p1)
@@ -4220,7 +4229,7 @@ int search_ui(pixel *vid_buf)
 			ui_richtext_process(mx, my, b, bq, &motd);
 			ui_richtext_draw(vid_buf, &motd);
 			//Popular tags
-			drawtext(vid_buf, (XRES-textwidth("Popular tags:"))/2, 49, "Popular tags:", 255, 192, 64, 255);
+			drawtext(vid_buf, (XRES-textwidth("Popular tags:"))/2+xOffset+touchOffset, 49, "Popular tags:", 255, 192, 64, 255);
 			for (gj=0; gj<((GRID_Y-GRID_P)*YRES)/(GRID_Y*14); gj++)
 				for (gi=0; gi<(GRID_X+1); gi++)
 				{
@@ -4234,7 +4243,7 @@ int search_ui(pixel *vid_buf)
 					w = textwidth(tag_names[pos]);
 					if (w>XRES/(GRID_X+1)-5)
 						w = XRES/(GRID_X+1)-5;
-					gx = (XRES/(GRID_X+1))*gi;
+					gx = (XRES/(GRID_X+1))*gi+xOffset+touchOffset;
 					gy = gj*13 + 62;
 					if (mx>=gx && mx<gx+(XRES/((GRID_X+1)+1)) && my>=gy && my<gy+14)
 					{
@@ -4263,7 +4272,7 @@ int search_ui(pixel *vid_buf)
 					pos = gi+GRID_X*gj;
 				if (!search_ids[pos])
 					break;
-				gx = ((XRES/GRID_X)*gi) + (XRES/GRID_X-XRES/GRID_S)/2;
+				gx = ((XRES/GRID_X)*gi) + (XRES/GRID_X-XRES/GRID_S)/2+xOffset+touchOffset;
 				gy = ((((YRES-(MENUSIZE-20))+15)/GRID_Y)*gj) + ((YRES-(MENUSIZE-20))/GRID_Y-(YRES-(MENUSIZE-20))/GRID_S+10)/2 + 18;
 				if (textwidth(search_names[pos]) > XRES/GRID_X-10)
 				{
@@ -4293,7 +4302,8 @@ int search_ui(pixel *vid_buf)
 					pixel *thumb_imgdata = ptif_unpack(search_thumbs[pos], search_thsizes[pos], &finw, &finh);
 					if(thumb_imgdata!=NULL){
 						thumb_rsdata = resample_img(thumb_imgdata, finw, finh, XRES/GRID_S, YRES/GRID_S);
-						draw_image(v_buf, thumb_rsdata, gx, gy, XRES/GRID_S, YRES/GRID_S, 255);					
+						draw_image(vid_buf, thumb_rsdata, gx, gy, XRES/GRID_S, YRES/GRID_S, 255);
+						draw_image(v_buf, thumb_rsdata, gx, gy, XRES/GRID_S, YRES/GRID_S, 255);
 						free(thumb_imgdata);
 						free(thumb_rsdata);
 					}
@@ -4394,13 +4404,14 @@ int search_ui(pixel *vid_buf)
 				}
 			}
 
+#ifndef TOUCHUI
 		if (mp!=-1 && mmt>=TIMEOUT/5 && !st && my<YRES+MENUSIZE-25)
 		{
 			gi = mp % GRID_X;
 			gj = mp / GRID_X;
 			if (is_p1)
 				gj += GRID_Y-GRID_P;
-			gx = ((XRES/GRID_X)*gi) + (XRES/GRID_X-XRES/GRID_S)/2;
+			gx = ((XRES/GRID_X)*gi) + (XRES/GRID_X-XRES/GRID_S)/2+xOffset+touchOffset;
 			gy = (((YRES+15)/GRID_Y)*gj) + (YRES/GRID_Y-YRES/GRID_S+10)/2 + 18;
 			i = w = textwidth(search_names[mp]);
 			h = YRES/GRID_Z+30;
@@ -4432,6 +4443,12 @@ int search_ui(pixel *vid_buf)
 			drawtext(vid_buf, gx+(w-i)/2, gy+YRES/GRID_Z+4, search_names[mp], 192, 192, 192, 255);
 			drawtext(vid_buf, gx+(w-textwidth(search_owners[mp]))/2, gy+YRES/GRID_Z+16, search_owners[mp], 128, 128, 128, 255);
 		}
+#endif
+		if (saveListDownload && saveListDownload->CheckStarted())
+		{
+			fillrect(vid_buf, 0, 30, XRES+BARSIZE, YRES+MENUSIZE-30, 0, 0, 0, 150);
+			drawtext(vid_buf, (XRES+BARSIZE-textwidth("Loading ..."))/2, (YRES+MENUSIZE)/2, "Loading ...", 255, 255, 255, 255);
+		}
 #ifdef OGLR
 		clearScreen(1.0f);
 #endif
@@ -4454,69 +4471,116 @@ int search_ui(pixel *vid_buf)
 			goto finish;
 		}
 
-		if (b && !bq && mx>=XRES-64+16 && mx<=XRES-8+16 && my>=8 && my<=24 && svf_login && !search_fav)
+		if (b && !bq)
 		{
-			search_own = !search_own;
-		}
-		if (b && !bq && mx>=XRES-129+16 && mx<=XRES-65+16 && my>=8 && my<=24 && !search_fav)
-		{
-			search_date = !search_date;
-		}
-		if (b && !bq && mx>=XRES-134 && mx<=XRES-134+16 && my>=8 && my<=24 && svf_login)
-		{
-			search_fav = !search_fav;
-			search_own = 0;
-			search_date = 0;
-		}
-
-		if (b && !bq && dp!=-1)
-		{
-			if (search_fav){
-				if(confirm_ui(vid_buf, "Remove from favorites?", search_names[dp], "Remove")){
-					execute_unfav(vid_buf, search_ids[dp]);
-					if (last)
-					{
-						free(last);
-						last = NULL;
+			if (mx>=XRES-64+16+xOffset && mx<=XRES-8+16+xOffset && my>=8 && my<=24 && svf_login && !search_fav)
+			{
+				search_own = !search_own;
+			}
+			else if (mx>=XRES-129+16+xOffset && mx<=XRES-65+16+xOffset && my>=8 && my<=24 && !search_fav)
+			{
+				search_date = !search_date;
+			}
+			else if (mx>=XRES-134+xOffset && mx<=XRES-134+16+xOffset && my>=8 && my<=24 && svf_login)
+			{
+				search_fav = !search_fav;
+				search_own = 0;
+				search_date = 0;
+			}
+			else if (dp!=-1)
+			{
+				if (search_fav){
+					if(confirm_ui(vid_buf, "Remove from favorites?", search_names[dp], "Remove")){
+						execute_unfav(vid_buf, search_ids[dp]);
+						if (last)
+						{
+							free(last);
+							last = NULL;
+						}
 					}
-				}
-			} else {
-				if (confirm_ui(vid_buf, "Do you want to delete?", search_names[dp], "Delete"))
-				{
-					execute_delete(vid_buf, search_ids[dp]);
-					if (last)
+				} else {
+					if (confirm_ui(vid_buf, "Do you want to delete?", search_names[dp], "Delete"))
 					{
-						free(last);
-						last = NULL;
+						execute_delete(vid_buf, search_ids[dp]);
+						if (last)
+						{
+							free(last);
+							last = NULL;
+						}
 					}
 				}
 			}
-		}
-		if (b && !bq && dap!=-1)
-		{
-			sprintf(ed.str, "history:%s", search_ids[dap]);
+			else if (dap!=-1)
+			{
+				sprintf(ed.str, "history:%s", search_ids[dap]);
+			}
+			else if (tp!=-1)
+			{
+				strncpy(ed.str, tag_names[tp], 255);
+			}
+			else if (mp!=-1 && st)
+			{
+				sprintf(ed.str, "user:%s", search_owners[mp]);
+			}
+			else if ((mp!=-1 && !st && !uih) || do_open==1)
+			{
+				strcpy(search_expr, ed.str);
+				if (open_ui(vid_buf, search_ids[mp], search_dates[mp]?search_dates[mp]:NULL, sdl_mod&(KMOD_CTRL|KMOD_META)) || do_open==1) {
+					goto finish;
+				}
+			}
+#ifdef TOUCHUI
+			else
+			{
+				dragging = true;
+				initialOffset = mx;
+			}
+#endif
 		}
 
-		if (b && !bq && tp!=-1)
-		{
-			strncpy(ed.str, tag_names[tp], 255);
-		}
-
-		if (b && !bq && mp!=-1 && st)
-		{
-			sprintf(ed.str, "user:%s", search_owners[mp]);
-		}
-
-		if (do_open==1)
+		if (do_open == 1)
 		{
 			mp = 0;
 		}
 
-		if ((b && !bq && mp!=-1 && !st && !uih) || do_open==1)
+		if (dragging)
 		{
-			strcpy(search_expr, ed.str);
-			if (open_ui(vid_buf, search_ids[mp], search_dates[mp]?search_dates[mp]:NULL, sdl_mod&(KMOD_CTRL|KMOD_META)) || do_open==1) {
-				goto finish;
+			if (!b)
+			{
+				if (touchOffset > (XRES+BARSIZE)/3 && search_page)
+				{
+					search_page--;
+					uih = 1; // not sure what this does
+				}
+				else if (touchOffset < -(XRES+BARSIZE)/3 && page_count>exp_res)
+				{
+					search_page++;
+					page_count = exp_res;
+					uih = 1; // not sure what this does
+				}
+				else
+				{
+					touchOffset = 0;
+					for (int i = 0; i < GRID_X*GRID_Y; i++)
+						thumb_drawn[i] = 0;
+					clearrect(v_buf, 0, 0, XRES+BARSIZE, YRES+MENUSIZE);
+				}
+				dragging = false;
+			}
+			else
+			{
+				int oldOffset = touchOffset;
+				touchOffset = mx-initialOffset;
+				if (touchOffset > 0 && !search_page)
+					touchOffset = 0;
+				else if (touchOffset < 0 && page_count<=exp_res)
+					touchOffset = 0;
+				if (oldOffset != touchOffset)
+				{
+					for (int i = 0; i < GRID_X*GRID_Y; i++)
+						thumb_drawn[i] = 0;
+					clearrect(v_buf, 0, 0, XRES+BARSIZE, YRES+MENUSIZE);
+				}
 			}
 		}
 
@@ -4524,10 +4588,10 @@ int search_ui(pixel *vid_buf)
 		{
 			search = 1;
 		}
-		else if (strcmp(last, ed.str) || last_own!=search_own || last_date!=search_date || last_page!=search_page || last_fav!=search_fav || last_p1_extra!=p1_extra)
+		else if ((strcmp(last, ed.str) && (!strcmp(ed.str, "") || strlen(ed.str) > 3)) || last_own!=search_own || last_date!=search_date || last_page!=search_page || last_fav!=search_fav || last_p1_extra!=p1_extra)
 		{
 			search = 1;
-			if (strcmp(last, ed.str) || last_own!=search_own || last_fav!=search_fav || last_date!=search_date)
+			if ((strcmp(last, ed.str) && (strcmp(ed.str, "") || strlen(ed.str) > 3)) || last_own!=search_own || last_fav!=search_fav || last_date!=search_date)
 			{
 				search_page = 0;
 				page_count = 0;
@@ -4597,6 +4661,7 @@ int search_ui(pixel *vid_buf)
 			char *results = saveListDownload->Finish(NULL, &status);
 			view_own = last_own;
 			is_p1 = (exp_res < GRID_X*GRID_Y);
+			touchOffset = 0;
 			if (status == 200)
 			{
 				page_count = search_results(results, last_own||svf_admin||svf_mod||(unlockedstuff&0x08));
