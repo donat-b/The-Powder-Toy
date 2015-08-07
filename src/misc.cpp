@@ -38,6 +38,7 @@
 #include <SDLCompat.h>
 #ifdef ANDROID
 #include <SDL/SDL_screenkeyboard.h>
+#include <SDL/SDL_android.h>
 #endif
 
 #ifdef LIN
@@ -1294,14 +1295,16 @@ void RGB_to_HSV(int r,int g,int b,int *h,int *s,int *v)//convert 0-255 RGB value
 	}
 }
 
+// brings up an on screen keyboard and sends one key input for every key pressed
+// the tiny keyboard designed to do this doesn't work, so this will bring up a blocking keyboard
+// key presses are still sent one at a time when it is done (also seems to overflow every 90 characters, which seems to be the max)
 bool ShowOnScreenKeyboard(const char *str)
 {
 #ifdef ANDROID
 	// keyboard without text input is a lot nicer
-	// but for some reason none of the keys work, and mouse input is never sent through
-	// unless you try to press a key where for some reason it clicks the thing under that key
+	// but for some reason none of the keys work, and mouse input is never sent through outside of the keyboard
+	// unless you try to press a key (inside the keyboard) where for some reason it clicks the thing under that key
 	//SDL_ANDROID_ToggleScreenKeyboardWithoutTextInput();
-	//ignoreMouseClicks = true;
 
 	// blocking fullscreen keyboard
 	SDL_ANDROID_ToggleScreenKeyboardTextInput(str);
@@ -1310,12 +1313,63 @@ bool ShowOnScreenKeyboard(const char *str)
 	return false;
 }
 
+// takes a buffer (which can have existing text), and the buffer size
+// The user then types the text, which is placed in the buffer for use
+void GetOnScreenKeyboardInput(char * buff, int buffSize)
+{
+#ifdef ANDROID
+	SDL_ANDROID_GetScreenKeyboardTextInput(buff, buffSize);
+#endif
+}
+
 bool IsOnScreenKeyboardShown()
 {
 #ifdef ANDROID
 	return SDL_IsScreenKeyboardShown(NULL);
 #endif
 	return false;
+}
+
+void DoRestart(bool saveTab)
+{
+	if (saveTab)
+	{
+		sys_pause = 1;
+		tab_save(tab_num, 0);
+	}
+#ifdef ANDROID
+	SDL_ANDROID_RestartMyself("");
+	exit(-1);
+#else
+	char *exename = exe_name();
+	if (exename)
+	{
+#ifdef WIN
+		ShellExecute(NULL, "open", exename, NULL, NULL, SW_SHOWNORMAL);
+#elif defined(LIN) || defined(MACOSX)
+		execl(exename, "powder", NULL);
+#endif
+		free(exename);
+	}
+	exit(-1);
+#endif
+}
+
+void OpenLink(std::string uri)
+{
+#ifdef ANDROID
+	SDL_ANDROID_OpenExternalWebBrowser(uri.c_str());
+#elif WIN
+	ShellExecute(0, "OPEN", uri.c_str(), NULL, NULL, 0);
+#elif MACOSX
+	std::string command = "open " + uri;
+	system(command.c_str());
+#elif LIN
+	std::string command = "xdg-open " + uri;
+	system(command.c_str());
+#else
+	printf("Cannot open browser\n");
+#endif
 }
 
 Tool* GetToolFromIdentifier(std::string identifier)

@@ -8,6 +8,7 @@
 class Button;
 class VideoBuffer;
 class Download;
+class ToolTip;
 class PowderToy : public Window_
 {
 public:
@@ -81,8 +82,8 @@ private:
 
 	// these buttons only appear when using the touchscreen interface
 #ifdef TOUCHUI
-	Button *openConsoleButton;
 	Button *eraseButton;
+	Button *openConsoleButton;
 	Button *settingsButton;
 	Button *zoomButton;
 	Button *stampButton;
@@ -96,6 +97,8 @@ public:
 	void ConfirmUpdate();
 	bool MouseClicksIgnored();
 	Point AdjustCoordinates(Point mouse);
+	void SetInfoTip(std::string infotip);
+	ToolTip *GetQTip(std::string qtip, int y);
 
 	// zoom window stuff
 	bool ZoomWindowShown() { return placingZoom || zoomEnabled; }
@@ -138,8 +141,8 @@ public:
 	void TogglePause();
 
 #ifdef TOUCHUI
-	void OpenConsole(bool alt);
 	void ToggleErase(bool alt);
+	void OpenConsole(bool alt);
 	void ToggleSetting(bool alt);
 	void StartZoom(bool alt);
 	void SaveStamp(bool alt);

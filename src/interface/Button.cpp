@@ -24,10 +24,10 @@ void Button::SetText(std::string text_)
 {
 	text = text_;
 	// ensure text isn't too big for button, maybe not too efficient
-	if (VideoBuffer::TextSize(text)+Point(2, 0) >= size)
+	if (VideoBuffer::TextSize(text).X+2 >= size.X)
 	{
 		text += "...";
-		while (text.length() > 3 && VideoBuffer::TextSize(text)+Point(2, 0) >= size)
+		while (text.length() > 3 && VideoBuffer::TextSize(text).X+2 >= size.X)
 		{
 			text.erase(text.length()-4, 1);
 		}

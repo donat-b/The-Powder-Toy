@@ -270,6 +270,16 @@ void Textbox::OnDraw(VideoBuffer* vid)
 		vid->DrawRect(position.X, position.Y, size.X, size.Y, 150, 150, 150, 255);
 }
 
+void Textbox::OnFocus()
+{
+#ifdef TOUCHUI
+	char buffer[1024];
+	memcpy(buffer, text.c_str(), 1024);
+	GetOnScreenKeyboardInput(buffer, 1024);
+	SetText(buffer);
+#endif
+}
+
 void Textbox::SetAutoSize(bool X, bool Y, Point limit)
 {
 	autosizeX = X;

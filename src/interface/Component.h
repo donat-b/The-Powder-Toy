@@ -58,6 +58,7 @@ public:
 	virtual void OnDraw(VideoBuffer* vid) { }
 	virtual void OnTick(uint32_t ticks) { }
 
+	virtual void OnFocus() { }
 	virtual void OnDefocus() { }
 };
 

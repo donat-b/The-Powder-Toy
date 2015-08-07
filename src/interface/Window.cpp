@@ -64,9 +64,14 @@ void Window_::RemoveComponent(Component *other)
 
 void Window_::FocusComponent(Component *toFocus)
 {
-	if (focused)
-		focused->OnDefocus();
-	focused = toFocus;
+	if (focused != toFocus)
+	{
+		if (focused)
+			focused->OnDefocus();
+		focused = toFocus;
+		if (focused)
+			focused->OnFocus();
+	}
 }
 
 void Window_::UpdateComponents()

@@ -71,7 +71,12 @@ void HSV_to_RGB(int h,int s,int v,int *r,int *g,int *b);
 void RGB_to_HSV(int r,int g,int b,int *h,int *s,int *v);
 
 bool ShowOnScreenKeyboard(const char *str);
+void GetOnScreenKeyboardInput(char * buff, int buffSize);
 bool IsOnScreenKeyboardShown();
+
+void DoRestart(bool saveTab);
+
+void OpenLink(std::string uri);
 
 #ifdef __cplusplus
 class Tool;

@@ -936,20 +936,7 @@ void BlueScreen(char * detailMessage)
 		{
 			if (event.type == SDL_QUIT)
 			{
-				char *exename;
-				sys_pause = 1;
-				tab_save(tab_num, 0);
-				exename = exe_name();
-				if (exename)
-				{
-#ifdef WIN
-					ShellExecute(NULL, "open", exename, NULL, NULL, SW_SHOWNORMAL);
-#else
-					execl(exename, "powder", NULL);
-#endif
-					free(exename);
-				}
-				exit(-1);
+				DoRestart(true);
 			}
 			else if (event.type == SDL_KEYDOWN)
 			{
@@ -972,9 +959,40 @@ void BlueScreen(char * detailMessage)
 						tronDirection = 3;
 					break;
 				default:
+#ifdef ANDROID
+					DoRestart(true);
+#endif
 					break;
 				}
 				gameRunning = true;
+			}
+			else if (event.type == SDL_MOUSEBUTTONDOWN)
+			{
+				if (event.button.button != SDL_BUTTON_WHEELUP && event.button.button != SDL_BUTTON_WHEELDOWN)
+				{
+					int mx = event.motion.x/sdl_scale, my = event.motion.y/sdl_scale;
+					if (my < (YRES+MENUSIZE)/4)
+					{
+						if (tronDirection != 2)
+							tronDirection = 0;
+					}
+					else if (my > YRES+MENUSIZE-(YRES+MENUSIZE)/4)
+					{
+						if (tronDirection != 0)
+							tronDirection = 2;
+					}
+					else if (mx < (XRES+BARSIZE)/4)
+					{
+						if (tronDirection != 1)
+							tronDirection = 3;
+					}
+					else if (mx > XRES+BARSIZE-(XRES+BARSIZE)/4)
+					{
+						if (tronDirection != 3)
+							tronDirection = 1;
+					}
+					gameRunning = true;
+				}
 			}
 		}
 		if (gameRunning && !gameLost)
@@ -1938,7 +1956,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			if (sdl_key=='u')
 			{
 				if (sdl_mod & (KMOD_CTRL|KMOD_META))
-					open_link("http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11117");
+					OpenLink("http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11117");
 				else
 					aheat_enable = !aheat_enable;
 
@@ -2176,7 +2194,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		        x<=(XRES-14) && y>=(YRES-37) && y<=(YRES-24) && svf_messages)
 		{
 			if (b == 1)
-				open_link("http://" SERVER "/Conversations.html");
+				OpenLink("http://" SERVER "/Conversations.html");
 			svf_messages = 0;
 			b = 0;
 		}
@@ -2459,7 +2477,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 									{
 										char url[256];
 										sprintf(url, "http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=%s", buff);
-										open_link(url);
+										OpenLink(url);
 									}
 								}
 							}

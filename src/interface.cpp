@@ -465,9 +465,11 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 #ifdef TOUCHUI
 		if (ed->focus == 0)
 		{
-			if (ShowOnScreenKeyboard(ed->str))
-				// clear current text because it will get overridden
-				sprintf(ed->str, "");
+			char buffer[1024];
+			memcpy(buffer, ed->str, 1024);
+			GetOnScreenKeyboardInput(buffer, 1024);
+			if (!(!ed->multiline && textwidth(buffer) > ed->w-14) && !((int)strlen(buffer)>ed->limit) && !(ed->multiline && ed->limit != 1023 && ((textwidth(buffer))/(ed->w-14)*12) > ed->h))
+				memcpy(ed->str, buffer, 1024);
 		}
 #endif
 		ed->focus = 1;
@@ -995,7 +997,7 @@ void ui_checkbox_draw(pixel *vid_buf, ui_checkbox *ed)
 	int w = 12;
 	if (ed->checked)
 	{
-		drawtext(vid_buf, ed->x-1, ed->y-1, "\xCF", 128, 128, 128, 255);
+		drawtext(vid_buf, ed->x+3, ed->y+3, "\xCF", 128, 128, 128, 255);
 	}
 	if (ed->focus)
 	{
@@ -1215,7 +1217,7 @@ void ui_richtext_process(int mx, int my, int mb, int mbq, ui_richtext *ed)
 				//Do action
 				if(ed->action[action]=='a'){
 					//Open link
-					open_link(ed->actiondata[action]);	
+					OpenLink(ed->actiondata[action]);
 				}
 				break;
 			}
@@ -5454,7 +5456,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			bc = openable?255:150;
 			drawrect(vid_buf, 50, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, bc);
 			drawtext(vid_buf, 73, YRES+MENUSIZE-63, "Open", 255, 255, 255, bc);
-			drawtext(vid_buf, 58, YRES+MENUSIZE-62, "\2", 255, 255, 255, bc);
+			drawtext(vid_buf, 56, YRES+MENUSIZE-62, "\x81", 255, 255, 255, bc);
 			//Fav Button
 			bc = svf_login?255:150;
 			drawrect(vid_buf, 100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, bc);
@@ -5478,7 +5480,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			bc = 255;
 			drawrect(vid_buf, 250, YRES+MENUSIZE-68, 107, 18, 255, 255, 255, bc);
 			drawtext(vid_buf, 273, YRES+MENUSIZE-63, "Open in Browser", 255, 255, 255, bc);
-			drawtext(vid_buf, 258, YRES+MENUSIZE-62, "\x81", 255, 255, 255, bc);
+			drawtext(vid_buf, 257, YRES+MENUSIZE-62, "\x81", 255, 255, 255, bc);
 
 			//Open Button
 			//if (sdl_key==SDLK_RETURN && openable) {
@@ -5553,7 +5555,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				{
 					std::stringstream browserLink;
 					browserLink << "http://" << SERVER << "/Browse/View.html?ID=" << save_id;
-					open_link(browserLink.str());
+					OpenLink(browserLink.str());
 				}
 			}
 			//Submit Button
@@ -6576,21 +6578,6 @@ void execute_unfav(pixel *vid_buf, char *id)
 
 	if (result)
 		free(result);
-}
-
-void open_link(std::string uri)
-{
-#ifdef WIN
-	ShellExecute(0, "OPEN", uri.c_str(), NULL, NULL, 0);
-#elif MACOSX
-	std::string command = "open " + uri;
-	system(command.c_str());
-#elif LIN
-	std::string command = "xdg-open " + uri;
-	system(command.c_str());
-#else
-	printf("Cannot open browser\n");
-#endif
 }
 
 struct command_match

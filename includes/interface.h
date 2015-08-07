@@ -342,8 +342,6 @@ void execute_fav(pixel *vid_buf, char *id);
 
 void execute_unfav(pixel *vid_buf, char *id);
 
-void open_link(std::string uri);
-
 int report_ui(pixel *vid_buf, char *save_id, bool bug);
 
 void console_limit_history(int limit, command_history *commandList);

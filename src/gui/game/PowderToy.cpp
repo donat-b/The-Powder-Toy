@@ -273,19 +273,6 @@ PowderToy::PowderToy():
 	AddComponent(openTagsButton);
 
 #ifdef TOUCHUI
-	class OpenConsoleAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<PowderToy*>(button->GetParent())->OpenConsole(b == 4);
-		}
-	};
-	openConsoleButton = new Button(Point(XRES+1, 0), Point(BARSIZE-1, 25), "C");
-	openConsoleButton->SetState(Button::HOLD);
-	openConsoleButton->SetCallback(new OpenConsoleAction());
-	AddComponent(openConsoleButton);
-
 	class EraseAction : public ButtonAction
 	{
 	public:
@@ -294,10 +281,25 @@ PowderToy::PowderToy():
 			dynamic_cast<PowderToy*>(button->GetParent())->ToggleErase(b == 4);
 		}
 	};
-	eraseButton = new Button(openConsoleButton->Below(Point(0, 1)), Point(BARSIZE-1, 25), "E");
+	eraseButton = new Button(Point(XRES+1, 0), Point(BARSIZE-1, 25), "E");
 	eraseButton->SetState(Button::HOLD);
 	eraseButton->SetCallback(new EraseAction());
+	eraseButton->SetTooltip(GetQTip("Swap to erase tool (hold to clear the sim)", eraseButton->GetPosition().Y+10));
 	AddComponent(eraseButton);
+
+	class OpenConsoleAction : public ButtonAction
+	{
+	public:
+		virtual void ButtionActionCallback(Button *button, unsigned char b)
+		{
+			dynamic_cast<PowderToy*>(button->GetParent())->OpenConsole(b == 4);
+		}
+	};
+	openConsoleButton = new Button(eraseButton->Below(Point(0, 1)), Point(BARSIZE-1, 25), "C");
+	openConsoleButton->SetState(Button::HOLD);
+	openConsoleButton->SetCallback(new OpenConsoleAction());
+	openConsoleButton->SetTooltip(GetQTip("Open console (hold to show on screen keyboard)", openConsoleButton->GetPosition().Y+10));
+	AddComponent(openConsoleButton);
 
 	class SettingAction : public ButtonAction
 	{
@@ -307,9 +309,10 @@ PowderToy::PowderToy():
 			dynamic_cast<PowderToy*>(button->GetParent())->ToggleSetting(b == 4);
 		}
 	};
-	settingsButton = new Button(eraseButton->Below(Point(0, 1)), Point(BARSIZE-1, 25), "N");
+	settingsButton = new Button(openConsoleButton->Below(Point(0, 1)), Point(BARSIZE-1, 25), "N");
 	settingsButton->SetState(Button::HOLD);
 	settingsButton->SetCallback(new SettingAction());
+	settingsButton->SetTooltip(GetQTip("Toggle Newtonian Gravity (hold to open options)", settingsButton->GetPosition().Y+10));
 	AddComponent(settingsButton);
 
 	class ZoomAction : public ButtonAction
@@ -323,6 +326,7 @@ PowderToy::PowderToy():
 	zoomButton = new Button(settingsButton->Below(Point(0, 1)), Point(BARSIZE-1, 25), "Z");
 	zoomButton->SetState(Button::HOLD);
 	zoomButton->SetCallback(new ZoomAction());
+	zoomButton->SetTooltip(GetQTip("Start placing the zoom window", zoomButton->GetPosition().Y+10));
 	AddComponent(zoomButton);
 
 	class StampAction : public ButtonAction
@@ -336,6 +340,7 @@ PowderToy::PowderToy():
 	stampButton = new Button(zoomButton->Below(Point(0, 1)), Point(BARSIZE-1, 25), "S");
 	stampButton->SetState(Button::HOLD);
 	stampButton->SetCallback(new StampAction());
+	stampButton->SetTooltip(GetQTip("Save a stamp (hold to load a stamp)", stampButton->GetPosition().Y+10));
 	AddComponent(stampButton);
 #endif
 }
@@ -370,14 +375,14 @@ void PowderToy::DoSave()
 			void *saveData = build_save(&saveSize, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts);
 			if (!saveData)
 			{
-				UpdateToolTip("Error creating save", Point(XCNTR-VideoBuffer::TextSize("Error Saving").X/2, YCNTR-10), INFOTIP, 1000);
+				SetInfoTip("Error creating save");
 			}
 			else
 			{
 				if (DoLocalSave(svf_filename, saveData, saveSize, true))
-					UpdateToolTip("Error writing local save", Point(XCNTR-VideoBuffer::TextSize("Error Saving").X/2, YCNTR-10), INFOTIP, 1000);
+					SetInfoTip("Error writing local save");
 				else
-					UpdateToolTip("Updated successfully", Point(XCNTR-VideoBuffer::TextSize("Saved Successfully").X/2, YCNTR-10), INFOTIP, 1000);
+					SetInfoTip("Updated successfully");
 			}
 		}
 		// local save
@@ -397,7 +402,7 @@ void PowderToy::DoSave()
 				}
 				else
 				{
-					UpdateToolTip("Error Saving", Point(XCNTR-VideoBuffer::TextSize("Error Saving").X/2, YCNTR-10), INFOTIP, 1000);
+					SetInfoTip("Error saving");
 				}
 			}
 		}
@@ -406,11 +411,11 @@ void PowderToy::DoSave()
 		{
 			if (execute_save(vid_buf))
 			{
-				UpdateToolTip("Error Saving", Point(XCNTR-VideoBuffer::TextSize("Error Saving").X/2, YCNTR-10), INFOTIP, 1000);
+				SetInfoTip("Error saving");
 			}
 			else
 			{
-				UpdateToolTip("Saved Successfully", Point(XCNTR-VideoBuffer::TextSize("Saved Successfully").X/2, YCNTR-10), INFOTIP, 1000);
+				SetInfoTip("Saved successfully");
 			}
 		}
 	}
@@ -478,25 +483,39 @@ void PowderToy::TogglePause()
 	sys_pause = !sys_pause;
 }
 
+// functions called by touch interface buttons are here
 #ifdef TOUCHUI
+void PowderToy::ToggleErase(bool alt)
+{
+	if (alt)
+	{
+		NewSim();
+		SetInfoTip("Cleared the simulation");
+	}
+	else
+	{
+		Tool *erase = GetToolFromIdentifier("DEFAULT_PT_NONE");
+		if (activeTools[0] == erase)
+		{
+			activeTools[0] = activeTools[1];
+			activeTools[1] = erase;
+			SetInfoTip("Erase tool deselected");
+		}
+		else
+		{
+			activeTools[1] = activeTools[0];
+			activeTools[0] = erase;
+			SetInfoTip("Erase tool selected");
+		}
+	}
+}
+
 void PowderToy::OpenConsole(bool alt)
 {
 	if (alt)
 		ShowOnScreenKeyboard("");
 	else
 		console_mode = 1;
-}
-
-void PowderToy::ToggleErase(bool alt)
-{
-	if (alt)
-		NewSim();
-	else
-	{
-		Tool *temp = activeTools[1];
-		activeTools[1] = activeTools[0];
-		activeTools[0] = temp;
-	}
 }
 
 void PowderToy::ToggleSetting(bool alt)
@@ -506,14 +525,25 @@ void PowderToy::ToggleSetting(bool alt)
 	else
 	{
 		if (active_menu == SC_DECO)
+		{
 			decorations_enable = !decorations_enable;
+			if (decorations_enable)
+				SetInfoTip("Decorations enabled");
+			else
+				SetInfoTip("Decorations disabled");
+		}
 		else
 		{
 			if (!ngrav_enable)
+			{
 				start_grav_async();
+				SetInfoTip("Newtonian Gravity enabled");
+			}
 			else
+			{
 				stop_grav_async();
-			ngrav_enable = !ngrav_enable;
+				SetInfoTip("Newtonian Gravity disabled");
+			}
 		}
 	}
 }
@@ -579,14 +609,22 @@ void PowderToy::SaveStamp(bool alt)
 			free(stampImg);
 			stampImg = NULL;
 		}
-		state = SAVE;
-		savedInitial = false;
-		ignoreMouseUp = true;
+		else if (state == SAVE || state == COPY || state == CUT)
+		{
+			state = NONE;
+		}
+		else
+		{
+			state = SAVE;
+			savedInitial = false;
+			ignoreMouseUp = true;
+		}
 	}
 }
 
 #endif
 
+// misc main gui functions
 void PowderToy::ConfirmUpdate()
 {
 	confirm_update(changelog.c_str());
@@ -612,6 +650,16 @@ Point PowderToy::AdjustCoordinates(Point mouse)
 		}
 	}
 	return mouse;
+}
+
+void PowderToy::SetInfoTip(std::string infotip)
+{
+	UpdateToolTip(infotip, Point(XCNTR-VideoBuffer::TextSize(infotip).X/2, YCNTR-10), INFOTIP, 1000);
+}
+
+ToolTip * PowderToy::GetQTip(std::string qtip, int y)
+{
+	return new ToolTip(qtip, Point(XRES-5-VideoBuffer::TextSize(qtip).X, y), QTIP, -2);
 }
 
 void PowderToy::UpdateZoomCoordinates(Point mouse)
@@ -649,7 +697,8 @@ Button * PowderToy::AddNotification(std::string message)
 	numNotifications++;
 	return notificationButton;
 }
-#include <iostream>
+
+// Engine events
 void PowderToy::OnTick(uint32_t ticks)
 {
 	int mouseX, mouseY;
@@ -747,7 +796,7 @@ void PowderToy::OnTick(uint32_t ticks)
 					virtual void ButtionActionCallback(Button *button, unsigned char b)
 					{
 						if (b == 1)
-							open_link(link);
+							OpenLink(link);
 						dynamic_cast<PowderToy*>(button->GetParent())->RemoveComponent(button);
 					}
 				};
@@ -875,7 +924,7 @@ void PowderToy::OnTick(uint32_t ticks)
 	}
 
 	if (svf_tags[0])
-		openTagsButton->SetText(svf_tags);
+		openTagsButton->SetText("\x83 " + std::string(svf_tags));
 	else
 		openTagsButton->SetText("\x83 [no tags set]");
 	openTagsButton->SetEnabled(svf_open);
@@ -927,11 +976,20 @@ void PowderToy::OnTick(uint32_t ticks)
 		pauseButton->SetTooltipText("Pause the simulation \bg(space)");
 
 	if (placingZoomTouch)
-		UpdateToolTip("\x0F\xEF\xEF\020Click any location to place a zoom window (volume keys to resize, click zoom button to cancel)", Point(16, YRES-24), TOOLTIP, 255);
+		UpdateToolTip("\x0F\xEF\xEF\020Tap any location to place a zoom window (volume keys to resize, click zoom button to cancel)", Point(16, YRES-24), TOOLTIP, 255);
+#ifdef TOUCHUI
+	if (state == SAVE || state == COPY)
+		UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy (click save button to cancel)", Point(16, YRES-24), TOOLTIP, 255);
+	else if (state == CUT)
+		UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy and then cut (click save button to cancel)", Point(16, YRES-24), TOOLTIP, 255);
+	else if (state == LOAD)
+		UpdateToolTip("\x0F\xEF\xEF\020Drag the stamp around to move it, and tap it to place. Tap or drag outside the stamp to shift and rotate.", Point(16, YRES-24), TOOLTIP, 255);
+#else
 	if (state == SAVE || state == COPY)
 		UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy (right click = cancel)", Point(16, YRES-24), TOOLTIP, 255);
 	else if (state == CUT)
 		UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy and then cut (right click = cancel)", Point(16, YRES-24), TOOLTIP, 255);
+#endif
 	VideoBufferHack();
 }
 
@@ -1031,7 +1089,6 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 	{
 		stampClickedPos = cursor;
 		initialLoadPos = loadPos;
-		//stampClickedOffset = cursor-(loadPos+loadSize/2);
 		UpdateStampCoordinates(cursor);
 		stampClickedOffset = loadPos-initialLoadPos;
 		loadPos -= stampClickedOffset;
@@ -1082,7 +1139,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 	}
 	else if (state == LOAD)
 	{
-		if (button == 3 || y >= YRES+MENUSIZE-16)
+		if (button == 4 || y >= YRES+MENUSIZE-16)
 		{
 			free(stampData);
 			stampData = NULL;

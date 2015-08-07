@@ -9,7 +9,9 @@
 #include "graphics/VideoBuffer.h"
 #include "common/Point.h"
 #include "game/Download.h"
+#include "defines.h"
 #include "interface.h"
+#include "misc.h"
 
 ProfileViewer::ProfileViewer(std::string profileName):
 	ScrollWindow(Point(CENTERED, CENTERED), Point(260, 350)),
@@ -270,17 +272,17 @@ void ProfileViewer::SaveProfile()
 
 void ProfileViewer::OpenProfile()
 {
-	open_link("http://powdertoy.co.uk/User.html?Name="+name);
+	OpenLink("http://powdertoy.co.uk/User.html?Name="+name);
 }
 
 void ProfileViewer::OpenProfileEdit()
 {
-	open_link("http://powdertoy.co.uk/Profile.html");
+	OpenLink("http://powdertoy.co.uk/Profile.html");
 }
 
 void ProfileViewer::UploadAvatar()
 {
-	open_link("http://powdertoy.co.uk/Profile/Avatar.html");
+	OpenLink("http://powdertoy.co.uk/Profile/Avatar.html");
 }
 
 void ProfileViewer::ResizeArea(int biographyLabelHeight)

@@ -25,6 +25,7 @@ public:
 
 	virtual void OnKeyPress(int key, unsigned short character, unsigned short modifiers);
 	virtual void OnDraw(VideoBuffer* vid);
+	virtual void OnFocus();
 
 	void SetAutoSize(bool X, bool Y, Point limit);
 	void SetCharacterLimit(int characterLimit_) { characterLimit = characterLimit_; }
