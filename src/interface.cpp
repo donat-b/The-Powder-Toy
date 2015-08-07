@@ -5019,6 +5019,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	int b=1,bq,mx,my,cc=0,ccy=0,cix=0;
 	int hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1;
 	int comment_scroll = 0, comment_page = 0, redraw_comments = 1, dofocus = 0, disable_scrolling = 0;
+	int lastY;
+	bool scrolling;
 	int nyd,nyu,lv;
 	float ryf, scroll_velocity = 0.0f;
 
@@ -5050,7 +5052,9 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 
 	ui_edit_init(&ed, 57+(XRES/2)+1, YRES+MENUSIZE-83, XRES+BARSIZE-114-((XRES/2)+1), 14);
 	ed.def = "Add comment";
+#ifndef TOUCHUI
 	ed.focus = svf_login?1:0;
+#endif
 	ed.multiline = 1;
 	ed.resizable = 1;
 	ed.limit = 1023;
@@ -5439,7 +5443,9 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 								info->comments[cc].maxHeight = YRES+MENUSIZE-41 - (ccy + 72 + comment_scroll);
 
 							change = ui_label_draw(vid_buf, &info->comments[cc]); // draw the comment
+#ifndef TOUCHUI
 							ui_label_process(mx, my, b, bq, &info->comments[cc]); // process copying
+#endif
 
 							if (svf_login && b && !bq && mx > 50+(XRES/2)+1 && mx < 50 + XRES+BARSIZE-100 && my > commentboxy - 2 && my < commentboxy + ed.h+2) // defocus comments that are under textbox
 								info->comments[cc].focus = info->comments[cc].cursor = info->comments[cc].cursorstart = info->comments[cc].numClicks = 0;
@@ -5653,6 +5659,23 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					}
 				}
 			}
+#ifdef TOUCHUI
+			if (b && !bq && mx >= 52+(XRES/2) && mx <= XRES+BARSIZE-50 && my >= 51 && my <= YRES+MENUSIZE-50)
+			{
+				scrolling = true;
+				lastY = my;
+			}
+			else if (scrolling)
+			{
+				if (!b || disable_scrolling)
+					scrolling = false;
+				else
+				{
+					scroll_velocity += ((float)my-lastY)*.2f;
+					lastY = my;
+				}
+			}
+#endif
 			if (scroll_velocity)
 			{
 				comment_scroll += (int)scroll_velocity;
@@ -5789,12 +5812,14 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		if (info_ready && svf_login) {
 			ui_edit_process(mx, my, b, bq, &ed);
 		}
+#ifndef TOUCHUI
 		if (dofocus)
 		{
 			ed.focus = 1;
 			ed.cursor = ed.cursorstart = strlen(ed.str);
 			dofocus = 0;
 		}
+#endif
 
 		if (sdl_key==SDLK_ESCAPE) {
 			retval = 0;
