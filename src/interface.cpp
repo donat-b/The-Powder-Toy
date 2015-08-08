@@ -4099,7 +4099,22 @@ int search_ui(pixel *vid_buf)
 
 		clearrect(vid_buf, 0, 0, XRES+BARSIZE, YRES+MENUSIZE);
 
-		memcpy(vid_buf, v_buf, ((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
+		if (touchOffset == 0)
+			memcpy(vid_buf, v_buf, ((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
+		else
+		{
+			for (int y = 0; y < YRES+MENUSIZE; y++)
+			{
+				if (touchOffset < 0)
+				{
+					memcpy(vid_buf+y*(XRES+BARSIZE), v_buf+y*(XRES+BARSIZE)-touchOffset, (XRES+BARSIZE+touchOffset)*PIXELSIZE);
+				}
+				else
+				{
+					memcpy(vid_buf+y*(XRES+BARSIZE)+touchOffset, v_buf+y*(XRES+BARSIZE), (XRES+BARSIZE-touchOffset)*PIXELSIZE);
+				}
+			}
+		}
 
 		drawtext(vid_buf, 11+xOffset, 13, "Search:", 192, 192, 192, 255);
 		if (!saveListDownload || saveListDownload->CheckStarted())
@@ -4175,6 +4190,13 @@ int search_ui(pixel *vid_buf)
 
 		ui_edit_draw(vid_buf, &ed);
 
+		if (page_count)
+		{
+			char pagecount[16];
+			sprintf(pagecount,"Page %i",search_page+1);
+			drawtext(vid_buf, (XRES-textwidth(pagecount))/2+xOffset, YRES+MENUSIZE-10, pagecount, 255, 255, 255, 255);
+		}
+
 #ifndef TOUCHUI
 		if (search_page)
 		{
@@ -4193,12 +4215,6 @@ int search_ui(pixel *vid_buf)
 		{
 			drawtext(vid_buf, XRES-15+xOffset, YRES+MENUSIZE-16, "\x95", 255, 255, 255, 255);
 			drawrect(vid_buf, XRES-18+xOffset, YRES+MENUSIZE-20, 16, 16, 255, 255, 255, 255);
-		}
-		if (page_count)
-		{
-			char pagecount[16];
-			sprintf(pagecount,"Page %i",search_page+1);
-			drawtext(vid_buf, (XRES-textwidth(pagecount))/2+xOffset, YRES+MENUSIZE-10, pagecount, 255, 255, 255, 255);
 		}
 
 		if ((b && !bq && mx>=1+xOffset && mx<=17+xOffset && my>=YRES+MENUSIZE-20 && my<YRES+MENUSIZE-4) || sdl_wheel>0)
@@ -4302,7 +4318,6 @@ int search_ui(pixel *vid_buf)
 					pixel *thumb_imgdata = ptif_unpack(search_thumbs[pos], search_thsizes[pos], &finw, &finh);
 					if(thumb_imgdata!=NULL){
 						thumb_rsdata = resample_img(thumb_imgdata, finw, finh, XRES/GRID_S, YRES/GRID_S);
-						draw_image(vid_buf, thumb_rsdata, gx, gy, XRES/GRID_S, YRES/GRID_S, 255);
 						draw_image(v_buf, thumb_rsdata, gx, gy, XRES/GRID_S, YRES/GRID_S, 255);
 						free(thumb_imgdata);
 						free(thumb_rsdata);
@@ -4460,8 +4475,8 @@ int search_ui(pixel *vid_buf)
 		{
 			if (search_ids[0] && !search_ids[1])
 			{
-				bq = 0;
-				b = 1;
+				bq = 1;
+				b = 0;
 				mp = 0;
 			}
 		}
@@ -4471,7 +4486,46 @@ int search_ui(pixel *vid_buf)
 			goto finish;
 		}
 
-		if (b && !bq)
+#ifdef TOUCHUI
+		if (dragging)
+		{
+			if (!b)
+			{
+				if (touchOffset > (XRES+BARSIZE)/3 && search_page)
+				{
+					search_page--;
+					uih = 1; // not sure what this does
+					bq = 0;
+				}
+				else if (touchOffset < -(XRES+BARSIZE)/3 && page_count>exp_res)
+				{
+					search_page++;
+					page_count = exp_res;
+					uih = 1; // not sure what this does
+					bq = 0;
+				}
+				else
+				{
+					touchOffset = 0;
+				}
+				dragging = false;
+			}
+			else
+			{
+				touchOffset = mx-initialOffset;
+				if (touchOffset > 0 && !search_page)
+					touchOffset = 0;
+				else if (touchOffset < 0 && page_count<=exp_res)
+					touchOffset = 0;
+			}
+		}
+		if (b && !bq && my >= 30 && do_open == 0)
+		{
+			dragging = true;
+			initialOffset = mx;
+		}
+#endif
+		if (!b && bq)
 		{
 			if (mx>=XRES-64+16+xOffset && mx<=XRES-8+16+xOffset && my>=8 && my<=24 && svf_login && !search_fav)
 			{
@@ -4529,59 +4583,11 @@ int search_ui(pixel *vid_buf)
 					goto finish;
 				}
 			}
-#ifdef TOUCHUI
-			else
-			{
-				dragging = true;
-				initialOffset = mx;
-			}
-#endif
 		}
 
 		if (do_open == 1)
 		{
 			mp = 0;
-		}
-
-		if (dragging)
-		{
-			if (!b)
-			{
-				if (touchOffset > (XRES+BARSIZE)/3 && search_page)
-				{
-					search_page--;
-					uih = 1; // not sure what this does
-				}
-				else if (touchOffset < -(XRES+BARSIZE)/3 && page_count>exp_res)
-				{
-					search_page++;
-					page_count = exp_res;
-					uih = 1; // not sure what this does
-				}
-				else
-				{
-					touchOffset = 0;
-					for (int i = 0; i < GRID_X*GRID_Y; i++)
-						thumb_drawn[i] = 0;
-					clearrect(v_buf, 0, 0, XRES+BARSIZE, YRES+MENUSIZE);
-				}
-				dragging = false;
-			}
-			else
-			{
-				int oldOffset = touchOffset;
-				touchOffset = mx-initialOffset;
-				if (touchOffset > 0 && !search_page)
-					touchOffset = 0;
-				else if (touchOffset < 0 && page_count<=exp_res)
-					touchOffset = 0;
-				if (oldOffset != touchOffset)
-				{
-					for (int i = 0; i < GRID_X*GRID_Y; i++)
-						thumb_drawn[i] = 0;
-					clearrect(v_buf, 0, 0, XRES+BARSIZE, YRES+MENUSIZE);
-				}
-			}
 		}
 
 		if (!last)
