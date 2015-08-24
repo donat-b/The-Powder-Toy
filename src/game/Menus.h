@@ -21,9 +21,9 @@
 #define SC_OTHER 16
 #define SC_TOTAL 17
 
-#define SC_FAV -1
-#define SC_FAV2 -1
-#define SC_HUD -1
+#define SC_FAV 16
+#define SC_FAV2 16
+#define SC_HUD 16
 #else
 #define SC_FAV 14
 #define SC_DECO 15

@@ -38,6 +38,7 @@ void InitMenusections()
 	menuSections[15] = new MenuSection('\xC8', "Cracker!", false);
 	menuSections[16] = new MenuSection('\xE2', "Other", false); //list of elements that are hidden or disabled, not in any menu
 #else
+	menuSections[14] = new MenuSection('\xE2', "\brF\bla\bov\bgo\btr\bbi\bpt\bwe", true);
 	menuSections[15] = new MenuSection('\xE5', "Deco", true);
 	menuSections[16] = new MenuSection('\xC8', "Cracker!", false);
 	menuSections[17] = new MenuSection('\xE2', "Favorite2", false);
