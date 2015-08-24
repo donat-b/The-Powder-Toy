@@ -35,8 +35,10 @@ void Tool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 {
 	if (held)
 	{
+#ifndef NOMOD
 		if (ID == PT_MOVS)
 			return;
+#endif
 	}
 	else
 	{
@@ -69,8 +71,10 @@ int Tool::FloodFill(Brush* brush, Point position)
 	switch (ID)
 	{
 	case PT_LIGH:
+#ifndef NOMOD
 	case PT_PWHT:
 	case PT_MOVS:
+#endif
 		return 0;
 	case PT_TESC:
 	{

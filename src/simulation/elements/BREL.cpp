@@ -29,6 +29,7 @@ int BREL_update(UPDATE_FUNC_ARGS)
 			parts[i].temp += (pv[y/CELL][x/CELL])/8;
 		}
 	}
+#ifndef NOMOD
 	for (int rx = -1; rx <= 1; rx++)
 		for (int ry = -1; ry <= 1; ry++)
 		{
@@ -45,6 +46,7 @@ int BREL_update(UPDATE_FUNC_ARGS)
 				}
 			}
 		}
+#endif
 	return 0;
 }
 

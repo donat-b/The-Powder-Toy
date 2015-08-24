@@ -36,7 +36,11 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 			parts[i].life = 64;
 		else if (ct == PT_SLTW)
 			parts[i].life = 54;
+#ifdef NOMOD
+		else if (ct == PT_SWCH)
+#else
 		else if (ct == PT_SWCH || ct == PT_BUTN)
+#endif
 			parts[i].life = 14;
 		return 0;
 	}
@@ -155,7 +159,9 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 				switch (receiver)
 				{
 				case PT_SWCH:
+#ifndef NOMOD
 				case PT_BUTN:
+#endif
 					// make sparked SWCH and BUTN turn off correctly
 					if (!sim->instantActivation && pavg != PT_INSL && parts[i].life < 4)
 					{
@@ -173,7 +179,11 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 				case PT_SPRK:
 					if (pavg != PT_INSL && parts[i].life < 4)
 					{
+#ifdef NOMOD
+						if (parts[r>>8].ctype == PT_SWCH)
+#else
 						if (parts[r>>8].ctype == PT_SWCH || parts[r>>8].ctype == PT_BUTN)
+#endif
 						{
 							if (sender == PT_NSCN)
 							{
@@ -248,7 +258,9 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 						goto conduct;
 					continue;
 				case PT_SWCH:
+#ifndef NOMOD
 				case PT_BUTN:
+#endif
 					if (receiver==PT_PSCN || receiver==PT_NSCN || receiver==PT_WATR || receiver==PT_SLTW || receiver==PT_NTCT || receiver==PT_PTCT || receiver==PT_INWR)
 						continue;
 					break;

@@ -27,8 +27,12 @@ int AMTR_update(UPDATE_FUNC_ARGS)
 					continue;
 				rt = (r&0xFF);
 				//would a table lookup be faster than 11 checks?
-				if (rt!=PT_AMTR && !(ptypes[rt].properties&PROP_INDESTRUCTIBLE) && !(ptypes[rt].properties&PROP_CLONE) && rt!=PT_NONE && rt!=PT_VOID && rt!=PT_BHOL && rt!=PT_NBHL && rt!=PT_PRTI && rt!=PT_PRTO && rt!=PT_PPTI && rt!=PT_PPTO)
+				if (rt!=PT_AMTR && !(ptypes[rt].properties&PROP_INDESTRUCTIBLE) && !(ptypes[rt].properties&PROP_CLONE) && rt!=PT_NONE && rt!=PT_VOID && rt!=PT_BHOL && rt!=PT_NBHL && rt!=PT_PRTI && rt!=PT_PRTO)
 				{
+#ifndef NOMOD
+					if (rt == PT_PPTI || rt == PT_PPTO)
+						continue;
+#endif
 					if(!parts[i].ctype || (parts[i].ctype==(r&0xFF))!=(parts[i].tmp&1))
 					{
 						parts[i].life++;

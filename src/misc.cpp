@@ -630,6 +630,7 @@ void load_presets(void)
 		}
 		if (tmpobj = cJSON_GetObjectItem(root, "show_votes"))
 			unlockedstuff |= 0x08;
+#ifndef NOMOD
 		if (tmpobj = cJSON_GetObjectItem(root, "EXPL_unlocked"))
 		{
 			unlockedstuff |= 0x10;
@@ -638,6 +639,7 @@ void load_presets(void)
 			globalSim->elements[PT_EXPL].Enabled = 1;
 			FillMenus();
 		}
+#endif
 #ifndef TOUCHUI
 		if (tmpobj = cJSON_GetObjectItem(root, "old_menu"))
 			old_menu = 1;

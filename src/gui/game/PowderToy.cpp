@@ -73,6 +73,7 @@ PowderToy::PowderToy():
 {
 	ignoreQuits = true;
 
+#ifndef NOMOD
 	if (doUpdates && strcmp(svf_user, "jacob1"))
 	{
 		if (doUpdates == 2)
@@ -84,6 +85,7 @@ PowderToy::PowderToy():
 		versionCheck->Start();
 	}
 	else
+#endif
 		versionCheck = NULL;
 
 	if (svf_login)

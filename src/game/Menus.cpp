@@ -33,12 +33,17 @@ void InitMenusections()
 	menuSections[11] = new MenuSection('\xCC', "Special", true);
 	menuSections[12] = new MenuSection('\xD2', "Game of Life", true);
 	menuSections[13] = new MenuSection('\xD7', "Tools", true);
-	menuSections[14] = new MenuSection('\xE2', "\brF\bla\bov\bgo\btr\bbi\bpt\bwe", true);
+#ifdef NOMOD
+	menuSections[14] = new MenuSection('\xE5', "Deco", true);
+	menuSections[15] = new MenuSection('\xC8', "Cracker!", false);
+	menuSections[16] = new MenuSection('\xE2', "Other", false); //list of elements that are hidden or disabled, not in any menu
+#else
 	menuSections[15] = new MenuSection('\xE5', "Deco", true);
 	menuSections[16] = new MenuSection('\xC8', "Cracker!", false);
 	menuSections[17] = new MenuSection('\xE2', "Favorite2", false);
 	menuSections[18] = new MenuSection('\xE2', "HUD", false);
 	menuSections[19] = new MenuSection('\xE2', "Other", false); //list of elements that are hidden or disabled, not in any menu
+#endif
 }
 
 void ClearMenusections()
@@ -125,6 +130,7 @@ void FillMenus()
 	}
 
 	//Fill up fav. related menus somehow ...
+#ifndef NOMOD
 	menuSections[SC_FAV]->AddTool(new Tool(INVALID_TOOL, FAV_MORE, "DEFAULT_FAV_MORE"));
 	for (int i = 0; i < 18; i++)
 	{
@@ -138,6 +144,7 @@ void FillMenus()
 	{
 		menuSections[SC_HUD]->AddTool(new Tool(INVALID_TOOL, i, "DEFAULT_FAV_" + std::string(hud_menu[i-HUD_START].name)));
 	}
+#endif
 
 	//restore active tools
 	if (activeTools[0])

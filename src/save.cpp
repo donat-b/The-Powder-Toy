@@ -909,8 +909,10 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	}
 	
 	i = pmap[4][4]>>8;
+#ifndef NOMOD
 	bool solids[MAX_MOVING_SOLIDS]; //used to remember which moving solids are in this save
 	memset(solids, 0, MAX_MOVING_SOLIDS*sizeof(bool));
+#endif
 	//Copy parts data
 	/* Field descriptor format:
 	|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|
@@ -1049,7 +1051,11 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 				}
 
 				//Tmp2 (optional), 1 or 2 bytes
+#ifndef NOMOD
 				if (partsptr[i].tmp2 && partsptr[i].type != PT_PINV)
+#else
+				if (partsptr[i].tmp2)
+#endif
 				{
 					fieldDesc |= 1 << 10;
 					partsData[partsDataLen++] = partsptr[i].tmp2;
@@ -1069,9 +1075,11 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 					partsData[partsDataLen++] = (int)partsptr[i].pavg[1];
 					partsData[partsDataLen++] = ((int)partsptr[i].pavg[1])>>8;
 
+#ifndef NOMOD
 					//add to a list of moving solids confirmed in the area to be saved
 					if (partsptr[i].type == PT_MOVS && partsptr[i].tmp2 >= 0 && partsptr[i].tmp2 < MAX_MOVING_SOLIDS && !solids[partsptr[i].tmp2])
 						solids[partsptr[i].tmp2] = true;
+#endif
 				}
 				
 				//Write the field descriptor
@@ -1089,6 +1097,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 		partsData = NULL;
 	}
 
+#ifndef NOMOD
 	if (elementCount[PT_MOVS])
 	{
 		movsData = (unsigned char*)malloc(MAX_MOVING_SOLIDS*2);
@@ -1165,6 +1174,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 			animData = NULL;
 		}
 	}
+#endif
 
 	if (elementCount[PT_SOAP])
 	{
@@ -2423,6 +2433,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				}
 			}
 		}
+#ifndef NOMOD
 		if (movsData && replace >= 0)
 		{
 			int movsDataPos = 0, numBalls = ((MOVS_ElementDataContainer*)globalSim->elementData[PT_MOVS])->GetNumBalls();
@@ -2508,6 +2519,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				}
 			}
 		}
+#endif
 		if (soapLinkData)
 		{
 			int soapLinkDataPos = 0;
@@ -3330,6 +3342,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 				else
 					((STKM_ElementDataContainer*)globalSim->elementData[PT_STKM])->GetStickman2()->spawnID = i-1;
 			}
+#ifndef NOMOD
 			else if (parts[i-1].type == PT_MOVS)
 			{
 				parts[i-1].pavg[0] = (float)parts[i-1].tmp;
@@ -3337,6 +3350,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 				parts[i-1].tmp2 = parts[i-1].life;
 				parts[i-1].tmp = 0;
 			}
+#endif
 
 			if (ver<48 && (ty==OLD_PT_WIND || (ty==PT_BRAY&&parts[i-1].life==0)))
 			{

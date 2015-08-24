@@ -58,6 +58,7 @@ AddSconsOption('debugging', False, False, "Compile with debug symbols")
 AddSconsOption('static', False, False, "Compile statically")
 AddSconsOption('opengl', False, False, "Build with OpenGL interface support")
 AddSconsOption('renderer', False, False, "Build the save renderer")
+AddSconsOption('nomod', False, False, "Don't include elements and some other features from jacob1's mod")
 
 AddSconsOption('wall', False, False, "Error on all warnings")
 AddSconsOption('no-warnings', True, False, "Disable all compiler warnings (default)")
@@ -460,6 +461,9 @@ if GetOption('opengl'):
 	env.Append(CPPDEFINES=['OGLR', 'PIX32OGL', 'PIXALPHA'])
 if GetOption('renderer'):
 	env.Append(CPPDEFINES=['RENDERER'])
+
+if GetOption('nomod'):
+	env.Append(CPPDEFINES=['NOMOD'])
 
 if not msvc:
 	env.Append(CXXFLAGS=['-Wno-invalid-offsetof'])

@@ -117,11 +117,13 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 	}
 
 	// Spark Checks here
+#ifndef NOMOD
 	if (p == -2 && (pmap[y][x]&0xFF) == PT_BUTN && parts[pmap[y][x]>>8].life == 10)
 	{
 		spark_conductive(pmap[y][x]>>8, x, y);
 		return pmap[y][x]>>8;
 	}
+#endif
 	if (t==PT_SPRK)
 	{
 		int type = pmap[y][x]&0xFF;
@@ -414,22 +416,33 @@ void Simulation::RecalcFreeParticles()
 				parts[i].flags &= ~FLAG_SKIPMOVE;
 			if (x>=0 && y>=0 && x<XRES && y<YRES)
 			{
+#ifndef NOMOD
 				if (t == PT_PINV && (parts[i].tmp2>>8) >= i)
 					parts[i].tmp2 = 0;
+#endif
 				if (elements[t].Properties & TYPE_ENERGY)
 					photons[y][x] = t|(i<<8);
 				else
 				{
+#ifdef NOMOD
+					if (!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT))
+						pmap[y][x] = t|(i<<8);
+
+					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM)
+						pmap_count[y][x]++;
+#else
 					// Particles are sometimes allowed to go inside INVS and FILT
 					// To make particles collide correctly when inside these elements, these elements must not overwrite an existing pmap entry from particles inside them
 					if (!pmap[y][x] || (t!=PT_INVIS && t!=PT_FILT && (t!=PT_MOVS || (pmap[y][x]&0xFF)==PT_MOVS) && (pmap[y][x]&0xFF)!=PT_PINV))
 						pmap[y][x] = t|(i<<8);
 					else if ((pmap[y][x]&0xFF) == PT_PINV)
 						parts[pmap[y][x]>>8].tmp2 = t|(i<<8);
+
 					// Count number of particles at each location, for excess stacking check
 					// (does not include energy particles or THDR - currently no limit on stacking those)
 					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM && t!=PT_MOVS)
 						pmap_count[y][x]++;
+#endif
 				}
 			}
 			lastPartUsed = i;
@@ -635,7 +648,11 @@ bool Simulation::UpdateParticle(int i)
 		   (bmap[y/CELL][x/CELL] == WL_ALLOWENERGY && !(elements[t].Properties&TYPE_ENERGY)) ||
 		   (bmap[y/CELL][x/CELL] == WL_DETECT && (t==PT_METL || t==PT_SPRK)) ||
 		   (bmap[y/CELL][x/CELL] == WL_EWALL && !emap[y/CELL][x/CELL])
+#ifdef NOMOD
+		  ) && t!=PT_STKM && t!=PT_STKM2 && t!=PT_FIGH))
+#else
 		  ) && t!=PT_STKM && t!=PT_STKM2 && t!=PT_FIGH && t != PT_MOVS))
+#endif
 	{
 		part_kill(i);
 		return true;
@@ -1520,12 +1537,14 @@ int Simulation::CreateParts(int x, int y, int c, int flags, bool fill, Brush* br
 			newtmp = 300;
 		c = c|newtmp<<8;
 	}
+#ifndef NOMOD
 	else if (c == PT_MOVS)
 	{
 		if (CreatePartFlags(x, y, c|1<<8, flags) && !((MOVS_ElementDataContainer*)this->elementData[PT_MOVS])->IsCreatingSolid())
 			return 1;
 		c = c|2<<8;
 	}
+#endif
 
 	if (rx<=0) //workaround for rx == 0 crashing. todo: find a better fix later.
 	{
@@ -1981,8 +2000,10 @@ int Simulation::CreateTool(int x, int y, int tool, float strength)
 			float heatchange;
 			if ((r&0xFF) == PT_PUMP || (r&0xFF) == PT_GPMP)
 				heatchange = strength*.1f;
+#ifndef NOMOD
 			else if ((r&0xFF) == PT_ANIM)
 				heatchange = strength;
+#endif
 			else
 				heatchange = strength*2.0f;
 
@@ -2479,11 +2500,13 @@ void Simulation::CreateDeco(int x, int y, int tool, ARGBColour color)
 		break;
 	}
 
+#ifndef NOMOD
 	if (parts[rp>>8].type == PT_ANIM)
 	{
 		if (parts[rp>>8].tmp2 >= 0 && parts[rp>>8].tmp2 < maxFrames)
 			parts[rp>>8].animations[parts[rp>>8].tmp2] = parts[rp>>8].dcolour;
 	}
+#endif
 }
 
 void Simulation::CreateDecoBrush(int x, int y, int tool, ARGBColour color, Brush* brush)

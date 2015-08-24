@@ -15,6 +15,7 @@
 
 #ifndef SIMULATION_ELEMENTS_MOVS_H
 #define SIMULATION_ELEMENTS_MOVS_H
+#ifndef NOMOD
 
 #include <math.h>
 #include "simulation/ElementDataContainer.h"
@@ -230,4 +231,5 @@ public:
 	}
 };
 
+#endif
 #endif

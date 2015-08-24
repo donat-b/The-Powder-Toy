@@ -65,8 +65,10 @@ void SetRightHudText(int x, int y)
 			cr = photons[y][x];
 		} else {
 			cr = pmap[y][x];
+#ifndef NOMOD
 			if ((cr&0xFF) == PT_PINV && parts[cr>>8].tmp2)
 				cr = parts[cr>>8].tmp2;
+#endif
 		}
 		if (!cr || !currentHud[10])
 		{
@@ -190,8 +192,10 @@ void SetRightHudText(int x, int y)
 			}
 			if (currentHud[45] && ((cr&0xFF)==PT_PHOT || (cr&0xFF)==PT_BIZR || (cr&0xFF)==PT_BIZRG || (cr&0xFF)==PT_BIZRS || (cr&0xFF)==PT_FILT || (cr&0xFF)==PT_BRAY))
 				wavelength_gfx = parts[cr>>8].ctype;
+#ifndef NOMOD
 			if ((cr&0xFF) == PT_ANIM)
 				frameNum = parts[cr>>8].tmp2+1;
+#endif
 		}
 		else if (wl && currentHud[48])
 		{

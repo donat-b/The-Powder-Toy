@@ -358,7 +358,9 @@ void Simulation::InitCanMove()
 		can_move[movingType][PT_FIGH] = 0;
 		//INVS behavior varies with pressure
 		can_move[movingType][PT_INVIS] = 3;
+#ifndef NOMOD
 		can_move[movingType][PT_PINV] = 3;
+#endif
 		//stop CNCT from being displaced by other particles
 		can_move[movingType][PT_CNCT] = 0;
 		//VOID and PVOD behavior varies with powered state and ctype
@@ -380,12 +382,18 @@ void Simulation::InitCanMove()
 		if (destinationType == PT_GLAS || destinationType == PT_PHOT || destinationType == PT_FILT || destinationType == PT_H2
 		 || destinationType == PT_WATR || destinationType == PT_DSTW || destinationType == PT_SLTW || destinationType == PT_GLOW
 		 || destinationType == PT_ISOZ || destinationType == PT_ISZS || destinationType == PT_QRTZ || destinationType == PT_PQRT
-		 || destinationType == PT_INVIS || destinationType == PT_PINV
+		 || destinationType == PT_INVIS
+#ifndef NOMOD
+		 || destinationType == PT_PINV
+#endif
 		 || (ptypes[destinationType].properties&PROP_CLONE) || (ptypes[destinationType].properties&PROP_BREAKABLECLONE))
 			can_move[PT_PHOT][destinationType] = 2;
 		if (destinationType != PT_DMND && destinationType != PT_INSL && destinationType != PT_VOID && destinationType != PT_PVOD
 			 && destinationType != PT_VIBR && destinationType != PT_BVBR && destinationType != PT_PRTO && destinationType != PT_PRTI
-			 && destinationType != PT_PPTO && destinationType != PT_PPTI)
+#ifndef NOMOD
+			 && destinationType != PT_PPTO && destinationType != PT_PPTI
+#endif
+			 )
 		{
 			can_move[PT_PROT][destinationType] = 2;
 			can_move[PT_GRVT][destinationType] = 2;
@@ -400,7 +408,9 @@ void Simulation::InitCanMove()
 	can_move[PT_DEST][PT_PBCN] = 0;
 
 	can_move[PT_NEUT][PT_INVIS] = 2;
+#ifndef NOMOD
 	can_move[PT_ELEC][PT_PINV] = 2;
+#endif
 	can_move[PT_ELEC][PT_LCRY] = 2;
 	can_move[PT_ELEC][PT_EXOT] = 2;
 	can_move[PT_ELEC][PT_GLOW] = 2;
@@ -419,12 +429,15 @@ void Simulation::InitCanMove()
 	can_move[PT_ANAR][PT_NWHL] = 1;
 	can_move[PT_ELEC][PT_DEUT] = 1;
 	can_move[PT_SPNG][PT_SPNG] = 3;
-	can_move[PT_RAZR][PT_CNCT] = 1;
-	can_move[PT_RAZR][PT_GEL] = 1;
 	can_move[PT_THDR][PT_THDR] = 2;
 	can_move[PT_EMBR][PT_EMBR] = 2;
 	can_move[PT_TRON][PT_SWCH] = 3;
+
+#ifndef NOMOD
+	can_move[PT_RAZR][PT_CNCT] = 1;
+	can_move[PT_RAZR][PT_GEL] = 1;
 	can_move[PT_MOVS][PT_MOVS] = 2;
+#endif
 }
 
 /*
@@ -444,8 +457,10 @@ unsigned char Simulation::EvalMove(int pt, int nx, int ny, unsigned *rr)
 	r = pmap[ny][nx];
 	if (r)
 		r = (r&~0xFF) | parts[r>>8].type;
+#ifndef NOMOD
 	if ((r&0xFF) == PT_PINV && parts[r>>8].tmp2)
 		r = parts[r>>8].tmp2;
+#endif
 	if (rr)
 		*rr = r;
 	if (pt>=PT_NUM || (r&0xFF)>=PT_NUM)
@@ -460,11 +475,13 @@ unsigned char Simulation::EvalMove(int pt, int nx, int ny, unsigned *rr)
 			if (pv[ny/CELL][nx/CELL]>4.0f || pv[ny/CELL][nx/CELL]<-4.0f) result = 2;
 			else result = 0;
 		}
+#ifndef NOMOD
 		else if ((r&0xFF)==PT_PINV)
 		{
 			if (parts[r>>8].life >= 10) result = 2;
 			else result = 0;
 		}
+#endif
 		else if ((r&0xFF)==PT_PVOD)
 		{
 			if (parts[r>>8].life == 10)
@@ -557,7 +574,11 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 			if (!parts[r>>8].ctype)
 				parts[r>>8].ctype = parts[i].type;
 		}
+#ifdef NOMOD
+		if ((r&0xFF)==PT_PRTI && (ptypes[parts[i].type].properties & TYPE_ENERGY))
+#else
 		if (((r&0xFF)==PT_PRTI || (r&0xFF)==PT_PPTI) && (ptypes[parts[i].type].properties & TYPE_ENERGY))
+#endif
 		{
 			PortalChannel *channel = ((PRTI_ElementDataContainer*)elementData[PT_PRTI])->GetParticleChannel(this, r>>8);
 			int slot = PRTI_ElementDataContainer::GetSlot(x-nx,y-ny);
@@ -609,6 +630,7 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 					part_change_type(i, x, y, PT_NEUT);
 					parts[i].ctype = 0;
 				}
+#ifndef NOMOD
 				else if ((r&0xFF) == PT_PINV)
 				{
 					if (!parts[r>>8].life)
@@ -617,6 +639,7 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 						parts[i].ctype = 0;
 					}
 				}
+#endif
 			}
 			else if ((r&0xFF)==PT_BIZR || (r&0xFF)==PT_BIZRG || (r&0xFF)==PT_BIZRS)
 			{
@@ -844,8 +867,10 @@ int Simulation::Move(int i, int x, int y, float nxf, float nyf)
 	{
 		if ((int)(pmap[y][x]>>8)==i)
 			pmap[y][x] = 0;
+#ifndef NOMOD
 		else if ((pmap[y][x]&0xFF)==PT_PINV && (parts[pmap[y][x]>>8].tmp2>>8)==i)
 			parts[pmap[y][x]>>8].tmp2 = 0;
+#endif
 		else if ((int)(photons[y][x]>>8)==i)
 			photons[y][x] = 0;
 
@@ -858,10 +883,15 @@ int Simulation::Move(int i, int x, int y, float nxf, float nyf)
 
 		if (ptypes[t].properties & TYPE_ENERGY)
 			photons[ny][nx] = t|(i<<8);
+#ifndef NOMOD
 		else if (t && (pmap[ny][nx]&0xFF) != PT_PINV && (t!=PT_MOVS || !(pmap[ny][nx]&0xFF) || (pmap[ny][nx]&0xFF) == PT_MOVS))
 			pmap[ny][nx] = t|(i<<8);
 		else if (t && (pmap[ny][nx]&0xFF) == PT_PINV)
 			parts[pmap[ny][nx]>>8].tmp2 = t|(i<<8);
+#else
+		else
+			pmap[ny][nx] = t|(i<<8);
+#endif
 	}
 	return 0;
 }

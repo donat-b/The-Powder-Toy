@@ -393,7 +393,11 @@ int STKM_ElementDataContainer::Run(Stickman *playerp, UPDATE_FUNC_ARGS)
 					playerp->rocketBoots = false;
 				else if (bmap[(ry+y)/CELL][(rx+x)/CELL] == WL_GRAV)
 					playerp->rocketBoots = true;
+#ifdef NOMOD
+				if ((r&0xFF) == PT_PRTI)
+#else
 				if ((r&0xFF) == PT_PRTI || (r&0xFF) == PT_PPTI)
+#endif
 					Interact(sim, playerp, i, rx, ry);
 
 				// Interact() may kill STKM
@@ -619,7 +623,11 @@ void STKM_ElementDataContainer::Interact(Simulation* sim, Stickman *playerp, int
 		if (ptypes[r&0xFF].properties&PROP_RADIOACTIVE)
 			parts[i].life -= 1;
 
+#ifdef NOMOD
+		if ((r&0xFF)==PT_PRTI && parts[i].type)
+#else
 		if (((r&0xFF)==PT_PRTI || (r&0xFF)==PT_PPTI) && parts[i].type)
+#endif
 		{
 			int t = parts[i].type;
 			unsigned char tmp = parts[i].tmp&0xFF;

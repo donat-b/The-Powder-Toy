@@ -7457,6 +7457,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 			the_game->HideZoomWindow();
 		}
 	}
+#ifndef NOMOD
 	if (sdl_key==SDLK_RIGHT)
 	{
 		int framenum = -1;
@@ -7518,6 +7519,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 					parts[i].tmp2 = parts[i].ctype;
 			}
 	}
+#endif
 	else if (sdl_key == SDLK_TAB)
 	{
 		if (box_R.focus)
@@ -8593,8 +8595,10 @@ void simulation_ui(pixel * vid_buf)
 		drawtext(vid_buf, x0+8, y0+194, "Edge Mode", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12, y0+208, "edgeMode", 255, 255, 255, 120);
 
+#ifndef NOMOD
 		drawtext(vid_buf, x0+8, y0+222, "Update Check", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12, y0+236, "doUpdates", 255, 255, 255, 120);
+#endif
 		
 		draw_line(vid_buf, x0, y0+250, x0+xsize, y0+250, 150, 150, 150, XRES+BARSIZE);
 		
@@ -8624,7 +8628,9 @@ void simulation_ui(pixel * vid_buf)
 		ui_list_draw(vid_buf, &list);
 		ui_list_draw(vid_buf, &list2);
 		ui_list_draw(vid_buf, &list3);
+#ifndef NOMOD
 		ui_list_draw(vid_buf, &listUpdate);
+#endif
 #ifdef OGLR
 		clearScreen(1.0f);
 #endif
@@ -8639,7 +8645,9 @@ void simulation_ui(pixel * vid_buf)
 		ui_list_process(vid_buf, mx, my, b, &list);
 		ui_list_process(vid_buf, mx, my, b, &list2);
 		ui_list_process(vid_buf, mx, my, b, &list3);
+#ifndef NOMOD
 		ui_list_process(vid_buf, mx, my, b, &listUpdate);
+#endif
 
 		if (((cb3.checked)?2:1) != sdl_scale || ((cb4.checked)?1:0) != kiosk_enable)
 		{
@@ -8695,7 +8703,9 @@ void simulation_ui(pixel * vid_buf)
 		draw_bframe();
 	else if(edgeMode != 1 && oldedgeMode == 1)
 		erase_bframe();
+#ifndef NOMOD
 	doUpdates = listUpdate.selected;
+#endif
 	fastquit = cb7.checked;
 
 	while (!sdl_poll())

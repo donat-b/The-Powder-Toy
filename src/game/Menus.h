@@ -15,6 +15,16 @@
 #define SC_SPECIAL 11
 #define SC_LIFE 12
 #define SC_TOOL 13
+#ifdef NOMOD
+#define SC_DECO 14
+#define SC_CRACKER 15
+#define SC_OTHER 16
+#define SC_TOTAL 17
+
+#define SC_FAV -1
+#define SC_FAV2 -1
+#define SC_HUD -1
+#else
 #define SC_FAV 14
 #define SC_DECO 15
 #define SC_CRACKER 16
@@ -22,6 +32,7 @@
 #define SC_HUD 18
 #define SC_OTHER 19
 #define SC_TOTAL 20
+#endif
 
 #include <vector>
 #include <string>

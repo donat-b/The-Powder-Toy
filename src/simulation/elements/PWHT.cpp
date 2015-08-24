@@ -13,6 +13,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef NOMOD
 #include "simulation/ElementsCommon.h"
 
 int PWHT_flood(UPDATE_FUNC_ARGS)
@@ -154,3 +155,5 @@ void PWHT_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Func_Create_Allowed = &PWHT_create_allowed;
 	elem->Init = &PWHT_init_element;
 }
+
+#endif

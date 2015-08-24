@@ -517,6 +517,7 @@ bool transfer_heat(int i, int t, int surround[8])
 					else
 						s = 0;
 				}
+#ifndef NOMOD
 				else if (t == PT_CRMC)
 				{
 					float pres = std::max((pv[y/CELL][x/CELL]+pv[(y-2)/CELL][x/CELL]+pv[(y+2)/CELL][x/CELL]+pv[y/CELL][(x-2)/CELL]+pv[y/CELL][(x+2)/CELL])*2.0f, 0.0f);
@@ -525,6 +526,7 @@ bool transfer_heat(int i, int t, int surround[8])
 					else
 						t = PT_LAVA;
 				}
+#endif
 				else
 					s = 0;
 			}
@@ -575,12 +577,14 @@ bool transfer_heat(int i, int t, int surround[8])
 							if (pt >= ptransitions[PT_TUNG].thv)
 								s = 0;
 						}
+#ifndef NOMOD
 						else if (parts[i].ctype == PT_CRMC)
 						{
 							float pres = std::max((pv[y/CELL][x/CELL]+pv[(y-2)/CELL][x/CELL]+pv[(y+2)/CELL][x/CELL]+pv[y/CELL][(x-2)/CELL]+pv[y/CELL][(x+2)/CELL])*2.0f, 0.0f);
 							if (ctemph >= pres+ptransitions[PT_CRMC].thv)
 								s = 0;
 						}
+#endif
 						else if (ptransitions[parts[i].ctype].tht == PT_LAVA)
 						{
 							if (pt>=ptransitions[parts[i].ctype].thv)

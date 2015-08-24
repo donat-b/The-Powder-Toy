@@ -162,8 +162,10 @@ public:
 		// NB: all arguments are assumed to be within bounds
 		if ((pmap[y][x]>>8)==i)
 			pmap[y][x] = 0;
+#ifndef NOMOD
 		else if ((pmap[y][x]&0xFF)==PT_PINV && (parts[pmap[y][x]>>8].tmp2>>8)==i)
 			parts[pmap[y][x]>>8].tmp2 = 0;
+#endif
 		else if ((photons[y][x]>>8)==i)
 			photons[y][x] = 0;
 	}

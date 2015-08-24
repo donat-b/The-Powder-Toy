@@ -13,6 +13,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef NOMOD
 #include <cstring>
 #include "simulation/ElementsCommon.h"
 #include "interface.h"
@@ -136,3 +137,4 @@ void ANIM_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Func_ChangeType = &ANIM_ChangeType;
 	elem->Init = &ANIM_init_element;
 }
+#endif

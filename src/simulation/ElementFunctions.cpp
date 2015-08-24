@@ -137,10 +137,16 @@ int graphics_DEFAULT(GRAPHICS_FUNC_ARGS)
 int update_POWERED(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
+#ifndef NOMOD
 	if ((parts[i].type == PT_PPTI || parts[i].type == PT_PPTO) && parts[i].tmp2>0 && parts[i].tmp2!=10)
 		parts[i].tmp2--;
 	else if (parts[i].life>0 && parts[i].life!=10)
 		parts[i].life--;
+#else
+	if (parts[i].life>0 && parts[i].life!=10)
+			parts[i].life--;
+
+#endif
 	for (rx=-2; rx<3; rx++)
 		for (ry=-2; ry<3; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
@@ -148,7 +154,11 @@ int update_POWERED(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
+#ifdef NOMOD
+				if ((parts[i].type != PT_SWCH) || parts_avg(i,r>>8,PT_INSL)!=PT_INSL)
+#else
 				if ((parts[i].type != PT_SWCH && parts[i].type != PT_BUTN) || parts_avg(i,r>>8,PT_INSL)!=PT_INSL)
+#endif
 				{
 					if ((r&0xFF)==parts[i].type && parts[i].type == PT_SWCH)
 					{
@@ -162,6 +172,7 @@ int update_POWERED(UPDATE_FUNC_ARGS)
 					}
 					if ((r&0xFF)==PT_SPRK && parts[r>>8].life>0 && (parts[r>>8].life<4 || parts[i].type == PT_SWCH))
 					{
+#ifndef NOMOD
 						//Mod powered elements are always instantly activated
 						if ((parts[i].type == PT_PPTI || parts[i].type == PT_PPTO))
 						{
@@ -251,6 +262,9 @@ int update_POWERED(UPDATE_FUNC_ARGS)
 								return 1;
 							}
 						}
+#else
+						if (false) { }
+#endif
 						else
 						{
 							if ((parts[i].type == PT_PUMP || parts[i].type == PT_GPMP || parts[i].type == PT_HSWC || parts[i].type == PT_PBCN))

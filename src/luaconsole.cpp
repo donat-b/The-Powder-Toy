@@ -134,7 +134,9 @@ void luacon_open()
 		{"graphics_func",&luatpt_graphics_func},
 		{"load",&simulation_loadSave},
 		{"bubble",&luatpt_bubble},
+#ifndef NOMOD
 		{"maxframes",&luatpt_maxframes},
+#endif
 		{"indestructible",&luatpt_indestructible},
 		{"oldmenu", &luatpt_oldmenu},
 		{NULL,NULL}
@@ -236,8 +238,10 @@ tpt.partsdata = nil");
 	tptElements = lua_gettop(l);
 	for(i = 1; i < PT_NUM; i++)
 	{
+#ifndef NOMOD
 		if (i == PT_EXPL)
 			continue;
+#endif
 		for(unsigned int j = 0; j < strlen(ptypes[i].name); j++)
 			tmpname[j] = tolower(ptypes[i].name[j]);
 		tmpname[strlen(ptypes[i].name)] = 0;
@@ -263,8 +267,10 @@ tpt.partsdata = nil");
 	tptElementTransitions = lua_gettop(l);
 	for(i = 1; i < PT_NUM; i++)
 	{
+#ifndef NOMOD
 		if (i == PT_EXPL)
 			continue;
+#endif
 		for(unsigned int j = 0; j < strlen(ptypes[i].name); j++)
 			tmpname[j] = tolower(ptypes[i].name[j]);
 		tmpname[strlen(ptypes[i].name)] = 0;
@@ -1226,9 +1232,11 @@ int luatpt_getelement(lua_State *l)
 		if (t<0 || t>=PT_NUM)
 			return luaL_error(l, "Unrecognised element number '%d'", t);
 		name = ptypes[t&0xFF].name;
+#ifndef NOMOD
 		if (t == PT_EXPL)
 			lua_pushstring(l, "");
 		else
+#endif
 			lua_pushstring(l, name);
 	}
 	else
@@ -2518,6 +2526,7 @@ int luatpt_bubble(lua_State* l)
 	return 0;
 }
 
+#ifndef NOMOD
 int luatpt_maxframes(lua_State* l)
 {
 	int maxFrames = luaL_optint(l,1,-1), i;
@@ -2543,6 +2552,7 @@ int luatpt_maxframes(lua_State* l)
 		}
 	return 0;
 }
+#endif
 
 int luatpt_createwall(lua_State* l)
 {

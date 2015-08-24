@@ -29,8 +29,10 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 {
 	if (!sim->elementData[PT_PRTI])
 		return 0;
+#ifndef NOMOD
 	if (parts[i].type == PT_PPTO && parts[i].tmp2 < 10)
 		return 0;
+#endif
 	int fe = 0;
 	PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, i);
 	for (int count = 0; count < 8; count++)

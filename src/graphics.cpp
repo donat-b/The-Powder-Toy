@@ -2257,8 +2257,10 @@ void render_parts(pixel *vid, Point mousePos)
 	for(i = 0; i <= globalSim->parts_lastActiveIndex; i++) {
 		if (parts[i].type) {
 			t = parts[i].type;
+#ifndef NOMOD
 			if (t == PT_PINV && parts[i].tmp2 && (parts[i].tmp2>>8)<i)
 				continue;
+#endif
 
 			nx = (int)(parts[i].x+0.5f);
 			ny = (int)(parts[i].y+0.5f);
@@ -2266,8 +2268,10 @@ void render_parts(pixel *vid, Point mousePos)
 				continue;
 			fnx = parts[i].x;
 			fny = parts[i].y;
+#ifndef NOMOD
 			if ((pmap[ny][nx]&0xFF) == PT_PINV)
 				parts[pmap[ny][nx]>>8].tmp2 = t|(i<<8);
+#endif
 #ifdef OGLR
 			float flx = parts[i].lastX;
 			float fly = parts[i].lastY;
@@ -3085,8 +3089,13 @@ void render_parts(pixel *vid, Point mousePos)
 						drad = (M_PI * ((float)orbl[r]) / 180.0f)*1.41f;
 						nxo = (int)(ddist*cos(drad));
 						nyo = (int)(ddist*sin(drad));
+#ifdef NOMOD
+						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES && (pmap[ny+nyo][nx+nxo]&0xFF) != PT_PRTI)
+							addpixel(vid, nx+nxo, ny+nyo, colr, colg, colb, 255-orbd[r]);
+#else
 						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES && (pmap[ny+nyo][nx+nxo]&0xFF) != PT_PRTI && (pmap[ny+nyo][nx+nxo]&0xFF) != PT_PPTI)
 							addpixel(vid, nx+nxo, ny+nyo, colr, colg, colb, 255-orbd[r]);
+#endif
 					}
 				}
 				if (pixel_mode & EFFECT_GRAVOUT)
@@ -3102,8 +3111,13 @@ void render_parts(pixel *vid, Point mousePos)
 						drad = (M_PI * ((float)orbl[r]) / 180.0f)*1.41f;
 						nxo = (int)(ddist*cos(drad));
 						nyo = (int)(ddist*sin(drad));
+#ifdef NOMOD
+						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES && (pmap[ny+nyo][nx+nxo]&0xFF) != PT_PRTO)
+							addpixel(vid, nx+nxo, ny+nyo, colr, colg, colb, 255-orbd[r]);
+#else
 						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES && (pmap[ny+nyo][nx+nxo]&0xFF) != PT_PRTO && (pmap[ny+nyo][nx+nxo]&0xFF) != PT_PPTO)
 							addpixel(vid, nx+nxo, ny+nyo, colr, colg, colb, 255-orbd[r]);
+#endif
 					}
 				}
 				if ((pixel_mode & EFFECT_DBGLINES) && DEBUG_MODE && !(display_mode&DISPLAY_PERS))
@@ -3113,14 +3127,23 @@ void render_parts(pixel *vid, Point mousePos)
 					{
 						int type = parts[i].type, tmp = (int)((parts[i].temp-73.15f)/100+1), othertmp;
 						int type2 = parts[i].type;
+#ifndef NOMOD
 						if (type == PT_PRTI || type == PT_PPTI)
 							type = PT_PRTO;
 						else if (type == PT_PRTO || type == PT_PPTO)
 							type = PT_PRTI;
+#else
+						if (type == PT_PRTI)
+							type = PT_PRTO;
+						else if (type == PT_PRTO )
+							type = PT_PRTI;
+#endif
+#ifndef NOMOD
 						if (type == PT_PRTI)
 							type2 = PT_PPTI;
 						else if (type == PT_PRTO)
 							type2 = PT_PPTO;
+#endif
 						for (int z = 0; z < sim->parts_lastActiveIndex; z++)
 						{
 							if (parts[z].type==type || parts[z].type==type2)

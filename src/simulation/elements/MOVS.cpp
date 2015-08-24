@@ -13,6 +13,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef NOMOD
 #include "simulation/ElementsCommon.h"
 #include "MOVS.h"
 
@@ -180,3 +181,4 @@ void MOVS_init_element(ELEMENT_INIT_FUNC_ARGS)
 	}
 	sim->elementData[t] = new MOVS_ElementDataContainer;
 }
+#endif
