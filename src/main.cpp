@@ -90,7 +90,7 @@ pixel *vid_buf;
 static const char *it_msg =
 	"\blThe Powder Toy - Version " MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) " - http://powdertoy.co.uk, irc.freenode.net #powder\n"
 	"\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\n"
-	"\Anroid version 0.1\n"
+	"\Android version 0.1\n"
 	"\n"
 	"\bgTouch and drag the menus on the right side to show each menusection.\n"
 	"For scrollable menusections, the menus can be dragged around.\n"
