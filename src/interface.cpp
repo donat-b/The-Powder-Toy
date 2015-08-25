@@ -3265,7 +3265,7 @@ void menu_select_element(int b, Tool* over)
 			{
 				activeTools[0] = over;
 				activeToolID = 0;
-				if (over->GetID() == TOOL_PROP)
+				if (((ToolTool*)over)->GetID() == TOOL_PROP)
 					openProp = true;
 			}
 		}
@@ -3320,7 +3320,7 @@ void menu_select_element(int b, Tool* over)
 			{
 				activeTools[1] = over;
 				activeToolID = 1;
-				if (over->GetID() == TOOL_PROP)
+				if (((ToolTool*)over)->GetID() == TOOL_PROP)
 					openProp = true;
 				while (pos < last)
 				{
