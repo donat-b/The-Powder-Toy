@@ -98,6 +98,11 @@ bool Engine::EventProcess(SDL_Event event)
 		lastMousePosition = Point(mx, my);
 		break;
 	}
+	case SDL_VIDEORESIZE:
+		// screen resize event, we are supposed to call SDL_SetVideoMode with the new size. Ignore this entirely and call it with the old size :)
+		// if we don't do this, the touchscreen calibration variables won't ever be set properly
+		SetSDLVideoMode((XRES + BARSIZE) * sdl_scale, (YRES + MENUSIZE) * sdl_scale);
+		break;
 	case SDL_QUIT:
 		if (fastquit)
 			has_quit = 1;

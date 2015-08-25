@@ -199,6 +199,7 @@ int LoadWindowPosition(int scale);
 int SaveWindowPosition();
 
 int sdl_open(void);
+void SetSDLVideoMode(int width, int height);
 
 int set_scale(int scale, int kiosk);
 

@@ -4767,17 +4767,7 @@ int sdl_open()
 		loadShaders();
 	}
 #else
-#ifdef PIX16
-	if (kiosk_enable)
-		sdl_scrn=SDL_SetVideoMode(XRES*sdl_scale + BARSIZE*sdl_scale,YRES*sdl_scale + MENUSIZE*sdl_scale,16,SDL_FULLSCREEN|SDL_SWSURFACE);
-	else
-		sdl_scrn=SDL_SetVideoMode(XRES*sdl_scale + BARSIZE*sdl_scale,YRES*sdl_scale + MENUSIZE*sdl_scale,16,SDL_SWSURFACE);
-#else
-	if (kiosk_enable)
-		sdl_scrn=SDL_SetVideoMode(XRES*sdl_scale + BARSIZE*sdl_scale,YRES*sdl_scale + MENUSIZE*sdl_scale,32,SDL_FULLSCREEN|SDL_SWSURFACE);
-	else
-		sdl_scrn=SDL_SetVideoMode(XRES*sdl_scale + BARSIZE*sdl_scale,YRES*sdl_scale + MENUSIZE*sdl_scale,32,SDL_SWSURFACE);
-#endif
+	SetSDLVideoMode((XRES + BARSIZE) * sdl_scale, (YRES + MENUSIZE) * sdl_scale);
 #endif
 	if (!sdl_scrn)
 	{
@@ -4811,6 +4801,20 @@ int sdl_open()
 	return 1;
 }
 
+void SetSDLVideoMode(int width, int height)
+{
+#ifdef PIX16
+	if (kiosk_enable)
+		sdl_scrn = SDL_SetVideoMode(width, height, 16, SDL_FULLSCREEN|SDL_SWSURFACE);
+	else
+		sdl_scrn = SDL_SetVideoMode(width, height, 16, SDL_SWSURFACE);
+#else
+	if (kiosk_enable)
+		sdl_scrn = SDL_SetVideoMode(width, height, 32, SDL_FULLSCREEN|SDL_SWSURFACE);
+	else
+		sdl_scrn = SDL_SetVideoMode(width, height, 32, SDL_SWSURFACE);
+#endif
+}
 int set_scale(int scale, int kiosk){
 	int old_scale = sdl_scale, old_kiosk = kiosk_enable;
 	sdl_scale = scale;
