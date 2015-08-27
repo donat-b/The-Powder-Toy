@@ -22,8 +22,8 @@ int STKM_graphics(GRAPHICS_FUNC_ARGS);
 void FIGH_ElementDataContainer::NewFighter(Simulation *sim, int fighterID, int i, int elem)
 {
 	((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->InitLegs(&fighters[fighterID], i);
-	fighters[i].elem = (elem == OLD_SPC_AIR) ? SPC_AIR : elem;
-	fighters[i].spwn = 1;
+	fighters[fighterID].elem = (elem == OLD_SPC_AIR) ? SPC_AIR : elem;
+	fighters[fighterID].spwn = 1;
 }
 
 int FIGH_update(UPDATE_FUNC_ARGS)
