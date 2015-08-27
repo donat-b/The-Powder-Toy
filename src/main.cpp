@@ -87,10 +87,11 @@
 
 pixel *vid_buf;
 
+#ifdef TOUCHUI
 static const char *it_msg =
 	"\blThe Powder Toy - Version " MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) " - http://powdertoy.co.uk, irc.freenode.net #powder\n"
 	"\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\n"
-	"\Android version 0.1\n"
+	"Android version 0.1\n"
 	"\n"
 	"\bgTouch and drag the menus on the right side to show each menusection.\n"
 	"For scrollable menusections, the menus can be dragged around.\n"
@@ -99,6 +100,7 @@ static const char *it_msg =
 	"To pause and unpause the game, use the pause button on the very bottom right.\n\n"
 	"\boThe buttons on the right do the following actions respectively:\n"
 	"\bo   Toggle erase tool (hold button down to clear screen)\n"
+	"\bo   Open the console (hold button show the on screen keyboard)\n"
 	"\bo   Toggle Newtonian gravity, or decorations in deco menu (hold to open simulation settings)\n"
 	"\bo   Place or remove a zoom window\n"
 	"\bo   Save a stamp (hold to load a stamp)\n\n"
@@ -115,6 +117,39 @@ static const char *it_msg =
 	"\bgTo use online features such as saving, you need to register at: \brhttp://powdertoy.co.uk/Register.html\n"
 	"\n"
 	"\bt" MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) "." MTOS(BUILD_NUM) " "
+#else
+static const char *it_msg =
+	"\blThe Powder Toy - Version " MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) " - http://powdertoy.co.uk, irc.freenode.net #powder\n"
+	"\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\n"
+	"\brJ\bla\boc\bgo\btb\bb1\bp'\bws \bbMod version " MTOS(MOD_VERSION) "." MTOS(MOD_MINOR_VERSION) "\bg   Based off of c version 83.0\n"
+	"\n"
+	"\bgControl+C/V/X are Copy, Paste and cut respectively.\n"
+	"\bgTo choose a material, hover over one of the icons on the right, it will show a selection of elements in that group.\n"
+	"\bgPick your material from the menu using mouse left/right buttons.\n"
+	"Draw freeform lines by dragging your mouse left/right button across the drawing area.\n"
+	"Shift+drag will create straight lines of particles.\n"
+	"Ctrl+drag will result in filled rectangles.\n"
+	"Ctrl+Shift+click will flood-fill a closed area.\n"
+	"Use the mouse scroll wheel, or '[' and ']', to change the tool size for particles.\n"
+	"Middle click or Alt+Click to \"sample\" the particles.\n"
+	"Ctrl+Z will act as Undo.\n"
+	"\n\boUse 'Z' for a zoom tool. Click to make the drawable zoom window stay around. Use the wheel to change the zoom strength\n"
+	"The spacebar can be used to pause and unpause physics.\n"
+	"Use 'S' to save parts of the window as 'stamps'.\n"
+	"'L' will load the most recent stamp, 'K' shows a library of stamps you saved.\n"
+	"The numbers on the keyboard will change the display mode\n"
+	"\n"
+	"Contributors: \bgStanislaw K Skowronek (Designed the original Powder Toy),\n"
+	"\bgSimon Robertshaw, Skresanov Savely, cracker64, Catelite, Bryan Hoyle, Nathan Cousins, jacksonmj,\n"
+	"\bgFelix Wallin, Lieuwe Mosch, Anthony Boot, Matthew \"me4502\", MaksProg, jacob1, mniip\n"
+	"Thanks to mniip for the update server for my mod\n"
+	"\n"
+	"\bgTo use online features such as saving, you need to register at: \brhttp://powdertoy.co.uk/Register.html\n"
+	"\n"
+	"\bt" MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) "." MTOS(BUILD_NUM) " "
+#endif
+
+
 #ifdef X86
 	"X86 "
 #endif
