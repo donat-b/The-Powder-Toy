@@ -47,7 +47,11 @@ Simulation::Simulation():
 	forceStackingCheck(false),
 	msRotation(true),
 	maxFrames(25),
+#ifdef NOMOD
+	instantActivation(false),
+#else
 	instantActivation(true),
+#endif
 	lightningRecreate(0)
 {
 	std::fill(&elementData[0], &elementData[PT_NUM], static_cast<ElementDataContainer*>(NULL));
@@ -90,7 +94,11 @@ void Simulation::Clear()
 	pfree = 0;
 	parts_lastActiveIndex = NPART-1;
 
+#ifdef NOMOD
+	instantActivation = false;
+#else
 	instantActivation = true;
+#endif
 }
 
 void Simulation::RecountElements()

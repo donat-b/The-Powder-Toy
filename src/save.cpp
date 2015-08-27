@@ -1939,7 +1939,9 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						luacon_log(modver);
 					}
 #endif
+#ifndef NOMOD
 					globalSim->instantActivation = true;
+#endif
 				}
 			}
 			else
@@ -2931,7 +2933,9 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 	if (modver)
 	{
 		info_ui(vid_buf, "Unsupported save", "Most support for mod saves in the old PSv format was removed, use version 29.6 or below to convert it if it doesn't load.");
+#ifndef NOMOD
 		globalSim->instantActivation = true;
+#endif
 	}
 	else
 		globalSim->instantActivation = false;
