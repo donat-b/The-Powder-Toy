@@ -1232,12 +1232,18 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	bson_append_int(&b, "minorVersion", MINOR_VERSION);
 	bson_append_int(&b, "buildNum", BUILD_NUM);
 	bson_append_int(&b, "snapshotId", 0);
+#ifdef ANDROID
+	bson_append_int(&b, "mobileMajorVersion", MOBILE_MAJOR);
+	bson_append_int(&b, "mobileMinorVersion", MOBILE_MINOR);
+#endif
 #ifdef BETA
 	bson_append_string(&b, "releaseType", "B");
 #else
 	bson_append_string(&b, "releaseType", "S");
 #endif
-#ifdef WIN
+#ifdef ANDROID
+	bson_append_string(&b, "platform", "ANDROID");
+#elif WIN
 #ifdef _64BIT
 	bson_append_string(&b, "platform", "WIN64");
 #else
@@ -1689,7 +1695,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Invalid datatype of anim data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
 			}
 		}
-#ifdef LUACONSOLE
+#if defined(LUACONSOLE) && !defined(NOMOD)
 		else if (!strcmp(bson_iterator_key(&iter), "LuaCode"))
 		{
 			if (bson_iterator_type(&iter) == BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter)) == BSON_BIN_USER && (LuaCodeLen = bson_iterator_bin_len(&iter)) > 0)
@@ -1929,22 +1935,44 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			{
 				if (replace == 1)
 				{
+#ifndef NOMOD
 					modsave = bson_iterator_int(&iter);
+					globalSim->instantActivation = true;
+#endif
 #ifdef LUACONSOLE
 					//TODO: don't use lua logging
-					if (!strcmp(svf_user,"jacob1") && log_history[19] == NULL)
+					if (modsave && !strcmp(svf_user,"jacob1") && log_history[19] == NULL)
 					{
 						char* modver = (char*)calloc(32, sizeof(char));
 						sprintf(modver, "Made in jacob1's mod version %d", modsave);
 						luacon_log(modver);
 					}
 #endif
-#ifndef NOMOD
-					globalSim->instantActivation = true;
+				}
+			}
+			else//mobileMajorVersion
+			{
+				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
+			}
+		}
+		else if (!strcmp(bson_iterator_key(&iter), "mobileMajorVersion"))
+		{
+			if (bson_iterator_type(&iter) == BSON_INT)
+			{
+				if (replace == 1)
+				{
+#ifdef LUACONSOLE
+					//TODO: don't use lua logging
+					if (!strcmp(svf_user,"jacob1") && log_history[19] == NULL)
+					{
+						char* modver = (char*)calloc(32, sizeof(char));
+						sprintf(modver, "Made in android major version %d", modsave);
+						luacon_log(modver);
+					}
 #endif
 				}
 			}
-			else
+			else//mobileMajorVersion
 			{
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}

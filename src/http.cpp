@@ -517,7 +517,7 @@ int http_async_req_status(void *ctx)
 		if (cx->txdl)
 		{
 			// generate POST
-			cx->tbuf = (char*)malloc(strlen(cx->host) + strlen(cx->path) + 166 + cx->txdl + cx->thlen);
+			cx->tbuf = (char*)malloc(strlen(cx->host) + strlen(cx->path) + 191 + cx->txdl + cx->thlen);
 			cx->tptr = 0;
 			cx->tlen = 0;
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "POST %s HTTP/1.1\r\n", cx->path);
@@ -536,6 +536,9 @@ int http_async_req_status(void *ctx)
 
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dS%d\r\n", IDENT_VERSION, SAVE_VERSION, MINOR_VERSION);
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-J1Mod-Version: %d.%d.%d\r\n", MOD_VERSION, MOD_MINOR_VERSION, MOD_BUILD_VERSION);
+#ifdef ANDROID
+			cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Mobile-Version: %d.%d\r\n", MOBILE_MAJOR, MOBILE_MINOR);
+#endif
 
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "\r\n");
 			memcpy(cx->tbuf+cx->tlen, cx->txd, cx->txdl);
@@ -547,7 +550,7 @@ int http_async_req_status(void *ctx)
 		else
 		{
 			// generate GET
-			cx->tbuf = (char*)malloc(strlen(cx->host) + strlen(cx->path) + 133 + cx->thlen);
+			cx->tbuf = (char*)malloc(strlen(cx->host) + strlen(cx->path) + 158 + cx->thlen);
 			cx->tptr = 0;
 			cx->tlen = 0;
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "GET %s HTTP/1.1\r\n", cx->path);
@@ -565,6 +568,9 @@ int http_async_req_status(void *ctx)
 
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dS%d\r\n", IDENT_VERSION, SAVE_VERSION, MINOR_VERSION);
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-J1Mod-Version: %d.%d.%d\r\n", MOD_VERSION, MOD_MINOR_VERSION, MOD_BUILD_VERSION);
+#ifdef ANDROID
+			cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Mobile-Version: %d.%d\r\n", MOBILE_MAJOR, MOBILE_MINOR);
+#endif
 
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "\n");
 		}

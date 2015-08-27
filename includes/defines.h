@@ -38,6 +38,9 @@
 #define RELEASE_VERSION 90
 #define RELEASE_MINOR_VER 2
 
+#define MOBILE_MAJOR 0
+#define MOBILE_MINOR 2
+
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter
 
 #define MTOS_EXPAND(str) #str
