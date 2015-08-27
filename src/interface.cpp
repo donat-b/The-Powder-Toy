@@ -5030,8 +5030,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	int b=1,bq,mx,my,cc=0,ccy=0,cix=0;
 	int hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1;
 	int comment_scroll = 0, comment_page = 0, redraw_comments = 1, dofocus = 0, disable_scrolling = 0;
-	int lastY;
-	bool scrolling;
+	int lastY = 0;
+	bool scrolling = false;
 	int nyd,nyu,lv;
 	float ryf, scroll_velocity = 0.0f;
 
@@ -8606,27 +8606,33 @@ void simulation_ui(pixel * vid_buf)
 #endif
 		
 		draw_line(vid_buf, x0, y0+250, x0+xsize, y0+250, 150, 150, 150, XRES+BARSIZE);
-		
+
+#ifndef ANDROID
 		drawtext(vid_buf, x0+8, y0+256, "Large window", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12+textwidth("Large window"), y0+256, "\bg- Double window size for small screens", 255, 255, 255, 180);
 		
 		drawtext(vid_buf, x0+8, y0+270, "Fullscreen", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12+textwidth("Fullscreen"), y0+270, "\bg- Fill the entire screen", 255, 255, 255, 180);
+#endif
 
 		drawtext(vid_buf, x0+8, y0+284, "Fast Quit", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12+textwidth("Fast Quit"), y0+284, "\bg- Hitting 'X' will always exit out of tpt", 255, 255, 255, 180);
 
+#ifndef ANDROID
 		drawtext(vid_buf, x0+12, y0+ysize-34, "Open Data Folder", 255, 255, 255, 255);
 		drawrect(vid_buf, x0+8, y0+ysize-38, 90, 16, 192, 192, 192, 255);
 		drawtext(vid_buf, x0+25+textwidth("Open Data Folder"), y0+ysize-34, "\bg- Open the data and preferences folder", 255, 255, 255, 180);
+#endif
 
 		drawtext(vid_buf, x0+5, y0+ysize-11, "OK", 255, 255, 255, 255);
 		drawrect(vid_buf, x0, y0+ysize-16, xsize, 16, 192, 192, 192, 255);
 
 		ui_checkbox_draw(vid_buf, &cb);
 		ui_checkbox_draw(vid_buf, &cb2);
+#ifndef ANDROID
 		ui_checkbox_draw(vid_buf, &cb3);
 		ui_checkbox_draw(vid_buf, &cb4);
+#endif
 		ui_checkbox_draw(vid_buf, &cb5);
 		ui_checkbox_draw(vid_buf, &cb6);
 		ui_checkbox_draw(vid_buf, &cb7);
@@ -8642,8 +8648,10 @@ void simulation_ui(pixel * vid_buf)
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 		ui_checkbox_process(mx, my, b, bq, &cb);
 		ui_checkbox_process(mx, my, b, bq, &cb2);
+#ifndef ANDROID
 		ui_checkbox_process(mx, my, b, bq, &cb3);
 		ui_checkbox_process(mx, my, b, bq, &cb4);
+#endif
 		ui_checkbox_process(mx, my, b, bq, &cb5);
 		ui_checkbox_process(mx, my, b, bq, &cb6);
 		ui_checkbox_process(mx, my, b, bq, &cb7);
@@ -8654,6 +8662,7 @@ void simulation_ui(pixel * vid_buf)
 		ui_list_process(vid_buf, mx, my, b, &listUpdate);
 #endif
 
+#ifndef ANDROID
 		if (((cb3.checked)?2:1) != sdl_scale || ((cb4.checked)?1:0) != kiosk_enable)
 		{
 			set_scale((cb3.checked)?2:1, (cb4.checked)?1:0);
@@ -8682,6 +8691,7 @@ void simulation_ui(pixel * vid_buf)
 			else if (mx < x0 || my < y0 || mx > x0+xsize || my > y0+ysize)
 				break;
 		}
+#endif
 
 		if (sdl_key==SDLK_RETURN)
 			break;
