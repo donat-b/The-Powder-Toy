@@ -40,6 +40,7 @@
 
 #define MOBILE_MAJOR 0
 #define MOBILE_MINOR 2
+#define MOBILE_BUILD 101
 
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter
 

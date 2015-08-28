@@ -1235,6 +1235,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 #ifdef ANDROID
 	bson_append_int(&b, "mobileMajorVersion", MOBILE_MAJOR);
 	bson_append_int(&b, "mobileMinorVersion", MOBILE_MINOR);
+	bson_append_int(&b, "mobileBuildVersion", MOBILE_BUILD);
 #endif
 #ifdef BETA
 	bson_append_string(&b, "releaseType", "B");
@@ -1955,7 +1956,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if (!strcmp(bson_iterator_key(&iter), "mobileMajorVersion"))
+		else if (!strcmp(bson_iterator_key(&iter), "mobileBuildVersion"))
 		{
 			if (bson_iterator_type(&iter) == BSON_INT)
 			{
@@ -1966,7 +1967,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					if (!strcmp(svf_user,"jacob1") && log_history[19] == NULL)
 					{
 						char* modver = (char*)calloc(32, sizeof(char));
-						sprintf(modver, "Made in android major version %d", modsave);
+						sprintf(modver, "Made in android build version %d", bson_iterator_int(&iter));
 						luacon_log(modver);
 					}
 #endif
