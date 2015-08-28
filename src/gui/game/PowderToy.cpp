@@ -610,6 +610,7 @@ void PowderToy::SaveStamp(bool alt)
 			stampData = NULL;
 			free(stampImg);
 			stampImg = NULL;
+			state = NONE;
 		}
 		else if (state == SAVE || state == COPY || state == CUT)
 		{
