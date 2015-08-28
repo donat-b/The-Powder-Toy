@@ -8667,11 +8667,13 @@ void simulation_ui(pixel * vid_buf)
 		{
 			set_scale((cb3.checked)?2:1, (cb4.checked)?1:0);
 		}
+#endif
 
 		if (b && !bq)
 		{
 			if (mx>=x0 && mx<x0+xsize && my>=y0+ysize-16 && my<=y0+ysize)
 				break;
+#ifndef ANDROID
 			else if (mx>=x0+8 && mx<x0+98 && my>=y0+ysize-38 && my<=y0+ysize-22)
 			{
 				//one of these should always be defined
@@ -8690,8 +8692,8 @@ void simulation_ui(pixel * vid_buf)
 			}
 			else if (mx < x0 || my < y0 || mx > x0+xsize || my > y0+ysize)
 				break;
-		}
 #endif
+		}
 
 		if (sdl_key==SDLK_RETURN)
 			break;
