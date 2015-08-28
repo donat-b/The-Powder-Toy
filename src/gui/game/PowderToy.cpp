@@ -314,7 +314,7 @@ PowderToy::PowderToy():
 	settingsButton = new Button(openConsoleButton->Below(Point(0, 1)), Point(BARSIZE-1, 25), "\xEB");
 	settingsButton->SetState(Button::HOLD);
 	settingsButton->SetCallback(new SettingAction());
-	settingsButton->SetTooltip(GetQTip("Toggle Newtonian Gravity (hold to open options)", settingsButton->GetPosition().Y+10));
+	settingsButton->SetTooltip(GetQTip("Toggle Decorations (hold to open options)", settingsButton->GetPosition().Y+10));
 	AddComponent(settingsButton);
 
 	class ZoomAction : public ButtonAction
@@ -526,7 +526,7 @@ void PowderToy::ToggleSetting(bool alt)
 		simulation_ui(vid_buf);
 	else
 	{
-		if (active_menu == SC_DECO)
+		//if (active_menu == SC_DECO)
 		{
 			decorations_enable = !decorations_enable;
 			if (decorations_enable)
@@ -534,7 +534,7 @@ void PowderToy::ToggleSetting(bool alt)
 			else
 				SetInfoTip("Decorations disabled");
 		}
-		else
+		/*else
 		{
 			if (!ngrav_enable)
 			{
@@ -546,7 +546,7 @@ void PowderToy::ToggleSetting(bool alt)
 				stop_grav_async();
 				SetInfoTip("Newtonian Gravity disabled");
 			}
-		}
+		}*/
 	}
 }
 

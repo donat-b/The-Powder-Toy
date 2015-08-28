@@ -206,6 +206,9 @@ TH_ENTRY_POINT void* update_grav_async(void* unused)
 
 void start_grav_async()
 {
+#ifdef ANDROID
+	return;
+#else
 	if(!ngrav_enable){
 		gravthread_done = 0;
 		grav_ready = 0;
@@ -217,10 +220,14 @@ void start_grav_async()
 	memset(gravy, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
 	memset(gravx, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
 	memset(gravp, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+#endif
 }
 
 void stop_grav_async()
 {
+#ifdef ANDROID
+	return;
+#else
 	if(ngrav_enable){
 		pthread_mutex_lock(&gravmutex);
 		gravthread_done = 1;
@@ -234,6 +241,7 @@ void stop_grav_async()
 	memset(gravy, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
 	memset(gravx, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
 	memset(gravp, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+#endif
 }
 
 #ifdef GRAVFFT

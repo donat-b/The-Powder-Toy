@@ -1950,7 +1950,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 #endif
 				}
 			}
-			else//mobileMajorVersion
+			else
 			{
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
@@ -1972,7 +1972,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 #endif
 				}
 			}
-			else//mobileMajorVersion
+			else
 			{
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
