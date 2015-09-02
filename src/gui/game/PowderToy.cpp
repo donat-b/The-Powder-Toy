@@ -103,7 +103,7 @@ PowderToy::PowderToy():
 	const int xOffset = 0;
 	const int tooltipAlpha = 255;
 #else
-	const int ySize = 16;
+	const int ySize = 15;
 	const int xOffset = 1;
 	const int tooltipAlpha = -2;
 #endif
@@ -188,7 +188,7 @@ PowderToy::PowderToy():
 			dynamic_cast<PowderToy*>(button->GetParent())->TogglePause();
 		}
 	};
-	pauseButton = new Button(Point(XRES+BARSIZE-15-xOffset, openBrowserButton->GetPosition().Y), Point(15-xOffset, ySize), "\x90");
+	pauseButton = new Button(Point(XRES+BARSIZE-15-xOffset, openBrowserButton->GetPosition().Y), Point(15, ySize), "\x90");
 	pauseButton->SetCallback(new PauseAction());
 	pauseButton->SetTooltip(new ToolTip("Pause the simulation \bg(space)", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(pauseButton);

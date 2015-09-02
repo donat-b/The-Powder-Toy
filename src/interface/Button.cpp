@@ -165,12 +165,12 @@ void Button::OnDraw(VideoBuffer* vid)
 	if (alignment == LEFT)
 	{
 		Point textSize = VideoBuffer::TextSize(text);
-		vid->DrawText(position.X+2, position.Y+(size.Y-textSize.Y)/2+1, text, COLR(textColor), COLG(textColor), COLB(textColor), COLA(textColor));
+		vid->DrawText(position.X+2, position.Y+(size.Y-textSize.Y+1)/2+1, text, COLR(textColor), COLG(textColor), COLB(textColor), COLA(textColor));
 	}
 	else
 	{
 		Point textSize = VideoBuffer::TextSize(text);
-		vid->DrawText(position.X+(size.X-textSize.X)/2+1, position.Y+(size.Y-textSize.Y)/2+1, text, COLR(textColor), COLG(textColor), COLB(textColor), COLA(textColor));
+		vid->DrawText(position.X+(size.X-textSize.X)/2+1, position.Y+(size.Y-textSize.Y+1)/2+1, text, COLR(textColor), COLG(textColor), COLB(textColor), COLA(textColor));
 	}
 }
 
