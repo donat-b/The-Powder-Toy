@@ -6341,6 +6341,8 @@ bool ParseServerReturn(char *result, int status, bool json)
 	{
 		status = 603;
 	}
+	if (status == 302)
+		return true;
 	if (status != 200)
 	{
 		error_ui(vid_buf, status, http_ret_text(status));
@@ -6363,7 +6365,7 @@ bool ParseServerReturn(char *result, int status, bool json)
 			int status = root.get("Status", 1).asInt();
 			if (status != 1)
 			{
-				const char *err = root["Error"].asCString();
+				const char *err = root.get("Error", "Unspecified Error").asCString();
 				error_ui(vid_buf, 0, err);
 				return true;
 			}
