@@ -4376,12 +4376,15 @@ void render_cursor(pixel *vid, int x, int y, Tool* tool, Brush* brush)
 	int i,j;
 	if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (sdl_mod & KMOD_SHIFT) && (tool->GetType() != TOOL_TOOL || ((ToolTool*)tool)->GetID() == TOOL_PROP))
 	{
-		for (i = -5; i < 6; i++)
-			if (i != 0)
-				xor_pixel(x+i, y, vid);
-		for (j = -5; j < 6; j++)
-			if (j != 0)
-				xor_pixel(x, y+j, vid);
+		if (tool->GetType() != DECO_TOOL)
+		{
+			for (i = -5; i < 6; i++)
+				if (i != 0)
+					xor_pixel(x+i, y, vid);
+			for (j = -5; j < 6; j++)
+				if (j != 0)
+					xor_pixel(x, y+j, vid);
+		}
 	}
 	else if (tool->GetType() == WALL_TOOL)
 	{

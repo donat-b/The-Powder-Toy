@@ -1874,8 +1874,8 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				else if (active_menu == SC_DECO)
 				{
 					active_menu = last_active_menu;
-					*decoTools = *activeTools;
-					*activeTools = *regularTools;
+					memcpy(decoTools, activeTools, sizeof(decoTools));
+					memcpy(activeTools, regularTools, sizeof(decoTools));
 				}
 				else
 				{
@@ -1884,8 +1884,8 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					sys_pause = 1;
 					active_menu = SC_DECO;
 
-					*regularTools = *activeTools;
-					*activeTools = *decoTools;
+					memcpy(regularTools, activeTools, sizeof(decoTools));
+					memcpy(activeTools, decoTools, sizeof(decoTools));
 					activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOR_SET");
 				}
 			}
@@ -2195,15 +2195,15 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		//TODO: only when entering / exiting menu
 		if (active_menu == SC_DECO && activeTools[0]->GetType() != DECO_TOOL)
 		{
-			*regularTools = *activeTools;
-			*activeTools = *decoTools;
+			memcpy(regularTools, activeTools, sizeof(decoTools));
+			memcpy(activeTools, decoTools, sizeof(decoTools));
 
 			activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOR_SET");
 		}
 		else if (active_menu != SC_DECO && activeTools[0]->GetType() == DECO_TOOL)
 		{
-			*decoTools = *activeTools;
-			*activeTools = *regularTools;
+			memcpy(decoTools, activeTools, sizeof(decoTools));
+			memcpy(activeTools, regularTools, sizeof(decoTools));
 
 			deco_disablestuff = 0;
 		}

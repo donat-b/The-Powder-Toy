@@ -18,6 +18,7 @@
 
 #include <cstddef> // offsetof, for FloodProp
 #include "graphics/ARGBColour.h"
+#include "graphics/Pixel.h"
 #include "simulation/Element.h"
 #include "powder.h"
 
@@ -108,7 +109,8 @@ public:
 	void CreateDecoBrush(int x, int y, int tool, ARGBColour color, Brush* brush);
 	void CreateDecoLine(int x1, int y1, int x2, int y2, int tool, ARGBColour color, Brush* brush);
 	void CreateDecoBox(int x1, int y1, int x2, int y2, int tool, ARGBColour color);
-	void FloodDeco(int x, int y, ARGBColour color, ARGBColour replace);
+	bool ColorCompare(pixel *vid, int x, int y, ARGBColour replace);
+	void FloodDeco(pixel *vid, int x, int y, ARGBColour color, ARGBColour replace);
 
 	// movement, functions implemented in Movement.cpp
 	unsigned char can_move[PT_NUM][PT_NUM];

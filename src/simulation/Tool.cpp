@@ -1,5 +1,6 @@
 #include <sstream>
 #include "Tool.h"
+#include "defines.h"
 #include "graphics.h"
 #include "interface.h"
 #include "powder.h"
@@ -342,9 +343,9 @@ void DecoTool::DrawRect(Brush* brush, Point startPos, Point endPos)
 }
 int DecoTool::FloodFill(Brush* brush, Point position)
 {
-	PropertyValue col;
-	col.UInteger = (ID == DECO_CLEAR) ? COLARGB(0, 0, 0, 0) : decocolor;
-	return globalSim->FloodProp(position.X, position.Y, UInteger, col, offsetof(particle, dcolour));
+	pixel rep = vid_buf[position.X+position.Y*(XRES+BARSIZE)];
+	unsigned int col = (ID == DECO_CLEAR) ? COLARGB(0, 0, 0, 0) : decocolor;
+	globalSim->FloodDeco(vid_buf, position.X, position.Y, col, PIXCONV(rep));
 }
 Tool* DecoTool::Sample(Point position)
 {

@@ -2334,7 +2334,6 @@ int Simulation::FloodProp(int x, int y, PropertyType propType, PropertyValue pro
 		{
 			cs.pop(x, y);
 			x1 = x2 = x;
-			x1 = x2 = x;
 			while (x1>=CELL)
 			{
 				if (!FloodFillPmapCheck(x1-1, y, parttype) || bitmap[(y*XRES)+x1-1])
@@ -2630,9 +2629,68 @@ void Simulation::CreateDecoBox(int x1, int y1, int x2, int y2, int tool, ARGBCol
 			CreateDeco(i, j, tool, color);
 }
 
-void Simulation::FloodDeco(int x, int y, ARGBColour color, ARGBColour replace)
+bool Simulation::ColorCompare(pixel *vid, int x, int y, ARGBColour replace)
 {
-	//TODO: implement
+	pixel pix = vid[x+y*(XRES+BARSIZE)];
+	int r = COLR(replace)-PIXR(pix);
+	int g = COLG(replace)-PIXG(pix);
+	int b = COLB(replace)-PIXB(pix);
+	return (std::abs(r) + std::abs(g) + std::abs(b)) < 15;
+}
+
+void Simulation::FloodDeco(pixel *vid, int x, int y, ARGBColour color, ARGBColour replace)
+{
+	int x1, x2;
+	char *bitmap = new char[XRES*YRES]; //Bitmap for checking
+	if (!bitmap)
+		return;
+	std::fill_n(&bitmap[0], XRES*YRES, 0);
+
+	if (!ColorCompare(vid, x, y, replace))
+		return;
+
+	try
+	{
+		CoordStack cs;
+		cs.push(x, y);
+		do
+		{
+			cs.pop(x, y);
+			x1 = x2 = x;
+			while (x1 >= 1)
+			{
+				if (bitmap[(y*XRES)+x1-1] || !ColorCompare(vid, x1-1, y, replace))
+					break;
+				x1--;
+			}
+			while (x2 < XRES-1)
+			{
+				if (bitmap[(y*XRES)+x2+1] || !ColorCompare(vid, x2+1, y, replace))
+					break;
+				x2++;
+			}
+			for (x = x1; x <= x2; x++)
+			{
+				CreateDeco(x, y, DECO_DRAW, color);
+				bitmap[(y*XRES)+x] = 1;
+			}
+			if (y >= 1)
+				for (x=x1; x<=x2; x++)
+					if (!bitmap[x+(y-1)*XRES] && ColorCompare(vid, x, y-1, replace))
+						cs.push(x, y-1);
+			if (y < YRES-1)
+				for (x=x1; x<=x2; x++)
+					if (!bitmap[x+(y+1)*XRES] && ColorCompare(vid, x, y+1, replace))
+						cs.push(x, y+1);
+		} while (cs.getSize()>0);
+	}
+	catch (std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
+		delete[] bitmap;
+		return;
+	}
+	delete[] bitmap;
 }
 
 /*
