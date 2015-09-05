@@ -91,7 +91,7 @@ void MERC_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Name = "MERC";
 	elem->Colour = COLPACK(0x736B6D);
 	elem->MenuVisible = 1;
-	elem->MenuSection = SC_ELEC;
+	elem->MenuSection = SC_LIQUID;
 	elem->Enabled = 1;
 
 	elem->Advection = 0.4f;

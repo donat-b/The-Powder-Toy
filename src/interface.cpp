@@ -2835,7 +2835,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 			}
 		}
 		//if it's offscreen to the right or left, draw nothing
-		if (x-xoff > menuStartPosition-28 || x-xoff < 0)
+		if (x-xoff > menuStartPosition-28 || x-xoff < -26)
 		{
 			x -= 31;
 			continue;

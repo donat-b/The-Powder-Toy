@@ -436,7 +436,7 @@ void draw_tool_button(pixel *vid_buf, int x, int y, pixel color, std::string nam
 #else
 	for (int j = 1; j < 15; j++)
 	{
-		for (int i = 1; i < 27; i++)
+		for (int i = x >= 0 ? 1 : -x; i < 27; i++)
 		{
 			vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = color;
 		}
@@ -453,7 +453,7 @@ void draw_tool_button(pixel *vid_buf, int x, int y, pixel color, std::string nam
 int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 {
 	int i, j;
-	if (x > menuStartPosition-28 || x < 0)
+	if (x > menuStartPosition-28 || x < -26)
 		return 26;
 	if (current->GetType() == ELEMENT_TOOL)
 	{

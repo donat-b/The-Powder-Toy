@@ -77,7 +77,7 @@ void DLAY_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Name = "DLAY";
 	elem->Colour = COLPACK(0x753590);
 	elem->MenuVisible = 1;
-	elem->MenuSection = SC_ELEC;
+	elem->MenuSection = SC_POWERED;
 	elem->Enabled = 1;
 
 	elem->Advection = 0.0f;

@@ -68,7 +68,7 @@ void FUSE_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Name = "FUSE";
 	elem->Colour = COLPACK(0x0A5706);
 	elem->MenuVisible = 1;
-	elem->MenuSection = SC_SOLIDS;
+	elem->MenuSection = SC_EXPLOSIVE;
 	elem->Enabled = 1;
 
 	elem->Advection = 0.0f;

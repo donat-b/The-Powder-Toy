@@ -60,7 +60,7 @@ void FSEP_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Name = "FSEP";
 	elem->Colour = COLPACK(0x63AD5F);
 	elem->MenuVisible = 1;
-	elem->MenuSection = SC_POWDERS;
+	elem->MenuSection = SC_EXPLOSIVE;
 	elem->Enabled = 1;
 
 	elem->Advection = 0.7f;
