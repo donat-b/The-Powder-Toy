@@ -195,8 +195,8 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 			else if (drawOn == PT_CRAY && drawOn != t)
 			{
 				parts[pmap[y][x]>>8].ctype = t;
-				if (t==PT_LIFE && v<NGOL)
-					parts[pmap[y][x]>>8].tmp2 = v;
+				if (t == PT_LIFE && v >= 0 && v < NGOL)
+					parts[pmap[y][x]>>8].ctype |= v<<8;
 				parts[pmap[y][x]>>8].temp = elements[t].DefaultProperties.temp;
 			}
 			return -1;

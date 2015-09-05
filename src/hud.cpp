@@ -111,7 +111,11 @@ void SetRightHudText(int x, int y)
 					}
 					if (!currentHud[12] && (tctype>=PT_NUM || tctype<0 || (cr&0xFF)==PT_PHOT))
 						tctype = 0;
-					if (!tctype || globalSim->IsElement(tctype))
+					if (currentHud[49] && ((cr&0xFF) == PT_CRAY || (cr&0xFF) == PT_DRAY) && (parts[cr>>8].ctype&0xFF) == PT_LIFE && (parts[cr>>8].ctype>>8) >= 0 && (parts[cr>>8].ctype>>8) < NGOL)
+					{
+						sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, golTypes[parts[cr>>8].ctype>>8].name.c_str());
+					}
+					else if (!tctype || globalSim->IsElement(tctype))
 						sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, ptypes[tctype].name);
 					else
 						sprintf(nametext, "%s (%d), ", ptypes[cr&0xFF].name, tctype);
