@@ -19,6 +19,7 @@
 #include <cstring>
 #include <algorithm>
 #include "simulation/ElementDataContainer.h"
+#include "simulation/elements/PPIP.h"
 #include "powder.h"
 
 extern const int portal_rx[8];
@@ -40,13 +41,25 @@ public:
 		for (int nnx=0; nnx<80; nnx++)
 			if (!portalp[slot][nnx].type)
 			{
-				portalp[slot][nnx] = parts[store_i];
-				particleCount[slot]++;
-				if (parts[store_i].type==PT_SPRK)
-					sim->part_change_type(store_i,(int)(sim->parts[store_i].x+0.5f),(int)(sim->parts[store_i].y+0.5f),sim->parts[store_i].ctype);
+				if (parts[store_i].type == PT_STOR)
+				{
+					if (sim->IsElement(parts[store_i].tmp) && (sim->elements[parts[store_i].tmp].Properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY)))
+					{
+						PIPE_transfer_pipe_to_part(parts+store_i, &portalp[slot][nnx]);
+						return true;
+					}
+					return false;
+				}
 				else
-					sim->part_kill(store_i);
-				return true;
+				{
+					portalp[slot][nnx] = parts[store_i];
+					particleCount[slot]++;
+					if (parts[store_i].type==PT_SPRK)
+						sim->part_change_type(store_i,(int)(sim->parts[store_i].x+0.5f),(int)(sim->parts[store_i].y+0.5f),sim->parts[store_i].ctype);
+					else
+						sim->part_kill(store_i);
+					return true;
+				}
 			}
 		return false;
 	}

@@ -29,4 +29,6 @@ public:
 	}
 };
 
+void PIPE_transfer_pipe_to_part(particle *pipe, particle *part);
+
 #endif

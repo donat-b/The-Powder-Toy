@@ -47,9 +47,9 @@ int PRTI_update(UPDATE_FUNC_ARGS)
 		if (BOUNDS_CHECK && (rx || ry))
 		{
 			int r = pmap[y+ry][x+rx];
-			if (!r)
+			if (!r || (r&0xFF) == PT_STOR)
 				fe = 1;
-			if (!r || (!(ptypes[r&0xFF].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY)) && (r&0xFF)!=PT_SPRK))
+			if (!r || (!(ptypes[r&0xFF].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY)) && (r&0xFF)!=PT_SPRK && (r&0xFF)!=PT_STOR))
 			{
 				r = photons[y+ry][x+rx];
 				if (!r)
