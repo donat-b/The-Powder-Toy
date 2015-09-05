@@ -134,13 +134,13 @@ int drawgrav_enable = 0;
 void get_sign_pos(int i, int *x0, int *y0, int *w, int *h)
 {
 	//Changing width if sign have special content
-	if (strcmp(signs[i].text, "{p}")==0)
+	if (!strcmp(signs[i].text, "{p}"))
 		*w = textwidth("Pressure: -000.00");
-
-	if (strcmp(signs[i].text, "{t}")==0)
+	else if (!strcmp(signs[i].text, "{aheat}"))
+		*w = textwidth("0000.00");
+	else if (!strcmp(signs[i].text, "{t}"))
 		*w = textwidth("Temp: 0000.00");
-
-	if (!sregexp(signs[i].text, "^{[ct]:[0-9]*|.*}$") || !sregexp(signs[i].text, "^{s:.*|.*}$") || !sregexp(signs[i].text, "^{b|.*}$"))
+	else if (!sregexp(signs[i].text, "^{[ct]:[0-9]*|.*}$") || !sregexp(signs[i].text, "^{s:.*|.*}$") || !sregexp(signs[i].text, "^{b|.*}$"))
 	{
 		int sldr, startm;
 		char buff[256];
@@ -156,9 +156,8 @@ void get_sign_pos(int i, int *x0, int *y0, int *w, int *h)
 		}
 		*w = textwidth(buff) + 5;
 	}
-
 	//Usual width
-	if (strcmp(signs[i].text, "{p}") && strcmp(signs[i].text, "{t}") && sregexp(signs[i].text, "^{[ct]:[0-9]*|.*}$") && sregexp(signs[i].text, "^{s:.*|.*}$") && sregexp(signs[i].text, "^{b|.*}$"))
+	else
 		*w = textwidth(signs[i].text) + 5;
 	*h = 14;
 	*x0 = (signs[i].ju == 2) ? signs[i].x - *w :
