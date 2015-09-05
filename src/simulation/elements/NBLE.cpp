@@ -46,7 +46,7 @@ int NBLE_update(UPDATE_FUNC_ARGS)
 			int rx = x+rand()%3-1, ry = y+rand()%3-1, rt = pmap[ry][rx]&0xFF;
 			if (sim->can_move[PT_PLSM][rt] || rt == PT_NBLE)
 			{
-				j = sim->part_create(-3,x+rand()%3-1,y+rand()%3-1,PT_PLSM);
+				j = sim->part_create(-3,rx,ry,PT_PLSM);
 				if (j > -1)
 				{
 					parts[j].temp = temp;
