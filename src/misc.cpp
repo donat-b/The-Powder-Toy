@@ -726,6 +726,66 @@ void strappend(char *dst, const char *src)
 	*d = 0;
 }
 
+// Strips stuff from a string. Can strip all non ascii characters (excluding color and newlines), strip all color, strip all newlines, or strip all non 0-9 characters
+std::string CleanString(std::string dirtyString, bool ascii, bool color, bool newlines, bool numeric)
+{
+	for (size_t i = 0; i < dirtyString.size(); i++)
+	{
+		switch(dirtyString[i])
+		{
+		case '\b':
+			if (color)
+			{
+				dirtyString.erase(i, 2);
+				i--;
+			}
+			else
+				i++;
+			break;
+		case '\x0E':
+			if (color)
+			{
+				dirtyString.erase(i, 1);
+				i--;
+			}
+			break;
+		case '\x0F':
+			if (color)
+			{
+				dirtyString.erase(i, 4);
+				i--;
+			}
+			else
+				i += 3;
+			break;
+		case '\r':
+		case '\n':
+			if (newlines)
+				dirtyString[i] = ' ';
+			break;
+		default:
+			if (numeric && (dirtyString[i] < '0' || dirtyString[i] > '9'))
+			{
+				dirtyString.erase(i, 1);
+				i--;
+			}
+			// if less than ascii 20 or greater than ascii 126, delete
+			else if (ascii && (dirtyString[i] < ' ' || dirtyString[i] > '~'))
+			{
+				dirtyString.erase(i, 1);
+				i--;
+			}
+			break;
+		}
+	}
+	return dirtyString;
+}
+
+std::string CleanString(const char * dirtyData, bool ascii, bool color, bool newlines, bool numeric)
+{
+	return CleanString(std::string(dirtyData), ascii, color, newlines, numeric);
+}
+
 void *file_load(const char *fn, int *size)
 {
 	FILE *f = fopen(fn, "rb");

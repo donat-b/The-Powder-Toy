@@ -3919,13 +3919,16 @@ void render_signs(pixel *vid_buf)
 
 			x = signs[i].x;
 			y = signs[i].y;
-			dx = 1 - signs[i].ju;
-			dy = (signs[i].y > 18) ? -1 : 1;
-			for (j=0; j<4; j++)
+			if (signs[i].ju != 3)
 			{
-				drawpixel(vid_buf, x, y, 192, 192, 192, 255);
-				x+=dx;
-				y+=dy;
+				dx = 1 - signs[i].ju;
+				dy = (signs[i].y > 18) ? -1 : 1;
+				for (j=0; j<4; j++)
+				{
+					drawpixel(vid_buf, x, y, 192, 192, 192, 255);
+					x+=dx;
+					y+=dy;
+				}
 			}
 			if (MSIGN==i)
 			{

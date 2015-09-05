@@ -162,7 +162,7 @@ void get_sign_pos(int i, int *x0, int *y0, int *w, int *h)
 		*w = textwidth(signs[i].text) + 5;
 	*h = 14;
 	*x0 = (signs[i].ju == 2) ? signs[i].x - *w :
-	      (signs[i].ju == 1) ? signs[i].x - *w/2 : signs[i].x;
+	      (signs[i].ju == 0) ? signs[i].x : signs[i].x - *w/2;
 	*y0 = (signs[i].y > 18) ? signs[i].y - 18 : signs[i].y + 4;
 }
 

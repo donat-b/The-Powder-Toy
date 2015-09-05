@@ -24,14 +24,14 @@ Label::Label(Point position_, Point size_, std::string text_, bool multiline_) :
 	autosizeX = (size.X == AUTOSIZE);
 	autosizeY = (size.Y == AUTOSIZE);
 	// remove non ascii chars, and newlines for non multiline labels
-	text = CleanText(text, true, false, !multiline);
+	text = CleanString(text, true, false, !multiline);
 	UpdateDisplayText();
 }
 
 void Label::SetText(std::string text_)
 {
 	text = text_;
-	text = CleanText(text, true, false, !multiline);
+	text = CleanString(text, true, false, !multiline);
 	UpdateDisplayText();
 	cursor = cursorStart = text.length();
 	cursorPosReset = true;
@@ -42,63 +42,6 @@ std::string Label::GetText()
 	std::string fixed = text;
 	fixed.erase(std::remove(fixed.begin(), fixed.end(), '\r'), fixed.end()); //strip special newlines
 	return fixed;
-}
-
-// Strips stuff from a string. Can strip all non ascii characters (excluding color and newlines), strip all color, or strip all newlines
-std::string Label::CleanText(std::string dirty, bool ascii, bool color, bool newlines)
-{
-	for (int i = 0; i < dirty.size(); i++)
-	{
-		switch(dirty[i])
-		{
-		case '\b':
-			if (color)
-			{
-				dirty.erase(i, 2);
-				i--;
-			}
-			else
-				i++;
-			break;
-		case '\x0E':
-			if (color)
-			{
-				dirty.erase(i, 1);
-				i--;
-			}
-			break;
-		case '\x0F':
-			if (color)
-			{
-				dirty.erase(i, 4);
-				i--;
-			}
-			else
-				i += 3;
-			break;
-		// erase these without question, first two are control characters used for the cursor
-		// second is used internally to denote automatically inserted newline
-		case '\x01':
-		case '\x02':
-		case '\r':
-			dirty.erase(i, 1);
-			i--;
-			break;
-		case '\n':
-			if (newlines)
-				dirty[i] = ' ';
-			break;
-		default:
-			// if less than ascii 20 or greater than ascii 126, delete
-			if (ascii && (dirty[i] < ' ' || dirty[i] > '~'))
-			{
-				dirty.erase(i, 1);
-				i--;
-			}
-			break;
-		}
-	}
-	return dirty;
 }
 
 void Label::FindWordPosition(unsigned int position, unsigned int *cursorStart, unsigned int *cursorEnd, const char* spaces)

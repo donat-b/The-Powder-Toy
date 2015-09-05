@@ -103,7 +103,10 @@ CreateSign::CreateSign(int signID, Point pos):
 		SetJustification(1);
 	}
 	else
+	{
 		signTextbox->SetText(signs[signID].text);
+		SetJustification(signs[signID].ju);
+	}
 }
 
 void CreateSign::OnKeyPress(int key, unsigned short character, unsigned short modifiers)

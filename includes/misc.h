@@ -55,6 +55,9 @@ void strcaturl(char *dst, char *src);
 
 void strappend(char *dst, const char *src);
 
+std::string CleanString(std::string dirtyString, bool ascii, bool color, bool newlines, bool numeric = false);
+std::string CleanString(const char * dirtyData, bool ascii, bool color, bool newlines, bool numeric = false);
+
 int file_exists(const char *filename);
 void *file_load(const char *fn, int *size);
 

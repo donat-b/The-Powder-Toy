@@ -52,7 +52,7 @@ bool Textbox::DeleteHighlight(bool updateDisplayText)
 
 void Textbox::InsertText(std::string inserttext)
 {
-	inserttext = CleanText(inserttext, true, true, type != MULTILINE);
+	inserttext = CleanString(inserttext, true, true, type != MULTILINE);
 	if (!inserttext.length())
 		return;
 
