@@ -758,7 +758,14 @@ std::string CleanString(std::string dirtyString, bool ascii, bool color, bool ne
 			else
 				i += 3;
 			break;
+		// erase these without question, first two are control characters used for the cursor
+		// second is used internally to denote automatically inserted newline
+		case '\x01':
+		case '\x02':
 		case '\r':
+			dirtyString.erase(i, 1);
+			i--;
+			break;
 		case '\n':
 			if (newlines)
 				dirtyString[i] = ' ';
