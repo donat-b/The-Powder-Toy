@@ -15,19 +15,29 @@
 char font[256][CELLH][CELLW];
 char width[256];
 unsigned char flags[256];
+unsigned int color[256];
 signed char top[256];
 signed char left[256];
 
 void load_char(int c)
 {
 	unsigned char *start = font_data + font_ptrs[c];
+	unsigned char alpha, red, green, blue;
 	int x, y, b;
 
-	int w = *(start ++);
+	int w = *(start++);
 	unsigned char flag = *(start++);
 	signed char t = (flag&0x4) ? -(flag&0x3) : flag&0x3;
 	signed char l = (flag&0x20) ? -((flag>>3)&0x3) : (flag>>3)&0x3;
 	flag >>= 6;
+	if (flag&0x2)
+	{
+		alpha = *(start++);
+		red = *(start++);
+		green = *(start++);
+		blue = *(start++);
+		color[c] = (alpha << 24) | (red << 16) | (green << 8) | blue;
+	}
 
 	if (!w)
 		return;
@@ -49,7 +59,7 @@ void load_char(int c)
 	flags[c] = flag;
 	top[c] = t;
 	left[c] = l;
-	printf("%02x: %d %d %d %d\n", c, w, t, l, flag);
+	printf("%02X: %d %d %d %d\t0x%08X\n", c, w, t, l, flag, color[c]);
 }
 
 char *tag = "(c) 2011 Stanislaw Skowronek";
@@ -59,12 +69,14 @@ int main(int argc, char *argv[])
 	FILE *f;
 	int i;
 
+	memset(color, 0, sizeof(color));
 	for (i = 0; i < 256; i++)
 		load_char(i);
 
 	f = fopen("font.bin", "wb");
 	fwrite(width, 1, 256, f);
 	fwrite(flags, 1, 256, f);
+	fwrite(color, 4, 256, f);
 	fwrite(top, 1, 256, f);
 	fwrite(left, 1, 256, f);
 	fwrite(font, CELLW*CELLH, 256, f);

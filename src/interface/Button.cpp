@@ -2,16 +2,23 @@
 #include "game/ToolTip.h"
 #include "graphics/VideoBuffer.h"
 
-Button::Button(Point position, Point size, std::string text_):
-	Component(position, size),
-	text(text_),
+Button::Button(Point position, Point size_, std::string text_):
+	Component(position, size_),
 	tooltip(NULL),
 	callback(NULL),
 	alignment(CENTER),
 	state(NORMAL),
 	timeHeldDown(0)
 {
-
+	if (size.X == AUTOSIZE || size.Y == AUTOSIZE)
+	{
+		Point buttonSize = VideoBuffer::TextSize(text_);
+		if (size.X == AUTOSIZE)
+			size.X = buttonSize.X + 7;
+		if (size.Y == AUTOSIZE)
+			size.Y = buttonSize.Y + 7;
+	}
+	SetText(text_);
 }
 
 Button::~Button()

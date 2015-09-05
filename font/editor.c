@@ -16,17 +16,17 @@
 char font[256][CELLH][CELLW];
 char width[256];
 unsigned char flags[256];
+unsigned int color[256];
 signed char top[256];
 signed char left[256];
 
 void blendpixel(unsigned *vid, int x, int y, int r, int g, int b, int a)
 {
-	int t;
 	if (x<0 || y<0 || x>=XRES || y>=YRES)
 		return;
 	if (a != 255)
 	{
-		t = vid[y*XRES+x];
+		int t = vid[y*XRES+x];
 		r = (a*r + (255-a)*((t>>16)&255)) >> 8;
 		g = (a*g + (255-a)*((t>>8)&255)) >> 8;
 		b = (a*b + (255-a)*(t&255)) >> 8;
@@ -37,6 +37,12 @@ void blendpixel(unsigned *vid, int x, int y, int r, int g, int b, int a)
 int drawchar(unsigned *vid, int x, int y, int c, int r, int g, int b)
 {
 	int i, j;
+	if (color[c])
+	{
+		r = (color[c] >> 16) & 0xFF;
+		g = (color[c] >> 8) & 0xFF;
+		b = color[c] & 0xFF;
+	}
 	for (j = 0; j < CELLH; j++)
 		for (i = 0; i < width[c] && i < CELLW; i++)
 			blendpixel(vid, x+i+left[c], y+j+top[c], r, g, b, (font[c][j][i]*255)/3);
@@ -206,6 +212,7 @@ int main(int argc, char *argv[])
 	int x, y, b = 0, lb, c = 0xA0, i, j, dc = 0;
 	int mode = 0;
 	char hex[10] = "";
+	char inputColor = 0;
 	FILE *f;
 
 	f = fopen("font.bin", "rb");
@@ -213,6 +220,7 @@ int main(int argc, char *argv[])
 	{
 		fread(width, 1, 256, f);
 		fread(flags, 1, 256, f);
+		fread(color, 4, 256, f);
 		fread(top, 1, 256, f);
 		fread(left, 1, 256, f);
 		fread(font, CELLW*CELLH, 256, f);
@@ -226,13 +234,61 @@ int main(int argc, char *argv[])
 		if (sdl_key=='q' || sdl_key==SDLK_ESCAPE)
 			break;
 		else if ((sdl_key==' ' || sdl_key=='=') && c < 255)
+		{
+			if (inputColor)
+			{
+				inputColor = 0;
+				color[c] = 0;
+				flags[c] &= ~0x2;
+			}
 			c++;
+		}
 		else if ((sdl_key=='\b' || sdl_key=='-') && c > 0)
+		{
+			if (inputColor)
+			{
+				inputColor = 0;
+				color[c] = 0;
+				flags[c] &= ~0x2;
+			}
 			c--;
+		}
 		else if (sdl_key == 'w')
 			flags[c] ^= 0x1;
-		else if (sdl_key == 'n')
-			flags[c] ^= 0x2;
+		else if (sdl_key == 'c')
+		{
+			if (!(flags[c] & 0x2))
+			{
+				flags[c] |= 0x2;
+				color[c] = 255<<24;
+				inputColor = 1;
+			}
+			else
+			{
+				flags[c] &= ~0x2;
+				color[c] = 0;
+				inputColor = 0;
+			}
+		}
+		else if (sdl_key == SDLK_RETURN)
+		{
+			int val = (x > 255) ? 255 : x;
+			switch (inputColor)
+			{
+				case 1:
+					color[c] |= (val<<16);
+					inputColor = 2;
+					break;
+				case 2:
+					color[c] |= (val<<8);
+					inputColor = 3;
+					break;
+				case 3:
+					color[c] |= (val<<0);
+					inputColor = 0;
+					break;
+			}
+		}
 
 		lb = b;
 		b = SDL_GetMouseState(&x, &y);
@@ -297,7 +353,14 @@ int main(int argc, char *argv[])
 
 		drawtext(vid_buf, 64, 192+37*CELLH, "Use '+' (= key) and '-' to switch between characters", 255, 255, 255);
 		drawtext(vid_buf, 64, 192+38*CELLH, "Click near a line to modify top/left offset, or character width", 255, 255, 255);
-		drawtext(vid_buf, 64, 192+39*CELLH, "Use 'w' to toggle ignore width flag, and 'n' to toggle auto draw next character flag", 255, 255, 255);
+		drawtext(vid_buf, 64, 192+39*CELLH, "Use 'w' to toggle ignore width & auto draw next character flag, and 'c' to add / turn off font color", 255, 255, 255);
+		if (inputColor)
+		{
+			char temptext[64];
+			//drawtext(vid_buf, 64, 192+40*CELLH, "Due to extreme laziness, you must move the mouse and press enter to set the color of this icon", 255, 255, 255);
+			sprintf(temptext, "Press enter to set %s color to: %i", inputColor == 1 ? "red" : (inputColor == 2 ? "green" : "blue"), (x > 255) ? 255 : x);
+			drawtext(vid_buf, 64, 192+40*CELLH, temptext, 255, 255, 255);
+		}
 
 		drawchar(vid_buf, 32, 192+32*CELLH, c, 255, 255, 255);
 
@@ -305,6 +368,8 @@ int main(int argc, char *argv[])
 		drawtext(vid_buf, 32, 192+34*CELLH, hex, 255, 255, 255);
 		sprintf(hex, "flags: 0x%02X", flags[c]);
 		drawtext(vid_buf, 32, 192+35*CELLH, hex, 255, 255, 255);
+		sprintf(hex, "color: 0x%08X", color[c]);
+		drawtext(vid_buf, 32, 192+36*CELLH, hex, 255, 255, 255);
 
 		sdl_blit(0, 0, XRES, YRES, vid_buf, XRES*4);
 	}
@@ -312,6 +377,7 @@ int main(int argc, char *argv[])
 	f = fopen("font.bin", "wb");
 	fwrite(width, 1, 256, f);
 	fwrite(flags, 1, 256, f);
+	fwrite(color, 4, 256, f);
 	fwrite(top, 1, 256, f);
 	fwrite(left, 1, 256, f);
 	fwrite(font, CELLW*CELLH, 256, f);

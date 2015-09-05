@@ -5,8 +5,8 @@
 #include "graphics/VideoBuffer.h"
 #include "misc.h"
 
-Textbox::Textbox(Point position, Point size, std::string text, bool multiline):
-	Label(position, size, text, multiline),
+Textbox::Textbox(Point position, Point size_, std::string text, bool multiline):
+	Label(position, size_, text, multiline),
 	sizeLimit(Point(NOSIZELIMIT, NOSIZELIMIT)),
 	characterLimit(10000),
 	callback(NULL),
@@ -265,9 +265,9 @@ void Textbox::OnDraw(VideoBuffer* vid)
 {
 	Label::OnDraw(vid);
 	if (IsFocused() && enabled)
-		vid->DrawRect(position.X, position.Y, size.X, size.Y, 255, 255, 255, 255);
+		vid->DrawRect(position.X, position.Y, size.X, size.Y, COLR(color), COLG(color), COLB(color), COLA(color));
 	else
-		vid->DrawRect(position.X, position.Y, size.X, size.Y, 150, 150, 150, 255);
+		vid->DrawRect(position.X, position.Y, size.X, size.Y, (int)(COLR(color)*.6f), (int)(COLG(color)*.6f), (int)(COLB(color)*.6f), (int)(COLA(color)*.6f));
 }
 
 void Textbox::OnFocus()

@@ -17,6 +17,7 @@
 Engine::Engine():
 	windows(std::stack<Window_*>()),
 	top(NULL),
+	nextTop(NULL),
 	lastMousePosition(Point(0, 0)),
 	lastModifiers(0),
 	lastTick(SDL_GetTicks())
@@ -62,7 +63,7 @@ bool Engine::EventProcess(SDL_Event event)
 		{
 			if (confirm_ui(vid_buf, "You are about to quit", "Are you sure you want to quit?", "Quit"))
 			{
-				//has_quit = 1;
+				has_quit = 1;
 				return true;
 			}
 		}
@@ -206,9 +207,6 @@ void Engine::MainLoop()
 				lastModifiers = modState;
 			}
 			sendNewEvents = false;
-
-			// make sure key repeat is off, breaks stuff
-			SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 		}
 		top->UpdateComponents();
 
@@ -227,21 +225,38 @@ void Engine::MainLoop()
 		lastTick = currentTick;
 
 		top->DoDraw();
-		if (top->toDelete || has_quit)
-		{
-			CloseWindow(top);
-		}
 		sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf /*potato->GetVid()->GetVid()*/, XRES+BARSIZE);
 		//memset(vid_buf, 0, (XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
 		limit_fps();
+
+		// close / open any windows that need to be shown
+		CloseWindowDelayed();
+		if (nextTop)
+			ShowWindowDelayed();
 	}
 }
 
+// can only show one new window per frame
 void Engine::ShowWindow(Window_ *window)
 {
+	if (!window || nextTop)
+		return;
+	nextTop = window;
+	// show window now if this is the first
+	if (!top)
+		ShowWindowDelayed();
+}
+
+void Engine::ShowWindowDelayed()
+{
+	// key repeat on all windows except main one
+	if (windows.size())
+		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE+1, YRES+MENUSIZE+1, 0, 0, 0, 100);
-	windows.push(window);
-	top = window;
+	windows.push(nextTop);
+	top = nextTop;
+	nextTop = NULL;
 
 	// update mouse position on any new windows
 	int mx, my;
@@ -255,14 +270,34 @@ void Engine::CloseWindow(Window_ *window)
 {
 	if (window == windows.top())
 	{
+		window->toDelete = true;
+	}
+}
+
+void Engine::CloseWindowDelayed()
+{
+	while (top && (top->toDelete || has_quit))
+	{
 		delete top;
 		windows.pop();
 		if (windows.size())
 		{
 			top = windows.top();
 			top->FocusComponent(NULL);
+			// update mouse position on any new windows
+			int mx, my;
+			SDL_GetMouseState(&mx, &my);
+			mx /= sdl_scale;
+			my /= sdl_scale;
+			top->DoMouseMove(mx, my, 0, 0);
 		}
 		else
 			top = NULL;
+
+	}
+	if (windows.size() == 1)
+	{
+		// make sure key repeat is off, breaks stuff
+		SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 	}
 }

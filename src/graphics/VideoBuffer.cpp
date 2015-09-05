@@ -181,15 +181,27 @@ void VideoBuffer::FillRect(int x, int y, int w, int h, int r, int g, int b, int 
 			DrawPixel(x+i, y+j, r, g, b, a);
 }
 
-int VideoBuffer::DrawChar(int x, int y, unsigned char c, int r, int g, int b, int a)
+int VideoBuffer::DrawChar(int x, int y, unsigned char c, int r, int g, int b, int a, bool modifiedColor)
 {
 	int bn = 0, ba = 0;
-	char *rp = (char*)font_data + font_ptrs[c];
+	unsigned char *rp = font_data + font_ptrs[c];
 	signed char w = *(rp++);
 	unsigned char flags = *(rp++);
 	signed char t = (flags&0x4) ? -(flags&0x3) : flags&0x3;
 	signed char l = (flags&0x20) ? -((flags>>3)&0x3) : (flags>>3)&0x3;
 	flags >>= 6;
+	if ((flags&0x2))
+	{
+		if (!modifiedColor)
+		{
+			a = *(rp++);
+			r = *(rp++);
+			g = *(rp++);
+			b = *(rp++);
+		}
+		else
+			rp += 4;
+	}
 	for (int j = 0; j < FONT_H; j++)
 		for (int i = 0; i < w && i < FONT_W; i++)
 		{
@@ -211,7 +223,7 @@ int VideoBuffer::DrawText(int x, int y, std::string s, int r, int g, int b, int 
 	if (a == 0)
 		return x;
 	int startX = x;
-	bool highlight = false;
+	bool highlight = false, modifiedColor = false;
 	int oldR = r, oldG = g, oldB = b;
 	for (int i = 0; i < s.length(); i++)
 	{
@@ -235,12 +247,14 @@ int VideoBuffer::DrawText(int x, int y, std::string s, int r, int g, int b, int 
 			r = (unsigned char)s[i+1];
 			g = (unsigned char)s[i+2];
 			b = (unsigned char)s[i+3];
+			modifiedColor = true;
 			i += 3;
 			break;
 		case '\x0E':
 			r = oldR;
 			g = oldG;
 			b = oldB;
+			modifiedColor = false;
 			break;
 		case '\x01':
 			highlight = !highlight;
@@ -292,7 +306,7 @@ int VideoBuffer::DrawText(int x, int y, std::string s, int r, int g, int b, int 
 			break;
 		default:
 			int oldX = x;
-			x = DrawChar(x, y, s[i], r, g, b, a);
+			x = DrawChar(x, y, s[i], r, g, b, a, modifiedColor);
 			if (highlight)
 			{
 				FillRect(oldX, y-2, font_data[font_ptrs[s[i]]], FONT_H+2, 0, 0, 255, 127);

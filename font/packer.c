@@ -11,6 +11,7 @@
 char font[256][CELLH][CELLW];
 char width[256];
 unsigned char flags[256];
+unsigned int color[256];
 signed char top[256];
 signed char left[256];
 
@@ -56,6 +57,14 @@ int save_char(int c)
 	nb += stock_bits(abs(left[c])&3, 2);
 	nb += stock_bits(left[c] < 0 ? 1 : 0, 1);
 	nb += stock_bits(flags[c]&3, 2);
+	if (flags[c]&0x2)
+	{
+		nb += 4;
+		printf("0x%02X, ", color[c]>>24);
+		printf("0x%02X, ", (color[c]>>16)&0xFF);
+		printf("0x%02X, ", (color[c]>>8)&0xFF);
+		printf("0x%02X, ", color[c]&0xFF);
+	}
 	printf("  ");
 
 	for (y = 0; y < CELLH; y++)
@@ -80,6 +89,7 @@ int main(int argc, char *argv[])
 	f = fopen("font.bin", "rb");
 	fread(width, 1, 256, f);
 	fread(flags, 1, 256, f);
+	fread(color, 4, 256, f);
 	fread(top, 1, 256, f);
 	fread(left, 1, 256, f);
 	fread(font, CELLW*CELLH, 256, f);

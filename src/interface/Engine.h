@@ -20,8 +20,10 @@ public:
 
 private:
 	bool EventProcess(SDL_Event event);
+	void ShowWindowDelayed();
+	void CloseWindowDelayed();
 	std::stack<Window_*> windows;
-	Window_ *top;
+	Window_ *top, *nextTop;
 
 	Point lastMousePosition;
 	unsigned short lastModifiers;

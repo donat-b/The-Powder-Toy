@@ -166,139 +166,6 @@ void get_sign_pos(int i, int *x0, int *y0, int *w, int *h)
 	*y0 = (signs[i].y > 18) ? signs[i].y - 18 : signs[i].y + 4;
 }
 
-void add_sign_ui(pixel *vid_buf, int mx, int my)
-{
-	int i, w, h, x, y, nm=0, ju;
-	int x0=(XRES-204)/2,y0=(YRES-80)/2,b=1,bq;
-	ui_edit ed;
-
-	// if currently moving a sign, stop doing so
-	if (MSIGN != -1)
-	{
-		MSIGN = -1;
-		return;
-	}
-
-	// check if it is an existing sign
-	for (i=0; i<MAXSIGNS; i++)
-		if (signs[i].text[0])
-		{
-			get_sign_pos(i, &x, &y, &w, &h);
-			if (mx>=x && mx<=x+w && my>=y && my<=y+h)
-				break;
-		}
-	// else look for empty spot
-	if (i >= MAXSIGNS)
-	{
-		nm = 1;
-		for (i=0; i<MAXSIGNS; i++)
-			if (!signs[i].text[0])
-				break;
-	}
-	if (i >= MAXSIGNS)
-		return;
-	if (nm)
-	{
-		signs[i].x = mx;
-		signs[i].y = my;
-		signs[i].ju = 1;
-	}
-
-	while (!sdl_poll())
-	{
-		b = mouse_get_state(&mx, &my);
-		if (!b)
-			break;
-	}
-
-	ui_edit_init(&ed, x0+25, y0+25, 184, 14);
-	ed.def = "[message]";
-	ed.cursor = ed.cursorstart = strlen(signs[i].text);
-	strcpy(ed.str, signs[i].text);
-	ju = signs[i].ju;
-
-	fillrect(vid_buf, -1, -1, XRES+1, YRES+MENUSIZE+1, 0, 0, 0, 192);
-	while (!sdl_poll())
-	{
-		bq = b;
-		b = mouse_get_state(&mx, &my);
-
-		drawrect(vid_buf, x0, y0, 217, 80, 192, 192, 192, 255);
-		clearrect(vid_buf, x0+1, y0+1, 216, 79);
-		drawtext(vid_buf, x0+8, y0+8, nm ? "New sign:" : "Edit sign:", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+12, y0+23, "\xA1", 32, 64, 128, 255);
-		drawtext(vid_buf, x0+12, y0+23, "\xA0", 255, 255, 255, 255);
-		drawrect(vid_buf, x0+8, y0+20, 201, 16, 192, 192, 192, 255);
-		ui_edit_draw(vid_buf, &ed);
-		drawtext(vid_buf, x0+8, y0+46, "Justify:", 255, 255, 255, 255);
-		draw_icon(vid_buf, x0+50, y0+42, (char)0x9D, ju == 0);
-		draw_icon(vid_buf, x0+68, y0+42, (char)0x9E, ju == 1);
-		draw_icon(vid_buf, x0+86, y0+42, (char)0x9F, ju == 2);
-
-
-
-
-
-		if (!nm)
-		{
-			drawtext(vid_buf, x0+138, y0+45, "\x86", 160, 48, 32, 255);
-			drawtext(vid_buf, x0+138, y0+45, "\x85", 255, 255, 255, 255);
-			drawtext(vid_buf, x0+152, y0+46, "Delete", 255, 255, 255, 255);
-			drawrect(vid_buf, x0+134, y0+42, 50, 15, 255, 255, 255, 255);
-			drawrect(vid_buf,x0+104,y0+42,26,15,255,255,255,255);
-			drawtext(vid_buf, x0+110, y0+48, "Mv.", 255, 255, 255, 255);
-		}
-
-		drawtext(vid_buf, x0+5, y0+69, "OK", 255, 255, 255, 255);
-		drawrect(vid_buf, x0, y0+64, 217, 16, 192, 192, 192, 255);
-#ifdef OGLR
-		clearScreen(1.0f);
-#endif
-		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
-
-		ui_edit_process(mx, my, b, bq, &ed);
-
-		if (!b && bq)
-		{
-			if (mx>=x0+50 && mx<=x0+67 && my>=y0+42 && my<=y0+59)
-				ju = 0;
-			if (mx>=x0+68 && mx<=x0+85 && my>=y0+42 && my<=y0+59)
-				ju = 1;
-			if (mx>=x0+86 && mx<=x0+103 && my>=y0+42 && my<=y0+59)
-				ju = 2;
-
-			if (!nm && mx>=x0+104 && mx<=x0+130 && my>=y0+42 && my<=y0+59)
-			{
-				MSIGN = i;
-				break;
-			}
-			if (mx>=x0+9 && mx<x0+23 && my>=y0+22 && my<y0+36)
-				break;
-			if (mx>=x0 && mx<x0+217 && my>=y0+64 && my<=y0+80)
-				break;
-
-			if (!nm && mx>=x0+134 && my>=y0+42 && mx<=x0+184 && my<=y0+59)
-			{
-				signs[i].text[0] = 0;
-				return;
-			}
-
-			if (mx < x0 || my < y0 || mx > x0+217 || my > y0+80)
-				return;
-		}
-
-		if (sdl_key == SDLK_RETURN)
-			break;
-		if (sdl_key == SDLK_ESCAPE)
-		{
-			return;
-		}
-	}
-
-	strcpy(signs[i].text, ed.str);
-	signs[i].ju = ju;
-}
-
 void ui_edit_init(ui_edit *ed, int x, int y, int w, int h)
 {
 	ed->x = x;
@@ -2221,7 +2088,7 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 						if (mx>=gx+XRES/GRID_S-4 && mx<(gx+XRES/GRID_S)+6 && my>=gy-6 && my<gy+4)
 							d = k;
 						drawrect(vid_buf, gx-2, gy-2, XRES/GRID_S+3, YRES/GRID_S+3, 128, 128, 128, 255);
-						drawtext(vid_buf, gx+XRES/GRID_S-4, gy-6, "\x86", 255, 48, 32, 255);
+						drawtext(vid_buf, gx+XRES/GRID_S-3, gy-4, "\x86", 255, 48, 32, 255);
 					}
 					else
 					{
@@ -2234,10 +2101,10 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 						{
 							drawrect(vid_buf, gx-2, gy-2, XRES/GRID_S+3, YRES/GRID_S+3, 128, 128, 128, 255);
 						}
-						drawtext(vid_buf, gx+XRES/GRID_S-4, gy-6, "\x86", 150, 48, 32, 255);
+						drawtext(vid_buf, gx+XRES/GRID_S-3, gy-4, "\x86", 150, 48, 32, 255);
 					}
 					drawtext(vid_buf, gx+XRES/(GRID_S*2)-textwidth(stamps[k].name)/2, gy+YRES/GRID_S+7, stamps[k].name, 192, 192, 192, 255);
-					drawtext(vid_buf, gx+XRES/GRID_S-4, gy-6, "\x85", 255, 255, 255, 255);
+					drawtext(vid_buf, gx+XRES/GRID_S-3, gy-4, "\x85", 255, 255, 255, 255);
 				}
 				k++;
 			}
@@ -2427,8 +2294,8 @@ void tag_list_ui(pixel *vid_buf)
 			*q = 0;
 			if (svf_own || svf_admin || svf_mod)
 			{
-				drawtext(vid_buf, x0+20, y-1, "\x86", 160, 48, 32, 255);
-				drawtext(vid_buf, x0+20, y-1, "\x85", 255, 255, 255, 255);
+				drawtext(vid_buf, x0+21, y+1, "\x86", 160, 48, 32, 255);
+				drawtext(vid_buf, x0+21, y+1, "\x85", 255, 255, 255, 255);
 				d = 14;
 				if (b && !bq && mx>=x0+18 && mx<x0+32 && my>=y-2 && my<y+12)
 				{
@@ -2472,7 +2339,7 @@ void tag_list_ui(pixel *vid_buf)
 			y += 16;
 		}
 		
-		drawtext(vid_buf, x0+11, y0+219, "\x86", 32, 144, 32, 255);
+		drawtext(vid_buf, x0+12, y0+221, "\x86", 32, 144, 32, 255);
 		drawtext(vid_buf, x0+11, y0+219, "\x89", 255, 255, 255, 255);
 		drawrect(vid_buf, x0+8, y0+216, 176, 16, 192, 192, 192, 255);
 		ui_edit_draw(vid_buf, &ed);
@@ -4211,7 +4078,7 @@ int search_ui(pixel *vid_buf)
 		else if (page_count > exp_res && !(search_own || search_fav || search_date) && !strlen(ed.str) < 4)
 		{
 			if (p1_extra)
-				drawtext(vid_buf, 4+xOffset, YRES+MENUSIZE-17, "\x85", 255, 255, 255, 255);
+				drawtext(vid_buf, 5+xOffset, YRES+MENUSIZE-15, "\x85", 255, 255, 255, 255);
 			else
 				drawtext(vid_buf, 4+xOffset, YRES+MENUSIZE-17, "\x89", 255, 255, 255, 255);
 			drawrect(vid_buf, 1+xOffset, YRES+MENUSIZE-20, 15, 15, 255, 255, 255, 255);
@@ -4353,10 +4220,10 @@ int search_ui(pixel *vid_buf)
 				if (own || search_fav)
 				{
 					if (dp == pos)
-						drawtext(vid_buf, gx+XRES/GRID_S-4, gy-6, "\x86", 255, 48, 32, 255);
+						drawtext(vid_buf, gx+XRES/GRID_S-3, gy-4, "\x86", 255, 48, 32, 255);
 					else
-						drawtext(vid_buf, gx+XRES/GRID_S-4, gy-6, "\x86", 160, 48, 32, 255);
-					drawtext(vid_buf, gx+XRES/GRID_S-4, gy-6, "\x85", 255, 255, 255, 255);
+						drawtext(vid_buf, gx+XRES/GRID_S-3, gy-4, "\x86", 160, 48, 32, 255);
+					drawtext(vid_buf, gx+XRES/GRID_S-3, gy-4, "\x85", 255, 255, 255, 255);
 				}
 				if (!search_publish[pos])
 				{
@@ -8040,11 +7907,11 @@ void catalogue_ui(pixel * vid_buf)
 							rmdir(LOCAL_SAVE_DIR PATH_SEP);
 						break;
 					}
-					drawtext(vid_buf2, listxc+XRES/GRID_S-4, listyc-6, "\x86", 255, 48, 32, 255);
+					drawtext(vid_buf2, listxc+XRES/GRID_S-3, listyc-4, "\x86", 255, 48, 32, 255);
 				}
 				else
-					drawtext(vid_buf2, listxc+XRES/GRID_S-4, listyc-6, "\x86", 160, 48, 32, 255);
-				drawtext(vid_buf2, listxc+XRES/GRID_S-4, listyc-6, "\x85", 255, 255, 255, 255);
+					drawtext(vid_buf2, listxc+XRES/GRID_S-3, listyc-4, "\x86", 160, 48, 32, 255);
+				drawtext(vid_buf2, listxc+XRES/GRID_S-3, listyc-4, "\x85", 255, 255, 255, 255);
 				csave = csave->next;
 				if(++listx==CATALOGUE_X){
 					listx = 0;

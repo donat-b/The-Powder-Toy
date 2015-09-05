@@ -23,6 +23,7 @@
 #include "simulation/Simulation.h"
 
 #include "gui/profile/ProfileViewer.h"
+#include "gui/sign/CreateSign.h"
 
 PowderToy::~PowderToy()
 {
@@ -846,8 +847,37 @@ void PowderToy::OnTick(uint32_t ticks)
 	}
 	if (openSign)
 	{
-		Point cursor = AdjustCoordinates(Point(mouseX, mouseY));
-		add_sign_ui(GetVid()->GetVid(), cursor.Y, cursor.Y);
+		// if currently moving a sign, stop doing so
+		if (MSIGN != -1)
+			MSIGN = -1;
+		else
+		{
+			Point cursor = AdjustCoordinates(Point(mouseX, mouseY));
+			int signID = -1, x, y, w, h;
+			for (int i = 0; i < MAXSIGNS; i++)
+				if (signs[i].text[0])
+				{
+					get_sign_pos(i, &x, &y, &w, &h);
+					if (cursor.X >= x && cursor.X <= x+w && cursor.Y >= y && cursor.Y <= y+h)
+					{
+						signID = i;
+						break;
+					}
+				}
+			if (signID == -1)
+			{
+				for (int i = 0; i < MAXSIGNS; i++)
+					if (!signs[i].text[0])
+					{
+						signID = i;
+						break;
+					}
+			}
+			if (signID != -1)
+				Engine::Ref().ShowWindow(new CreateSign(signID, cursor));
+			else
+				SetInfoTip("Sign limit reached");
+		}
 		openSign = false;
 	}
 	if (openProp)

@@ -268,7 +268,7 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick)
 		textWidth = posX+5;
 
 	if (autosizeY)
-		size.Y = posY+3;
+		size.Y = posY+5;
 	else if (multiline)
 		textHeight = posY+3;
 
@@ -419,10 +419,10 @@ void Label::OnDraw(VideoBuffer* vid)
 		{
 			mootext.insert(cursor+(cursor > cursorStart)*2, "\x02");
 		}
-		vid->DrawText(position.X+3, position.Y+4, mootext, 255, 255, 255, 255);
+		vid->DrawText(position.X+3, position.Y+4, mootext, COLR(color), COLG(color), COLB(color), COLA(color));
 	}
 	else
-		vid->DrawText(position.X+3, position.Y+4, text, 140, 140, 140, 255);
+		vid->DrawText(position.X+3, position.Y+4, text, (int)(COLR(color)*.5f), (int)(COLG(color)*.5f), (int)(COLB(color)*.5f), (int)(COLA(color)*.5f));
 }
 
 void Label::OnTick(uint32_t ticks)

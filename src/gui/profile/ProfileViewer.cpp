@@ -86,14 +86,11 @@ ProfileViewer::ProfileViewer(std::string profileName):
 		openProfileButton = new Button(Point(0, size.Y-15), Point(this->size.X, 16), "Open Profile Online");
 	openProfileButton->SetCallback(new OpenProfileAction());
 	this->AddComponent(openProfileButton);
-
-	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 }
 
 ProfileViewer::~ProfileViewer()
 {
 	free(avatar);
-	SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 }
 
 void ProfileViewer::OnTick(uint32_t ticks)

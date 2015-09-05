@@ -20,6 +20,7 @@ public:
 	bool IsFocused(const Component *other) const { return other == focused; }
 	bool IsClicked(const Component *other) const { return other == clicked; }
 
+	void DoExit(); // calls OnExit, doesn't actually exit though
 	void DoTick(uint32_t ticks);
 	void DoDraw();
 
@@ -47,6 +48,7 @@ protected:
 	bool isMouseDown; // need to keep track of this for some things like buttons
 	bool ignoreQuits;
 
+	virtual void OnExit() { }
 	virtual void OnTick(uint32_t ticks) { }
 	virtual void OnDraw(VideoBuffer *buf) { }
 	virtual void OnMouseMove(int x, int y, Point difference) { }
@@ -58,6 +60,7 @@ protected:
 
 	void VideoBufferHack();
 private:
+	bool mouseDownOutside;
 	VideoBuffer* videoBuffer;
 	Component* focused;
 	Component* clicked;

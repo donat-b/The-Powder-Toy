@@ -12,6 +12,7 @@ Window_::Window_(Point position_, Point size_):
 	Components(NULL),
 	isMouseDown(false),
 	ignoreQuits(false),
+	mouseDownOutside(false),
 	focused(NULL),
 	clicked(NULL)
 {
@@ -20,7 +21,6 @@ Window_::Window_(Point position_, Point size_):
 	if (position.Y == CENTERED)
 		position.Y = (YRES+MENUSIZE-size.Y)/2;
 	videoBuffer = new VideoBuffer(size.X, size.Y);
-	//AddComponent(new Textbox(Point(5, 5), Point(100, 14), "asdf", false));
 }
 
 Window_::~Window_()
@@ -92,6 +92,11 @@ void Window_::UpdateComponents()
 	}
 }
 
+void Window_::DoExit()
+{
+	OnExit();
+}
+
 void Window_::DoTick(uint32_t ticks)
 {
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
@@ -158,7 +163,7 @@ void Window_::DoMouseDown(int x, int y, unsigned char button)
 #ifndef TOUCHUI
 	if (x < position.X || x > position.X+size.X || y < position.Y || y > position.Y+size.Y)
 	{
-		toDelete = true;
+		mouseDownOutside = true;
 	}
 #endif
 	isMouseDown = true;
@@ -189,6 +194,16 @@ void Window_::DoMouseDown(int x, int y, unsigned char button)
 
 void Window_::DoMouseUp(int x, int y, unsigned char button)
 {
+#ifndef TOUCHUI
+	if (mouseDownOutside)
+	{
+		mouseDownOutside = false;
+		if (x < position.X || x > position.X+size.X || y < position.Y || y > position.Y+size.Y)
+		{
+			toDelete = true;
+		}
+	}
+#endif
 	isMouseDown = false;
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{

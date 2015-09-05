@@ -829,12 +829,20 @@ TPT_INLINE void drawpixel(pixel *vid, int x, int y, int r, int g, int b, int a)
 TPT_INLINE int drawchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a)
 {
 	int bn = 0, ba = 0;
-	char *rp = (char*)font_data + font_ptrs[c];
+	unsigned char *rp = font_data + font_ptrs[c];
 	signed char w = *(rp++);
 	unsigned char flags = *(rp++);
 	signed char t = (flags&0x4) ? -(flags&0x3) : flags&0x3;
 	signed char l = (flags&0x20) ? -((flags>>3)&0x3) : (flags>>3)&0x3;
 	flags >>= 6;
+	if (flags&0x2)
+	{
+		/*a = *(rp++);
+		r = *(rp++);
+		g = *(rp++);
+		b = *(rp++);*/
+		rp += 4;
+	}
 	for (int j = 0; j < FONT_H; j++)
 		for (int i = 0; i < w && i<FONT_W; i++)
 		{
@@ -853,12 +861,20 @@ TPT_INLINE int drawchar(pixel *vid, int x, int y, int c, int r, int g, int b, in
 int addchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a)
 {
 	int bn = 0, ba = 0;
-	char *rp = (char*)font_data + font_ptrs[c];
+	unsigned char *rp = font_data + font_ptrs[c];
 	signed char w = *(rp++);
 	unsigned char flags = *(rp++);
 	signed char t = (flags&0x4) ? -(flags&0x3) : flags&0x3;
 	signed char l = (flags&0x20) ? -((flags>>3)&0x3) : (flags>>3)&0x3;
 	flags >>= 6;
+	if (flags&0x2)
+	{
+		/*a = *(rp++);
+		r = *(rp++);
+		g = *(rp++);
+		b = *(rp++);*/
+		rp += 4;
+	}
 	for (int j = 0; j < FONT_H; j++)
 		for (int i = 0; i < w && i < FONT_W; i++)
 		{
