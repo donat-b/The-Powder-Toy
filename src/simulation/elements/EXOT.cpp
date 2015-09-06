@@ -201,7 +201,7 @@ void EXOT_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_EXOT";
 	elem->Name = "EXOT";
-	elem->Colour = COLPACK(0x404040);
+	elem->Colour = COLPACK(0x247BFE);
 	elem->MenuVisible = 1;
 	elem->MenuSection = SC_NUCLEAR;
 	elem->Enabled = 1;
