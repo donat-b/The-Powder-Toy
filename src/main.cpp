@@ -1905,7 +1905,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			}
 			if (sdl_key=='=')
 			{
-				int nx, ny;
 				if (sdl_mod & (KMOD_CTRL|KMOD_META))
 				{
 					for (int i = 0; i < NPART; i++)
@@ -1919,6 +1918,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 							else
 								kill_part(i);
 						}
+					globalSim->elementData[PT_WIFI]->Simulation_Cleared(globalSim);
 				}
 				else
 				{

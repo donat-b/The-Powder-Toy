@@ -22,6 +22,7 @@
 #include "console.h"
 #include "simulation/Simulation.h"
 #include "simulation/WallNumbers.h"
+#include "simulation/ElementDataContainer.h"
 
 char console_more=0;
 int file_script = 0;
@@ -327,14 +328,18 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 				}
 				else if (strcmp(console3, "sparks")==0)
 				{
-					for (i=0; i<NPART; i++)
-					{
-						if (parts[i].type==PT_SPRK)
+					for (int i = 0; i < NPART; i++)
+						if (parts[i].type == PT_SPRK)
 						{
-							parts[i].type = parts[i].ctype;
-							parts[i].life = 4;
+							if (parts[i].ctype >= 0 && parts[i].ctype < PT_NUM && ptypes[parts[i].ctype].enabled)
+							{
+								parts[i].type = parts[i].ctype;
+								parts[i].life = parts[i].ctype = 0;
+							}
+							else
+								kill_part(i);
 						}
-					}
+					globalSim->elementData[PT_WIFI]->Simulation_Cleared(globalSim);
 				}
 				else if (strcmp(console3, "temp")==0)
 				{
