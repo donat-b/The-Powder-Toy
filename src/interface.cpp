@@ -7083,6 +7083,8 @@ ARGBColour decocolor = COLARGB(255, 255, 0, 0);
 int currA = 255, currR = 255, currG = 0, currB = 0;
 int currH = 0, currS = 255, currV = 255;
 int on_left = 1, decobox_hidden = 0;
+bool clickedHueBox;
+bool clickedSaturation;
 
 int deco_disablestuff;
 void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
@@ -7258,10 +7260,12 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	if(can_select_color && !decobox_hidden && mx >= window_offset_x && my >= 2 && mx <= window_offset_x+255+4+10+5 && my <= 2+255+20)//in the main window
 	{
 		//inside brightness bar
-		if(mx >= grid_offset_x +255+4 && my >= 5 && mx <= grid_offset_x+255+4+10 && my <= 5+255)
+		if(mx >= grid_offset_x +255+4 && my >= 5 && mx <= grid_offset_x+255+4+10 && my <= 5+255 && !clickedSaturation)
 		{
 			tv =  my - 5;
-			if (b)
+			if (b && !bq)
+				clickedHueBox = true;
+			if (b && clickedHueBox)
 			{
 				currV = my - 5;
 				HSV_to_RGB(currH,currS,tv,&currR,&currG,&currB);
@@ -7280,12 +7284,14 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 				sprintf(box_A.str,"%d",ca);
 		}
 		//inside color grid
-		if(mx >= grid_offset_x && my >= 5 && mx <= grid_offset_x+255 && my <= 5+255)
+		if(mx >= grid_offset_x && my >= 5 && mx <= grid_offset_x+255 && my <= 5+255 && !clickedHueBox)
 		{
 			th = mx - grid_offset_x;
 			th = (int)( th*359/255 );
 			ts = 255 - (my - 5);
-			if(b)
+			if (b && !bq)
+				clickedSaturation = true;
+			if (b && clickedSaturation)
 			{
 				currH = th;
 				currS = ts;
@@ -7329,6 +7335,10 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 			decobox_hidden = !decobox_hidden;
 			the_game->HideZoomWindow();
 		}
+	}
+	if (!b)
+	{
+		clickedHueBox = clickedSaturation = false;
 	}
 #ifndef NOMOD
 	if (sdl_key==SDLK_RIGHT)
