@@ -127,6 +127,44 @@ int console_parse_partref(const char *txt, int *which, char *err)
 	return 0;
 }
 
+bool console_parse_hex(char *txt, int *val, char *err)
+{
+	int base = 10;
+	char c;
+	if (txt[0] == '#')
+	{
+		txt++;
+		base = 16;
+	}
+	if (txt[0] == '0' && txt[1] == 'x')
+	{
+		txt += 2;
+		base = 16;
+	}
+	while ((c = *(txt++)))
+	{
+		*val *= base;
+		if (c >= '0' && c <= '9')
+			*val += c - '0';
+		else if (base == 16 && c >= 'a' && c <= 'f')
+			*val += (c - 'a') + 10;
+		else if (base == 16 && c >= 'A' && c <= 'F')
+			*val += (c - 'A') + 10;
+		else
+		{
+			if (err)
+			{
+				if (base == 10)
+					strcpy(err, "Invalid number");
+				else
+					strcpy(err, "Invalid hexadecimal number");
+			}
+			return false;
+		}
+	}
+	return true;
+}
+
 int process_command_old(pixel *vid_buf, char *command, char **result)
 {
 	int y,x,nx,ny,i,j,k,m;
@@ -651,6 +689,122 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 						{
 							f = (float)atof(console5);
 							parts[i].vy = f;
+						}
+					}
+				}
+				else if (strcmp(console3, "dcolor")==0 || strcmp(console3, "dcolour")==0)
+				{
+					if (strcmp(console4, "all")==0)
+					{
+						if (console_parse_hex(console5, &j, console_error))
+							for (i=0; i<NPART; i++)
+							{
+								if (parts[i].type)
+									parts[i].dcolour = j;
+							}
+					}
+					else if (console_parse_type(console4, &j, console_error))
+					{
+						if (console_parse_hex(console5, &k, console_error))
+							for (i=0; i<NPART; i++)
+							{
+								if (parts[i].type == j)
+									parts[i].dcolour = k;
+							}
+					}
+					else
+					{
+						if (console_parse_partref(console4, &i, console_error))
+						{
+							if (console_parse_hex(console5, &j, console_error))
+								parts[i].dcolour = j;
+						}
+					}
+				}
+				else if (strcmp(console3, "flags")==0)
+				{
+					if (strcmp(console4, "all")==0)
+					{
+						j = atoi(console5);
+						for (i=0; i<NPART; i++)
+						{
+							if (parts[i].type)
+								parts[i].flags = j;
+						}
+					}
+					else if (console_parse_type(console4, &j, console_error))
+					{
+						k = atoi(console5);
+						for (i=0; i<NPART; i++)
+						{
+							if (parts[i].type == j)
+								parts[i].flags = k;
+						}
+					}
+					else
+					{
+						if (console_parse_partref(console4, &i, console_error))
+						{
+							j = atoi(console5);
+							parts[i].flags = j;
+						}
+					}
+				}
+				else if (strcmp(console3, "pavg0")==0)
+				{
+					if (strcmp(console4, "all")==0)
+					{
+						f = (float)atof(console5);
+						for (i=0; i<NPART; i++)
+						{
+							if (parts[i].type)
+								parts[i].pavg[0] = f;
+						}
+					}
+					else if (console_parse_type(console4, &j, console_error))
+					{
+						f = (float)atof(console5);
+						for (i=0; i<NPART; i++)
+						{
+							if (parts[i].type == j)
+								parts[i].pavg[0]= f;
+						}
+					}
+					else
+					{
+						if (console_parse_partref(console4, &i, console_error))
+						{
+							f = (float)atof(console5);
+							parts[i].pavg[0] = f;
+						}
+					}
+				}
+				else if (strcmp(console3, "pavg1")==0)
+				{
+					if (strcmp(console4, "all")==0)
+					{
+						f = (float)atof(console5);
+						for (i=0; i<NPART; i++)
+						{
+							if (parts[i].type)
+								parts[i].pavg[1] = f;
+						}
+					}
+					else if (console_parse_type(console4, &j, console_error))
+					{
+						f = (float)atof(console5);
+						for (i=0; i<NPART; i++)
+						{
+							if (parts[i].type == j)
+								parts[i].pavg[1]= f;
+						}
+					}
+					else
+					{
+						if (console_parse_partref(console4, &i, console_error))
+						{
+							f = (float)atof(console5);
+							parts[i].pavg[1] = f;
 						}
 					}
 				}
