@@ -1363,7 +1363,7 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 	}
 }
 
-char *input_ui(pixel *vid_buf, char *title, char *prompt, char *text, char *shadow)
+char *input_ui(pixel *vid_buf, const char *title, const char *prompt, const char *text, const char *shadow)
 {
 	int xsize = 244;
 	int ysize = 90;
@@ -1371,7 +1371,7 @@ char *input_ui(pixel *vid_buf, char *title, char *prompt, char *text, char *shad
 
 	ui_edit ed;
 	ui_edit_init(&ed, x0+12, y0+50, xsize-20, 14);
-	ed.def = shadow;
+	ed.def = mystrdup(shadow);
 	ed.focus = 0;
 	strncpy(ed.str, text, 254);
 
@@ -1425,6 +1425,7 @@ char *input_ui(pixel *vid_buf, char *title, char *prompt, char *text, char *shad
 		if (!b)
 			break;
 	}
+	free(ed.def);
 	return mystrdup(ed.str);
 }
 
@@ -1616,7 +1617,7 @@ exit:
 	}
 }
 
-void info_ui(pixel *vid_buf, char *top, char *txt)
+void info_ui(pixel *vid_buf, const char *top, const char *txt)
 {
 	int x0=(XRES-240)/2,y0=(YRES-MENUSIZE)/2,b=1,bq,mx,my;
 
@@ -3072,7 +3073,7 @@ void menu_select_element(int b, Tool* over)
 				char hud_curr[16];
 				sprintf(hud_curr,"%i",currentHud[toolID-HUD_REALSTART]);
 				if (strstr(hud_menu[toolID-HUD_START].name,"#"))
-					currentHud[toolID-HUD_REALSTART] = atoi(input_ui(vid_buf,(char*)hud_menu[toolID-HUD_START].name,"Enter number of decimal places",hud_curr,""));
+					currentHud[toolID-HUD_REALSTART] = atoi(input_ui(vid_buf,hud_menu[toolID-HUD_START].name,"Enter number of decimal places",hud_curr,""));
 				else
 					currentHud[toolID-HUD_REALSTART] = !currentHud[toolID-HUD_REALSTART];
 				if (DEBUG_MODE)

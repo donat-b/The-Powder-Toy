@@ -240,7 +240,7 @@ void error_ui(pixel *vid_buf, int err, const char *txt);
 
 void element_search_ui(pixel *vid_buf, Tool** sl, Tool** sr);
 
-void info_ui(pixel *vid_buf, char *top, char *txt);
+void info_ui(pixel *vid_buf, const char *top, const char *txt);
 
 void copytext_ui(pixel *vid_buf, char *top, char *txt, char *copytxt);
 
@@ -248,7 +248,7 @@ void info_box(pixel *vid_buf, char *msg);
 
 void info_box_overlay(pixel *vid_buf, char *msg);
 
-char *input_ui(pixel *vid_buf, char *title, char *prompt, char *text, char *shadow);
+char *input_ui(pixel *vid_buf, const char *title, const char *prompt, const char *text, const char *shadow);
 
 bool confirm_ui(pixel *vid_buf, const char *top, const char *msg, const char *btn);
 

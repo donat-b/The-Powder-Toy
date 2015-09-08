@@ -109,6 +109,7 @@ void luacon_open()
 		{"unregister_keyevent", &luatpt_unregister_keypress},
 		{"input", &luatpt_input},
 		{"message_box", &luatpt_message_box},
+		{"confirm", &luatpt_confirm},
 		{"get_numOfParts", &luatpt_get_numOfParts},
 		{"start_getPartIndex", &luatpt_start_getPartIndex},
 		{"next_getPartIndex", &luatpt_next_getPartIndex},
@@ -2172,32 +2173,35 @@ int luatpt_unregister_mouseclick(lua_State* l)
 
 int luatpt_input(lua_State* l)
 {
-	char *prompt, *title, *result, *shadow, *text;
-	title = mystrdup((char*)luaL_optstring(l, 1, "Title"));
-	prompt = mystrdup((char*)luaL_optstring(l, 2, "Enter some text:"));
-	text = mystrdup((char*)luaL_optstring(l, 3, ""));
-	shadow = mystrdup((char*)luaL_optstring(l, 4, ""));
+	const char *title = luaL_optstring(l, 1, "Title");
+	const char *prompt = luaL_optstring(l, 2, "Enter some text:");
+	const char *text = luaL_optstring(l, 3, "");
+	const char *shadow = luaL_optstring(l, 4, "");
 
-	result = input_ui(lua_vid_buf, title, prompt, text, shadow);
+	char *result = input_ui(lua_vid_buf, title, prompt, text, shadow);
 	lua_pushstring(l, result);
 	free(result);
-	free(title);
-	free(prompt);
-	free(text);
-	free(shadow);
 	return 1;
 }
 
 int luatpt_message_box(lua_State* l)
 {
-	char *title, *text;
-	title = mystrdup((char*)luaL_optstring(l, 1, "Title"));
-	text = mystrdup((char*)luaL_optstring(l, 2, "Message"));
+	const char *title = luaL_optstring(l, 1, "Title");
+	const char *text = luaL_optstring(l, 2, "Message");
 
 	info_ui(lua_vid_buf, title, text);
-	free(title);
-	free(text);
 	return 0;
+}
+
+int luatpt_confirm(lua_State* l)
+{
+	const char *title = luaL_optstring(l, 1, "Title");
+	const char *text = luaL_optstring(l, 2, "Message");
+	const char *buttonText = luaL_optstring(l, 3, "Confirm");
+
+	bool ret = confirm_ui(lua_vid_buf, title, text, buttonText);
+	lua_pushboolean(l, ret ? 1 : 0);
+	return 1;
 }
 
 int luatpt_get_numOfParts(lua_State* l)

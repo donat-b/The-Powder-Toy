@@ -114,6 +114,7 @@ int luatpt_register_keypress(lua_State* l);
 int luatpt_unregister_keypress(lua_State* l);
 int luatpt_input(lua_State* l);
 int luatpt_message_box(lua_State* l);
+int luatpt_confirm(lua_State* l);
 int luatpt_get_numOfParts(lua_State* l);
 int luatpt_start_getPartIndex(lua_State* l);
 int luatpt_getPartIndex(lua_State* l);
