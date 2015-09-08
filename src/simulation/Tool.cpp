@@ -355,14 +355,12 @@ Tool* DecoTool::Sample(Point position)
 	int cr = PIXR(sampleColor);
 	int cg = PIXG(sampleColor);
 	int cb = PIXB(sampleColor);
-	if (cr || cg || cb)
-	{
-		if (cr && cr<255) cr++;
-		if (cg && cg<255) cg++;
-		if (cb && cb<255) cb++;
-		decocolor = COLARGB(255, cr, cg, cb);
-		currR = cr, currG = cg, currB = cb, currA = 255;
-		RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
-	}
+
+	if (cr && cr<255) cr++;
+	if (cg && cg<255) cg++;
+	if (cb && cb<255) cb++;
+	decocolor = COLARGB(255, cr, cg, cb);
+	currR = cr, currG = cg, currB = cb, currA = 255;
+	RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
 	return this;
 }
