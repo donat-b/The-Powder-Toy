@@ -2200,8 +2200,8 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		mx = cursor.X;
 		my = cursor.Y;
 		bool tmpMouseInZoom = false;
-		//if (x >= 0 && y >= 0 && x < XRES && y < YRES)
-		//	tmpMouseInZoom = (x != mx || y != my);
+		if (x >= 0 && y >= 0 && x < XRES && y < YRES)
+			tmpMouseInZoom = (x != mx || y != my);
 
 		if (b && !bq && x>=(XRES-19-new_message_len) &&
 		        x<=(XRES-14) && y>=(YRES-37) && y<=(YRES-24) && svf_messages)
