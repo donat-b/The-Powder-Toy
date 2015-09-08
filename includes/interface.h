@@ -48,36 +48,6 @@ const quick_option quickmenu[] =
 extern char tabNames[10][255];
 extern pixel* tabThumbnails[10];
 
-struct menu_wall
-{
-	ARGBColour colour;
-	const char *descs;
-};
-typedef struct menu_wall menu_wall;
-
-const menu_wall colorlist[] =
-{
-	{COLPACK(0xFF0000), "Red"},
-	{COLPACK(0x00FF00), "Green"},
-	{COLPACK(0x0000FF), "Blue"},
-	{COLPACK(0xFFFF00), "Yellow"},
-	{COLPACK(0xFF00FF), "Pink"},
-	{COLPACK(0x00FFFF), "Cyan"},
-	{COLPACK(0xFFFFFF), "White"},
-	{COLPACK(0x000000), "Black"},
-};
-#define DECO_RED 260
-#define DECO_GREEN 261
-#define DECO_BLUE 262
-#define DECO_YELLOW 263
-#define DECO_PINK 264
-#define DECO_CYAN 265
-#define DECO_WHITE 266
-#define DECO_BLACK 267
-
-#define DECO_PRESET_START 260
-#define NUM_COLOR_PRESETS 8
-
 struct ui_edit
 {
 	int x, y, w, nx, h, limit, focus, alwaysFocus, hide, overDelete;

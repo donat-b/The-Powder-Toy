@@ -2739,7 +2739,7 @@ int scrollbar(int fwidth, int mx, int y)
 
 Tool* menu_draw(int mx, int my, int b, int bq, int i)
 {
-	int x, y, n=0, xoff=0, fwidth = menuSections[i]->tools.size()*31;
+	int x, y, xoff=0, fwidth = menuSections[i]->tools.size()*31;
 	Tool* over = NULL;
 	if (!old_menu || i >= SC_FAV)
 	{
@@ -2763,14 +2763,12 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 		decoration_editor(vid_buf, b, bq, mx, my);
 
 		int presetx = 6;
-		for (n = DECO_PRESET_START; n < DECO_PRESET_START+NUM_COLOR_PRESETS; n++)
+		for (int n = DECO_PRESET_START; n < DECO_PRESET_START+NUM_COLOR_PRESETS; n++)
 		{
 			if (mx>=presetx-1 && mx<presetx+27 && my>=y && my< y+15)
 			{
 				drawrect(vid_buf, presetx-1, y-1, 29, 17, 255, 55, 55, 255);
-				std::stringstream identifier;
-				identifier << "DEFAULT_DECOR_COLOUR_" << colorlist[n-DECO_PRESET_START].descs;
-				over =  new Tool(DECO_TOOL, n, identifier.str());
+				over =  GetToolFromIdentifier(colorlist[n-DECO_PRESET_START].identifier);
 			}
 			draw_tool_button(vid_buf, presetx, y, PIXPACK(colorlist[n-DECO_PRESET_START].colour), "");
 			presetx += 31;
@@ -2779,7 +2777,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 	else if (i == SC_HUD)
 	{
 		fwidth = 0;
-		for (n = 0; n < HUD_NUM; n++)
+		for (int n = 0; n < HUD_NUM; n++)
 		{
 			if (hud_menu[n].menunum == hud_menunum || n == 0)
 			{

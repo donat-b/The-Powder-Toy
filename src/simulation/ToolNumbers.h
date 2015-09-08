@@ -74,6 +74,37 @@ static decoType decoTypes[] =
 	{"DARK", "DEFAULT_DECOR_DARK",	COLPACK(0x111111), "Darken deco color."}
 };
 
+struct decoPreset
+{
+	ARGBColour colour;
+	std::string identifier;
+	std::string descs;
+};
+typedef struct decoPreset decoPreset;
+
+const decoPreset colorlist[] =
+{
+	{COLPACK(0xFF0000), "DEFAULT_DECOR_PRESET_RED", "Red"},
+	{COLPACK(0x00FF00), "DEFAULT_DECOR_PRESET_GREEN", "Green"},
+	{COLPACK(0x0000FF), "DEFAULT_DECOR_PRESET_BLUE", "Blue"},
+	{COLPACK(0xFFFF00), "DEFAULT_DECOR_PRESET_YELLOW", "Yellow"},
+	{COLPACK(0xFF00FF), "DEFAULT_DECOR_PRESET_PINK", "Pink"},
+	{COLPACK(0x00FFFF), "DEFAULT_DECOR_PRESET_CYAN", "Cyan"},
+	{COLPACK(0xFFFFFF), "DEFAULT_DECOR_PRESET_WHITE", "White"},
+	{COLPACK(0x000000), "DEFAULT_DECOR_PRESET_BLACK", "Black"},
+};
+#define DECO_PRESET_RED 260
+#define DECO_PRESET_GREEN 261
+#define DECO_PRESET_BLUE 262
+#define DECO_PRESET_YELLOW 263
+#define DECO_PRESET_PINK 264
+#define DECO_PRESET_CYAN 265
+#define DECO_PRESET_WHITE 266
+#define DECO_PRESET_BLACK 267
+
+#define DECO_PRESET_START 260
+#define NUM_COLOR_PRESETS 8
+
 
 //fav menu stuff since doesn't go anywhere else
 #define FAV_START 300

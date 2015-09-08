@@ -130,6 +130,11 @@ void FillMenus()
 		menuSections[SC_DECO]->AddTool(new DecoTool(i));
 	}
 
+	for (int n = DECO_PRESET_START; n < DECO_PRESET_START+NUM_COLOR_PRESETS; n++)
+	{
+		menuSections[SC_OTHER]->AddTool(new Tool(INVALID_TOOL, n, colorlist[n-DECO_PRESET_START].identifier));
+	}
+
 	//Fill up fav. related menus somehow ...
 #ifndef NOMOD
 	menuSections[SC_FAV]->AddTool(new Tool(INVALID_TOOL, FAV_MORE, "DEFAULT_FAV_MORE"));

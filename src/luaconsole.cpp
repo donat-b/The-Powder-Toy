@@ -751,7 +751,7 @@ int luacon_tptNewIndex(lua_State *l)
 	if (!key.compare("selectedl"))
 	{
 		Tool* t = GetToolFromIdentifier(luaL_checkstring(l, 3));
-		if (t)
+		if (t && t->GetType() != INVALID_TOOL)
 			activeTools[0] = t;
 		else
 			luaL_error(l, "Invalid tool identifier: %s", lua_tostring(l, 3));
@@ -759,7 +759,7 @@ int luacon_tptNewIndex(lua_State *l)
 	else if (!key.compare("selectedr"))
 	{
 		Tool* t = GetToolFromIdentifier(luaL_checkstring(l, 3));
-		if (t)
+		if (t && t->GetType() != INVALID_TOOL)
 			activeTools[1] = t;
 		else
 			luaL_error(l, "Invalid tool identifier: %s", lua_tostring(l, 3));
@@ -767,7 +767,7 @@ int luacon_tptNewIndex(lua_State *l)
 	else if (!key.compare("selecteda"))
 	{
 		Tool* t = GetToolFromIdentifier(luaL_checkstring(l, 3));
-		if (t)
+		if (t && t->GetType() != INVALID_TOOL)
 			activeTools[2] = t;
 		else
 			luaL_error(l, "Invalid tool identifier: %s", lua_tostring(l, 3));
@@ -775,7 +775,7 @@ int luacon_tptNewIndex(lua_State *l)
 	else if (!key.compare("selectedreplace"))
 	{
 		Tool* t = GetToolFromIdentifier(luaL_checkstring(l, 3));
-		if (t)
+		if (t && t->GetType() != INVALID_TOOL)
 			activeTools[2] = t;
 		else
 			luaL_error(l, "Invalid tool identifier: %s", lua_tostring(l, 3));
