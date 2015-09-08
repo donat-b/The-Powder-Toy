@@ -51,12 +51,14 @@ public:
 	Point Above(Point diff) { return Point(position.X - diff.X, position.Y - diff.Y); }
 	Point Below(Point diff) { return Point(position.X + diff.X, position.Y + size.Y + diff.Y); }
 
+	virtual void OnTick(uint32_t ticks) { }
+	virtual void OnDraw(VideoBuffer* vid) { }
+	virtual void OnMouseMoved(int x, int y, Point difference) { }
 	virtual void OnMouseDown(int x, int y, unsigned char button) { }
 	virtual void OnMouseUp(int x, int y, unsigned char button) { }
-	virtual void OnMouseMoved(int x, int y, Point difference) { }
+	virtual void OnMouseWheel(int x, int y, int d) { }
 	virtual void OnKeyPress(int key, unsigned short character, unsigned short modifiers) { }
-	virtual void OnDraw(VideoBuffer* vid) { }
-	virtual void OnTick(uint32_t ticks) { }
+	virtual void OnKeyRelease(int key, unsigned short character, unsigned short modifiers) { }
 
 	virtual void OnFocus() { }
 	virtual void OnDefocus() { }

@@ -17,9 +17,10 @@ public:
 private:
 	Point mouse;
 	Point cursor;
-	int lastMouseDown, heldKey, releasedKey;
+	int lastMouseDown, heldKey, heldAscii, releasedKey;
 	unsigned short heldModifier;
 	int mouseWheel;
+	bool mouseCanceled;
 
 	// notifications
 	int numNotifications;
@@ -128,6 +129,12 @@ public:
 	void OnMouseWheel(int x, int y, int d);
 	void OnKeyPress(int key, unsigned short character, unsigned short modifiers);
 	void OnKeyRelease(int key, unsigned short character, unsigned short modifiers);
+
+	bool BeforeMouseDown(int x, int y, unsigned char button);
+	bool BeforeMouseUp(int x, int y, unsigned char button);
+	bool BeforeMouseWheel(int x, int y, int d);
+	bool BeforeKeyPress(int key, unsigned short character, unsigned short modifiers);
+	bool BeforeKeyRelease(int key, unsigned short character, unsigned short modifiers);
 
 	void OpenBrowser();
 	void ReloadSave(unsigned char b);

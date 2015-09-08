@@ -132,6 +132,9 @@ void Window_::DoDraw()
 
 void Window_::DoMouseMove(int x, int y, int dx, int dy)
 {
+	if (!BeforeMouseMove(x, y, Point(dx, dy)))
+		return;
+
 	bool alreadyInside = false;
 	if (dx || dy)
 	{
@@ -160,6 +163,9 @@ void Window_::DoMouseMove(int x, int y, int dx, int dy)
 
 void Window_::DoMouseDown(int x, int y, unsigned char button)
 {
+	if (!BeforeMouseDown(x, y, button))
+		return;
+
 #ifndef TOUCHUI
 	if (x < position.X || x > position.X+size.X || y < position.Y || y > position.Y+size.Y)
 	{
@@ -194,6 +200,9 @@ void Window_::DoMouseDown(int x, int y, unsigned char button)
 
 void Window_::DoMouseUp(int x, int y, unsigned char button)
 {
+	if (!BeforeMouseUp(x, y, button))
+		return;
+
 #ifndef TOUCHUI
 	if (mouseDownOutside)
 	{
@@ -224,17 +233,23 @@ void Window_::DoMouseUp(int x, int y, unsigned char button)
 
 void Window_::DoMouseWheel(int x, int y, int d)
 {
-	/*for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
+	if (!BeforeMouseWheel(x, y, d))
+		return;
+
+	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
 		if ((*iter)->IsVisible() && (*iter)->IsEnabled())
 			(*iter)->OnMouseWheel(x, y, d);
-	}*/
+	}
 
 	OnMouseWheel(x, y, d);
 }
 
 void Window_::DoKeyPress(int key, unsigned short character, unsigned short modifiers)
 {
+	if (!BeforeKeyPress(key, character, modifiers))
+		return;
+
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
 		if (IsFocused(*iter) && (*iter)->IsVisible() && (*iter)->IsEnabled())
@@ -246,11 +261,14 @@ void Window_::DoKeyPress(int key, unsigned short character, unsigned short modif
 
 void Window_::DoKeyRelease(int key, unsigned short character, unsigned short modifiers)
 {
-	/*for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
+	if (!BeforeKeyRelease(key, character, modifiers))
+		return;
+
+	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
 		if (IsFocused(*iter) && (*iter)->IsVisible() && (*iter)->IsEnabled())
 			(*iter)->OnKeyRelease(key, character, modifiers);
-	}*/
+	}
 
 	OnKeyRelease(key, character, modifiers);
 }

@@ -1395,6 +1395,7 @@ int main(int argc, char *argv[])
 	UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 10235);
 
 	the_game = new PowderToy(); // you just lost
+	lua_vid_buf = the_game->GetVid()->GetVid();
 	Engine::Ref().ShowWindow(the_game);
 	Engine::Ref().MainLoop();
 	//delete engine;
@@ -2114,27 +2115,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			drawrect(vid_buf, XRES-19-new_message_len, YRES-37, new_message_len+5, 13, 255, 186, 32, 255);
 		}
 
-#ifdef LUACONSOLE
-		if(b && bq)
-		{
-			if(!luacon_mouseevent(x, y, b, LUACON_MPRESS, 0))
-				b = 0;
-		}
-		else if(b && !bq)
-		{
-			if(!luacon_mouseevent(x, y, b, LUACON_MDOWN, 0))
-				b = 0;
-		}
-		else if(!b && bq)
-		{
-			if(!luacon_mouseevent(x, y, bq, LUACON_MUP, 0))
-				b = 0;
-		}
-		if (sdl_wheel)
-			if (!luacon_mouseevent(x, y, bq, 0, sdl_wheel))
-				sdl_wheel = 0;
-#endif
-
 		if (sdl_wheel)
 		{
 			if (!the_game->PlacingZoomWindow())
@@ -2210,10 +2190,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		if (deco_disablestuff)
 			b = 0;
 
-#ifdef LUACONSOLE
-		luacon_step(x, y);
-		ExecuteEmbededLuaCode();
-#endif
 		sdl_wheel = 0;
 
 		mx = x;
@@ -2224,8 +2200,8 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		mx = cursor.X;
 		my = cursor.Y;
 		bool tmpMouseInZoom = false;
-		if (x >= 0 && y >= 0 && x < XRES && y < YRES)
-			tmpMouseInZoom = (x != mx || y != my);
+		//if (x >= 0 && y >= 0 && x < XRES && y < YRES)
+		//	tmpMouseInZoom = (x != mx || y != my);
 
 		if (b && !bq && x>=(XRES-19-new_message_len) &&
 		        x<=(XRES-14) && y>=(YRES-37) && y<=(YRES-24) && svf_messages)

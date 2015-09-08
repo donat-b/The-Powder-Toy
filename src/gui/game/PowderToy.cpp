@@ -37,9 +37,11 @@ PowderToy::PowderToy():
 	cursor(Point(0, 0)),
 	lastMouseDown(0),
 	heldKey(0),
+	heldAscii(0),
 	releasedKey(0),
 	heldModifier(0),
 	mouseWheel(0),
+	mouseCanceled(false),
 	numNotifications(0),
 	voteDownload(NULL),
 	placingZoom(false),
@@ -707,9 +709,21 @@ void PowderToy::OnTick(uint32_t ticks)
 {
 	int mouseX, mouseY;
 	int mouseDown = mouse_get_state(&mouseX, &mouseY);
+#ifdef LUACONSOLE
+	if (mouseCanceled)
+		mouseDown = 0;
+	// lua mouse "tick", call the function every frame. When drawing is rewritten, this needs to be changed to cancel drawing.
+	if (mouseDown && !luacon_mouseevent(mouseX, mouseY, mouseDown, LUACON_MPRESS, 0))
+	{
+		mouseDown = 0;
+		mouseCanceled = true;
+	}
+#endif
+	sdl_key = heldKey; // ui_edit_process in deco editor uses these two globals so we have to set them ):
+	sdl_ascii = heldAscii;
 	main_loop_temp(mouseDown, lastMouseDown, heldKey, releasedKey, heldModifier, mouseX, mouseY, mouseWheel);
 	lastMouseDown = mouseDown;
-	heldKey = releasedKey = mouseWheel = 0;
+	heldKey = heldAscii = releasedKey = mouseWheel = 0;
 
 	if (!loginFinished)
 		loginCheckTicks = (loginCheckTicks+1)%51;
@@ -1069,6 +1083,10 @@ void PowderToy::OnDraw(VideoBuffer *buf)
 			buf->DrawText(iconPos.X, iconPos.Y, "\x97", 0, 230, 153, 255);
 		}*/
 	}
+#ifdef LUACONSOLE
+	luacon_step(mouse.X, mouse.Y);
+	ExecuteEmbededLuaCode();
+#endif
 }
 
 void PowderToy::OnMouseMove(int x, int y, Point difference)
@@ -1102,6 +1120,16 @@ void PowderToy::OnMouseMove(int x, int y, Point difference)
 				saveSize.Y = YRES - savePos.Y;
 		}
 	}
+}
+
+bool PowderToy::BeforeMouseDown(int x, int y, unsigned char button)
+{
+#ifdef LUACONSOLE
+	// lua mouse event, cancel mouse action if the function returns false
+	if (!luacon_mouseevent(x, y, button, LUACON_MDOWN, 0))
+		return false;
+#endif
+	return true;
 }
 
 void PowderToy::OnMouseDown(int x, int y, unsigned char button)
@@ -1154,6 +1182,17 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 			savedInitial = true;
 		}
 	}
+}
+
+bool PowderToy::BeforeMouseUp(int x, int y, unsigned char button)
+{
+	mouseCanceled = false;
+#ifdef LUACONSOLE
+	// lua mouse event, cancel mouse action if the function returns false
+	if (!luacon_mouseevent(x, y, button, LUACON_MUP, 0))
+		return false;
+#endif
+	return true;
 }
 
 void PowderToy::OnMouseUp(int x, int y, unsigned char button)
@@ -1280,6 +1319,17 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 	}
 }
 
+bool PowderToy::BeforeMouseWheel(int x, int y, int d)
+{
+#ifdef LUACONSOLE
+	int mouseX, mouseY;
+	// lua mouse event, cancel mouse action if the function returns false
+	if (!luacon_mouseevent(x, y, mouse_get_state(&mouseX, &mouseY), 0, d))
+		return false;
+#endif
+	return true;
+}
+
 void PowderToy::OnMouseWheel(int x, int y, int d)
 {
 	mouseWheel += d;
@@ -1291,7 +1341,7 @@ void PowderToy::OnMouseWheel(int x, int y, int d)
 	}
 }
 
-void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short modifiers)
+bool PowderToy::BeforeKeyPress(int key, unsigned short character, unsigned short modifiers)
 {
 	if ((modifiers & (KMOD_CTRL|KMOD_META)) && !(heldModifier & (KMOD_CTRL|KMOD_META)))
 		openBrowserButton->SetTooltipText("Open a simulation from your hard drive \bg(ctrl+o)");
@@ -1299,16 +1349,31 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 	heldModifier = modifiers;
 	// key -1 is fake event sent in order to update modifiers when in other interfaces
 	if (key == -1)
-		return;
+		return false;
 	heldKey = key;
+	heldAscii = character;
+	// do nothing when deco textboxes are selected
+	if (deco_disablestuff)
+		return true;
 
 #ifdef LUACONSOLE
-	if (key != -1 && !deco_disablestuff && !luacon_keyevent(key, modifiers, LUACON_KDOWN))
-		key = 0;
+	if (!luacon_keyevent(key, modifiers, LUACON_KDOWN))
+	{
+		heldKey = 0;
+		return false;
+	}
 #endif
 
 	// lua can disable all key shortcuts
 	if (!sys_shortcuts)
+		return false;
+
+	return true;
+}
+
+void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short modifiers)
+{
+	if (deco_disablestuff)
 		return;
 
 	// loading a stamp, special handling here
@@ -1529,7 +1594,7 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 	}
 }
 
-void PowderToy::OnKeyRelease(int key, unsigned short character, unsigned short modifiers)
+bool PowderToy::BeforeKeyRelease(int key, unsigned short character, unsigned short modifiers)
 {
 	if (!(modifiers & (KMOD_CTRL|KMOD_META)) && (heldModifier & (KMOD_CTRL|KMOD_META)))
 		openBrowserButton->SetTooltipText("Find & open a simulation");
@@ -1537,13 +1602,26 @@ void PowderToy::OnKeyRelease(int key, unsigned short character, unsigned short m
 	heldModifier = modifiers;
 	// key -1 is fake event sent in order to update modifiers when in other interfaces
 	if (key == -1)
-		return;
+		return false;
 	releasedKey = key;
 
+	if (deco_disablestuff)
+		return true;
+
 #ifdef LUACONSOLE
-	if (!deco_disablestuff && !luacon_keyevent(key, modifiers, LUACON_KUP))
-		key = 0;
+	if (!luacon_keyevent(key, modifiers, LUACON_KUP))
+	{
+		releasedKey = 0;
+		return false;
+	}
 #endif
+	return true;
+}
+
+void PowderToy::OnKeyRelease(int key, unsigned short character, unsigned short modifiers)
+{
+	if (deco_disablestuff)
+		return;
 
 	switch (key)
 	{

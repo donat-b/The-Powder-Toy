@@ -1114,7 +1114,7 @@ int simulation_loadSave(lua_State * l)
 	sprintf(save_id, "%i", saveID);
 	sprintf(save_date, "%i", history);
 	
-	if (open_ui(vid_buf, save_id, save_date, instant))
+	if (open_ui(lua_vid_buf, save_id, save_date, instant))
 		console_mode = 0;
 	return 0;
 }
@@ -1956,7 +1956,7 @@ int graphics_drawText(lua_State * l)
 	if (a<0) a = 0;
 	else if (a>255) a = 255;
 
-	drawtext(vid_buf, x, y, text, r, g, b, a);
+	drawtext(lua_vid_buf, x, y, text, r, g, b, a);
 	return 0;
 }
 
@@ -1981,7 +1981,7 @@ int graphics_drawLine(lua_State * l)
 	if (a<0) a = 0;
 	else if (a>255) a = 255;
 
-	blend_line(vid_buf, x1, y1, x2, y2, r, g, b, a);
+	blend_line(lua_vid_buf, x1, y1, x2, y2, r, g, b, a);
 	return 0;
 }
 
@@ -2006,7 +2006,7 @@ int graphics_drawRect(lua_State * l)
 	if (a<0) a = 0;
 	else if (a>255) a = 255;
 
-	drawrect(vid_buf, x, y, w, h, r, g, b, a);
+	drawrect(lua_vid_buf, x, y, w, h, r, g, b, a);
 	return 0;
 }
 
@@ -2031,7 +2031,7 @@ int graphics_fillRect(lua_State * l)
 	if (a<0) a = 0;
 	else if (a>255) a = 255;
 
-	fillrect(vid_buf, x, y, w, h, r, g, b, a);
+	fillrect(lua_vid_buf, x, y, w, h, r, g, b, a);
 	return 0;
 }
 
@@ -2056,7 +2056,7 @@ int graphics_drawCircle(lua_State * l)
 	if (a<0) a = 0;
 	else if (a>255) a = 255;
 
-	drawcircle(vid_buf, x, y, w, h, r, g, b, a);
+	drawcircle(lua_vid_buf, x, y, w, h, r, g, b, a);
 	return 0;
 }
 
@@ -2081,7 +2081,7 @@ int graphics_fillCircle(lua_State * l)
 	if (a<0) a = 0;
 	else if (a>255) a = 255;
 
-	fillcircle(vid_buf, x, y, w, h, r, g, b, a);
+	fillcircle(lua_vid_buf, x, y, w, h, r, g, b, a);
 	return 0;
 }
 

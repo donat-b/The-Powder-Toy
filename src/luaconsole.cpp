@@ -50,6 +50,7 @@ extern "C"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
 
+pixel *lua_vid_buf;
 int *lua_el_func, *lua_el_mode, *lua_gr_func;
 char* log_history[20];
 int log_history_times[20];
@@ -1098,7 +1099,7 @@ void lua_hook(lua_State *L, lua_Debug *ar)
 {
 	if(ar->event == LUA_HOOKCOUNT && SDL_GetTicks()-loop_time > 3000)
 	{
-		if (confirm_ui(vid_buf,"Infinite Loop","The Lua code might have an infinite loop. Press OK to stop it","OK"))
+		if (confirm_ui(lua_vid_buf,"Infinite Loop","The Lua code might have an infinite loop. Press OK to stop it","OK"))
 			luaL_error(l,"Error: Infinite loop");
 		loop_time = SDL_GetTicks();
 	}
@@ -1333,7 +1334,7 @@ int luatpt_graphics_func(lua_State *l)
 int luatpt_error(lua_State* l)
 {
 	char *error = mystrdup((char*)luaL_optstring(l, 1, "Error text"));
-	error_ui(vid_buf, 0, error);
+	error_ui(lua_vid_buf, 0, error);
 	free(error);
 	return 0;
 }
@@ -1361,7 +1362,7 @@ int luatpt_drawtext(lua_State* l)
 	if (textalpha<0) textalpha = 0;
 	else if (textalpha>255) textalpha = 255;
 
-	drawtext(vid_buf, textx, texty, string, textred, textgreen, textblue, textalpha);
+	drawtext(lua_vid_buf, textx, texty, string, textred, textgreen, textblue, textalpha);
 	return 0;
 }
 
@@ -1849,7 +1850,7 @@ int luatpt_drawpixel(lua_State* l)
 	if (a<0) a = 0;
 	else if (a>255) a = 255;
 
-	drawpixel(vid_buf, x, y, r, g, b, a);
+	drawpixel(lua_vid_buf, x, y, r, g, b, a);
 	return 0;
 }
 
@@ -1880,7 +1881,7 @@ int luatpt_drawrect(lua_State* l)
 	if (a<0) a = 0;
 	else if (a>255) a = 255;
 
-	drawrect(vid_buf, x, y, w, h, r, g, b, a);
+	drawrect(lua_vid_buf, x, y, w, h, r, g, b, a);
 	return 0;
 }
 
@@ -1911,7 +1912,7 @@ int luatpt_fillrect(lua_State* l)
 	if (a<0) a = 0;
 	else if (a>255) a = 255;
 
-	fillrect(vid_buf, x, y, w, h, r, g, b, a);
+	fillrect(lua_vid_buf, x, y, w, h, r, g, b, a);
 	return 0;
 }
 
@@ -1947,7 +1948,7 @@ int luatpt_drawline(lua_State* l)
 	if (a<0) a = 0;
 	else if (a>255) a = 255;
 
-	blend_line(vid_buf, x1, y1, x2, y2, r, g, b, a);
+	blend_line(lua_vid_buf, x1, y1, x2, y2, r, g, b, a);
 	return 0;
 }
 
@@ -2177,7 +2178,7 @@ int luatpt_input(lua_State* l)
 	text = mystrdup((char*)luaL_optstring(l, 3, ""));
 	shadow = mystrdup((char*)luaL_optstring(l, 4, ""));
 
-	result = input_ui(vid_buf, title, prompt, text, shadow);
+	result = input_ui(lua_vid_buf, title, prompt, text, shadow);
 	lua_pushstring(l, result);
 	free(result);
 	free(title);
@@ -2193,7 +2194,7 @@ int luatpt_message_box(lua_State* l)
 	title = mystrdup((char*)luaL_optstring(l, 1, "Title"));
 	text = mystrdup((char*)luaL_optstring(l, 2, "Message"));
 
-	info_ui(vid_buf, title, text);
+	info_ui(lua_vid_buf, title, text);
 	free(title);
 	free(text);
 	return 0;
@@ -2381,7 +2382,7 @@ int luatpt_getscript(lua_State* l)
 	run_script = luaL_optint(l, 3, 0);
 	if(!fileauthor || !fileid || strlen(fileauthor)<1 || strlen(fileid)<1)
 		goto fin;
-	if(!confirm_ui(vid_buf, "Do you want to install script?", fileid, "Install"))
+	if(!confirm_ui(lua_vid_buf, "Do you want to install script?", fileid, "Install"))
 		goto fin;
 
 	fileuri = (char*)malloc(strlen(SCRIPTSERVER)+strlen(fileauthor)+strlen(fileid)+44);
@@ -2414,7 +2415,7 @@ int luatpt_getscript(lua_State* l)
 	{
 		fclose(outputfile);
 		outputfile = NULL;
-		if(confirm_ui(vid_buf, "File already exists, overwrite?", filename, "Overwrite"))
+		if(confirm_ui(lua_vid_buf, "File already exists, overwrite?", filename, "Overwrite"))
 		{
 			outputfile = fopen(filename, "w");
 		}
@@ -2477,11 +2478,11 @@ int luatpt_screenshot(lua_State* l)
 
 	if(captureUI)
 	{
-		dump_frame(vid_buf, XRES+BARSIZE, YRES+MENUSIZE, XRES+BARSIZE);
+		dump_frame(lua_vid_buf, XRES+BARSIZE, YRES+MENUSIZE, XRES+BARSIZE);
 	}
 	else
 	{
-		dump_frame(vid_buf, XRES, YRES, XRES+BARSIZE);
+		dump_frame(lua_vid_buf, XRES, YRES, XRES+BARSIZE);
 	}
 	return 0;
 }
@@ -2684,13 +2685,13 @@ void ReadLuaCode()
 {
 	if (!file_exists("luacode.txt"))
 	{
-		error_ui(vid_buf, 0, "Place some code in luacode.txt");
+		error_ui(lua_vid_buf, 0, "Place some code in luacode.txt");
 		return;
 	}
 	char* code = (char*)file_load("luacode.txt", &LuaCodeLen);
 	if (!code)
 	{
-		error_ui(vid_buf, 0, "Error reading luacode.txt");
+		error_ui(lua_vid_buf, 0, "Error reading luacode.txt");
 		return;
 	}
 	if (LuaCode)
@@ -2701,7 +2702,7 @@ void ReadLuaCode()
 	// lua bytecode starts with byte 27, don't allow since can't be read and can do strange things
 	if (code[0] == '\x1b')
 	{
-		error_ui(vid_buf, 0, "Lua bytecode detected");
+		error_ui(lua_vid_buf, 0, "Lua bytecode detected");
 		return;
 	}
 	LuaCode = code;
@@ -2716,16 +2717,16 @@ void ExecuteEmbededLuaCode()
 		ranLuaCode = true;
 		if (!previewCode)
 		{
-			error_ui(vid_buf, 0, "Could not write code to newluacode.txt");
+			error_ui(lua_vid_buf, 0, "Could not write code to newluacode.txt");
 			return;
 		}
 		fwrite(LuaCode, LuaCodeLen, 1, previewCode);
 		fclose(previewCode);
-		bool runCode = confirm_ui(vid_buf, "Lua code", "Run the lua code in newluacode.txt?", "Run");
+		bool runCode = confirm_ui(lua_vid_buf, "Lua code", "Run the lua code in newluacode.txt?", "Run");
 		// lua bytecode starts with byte 27, don't allow since can't be read and can do strange things
 		if (LuaCode[0] == '\x1b')
 		{
-			error_ui(vid_buf, 0, "Lua bytecode detected");
+			error_ui(lua_vid_buf, 0, "Lua bytecode detected");
 			free(LuaCode);
 			LuaCode = NULL;
 			return;

@@ -58,6 +58,14 @@ protected:
 	virtual void OnKeyPress(int key, unsigned short character, unsigned short modifiers) { }
 	virtual void OnKeyRelease(int key, unsigned short character, unsigned short modifiers) { }
 
+	// these functions are called before components are updated, and can be used to cancel events before sending them to the components
+	virtual bool BeforeMouseMove(int x, int y, Point difference) { return true; }
+	virtual bool BeforeMouseDown(int x, int y, unsigned char button) { return true; }
+	virtual bool BeforeMouseUp(int x, int y, unsigned char button) { return true; }
+	virtual bool BeforeMouseWheel(int x, int y, int d) { return true; }
+	virtual bool BeforeKeyPress(int key, unsigned short character, unsigned short modifiers) { return true; }
+	virtual bool BeforeKeyRelease(int key, unsigned short character, unsigned short modifiers) { return true; }
+
 	void VideoBufferHack();
 private:
 	bool mouseDownOutside;

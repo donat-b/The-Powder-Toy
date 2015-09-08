@@ -21,8 +21,9 @@
 
 #include <string>
 
-#include <LuaCompat.h>
-#include <defines.h>
+#include "LuaCompat.h"
+#include "defines.h"
+#include "graphics/Pixel.h"
 
 #define LOCAL_LUA_DIR "Lua"
 
@@ -37,6 +38,7 @@
 #define LUACON_EL_MODIFIED_GRAPHICS 0x2
 #define LUACON_EL_MODIFIED_MENUS 0x4
 
+extern pixel *lua_vid_buf;
 extern int *lua_el_func, *lua_el_mode, *lua_gr_func;
 extern char* log_history[20];
 extern int log_history_times[20];
