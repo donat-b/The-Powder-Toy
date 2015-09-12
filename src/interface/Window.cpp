@@ -152,7 +152,11 @@ void Window_::DoMouseMove(int x, int y, int dx, int dy)
 					alreadyInside = true;
 				}
 				else
+				{
 					temp->SetMouseInside(false);
+					if (temp == clicked)
+						clicked = NULL;
+				}
 				temp->OnMouseMoved(posX, posY, Point(dx, dy));
 			}
 		}
