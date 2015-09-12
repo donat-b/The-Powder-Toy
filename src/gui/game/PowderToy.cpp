@@ -710,14 +710,11 @@ void PowderToy::OnTick(uint32_t ticks)
 	int mouseX, mouseY;
 	int mouseDown = mouse_get_state(&mouseX, &mouseY);
 #ifdef LUACONSOLE
-	if (mouseCanceled)
-		mouseDown = 0;
 	// lua mouse "tick", call the function every frame. When drawing is rewritten, this needs to be changed to cancel drawing.
 	if (mouseDown && !luacon_mouseevent(mouseX, mouseY, mouseDown, LUACON_MPRESS, 0))
-	{
-		mouseDown = 0;
 		mouseCanceled = true;
-	}
+	if (mouseCanceled)
+		mouseDown = 0;
 #endif
 	sdl_key = heldKey; // ui_edit_process in deco editor uses these two globals so we have to set them ):
 	sdl_ascii = heldAscii;
