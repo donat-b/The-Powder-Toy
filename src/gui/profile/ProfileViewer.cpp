@@ -8,6 +8,7 @@
 #include "interface/Button.h"
 #include "graphics/VideoBuffer.h"
 #include "common/Point.h"
+#include "common/Platform.h"
 #include "game/Download.h"
 #include "defines.h"
 #include "interface.h"
@@ -269,17 +270,17 @@ void ProfileViewer::SaveProfile()
 
 void ProfileViewer::OpenProfile()
 {
-	OpenLink("http://powdertoy.co.uk/User.html?Name="+name);
+	Platform::OpenLink("http://powdertoy.co.uk/User.html?Name="+name);
 }
 
 void ProfileViewer::OpenProfileEdit()
 {
-	OpenLink("http://powdertoy.co.uk/Profile.html");
+	Platform::OpenLink("http://powdertoy.co.uk/Profile.html");
 }
 
 void ProfileViewer::UploadAvatar()
 {
-	OpenLink("http://powdertoy.co.uk/Profile/Avatar.html");
+	Platform::OpenLink("http://powdertoy.co.uk/Profile/Avatar.html");
 }
 
 void ProfileViewer::ResizeArea(int biographyLabelHeight)

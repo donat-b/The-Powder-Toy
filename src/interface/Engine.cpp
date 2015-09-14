@@ -11,6 +11,7 @@
 #include "misc.h"
 #include "Window.h"
 #include "common/Point.h"
+#include "common/Platform.h"
 #include "graphics/VideoBuffer.h"
 
 
@@ -162,7 +163,7 @@ bool Engine::EventProcess(SDL_Event event)
 			//If we are already opening a save, we can't have it do another one, so just start it in a new process
 			else
 			{
-				char *exename = exe_name(), args[64];
+				char *exename = Platform::ExecutableName(), args[64];
 				sprintf(args, "ptsave noopen:%i", event.syswm.msg->lParam);
 				if (exename)
 				{

@@ -13,6 +13,7 @@
 #include "save.h"
 #include "update.h"
 
+#include "common/Platform.h"
 #include "game/Download.h"
 #include "game/Menus.h"
 #include "game/ToolTip.h"
@@ -518,7 +519,7 @@ void PowderToy::ToggleErase(bool alt)
 void PowderToy::OpenConsole(bool alt)
 {
 	if (alt)
-		ShowOnScreenKeyboard("");
+		Platform::ShowOnScreenKeyboard("");
 	else
 		console_mode = 1;
 }
@@ -811,7 +812,7 @@ void PowderToy::OnTick(uint32_t ticks)
 					virtual void ButtionActionCallback(Button *button, unsigned char b)
 					{
 						if (b == 1)
-							OpenLink(link);
+							Platform::OpenLink(link);
 						dynamic_cast<PowderToy*>(button->GetParent())->RemoveComponent(button);
 					}
 				};

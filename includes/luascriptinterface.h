@@ -109,5 +109,17 @@ int elements_property(lua_State * l);
 int elements_loadDefault(lua_State * l);
 int elements_free(lua_State * l);
 
+void initPlatformAPI(lua_State * l);
+int platform_platform(lua_State * l);
+int platform_build(lua_State * l);
+int platform_releaseType(lua_State * l);
+int platform_exeName(lua_State * l);
+int platform_restart(lua_State * l);
+int platform_openLink(lua_State * l);
+int platform_clipboardCopy(lua_State * l);
+int platform_clipboardPaste(lua_State * l);
+int platform_showOnScreenKeyboard(lua_State * l);
+int platform_getOnScreenKeyboardInput(lua_State * l);
+
 #endif
 #endif

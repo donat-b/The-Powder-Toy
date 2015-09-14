@@ -2,6 +2,7 @@
 #include "Download.h"
 #include "http.h"
 #include "defines.h"
+#include "common/Platform.h"
 
 DownloadManager::DownloadManager():
 	threadStarted(false),
@@ -92,7 +93,7 @@ void DownloadManager::Update()
 			pthread_mutex_unlock(&downloadLock);
 			return;
 		}
-		millisleep(3);
+		Platform::Millisleep(3);
 	}
 }
 

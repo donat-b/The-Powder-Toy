@@ -39,50 +39,7 @@
 #include "update.h"
 #include "interface.h"
 #include "misc.h"
-
-char *exe_name(void)
-{
-#ifdef WIN
-	char *name= (char *)malloc(64);
-	DWORD max=64, res;
-	while ((res = GetModuleFileName(NULL, name, max)) >= max)
-	{
-#elif defined MACOSX
-	char *fn=(char*)malloc(64),*name=(char*)malloc(PATH_MAX);
-	uint32_t max=64, res;
-	if (_NSGetExecutablePath(fn, &max) != 0)
-	{
-		fn = (char*)realloc(fn, max);
-		_NSGetExecutablePath(fn, &max);
-	}
-	if (realpath(fn, name) == NULL)
-	{
-		free(fn);
-		free(name);
-		return NULL;
-	}
-	res = 1;
-#else
-	char fn[64], *name=(char*)malloc(64);
-	size_t max=64, res;
-	sprintf(fn, "/proc/self/exe");
-	memset(name, 0, max);
-	while ((res = readlink(fn, name, max)) >= max-1)
-	{
-#endif
-#ifndef MACOSX
-		max *= 2;
-		name = (char*)realloc(name, max);
-		memset(name, 0, max);
-	}
-#endif
-	if (res <= 0)
-	{
-		free(name);
-		return NULL;
-	}
-	return name;
-}
+#include "common/Platform.h"
 
 bool confirm_update(const char *changelog)
 {
@@ -113,7 +70,7 @@ bool confirm_update(const char *changelog)
 
 int update_start(char *data, int len)
 {
-	char *self=exe_name(), *temp;
+	char *self=Platform::ExecutableName(), *temp;
 #ifdef WIN
 	char *p;
 #endif
@@ -192,7 +149,7 @@ fail:
 int update_finish(void)
 {
 #ifdef WIN
-	char *temp, *self=exe_name(), *p;
+	char *temp, *self=Platform::ExecutableName(), *p;
 	int timeout = 60, err;
 
 	temp = (char*)malloc(strlen(self)+12);

@@ -18,6 +18,7 @@
 #include "powdergraphics.h"
 #include "save.h"
 
+#include "common/Platform.h"
 #include "game/Brush.h"
 #include "game/Menus.h"
 #include "game/ToolTip.h"
@@ -2785,6 +2786,106 @@ int elements_free(lua_State * l)
 	lua_pop(l, 1);
 
 	return 0;
+}
+
+
+void initPlatformAPI(lua_State * l)
+{
+	//Methods
+	struct luaL_Reg platformAPIMethods [] = {
+		{"platform", platform_platform},
+		{"build", platform_build},
+		{"releaseType", platform_releaseType},
+		{"exeName", platform_exeName},
+		{"restart", platform_restart},
+		{"openLink", platform_openLink},
+		{"clipboardCopy", platform_clipboardCopy},
+		{"clipboardPaste", platform_clipboardPaste},
+		{"showOnScreenKeyboard", platform_showOnScreenKeyboard},
+		{"getOnScreenKeyboardInput", platform_getOnScreenKeyboardInput},
+		{NULL, NULL}
+	};
+	luaL_register(l, "platform", platformAPIMethods);
+
+	//elem shortcut
+	lua_getglobal(l, "platform");
+	lua_setglobal(l, "plat");
+}
+
+int platform_platform(lua_State * l)
+{
+	lua_pushstring(l, IDENT_PLATFORM);
+	return 1;
+}
+
+int platform_build(lua_State * l)
+{
+	lua_pushstring(l, IDENT_BUILD);
+	return 1;
+}
+
+int platform_releaseType(lua_State * l)
+{
+	lua_pushstring(l, IDENT_RELTYPE);
+	return 1;
+}
+
+int platform_exeName(lua_State * l)
+{
+	char *name = Platform::ExecutableName();
+	if (name)
+		lua_pushstring(l, name);
+	else
+		luaL_error(l, "Error, could not get executable name");
+	return 1;
+}
+
+int platform_restart(lua_State * l)
+{
+	int saveTab = luaL_optinteger(l, 1, 0);
+	Platform::DoRestart(saveTab ? true : false);
+	return 0;
+}
+
+int platform_openLink(lua_State * l)
+{
+	const char * uri = luaL_checkstring(l, 1);
+	Platform::OpenLink(uri);
+	return 0;
+}
+
+int platform_clipboardCopy(lua_State * l)
+{
+	lua_pushstring(l, clipboard_pull_text());
+	return 1;
+}
+
+int platform_clipboardPaste(lua_State * l)
+{
+	luaL_checktype(l, 1, LUA_TSTRING);
+	clipboard_push_text((char*)luaL_optstring(l, 1, ""));
+	return 0;
+}
+
+int platform_showOnScreenKeyboard(lua_State * l)
+{
+	const char *startText = luaL_optstring(l, 1, "");
+	Platform::ShowOnScreenKeyboard(startText);
+}
+
+int platform_getOnScreenKeyboardInput(lua_State * l)
+{
+	luaL_checktype(l, 1, LUA_TSTRING);
+	int limit = luaL_optint(l, 2, 1024);
+	if (limit < 0 || limit > 2048)
+		luaL_error(l, "Error, string size too long");
+	const char *startText = luaL_optstring(l, 1, "");
+	char *buff = (char*)calloc(limit+1, sizeof(char));
+	strncpy(buff, startText, limit);
+	Platform::GetOnScreenKeyboardInput(buff, limit);
+	lua_pushstring(l, buff);
+	free(buff);
+	return 1;
 }
 
 #endif

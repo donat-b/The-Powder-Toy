@@ -20,8 +20,6 @@
 #include <map>
 #include <string>
 
-void millisleep(long int t);
-
 void http_init(char *proxy);
 void http_done(void);
 

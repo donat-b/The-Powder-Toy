@@ -55,7 +55,6 @@ const char changelog_uri[] = "http://" UPDATESERVER "/jacob1/update.lua?Action=C
 const char update_uri_alt[] = "http://" UPDATESERVERALT "/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
 const char changelog_uri_alt[] = "http://" UPDATESERVERALT "/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
 
-char *exe_name(void);
 bool confirm_update(const char *changelog);
 int update_start(char *data, int len);
 int update_finish(void);

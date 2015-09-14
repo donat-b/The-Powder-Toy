@@ -68,6 +68,7 @@
 #include "hud.h"
 #include "benchmark.h"
 
+#include "common/Platform.h"
 #include "game/Brush.h"
 #include "game/Menus.h"
 #include "game/ToolTip.h"
@@ -973,7 +974,7 @@ void BlueScreen(char * detailMessage)
 		{
 			if (event.type == SDL_QUIT)
 			{
-				DoRestart(true);
+				Platform::DoRestart(true);
 			}
 			else if (event.type == SDL_KEYDOWN)
 			{
@@ -1610,7 +1611,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			{
 				if(confirm_ui(vid_buf, "Install Powder Toy", "You are about to install The Powder Toy", "Install"))
 				{
-					if(register_extension())
+					if (Platform::RegisterExtension())
 					{
 						info_ui(vid_buf, "Install success", "Powder Toy has been installed!");
 					}
@@ -1994,7 +1995,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			if (sdl_key=='u')
 			{
 				if (sdl_mod & (KMOD_CTRL|KMOD_META))
-					OpenLink("http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11117");
+					Platform::OpenLink("http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11117");
 				else
 					aheat_enable = !aheat_enable;
 
@@ -2207,7 +2208,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		        x<=(XRES-14) && y>=(YRES-37) && y<=(YRES-24) && svf_messages)
 		{
 			if (b == 1)
-				OpenLink("http://" SERVER "/Conversations.html");
+				Platform::OpenLink("http://" SERVER "/Conversations.html");
 			svf_messages = 0;
 			b = 0;
 		}
@@ -2490,7 +2491,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 									{
 										char url[256];
 										sprintf(url, "http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=%s", buff);
-										OpenLink(url);
+										Platform::OpenLink(url);
 									}
 								}
 							}

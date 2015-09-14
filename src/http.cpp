@@ -50,6 +50,7 @@
 #include "http.h"
 #include "misc.h"
 #include "md5.h"
+#include "common/Platform.h"
 
 #ifdef WIN
 #define PERROR SOCKET_ERROR
@@ -87,18 +88,6 @@ struct dns_cache
 	sockaddr_in addr;
 };
 static dns_cache dns_cache[DNS_CACHE_SIZE];
-
-void millisleep(long int t)
-{
-#ifdef WIN
-	Sleep(t);
-#else
-	struct timespec s;
-	s.tv_sec = t/1000;
-	s.tv_nsec = (t%1000)*10000000;
-	nanosleep(&s, NULL);
-#endif
-}
 
 static int splituri(const char *uri, char **host, char **path)
 {
@@ -640,7 +629,7 @@ char *http_async_req_stop(void *ctx, int *ret, int *len)
 
 	if (cx->state != HTS_DONE)
 		while (!http_async_req_status(ctx))
-			millisleep(1);
+			Platform::Millisleep(1);
 
 	if (cx->host)
 	{

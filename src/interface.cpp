@@ -60,6 +60,7 @@
 #include "json/json.h"
 #include "update.h"
 
+#include "common/Platform.h"
 #include "game/Menus.h"
 #include "game/ToolTip.h"
 #include "game/Download.h"
@@ -333,7 +334,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 		{
 			char buffer[1024];
 			memcpy(buffer, ed->str, 1024);
-			GetOnScreenKeyboardInput(buffer, 1024);
+			Platform::GetOnScreenKeyboardInput(buffer, 1024);
 			if (!(!ed->multiline && textwidth(buffer) > ed->w-14) && !((int)strlen(buffer)>ed->limit) && !(ed->multiline && ed->limit != 1023 && ((textwidth(buffer))/(ed->w-14)*12) > ed->h))
 				memcpy(ed->str, buffer, 1024);
 		}
@@ -1083,7 +1084,7 @@ void ui_richtext_process(int mx, int my, int mb, int mbq, ui_richtext *ed)
 				//Do action
 				if(ed->action[action]=='a'){
 					//Open link
-					OpenLink(ed->actiondata[action]);
+					Platform::OpenLink(ed->actiondata[action]);
 				}
 				break;
 			}
@@ -3558,7 +3559,7 @@ int EventProcess(SDL_Event event)
 			//If we are already opening a save, we can't have it do another one, so just start it in a new process
 			else
 			{
-				char *exename = exe_name(), args[64];
+				char *exename = Platform::ExecutableName(), args[64];
 				sprintf(args, "ptsave noopen:%i", event.syswm.msg->lParam);
 				if (exename)
 				{
@@ -5502,7 +5503,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				{
 					std::stringstream browserLink;
 					browserLink << "http://" << SERVER << "/Browse/View.html?ID=" << save_id;
-					OpenLink(browserLink.str());
+					Platform::OpenLink(browserLink.str());
 				}
 			}
 			//Submit Button

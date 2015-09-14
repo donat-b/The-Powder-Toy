@@ -2,8 +2,9 @@
 #include <sstream>
 #include "SDLCompat.h"
 #include "Textbox.h"
-#include "graphics/VideoBuffer.h"
 #include "misc.h"
+#include "common/Platform.h"
+#include "graphics/VideoBuffer.h"
 
 Textbox::Textbox(Point position, Point size_, std::string text, bool multiline):
 	Label(position, size_, text, multiline),
@@ -275,7 +276,7 @@ void Textbox::OnFocus()
 #ifdef TOUCHUI
 	char buffer[1024];
 	memcpy(buffer, text.c_str(), 1024);
-	GetOnScreenKeyboardInput(buffer, 1024);
+	Platform::GetOnScreenKeyboardInput(buffer, 1024);
 	SetText(buffer);
 #endif
 }
