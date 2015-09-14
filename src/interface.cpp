@@ -485,7 +485,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 					highlightstr[ed->highlightlength] = 0;
 					clipboard_push_text(highlightstr);
 				}
-				else
+				else if (l)
 					clipboard_push_text(ed->str);
 				break;
 			}
@@ -719,7 +719,7 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 				highlightstr[ed->highlightlength] = 0;
 				clipboard_push_text(highlightstr);
 			}
-			else
+			else if (l)
 				clipboard_push_text(ed->str);
 		}
 		else if(sdl_mod & (KMOD_CTRL|KMOD_META) && sdl_key=='a')//highlight all

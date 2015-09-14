@@ -307,7 +307,8 @@ void Label::OnKeyPress(int key, unsigned short character, unsigned short modifie
 			int len = std::abs((int)(cursor-cursorStart));
 			std::string copyStr = text.substr(start, len);
 			copyStr.erase(std::remove(copyStr.begin(), copyStr.end(), '\r'), copyStr.end()); //strip special newlines
-			clipboard_push_text((char*)copyStr.c_str());
+			if (copyStr.length())
+				clipboard_push_text((char*)copyStr.c_str());
 			break;
 		}
 		case 'a':
