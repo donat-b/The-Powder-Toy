@@ -24,6 +24,7 @@
 #include "gravity.h"
 
 #include "game/Brush.h"
+#include "game/Sign.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
@@ -767,13 +768,7 @@ void clear_area(int area_x, int area_y, int area_w, int area_h)
 			bmap[(cy+area_y)/CELL][(cx+area_x)/CELL] = 0;
 		}
 	}
-	for (int i = 0; i < MAXSIGNS; i++)
-	{
-		if (signs[i].x>=area_x && signs[i].x<area_x+area_w && signs[i].y>=area_y && signs[i].y<area_y+area_h)
-		{
-			signs[i].text[0] = 0;
-		}
-	}
+	DeleteSignsInArea(Point(area_x, area_y), Point(area_x+area_w, area_y+area_h));
 }
 
 int flood_water(int x, int y, int i, int originaly, int check)

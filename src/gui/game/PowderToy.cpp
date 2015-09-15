@@ -16,6 +16,7 @@
 #include "common/Platform.h"
 #include "game/Download.h"
 #include "game/Menus.h"
+#include "game/Sign.h"
 #include "game/ToolTip.h"
 #include "graphics/VideoBuffer.h"
 #include "interface/Button.h"
@@ -865,30 +866,11 @@ void PowderToy::OnTick(uint32_t ticks)
 		else
 		{
 			Point cursor = AdjustCoordinates(Point(mouseX, mouseY));
-			int signID = -1, x, y, w, h;
-			for (int i = 0; i < MAXSIGNS; i++)
-				if (signs[i].text[0])
-				{
-					get_sign_pos(i, &x, &y, &w, &h);
-					if (cursor.X >= x && cursor.X <= x+w && cursor.Y >= y && cursor.Y <= y+h)
-					{
-						signID = i;
-						break;
-					}
-				}
-			if (signID == -1)
-			{
-				for (int i = 0; i < MAXSIGNS; i++)
-					if (!signs[i].text[0])
-					{
-						signID = i;
-						break;
-					}
-			}
-			if (signID != -1)
-				Engine::Ref().ShowWindow(new CreateSign(signID, cursor));
-			else
+			int signID = InsideSign(cursor.X, cursor.Y, true);
+			if (signID == -1 && signs.size() >= MAXSIGNS)
 				SetInfoTip("Sign limit reached");
+			else
+				Engine::Ref().ShowWindow(new CreateSign(signID, cursor));
 		}
 		openSign = false;
 	}
@@ -1117,6 +1099,12 @@ void PowderToy::OnMouseMove(int x, int y, Point difference)
 			else if (savePos.Y + saveSize.Y > YRES)
 				saveSize.Y = YRES - savePos.Y;
 		}
+	}
+
+	// moving sign, update coordinates here
+	if (MSIGN >= 0 && MSIGN < signs.size())
+	{
+		signs[MSIGN]->SetPos(cursor);
 	}
 }
 

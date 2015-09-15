@@ -10,8 +10,9 @@
 #include "benchmark.h"
 #include "save.h"
 #include "common/Point.h"
-#include "simulation/Simulation.h"
+#include "game/Sign.h"
 #include "graphics/Pixel.h"
+#include "simulation/Simulation.h"
 
 char *benchmark_file = NULL;
 double benchmark_loops_multiply = 1.0; // Increase for more accurate results (particularly on fast computers)

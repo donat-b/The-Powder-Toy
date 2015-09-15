@@ -14,20 +14,21 @@
  */
 
 #include <cmath>
-#include "powder.h"
-#include "gravity.h"
-#include "misc.h"
-#include "interface.h" //for framenum, try and remove this later
-#include "luaconsole.h" //for lua_el_mode
-#include "game/Brush.h"
 
 //Simulation stuff
-#include "Element.h"
-#include "ElementDataContainer.h"
-#include "simulation/elements/MOVS.h"
-#include "Tool.h"
 #include "Simulation.h"
 #include "CoordStack.h"
+#include "gravity.h"
+#include "interface.h" //for framenum, try and remove this later
+#include "luaconsole.h" //for lua_el_mode
+#include "misc.h"
+#include "powder.h"
+#include "Element.h"
+#include "ElementDataContainer.h"
+#include "Tool.h"
+#include "game/Brush.h"
+#include "game/Sign.h"
+#include "simulation/elements/MOVS.h"
 
 // Declare the element initialisation functions
 #define ElementNumbers_Include_Decl
@@ -1853,12 +1854,7 @@ void Simulation::CreateWall(int x, int y, int wall)
 			{
 				part_delete(x*CELL+i, y*CELL+j);
 			}
-		for (int i = 0; i < MAXSIGNS; i++)
-			if (signs[i].text[0])
-			{
-				if (signs[i].x >= x*CELL && signs[i].y >= y*CELL && signs[i].x <= (x+1)*CELL && signs[i].y <= (y+1)*CELL)
-					signs[i].text[0] = 0;
-			}
+		DeleteSignsInArea(Point(x, y), Point(x+1, y+1));
 		wall = 0;
 	}
 	if (wall == WL_GRAV || bmap[y][x] == WL_GRAV)

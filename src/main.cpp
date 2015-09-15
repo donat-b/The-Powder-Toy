@@ -71,6 +71,7 @@
 #include "common/Platform.h"
 #include "game/Brush.h"
 #include "game/Menus.h"
+#include "game/Sign.h"
 #include "game/ToolTip.h"
 #include "game/Download.h"
 #include "game/DownloadManager.h"
@@ -222,7 +223,6 @@ int last_fav_menu = SC_FAV;
 int framerender = 0;
 int pretty_powder = 0;
 char edgeMode = 0;
-int MSIGN =-1;
 int limitFPS = 60;
 int main_loop = 1;
 std::string favMenu[18];
@@ -270,8 +270,6 @@ int debug_perf_iend = 0;
 long debug_perf_frametime[DEBUG_PERF_FRAMECOUNT];
 long debug_perf_partitime[DEBUG_PERF_FRAMECOUNT];
 long debug_perf_time = 0;
-
-sign signs[MAXSIGNS];
 
 int numCores = 4;
 
@@ -341,8 +339,7 @@ void clear_sim()
 	globalSim->Clear();
 	memset(bmap, 0, sizeof(bmap));
 	memset(emap, 0, sizeof(emap));
-	memset(signs, 0, sizeof(signs));
-	MSIGN = -1;
+	ClearSigns();
 	memset(parts, 0, sizeof(particle)*NPART);
 	for (i=0; i<NPART-1; i++)
 		parts[i].life = i+1;
@@ -758,27 +755,6 @@ void ctrlzSnapshot()
 			cb_bmap[cby][cbx] = bmap[cby][cbx];
 			cb_emap[cby][cbx] = emap[cby][cbx];
 		}
-}
-
-//returns -1 if mouse is not inside a link sign, else returns the sign id
-//allsigns argument makes it return whether inside any sign (not just link signs)
-int InsideSign(int mx, int my, bool allsigns)
-{
-	int x, y, w, h;
-	for (int i = 0; i < MAXSIGNS; i++)
-	{
-		get_sign_pos(i, &x, &y, &w, &h);
-		if (mx >= x && mx <= x+w && my >= y && my <= y+h)
-		{
-			if (allsigns)
-				return i;
-			else if (!sregexp(signs[i].text, "^{[ct]:[0-9]*|.*}$") || !sregexp(signs[i].text, "^{s:.*|.*}$") || !sregexp(signs[i].text, "^{b|.*}$"))
-			{
-				return i;
-			}
-		}
-	}
-	return -1;
 }
 
 // Particle debugging function
@@ -2233,34 +2209,22 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		if (mx < XRES && my < YRES)
 		{
 			int signID = InsideSign(mx, my, false);
-			if (signID != -1)
+			if (signID != -1 && signs[signID]->GetType() != Sign::Normal && signs[signID]->GetType() != Sign::Spark)
 			{
-				char type = signs[signID].text[1];
-				if (type == 'c' || type == 't' || type == 's')
+				std::stringstream tooltip;
+				switch (signs[signID]->GetType())
 				{
-					char buff[256];
-					memset(buff, 0, sizeof(buff));
-
-					int sldr;
-					for (sldr = 3; signs[signID].text[sldr] != '|'; sldr++)
-						buff[sldr-3] = signs[signID].text[sldr];
-					buff[sldr-3] = 0;
-
-					std::stringstream tooltip;
-					switch (type)
-					{
-					case 'c':
-						tooltip << "Go to save ID:" << buff;
-						break;
-					case 't':
-						tooltip << "Open forum thread " << buff << " in browser";
-						break;
-					case 's':
-						tooltip << "Search for " << buff;
-						break;
-					}
-					UpdateToolTip(tooltip.str(), Point(16, YRES-24), TOOLTIP, -1);
+				case Sign::SaveLink:
+					tooltip << "Go to save ID:" << signs[signID]->GetLinkText();
+					break;
+				case Sign::ThreadLink:
+					tooltip << "Open forum thread " << signs[signID]->GetLinkText() << " in browser";
+					break;
+				case Sign::SearchLink:
+					tooltip << "Search for " << signs[signID]->GetLinkText();
+					break;
 				}
+				UpdateToolTip(tooltip.str(), Point(16, YRES-24), TOOLTIP, -1);
 			}
 		}
 
@@ -2459,41 +2423,25 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 							//this is a hack so we can edit clickable signs when sign tool is selected (normal signs are handled in activeTool->Click())
 							if (signTool)
 								openSign = true;
-							else if (signs[signID].text[1] == 'b')
+							else if (signs[signID]->GetType() == Sign::Spark)
 							{
-								if (pmap[signs[signID].y][signs[signID].x])
-									globalSim->spark_all_attempt(pmap[signs[signID].y][signs[signID].x]>>8, signs[signID].x, signs[signID].y);
+								Point realPos = signs[signID]->GetRealPos();
+								if (pmap[realPos.Y][realPos.X])
+									globalSim->spark_all_attempt(pmap[realPos.Y][realPos.X]>>8, realPos.X, realPos.Y);
 							}
-							else
+							else if (signs[signID]->GetType() == Sign::SaveLink)
 							{
-								char buff[256];
-								int sldr;
-
-								memset(buff, 0, sizeof(buff));
-
-								for (sldr=3; signs[signID].text[sldr] != '|'; sldr++)
-									buff[sldr-3] = signs[signID].text[sldr];
-
-								if (buff[0])
-								{
-									buff[sldr-3] = '\0';
-									if (signs[signID].text[1] == 'c')
-									{
-										open_ui(vid_buf, buff, 0, 0);
-									}
-									else if (signs[signID].text[1] == 's')
-									{
-										strcpy(search_expr, buff);
-										search_own = 0;
-										search_ui(vid_buf);
-									}
-									else
-									{
-										char url[256];
-										sprintf(url, "http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=%s", buff);
-										Platform::OpenLink(url);
-									}
-								}
+								open_ui(vid_buf, (char*)signs[signID]->GetLinkText().c_str(), 0, 0);
+							}
+							else if (signs[signID]->GetType() == Sign::ThreadLink)
+							{
+								Platform::OpenLink("http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=" + signs[signID]->GetLinkText());
+							}
+							else if (signs[signID]->GetType() == Sign::SearchLink)
+							{
+								strncpy(search_expr, signs[signID]->GetLinkText().c_str(), 255);
+								search_own = 0;
+								search_ui(vid_buf);
 							}
 						}
 					}
@@ -2582,6 +2530,7 @@ void main_end_hack()
 	luacon_close();
 #endif
 	ClearMenusections();
+	ClearSigns();
 	delete currentBrush;
 	for (int i = toolTips.size()-1; i >= 0; i--)
 		delete toolTips[i];

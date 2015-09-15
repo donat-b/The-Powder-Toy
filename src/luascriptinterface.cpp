@@ -21,6 +21,7 @@
 #include "common/Platform.h"
 #include "game/Brush.h"
 #include "game/Menus.h"
+#include "game/Sign.h"
 #include "game/ToolTip.h"
 #include "gui/game/PowderToy.h"
 #include "graphics/ARGBColour.h"
@@ -51,15 +52,51 @@ int simulation_signIndex(lua_State *l)
 		luaL_error(l, "Invalid sign ID (stop messing with things): %i", id);
 		return 0;
 	}
+	if (id >= (int)signs.size())
+	{
+		return lua_pushnil(l), 1;
+	}
 
 	if (!key.compare("text"))
-		return lua_pushstring(l, signs[id].text), 1;
+		return lua_pushstring(l, signs[id]->GetText().c_str()), 1;
+	else if (!key.compare("displayText"))
+		return lua_pushstring(l, signs[id]->GetDisplayText().c_str()), 1;
+	else if (!key.compare("linkText"))
+		return lua_pushstring(l, signs[id]->GetLinkText().c_str()), 1;
 	else if (!key.compare("justification"))
-		return lua_pushnumber(l, signs[id].ju), 1;
+		return lua_pushnumber(l, signs[id]->GetJustification()), 1;
 	else if (!key.compare("x"))
-		return lua_pushnumber(l, signs[id].x), 1;
+		return lua_pushnumber(l, signs[id]->GetRealPos().X), 1;
 	else if (!key.compare("y"))
-		return lua_pushnumber(l, signs[id].y), 1;
+		return lua_pushnumber(l, signs[id]->GetRealPos().Y), 1;
+	else if (!key.compare("screenX"))
+	{
+		int x, y, w, h;
+		signs[id]->GetPos(x, y, w, h);
+		lua_pushnumber(l, x);
+		return 1;
+	}
+	else if (!key.compare("screenY"))
+	{
+		int x, y, w, h;
+		signs[id]->GetPos(x, y, w, h);
+		lua_pushnumber(l, y);
+		return 1;
+	}
+	else if (!key.compare("width"))
+	{
+		int x, y, w, h;
+		signs[id]->GetPos(x, y, w, h);
+		lua_pushnumber(l, w);
+		return 1;
+	}
+	else if (!key.compare("height"))
+	{
+		int x, y, w, h;
+		signs[id]->GetPos(x, y, w, h);
+		lua_pushnumber(l, h);
+		return 1;
+	}
 	else
 		return lua_pushnil(l), 1;
 }
@@ -81,19 +118,16 @@ int simulation_signNewIndex(lua_State *l)
 
 	if (!key.compare("text"))
 	{
-		char* temp = mystrdup(luaL_checkstring(l, 3));
-		clean_text(temp, 180); //arbitrary max pixel length
-		if (strlen(temp) > 255)
-			temp[255] = 0;
-		sprintf(signs[id].text, temp);
-		free(temp);
+		const char *temp = luaL_checkstring(l, 3);
+		std::string cleaned = CleanString(temp, false, true, true).substr(0, 45);
+		signs[id]->SetText(cleaned);
 		return 1;
 	}
 	else if (!key.compare("justification"))
 	{
 		int ju = luaL_checkinteger(l, 3);
-		if (ju >= 0 && ju <= 2)
-			return signs[id].ju = ju, 1;
+		if (ju >= 0 && ju <= 3)
+			return signs[id]->SetJustification((Sign::Justification)ju), 1;
 		else
 			luaL_error(l, "Invalid justification");
 		return 0;
@@ -102,7 +136,7 @@ int simulation_signNewIndex(lua_State *l)
 	{
 		int x = luaL_checkinteger(l, 3);
 		if (x >= 0 && x < XRES)
-			return signs[id].x = x, 1;
+			return signs[id]->SetPos(Point(x, signs[id]->GetRealPos().Y)), 1;
 		else
 			luaL_error(l, "Invalid X coordinate");
 		return 0;
@@ -111,10 +145,14 @@ int simulation_signNewIndex(lua_State *l)
 	{
 		int y = luaL_checkinteger(l, 3);
 		if (y >= 0 && y < YRES)
-			return signs[id].y = y, 1;
+			return signs[id]->SetPos(Point(signs[id]->GetRealPos().X, y)), 1;
 		else
 			luaL_error(l, "Invalid Y coordinate");
 		return 0;
+	}
+	else if (!key.compare("displayText") || !key.compare("linkText")  || !key.compare("screenX") || !key.compare("screenY") || !key.compare("width") || !key.compare("height"))
+	{
+		luaL_error(l, "That property can't be directly set");
 	}
 	return 0;
 }
@@ -122,35 +160,25 @@ int simulation_signNewIndex(lua_State *l)
 //creates a new sign at the first open index
 int simulation_newsign(lua_State *l)
 {
-	for (int i = 0; i < MAXSIGNS; i++)
+	if (signs.size() >= MAXSIGNS)
 	{
-		if (!signs[i].text[0])
-		{
-			char* temp = mystrdup(luaL_checkstring(l, 1));
-			int x = luaL_checkinteger(l, 2);
-			int y = luaL_checkinteger(l, 3);
-			int ju = luaL_optinteger(l, 4, 1);
-			if (ju < 0 || ju > 2)
-				return luaL_error(l, "Invalid justification");
-			if (x < 0 || x >= XRES)
-				return luaL_error(l, "Invalid X coordinate");
-			if (y < 0 || y >= YRES)
-				return luaL_error(l, "Invalid Y coordinate");
-
-			clean_text(temp, 180); //arbitrary max pixel length
-			if (strlen(temp) > 255)
-				temp[255] = 0;
-			sprintf(signs[i].text, temp);
-			free(temp);
-			signs[i].x = x;
-			signs[i].y = y;
-			signs[i].ju = ju;
-
-			lua_pushnumber(l, i);
-			return 1;
-		}
+		lua_pushnumber(l, -1);
+		return 1;
 	}
-	lua_pushnumber(l, -1);
+	const char* temp = luaL_checkstring(l, 1);
+	int x = luaL_checkinteger(l, 2);
+	int y = luaL_checkinteger(l, 3);
+	int ju = luaL_optinteger(l, 4, 1);
+	if (ju < 0 || ju > 3)
+		return luaL_error(l, "Invalid justification");
+	if (x < 0 || x >= XRES)
+		return luaL_error(l, "Invalid X coordinate");
+	if (y < 0 || y >= YRES)
+		return luaL_error(l, "Invalid Y coordinate");
+
+	std::string cleaned = CleanString(temp, false, true, true).substr(0, 45);
+	signs.push_back(new Sign(cleaned, x, y, (Sign::Justification)ju));
+	lua_pushnumber(l, signs.size()-1);
 	return 1;
 }
 

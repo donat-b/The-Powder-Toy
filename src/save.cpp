@@ -28,6 +28,7 @@
 
 #include "common/Platform.h"
 #include "game/Menus.h"
+#include "game/Sign.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
@@ -58,7 +59,7 @@ pixel *prerender_save(void *save, int size, int *width, int *height)
 	return NULL;
 }
 
-int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, unsigned pmap[YRES][XRES])
+int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* partsptr, unsigned pmap[YRES][XRES])
 {
 	unsigned char * saveData = (unsigned char*)save;
 	if (size<16)
@@ -739,7 +740,7 @@ fin:
 	return vidBuf;
 }
 
-void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* o_partsptr, bool tab)
+void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* o_partsptr, bool tab)
 {
 	particle *partsptr = (particle*)o_partsptr;
 	unsigned char *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *pressData = NULL, *vxData = NULL, *vyData = NULL, *finalData = NULL, *outputData = NULL, *soapLinkData = NULL, *movsData = NULL, *animData = NULL;
@@ -749,7 +750,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	int partsDataLen, partsPosDataLen, fanDataLen = 0, wallDataLen, pressDataLen = 0, vxDataLen = 0, vyDataLen = 0, finalDataLen, outputDataLen, soapLinkDataLen, movsDataLen = 0, animDataLen = 0;
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	int x, y, i, wallDataFound = 0;
-	int posCount, signsCount;
+	int posCount;
 	bson b;
 
 	//Get coords in blocks
@@ -1297,28 +1298,18 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 		bson_append_binary(&b, "LuaCode", (char)BSON_BIN_USER, (const char*)LuaCode, LuaCodeLen);
 	}
 #endif
-	signsCount = 0;
-	for(i = 0; i < MAXSIGNS; i++)
-	{
-		if(signs[i].text[0] && signs[i].x>=orig_x0 && signs[i].x<=orig_x0+orig_w && signs[i].y>=orig_y0 && signs[i].y<=orig_y0+orig_h)
-		{
-			signsCount++;
-		}
-	}
-	if(signsCount)
+	if (signs.size())
 	{
 		bson_append_start_array(&b, "signs");
-		for(i = 0; i < MAXSIGNS; i++)
+		for (std::vector<Sign*>::iterator iter = signs.begin(), end = signs.end(); iter != end; ++iter)
 		{
-			if(signs[i].text[0] && signs[i].x>=orig_x0 && signs[i].x<=orig_x0+orig_w && signs[i].y>=orig_y0 && signs[i].y<=orig_y0+orig_h)
-			{
-				bson_append_start_object(&b, "sign");
-				bson_append_string(&b, "text", signs[i].text);
-				bson_append_int(&b, "justification", signs[i].ju);
-				bson_append_int(&b, "x", signs[i].x-fullX);
-				bson_append_int(&b, "y", signs[i].y-fullY);
-				bson_append_finish_object(&b);
-			}
+			Sign *sign = (*iter);
+			bson_append_start_object(&b, "sign");
+			bson_append_string(&b, "text", sign->GetText().c_str());
+			bson_append_int(&b, "justification", (int)sign->GetJustification());
+			bson_append_int(&b, "x", sign->GetRealPos().X-fullX);
+			bson_append_int(&b, "y", sign->GetRealPos().Y-fullY);
+			bson_append_finish_object(&b);
 		}
 		bson_append_finish_array(&b);
 	}
@@ -1410,7 +1401,7 @@ fin:
 	return outputData;
 }
 
-int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* o_partsptr, unsigned pmap[YRES][XRES])
+int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* o_partsptr, unsigned pmap[YRES][XRES])
 {
 	particle *partsptr = (particle*)o_partsptr;
 	unsigned char * inputData = (unsigned char*)save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *pressData = NULL, *vxData = NULL, *vyData = NULL, *soapLinkData = NULL, *movsData = NULL, *animData = NULL;
@@ -1497,52 +1488,53 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	
 	bson_init_data(&b, (char*)bsonData);
 	bson_iterator_init(&iter, &b);
-	while(bson_iterator_next(&iter))
+	while (bson_iterator_next(&iter))
 	{
 		if (!strcmp(bson_iterator_key(&iter), "signs"))
 		{
-			if(bson_iterator_type(&iter)==BSON_ARRAY)
+			if (bson_iterator_type(&iter)==BSON_ARRAY)
 			{
 				bson_iterator subiter;
 				bson_iterator_subiterator(&iter, &subiter);
-				while(bson_iterator_next(&subiter))
+				while (bson_iterator_next(&subiter))
 				{
 					if (!strcmp(bson_iterator_key(&subiter), "sign"))
 					{
-						if(bson_iterator_type(&subiter)==BSON_OBJECT)
+						if (bson_iterator_type(&subiter) == BSON_OBJECT)
 						{
 							bson_iterator signiter;
 							bson_iterator_subiterator(&subiter, &signiter);
-							//Find a free sign ID
-							for (i = 0; i < MAXSIGNS; i++)
-								if (!signs[i].text[0])
-									break;
 							//Stop reading signs if we have no free spaces
-							if(i >= MAXSIGNS)
+							if (signs.size() >= MAXSIGNS)
 								break;
-							while(bson_iterator_next(&signiter))
+
+							Sign *theSign = new Sign("", fullX, fullY, Sign::Middle);
+							while (bson_iterator_next(&signiter))
 							{
-								if (!strcmp(bson_iterator_key(&signiter), "text") && bson_iterator_type(&signiter)==BSON_STRING)
+								if (!strcmp(bson_iterator_key(&signiter), "text") && bson_iterator_type(&signiter) == BSON_STRING)
 								{
-									strncpy(signs[i].text, CleanString(bson_iterator_string(&signiter), true, true, true).c_str(), 45);
+									theSign->SetText(CleanString(bson_iterator_string(&signiter), true, true, true).substr(0, 45));
 								}
-								else if (!strcmp(bson_iterator_key(&signiter), "justification") && bson_iterator_type(&signiter)==BSON_INT)
+								else if (!strcmp(bson_iterator_key(&signiter), "justification") && bson_iterator_type(&signiter) == BSON_INT)
 								{
-									signs[i].ju = bson_iterator_int(&signiter);
+									int ju = bson_iterator_int(&signiter);
+									if (ju >= 0 && ju <= 3)
+										theSign->SetJustification((Sign::Justification)bson_iterator_int(&signiter));
 								}
-								else if (!strcmp(bson_iterator_key(&signiter), "x") && bson_iterator_type(&signiter)==BSON_INT)
+								else if (!strcmp(bson_iterator_key(&signiter), "x") && bson_iterator_type(&signiter) == BSON_INT)
 								{
-									signs[i].x = bson_iterator_int(&signiter)+fullX;
+									theSign->SetPos(Point(bson_iterator_int(&signiter)+fullX, theSign->GetRealPos().Y));
 								}
-								else if (!strcmp(bson_iterator_key(&signiter), "y") && bson_iterator_type(&signiter)==BSON_INT)
+								else if (!strcmp(bson_iterator_key(&signiter), "y") && bson_iterator_type(&signiter) == BSON_INT)
 								{
-									signs[i].y = bson_iterator_int(&signiter)+fullY;
+									theSign->SetPos(Point(theSign->GetRealPos().X, bson_iterator_int(&signiter)+fullY));
 								}
 								else
 								{
 									fprintf(stderr, "Unknown sign property %s\n", bson_iterator_key(&signiter));
 								}
 							}
+							signs.push_back(theSign);
 						}
 						else
 						{
@@ -2845,7 +2837,7 @@ corrupt:
 	return NULL;
 }
 
-int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, unsigned pmap[YRES][XRES])
+int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* partsptr, unsigned pmap[YRES][XRES])
 {
 	unsigned char *d=NULL,*c=(unsigned char*)save;
 	int q,i,j,k,x,y,p=0,*m=NULL, ver, pty, ty, legacy_beta=0, tempGrav = 0, modver = 0;
@@ -3487,35 +3479,40 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 	if (p >= size)
 		goto version1;
 	j = d[p++];
-	for (i=0; i<j; i++)
+	for (int i = 0; i < j; i++)
 	{
 		if (p+6 > size)
 			goto corrupt;
-		for (k=0; k<MAXSIGNS; k++)
-			if (!signs[k].text[0])
-				break;
-		x = d[p++];
-		x |= ((unsigned)d[p++])<<8;
-		if (k<MAXSIGNS)
-			signs[k].x = x+x0;
-		x = d[p++];
-		x |= ((unsigned)d[p++])<<8;
-		if (k<MAXSIGNS)
-			signs[k].y = x+y0;
-		x = d[p++];
-		if (k<MAXSIGNS)
-			signs[k].ju = x;
-		x = d[p++];
-		if (p+x > size)
-			goto corrupt;
-		if (k<MAXSIGNS)
+
+		if (signs.size() >= MAXSIGNS)
 		{
+			p += 5;
+			int size = d[p++];
+			p += size;
+		}
+		else
+		{
+			int x = d[p++];
+			x |= ((unsigned)d[p++])<<8;
+
+			int y = d[p++];
+			y |= ((unsigned)d[p++])<<8;
+
+			int ju = d[p++];
+			if (ju < 0 || ju > 3)
+				ju = 1;
+
+			int textSize = d[p++];
+			if (p+textSize > size)
+				goto corrupt;
+
 			char temp[256];
 			memcpy(temp, d+p, x);
 			temp[x] = 0;
-			strncpy(signs[k].text, CleanString(temp, true, true, true).c_str(), 45);
+			std::string text = CleanString(temp, true, true, true).substr(0, 45);
+			signs.push_back(new Sign(text, x, y, (Sign::Justification)ju));
+			p += textSize;
 		}
-		p += x;
 	}
 
 	if (modver >= 3)
@@ -3609,7 +3606,7 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 	unsigned char (*bmapo)[XRES/CELL] = (unsigned char(*)[XRES/CELL])calloc((YRES/CELL)*(XRES/CELL), sizeof(unsigned char));
 	unsigned char (*bmapn)[XRES/CELL] = (unsigned char(*)[XRES/CELL])calloc((YRES/CELL)*(XRES/CELL), sizeof(unsigned char));
 	particle *partst = (particle*)calloc(sizeof(particle), NPART);
-	sign *signst = (sign*)calloc(MAXSIGNS, sizeof(sign));
+	std::vector<Sign*> signst;
 	unsigned (*pmapt)[XRES] = (unsigned(*)[XRES])calloc(YRES*XRES, sizeof(unsigned));
 	float (*fvxo)[XRES/CELL] = (float(*)[XRES/CELL])calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
 	float (*fvyo)[XRES/CELL] = (float(*)[XRES/CELL])calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
@@ -3631,7 +3628,6 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 		free(bmapo);
 		free(bmapn);
 		free(partst);
-		free(signst);
 		free(pmapt);
 		free(fvxo);
 		free(fvyo);
@@ -3669,20 +3665,20 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 	if (nw>XRES) nw = XRES;
 	if (nh>YRES) nh = YRES;
 	// rotate and translate signs, parts, walls
-	for (i=0; i<MAXSIGNS; i++)
+	for (int i = signs.size()-1; i >= 0; i--)
 	{
-		if (!signst[i].text[0]) continue;
-		pos = v2d_new((float)signst[i].x, (float)signst[i].y);
+		Point signPos = signst[i]->GetRealPos();
+		pos = v2d_new((float)signPos.X, (float)signPos.Y);
 		pos = v2d_add(m2d_multiply_v2d(transform,pos),translate);
 		nx = (int)floor(pos.x+0.5f);
 		ny = (int)floor(pos.y+0.5f);
-		if (nx<0 || nx>=nw || ny<0 || ny>=nh)
+		if (nx < 0 || nx >= nw || ny < 0 || ny >= nh)
 		{
-			signst[i].text[0] = 0;
+			delete signst[i];
+			signst.erase(signst.begin()+i);
 			continue;
 		}
-		signst[i].x = nx;
-		signst[i].y = ny;
+		signst[i]->SetPos(Point(nx, ny));
 	}
 	for (i=0; i<NPART; i++)
 	{
@@ -3733,7 +3729,6 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 	free(bmapo);
 	free(bmapn);
 	free(partst);
-	free(signst);
 	free(pmapt);
 	free(fvxo);
 	free(fvyo);

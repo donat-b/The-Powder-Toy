@@ -3,16 +3,15 @@
 #include "interface/Label.h"
 #include "interface/Button.h"
 #include "interface/Textbox.h"
-#include "defines.h"
 
 CreateSign::CreateSign(int signID, Point pos):
 	Window_(Point(CENTERED, CENTERED), Point(250, 100)),
 	signID(signID)
 {
-	if (signs[signID].text[0])
-		newSignLabel = new Label(Point(5, 3), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Edit sign:");
-	else
+	if (signID == -1)
 		newSignLabel = new Label(Point(5, 3), Point(Label::AUTOSIZE, Label::AUTOSIZE), "New sign:");
+	else
+		newSignLabel = new Label(Point(5, 3), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Edit sign:");
 	newSignLabel->SetColor(COLRGB(140, 140, 255));
 	this->AddComponent(newSignLabel);
 
@@ -28,9 +27,9 @@ CreateSign::CreateSign(int signID, Point pos):
 
 	class JustificationAction : public ButtonAction
 	{
-		int ju;
+		Sign::Justification ju;
 	public:
-		JustificationAction(int ju):
+		JustificationAction(Sign::Justification ju):
 				ButtonAction(),
 				ju(ju)
 		{
@@ -43,19 +42,19 @@ CreateSign::CreateSign(int signID, Point pos):
 		}
 	};
 	leftJuButton = new Button(justificationLabel->Right(Point(8, 0)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "\x9D Left");
-	leftJuButton->SetCallback(new JustificationAction(0));
+	leftJuButton->SetCallback(new JustificationAction(Sign::Left));
 	this->AddComponent(leftJuButton);
 
 	middleJuButton = new Button(leftJuButton->Right(Point(5, 0)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "\x9E Middle");
-	middleJuButton->SetCallback(new JustificationAction(1));
+	middleJuButton->SetCallback(new JustificationAction(Sign::Middle));
 	this->AddComponent(middleJuButton);
 
 	rightJuButton = new Button(middleJuButton->Right(Point(5, 0)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "\x9F Right");
-	rightJuButton->SetCallback(new JustificationAction(2));
+	rightJuButton->SetCallback(new JustificationAction(Sign::Right));
 	this->AddComponent(rightJuButton);
 
 	noneJuButton = new Button(rightJuButton->Right(Point(5, 0)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "  None");
-	noneJuButton->SetCallback(new JustificationAction(3));
+	noneJuButton->SetCallback(new JustificationAction(Sign::NoJustification));
 	this->AddComponent(noneJuButton);
 
 	class MoveAction : public ButtonAction
@@ -94,18 +93,18 @@ CreateSign::CreateSign(int signID, Point pos):
 	okButton->SetCallback(new OkAction());
 	this->AddComponent(okButton);
 
-	if (!signs[signID].text[0])
+	if (signID == -1)
 	{
 		moveButton->SetEnabled(false);
 		deleteButton->SetEnabled(false);
-		signs[signID].x = pos.X;
-		signs[signID].y = pos.Y;
-		SetJustification(1);
+		theSign = new Sign("", pos.X, pos.Y, Sign::Middle);
+		SetJustification(Sign::Middle);
 	}
 	else
 	{
-		signTextbox->SetText(signs[signID].text);
-		SetJustification(signs[signID].ju);
+		theSign = signs[signID];
+		signTextbox->SetText(theSign->GetText());
+		SetJustification(theSign->GetJustification());
 	}
 }
 
@@ -117,9 +116,9 @@ void CreateSign::OnKeyPress(int key, unsigned short character, unsigned short mo
 	}
 }
 
-void CreateSign::SetJustification(int ju)
+void CreateSign::SetJustification(Sign::Justification ju)
 {
-	signs[signID].ju = ju;
+	theSign->SetJustification(ju);
 	leftJuButton->SetState(ju == 0 ? Button::INVERTED : Button::NORMAL);
 	middleJuButton->SetState(ju == 1 ? Button::INVERTED : Button::NORMAL);
 	rightJuButton->SetState(ju == 2 ? Button::INVERTED : Button::NORMAL);
@@ -140,10 +139,19 @@ void CreateSign::DeleteSign()
 
 void CreateSign::SaveSign()
 {
-	std::string text = signTextbox->GetText();
-	if (text.length())
-		strncpy(signs[signID].text, text.c_str(), 255);
+	if (signTextbox->GetText() == "")
+	{
+		if (signID != -1)
+		{
+			delete signs[signID];
+			signs.erase(signs.begin()+signID);
+		}
+	}
 	else
-		signs[signID].text[0] = '\0';
+	{
+		theSign->SetText(signTextbox->GetText());
+		if (signID == -1)
+			signs.push_back(theSign);
+	}
 	this->toDelete = true;
 }

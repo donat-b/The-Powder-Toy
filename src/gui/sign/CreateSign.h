@@ -2,6 +2,7 @@
 #define CREATESIGN_H
 #include "common/Point.h"
 #include "interface/Window.h"
+#include "game/Sign.h"
 
 class Label;
 class Button;
@@ -13,12 +14,13 @@ class CreateSign : public Window_
 	Textbox *signTextbox;
 
 	int signID;
+	Sign *theSign;
 public:
 	CreateSign(int signID, Point pos);
 
 	void OnKeyPress(int key, unsigned short character, unsigned short modifiers);
 
-	void SetJustification(int ju);
+	void SetJustification(Sign::Justification ju);
 	void MoveSign();
 	void DeleteSign();
 	void SaveSign();

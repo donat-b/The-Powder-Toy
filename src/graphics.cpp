@@ -60,6 +60,7 @@
 
 #include "game/Brush.h"
 #include "game/Menus.h"
+#include "game/Sign.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
@@ -3868,83 +3869,37 @@ void draw_walls(pixel *vid)
 
 void render_signs(pixel *vid_buf)
 {
-	int i, j, x, y, w, h, dx, dy,mx,my,b=1,bq;
-	for (i=0; i<MAXSIGNS; i++)
-		if (signs[i].text[0])
+	int x, y, w, h;
+	Sign::Justification ju;
+	for (std::vector<Sign*>::iterator iter = signs.begin(), end = signs.end(); iter != end; ++iter)
+	{
+		Sign *sign = *iter;
+		sign->GetPos(x, y, w, h);
+		clearrect(vid_buf, x+1, y+1, w-1, h-1);
+		drawrect(vid_buf, x, y, w, h, 192, 192, 192, 255);
+
+		// spark signs and link signs have different colors
+		ARGBColour textCol = COLPACK(0xFFFFFF);
+		if (sign->GetType() == Sign::Spark)
+			textCol = COLPACK(0xD3D328);
+		else if (sign->GetType() != Sign::Normal)
+			textCol = COLPACK(0x00BFFF);
+		drawtext(vid_buf, x+3, y+3, sign->GetDisplayText().c_str(), COLR(textCol), COLG(textCol), COLB(textCol), COLA(textCol));
+
+		// draw the little line on the buttom
+		Point realPos = sign->GetRealPos();
+		ju = sign->GetJustification();
+		if (ju != Sign::NoJustification)
 		{
-			char buff[256];  //Buffer
-			get_sign_pos(i, &x, &y, &w, &h);
-			clearrect(vid_buf, x+1, y+1, w-1, h-1);
-			drawrect(vid_buf, x, y, w, h, 192, 192, 192, 255);
-
-			//Displaying special information
-			if (!strcmp(signs[i].text, "{p}"))
+			int dx = 1 - (int)ju;
+			int dy = (realPos.Y > 18) ? -1 : 1;
+			for (int i = 0; i < 4; i++)
 			{
-				float pressure = 0.0f;
-				if (signs[i].x>=0 && signs[i].x<XRES && signs[i].y>=0 && signs[i].y<YRES)
-					pressure = pv[signs[i].y/CELL][signs[i].x/CELL];
-				sprintf(buff, "Pressure: %3.2f", pressure);  //...pressure
-				drawtext(vid_buf, x+3, y+3, buff, 255, 255, 255, 255);
-			}
-			else if (!strcmp(signs[i].text, "{aheat}"))
-			{
-				float aheat = 0.0f;
-				if (signs[i].x>=0 && signs[i].x<XRES && signs[i].y>=0 && signs[i].y<YRES)
-					aheat = hv[signs[i].y/CELL][signs[i].x/CELL];
-				sprintf(buff, "%3.2f", aheat);
-				drawtext(vid_buf, x+3, y+3, buff, 255, 255, 255, 255);
-			}
-			else if (!strcmp(signs[i].text, "{t}"))
-			{
-				if (signs[i].x>=0 && signs[i].x<XRES && signs[i].y>=0 && signs[i].y<YRES && pmap[signs[i].y][signs[i].x])
-					sprintf(buff, "Temp: %4.2f", parts[pmap[signs[i].y][signs[i].x]>>8].temp-273.15);  //...temperature
-				else
-					sprintf(buff, "Temp: 0.00");  //...temperature
-				drawtext(vid_buf, x+3, y+3, buff, 255, 255, 255, 255);
-			}
-			else if (!sregexp(signs[i].text, "^{[ct]:[0-9]*|.*}$") || !sregexp(signs[i].text, "^{s:.*|.*}$") || !sregexp(signs[i].text, "^{b|.*}$"))
-			{
-				int sldr, startm;
-				memset(buff, 0, sizeof(buff));
-				for (sldr=2; signs[i].text[sldr-1] != '|'; sldr++)
-					startm = sldr + 1;
-				sldr = startm;
-				while (signs[i].text[sldr] != '}')
-				{
-					buff[sldr - startm] = signs[i].text[sldr];
-					sldr++;
-				}
-				if (signs[i].text[1] == 'b')
-					drawtext(vid_buf, x+3, y+3, buff, 211, 211, 40, 255);
-				else
-					drawtext(vid_buf, x+3, y+3, buff, 0, 191, 255, 255);
-			}
-			//Usual text
-			else
-				drawtext(vid_buf, x+3, y+3, signs[i].text, 255, 255, 255, 255);
-
-			x = signs[i].x;
-			y = signs[i].y;
-			if (signs[i].ju != 3)
-			{
-				dx = 1 - signs[i].ju;
-				dy = (signs[i].y > 18) ? -1 : 1;
-				for (j=0; j<4; j++)
-				{
-					drawpixel(vid_buf, x, y, 192, 192, 192, 255);
-					x+=dx;
-					y+=dy;
-				}
-			}
-			if (MSIGN==i)
-			{
-				bq = b;
-				mouse_get_state(&mx, &my);
-				Point cursor = the_game->AdjustCoordinates(Point(mx, my));
-				signs[i].x = cursor.X;
-				signs[i].y = cursor.Y;
+				drawpixel(vid_buf, realPos.X, realPos.Y, 192, 192, 192, 255);
+				realPos += Point(dx, dy);
 			}
 		}
+	}
 }
 
 void render_gravlensing(pixel *src, pixel * dst)

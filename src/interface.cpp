@@ -61,9 +61,10 @@
 #include "update.h"
 
 #include "common/Platform.h"
-#include "game/Menus.h"
-#include "game/ToolTip.h"
 #include "game/Download.h"
+#include "game/Menus.h"
+#include "game/Sign.h"
+#include "game/ToolTip.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/ToolNumbers.h"
@@ -131,40 +132,6 @@ int dateformat = 7;
 int show_ids = 0;
 
 int drawgrav_enable = 0;
-
-void get_sign_pos(int i, int *x0, int *y0, int *w, int *h)
-{
-	//Changing width if sign have special content
-	if (!strcmp(signs[i].text, "{p}"))
-		*w = textwidth("Pressure: -000.00");
-	else if (!strcmp(signs[i].text, "{aheat}"))
-		*w = textwidth("0000.00");
-	else if (!strcmp(signs[i].text, "{t}"))
-		*w = textwidth("Temp: 0000.00");
-	else if (!sregexp(signs[i].text, "^{[ct]:[0-9]*|.*}$") || !sregexp(signs[i].text, "^{s:.*|.*}$") || !sregexp(signs[i].text, "^{b|.*}$"))
-	{
-		int sldr, startm;
-		char buff[256];
-		memset(buff, 0, sizeof(buff));
-		for (sldr=2; signs[i].text[sldr-1] != '|'; sldr++)
-			startm = sldr + 1;
-
-		sldr = startm;
-		while (signs[i].text[sldr] != '}')
-		{
-			buff[sldr - startm] = signs[i].text[sldr];
-			sldr++;
-		}
-		*w = textwidth(buff) + 5;
-	}
-	//Usual width
-	else
-		*w = textwidth(signs[i].text) + 5;
-	*h = 14;
-	*x0 = (signs[i].ju == 2) ? signs[i].x - *w :
-	      (signs[i].ju == 0) ? signs[i].x : signs[i].x - *w/2;
-	*y0 = (signs[i].y > 18) ? signs[i].y - 18 : signs[i].y + 4;
-}
 
 void ui_edit_init(ui_edit *ed, int x, int y, int w, int h)
 {

@@ -90,7 +90,6 @@ const int menuIconWidth = 17;
 
 #define GRAV_DIFF
 
-#define MAXSIGNS 16
 #define TAG_MAX 256
 
 #define CELL    4
@@ -261,12 +260,7 @@ extern int active_menu;
 extern int sys_pause;
 extern int framerender;
 
-struct sign
-{
-	int x,y,ju;
-	char text[256];
-};
-typedef struct sign sign;
+#define MAXSIGNS 16
 
 #include "graphics/Pixel.h"
 struct stamp
@@ -277,13 +271,11 @@ struct stamp
 };
 typedef struct stamp stamp;
 
-extern int MSIGN;
 extern int console_mode;
 extern bool REPLACE_MODE;
 extern bool SPECIFIC_DELETE;
 extern int GRID_MODE;
 extern int DEBUG_MODE;
-extern sign signs[MAXSIGNS];
 extern stamp stamps[STAMP_MAX];
 extern int stamp_count;
 
