@@ -3665,7 +3665,7 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 	if (nw>XRES) nw = XRES;
 	if (nh>YRES) nh = YRES;
 	// rotate and translate signs, parts, walls
-	for (int i = signs.size()-1; i >= 0; i--)
+	for (int i = signst.size()-1; i >= 0; i--)
 	{
 		Point signPos = signst[i]->GetRealPos();
 		pos = v2d_new((float)signPos.X, (float)signPos.Y);

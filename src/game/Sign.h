@@ -16,15 +16,13 @@ private:
 	Justification ju;
 	Type type;
 
-	void SplitSign();
-
 public:
 	Sign(std::string text, int x, int y, Justification justification);
 
 	void SetText(std::string newText);
 	std::string GetText() { return text; }
 	std::string GetLinkText() { return linkText; }
-	std::string GetDisplayText() { return displayText; }
+	std::string GetDisplayText();
 
 	void SetJustification(Justification newJustification) { ju = newJustification; }
 	Justification GetJustification() { return ju; }
@@ -36,6 +34,7 @@ public:
 	void SetPos(Point newPos) { x = newPos.X; y = newPos.Y; }
 };
 
+#define MAXSIGNS 16
 extern std::vector<Sign*> signs;
 extern int MSIGN;
 

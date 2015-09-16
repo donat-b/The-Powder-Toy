@@ -260,8 +260,6 @@ extern int active_menu;
 extern int sys_pause;
 extern int framerender;
 
-#define MAXSIGNS 16
-
 #include "graphics/Pixel.h"
 struct stamp
 {

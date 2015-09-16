@@ -18,12 +18,14 @@ void ClearSigns()
 
 void DeleteSignsInArea(Point topLeft, Point bottomRight)
 {
-	int x, y, w, h;
-	for (std::vector<Sign*>::reverse_iterator iter = signs.rbegin(), end = signs.rend(); iter != end; ++iter)
+	for (int i = signs.size()-1; i >= 0; i--)
 	{
-		(*iter)->GetPos(x, y, w, h);
-		if (x >= topLeft.X*CELL && y >= topLeft.Y*CELL && x <= bottomRight.X*CELL && y <= bottomRight.Y*CELL)
-			delete *iter;
+		Point realPos = signs[i]->GetRealPos();
+		if (realPos.X >= topLeft.X*CELL && realPos.Y >= topLeft.Y*CELL && realPos.X <= bottomRight.X*CELL && realPos.Y <= bottomRight.Y*CELL)
+		{
+			delete signs[i];
+			signs.erase(signs.begin()+i);
+		}
 	}
 }
 
@@ -53,8 +55,13 @@ Sign::Sign(std::string text, int x, int y, Justification justification):
 	SetText(text);
 }
 
-void Sign::SplitSign()
+void Sign::SetText(std::string newText)
 {
+	type = Normal;
+	text = displayText = newText;
+	linkText = "";
+
+	// split link signs into parts here
 	int len = text.length(), splitStart;
 	if (len > 2 && text[0] == '{')
 	{
@@ -101,13 +108,9 @@ void Sign::SplitSign()
 	}
 }
 
-void Sign::SetText(std::string newText)
+std::string Sign::GetDisplayText()
 {
-	type = Normal;
-	text = displayText = newText;
-	linkText = "";
-	SplitSign();
-	if (type == NoJustification && text.length() && text[0] == '{')
+	if (type == Normal && text.length() && text[0] == '{')
 	{
 		std::stringstream displayTextStream;
 		bool set = true;
@@ -128,7 +131,7 @@ void Sign::SetText(std::string newText)
 		else if (text == "{t}")
 		{
 			if (x >= 0 && x < XRES && y >= 0 && y < YRES && pmap[y][x])
-				displayTextStream << std::fixed << std::setprecision(2) << parts[pmap[y][x]>>8].temp-273.15f;
+				displayTextStream << std::fixed << std::setprecision(2) << "Temp: " << parts[pmap[y][x]>>8].temp-273.15f;
 			else
 				displayTextStream << "Temp: 0.00";
 		}
@@ -136,13 +139,14 @@ void Sign::SetText(std::string newText)
 			set = false;
 
 		if (set)
-			displayText = displayTextStream.str();
+			return displayTextStream.str();
 	}
+	return displayText;
 }
 
 void Sign::GetPos(int & x0, int & y0, int & w, int & h)
 {
-	w = VideoBuffer::TextSize(displayText).X + 5;
+	w = VideoBuffer::TextSize(GetDisplayText()).X + 5;
 	h = 15;
 	x0 = (ju == Right) ? x - w :
 		  (ju == Left) ? x : x - w/2;
