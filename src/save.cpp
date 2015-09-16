@@ -3507,8 +3507,8 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 				goto corrupt;
 
 			char temp[256];
-			memcpy(temp, d+p, x);
-			temp[x] = 0;
+			memcpy(temp, d+p, textSize);
+			temp[textSize] = 0;
 			std::string text = CleanString(temp, true, true, true).substr(0, 45);
 			signs.push_back(new Sign(text, x, y, (Sign::Justification)ju));
 			p += textSize;
