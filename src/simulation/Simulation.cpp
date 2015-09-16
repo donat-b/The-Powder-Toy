@@ -610,6 +610,7 @@ void Simulation::Tick()
 		UpdateBefore();
 		UpdateParticles(0, NPART);
 		UpdateAfter();
+		currentTick++;
 	}
 	// In automatic heat mode, calculate highest and lowest temperature points (maybe could be moved)
 	if (heatmode == 1)
@@ -627,7 +628,6 @@ void Simulation::Tick()
 			}
 		}
 	}
-	currentTick++;
 }
 
 int PCLN_update(UPDATE_FUNC_ARGS);
