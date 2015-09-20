@@ -6568,7 +6568,7 @@ const static struct command_match matches [] = {
 	{"tpt.setfi", "tpt.setfire("},
 	{"tpt.setd", "tpt.setdebug("},
 	{"tpt.setf", "tpt.setfpscap("},
-	{"tpt.gets", "tpt.getscript(\""},
+	{"tpt.gets", "tpt.getscript("},
 	{"tpt.setw", "tpt.setwindowsize("},
 	{"tpt.wa", "tpt.watertest("},
 	{"tpt.sc", "tpt.screenshot("},

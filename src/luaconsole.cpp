@@ -18,6 +18,7 @@
 #ifdef LUACONSOLE
 #include <cmath>
 #include <cstring>
+#include <sstream>
 
 #include "SDLCompat.h"
 #if defined(LIN) || defined(MACOSX)
@@ -2378,92 +2379,70 @@ int luatpt_setfpscap(lua_State* l)
 
 int luatpt_getscript(lua_State* l)
 {
-	char *fileid = NULL, *filedata = NULL, *fileuri = NULL, *fileauthor = NULL, *filename = NULL, *lastError = NULL, *luacommand = NULL;
-	int len, ret,run_script;
-	FILE * outputfile;
+	int scriptID = luaL_checkinteger(l, 1);
+	const char *filename = luaL_checkstring(l, 2);
+	int runScript = luaL_optint(l, 3, 0);
+	int confirmPrompt = luaL_optint(l, 4, 1);
 
-	fileauthor = mystrdup((char*)luaL_optstring(l, 1, ""));
-	fileid = mystrdup((char*)luaL_optstring(l, 2, ""));
-	run_script = luaL_optint(l, 3, 0);
-	if(!fileauthor || !fileid || strlen(fileauthor)<1 || strlen(fileid)<1)
-		goto fin;
-	if(!confirm_ui(lua_vid_buf, "Do you want to install script?", fileid, "Install"))
-		goto fin;
+	std::stringstream url;
+	url << "http://starcatcher.us/scripts/main.lua?get=" << scriptID;
+	if (confirmPrompt && !confirm_ui(lua_vid_buf, "Do you want to install script?", url.str().c_str(), "Install"))
+		return 0;
 
-	fileuri = (char*)malloc(strlen(SCRIPTSERVER)+strlen(fileauthor)+strlen(fileid)+44);
-	sprintf(fileuri, "http://" SCRIPTSERVER "/GetScript.api?Author=%s&Filename=%s", fileauthor, fileid);
-	
-	filedata = (char*)http_auth_get(fileuri, svf_user_id, NULL, svf_session_id, &ret, &len);
-	
-	if(len <= 0 || !filedata)
+	int ret, len;
+	char *scriptData = http_simple_get(url.str().c_str(), &ret, &len);
+	if (len <= 0 || !filename)
 	{
-		lastError = "Server did not return data.";
-		goto fin;
+		free(scriptData);
+		return luaL_error(l, "Server did not return data");
 	}
-	if(ret != 200)
+	if (ret != 200)
 	{
-		lastError = (char*)http_ret_text(ret);
-		goto fin;
+		free(scriptData);
+		return luaL_error(l, http_ret_text(ret));
 	}
-	
-	filename = (char*)malloc(strlen(fileauthor)+strlen(fileid)+strlen(PATH_SEP)+strlen(LOCAL_LUA_DIR)+6);
-	sprintf(filename, LOCAL_LUA_DIR PATH_SEP "%s_%s.lua", fileauthor, fileid);
-	
-#ifdef WIN
-	_mkdir(LOCAL_LUA_DIR);
-#else
-	mkdir(LOCAL_LUA_DIR, 0755);
-#endif
-	
-	outputfile = fopen(filename, "r");
-	if(outputfile)
+
+	if (!strcmp(scriptData, "Invalid script ID\r\n"))
+	{
+		free(scriptData);
+		return luaL_error(l, "Invalid Script ID");
+	}
+
+	FILE *outputfile = fopen(filename, "r");
+	if (outputfile)
 	{
 		fclose(outputfile);
 		outputfile = NULL;
-		if(confirm_ui(lua_vid_buf, "File already exists, overwrite?", filename, "Overwrite"))
+		if (!confirmPrompt || confirm_ui(lua_vid_buf, "File already exists, overwrite?", filename, "Overwrite"))
 		{
 			outputfile = fopen(filename, "w");
 		}
 		else
 		{
-			goto fin;
+			free(scriptData);
+			return 0;
 		}
 	}
 	else
 	{
 		outputfile = fopen(filename, "w");
 	}
-	
-	if(!outputfile)
+	if (!outputfile)
 	{
-		lastError = "Unable to write to file";
-		goto fin;
+		free(scriptData);
+		return luaL_error(l, "Unable to write to file");
 	}
-	
-	
-	fputs(filedata, outputfile);
+
+	fputs(scriptData, outputfile);
 	fclose(outputfile);
 	outputfile = NULL;
-	if(run_script)
+	if (runScript)
 	{
-		char *result = NULL;
-		luacommand = (char*)malloc(strlen(filename)+20);
-		sprintf(luacommand,"dofile(\"%s\")",filename);
-		luacon_eval(luacommand, &result);
-		if (result)
-			free(result);
+		std::stringstream luaCommand;
+		luaCommand << "dofile('" << filename << "')";
+		luaL_dostring(l, luaCommand.str().c_str());
 	}
-	
-fin:
-	if(fileid) free(fileid);
-	if(filedata) free(filedata);
-	if(fileuri) free(fileuri);
-	if(fileauthor) free(fileauthor);
-	if(filename) free(filename);
-	if(luacommand) free(luacommand);
-	luacommand = NULL;
-		
-	if(lastError) return luaL_error(l, lastError);
+
 	return 0;
 }
 
