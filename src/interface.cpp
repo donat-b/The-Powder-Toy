@@ -33,6 +33,7 @@
 #undef rmdir
 #define rmdir _rmdir //deprecated in visual studio
 #endif
+#include <shellapi.h>
 #endif
 #if defined(LIN) || defined(MACOSX)
 #include <sys/stat.h>
