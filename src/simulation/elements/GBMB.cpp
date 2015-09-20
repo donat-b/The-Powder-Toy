@@ -58,7 +58,7 @@ void GBMB_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Name = "GBMB";
 	elem->Colour = COLPACK(0x1144BB);
 	elem->MenuVisible = 1;
-	elem->MenuSection = SC_EXPLOSIVE;
+	elem->MenuSection = SC_FORCE;
 	elem->Enabled = 1;
 
 	elem->Advection = 0.6f;
