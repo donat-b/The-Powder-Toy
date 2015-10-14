@@ -34,21 +34,25 @@ private:
 	Download *voteDownload;
 
 	// drawing stuff
+	DrawState drawState;
 	bool isMouseDown;
 	bool isStampMouseDown;
+	int toolIndex; // 0 = left mouse, 1 = right mouse
+	float toolStrength; // tool (heat / cool) strength can be modified with ctrl or shift
+	Point lastDrawPoint; // for normal point to point drawing
+	Point initialDrawPoint; // for lines and boxes
 	bool ctrlHeld;
 	bool shiftHeld;
 	bool altHeld;
-	DrawState drawState;
-	Point lastDrawPoint;
-	int toolIndex;
+	bool mouseInZoom; // mouse drawing is canceled when moving in / out of the zoom window, need state
+	bool skipDraw; // when mouse moves, don't attempt an extra draw the next tick as normal
 
 	// zoom
 	bool placingZoom;
 	bool placingZoomTouch; // clicked the zoom button, zoom window won't be drawn until user clicks
 	bool zoomEnabled;
-	Point zoomedOnPosition;
-	Point zoomWindowPosition;
+	Point zoomedOnPosition; // position the zoom window is zooming in on
+	Point zoomWindowPosition; // position where zoom is drawn on screen (either on the left or the right)
 	int zoomSize;
 	int zoomFactor;
 
@@ -113,6 +117,13 @@ public:
 
 	// drawing stuff
 	void UpdateDrawMode();
+	void UpdateToolStrength();
+	DrawState GetDrawState() { return drawState; }
+	bool IsMouseDown() { return isMouseDown; }
+	float GetToolStrength() { return toolStrength; }
+	Point GetInitialDrawPoint() { return initialDrawPoint; }
+	Point LineSnapCoords(Point point1, Point point2);
+	Point RectSnapCoords(Point point1, Point point2);
 
 	// zoom window stuff
 	bool ZoomWindowShown() { return placingZoom || zoomEnabled; }

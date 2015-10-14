@@ -19,13 +19,13 @@
 
 #include <iostream>
 #include "defines.h"
-//#include "Simulation.h" //TODO: make Simulation an arg later
 
 
 enum { ELEMENT_TOOL, WALL_TOOL, TOOL_TOOL, DECO_TOOL, GOL_TOOL, INVALID_TOOL };
 
 struct Point;
 class Brush;
+class Simulation;
 class Tool
 {
 	std::string identifier;
@@ -41,12 +41,12 @@ public:
 	int GetID() { return ID; }
 	std::string GetIdentifier() { return identifier; }
 
-	virtual int DrawPoint(Brush* brush, Point position);
-	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
-	virtual int FloodFill(Brush* brush, Point position);
-	virtual void Click(Point position);
-	virtual Tool* Sample(Point position);
+	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
+	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength);
+	virtual void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos);
+	virtual int FloodFill(Simulation *sim, Brush *brush, Point position);
+	virtual void Click(Simulation *sim, Point position);
+	virtual Tool* Sample(Simulation *sim, Point position);
 };
 
 class ElementTool : public Tool
@@ -61,11 +61,11 @@ class PlopTool : public ElementTool
 public:
 	PlopTool(int elementID);
 
-	virtual int DrawPoint(Brush* brush, Point position);
-	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
-	virtual int FloodFill(Brush* brush, Point position);
-	virtual void Click(Point position);
+	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
+	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength);
+	virtual void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos);
+	virtual int FloodFill(Simulation *sim, Brush *brush, Point position);
+	virtual void Click(Simulation *sim, Point position);
 };
 
 class GolTool : public Tool
@@ -74,10 +74,10 @@ public:
 	GolTool(int golID);
 	int GetID();
 
-	virtual int DrawPoint(Brush* brush, Point position);
-	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
-	virtual int FloodFill(Brush* brush, Point position);
+	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
+	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength);
+	virtual void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos);
+	virtual int FloodFill(Simulation *sim, Brush *brush, Point position);
 };
 
 class WallTool : public Tool
@@ -86,10 +86,10 @@ public:
 	WallTool(int wallID);
 	int GetID() { if (type == WALL_TOOL) return ID; else return -1; }
 
-	virtual int DrawPoint(Brush* brush, Point position);
-	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
-	virtual int FloodFill(Brush* brush, Point position);
+	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
+	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength);
+	virtual void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos);
+	virtual int FloodFill(Simulation *sim, Brush *brush, Point position);
 };
 
 class StreamlineTool : public WallTool
@@ -97,9 +97,9 @@ class StreamlineTool : public WallTool
 public:
 	StreamlineTool();
 
-	virtual int DrawPoint(Brush* brush, Point position);
-	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual int FloodFill(Brush* brush, Point position);
+	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
+	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength);
+	virtual int FloodFill(Simulation *sim, Brush *brush, Point position);
 };
 
 class ToolTool : public Tool
@@ -108,11 +108,11 @@ public:
 	ToolTool(int toolID);
 	int GetID() { if (type == TOOL_TOOL) return ID; else return -1; }
 
-	virtual int DrawPoint(Brush* brush, Point position);
-	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
-	virtual int FloodFill(Brush* brush, Point position);
-	virtual void Click(Point position);
+	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
+	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength);
+	virtual void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos);
+	virtual int FloodFill(Simulation *sim, Brush *brush, Point position);
+	virtual void Click(Simulation *sim, Point position);
 };
 
 class PropTool : public ToolTool
@@ -121,10 +121,10 @@ public:
 	PropTool();
 	~PropTool() {}
 
-	virtual int DrawPoint(Brush* brush, Point position);
-	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
-	virtual int FloodFill(Brush* brush, Point position);
+	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
+	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength);
+	virtual void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos);
+	virtual int FloodFill(Simulation *sim, Brush *brush, Point position);
 
 	PropertyType propType;
 	PropertyValue propValue;
@@ -137,11 +137,11 @@ public:
 	DecoTool(int decoID);
 	int GetID() { if (type == DECO_TOOL) return ID; else return -1; }
 
-	virtual int DrawPoint(Brush* brush, Point position);
-	virtual void DrawLine(Brush* brush, Point startPos, Point endPos, bool held);
-	virtual void DrawRect(Brush* brush, Point startPos, Point endPos);
-	virtual int FloodFill(Brush* brush, Point position);
-	virtual Tool* Sample(Point position);
+	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
+	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength);
+	virtual void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos);
+	virtual int FloodFill(Simulation *sim, Brush *brush, Point position);
+	virtual Tool* Sample(Simulation *sim, Point position);
 };
 
 #endif

@@ -4941,12 +4941,12 @@ void loadShaders()
 #endif
 
 float maxAverage = 0.0f; //for debug mode
-int draw_debug_info(pixel* vid, int lm, int lx, int ly, int cx, int cy, int line_x, int line_y)
+int draw_debug_info(pixel* vid, int lx, int ly, int cx, int cy, int line_x, int line_y)
 {
 	char infobuf[256];
 	if(debug_flags & DEBUG_DRAWTOOL)
 	{
-		if(lm == 1) //Line tool
+		if (the_game->GetDrawState() == PowderToy::LINE && the_game->IsMouseDown()) //Line tool
 		{
 			blend_line(vid, 0, line_y, XRES, line_y, 255, 255, 255, 120);
 			blend_line(vid, line_x, 0, line_x, YRES, 255, 255, 255, 120);

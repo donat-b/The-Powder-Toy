@@ -28,6 +28,8 @@
 #define LUACON_MDOWN 1
 #define LUACON_MUP 2
 #define LUACON_MPRESS 3
+#define LUACON_MUPALT 4
+#define LUACON_MUPZOOM 5
 #define LUACON_KDOWN 1
 #define LUACON_KUP 2
 

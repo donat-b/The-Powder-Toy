@@ -1084,8 +1084,6 @@ void SigHandler(int signal)
 	pixel *part_vbuf_store;
 	int new_message_len = 0;
 	int afk = 0, afkstart = 0, lastx = 1, lasty = 0; // afk tracking for stats
-	int line_x, line_y, lb = 0, lx = 0, ly = 0, lm = 0;
-	int mx = 0, my = 0;
 	bool mouseInZoom = false;
 	int username_flash = 0, username_flash_t = 1;
 	int saveOpenError = 0;
@@ -1386,6 +1384,14 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 	if (true)
 	{
 		main_loop = 2;
+		//change mouse position while it is in a zoom window
+		//tmpMouseInZoom is used later, so that it only interrupts drawing, not things like copying / saving stamps
+		Point cursor = the_game->AdjustCoordinates(Point(x, y));
+		int mx = cursor.X;
+		int my = cursor.Y;
+		bool tmpMouseInZoom = false;
+		if (x >= 0 && y >= 0 && x < XRES && y < YRES)
+			tmpMouseInZoom = (x != mx || y != my);
 
 #ifdef OGLR
 		part_vbuf = vid_buf;
@@ -1445,49 +1451,54 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				fillrect(vid_buf, -1, -1, XRES+1, YRES+1, 0, 0, 0, 100);
 		}
 
-		// placing zoom window, or placing / loading stamps
-		if (the_game->MouseClicksIgnored())
-		{
-			// if you open and close zoom window while drawing, the drawing continues when you release it ... prevent that here
-			lb = 0;
-		}
 		// draw normal cursor
-		else
+		if (!the_game->MouseClicksIgnored())
 		{
-			if (lm != 2)
-				if (lm && (sdl_mod & KMOD_ALT))
-					render_cursor(vid_buf, line_x, line_y, activeTools[activeToolID], currentBrush);
-				else if ((x < XRES && y < YRES) || lb)
+			PowderToy::DrawState drawState = the_game->GetDrawState();
+			Point initialDrawPoint = the_game->GetInitialDrawPoint();
+			Point snappedCursor = Point(x, y);
+			bool isMouseDown = the_game->IsMouseDown();
+			if (sdl_mod & KMOD_ALT)
+			{
+				if (drawState == PowderToy::LINE)
+					snappedCursor = the_game->LineSnapCoords(initialDrawPoint, snappedCursor);
+				else if (drawState == PowderToy::RECT)
+					snappedCursor = the_game->RectSnapCoords(initialDrawPoint, snappedCursor);
+
+			}
+			if (drawState != PowderToy::RECT || !isMouseDown)
+				if (isMouseDown && (sdl_mod & KMOD_ALT))
+					render_cursor(vid_buf, snappedCursor.X, snappedCursor.Y, activeTools[activeToolID], currentBrush);
+				else if ((x < XRES && y < YRES) || isMouseDown)
 					render_cursor(vid_buf, mx, my, activeTools[activeToolID], currentBrush);
 
-			if (lb)
+			if (isMouseDown)
 			{
-				if (lm == 1)
-					xor_line(lx, ly, line_x, line_y, vid_buf);
-				else if (lm == 2)
+				if (drawState == PowderToy::LINE)
+					xor_line(initialDrawPoint.X, initialDrawPoint.Y, snappedCursor.X, snappedCursor.Y, vid_buf);
+				else if (drawState == PowderToy::RECT)
 				{
-					int width = line_x-lx;
-					int height = line_y-ly;
-					Point pos = Point(lx, ly);
+					int width = snappedCursor.X-initialDrawPoint.X;
+					int height = snappedCursor.Y-initialDrawPoint.Y;
 					if (width < 0)
 					{
-						pos.X += width;
+						initialDrawPoint.X += width;
 						width *= -1;
 					}
 					if (height < 0)
 					{
-						pos.Y += height;
+						initialDrawPoint.Y += height;
 						height *= -1;
 					}
-					xor_line(pos.X, pos.Y, pos.X+width, pos.Y, vid_buf);
+					xor_line(initialDrawPoint.X, initialDrawPoint.Y, initialDrawPoint.X+width, initialDrawPoint.Y, vid_buf);
 					if (height > 0)
 					{
-						xor_line(pos.X, pos.Y+height, pos.X+width, pos.Y+height, vid_buf);
+						xor_line(initialDrawPoint.X, initialDrawPoint.Y+height, initialDrawPoint.X+width, initialDrawPoint.Y+height, vid_buf);
 						if (height > 1)
 						{
-							xor_line(pos.X, pos.Y+1, pos.X, pos.Y+height-1, vid_buf);
+							xor_line(initialDrawPoint.X, initialDrawPoint.Y+1, initialDrawPoint.X, initialDrawPoint.Y+height-1, vid_buf);
 							if (width > 0)
-								xor_line(pos.X+width, pos.Y+1, pos.X+width, pos.Y+height-1, vid_buf);
+								xor_line(initialDrawPoint.X+width, initialDrawPoint.Y+1, initialDrawPoint.X+width, initialDrawPoint.Y+height-1, vid_buf);
 						}
 					}
 				}
@@ -1524,7 +1535,18 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		
 		if(debug_flags)
 		{
-			draw_debug_info(vid_buf, lm, lx, ly, x, y, line_x, line_y);
+			PowderToy::DrawState drawState = the_game->GetDrawState();
+			Point initialDrawPoint = the_game->GetInitialDrawPoint();
+			Point snappedCursor = Point(x, y);
+			if (sdl_mod & KMOD_ALT)
+			{
+				if (drawState == PowderToy::LINE)
+					snappedCursor = the_game->LineSnapCoords(initialDrawPoint, snappedCursor);
+				else if (drawState == PowderToy::RECT)
+					snappedCursor = the_game->RectSnapCoords(initialDrawPoint, snappedCursor);
+
+			}
+			draw_debug_info(vid_buf, initialDrawPoint.X, initialDrawPoint.Y, x, y, snappedCursor.X, snappedCursor.Y);
 		}
 
 		if (saveDataOpen)
@@ -2169,17 +2191,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 
 		sdl_wheel = 0;
 
-		mx = x;
-		my = y;
-		//change mouse position while it is in a zoom window
-		//tmpMouseInZoom is used later, so that it only interrupts drawing, not things like copying / saving stamps
-		Point cursor = the_game->AdjustCoordinates(Point(x, y));
-		mx = cursor.X;
-		my = cursor.Y;
-		bool tmpMouseInZoom = false;
-		if (x >= 0 && y >= 0 && x < XRES && y < YRES)
-			tmpMouseInZoom = (x != mx || y != my);
-
 		if (b && !bq && x>=(XRES-19-new_message_len) &&
 		        x<=(XRES-14) && y>=(YRES-37) && y<=(YRES-24) && svf_messages)
 		{
@@ -2238,7 +2249,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		{
 			UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
 
-			if (tmpMouseInZoom != mouseInZoom && !lm)
+			/*if (tmpMouseInZoom != mouseInZoom && !lm)
 				b = lb = 0;
 			else if ((y<YRES && x<XRES) || lb)// mouse is in playing field
 			{
@@ -2310,7 +2321,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 						if (!((sdl_mod&(KMOD_CTRL|KMOD_META)) && (sdl_mod&KMOD_SHIFT)))
 							lb = 0;
 						else
-							activeTool->FloodFill(currentBrush, Point(mx, my));
+							activeTool->FloodFill(globalSim, currentBrush, Point(mx, my));
 					}
 					//while mouse is held down, this draws lines between previous and current positions
 					else if (!lm)
@@ -2319,7 +2330,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 							toolStrength = 10.0f;
 						else if (sdl_mod & (KMOD_CTRL|KMOD_META))
 							toolStrength = .1f;
-						activeTool->DrawLine(currentBrush, Point(lx, ly), Point(mx, my), true);
+						activeTool->DrawLine(globalSim, currentBrush, Point(lx, ly), Point(mx, my), true, toolStrength);
 						lx = mx;
 						ly = my;
 					}
@@ -2346,13 +2357,13 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					else if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (sdl_mod & (KMOD_SHIFT)) && (((ToolTool*)activeTool)->GetID() == -1 || ((ToolTool*)activeTool)->GetID() == TOOL_PROP))
 					{
 						ctrlzSnapshot();
-						activeTool->FloodFill(currentBrush, Point(mx, my));
+						activeTool->FloodFill(globalSim, currentBrush, Point(mx, my));
 						lm = 3;
 					}
 					//sample
 					else if (((sdl_mod & (KMOD_ALT)) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_META))) || b==SDL_BUTTON_MIDDLE)
 					{
-						activeTools[activeToolID] = activeTool->Sample(Point(mx, my));
+						activeTools[activeToolID] = activeTool->Sample(globalSim, Point(mx, my));
 						lb = 0;
 					}
 					else //normal click, spawn element
@@ -2366,14 +2377,14 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 						else if (sdl_mod & (KMOD_CTRL|KMOD_META))
 							toolStrength = .1f;
 
-						activeTool->DrawPoint(currentBrush, Point(mx, my));
+						activeTool->DrawPoint(globalSim, currentBrush, Point(mx, my), toolStrength);
 					}
 				}
-			}
+			}*/
 		}
 		else
 		{
-			if (lb)
+			/*if (lb)
 			{
 				activeToolID = ((lb&1) || lb == 2) ? 0 : 1;
 				Tool* activeTool = activeTools[activeToolID];
@@ -2387,69 +2398,23 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 							activeTool = GetToolFromIdentifier("DEFAULT_DECOR_CLR");
 
 						if (lm == 1)
-							activeTool->DrawLine(currentBrush, Point(lx, ly), Point(line_x, line_y), false);
+							activeTool->DrawLine(globalSim, currentBrush, Point(lx, ly), Point(line_x, line_y), false, 1.0f);
 						else if (lm == 2)
-							activeTool->DrawRect(currentBrush, Point(lx, ly), Point(line_x, line_y));
+							activeTool->DrawRect(globalSim, currentBrush, Point(lx, ly), Point(line_x, line_y));
 						lm = 0;
 					}
 				}
 				else
 				{
 					//plop tool (STKM, STKM2, FIGH)
-					activeTool->Click(Point(lx, ly));
+					activeTool->Click(globalSim, Point(lx, ly));
 				}
 			}
 			else if (bq)
 			{
-				//place a moved sign
-				if (MSIGN != -1)
-					MSIGN = -1;
-				//ctrl+click moves a sign
-				else if (sdl_mod&KMOD_CTRL)
-				{
-					int signID = InsideSign(mx, my, true);
-					if (signID != -1)
-						MSIGN = signID;
-				}
-				//link signs are clicked from here
-				else
-				{
-					bool signTool = ((ToolTool*)activeTools[activeToolID])->GetID() == TOOL_SIGN;
-					if (!signTool || bq != -1)
-					{
-						int signID = InsideSign(mx, my, false);
-						if (signID != -1)
-						{
-							//this is a hack so we can edit clickable signs when sign tool is selected (normal signs are handled in activeTool->Click())
-							if (signTool)
-								openSign = true;
-							else if (signs[signID]->GetType() == Sign::Spark)
-							{
-								Point realPos = signs[signID]->GetRealPos();
-								if (pmap[realPos.Y][realPos.X])
-									globalSim->spark_all_attempt(pmap[realPos.Y][realPos.X]>>8, realPos.X, realPos.Y);
-							}
-							else if (signs[signID]->GetType() == Sign::SaveLink)
-							{
-								open_ui(vid_buf, (char*)signs[signID]->GetLinkText().c_str(), 0, 0);
-							}
-							else if (signs[signID]->GetType() == Sign::ThreadLink)
-							{
-								Platform::OpenLink("http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=" + signs[signID]->GetLinkText());
-							}
-							else if (signs[signID]->GetType() == Sign::SearchLink)
-							{
-								strncpy(search_expr, signs[signID]->GetLinkText().c_str(), 255);
-								search_own = 0;
-								search_ui(vid_buf);
-							}
-						}
-					}
-				}
-
 
 			}
-			lb = 0;
+			lb = 0;*/
 		}
 		mouseInZoom = tmpMouseInZoom;
 

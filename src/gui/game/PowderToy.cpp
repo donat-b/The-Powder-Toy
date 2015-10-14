@@ -14,6 +14,7 @@
 #include "update.h"
 
 #include "common/Platform.h"
+#include "game/Brush.h"
 #include "game/Download.h"
 #include "game/Menus.h"
 #include "game/Sign.h"
@@ -48,14 +49,18 @@ PowderToy::PowderToy():
 	mouseCanceled(false),
 	numNotifications(0),
 	voteDownload(NULL),
+	drawState(POINTS),
 	isMouseDown(false),
 	isStampMouseDown(false),
+	toolIndex(0),
+	toolStrength(1.0f),
+	lastDrawPoint(Point(0, 0)),
+	initialDrawPoint(Point(0, 0)),
 	ctrlHeld(false),
 	shiftHeld(false),
 	altHeld(false),
-	drawState(POINTS),
-	lastDrawPoint(Point(0, 0)),
-	toolIndex(0),
+	mouseInZoom(false),
+	skipDraw(false),
 	placingZoom(false),
 	placingZoomTouch(false),
 	zoomEnabled(false),
@@ -634,9 +639,9 @@ void PowderToy::UpdateDrawMode()
 	{
 		int tool = ((ToolTool*)activeTools[toolIndex])->GetID();
 		if (tool == -1 || tool == TOOL_PROP)
-			drawState = POINTS;
-		else
 			drawState = FILL;
+		else
+			drawState = POINTS;
 	}
 	else if (ctrlHeld)
 		drawState = RECT;
@@ -644,6 +649,38 @@ void PowderToy::UpdateDrawMode()
 		drawState = LINE;
 	else
 		drawState = POINTS;
+}
+
+void PowderToy::UpdateToolStrength()
+{
+	if (shiftHeld)
+		toolStrength = 10.0f;
+	else if (ctrlHeld)
+		toolStrength = .1f;
+	else
+		toolStrength = 1.0f;
+}
+
+Point PowderToy::LineSnapCoords(Point point1, Point point2)
+{
+	Point diff = point2 - point1;
+	if (abs(diff.X / 2) > abs(diff.Y)) // vertical
+		return point1 + Point(diff.X, 0);
+	else if(abs(diff.X) < abs(diff.Y / 2)) // horizontal
+		return point1 + Point(0, diff.Y);
+	else if(diff.X * diff.Y > 0) // NW-SE
+		return point1 + Point((diff.X + diff.Y)/2, (diff.X + diff.Y)/2);
+	else // SW-NE
+		return point1 + Point((diff.X - diff.Y)/2, (diff.Y - diff.X)/2);
+}
+
+Point PowderToy::RectSnapCoords(Point point1, Point point2)
+{
+	Point diff = point2 - point1;
+	if (diff.X * diff.Y > 0) // NW-SE
+		return point1 + Point((diff.X + diff.Y)/2, (diff.X + diff.Y)/2);
+	else // SW-NE
+		return point1 + Point((diff.X - diff.Y)/2, (diff.Y - diff.X)/2);
 }
 
 bool PowderToy::MouseClicksIgnored()
@@ -711,6 +748,7 @@ void PowderToy::ResetStampState()
 	}
 	state = NONE;
 	isStampMouseDown = false;
+	isMouseDown = false; // do this here also because we always want to cancel mouse drawing when going into a new stamp state
 }
 
 void PowderToy::HideZoomWindow()
@@ -751,6 +789,28 @@ void PowderToy::OnTick(uint32_t ticks)
 	if (!loginFinished)
 		loginCheckTicks = (loginCheckTicks+1)%51;
 	waitToDraw = false;
+
+	if (skipDraw)
+		skipDraw = false;
+	else if (isMouseDown)
+	{
+		if (drawState == POINTS)
+		{
+			activeTools[toolIndex]->DrawLine(globalSim, currentBrush, lastDrawPoint, cursor, true, toolStrength);
+			lastDrawPoint = cursor;
+		}
+		else if (drawState == LINE)
+		{
+			if (((ToolTool*)activeTools[toolIndex])->GetID() == TOOL_WIND)
+			{
+				activeTools[toolIndex]->DrawLine(globalSim, currentBrush, lastDrawPoint, cursor, false, toolStrength);
+			}
+		}
+		else if (drawState == FILL)
+		{
+			activeTools[toolIndex]->FloodFill(globalSim, currentBrush, cursor);
+		}
+	}
 
 	if (versionCheck && versionCheck->CheckDone())
 	{
@@ -1095,6 +1155,7 @@ void PowderToy::OnMouseMove(int x, int y, Point difference)
 {
 	mouse = Point(x, y);
 	cursor = AdjustCoordinates(mouse);
+	bool tmpMouseInZoom = (globalSim->InBounds(x, y) && x != cursor.X || y != cursor.Y);
 	if (placingZoom)
 		UpdateZoomCoordinates(mouse);
 	if (state == LOAD)
@@ -1120,6 +1181,32 @@ void PowderToy::OnMouseMove(int x, int y, Point difference)
 				saveSize.Y = 0;
 			else if (savePos.Y + saveSize.Y > YRES)
 				saveSize.Y = YRES - savePos.Y;
+		}
+	}
+	else if (isMouseDown)
+	{
+		if (mouseInZoom == tmpMouseInZoom)
+		{
+			if (drawState == POINTS)
+			{
+				activeTools[toolIndex]->DrawLine(globalSim, currentBrush, lastDrawPoint, cursor, true, toolStrength);
+				lastDrawPoint = cursor;
+				skipDraw = true;
+			}
+			else if (drawState == FILL)
+			{
+				activeTools[toolIndex]->FloodFill(globalSim, currentBrush, cursor);
+				skipDraw = true;
+			}
+		}
+		else if (drawState == POINTS || drawState == FILL)
+		{
+			isMouseDown = false;
+			drawState = POINTS;
+#ifdef LUACONSOLE
+			// special lua mouse event
+			luacon_mouseevent(x, y, 0, LUACON_MUPZOOM, 0);
+#endif
 		}
 	}
 
@@ -1195,6 +1282,35 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 			isStampMouseDown = true;
 		}
 	}
+	else if (InsideSign(cursor.X, cursor.Y, ctrlHeld) != -1 || MSIGN != -1)
+	{
+		// do nothing
+	}
+	else if (globalSim->InBounds(mouse.X, mouse.Y))
+	{
+		toolIndex = ((button&1) || button == 2) ? 0 : 1;
+		UpdateDrawMode();
+		// this was in old drawing code, still needed?
+		//if (activeTools[0]->GetType() == DECO_TOOL && button == 4)
+		//	activeTools[1] = GetToolFromIdentifier("DEFAULT_DECOR_CLR");
+
+		isMouseDown = true;
+		if (drawState == LINE || drawState == RECT)
+		{
+			initialDrawPoint = cursor;
+		}
+		else if (drawState == POINTS)
+		{
+			ctrlzSnapshot();
+			lastDrawPoint = cursor;
+			activeTools[toolIndex]->DrawPoint(globalSim, currentBrush, cursor, toolStrength);
+		}
+		else if (drawState == FILL)
+		{
+			ctrlzSnapshot();
+			activeTools[toolIndex]->FloodFill(globalSim, currentBrush, cursor);
+		}
+	}
 }
 
 bool PowderToy::BeforeMouseUp(int x, int y, unsigned char button)
@@ -1212,6 +1328,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 {
 	mouse = Point(x, y);
 	cursor = AdjustCoordinates(mouse);
+
 	if (placingZoom)
 	{
 		placingZoom = false;
@@ -1224,6 +1341,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 	}
 	else if (state == LOAD)
 	{
+		UpdateDrawMode(); // LOAD branch always returns early, so run this here
 		if (button == 4 || y >= YRES+MENUSIZE-16)
 		{
 			ResetStampState();
@@ -1282,47 +1400,133 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 		ctrlzSnapshot();
 		parse_save(stampData, stampSize, 0, loadPos.X, loadPos.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 		ResetStampState();
+		return;
 	}
 	else if (state == SAVE || state == COPY || state == CUT)
 	{
+		UpdateDrawMode(); // SAVE/COPY/CUT branch always returns early, so run this here
 		// already placed initial coordinate. If they haven't ... no idea what happened here
 		// mouse could be 4 if strange stuff with zoom window happened so do nothing and reset state in that case too
-		if (isStampMouseDown && button == 1)
+		if (button != 1)
 		{
-			// make sure size isn't negative
-			if (saveSize.X < 0)
+			ResetStampState();
+			return;
+		}
+		if (!isStampMouseDown)
+			return;
+
+		// make sure size isn't negative
+		if (saveSize.X < 0)
+		{
+			savePos.X = savePos.X + saveSize.X - 1;
+			saveSize.X = abs(saveSize.X) + 2;
+		}
+		if (saveSize.Y < 0)
+		{
+			savePos.Y = savePos.Y + saveSize.Y - 1;
+			saveSize.Y = abs(saveSize.Y) + 2;
+		}
+		if (saveSize.X > 0 && saveSize.Y > 0)
+		{
+			switch (state)
 			{
-				savePos.X = savePos.X + saveSize.X - 1;
-				saveSize.X = abs(saveSize.X) + 2;
+			case COPY:
+				free(clipboardData);
+				clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+				break;
+			case CUT:
+				free(clipboardData);
+				clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+				if (clipboardData)
+					clear_area(savePos.X, savePos.Y, saveSize.X, saveSize.Y);
+				break;
+			case SAVE:
+				// function returns the stamp name which we don't want, so free it
+				free(stamp_save(savePos.X, savePos.Y, saveSize.X, saveSize.Y));
+				break;
 			}
-			if (saveSize.Y < 0)
+		}
+		ResetStampState();
+		return;
+	}
+	else if (MSIGN != -1)
+		MSIGN = -1;
+	else if (isMouseDown)
+	{
+		if (drawState == POINTS)
+		{
+			activeTools[toolIndex]->DrawLine(globalSim, currentBrush, lastDrawPoint, cursor, true, toolStrength);
+			activeTools[toolIndex]->Click(globalSim, cursor);
+		}
+		else if (drawState == LINE)
+		{
+			if (altHeld)
+				cursor = LineSnapCoords(initialDrawPoint, cursor);
+			ctrlzSnapshot();
+			activeTools[toolIndex]->DrawLine(globalSim, currentBrush, initialDrawPoint, cursor, false, 1.0f);
+		}
+		else if (drawState == RECT)
+		{
+			if (altHeld)
+				cursor = RectSnapCoords(initialDrawPoint, cursor);
+			ctrlzSnapshot();
+			activeTools[toolIndex]->DrawRect(globalSim, currentBrush, initialDrawPoint, cursor);
+		}
+		else if (drawState == FILL)
+		{
+			activeTools[toolIndex]->FloodFill(globalSim, currentBrush, cursor);
+		}
+		isMouseDown = false;
+	}
+	else
+	{
+		// ctrl+click moves a sign
+		if (ctrlHeld)
+		{
+			int signID = InsideSign(cursor.X, cursor.Y, true);
+			if (signID != -1)
+				MSIGN = signID;
+		}
+		// link signs are clicked from here
+		else
+		{
+			toolIndex = ((button&1) || button == 2) ? 0 : 1;
+			bool signTool = ((ToolTool*)activeTools[toolIndex])->GetID() == TOOL_SIGN;
+			if (!signTool || button != -1)
 			{
-				savePos.Y = savePos.Y + saveSize.Y - 1;
-				saveSize.Y = abs(saveSize.Y) + 2;
-			}
-			if (saveSize.X > 0 && saveSize.Y > 0)
-			{
-				switch (state)
+				int signID = InsideSign(cursor.X, cursor.Y, false);
+				if (signID != -1)
 				{
-				case COPY:
-					free(clipboardData);
-					clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts);
-					break;
-				case CUT:
-					free(clipboardData);
-					clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts);
-					if (clipboardData)
-						clear_area(savePos.X, savePos.Y, saveSize.X, saveSize.Y);
-					break;
-				case SAVE:
-					// function returns the stamp name which we don't want, so free it
-					free(stamp_save(savePos.X, savePos.Y, saveSize.X, saveSize.Y));
-					break;
+					// this is a hack so we can edit clickable signs when sign tool is selected (normal signs are handled in activeTool->Click())
+					if (signTool)
+						openSign = true;
+					else if (signs[signID]->GetType() == Sign::Spark)
+					{
+						Point realPos = signs[signID]->GetRealPos();
+						if (pmap[realPos.Y][realPos.X])
+							globalSim->spark_all_attempt(pmap[realPos.Y][realPos.X]>>8, realPos.X, realPos.Y);
+					}
+					else if (signs[signID]->GetType() == Sign::SaveLink)
+					{
+						open_ui(vid_buf, (char*)signs[signID]->GetLinkText().c_str(), 0, 0);
+					}
+					else if (signs[signID]->GetType() == Sign::ThreadLink)
+					{
+						Platform::OpenLink("http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=" + signs[signID]->GetLinkText());
+					}
+					else if (signs[signID]->GetType() == Sign::SearchLink)
+					{
+						strncpy(search_expr, signs[signID]->GetLinkText().c_str(), 255);
+						search_own = 0;
+						search_ui(vid_buf);
+					}
 				}
 			}
-			ResetStampState();
 		}
 	}
+	// update the drawing mode for the next line
+	// since ctrl/shift state may have changed since we started drawing
+	UpdateDrawMode();
 }
 
 bool PowderToy::BeforeMouseWheel(int x, int y, int d)
@@ -1373,8 +1577,6 @@ bool PowderToy::BeforeKeyPress(int key, unsigned short character, unsigned short
 
 void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short modifiers)
 {
-	if (modifiers)
-		ctrlHeld = true;
 	switch (key)
 	{
 	case SDLK_LCTRL:
@@ -1383,10 +1585,12 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 	case SDLK_RMETA:
 		ctrlHeld = true;
 		openBrowserButton->SetTooltipText("Open a simulation from your hard drive \bg(ctrl+o)");
+		UpdateToolStrength();
 		break;
 	case SDLK_LSHIFT:
 	case SDLK_RSHIFT:
 		shiftHeld = true;
+		UpdateToolStrength();
 		break;
 	case SDLK_LALT:
 	case SDLK_RALT:
@@ -1614,10 +1818,12 @@ void PowderToy::OnKeyRelease(int key, unsigned short character, unsigned short m
 	case SDLK_RMETA:
 		ctrlHeld = false;
 		openBrowserButton->SetTooltipText("Find & open a simulation");
+		UpdateToolStrength();
 		break;
 	case SDLK_LSHIFT:
 	case SDLK_RSHIFT:
 		shiftHeld = false;
+		UpdateToolStrength();
 		break;
 	case SDLK_LALT:
 	case SDLK_RALT:
@@ -1649,4 +1855,5 @@ void PowderToy::OnDefocus()
 	lastMouseDown = heldKey = heldAscii = releasedKey = mouseWheel = 0; // temporary
 	ResetStampState();
 	UpdateDrawMode();
+	UpdateToolStrength();
 }

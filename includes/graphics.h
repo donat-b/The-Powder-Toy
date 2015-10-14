@@ -203,7 +203,7 @@ void SetSDLVideoMode(int width, int height);
 
 int set_scale(int scale, int kiosk);
 
-int draw_debug_info(pixel* vid, int lm, int lx, int ly, int cx, int cy, int line_x, int line_y);
+int draw_debug_info(pixel* vid, int lx, int ly, int cx, int cy, int line_x, int line_y);
 
 void init_display_modes();
 void update_display_modes();

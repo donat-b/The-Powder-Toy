@@ -27,12 +27,12 @@ Tool::Tool(int toolType, int toolID, std::string toolIdentifier):
 
 }
 
-int Tool::DrawPoint(Brush* brush, Point position)
+int Tool::DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength)
 {
-	return globalSim->CreateParts(position.X, position.Y, ID, get_brush_flags(), true, brush);
+	return sim->CreateParts(position.X, position.Y, ID, get_brush_flags(), true, brush);
 }
 
-void Tool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
+void Tool::DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength)
 {
 	if (held)
 	{
@@ -46,10 +46,10 @@ void Tool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 		if (ID == PT_LIGH)
 			return;
 	}
-	globalSim->CreateLine(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, get_brush_flags(), brush);
+	sim->CreateLine(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, get_brush_flags(), brush);
 }
 
-void Tool::DrawRect(Brush* brush, Point startPos, Point endPos)
+void Tool::DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos)
 {
 	switch (ID)
 	{
@@ -58,16 +58,16 @@ void Tool::DrawRect(Brush* brush, Point startPos, Point endPos)
 	case PT_TESC:
 	{
 		int radiusInfo = brush->GetRadius().X*4+brush->GetRadius().Y*4+7;
-		globalSim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID | (radiusInfo<<8), get_brush_flags());
+		sim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID | (radiusInfo<<8), get_brush_flags());
 		break;
 	}
 	default:
-		globalSim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, get_brush_flags());
+		sim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, get_brush_flags());
 		break;
 	}
 }
 
-int Tool::FloodFill(Brush* brush, Point position)
+int Tool::FloodFill(Simulation *sim, Brush *brush, Point position)
 {
 	switch (ID)
 	{
@@ -80,19 +80,19 @@ int Tool::FloodFill(Brush* brush, Point position)
 	case PT_TESC:
 	{
 		int radiusInfo = brush->GetRadius().X*4+brush->GetRadius().Y*4+7;
-		return globalSim->FloodParts(position.X, position.Y, ID | (radiusInfo<<8), -1, get_brush_flags());
+		return sim->FloodParts(position.X, position.Y, ID | (radiusInfo<<8), -1, get_brush_flags());
 	}
 	default:
-		return globalSim->FloodParts(position.X, position.Y, ID, -1, get_brush_flags());
+		return sim->FloodParts(position.X, position.Y, ID, -1, get_brush_flags());
 	}
 }
 
-void Tool::Click(Point position)
+void Tool::Click(Simulation *sim, Point position)
 {
 
 }
 
-Tool* Tool::Sample(Point position)
+Tool* Tool::Sample(Simulation *sim, Point position)
 {
 	if (position.Y < 0 || position.Y >= YRES || position.X < 0 || position.X >= XRES)
 		return this;
@@ -107,7 +107,7 @@ Tool* Tool::Sample(Point position)
 		}
 		else
 		{
-			return GetToolFromIdentifier(globalSim->elements[sample&0xFF].Identifier);
+			return GetToolFromIdentifier(sim->elements[sample&0xFF].Identifier);
 		}
 	}
 	else if (bmap[position.Y/CELL][position.X/CELL] > 0 && bmap[position.Y/CELL][position.X/CELL] < WALLCOUNT)
@@ -139,27 +139,27 @@ PlopTool::PlopTool(int elementID):
 {
 
 }
-int PlopTool::DrawPoint(Brush* brush, Point position)
+int PlopTool::DrawPoint(Simulation *sim, Brush* brush, Point position, float toolStrength)
 {
 	return 0;
 }
-void PlopTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
+void PlopTool::DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength)
 {
 
 }
 
-void PlopTool::DrawRect(Brush* brush, Point startPos, Point endPos)
+void PlopTool::DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos)
 {
 
 }
 
-int PlopTool::FloodFill(Brush* brush, Point position)
+int PlopTool::FloodFill(Simulation *sim, Brush *brush, Point position)
 {
 	return 0;
 }
-void PlopTool::Click(Point position)
+void PlopTool::Click(Simulation *sim, Point position)
 {
-	globalSim->part_create(-1, position.X, position.Y, ID);
+	sim->part_create(-1, position.X, position.Y, ID);
 }
 
 
@@ -177,21 +177,21 @@ int GolTool::GetID()
 	else
 		return -1;
 }
-int GolTool::DrawPoint(Brush* brush, Point position)
+int GolTool::DrawPoint(Simulation *sim, Brush* brush, Point position, float toolStrength)
 {
-	return globalSim->CreateParts(position.X, position.Y, PT_LIFE | (ID<<8), get_brush_flags(), true, brush);
+	return sim->CreateParts(position.X, position.Y, PT_LIFE | (ID<<8), get_brush_flags(), true, brush);
 }
-void GolTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
+void GolTool::DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength)
 {
-	globalSim->CreateLine(startPos.X, startPos.Y, endPos.X, endPos.Y, PT_LIFE | (ID<<8), get_brush_flags(), brush);
+	sim->CreateLine(startPos.X, startPos.Y, endPos.X, endPos.Y, PT_LIFE | (ID<<8), get_brush_flags(), brush);
 }
-void GolTool::DrawRect(Brush* brush, Point startPos, Point endPos)
+void GolTool::DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos)
 {
-	globalSim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, PT_LIFE | (ID<<8), get_brush_flags());
+	sim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, PT_LIFE | (ID<<8), get_brush_flags());
 }
-int GolTool::FloodFill(Brush* brush, Point position)
+int GolTool::FloodFill(Simulation *sim, Brush *brush, Point position)
 {
-	return globalSim->FloodParts(position.X, position.Y, PT_LIFE+(ID<<8), -1, get_brush_flags());
+	return sim->FloodParts(position.X, position.Y, PT_LIFE+(ID<<8), -1, get_brush_flags());
 }
 
 
@@ -200,22 +200,22 @@ WallTool::WallTool(int wallID):
 {
 
 }
-int WallTool::DrawPoint(Brush* brush, Point position)
+int WallTool::DrawPoint(Simulation *sim, Brush* brush, Point position, float toolStrength)
 {
 	int rx = brush->GetRadius().X/CELL;
 	int ry = brush->GetRadius().Y/CELL;
 	int x = position.X/CELL;
 	int y = position.Y/CELL;
-	globalSim->CreateWallBox(x-rx, y-ry, x+rx, y+ry, ID);
+	sim->CreateWallBox(x-rx, y-ry, x+rx, y+ry, ID);
 	return 1;
 }
-void WallTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
+void WallTool::DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength)
 {
 	if (!held && ID == WL_FAN && bmap[startPos.Y/CELL][startPos.X/CELL] == WL_FAN)
 	{
 		float nfvx = (endPos.X-startPos.X)*0.005f;
 		float nfvy = (endPos.Y-startPos.Y)*0.005f;
-		globalSim->FloodWalls(startPos.X/CELL, startPos.Y/CELL, WL_FANHELPER, WL_FAN);
+		sim->FloodWalls(startPos.X/CELL, startPos.Y/CELL, WL_FANHELPER, WL_FAN);
 		for (int j=0; j<YRES/CELL; j++)
 			for (int i=0; i<XRES/CELL; i++)
 				if (bmap[j][i] == WL_FANHELPER)
@@ -227,16 +227,16 @@ void WallTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
 	}
 	else
 	{
-		globalSim->CreateWallLine(startPos.X/CELL, startPos.Y/CELL, endPos.X/CELL, endPos.Y/CELL, brush->GetRadius().X/CELL, brush->GetRadius().Y/CELL, ID);
+		sim->CreateWallLine(startPos.X/CELL, startPos.Y/CELL, endPos.X/CELL, endPos.Y/CELL, brush->GetRadius().X/CELL, brush->GetRadius().Y/CELL, ID);
 	}
 }
-void WallTool::DrawRect(Brush* brush, Point startPos, Point endPos)
+void WallTool::DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos)
 {
-	globalSim->CreateWallBox(startPos.X/CELL, startPos.Y/CELL, endPos.X/CELL, endPos.Y/CELL, ID);
+	sim->CreateWallBox(startPos.X/CELL, startPos.Y/CELL, endPos.X/CELL, endPos.Y/CELL, ID);
 }
-int WallTool::FloodFill(Brush* brush, Point position)
+int WallTool::FloodFill(Simulation *sim, Brush *brush, Point position)
 {
-	return globalSim->FloodWalls(position.X/CELL, position.Y/CELL, ID, -1);
+	return sim->FloodWalls(position.X/CELL, position.Y/CELL, ID, -1);
 }
 
 StreamlineTool::StreamlineTool():
@@ -244,16 +244,16 @@ StreamlineTool::StreamlineTool():
 {
 
 }
-int StreamlineTool::DrawPoint(Brush* brush, Point position)
+int StreamlineTool::DrawPoint(Simulation *sim, Brush* brush, Point position, float toolStrength)
 {
-	globalSim->CreateWall(position.X, position.Y, ID);
+	sim->CreateWall(position.X, position.Y, ID);
 	return 0;
 }
-void StreamlineTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
+void StreamlineTool::DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength)
 {
-	globalSim->CreateWallLine(startPos.X/CELL, startPos.Y/CELL, endPos.X/CELL, endPos.Y/CELL, 0, 0, ID);
+	sim->CreateWallLine(startPos.X/CELL, startPos.Y/CELL, endPos.X/CELL, endPos.Y/CELL, 0, 0, ID);
 }
-int StreamlineTool::FloodFill(Brush* brush, Point position)
+int StreamlineTool::FloodFill(Simulation *sim, Brush *brush, Point position)
 {
 	return 0;
 }
@@ -263,30 +263,32 @@ ToolTool::ToolTool(int toolID):
 {
 
 }
-int ToolTool::DrawPoint(Brush* brush, Point position)
+int ToolTool::DrawPoint(Simulation *sim, Brush* brush, Point position, float toolStrength)
 {
 	if (ID == TOOL_SIGN)
 		return 1;
-	globalSim->CreateToolBrush(position.X, position.Y, ID, toolStrength, brush);
+	sim->CreateToolBrush(position.X, position.Y, ID, toolStrength, brush);
 	return 0;
 }
-void ToolTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
-{
-	if ((ID == TOOL_WIND && !held) || ID == TOOL_SIGN)
-		return;
-	globalSim->CreateToolLine(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, toolStrength, brush);
-}
-void ToolTool::DrawRect(Brush* brush, Point startPos, Point endPos)
+void ToolTool::DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength)
 {
 	if (ID == TOOL_SIGN)
 		return;
-	globalSim->CreateToolBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, toolStrength);
+	if (ID == TOOL_WIND)
+		toolStrength = held ? 0.01f : 0.002f;
+	sim->CreateToolLine(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, toolStrength, brush);
 }
-int ToolTool::FloodFill(Brush* brush, Point position)
+void ToolTool::DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos)
+{
+	if (ID == TOOL_SIGN)
+		return;
+	sim->CreateToolBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, toolStrength);
+}
+int ToolTool::FloodFill(Simulation *sim, Brush *brush, Point position)
 {
 	return 0;
 }
-void ToolTool::Click(Point position)
+void ToolTool::Click(Simulation *sim, Point position)
 {
 	if (ID == TOOL_SIGN)
 	{
@@ -301,22 +303,22 @@ propOffset(0)
 {
 	propValue.Integer = 0;
 }
-int PropTool::DrawPoint(Brush* brush, Point position)
+int PropTool::DrawPoint(Simulation *sim, Brush* brush, Point position, float toolStrength)
 {
-	globalSim->CreatePropBrush(position.X, position.Y, propType, propValue, propOffset, brush);
+	sim->CreatePropBrush(position.X, position.Y, propType, propValue, propOffset, brush);
 	return 0;
 }
-void PropTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
+void PropTool::DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength)
 {
-	globalSim->CreatePropLine(startPos.X, startPos.Y, endPos.X, endPos.Y, propType, propValue, propOffset, brush);
+	sim->CreatePropLine(startPos.X, startPos.Y, endPos.X, endPos.Y, propType, propValue, propOffset, brush);
 }
-void PropTool::DrawRect(Brush* brush, Point startPos, Point endPos)
+void PropTool::DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos)
 {
-	globalSim->CreatePropBox(startPos.X, startPos.Y, endPos.X, endPos.Y, propType, propValue, propOffset);
+	sim->CreatePropBox(startPos.X, startPos.Y, endPos.X, endPos.Y, propType, propValue, propOffset);
 }
-int PropTool::FloodFill(Brush* brush, Point position)
+int PropTool::FloodFill(Simulation *sim, Brush *brush, Point position)
 {
-	return globalSim->FloodProp(position.X, position.Y, propType, propValue, propOffset);
+	return sim->FloodProp(position.X, position.Y, propType, propValue, propOffset);
 }
 
 
@@ -325,29 +327,29 @@ Tool(DECO_TOOL, decoID, decoTypes[decoID].identifier)
 {
 
 }
-int DecoTool::DrawPoint(Brush* brush, Point position)
+int DecoTool::DrawPoint(Simulation *sim, Brush* brush, Point position, float toolStrength)
 {
 	ARGBColour col = (ID == DECO_CLEAR) ? COLARGB(0, 0, 0, 0) : decocolor;
-	globalSim->CreateDecoBrush(position.X, position.Y, ID, col, brush);
+	sim->CreateDecoBrush(position.X, position.Y, ID, col, brush);
 	return 0;
 }
-void DecoTool::DrawLine(Brush* brush, Point startPos, Point endPos, bool held)
+void DecoTool::DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength)
 {
 	ARGBColour col = (ID == DECO_CLEAR) ? COLARGB(0, 0, 0, 0) : decocolor;
-	globalSim->CreateDecoLine(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, col, brush);
+	sim->CreateDecoLine(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, col, brush);
 }
-void DecoTool::DrawRect(Brush* brush, Point startPos, Point endPos)
+void DecoTool::DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos)
 {
 	ARGBColour col = (ID == DECO_CLEAR) ? COLARGB(0, 0, 0, 0) : decocolor;
-	globalSim->CreateDecoBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, col);
+	sim->CreateDecoBox(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, col);
 }
-int DecoTool::FloodFill(Brush* brush, Point position)
+int DecoTool::FloodFill(Simulation *sim, Brush *brush, Point position)
 {
 	pixel rep = vid_buf[position.X+position.Y*(XRES+BARSIZE)];
 	unsigned int col = (ID == DECO_CLEAR) ? COLARGB(0, 0, 0, 0) : decocolor;
-	globalSim->FloodDeco(vid_buf, position.X, position.Y, col, PIXCONV(rep));
+	sim->FloodDeco(vid_buf, position.X, position.Y, col, PIXCONV(rep));
 }
-Tool* DecoTool::Sample(Point position)
+Tool* DecoTool::Sample(Simulation *sim, Point position)
 {
 	if (position.Y < 0 || position.Y >= YRES || position.X < 0 || position.X >= XRES)
 		return this;
