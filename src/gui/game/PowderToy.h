@@ -13,6 +13,7 @@ class PowderToy : public Window_
 {
 public:
 	enum StampState { NONE, LOAD, COPY, CUT, SAVE };
+	enum DrawState { POINTS, LINE, RECT, FILL };
 
 private:
 	Point mouse;
@@ -31,6 +32,16 @@ private:
 	std::string changelog;
 	Download *sessionCheck; // really a tpt++ version check but it does session too and has nice things
 	Download *voteDownload;
+
+	// drawing stuff
+	bool isMouseDown;
+	bool isStampMouseDown;
+	bool ctrlHeld;
+	bool shiftHeld;
+	bool altHeld;
+	DrawState drawState;
+	Point lastDrawPoint;
+	int toolIndex;
 
 	// zoom
 	bool placingZoom;
@@ -59,7 +70,6 @@ private:
 #endif
 
 	// saving stamps
-	bool savedInitial;
 	Point savePos;
 	Point saveSize;
 	void *clipboardData;
@@ -101,6 +111,9 @@ public:
 	void SetInfoTip(std::string infotip);
 	ToolTip *GetQTip(std::string qtip, int y);
 
+	// drawing stuff
+	void UpdateDrawMode();
+
 	// zoom window stuff
 	bool ZoomWindowShown() { return placingZoom || zoomEnabled; }
 	bool PlacingZoomWindow() { return placingZoom; }
@@ -113,13 +126,14 @@ public:
 
 	// stamp stuff (so main() can get needed info)
 	void UpdateStampCoordinates(Point cursor, Point offset = Point(0, 0));
-	StampState GetState() { return state; }
+	StampState GetStampState() { return state; }
+	void ResetStampState();
 	Point GetStampPos() { return loadPos; }
 	Point GetStampSize() { return loadSize; }
 	pixel * GetStampImg() { return waitToDraw ? NULL : stampImg; }
 	Point GetSavePos() { return savePos; }
 	Point GetSaveSize() { return saveSize; }
-	bool PlacedInitialStampCoordinate() { return savedInitial; }
+	bool PlacedInitialStampCoordinate() { return isStampMouseDown; }
 
 	void OnTick(uint32_t ticks);
 	void OnDraw(VideoBuffer *buf);
@@ -129,6 +143,7 @@ public:
 	void OnMouseWheel(int x, int y, int d);
 	void OnKeyPress(int key, unsigned short character, unsigned short modifiers);
 	void OnKeyRelease(int key, unsigned short character, unsigned short modifiers);
+	void OnDefocus();
 
 	bool BeforeMouseDown(int x, int y, unsigned char button);
 	bool BeforeMouseUp(int x, int y, unsigned char button);

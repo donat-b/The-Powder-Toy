@@ -3562,6 +3562,7 @@ int sdl_poll(void)
 		{
 			SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 			FPSwait = 2;
+			the_game->OnDefocus();
 		}
 		else
 			SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -8373,6 +8374,7 @@ void simulation_ui(pixel * vid_buf)
 	list.y = y0+135;
 	list.w = 72;
 	list.h = 16;
+	list.focus = 0;
 	list.def = "[air mode]";
 	list.selected = airMode;
 	list.items = airModeList;
@@ -8382,6 +8384,7 @@ void simulation_ui(pixel * vid_buf)
 	list2.y = y0+163;
 	list2.w = 72;
 	list2.h = 16;
+	list2.focus = 0;
 	list2.def = "[gravity mode]";
 	list2.selected = gravityMode;
 	list2.items = gravityModeList;
@@ -8391,6 +8394,7 @@ void simulation_ui(pixel * vid_buf)
 	list3.y = y0+191;
 	list3.w = 72;
 	list3.h = 16;
+	list3.focus = 0;
 	list3.def = "[gravity mode]";
 	list3.selected = edgeMode;
 	list3.items = edgeModeList;

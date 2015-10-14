@@ -23,6 +23,8 @@
 #include "interface/Engine.h"
 #include "interface/Window.h"
 #include "simulation/Simulation.h"
+#include "simulation/Tool.h"
+#include "simulation/ToolNumbers.h"
 
 #include "gui/profile/ProfileViewer.h"
 #include "gui/sign/CreateSign.h"
@@ -46,17 +48,24 @@ PowderToy::PowderToy():
 	mouseCanceled(false),
 	numNotifications(0),
 	voteDownload(NULL),
+	isMouseDown(false),
+	isStampMouseDown(false),
+	ctrlHeld(false),
+	shiftHeld(false),
+	altHeld(false),
+	drawState(POINTS),
+	lastDrawPoint(Point(0, 0)),
+	toolIndex(0),
 	placingZoom(false),
 	placingZoomTouch(false),
 	zoomEnabled(false),
-	zoomedOnPosition(0, 0),
-	zoomWindowPosition(0, 0),
+	zoomedOnPosition(Point(0, 0)),
+	zoomWindowPosition(Point(0, 0)),
 	zoomSize(32),
 	zoomFactor(8),
 	state(NONE),
 	loadPos(Point(0, 0)),
 	loadSize(Point(0, 0)),
-	savedInitial(false),
 	stampData(NULL),
 	stampSize(0),
 	stampImg(NULL),
@@ -354,7 +363,7 @@ PowderToy::PowderToy():
 
 void PowderToy::OpenBrowser()
 {
-	if (heldModifier & (KMOD_CTRL|KMOD_META))
+	if (ctrlHeld)
 		catalogue_ui(vid_buf);
 	else
 		search_ui(vid_buf);
@@ -570,15 +579,7 @@ void PowderToy::SaveStamp(bool alt)
 {
 	if (alt)
 	{
-		// if we are loading a stamp, cancel that and free all memory
-		if (state == LOAD)
-		{
-			free(stampData);
-			free(stampImg);
-			stampImg = NULL;
-			state = NONE;
-			stampMoving = false;
-		}
+		ResetStampState();
 
 		int reorder = 1;
 		int stampID = stamp_ui(vid_buf, &reorder);
@@ -608,25 +609,14 @@ void PowderToy::SaveStamp(bool alt)
 	}
 	else
 	{
-		// if we are loading a stamp, cancel that and free all memory
-		if (state == LOAD)
-		{
-			free(stampData);
-			stampData = NULL;
-			free(stampImg);
-			stampImg = NULL;
-			state = NONE;
-		}
-		else if (state == SAVE || state == COPY || state == CUT)
-		{
-			state = NONE;
-		}
-		else
+		if (state == NONE)
 		{
 			state = SAVE;
-			savedInitial = false;
+			isStampMouseDown = false;
 			ignoreMouseUp = true;
 		}
+		else
+			ResetStampState();
 	}
 }
 
@@ -636,6 +626,24 @@ void PowderToy::SaveStamp(bool alt)
 void PowderToy::ConfirmUpdate()
 {
 	confirm_update(changelog.c_str());
+}
+
+void PowderToy::UpdateDrawMode()
+{
+	if (ctrlHeld && shiftHeld)
+	{
+		int tool = ((ToolTool*)activeTools[toolIndex])->GetID();
+		if (tool == -1 || tool == TOOL_PROP)
+			drawState = POINTS;
+		else
+			drawState = FILL;
+	}
+	else if (ctrlHeld)
+		drawState = RECT;
+	else if (shiftHeld)
+		drawState = LINE;
+	else
+		drawState = POINTS;
 }
 
 bool PowderToy::MouseClicksIgnored()
@@ -687,6 +695,22 @@ void PowderToy::UpdateStampCoordinates(Point cursor, Point offset)
 	loadPos.Y = CELL*((cursor.Y-loadSize.Y/2+CELL/2)/CELL);
 	loadPos -= offset;
 	loadPos.Clamp(Point(0, 0), Point(XRES, YRES)-loadSize);
+}
+
+void PowderToy::ResetStampState()
+{
+	if (state == LOAD)
+	{
+		free(stampData);
+		stampData = NULL;
+		free(stampImg);
+		stampImg = NULL;
+#ifdef TOUCHUI
+		stampMoving = false;
+#endif
+	}
+	state = NONE;
+	isStampMouseDown = false;
 }
 
 void PowderToy::HideZoomWindow()
@@ -883,12 +907,11 @@ void PowderToy::OnTick(uint32_t ticks)
 	// a ton of stuff with the buttons on the bottom row has to be updated
 	// later, this will only be done when an event happens
 	reloadButton->SetEnabled(svf_last ? true : false);
-	bool ctrl = (heldModifier & (KMOD_CTRL|KMOD_META)) ? true : false;
-	openBrowserButton->SetState(ctrl ? Button::INVERTED : Button::NORMAL);
-	saveButton->SetState((svf_login && ctrl) ? Button::INVERTED : Button::NORMAL);
+	openBrowserButton->SetState(ctrlHeld ? Button::INVERTED : Button::NORMAL);
+	saveButton->SetState((svf_login && ctrlHeld) ? Button::INVERTED : Button::NORMAL);
 	std::string saveButtonText = "\x82 ";
 	std::string saveButtonTip;
-	if (!svf_login || ctrl)
+	if (!svf_login || ctrlHeld)
 	{
 		// button text
 		if (svf_fileopen)
@@ -1023,10 +1046,9 @@ void PowderToy::OnTick(uint32_t ticks)
 void PowderToy::OnDraw(VideoBuffer *buf)
 {
 	ARGBColour dotColor = 0;
-	bool ctrl = (heldModifier & (KMOD_CTRL|KMOD_META)) ? true : false;
-	if (svf_fileopen && svf_login && ctrl)
+	if (svf_fileopen && svf_login && ctrlHeld)
 		dotColor = COLPACK(0x000000);
-	else if ((!svf_login && svf_fileopen) || (svf_open && svf_own && !ctrl))
+	else if ((!svf_login && svf_fileopen) || (svf_open && svf_own && !ctrlHeld))
 		dotColor = COLPACK(0xFFFFFF);
 	if (dotColor)
 	{
@@ -1086,7 +1108,7 @@ void PowderToy::OnMouseMove(int x, int y, Point difference)
 	}
 	else if (state == SAVE || state == COPY || state == CUT)
 	{
-		if (savedInitial)
+		if (isStampMouseDown)
 		{
 			saveSize.X = cursor.X + 1 - savePos.X;
 			saveSize.Y = cursor.Y + 1 - savePos.Y;
@@ -1131,9 +1153,14 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 			UpdateZoomCoordinates(mouse);
 		}
 	}
-#ifdef TOUCHUI
+	else if (placingZoom)
+	{
+
+	}
 	else if (state == LOAD)
 	{
+		isStampMouseDown = true;
+#ifdef TOUCHUI
 		stampClickedPos = cursor;
 		initialLoadPos = loadPos;
 		UpdateStampCoordinates(cursor);
@@ -1151,21 +1178,21 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 			else
 				stampQuadrant = (diff.Y > 0) ? 2 : 0; // down : up
 		}
-	}
 #endif
+	}
 	else if (state == SAVE || state == COPY || state == CUT)
 	{
 		// right click cancel
 		if (button == 4)
 		{
-			state = NONE;
+			ResetStampState();
 		}
 		// placing initial coordinate
-		else if (!savedInitial)
+		else if (!isStampMouseDown)
 		{
 			savePos = cursor;
 			saveSize = Point(1, 1);
-			savedInitial = true;
+			isStampMouseDown = true;
 		}
 	}
 }
@@ -1199,16 +1226,13 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 	{
 		if (button == 4 || y >= YRES+MENUSIZE-16)
 		{
-			free(stampData);
-			stampData = NULL;
-			free(stampImg);
-			stampImg = NULL;
-			state = NONE;
-#ifdef TOUCHUI
-			stampMoving = false;
-#endif
+			ResetStampState();
 			return;
 		}
+		// never had a mouse down event while in LOAD state, return
+		if (!isStampMouseDown)
+			return;
+		isStampMouseDown = false;
 #ifdef TOUCHUI
 		if (loadPos != initialLoadPos)
 		{
@@ -1257,17 +1281,13 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 #endif
 		ctrlzSnapshot();
 		parse_save(stampData, stampSize, 0, loadPos.X, loadPos.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-		free(stampData);
-		stampData = NULL;
-		free(stampImg);
-		stampImg = NULL;
-		state = NONE;
+		ResetStampState();
 	}
 	else if (state == SAVE || state == COPY || state == CUT)
 	{
 		// already placed initial coordinate. If they haven't ... no idea what happened here
 		// mouse could be 4 if strange stuff with zoom window happened so do nothing and reset state in that case too
-		if (savedInitial && button == 1)
+		if (isStampMouseDown && button == 1)
 		{
 			// make sure size isn't negative
 			if (saveSize.X < 0)
@@ -1300,8 +1320,8 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 					break;
 				}
 			}
+			ResetStampState();
 		}
-		state = NONE;
 	}
 }
 
@@ -1329,13 +1349,7 @@ void PowderToy::OnMouseWheel(int x, int y, int d)
 
 bool PowderToy::BeforeKeyPress(int key, unsigned short character, unsigned short modifiers)
 {
-	if ((modifiers & (KMOD_CTRL|KMOD_META)) && !(heldModifier & (KMOD_CTRL|KMOD_META)))
-		openBrowserButton->SetTooltipText("Open a simulation from your hard drive \bg(ctrl+o)");
-
 	heldModifier = modifiers;
-	// key -1 is fake event sent in order to update modifiers when in other interfaces
-	if (key == -1)
-		return false;
 	heldKey = key;
 	heldAscii = character;
 	// do nothing when deco textboxes are selected
@@ -1359,6 +1373,27 @@ bool PowderToy::BeforeKeyPress(int key, unsigned short character, unsigned short
 
 void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short modifiers)
 {
+	if (modifiers)
+		ctrlHeld = true;
+	switch (key)
+	{
+	case SDLK_LCTRL:
+	case SDLK_RCTRL:
+	case SDLK_LMETA:
+	case SDLK_RMETA:
+		ctrlHeld = true;
+		openBrowserButton->SetTooltipText("Open a simulation from your hard drive \bg(ctrl+o)");
+		break;
+	case SDLK_LSHIFT:
+	case SDLK_RSHIFT:
+		shiftHeld = true;
+		break;
+	case SDLK_LALT:
+	case SDLK_RALT:
+		altHeld = true;
+		break;
+	}
+
 	if (deco_disablestuff)
 		return;
 
@@ -1433,31 +1468,13 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		//if stkm2 is out, you must be holding left ctrl, else not be holding ctrl at all
 		if (globalSim->elementCount[PT_STKM2] > 0 ? (modifiers&(KMOD_LCTRL|KMOD_LMETA)) : !(sdl_mod&(KMOD_CTRL|KMOD_META)))
 		{
-			// if we are loading a stamp, cancel that and free all memory
-			if (state == LOAD)
-			{
-				free(stampData);
-				stampData = NULL;
-				free(stampImg);
-				stampImg = NULL;
-			}
+			ResetStampState();
 			state = SAVE;
-			savedInitial = false;
 		}
 		break;
 	case 'k':
 	case 'l':
-		// if we are placing a stamp, cancel that to load the new one
-		if (state == LOAD)
-		{
-			free(stampData);
-			free(stampImg);
-			stampImg = NULL;
-			state = NONE;
-#ifdef TOUCHUI
-			stampMoving = false;
-#endif
-		}
+		ResetStampState();
 		// open stamp interface
 		if (key == 'k')
 		{
@@ -1490,42 +1507,26 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 				stampData = NULL;
 			}
 		}
-		else
-			stampImg = NULL;
 		break;
 	case 'x':
 		if (modifiers & (KMOD_CTRL|KMOD_META))
 		{
-			// if we are loading a stamp, cancel that and free all memory
-			if (state == LOAD)
-			{
-				free(stampData);
-				stampData = NULL;
-				free(stampImg);
-				stampImg = NULL;
-			}
+			ResetStampState();
 			state = CUT;
-			savedInitial = false;
 		}
 		break;
 	case 'c':
 		if (modifiers & (KMOD_CTRL|KMOD_META))
 		{
-			// if we are loading a stamp, cancel that and free all memory
-			if (state == LOAD)
-			{
-				free(stampData);
-				stampData = NULL;
-				free(stampImg);
-				stampImg = NULL;
-			}
+			ResetStampState();
 			state = COPY;
-			savedInitial = false;
 		}
 		break;
 	case 'z':
 		// don't do anything if this is a ctrl+z (undo)
 		if (modifiers & (KMOD_CTRL|KMOD_META))
+			break;
+		if (isStampMouseDown)
 			break;
 		if (ZoomWindowShown())
 		{
@@ -1540,8 +1541,7 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 	case 'v':
 		if ((modifiers & (KMOD_CTRL|KMOD_META)) && clipboardData)
 		{
-			if (stampData)
-				free(stampData);
+			ResetStampState();
 			stampData = malloc(clipboardSize);
 			if (stampData)
 			{
@@ -1551,6 +1551,7 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 				if (stampImg)
 				{
 					state = LOAD;
+					isStampMouseDown = false;
 					UpdateStampCoordinates(cursor);
 				}
 				else
@@ -1582,13 +1583,7 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 
 bool PowderToy::BeforeKeyRelease(int key, unsigned short character, unsigned short modifiers)
 {
-	if (!(modifiers & (KMOD_CTRL|KMOD_META)) && (heldModifier & (KMOD_CTRL|KMOD_META)))
-		openBrowserButton->SetTooltipText("Find & open a simulation");
-
 	heldModifier = modifiers;
-	// key -1 is fake event sent in order to update modifiers when in other interfaces
-	if (key == -1)
-		return false;
 	releasedKey = key;
 
 	if (deco_disablestuff)
@@ -1606,6 +1601,30 @@ bool PowderToy::BeforeKeyRelease(int key, unsigned short character, unsigned sho
 
 void PowderToy::OnKeyRelease(int key, unsigned short character, unsigned short modifiers)
 {
+	// temporary
+	if (key == 0)
+	{
+		ctrlHeld = shiftHeld = altHeld = 0;
+	}
+	switch (key)
+	{
+	case SDLK_LCTRL:
+	case SDLK_RCTRL:
+	case SDLK_LMETA:
+	case SDLK_RMETA:
+		ctrlHeld = false;
+		openBrowserButton->SetTooltipText("Find & open a simulation");
+		break;
+	case SDLK_LSHIFT:
+	case SDLK_RSHIFT:
+		shiftHeld = false;
+		break;
+	case SDLK_LALT:
+	case SDLK_RALT:
+		altHeld = false;
+		break;
+	}
+
 	if (deco_disablestuff)
 		return;
 
@@ -1616,4 +1635,18 @@ void PowderToy::OnKeyRelease(int key, unsigned short character, unsigned short m
 			HideZoomWindow();
 		break;
 	}
+}
+
+void PowderToy::OnDefocus()
+{
+#ifdef LUACONSOLE
+	if (ctrlHeld || shiftHeld || altHeld)
+		luacon_keyevent(0, 0, LUACON_KUP);
+#endif
+
+	ctrlHeld = shiftHeld = altHeld = false;
+	openBrowserButton->SetTooltipText("Find & open a simulation");
+	lastMouseDown = heldKey = heldAscii = releasedKey = mouseWheel = 0; // temporary
+	ResetStampState();
+	UpdateDrawMode();
 }

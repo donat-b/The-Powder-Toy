@@ -1403,7 +1403,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		render_after(part_vbuf, vid_buf, Point(mx, my));
 
 		// draw preview of stamp
-		if (the_game->GetState() == PowderToy::LOAD && !the_game->PlacingZoomWindow())
+		if (the_game->GetStampState() == PowderToy::LOAD && !the_game->PlacingZoomWindow())
 		{
 			Point loadPos = the_game->GetStampPos();
 			Point loadSize = the_game->GetStampSize();
@@ -1416,9 +1416,9 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		}
 		// draw dotted lines for selection
 		// other modes besides LOAD and NONE are SAVE, CUT, and COPY, which all select an area like this
-		else if (the_game->GetState() != PowderToy::NONE && !the_game->PlacingZoomWindow())
+		else if (the_game->GetStampState() != PowderToy::NONE && !the_game->PlacingZoomWindow())
 		{
-			if (the_game->PlacedInitialStampCoordinate())
+			if (the_game->GetStampState() != PowderToy::LOAD && the_game->PlacedInitialStampCoordinate())
 			{
 				Point savePos = the_game->GetSavePos();
 				Point saveSize = the_game->GetSaveSize();
@@ -1581,7 +1581,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		{
 			if (sdl_key)
 				UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
-			if (the_game->GetState() != PowderToy::LOAD)
+			if (the_game->GetStampState() != PowderToy::LOAD)
 				((STKM_ElementDataContainer*)globalSim->elementData[PT_STKM])->HandleKeys(sdl_key, sdl_rkey);
 			if (sdl_key=='i' && (sdl_mod & (KMOD_CTRL|KMOD_META)))
 			{
@@ -1639,7 +1639,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			}
 			if (sdl_key=='r') 
 			{
-				if (the_game->GetState() != PowderToy::LOAD)
+				if (the_game->GetStampState() != PowderToy::LOAD)
 				{
 					if (sdl_mod & (KMOD_CTRL|KMOD_META))
 					{
@@ -1652,7 +1652,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			}
 			else if (sdl_key == SDLK_F5)
 			{
-				if (the_game->GetState() != PowderToy::LOAD)
+				if (the_game->GetStampState() != PowderToy::LOAD)
 				{
 					parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 					ctrlzSnapshot();

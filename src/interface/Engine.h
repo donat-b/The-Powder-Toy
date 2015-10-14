@@ -26,7 +26,6 @@ private:
 	Window_ *top, *nextTop;
 
 	Point lastMousePosition;
-	unsigned short lastModifiers;
 	uint32_t lastTick;
 };
 

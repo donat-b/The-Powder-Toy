@@ -21,6 +21,8 @@ public:
 	bool IsClicked(const Component *other) const { return other == clicked; }
 
 	void DoExit(); // calls OnExit, doesn't actually exit though
+	void DoFocus();
+	void DoDefocus();
 	void DoTick(uint32_t ticks);
 	void DoDraw();
 
@@ -57,6 +59,9 @@ protected:
 	virtual void OnMouseWheel(int x, int y, int d) { }
 	virtual void OnKeyPress(int key, unsigned short character, unsigned short modifiers) { }
 	virtual void OnKeyRelease(int key, unsigned short character, unsigned short modifiers) { }
+
+	virtual void OnFocus() { }
+	virtual void OnDefocus() { }
 
 	// these functions are called before components are updated, and can be used to cancel events before sending them to the components
 	virtual bool BeforeMouseMove(int x, int y, Point difference) { return true; }

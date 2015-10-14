@@ -20,7 +20,6 @@ Engine::Engine():
 	top(NULL),
 	nextTop(NULL),
 	lastMousePosition(Point(0, 0)),
-	lastModifiers(0),
 	lastTick(SDL_GetTicks())
 {
 
@@ -55,7 +54,7 @@ bool Engine::EventProcess(SDL_Event event)
 	switch (event.type)
 	{
 	case SDL_KEYDOWN:
-		lastModifiers = sdl_mod = static_cast<unsigned short>(SDL_GetModState());
+		sdl_mod = static_cast<unsigned short>(SDL_GetModState());
 		top->DoKeyPress(event.key.keysym.sym, event.key.keysym.unicode, static_cast<unsigned short>(sdl_mod));
 
 		if (event.key.keysym.sym == SDLK_ESCAPE && top->CanQuit())
@@ -71,7 +70,7 @@ bool Engine::EventProcess(SDL_Event event)
 		break;
 
 	case SDL_KEYUP:
-		lastModifiers = sdl_mod = static_cast<unsigned short>(SDL_GetModState());
+		sdl_mod = static_cast<unsigned short>(SDL_GetModState());
 		top->DoKeyRelease(event.key.keysym.sym, event.key.keysym.unicode, static_cast<unsigned short>(sdl_mod));
 		break;
 	case SDL_MOUSEBUTTONDOWN:
@@ -200,13 +199,7 @@ void Engine::MainLoop()
 				top->DoMouseMove(mx, my, mx-lastMousePosition.X, my-lastMousePosition.Y);
 				lastMousePosition = Point(mx, my);
 			}
-
-			unsigned short modState = SDL_GetModState();
-			if (modState != lastModifiers)
-			{
-				top->DoKeyPress(-1, 0, modState);
-				lastModifiers = modState;
-			}
+			top->DoKeyRelease(0, 0, 0);
 			sendNewEvents = false;
 		}
 		top->UpdateComponents();
@@ -254,10 +247,13 @@ void Engine::ShowWindowDelayed()
 	if (windows.size())
 		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
+	if (top)
+		top->DoDefocus();
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE+1, YRES+MENUSIZE+1, 0, 0, 0, 100);
 	windows.push(nextTop);
 	top = nextTop;
 	nextTop = NULL;
+	top->DoFocus();
 
 	// update mouse position on any new windows
 	int mx, my;

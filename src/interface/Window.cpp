@@ -97,6 +97,16 @@ void Window_::DoExit()
 	OnExit();
 }
 
+void Window_::DoFocus()
+{
+	OnFocus();
+}
+
+void Window_::DoDefocus()
+{
+	OnDefocus();
+}
+
 void Window_::DoTick(uint32_t ticks)
 {
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
