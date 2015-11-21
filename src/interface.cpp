@@ -5557,7 +5557,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 #ifndef TOUCHUI
 			//If mouse was clicked outside of the window bounds.
-			if (!(mx>50 && my>50 && mx<XRES+BARSIZE-50 && my<YRES+MENUSIZE-50) && !(mx >= ctb.x && mx <= ctb.x+ctb.width && my >= ctb.y && my <= ctb.y+ctb.height) && !queue_open)
+			if (!(mx>50 && my>50 && mx<XRES+BARSIZE-50 && my<YRES+MENUSIZE-50) && !(mx >= ctb.x && mx <= ctb.x+ctb.width && my >= ctb.y && my <= ctb.y+ctb.height) && !queue_open && strlen(ed.str) < 200)
 			{
 				if (b && !bq)
 				{
