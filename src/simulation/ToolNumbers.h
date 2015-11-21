@@ -137,7 +137,7 @@ const fav_menu fav[] =
 	{"MORE", COLPACK(0xFF7F00), "Display different options"},
 	{"BACK", COLPACK(0xFF7F00), "Go back to the favorites menu"},
 	//{"HUD",  COLPACK(0x20D8FF), "Left click to toggle a different HUD. Now using the "},
-	{"FIND", COLPACK(0xFF0000), "Highlights the currently selected element in red"},
+	{"FIND", COLPACK(0xFF0000), "Highlights the currently selected element in red (ctrl+f)"},
 	{"INFO", COLPACK(0x00FF00), "Displays statistics and records about The Powder Toy. Left click to toggle display"},
 	{"SPIN", COLPACK(0x0010A0), "Makes moving solids rotate. Currently "},
 	{"HEAT", COLPACK(0xFF00D4), "Changes heat display mode. Current mode: "},
