@@ -2744,16 +2744,15 @@ void ExecuteEmbededLuaCode()
 				bit = bit,\n\
 				socket = { gettime = socket.gettime }} --[[I think socket.gettime() is safe?]]\n\
 				\n\
-			function run(untrusted_code)\n\
-				if not untrusted_code then return nil end\n\
-				setfenv(untrusted_code, env)\n\
-				untrusted_code()\n\
-			end\n\
 			"))
 			luacon_log(mystrdup(luacon_geterror())); //if large above thing errored
 
 		loop_time = SDL_GetTicks();
-		if (luaL_dostring(l, "run(loadfile(\"newluacode.txt\"))"))
+#if LUA_VERSION_NUM >= 502
+		if (luaL_dostring(l, "local code = loadfile(\"newluacode.txt\", nil, env) if code then code() end"))
+#else
+		if (luaL_dostring(l, "local code = loadfile(\"newluacode.txt\") if code then setfenv(code, env) code() end"))
+#endif
 		{
 			luacon_log(mystrdup(luacon_geterror()));
 		}
