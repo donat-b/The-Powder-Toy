@@ -4860,6 +4860,8 @@ void converttotime(char *timestamp, char **timestring, int show_day, int show_ye
 	//strncpy(*timestring, asctime(stamptime), 63);
 }
 
+int scrollSpeed = 6;
+float scrollDeceleration = 0.95f;
 int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 {
 	int b=1,bq,mx,my,cc=0,ccy=0,cix=0;
@@ -5527,16 +5529,22 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			{
 				comment_scroll += (int)scroll_velocity;
 				if (comment_scroll > 0)
+				{
 					comment_scroll = 0;
-				scroll_velocity *= .95f;
-				if (abs(scroll_velocity) < .5f)
-					scroll_velocity = 0.0f;
+					scroll_velocity = 0;
+				}
+				else
+				{
+					scroll_velocity *= scrollDeceleration;
+					if (abs(scroll_velocity) < .5f)
+						scroll_velocity = 0.0f;
+				}
 			}
 			if (sdl_wheel)
 			{
 				if (!disable_scrolling || sdl_wheel > 0)
 				{
-					comment_scroll += 6*sdl_wheel;
+					comment_scroll += scrollSpeed*sdl_wheel;
 					scroll_velocity += sdl_wheel;
 					if (comment_scroll > 0)
 						comment_scroll = 0;

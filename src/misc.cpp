@@ -297,9 +297,13 @@ void save_presets(int do_update)
 	if (finding & 0x8)
 		cJSON_AddNumberToObject(root, "alt_find", 1);
 	cJSON_AddNumberToObject(root, "dateformat", dateformat);
-	cJSON_AddNumberToObject(root, "ShowIDs", show_ids);
 	cJSON_AddNumberToObject(root, "decobox_hidden", decobox_hidden);
 	cJSON_AddNumberToObject(root, "doUpdates2", doUpdates);
+
+	cJSON_AddItemToObject(root, "SavePreview", tmpobj=cJSON_CreateObject());
+	cJSON_AddNumberToObject(tmpobj, "scrollSpeed", scrollSpeed);
+	cJSON_AddNumberToObject(tmpobj, "scrollDeceleration", scrollDeceleration);
+	cJSON_AddNumberToObject(tmpobj, "ShowIDs", show_ids);
 	
 	outputdata = cJSON_Print(root);
 	cJSON_Delete(root);
@@ -347,7 +351,7 @@ void load_presets(void)
 	cJSON *root;
 	if (prefdata && (root = cJSON_Parse(prefdata)))
 	{
-		cJSON *userobj, *versionobj, *recobj, *tmpobj, *graphicsobj, *hudobj, *simulationobj, *consoleobj;
+		cJSON *userobj, *versionobj, *recobj, *tmpobj, *graphicsobj, *hudobj, *simulationobj, *consoleobj, *itemobj;
 		
 		//Read user data
 		userobj = cJSON_GetObjectItem(root, "User");
@@ -631,12 +635,21 @@ void load_presets(void)
 			finding |= 0x8;
 		if (tmpobj = cJSON_GetObjectItem(root, "dateformat"))
 			dateformat = tmpobj->valueint;
-		if (tmpobj = cJSON_GetObjectItem(root, "ShowIDs"))
-			show_ids = tmpobj->valueint;
 		if (tmpobj = cJSON_GetObjectItem(root, "decobox_hidden"))
 			decobox_hidden = tmpobj->valueint;
 		if (tmpobj = cJSON_GetObjectItem(root, "doUpdates2"))
 			doUpdates = tmpobj->valueint;
+
+		itemobj = cJSON_GetObjectItem(root, "SavePreview");
+		if (itemobj)
+		{
+			if ((tmpobj = cJSON_GetObjectItem(itemobj, "scrollSpeed")) && tmpobj->valueint > 0)
+				scrollSpeed = tmpobj->valueint;
+			if ((tmpobj = cJSON_GetObjectItem(itemobj, "scrollDeceleration")) && tmpobj->valuedouble > 0 && tmpobj->valuedouble <= 1)
+				scrollDeceleration = tmpobj->valuedouble;
+			if (tmpobj = cJSON_GetObjectItem(itemobj, "ShowIDs"))
+				show_ids = tmpobj->valueint;
+		}
 
 		cJSON_Delete(root);
 		free(prefdata);
