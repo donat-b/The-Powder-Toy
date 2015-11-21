@@ -326,7 +326,10 @@ void load_console_history(cJSON *tmpobj, command_history **last_command, int cou
 		memset(currentcommand, 0, sizeof(command_history));
 		currentcommand->prev_command = *last_command;
 		ui_label_init(&currentcommand->command, 15, 0, 0, 0);
-		strncpy(currentcommand->command.str, cJSON_GetArrayItem(tmpobj, i)->valuestring, 1023);
+		if (tmpobj)
+			strncpy(currentcommand->command.str, cJSON_GetArrayItem(tmpobj, i)->valuestring, 1023);
+		else
+			strcpy(currentcommand->command.str, "");
 		*last_command = currentcommand;
 	}
 }
@@ -542,11 +545,17 @@ void load_presets(void)
 			{
 				int size = cJSON_GetArraySize(tmpobj);
 				tmpobj = cJSON_GetObjectItem(consoleobj, "HistoryResults");
-				//if results doesn't have the same number of items as history, don't load them. This might cause a crash, and wouldn't match anyway
+				// if results doesn't have the same number of items as history, don't load them. This might cause a crash, and wouldn't match anyway
 				if (tmpobj && cJSON_GetArraySize(tmpobj) == size)
 				{
 					load_console_history(cJSON_GetObjectItem(consoleobj, "History"), &last_command, size);
-					load_console_history(tmpobj, &last_command_result, cJSON_GetArraySize(tmpobj));
+					load_console_history(tmpobj, &last_command_result, size);
+				}
+				// well, tpt++ doesn't save HistoryResults and it is annoying to discard everything, so load History anyway with some hacks
+				else if (!tmpobj)
+				{
+					load_console_history(cJSON_GetObjectItem(consoleobj, "History"), &last_command, size);
+					load_console_history(NULL, &last_command_result, size);
 				}
 			}
 		}
@@ -645,7 +654,7 @@ void load_presets(void)
 		{
 			if ((tmpobj = cJSON_GetObjectItem(itemobj, "scrollSpeed")) && tmpobj->valueint > 0)
 				scrollSpeed = tmpobj->valueint;
-			if ((tmpobj = cJSON_GetObjectItem(itemobj, "scrollDeceleration")) && tmpobj->valuedouble > 0 && tmpobj->valuedouble <= 1)
+			if ((tmpobj = cJSON_GetObjectItem(itemobj, "scrollDeceleration")) && tmpobj->valuedouble >= 0 && tmpobj->valuedouble <= 1)
 				scrollDeceleration = tmpobj->valuedouble;
 			if (tmpobj = cJSON_GetObjectItem(itemobj, "ShowIDs"))
 				show_ids = tmpobj->valueint;
