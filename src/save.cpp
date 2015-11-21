@@ -214,7 +214,7 @@ int check_save(int save_as, int orig_x0, int orig_y0, int orig_w, int orig_h, in
 			}
 		}
 	}
-	for (int x = 0; x < XRES/CELL; x++)
+	/*for (int x = 0; x < XRES/CELL; x++)
 		for (int y = 0; y < YRES/CELL; y++)
 		{
 			if (bmap[y][x] == WL_BLOCKAIR)
@@ -226,7 +226,7 @@ int check_save(int save_as, int orig_x0, int orig_y0, int orig_w, int orig_h, in
 				}
 				return 1;
 			}
-		}
+		}*/
 	return 0;
 }
 
