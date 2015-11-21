@@ -4867,6 +4867,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	int comment_scroll = 0, comment_page = 0, redraw_comments = 1, dofocus = 0, disable_scrolling = 0;
 	int lastY = 0;
 	bool scrolling = false;
+	bool clickOutOfBounds = false;
 	int nyd,nyu,lv;
 	float ryf, scroll_velocity = 0.0f;
 
@@ -5556,10 +5557,20 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 #ifndef TOUCHUI
 			//If mouse was clicked outside of the window bounds.
-			if (!(mx>50 && my>50 && mx<XRES+BARSIZE-50 && my<YRES+MENUSIZE-50) && !(mx >= ctb.x && mx <= ctb.x+ctb.width && my >= ctb.y && my <= ctb.y+ctb.height) && b && !bq && !queue_open) {
-				retval = 0;
-				break;
+			if (!(mx>50 && my>50 && mx<XRES+BARSIZE-50 && my<YRES+MENUSIZE-50) && !(mx >= ctb.x && mx <= ctb.x+ctb.width && my >= ctb.y && my <= ctb.y+ctb.height) && !queue_open)
+			{
+				if (b && !bq)
+				{
+					clickOutOfBounds = true;
+				}
+				else if (!b && bq && clickOutOfBounds)
+				{
+					retval = 0;
+					break;
+				}
 			}
+			if (!b)
+				clickOutOfBounds = false;
 #endif
 		}
 
