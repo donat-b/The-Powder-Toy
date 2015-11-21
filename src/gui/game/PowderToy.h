@@ -112,6 +112,7 @@ public:
 	void ConfirmUpdate();
 	bool MouseClicksIgnored();
 	Point AdjustCoordinates(Point mouse);
+	bool IsMouseInZoom(Point mouse);
 	void SetInfoTip(std::string infotip);
 	ToolTip *GetQTip(std::string qtip, int y);
 

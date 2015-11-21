@@ -705,6 +705,14 @@ Point PowderToy::AdjustCoordinates(Point mouse)
 	return mouse;
 }
 
+bool PowderToy::IsMouseInZoom(Point mouse)
+{
+	//adjust coords into the simulation area
+	mouse.Clamp(Point(0, 0), Point(XRES-1, YRES-1));
+
+	return mouse != AdjustCoordinates(mouse);
+}
+
 void PowderToy::SetInfoTip(std::string infotip)
 {
 	UpdateToolTip(infotip, Point(XCNTR-VideoBuffer::TextSize(infotip).X/2, YCNTR-10), INFOTIP, 1000);
@@ -721,7 +729,7 @@ void PowderToy::UpdateZoomCoordinates(Point mouse)
 	zoomedOnPosition.Clamp(Point(0, 0), Point(XRES-zoomSize, YRES-zoomSize));
 
 	if (mouse.X < XRES/2)
-		zoomWindowPosition = Point(XRES-zoomSize*zoomFactor-1, 1);
+		zoomWindowPosition = Point(XRES-zoomSize*zoomFactor, 1);
 	else
 		zoomWindowPosition = Point(1, 1);
 }
@@ -1155,7 +1163,7 @@ void PowderToy::OnMouseMove(int x, int y, Point difference)
 {
 	mouse = Point(x, y);
 	cursor = AdjustCoordinates(mouse);
-	bool tmpMouseInZoom = (globalSim->InBounds(x, y) && x != cursor.X || y != cursor.Y);
+	bool tmpMouseInZoom = IsMouseInZoom(mouse);
 	if (placingZoom)
 		UpdateZoomCoordinates(mouse);
 	if (state == LOAD)
@@ -1208,6 +1216,7 @@ void PowderToy::OnMouseMove(int x, int y, Point difference)
 			luacon_mouseevent(x, y, 0, LUACON_MUPZOOM, 0);
 #endif
 		}
+		mouseInZoom = tmpMouseInZoom;
 	}
 
 	// moving sign, update coordinates here
@@ -1231,6 +1240,7 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 {
 	mouse = Point(x, y);
 	cursor = AdjustCoordinates(mouse);
+	mouseInZoom = IsMouseInZoom(mouse);
 	if (placingZoomTouch)
 	{
 		if (x < XRES && y < YRES)

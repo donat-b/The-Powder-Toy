@@ -1456,7 +1456,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		{
 			PowderToy::DrawState drawState = the_game->GetDrawState();
 			Point initialDrawPoint = the_game->GetInitialDrawPoint();
-			Point snappedCursor = Point(x, y);
+			Point snappedCursor = the_game->AdjustCoordinates(Point(x, y));
 			bool isMouseDown = the_game->IsMouseDown();
 			if (sdl_mod & KMOD_ALT)
 			{
