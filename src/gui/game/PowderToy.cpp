@@ -1303,6 +1303,11 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 		// this was in old drawing code, still needed?
 		//if (activeTools[0]->GetType() == DECO_TOOL && button == 4)
 		//	activeTools[1] = GetToolFromIdentifier("DEFAULT_DECOR_CLR");
+		if (button == 2 || altHeld)
+		{
+			activeTools[toolIndex] = activeTools[toolIndex]->Sample(globalSim, cursor);
+			return;
+		}
 
 		isMouseDown = true;
 		if (drawState == LINE || drawState == RECT)
