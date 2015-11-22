@@ -15,6 +15,7 @@ config.log
 *.sh
 *.py
 *.png
+*.ppm
 
 # QT Creator project files
 *.config
