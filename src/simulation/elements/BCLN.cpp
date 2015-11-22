@@ -15,15 +15,16 @@
 
 #include "simulation/ElementsCommon.h"
 
+#define ADVECTION 0.1f
+
 int BCLN_update(UPDATE_FUNC_ARGS)
 {
 	if (!parts[i].life && pv[y/CELL][x/CELL]>4.0f)
 		parts[i].life = rand()%40+80;
 	if (parts[i].life)
 	{
-		float advection = 0.1f;
-		parts[i].vx += advection*vx[y/CELL][x/CELL];
-		parts[i].vy += advection*vy[y/CELL][x/CELL];
+		parts[i].vx += ADVECTION*vx[y/CELL][x/CELL];
+		parts[i].vy += ADVECTION*vy[y/CELL][x/CELL];
 	}
 	if (parts[i].ctype<=0 || parts[i].ctype>=PT_NUM || !ptypes[parts[i].ctype].enabled || (parts[i].ctype==PT_LIFE && (parts[i].tmp<0 || parts[i].tmp>=NGOL)))
 	{

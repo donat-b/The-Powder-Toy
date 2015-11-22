@@ -15,6 +15,8 @@
 
 #include "simulation/ElementsCommon.h"
 
+#define ADVECTION 0.1f
+
 int PBCN_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, rt;
@@ -23,8 +25,8 @@ int PBCN_update(UPDATE_FUNC_ARGS)
 	if (parts[i].tmp2)
 	{
 		float advection = 0.1f;
-		parts[i].vx += advection*vx[y/CELL][x/CELL];
-		parts[i].vy += advection*vy[y/CELL][x/CELL];
+		parts[i].vx += ADVECTION*vx[y/CELL][x/CELL];
+		parts[i].vy += ADVECTION*vy[y/CELL][x/CELL];
 		parts[i].tmp2--;
 		if(!parts[i].tmp2){
 			kill_part(i);

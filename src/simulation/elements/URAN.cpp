@@ -25,8 +25,7 @@ int URAN_update(UPDATE_FUNC_ARGS)
 		}
 		else
 		{
-			float atemp =  parts[i].temp + (-MIN_TEMP);
-			parts[i].temp = restrict_flt((atemp*(1+(pv[y/CELL][x/CELL]/2000)))+MIN_TEMP, MIN_TEMP, MAX_TEMP);
+			parts[i].temp = restrict_flt((parts[i].temp*(1 + (pv[y / CELL][x / CELL] / 2000))) + MIN_TEMP, MIN_TEMP, MAX_TEMP);
 		}
 	}
 	return 0;

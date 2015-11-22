@@ -89,13 +89,14 @@ int WIFI_update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
+#define FREQUENCY 0.0628f
+
 int WIFI_graphics(GRAPHICS_FUNC_ARGS)
 {
-	float frequency = 0.0628f;
 	int q = (int)((cpart->temp-73.15f)/100+1);
-	*colr = (int)(sin(frequency*q + 0) * 127 + 128);
-	*colg = (int)(sin(frequency*q + 2) * 127 + 128);
-	*colb = (int)(sin(frequency*q + 4) * 127 + 128);
+	*colr = (int)(sin(FREQUENCY*q + 0) * 127 + 128);
+	*colg = (int)(sin(FREQUENCY*q + 2) * 127 + 128);
+	*colb = (int)(sin(FREQUENCY*q + 4) * 127 + 128);
 	*pixel_mode |= EFFECT_DBGLINES;
 	return 0;
 }
