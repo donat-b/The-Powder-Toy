@@ -19,7 +19,6 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 {
 	int r, nxx, nyy, docontinue, nxi, nyi, rx, ry, ry1, rx1;
 	if (parts[i].life==0) {
-		int colored =0;
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
 				if (BOUNDS_CHECK && (rx || ry))
@@ -31,6 +30,7 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 						bool isBlackDeco = false;
 						int destroy = (parts[r>>8].ctype==PT_PSCN)?1:0;
 						int nostop = (parts[r>>8].ctype==PT_INST)?1:0;
+						int colored = 0;
 						for (docontinue = 1, nxx = 0, nyy = 0, nxi = rx*-1, nyi = ry*-1; docontinue; nyy+=nyi, nxx+=nxi) {
 							if (!(x+nxi+nxx<XRES && y+nyi+nyy<YRES && x+nxi+nxx >= 0 && y+nyi+nyy >= 0)) {
 								break;
