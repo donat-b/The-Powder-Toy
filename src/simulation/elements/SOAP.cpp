@@ -37,15 +37,15 @@ void attach(int i1, int i2)
 
 void detach(int i)
 {
-	if ((parts[i].ctype&2) == 2)
+	if ((parts[i].ctype&2) == 2 && parts[i].tmp >= 0 && parts[i].tmp < NPART && parts[parts[i].tmp].type == PT_SOAP)
 	{
-		if ((parts[parts[i].tmp].ctype&4) == 4 && parts[parts[i].tmp].type == PT_SOAP)
+		if ((parts[parts[i].tmp].ctype&4) == 4)
 			parts[parts[i].tmp].ctype ^= 4;
 	}
 
-	if ((parts[i].ctype&4) == 4)
+	if ((parts[i].ctype&4) == 4 && parts[i].tmp2 >= 0 && parts[i].tmp2 < NPART && parts[parts[i].tmp2].type == PT_SOAP)
 	{
-		if ((parts[parts[i].tmp2].ctype&2) == 2 && parts[parts[i].tmp2].type == PT_SOAP)
+		if ((parts[parts[i].tmp2].ctype&2) == 2)
 			parts[parts[i].tmp2].ctype ^= 2;
 	}
 
