@@ -20,8 +20,8 @@ int DEUT_update(UPDATE_FUNC_ARGS)
 	int r, rx, ry, trade, np;
 	float gravtot = fabs(gravy[(y/CELL)*(XRES/CELL)+(x/CELL)])+fabs(gravx[(y/CELL)*(XRES/CELL)+(x/CELL)]);
 	int maxlife = (int)((10000/(parts[i].temp + 1))-1);
-	if ((10000%((int)parts[i].temp+1))>rand()%((int)parts[i].temp+1))
-		maxlife ++;
+	if (!(rand()%((int)parts[i].temp+1)))
+		maxlife++;
 	// Compress when Newtonian gravity is applied
 	// multiplier=1 when gravtot=0, multiplier -> 5 as gravtot -> inf
 	maxlife = (int)(maxlife*(5.0f - 8.0f/(gravtot+2.0f)));
@@ -51,9 +51,11 @@ int DEUT_update(UPDATE_FUNC_ARGS)
 			for (ry=-1; ry<2; ry++)
 				if (BOUNDS_CHECK && (rx || ry))
 				{
+					//Leave if there is nothing to do
+					if (parts[i].life <= maxlife)
+						goto trade;
+
 					r = pmap[y+ry][x+rx];
-					if (parts[i].life<=maxlife)
-						continue;
 					if ((!r)&&parts[i].life>=1)//if nothing then create deut
 					{
 						np = sim->part_create(-1,x+rx,y+ry,PT_DEUT);
@@ -63,6 +65,8 @@ int DEUT_update(UPDATE_FUNC_ARGS)
 						parts[np].life = 0;
 					}
 				}
+
+trade:
 	for ( trade = 0; trade<4; trade ++)
 	{
 		rx = rand()%5-2;

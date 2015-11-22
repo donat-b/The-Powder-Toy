@@ -71,6 +71,7 @@ int COAL_update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
+#define FREQUENCY 3.1415/(2*300.0f-(300.0f-200.0f))
 int COAL_graphics(GRAPHICS_FUNC_ARGS)
 {
 	*colr += (int)((cpart->tmp2-295.15f)/3);
@@ -82,14 +83,13 @@ int COAL_graphics(GRAPHICS_FUNC_ARGS)
 		
 	*colg = *colb = *colr;
 
-	if((cpart->temp-295.15f) > 300.0f-200.0f)
+	if (cpart->temp > 395.15f)
 	{
-		float frequency = M_PI/(2*300.0f-(300.0f-200.0f));
-		int q = (int)(((cpart->temp-295.15f)>300.0f)?300.0f-(300.0f-200.0f):(cpart->temp-295.15f)-(300.0f-200.0f));
+		int q = (cpart->temp > 595.15f) ? 200.0f : cpart->temp - 395.15f;
 
-		*colr += (int)(sin(frequency*q) * 226);
-		*colg += (int)(sin(frequency*q*4.55 +3.14) * 34);
-		*colb += (int)(sin(frequency*q*2.22 +3.14) * 64);
+		*colr += sin(FREQUENCY*q) * 226;
+		*colg += sin(FREQUENCY*q*4.55 + 3.14) * 34;
+		*colb += sin(FREQUENCY*q*2.22 + 3.14) * 64;
 	}
 	return 0;
 }

@@ -18,16 +18,10 @@
 int DCEL_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
-	float multiplier;
-	if (parts[i].life!=0)
-	{
-		float change = (float)(parts[i].life > 100 ? 100 : (parts[i].life < 0 ? 0 : parts[i].life));
-		multiplier = 1.0f-(change/100.0f);
-	}
-	else
-	{
-		multiplier = 1.0f/1.1f;
-	}
+	float multiplier = 1.0f/1.1f;
+	if (parts[i].life)
+		multiplier = 1.0f - ((parts[i].life > 100 ? 100 : (parts[i].life < 0 ? 0 : parts[i].life)) / 100.0f);
+
 	parts[i].tmp = 0;
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)

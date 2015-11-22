@@ -24,10 +24,10 @@ int CRMC_update(UPDATE_FUNC_ARGS)
 
 int CRMC_graphics(GRAPHICS_FUNC_ARGS)
 {
-	int z = cpart->tmp2 - 2;
-	*colr += z * 8;
-	*colg += z * 8;
-	*colb += z * 8;
+	int z = (cpart->tmp2 - 2) * 8;
+	*colr += z;
+	*colg += z;
+	*colb += z;
 	return 0;
 }
 

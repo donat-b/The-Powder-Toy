@@ -15,11 +15,12 @@
 
 #include "simulation/ElementsCommon.h"
 
+#define BLEND 0.95f
+
 int BIZR_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, nr, ng, nb, na;
 	float tr, tg, tb, ta, mr, mg, mb, ma;
-	float blend;
 	if (parts[i].dcolour)
 	{
 		for (rx=-2; rx<3; rx++)
@@ -31,7 +32,6 @@ int BIZR_update(UPDATE_FUNC_ARGS)
 						continue;
 					if ((r&0xFF)!=PT_BIZR && (r&0xFF)!=PT_BIZRG  && (r&0xFF)!=PT_BIZRS)
 					{
-						blend = 0.95f;
 						ta = (float)COLA(parts[r>>8].dcolour);
 						tr = (float)COLR(parts[r>>8].dcolour);
 						tg = (float)COLG(parts[r>>8].dcolour);
@@ -42,10 +42,10 @@ int BIZR_update(UPDATE_FUNC_ARGS)
 						mg = (float)COLG(parts[i].dcolour);
 						mb = (float)COLB(parts[i].dcolour);
 						
-						nr = (int)((tr*blend) + (mr*(1-blend)));
-						ng = (int)((tg*blend) + (mg*(1-blend)));
-						nb = (int)((tb*blend) + (mb*(1-blend)));
-						na = (int)((ta*blend) + (ma*(1-blend)));
+						nr = (int)((tr*BLEND) + (mr*(1 - BLEND)));
+						ng = (int)((tg*BLEND) + (mg*(1 - BLEND)));
+						nb = (int)((tb*BLEND) + (mb*(1 - BLEND)));
+						na = (int)((ta*BLEND) + (ma*(1 - BLEND)));
 						
 						parts[r>>8].dcolour = COLARGB(na, nr, ng, nb);
 					}
@@ -57,6 +57,7 @@ int BIZR_update(UPDATE_FUNC_ARGS)
 int BIZR_graphics(GRAPHICS_FUNC_ARGS)
 {
 	int x = 0;
+	float brightness = fabs(cpart->vx) + fabs(cpart->vy);
 	if (cpart->ctype&0x3FFFFFFF)
 	{
 		*colg = 0;
@@ -68,17 +69,18 @@ int BIZR_graphics(GRAPHICS_FUNC_ARGS)
 		}
 		for (x=0; x<12; x++)
 			*colg += (cpart->ctype >> (x+9))  & 1;
-		x = *colr+*colg+*colb+1;
-		*colr = *colr*624/x;
-		*colg = *colg*624/x;
-		*colb = *colb*624/x;
+		x = 624 / (*colr + *colg + *colb + 1);
+		*colr *= x;
+		*colg *= x;
+		*colb *= x;
 	}
-	if(fabs(cpart->vx)+fabs(cpart->vy)>0)
+	if (brightness > 0)
 	{
+		brightness /= 5;
 		*firea = 255;
-		*firer = (int)(*colr/5 * (fabs(cpart->vx)+fabs(cpart->vy)));
-		*fireg = (int)(*colg/5 * (fabs(cpart->vx)+fabs(cpart->vy)));
-		*fireb = (int)(*colb/5 * (fabs(cpart->vx)+fabs(cpart->vy)));
+		*firer = (int)(*colr * brightness);
+		*fireg = (int)(*colg * brightness);
+		*fireb = (int)(*colb * brightness);
 		*pixel_mode |= FIRE_ADD;
 	}
 	*pixel_mode |= PMODE_BLUR;

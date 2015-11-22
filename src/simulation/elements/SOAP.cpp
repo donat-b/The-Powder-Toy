@@ -53,12 +53,12 @@ void detach(int i)
 }
 
 #define SOAP_FREEZING 248.15f
+#define BLEND 0.85f
 
 int SOAP_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, nr, ng, nb, na;
 	float tr, tg, tb, ta;
-	float blend;
 	
 	//0x01 - bubble on/off
 	//0x02 - first mate yes/no
@@ -226,16 +226,15 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 					continue;
 				if ((r&0xFF)!=PT_SOAP)
 				{
-					blend = 0.85f;
 					ta = (float)COLA(parts[r>>8].dcolour);
 					tr = (float)COLR(parts[r>>8].dcolour);
 					tg = (float)COLG(parts[r>>8].dcolour);
 					tb = (float)COLB(parts[r>>8].dcolour);
 					
-					na = (int)(ta*blend);
-					nr = (int)(tr*blend);
-					ng = (int)(tg*blend);
-					nb = (int)(tb*blend);
+					na = (int)(ta*BLEND);
+					nr = (int)(tr*BLEND);
+					ng = (int)(tg*BLEND);
+					nb = (int)(tb*BLEND);
 					
 					parts[r>>8].dcolour = COLARGB(na, nr, ng, nb);
 				}

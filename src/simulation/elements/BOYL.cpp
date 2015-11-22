@@ -18,24 +18,19 @@
 int BOYL_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
-	if (pv[y/CELL][x/CELL]<(parts[i].temp/100))
-		pv[y/CELL][x/CELL] += 0.001f*((parts[i].temp/100)-pv[y/CELL][x/CELL]);
-	if (y+CELL<YRES && pv[y/CELL+1][x/CELL]<(parts[i].temp/100))
-		pv[y/CELL+1][x/CELL] += 0.001f*((parts[i].temp/100)-pv[y/CELL+1][x/CELL]);
-	if (x+CELL<XRES)
-	{
-		pv[y/CELL][x/CELL+1] += 0.001f*((parts[i].temp/100)-pv[y/CELL][x/CELL+1]);
-		if (y+CELL<YRES)
-			pv[y/CELL+1][x/CELL+1] += 0.001f*((parts[i].temp/100)-pv[y/CELL+1][x/CELL+1]);
-	}
-	if (y-CELL>=0 && pv[y/CELL-1][x/CELL]<(parts[i].temp/100))
-		pv[y/CELL-1][x/CELL] += 0.001f*((parts[i].temp/100)-pv[y/CELL-1][x/CELL]);
-	if (x-CELL>=0)
-	{
-		pv[y/CELL][x/CELL-1] += 0.001f*((parts[i].temp/100)-pv[y/CELL][x/CELL-1]);
-		if (y-CELL>=0)
-			pv[y/CELL-1][x/CELL-1] += 0.001f*((parts[i].temp/100)-pv[y/CELL-1][x/CELL-1]);
-	}
+	float limit = parts[i].temp / 100;
+	if (pv[y / CELL][x / CELL] < limit)
+		pv[y / CELL][x / CELL] += 0.001f*(limit - pv[y / CELL][x / CELL]);
+	if (pv[y / CELL + 1][x / CELL] < limit)
+		pv[y / CELL + 1][x / CELL] += 0.001f*(limit - pv[y / CELL + 1][x / CELL]);
+	if (pv[y / CELL - 1][x / CELL] < limit)
+		pv[y / CELL - 1][x / CELL] += 0.001f*(limit - pv[y / CELL - 1][x / CELL]);
+
+	pv[y / CELL][x / CELL + 1] += 0.001f*(limit - pv[y / CELL][x / CELL + 1]);
+	pv[y / CELL + 1][x / CELL + 1] += 0.001f*(limit - pv[y / CELL + 1][x / CELL + 1]);
+	pv[y / CELL][x / CELL - 1] += 0.001f*(limit - pv[y / CELL][x / CELL - 1]);
+	pv[y / CELL - 1][x / CELL - 1] += 0.001f*(limit - pv[y / CELL - 1][x / CELL - 1]);
+
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))

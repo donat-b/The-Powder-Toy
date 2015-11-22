@@ -20,13 +20,7 @@ int CBNW_update(UPDATE_FUNC_ARGS)
 	int r, rx, ry;
 	if (pv[y/CELL][x/CELL]<=3)
 	{
-		if (pv[y/CELL][x/CELL]<=-0.5)
-		{
-			part_change_type(i, x, y, PT_CO2);
-			parts[i].ctype = 5;
-			pv[y/CELL][x/CELL] += 0.5f;
-		}
-		else if (!(rand()%4000))
+		if (pv[y/CELL][x/CELL] <= -0.5 || !(rand()%4000))
 		{
 			part_change_type(i, x, y, PT_CO2);
 			parts[i].ctype = 5;
