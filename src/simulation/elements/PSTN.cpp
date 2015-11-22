@@ -270,6 +270,12 @@ int PSTN_update(UPDATE_FUNC_ARGS)
 									pistonCount++;
 								}
 							}
+							else if (nxx==0 && nyy==0)
+							{
+								pistonCount++;
+								//pistonCount += floor((parts[i].temp-268.15)/10);
+								continue;
+							}
 							else
 							{
 								pistonEndX = x+nxx;
