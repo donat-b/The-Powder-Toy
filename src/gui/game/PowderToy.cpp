@@ -1010,7 +1010,7 @@ void PowderToy::OnTick(uint32_t ticks)
 		if (svf_open && svf_own)
 		{
 			if (mouse.X <= saveButton->GetPosition().X+18)
-				saveButtonTip = "Reupload the current simulation";
+				saveButtonTip = "Re-upload the current simulation";
 			else
 				saveButtonTip = "Modify simulation properties";
 		}
