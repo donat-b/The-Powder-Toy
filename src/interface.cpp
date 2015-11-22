@@ -7243,7 +7243,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	if (decobox_hidden)
 		drawtext(vid_buf, 297, YRES+5, "\xCB", 255, 255, 255, 255);
 	else
-		drawtext(vid_buf, 297, YRES+4, "\xCA", 255, 255, 255, 255);
+		drawtext(vid_buf, 298, YRES+4, "\xCA", 255, 255, 255, 255);
 
 	if(can_select_color && !decobox_hidden && mx >= window_offset_x && my >= 2 && mx <= window_offset_x+255+4+10+5 && my <= 2+255+20)//in the main window
 	{
