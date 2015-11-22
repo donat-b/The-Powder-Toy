@@ -2470,7 +2470,15 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							if (partsptr[newIndex].tmp2)
 							{
 								partsptr[newIndex].ctype |= partsptr[newIndex].tmp2<<8;
-								partsptr[newIndex].tmp2 = 0;
+								//partsptr[newIndex].tmp2 = 0;
+							}
+						}
+						else if (partsptr[newIndex].type == PT_CONV)
+						{
+							if (partsptr[newIndex].tmp)
+							{
+								partsptr[newIndex].ctype |= partsptr[newIndex].tmp<<8;
+								//partsptr[newIndex].tmp = 0;
 							}
 						}
 					}
@@ -3503,6 +3511,14 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 			if (ver<91 && parts[i-1].type == PT_VINE)
 			{
 				parts[i-1].tmp = 1;
+			}
+			if (ver<91 && parts[i-1].type == PT_CONV)
+			{
+				if (parts[i-1].tmp)
+				{
+					parts[i-1].ctype |= parts[i-1].tmp<<8;
+					parts[i-1].tmp = 0;
+				}
 			}
 
 			globalSim->elementCount[parts[i-1].type]++;

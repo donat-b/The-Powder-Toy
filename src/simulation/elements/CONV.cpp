@@ -18,7 +18,8 @@
 int CONV_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
-	if (parts[i].ctype<=0 || parts[i].ctype>=PT_NUM || !ptypes[parts[i].ctype].enabled || parts[i].ctype==PT_CONV || (parts[i].ctype==PT_LIFE && (parts[i].tmp<0 || parts[i].tmp>=NGOL)))
+	int ctype = parts[i].ctype&0xFF, ctypeExtra = parts[i].ctype>>8;
+	if (ctype<=0 || ctype>=PT_NUM || !ptypes[ctype].enabled || ctype==PT_CONV || (ctype==PT_LIFE && (ctypeExtra<0 || ctypeExtra>=NGOL)))
 	{
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
@@ -36,27 +37,25 @@ int CONV_update(UPDATE_FUNC_ARGS)
 					{
 						parts[i].ctype = r&0xFF;
 						if ((r&0xFF)==PT_LIFE)
-							parts[i].tmp = parts[r>>8].ctype;
+							parts[i].ctype |= (parts[r>>8].ctype << 8);
 					}
 				}
 	}
 	else
 	{
-		bool life = parts[i].ctype==PT_LIFE;
+		int restrictElement = sim->IsElement(parts[i].tmp) ? parts[i].tmp : 0;
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
 				if (BOUNDS_CHECK)
 				{
 					r = photons[y+ry][x+rx];
-					if (!r)
+					if (!r || (restrictElement && (r&0xFF)!=restrictElement))
 						r = pmap[y+ry][x+rx];
-					if (!r)
+					if (!r || (restrictElement && (r&0xFF)!=restrictElement))
 						continue;
-					if((r&0xFF)!=PT_CONV && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && (r&0xFF)!=parts[i].ctype)
+					if((r&0xFF)!=PT_CONV && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && (r&0xFF)!=ctype)
 					{
-						// TODO: change this create_part
-						if (life) create_part(r>>8, x+rx, y+ry, parts[i].ctype|(parts[i].tmp<<8));
-						else sim->part_create(r>>8, x+rx, y+ry, parts[i].ctype);
+						sim->part_create(r>>8, x+rx, y+ry, ctype, ctypeExtra);
 					}
 				}
 	}

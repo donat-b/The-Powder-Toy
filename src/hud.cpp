@@ -111,7 +111,7 @@ void SetRightHudText(int x, int y)
 					}
 					if (!currentHud[12] && (tctype>=PT_NUM || tctype<0 || (cr&0xFF)==PT_PHOT))
 						tctype = 0;
-					if (currentHud[49] && ((cr&0xFF) == PT_CRAY || (cr&0xFF) == PT_DRAY) && (parts[cr>>8].ctype&0xFF) == PT_LIFE && (parts[cr>>8].ctype>>8) >= 0 && (parts[cr>>8].ctype>>8) < NGOL)
+					if (currentHud[49] && ((cr&0xFF) == PT_CRAY || (cr&0xFF) == PT_DRAY || (cr&0xFF)== PT_CONV) && (parts[cr>>8].ctype&0xFF) == PT_LIFE && (parts[cr>>8].ctype>>8) >= 0 && (parts[cr>>8].ctype>>8) < NGOL)
 					{
 						sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, golTypes[parts[cr>>8].ctype>>8].name.c_str());
 					}
