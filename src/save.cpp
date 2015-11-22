@@ -17,6 +17,7 @@
 
 #include <bzlib.h>
 #include <math.h>
+#include <sstream>
 #include "defines.h"
 #include "powder.h"
 #include "save.h"
@@ -68,7 +69,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 	}
 	globalSim->forceStackingCheck = 1;//check for excessive stacking of particles next time update_particles is run
 	((PPIP_ElementDataContainer*)globalSim->elementData[PT_PPIP])->ppip_changed = 1;
-	if(saveData[0] == 'O' && saveData[1] == 'P' && (saveData[2] == 'S' || saveData[2] == 'J'))
+	if(saveData[0] == 'O' && saveData[1] == 'P' && (saveData[2] == 'S' || saveData[2] == 'J') && saveData[3] == '1')
 	{
 		return parse_save_OPS(save, size, replace, x0, y0, bmap, vx, vy, pv, fvx, fvy, signs, partsptr, pmap);
 	}
@@ -740,6 +741,12 @@ fin:
 	return vidBuf;
 }
 
+// restrict the minimum version this save can be opened with
+#define RESTRICTVERSION(major, minor) if ((major) > minimumMajorVersion || (((major) == minimumMajorVersion && (minor) > minimumMinorVersion))) {\
+	minimumMajorVersion = major;\
+	minimumMinorVersion = minor;\
+}
+
 void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* o_partsptr, bool tab)
 {
 	particle *partsptr = (particle*)o_partsptr;
@@ -751,6 +758,10 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	int x, y, i, wallDataFound = 0;
 	int posCount;
+	// minimum version this save is compatible with
+	// when building, this number may be increased depending on what elements are used
+	// or what properties are detected
+	int minimumMajorVersion = 90, minimumMinorVersion = 2;
 	bson b;
 
 	//Get coords in blocks
@@ -1243,6 +1254,10 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	bson_append_string(&b, "platform", IDENT_PLATFORM);
 	bson_append_string(&b, "builtType", IDENT_BUILD);
 	bson_append_finish_object(&b);
+	bson_append_start_object(&b, "minimumVersion");
+	bson_append_int(&b, "major", minimumMajorVersion);
+	bson_append_int(&b, "minor", minimumMinorVersion);
+	bson_append_finish_object(&b);
 
 	bson_append_bool(&b, "waterEEnabled", water_equal_test);
 	bson_append_bool(&b, "legacyEnable", legacy_enable);
@@ -1430,10 +1445,10 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	fullH = blockH*CELL;
 	
 	//From newer version
-	if (saved_version > SAVE_VERSION && saved_version != 87 && saved_version != 222)
+	/*if (saved_version > SAVE_VERSION && saved_version != 87 && saved_version != 222)
 	{
 		info_ui(vid_buf,"Save is from a newer version","Attempting to load it anyway, this may cause a crash");
-	}
+	}*/
 		
 	//Incompatible cell size
 	if(inputData[5] > CELL)
@@ -1703,6 +1718,37 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			else
 			{
 				fprintf(stderr, "Wrong type for element palette: %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_ARRAY);
+			}
+		}
+		else if (!strcmp(bson_iterator_key(&iter), "minimumVersion"))
+		{
+			if (bson_iterator_type(&iter) == BSON_OBJECT)
+			{
+				int major = INT_MAX, minor = INT_MAX;
+				bson_iterator subiter;
+				bson_iterator_subiterator(&iter, &subiter);
+				while (bson_iterator_next(&subiter))
+				{
+					if (bson_iterator_type(&subiter) == BSON_INT)
+					{
+						if (!strcmp(bson_iterator_key(&subiter), "major"))
+							major = bson_iterator_int(&subiter);
+						else if (!strcmp(bson_iterator_key(&subiter), "minor"))
+							minor = bson_iterator_int(&subiter);
+						else
+							fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
+					}
+				}
+				if (major > SAVE_VERSION || (major == SAVE_VERSION && minor > MINOR_VERSION))
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Save from a newer version: Requires version " << major << "." << minor;
+					info_ui(vid_buf, errorMessage.str().c_str(), "Attempting to load it anyway, this may cause a crash");
+				}
+			}
+			else
+			{
+				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
 		else if (!strcmp(bson_iterator_key(&iter), "legacyEnable") && replace > 0)
