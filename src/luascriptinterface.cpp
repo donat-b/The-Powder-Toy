@@ -809,6 +809,11 @@ int simulation_floodWalls(lua_State * l)
 	int bm = luaL_optint(l,4,-1);
 	if (c < 0 || c >= WALLCOUNT)
 		return luaL_error(l, "Unrecognised wall id '%d'", c);
+	if (c == WL_STREAM)
+	{
+		lua_pushinteger(l, 0);
+		return 1;
+	}
 
 	int ret = globalSim->FloodWalls(x, y, c, bm);
 	lua_pushinteger(l, ret);
