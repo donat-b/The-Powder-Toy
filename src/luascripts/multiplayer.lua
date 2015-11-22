@@ -1,7 +1,7 @@
 --Cracker64's Powder Toy Multiplayer
 --I highly recommend to use my Autorun Script Manager
 
-local versionstring = "0.83.1"
+local versionstring = "0.85"
 
 --TODO's
 --FIGH,STKM,STK2,LIGH need a few more creation adjustments
@@ -16,7 +16,7 @@ local versionstring = "0.83.1"
 --Support replace mode
 
 if TPTMP then if TPTMP.version <= 2 then TPTMP.disableMultiplayer() else error("newer version already running") end end local get_name = tpt.get_name -- if script already running, replace it
-TPTMP = {["version"] = 2} -- script version sent on connect to ensure server protocol is the same
+TPTMP = {["version"] = 2, ["versionStr"] = versionstring} -- script version sent on connect to ensure server protocol is the same
 local issocket,socket = pcall(require,"socket")
 if not tpt.selectedreplace then error"Tpt version not supported" end
 local using_manager = false
@@ -82,7 +82,7 @@ local function joinChannel(chan)
 end
 local function connectToServer(ip,port,nick)
 	if con.connected then return false,"Already connected" end
-	ip = ip or "starcatcher.us"
+	ip = ip or "tptmp.starcatcher.us"
 	port = port or PORT
 	local sock = socket.tcp()
 	sock:settimeout(10)
@@ -321,6 +321,7 @@ new=function(x,y,w,h)
 	intext.t=ui_text.newscroll("",x+2,y+2,w-2,true)
 	intext.history={}
 	intext.max_history=200
+	intext.ratelimit = 0
 	intext:drawadd(function(self)
 		local cursoradjust=tpt.textwidth(self.t.text:sub(self.t.start,self.cursor))+2
 		tpt.drawline(self.x+cursoradjust,self.y,self.x+cursoradjust,self.y+10,255,255,255)
@@ -360,8 +361,8 @@ new=function(x,y,w,h)
 			return
 		end
 		if nkey==27 then self:setfocus(false) return true end
-		if nkey==13 then local text=self.t.text if text == "" then self:setfocus(false) return true else self.cursor=0 self.t.text="" self:addhistory(text) self.line=#self.history+1 self.currentline = "" return text end end --enter
-		if nkey==273 then self:moveline(-1) return true end --up
+		if nkey==13 then if socket.gettime() < self.ratelimit then return true end local text=self.t.text if text == "" then self:setfocus(false) return true else self.cursor=0 self.t.text="" self:addhistory(text) self.line=#self.history+1 self.currentline = "" self.ratelimit=socket.gettime()+1 return text end end --enter
+		if nkey==273 then if socket.gettime() < self.ratelimit then return true end self:moveline(-1) return true end --up
 		if nkey==274 then self:moveline(1) return true end --down
 		if nkey==275 then self:movecursor(1) self.t:update(nil,self.cursor) return true end --right
 		if nkey==276 then self:movecursor(-1) self.t:update(nil,self.cursor) return true end --left
@@ -705,7 +706,7 @@ local eleNameTable = {
 ["DEFAULT_WL_5"] = 285,["DEFAULT_WL_6"] = 286,["DEFAULT_WL_7"] = 287,["DEFAULT_WL_8"] = 288,["DEFAULT_WL_9"] = 289,["DEFAULT_WL_10"] = 290,
 ["DEFAULT_WL_11"] = 291,["DEFAULT_WL_12"] = 292,["DEFAULT_WL_13"] = 293,["DEFAULT_WL_14"] = 294,["DEFAULT_WL_15"] = 295,
 ["DEFAULT_UI_SAMPLE"] = 296,["DEFAULT_UI_SIGN"] = 297,["DEFAULT_UI_PROPERTY"] = 298,["DEFAULT_UI_WIND"] = 299,
-["DEFAULT_TOOL_HEAT"] = 300,["DEFAULT_TOOL_COOL"] = 301,["DEFAULT_TOOL_VAC"] = 302,["DEFAULT_TOOL_AIR"] = 303,["DEFAULT_TOOL_PGRV"] = 304,["DEFAULT_TOOL_NGRV"] = 305,
+["DEFAULT_TOOL_HEAT"] = 300,["DEFAULT_TOOL_COOL"] = 301,["DEFAULT_TOOL_AIR"] = 302,["DEFAULT_TOOL_VAC"] = 303,["DEFAULT_TOOL_PGRV"] = 304,["DEFAULT_TOOL_NGRV"] = 305,
 ["DEFAULT_DECOR_SET"] = 306,["DEFAULT_DECOR_ADD"] = 307,["DEFAULT_DECOR_SUB"] = 308,["DEFAULT_DECOR_MUL"] = 309,["DEFAULT_DECOR_DIV"] = 310,["DEFAULT_DECOR_SMDG"] = 311,["DEFAULT_DECOR_CLR"] = 312,["DEFAULT_DECOR_LIGH"] = 313, ["DEFAULT_DECOR_DARK"] = 314,
 ["DEFAULT_WL_16"] = 315
 }
