@@ -30,6 +30,7 @@
 #include "simulation/ToolNumbers.h"
 #include "simulation/Tool.h"
 #include "simulation/elements/FIGH.h"
+#include "simulation/elements/LIFE.h"
 #include "simulation/elements/STKM.h"
 
 /*
@@ -244,8 +245,9 @@ void initSimulationAPI(lua_State * l)
 		{"photons", simulation_photons},
 		{"neighbors", simulation_neighbours},
 		{"neighbours", simulation_neighbours},
-		{"stickman", simulation_stickman},
 		{"framerender", simulation_framerender},
+		{"gspeed", simulation_gspeed},
+		{"stickman", simulation_stickman},
 		{NULL, NULL}
 	};
 	luaL_register(l, "simulation", simulationAPIMethods);
@@ -1403,7 +1405,6 @@ int simulation_neighbours(lua_State * l)
 	return 1;
 }
 
-
 int simulation_framerender(lua_State * l)
 {
 	if (lua_gettop(l) == 0)
@@ -1415,6 +1416,20 @@ int simulation_framerender(lua_State * l)
 	if (frames < 0)
 		return luaL_error(l, "Can't simulate a negative number of frames");
 	framerender = frames;
+	return 0;
+}
+
+int simulation_gspeed(lua_State * l)
+{
+	if (lua_gettop(l) == 0)
+	{
+		lua_pushinteger(l, ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->golSpeed);
+		return 1;
+	}
+	int gspeed = luaL_checkinteger(l, 1);
+	if (gspeed < 1)
+		return luaL_error(l, "GSPEED must be at least 1");
+	((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->golSpeed = gspeed;
 	return 0;
 }
 
