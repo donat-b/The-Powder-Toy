@@ -1002,6 +1002,9 @@ bool Simulation::UpdateParticle(int i)
 		float dy = parts[i].vy*ISTP/mv;
 		fin_xf = parts[i].x;
 		fin_yf = parts[i].y;
+		fin_x = (int)(fin_xf+0.5f);
+		fin_y = (int)(fin_yf+0.5f);
+		bool closedEholeStart = this->InBounds(fin_x, fin_y) && (bmap[fin_y/CELL][fin_x/CELL] == WL_EHOLE && !emap[fin_y/CELL][fin_x/CELL]);
 		while (1)
 		{
 			mv -= ISTP;
@@ -1038,7 +1041,7 @@ bool Simulation::UpdateParticle(int i)
 			//block if particle can't move (0), or some special cases where it returns 1 (can_move = 3 but returns 1 meaning particle will be eaten)
 			//also photons are still blocked (slowed down) by any particle (even ones it can move through), and absorb wall also blocks particles
 			int eval = EvalMove(t, fin_x, fin_y);
-			if (!eval || (can_move[t][pmap[fin_y][fin_x]&0xFF] == 3 && eval == 1) || (t == PT_PHOT && pmap[fin_y][fin_x]) || bmap[fin_y/CELL][fin_x/CELL]==WL_DESTROYALL)
+			if (!eval || (can_move[t][pmap[fin_y][fin_x]&0xFF] == 3 && eval == 1) || (t == PT_PHOT && pmap[fin_y][fin_x]) || bmap[fin_y/CELL][fin_x/CELL]==WL_DESTROYALL || closedEholeStart!=(bmap[fin_y/CELL][fin_x/CELL] == WL_EHOLE && !emap[fin_y/CELL][fin_x/CELL]))
 			{
 				// found an obstacle
 				clear_xf = fin_xf-dx;
