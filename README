@@ -921,6 +921,20 @@ Version 31.2 (build 59 - OS X) 7/15/15
 Fix all deco loading as white on OS X. Fix freeze when hovering mouse over a
 massive amount of stacked portals.
 
+Version 32.0 11/22/15
+Fix crash with BALL. Massive rewrite of the main interface, done to better 
+support the android port of TPT. The mod is still using the "original" UI, not 
+the new touch version, but it will look different. All of the buttons respond 
+nicely to mouseover and match normal TPT more. Many other behind the scenes 
+changes have been made. New sign UI, sign rewrite. Allow setting more things 
+with !set, support hexadecimal. Some deco editor fixes. Fix GRAV changing 
+color when game is paused. Rewrite mouse drawing, to match all the upstream 
+tpt++ fixes and better support TPTMP. Fix airblock wall giving a warning when 
+saving. Make it less likely to accidentally click and exit the save preview. 
+Fix console history not loading when using the mod alongside tpt++. Fix Lua 
+sandbox. Update to TPTMP .85. Tons of simulation and other updates from tpt++ 
+over the last few months.
+
 
 
 

@@ -32,7 +32,6 @@
 #include <sys/stat.h>
 #endif
 #ifdef MACOSX
-#include <mach-o/dyld.h>
 #include <errno.h>
 #endif
 

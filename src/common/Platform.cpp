@@ -14,6 +14,7 @@
 
 #ifdef MACOSX
 #include <ApplicationServices/ApplicationServices.h>
+#include <mach-o/dyld.h>
 #endif
 
 #ifdef LIN
