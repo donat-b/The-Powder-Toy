@@ -149,7 +149,7 @@ int update_finish(void)
 {
 #ifdef WIN
 	char *temp, *self=Platform::ExecutableName(), *p;
-	int timeout = 60, err;
+	int timeout = 5, err;
 
 	temp = (char*)malloc(strlen(self)+12);
 	strcpy(temp, self);

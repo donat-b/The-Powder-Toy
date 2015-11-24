@@ -935,6 +935,15 @@ Fix console history not loading when using the mod alongside tpt++. Fix Lua
 sandbox. Update to TPTMP .85. Tons of simulation and other updates from tpt++ 
 over the last few months.
 
+Version 32.1 11/23/15
+Fix resizing zoom window & changing mouse size while drawing. Fix tooltip
+never going away when upvoting a save. Fix alt+click issues (took precedence
+over line/box/flood fill drawing). Fix 'z' being a toggle. Fix some text
+selection issues in the profile viewer. Always select elements on mousedown.
+
+Version 32.1 (build 62) 11/23/15
+Fix update issues
+
 
 
 
