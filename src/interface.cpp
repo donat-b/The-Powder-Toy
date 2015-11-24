@@ -2655,8 +2655,8 @@ void menu_ui_v2(pixel *vid_buf, int i)
 }
 
 //current menu function
-Tool *originalOver = NULL;
 #ifdef TOUCHUI
+Tool *originalOver = NULL;
 int originalmx = 0, currentScroll = 0;
 bool draggingMenu = false;
 #endif
@@ -2666,12 +2666,17 @@ void menu_ui_v3(pixel *vid_buf, int i, int b, int bq, int mx, int my)
 	if (over)
 	{
 		menu_draw_text(over, YRES-9);
+#ifdef TOUCHUI
 		if (b && !bq)
 			originalOver = over;
 		else if (!b && bq && over == originalOver)
 			menu_select_element(bq, over);
 		else if (!b && !bq)
 			originalOver = NULL;
+#else
+		if (b && !bq)
+			menu_select_element(b, over);
+#endif
 	}
 #ifdef TOUCHUI
 	if (mx>=menuStartPosition && mx<XRES+BARSIZE-1)
