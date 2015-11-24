@@ -184,9 +184,9 @@ void Button::OnDraw(VideoBuffer* vid)
 void Button::OnTick(uint32_t ticks)
 {
 #ifdef TOUCHUI
-	if (isMouseInside && IsMouseDown() && tooltip)
+	if (isMouseInside && enabled && IsMouseDown() && tooltip)
 #else
-	if (isMouseInside && tooltip)
+	if (isMouseInside && enabled && tooltip)
 #endif
 		tooltip->AddToScreen();
 
