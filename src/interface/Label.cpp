@@ -8,6 +8,7 @@
 Label::Label(Point position_, Point size_, std::string text_, bool multiline_) :
 	Component(position_, size_),
 	currentTick(0),
+	isClicked(false),
 	text(text_),
 	textWidth(0),
 	textHeight(0),
@@ -267,17 +268,21 @@ void Label::OnMouseDown(int x, int y, unsigned char button)
 		cursorX = x;
 		cursorY = y;
 		UpdateDisplayText(true, true);
+
+		if (IsFocused())
+			isClicked = true;
 	}
 }
 
 void Label::OnMouseUp(int x, int y, unsigned char button)
 {
-	if (IsClicked() && button == 1)
+	if (IsFocused() && isClicked && button == 1)
 	{
 		cursorX = x;
 		cursorY = y;
 		UpdateDisplayText(true);
 	}
+	isClicked = false;
 }
 
 void Label::OnDefocus()
@@ -287,7 +292,7 @@ void Label::OnDefocus()
 
 void Label::OnMouseMoved(int x, int y, Point difference)
 {
-	if (IsClicked())
+	if (IsFocused() && isClicked)
 	{
 		cursorX = x;
 		cursorY = y;

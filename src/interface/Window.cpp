@@ -236,7 +236,7 @@ void Window_::DoMouseUp(int x, int y, unsigned char button)
 			int posX = x-this->position.X-temp->GetPosition().X, posY = y-this->position.Y-temp->GetPosition().Y;
 			bool inside = posX >= 0 && posX < temp->GetSize().X && posY >= 0 && posY < temp->GetSize().Y;
 
-			if (inside || IsClicked(temp))
+			if (inside || IsClicked(temp) || IsFocused(temp))
 				temp->OnMouseUp(posX, posY, button);
 		}
 	}

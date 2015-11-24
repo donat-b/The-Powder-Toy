@@ -13,6 +13,7 @@ private:
 	unsigned int UpdateCursor(unsigned int position);
 	bool CheckPlaceCursor(bool updateCursor, unsigned int position, int posX, int posY);
 	uint32_t currentTick;
+	bool isClicked;
 
 protected:
 	std::string text;
