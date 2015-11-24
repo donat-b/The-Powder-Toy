@@ -88,7 +88,8 @@ bool Engine::EventProcess(SDL_Event event)
 	case SDL_MOUSEBUTTONUP:
 	{
 		int mx = event.motion.x/sdl_scale, my = event.motion.y/sdl_scale;
-		top->DoMouseUp(mx, my, SDL_BUTTON(event.button.button));
+		if (event.button.button != SDL_BUTTON_WHEELUP && event.button.button != SDL_BUTTON_WHEELDOWN)
+			top->DoMouseUp(mx, my, SDL_BUTTON(event.button.button));
 		lastMousePosition = Point(mx, my);
 		break;
 	}
