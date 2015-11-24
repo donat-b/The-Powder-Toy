@@ -1747,15 +1747,8 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 			break;
 		if (isStampMouseDown)
 			break;
-		if (ZoomWindowShown())
-		{
-			HideZoomWindow();
-		}
-		else
-		{
-			placingZoom = true;
-			UpdateZoomCoordinates(mouse);
-		}
+		placingZoom = true;
+		UpdateZoomCoordinates(mouse);
 		break;
 	case 'v':
 		if ((modifiers & (KMOD_CTRL|KMOD_META)) && clipboardData)
