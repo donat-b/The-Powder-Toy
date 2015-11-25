@@ -32,6 +32,7 @@ public:
 	Point GetRealPos() { return Point(x, y); }
 	void GetPos(int & x0, int & y0, int & w, int & h);
 	void SetPos(Point newPos) { x = newPos.X; y = newPos.Y; }
+	bool IsSignInArea(Point topLeft, Point bottomRight);
 };
 
 #define MAXSIGNS 16

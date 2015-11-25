@@ -1319,12 +1319,15 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 		for (std::vector<Sign*>::iterator iter = signs.begin(), end = signs.end(); iter != end; ++iter)
 		{
 			Sign *sign = (*iter);
-			bson_append_start_object(&b, "sign");
-			bson_append_string(&b, "text", sign->GetText().c_str());
-			bson_append_int(&b, "justification", (int)sign->GetJustification());
-			bson_append_int(&b, "x", sign->GetRealPos().X-fullX);
-			bson_append_int(&b, "y", sign->GetRealPos().Y-fullY);
-			bson_append_finish_object(&b);
+			if (sign->IsSignInArea(Point(orig_x0, orig_y0), Point(orig_x0+orig_w, orig_y0+orig_h)))
+			{
+				bson_append_start_object(&b, "sign");
+				bson_append_string(&b, "text", sign->GetText().c_str());
+				bson_append_int(&b, "justification", (int)sign->GetJustification());
+				bson_append_int(&b, "x", sign->GetRealPos().X-fullX);
+				bson_append_int(&b, "y", sign->GetRealPos().Y-fullY);
+				bson_append_finish_object(&b);
+			}
 		}
 		bson_append_finish_array(&b);
 	}

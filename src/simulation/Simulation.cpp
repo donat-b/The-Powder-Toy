@@ -1862,7 +1862,7 @@ void Simulation::CreateWall(int x, int y, int wall)
 			{
 				part_delete(x*CELL+i, y*CELL+j);
 			}
-		DeleteSignsInArea(Point(x, y), Point(x+1, y+1));
+		DeleteSignsInArea(Point(x, y)*CELL, Point(x+1, y+1)*CELL);
 		wall = 0;
 	}
 	if (wall == WL_GRAV || bmap[y][x] == WL_GRAV)
