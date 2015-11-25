@@ -81,6 +81,9 @@ void Button::OnKeyPress(int key, unsigned short character, unsigned char modifie
 
 void Button::OnDraw(VideoBuffer* vid)
 {
+	// clear area
+	vid->FillRect(position.X, position.Y, size.X, size.Y, 0, 0, 0, 255);
+
 	// border
 	if (enabled)
 		vid->DrawRect(position.X, position.Y, size.X, size.Y, COLR(color), COLG(color), COLB(color), 255);
@@ -167,7 +170,7 @@ void Button::OnDraw(VideoBuffer* vid)
 	}
 	// background color (if required)
 	if (backgroundColor)
-		vid->FillRect(position.X, position.Y, size.X, size.Y, COLR(backgroundColor), COLG(backgroundColor), COLB(backgroundColor), COLA(backgroundColor));
+		vid->FillRect(position.X+1, position.Y+1, size.X-2, size.Y-2, COLR(backgroundColor), COLG(backgroundColor), COLB(backgroundColor), COLA(backgroundColor));
 
 	if (alignment == LEFT)
 	{
