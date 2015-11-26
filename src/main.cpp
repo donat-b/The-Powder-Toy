@@ -1344,7 +1344,9 @@ int main(int argc, char *argv[])
 	}
 	else
 		luacon_openscriptmanager();
-	luacon_openmultiplayer();
+	// TPTMP through the script manager, use that version instead
+	if (!file_exists("scripts/downloaded/2 cracker64-TPTMulti.lua"))
+		luacon_openmultiplayer();
 #endif
 	for (int i = 0; i < 10; i++)
 	{
