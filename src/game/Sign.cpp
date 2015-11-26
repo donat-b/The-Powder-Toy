@@ -146,8 +146,8 @@ std::string Sign::GetDisplayText()
 
 void Sign::GetPos(int & x0, int & y0, int & w, int & h)
 {
-	w = VideoBuffer::TextSize(GetDisplayText()).X + 5;
-	h = 15;
+	w = VideoBuffer::TextSize(GetDisplayText()).X + 4;
+	h = 14;
 	x0 = (ju == Right) ? x - w :
 		  (ju == Left) ? x : x - w/2;
 	y0 = (y > 18) ? y - 18 : y + 4;
