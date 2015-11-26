@@ -944,6 +944,13 @@ selection issues in the profile viewer. Always select elements on mousedown.
 Version 32.1 (build 62) 11/23/15
 Fix update issues
 
+Version 32.2 11/25/15
+Fix being able to see things under update button. Fix stamps always including
+every sign. Fix ctrl+x not deleting signs correctly. Fix signs being too
+large. Fix crash when autorun.lua ran certain functions. Don't use internal
+tptmp if script manager version is detected. Update internal tptmp to .86. Fix
+zoom window being in the wrong position when resizing it. Improve HUD position
+when zoom window is out.
 
 
 
