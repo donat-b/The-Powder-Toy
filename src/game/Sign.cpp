@@ -21,7 +21,7 @@ void DeleteSignsInArea(Point topLeft, Point bottomRight)
 	for (int i = signs.size()-1; i >= 0; i--)
 	{
 		Point realPos = signs[i]->GetRealPos();
-		if (realPos.X >= topLeft.X && realPos.Y >= topLeft.Y && realPos.X <= bottomRight.X && realPos.Y <= bottomRight.Y)
+		if (realPos.X >= topLeft.X && realPos.Y >= topLeft.Y && realPos.X < bottomRight.X && realPos.Y < bottomRight.Y)
 		{
 			delete signs[i];
 			signs.erase(signs.begin()+i);
@@ -155,5 +155,5 @@ void Sign::GetPos(int & x0, int & y0, int & w, int & h)
 
 bool Sign::IsSignInArea(Point topLeft, Point bottomRight)
 {
-	return (x >= topLeft.X && y >= topLeft.Y && x <= bottomRight.X && y <= bottomRight.Y);
+	return (x >= topLeft.X && y >= topLeft.Y && x < bottomRight.X && y < bottomRight.Y);
 }
