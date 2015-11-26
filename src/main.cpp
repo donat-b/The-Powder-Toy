@@ -1319,6 +1319,9 @@ int main(int argc, char *argv[])
 		error_ui(vid_buf, 0, "Unable to open save file.");
 	}
 
+	the_game = new PowderToy(); // you just lost
+	lua_vid_buf = the_game->GetVid()->GetVid();
+
 #ifdef LUACONSOLE
 	char *autorun_result = NULL;
 	if (file_exists("autorun.lua") && luacon_eval("dofile(\"autorun.lua\")", &autorun_result)) //Autorun lua script
@@ -1369,8 +1372,6 @@ int main(int argc, char *argv[])
 
 	UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 10235);
 
-	the_game = new PowderToy(); // you just lost
-	lua_vid_buf = the_game->GetVid()->GetVid();
 	Engine::Ref().ShowWindow(the_game);
 	Engine::Ref().MainLoop();
 	//delete engine;
