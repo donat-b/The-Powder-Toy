@@ -1,7 +1,7 @@
 --Cracker64's Powder Toy Multiplayer
 --I highly recommend to use my Autorun Script Manager
 
-local versionstring = "0.85"
+local versionstring = "0.85.1"
 
 --TODO's
 --FIGH,STKM,STK2,LIGH need a few more creation adjustments
@@ -33,7 +33,7 @@ local PORT = 34403 --Change 34403 to your desired port
 local KEYBOARD = 1 --only change if you have issues. Only other option right now is 2(finnish).
 --Local player vars we need to keep
 local L = {mousex=0, mousey=0, brushx=0, brushy=0, sell=1, sela=296, selr=0, selrep=0, replacemode = 0, mButt=0, mEvent=0, dcolour=0, stick2=false, chatHidden=true, flashChat=false,
-shift=false, alt=false, ctrl=false, tabs = false, z=false, downInside=nil, skipClick=false, pauseNextFrame=false, copying=false, stamp=false, placeStamp=false, lastStamp=nil, lastCopy=nil, smoved=false, rotate=false, sendScreen=false}
+shift=false, alt=false, ctrl=false, tabs = false, z=false, skipClick=false, pauseNextFrame=false, copying=false, stamp=false, placeStamp=false, lastStamp=nil, lastCopy=nil, smoved=false, rotate=false, sendScreen=false}
 
 local tptversion = tpt.version.build
 local jacobsmod = tpt.version.jacob1s_mod~=nil
@@ -530,7 +530,7 @@ new=function(x,y,w,h)
 				lastspace = i
 			end
 			if width > self.max_width or i==#line then
-			local pos = (i==#line or not lastspace) and i or lastspace
+				local pos = (i==#line or not lastspace) and i or lastspace
 				table.insert(self.lines,ui_text.new(line:sub(linebreak,pos),self.x,0,r,g,b))
 				linebreak = pos+1
 				lastspace = nil
@@ -736,29 +736,18 @@ local gravList= {[0]="Vertical",[1]="Off",[2]="Radial"}
 local airList= {[0]="On",[1]="Pressure Off",[2]="Velocity Off",[3]="Off",[4]="No Update"}
 local noFlood = {[15]=true,[55]=true,[87]=true,[128]=true,[158]=true}
 local noShape = {[55]=true,[87]=true,[128]=true,[158]=true}
-local createOverride = {[55]=function(x,y,rx,ry,c,brush) sim.createParts(x,y,0,0,c,brush) end ,[87]=function(x,y,rx,ry,c,brush) sim.createParts(x,y,0,0,c,brush) end,[128]=function(x,y,rx,ry,c,brush) sim.createParts(x,y,0,0,c,brush) end,[158]=function(x,y,rx,ry,c,brush) sim.createParts(x,y,0,0,c,brush) end}
+local createOverride = {
+	[55] = function(rx,ry,c) return 0,0,c end,
+	[87] = function(rx,ry,c) local tmp=rx+ry if tmp>55 then tmp=55 end return 0,0,c+bit.lshift(tmp,8) end,
+	[88] = function(rx,ry,c) local tmp=rx*4+ry*4+7 if tmp>300 then tmp=300 end return rx,ry,c+bit.lshift(tmp,8) end,
+	[128] = function(rx,ry,c) return 0,0,c end,
+	[158] = function(rx,ry,c) return 0,0,c end}
 local golStart,golEnd=256,279
 local wallStart,wallEnd=280,295
 local toolStart,toolEnd=300,305
 local decoStart,decoEnd=306,314
 
 --Functions that do stuff in powdertoy
-local function createBoxAny(x1,y1,x2,y2,c,user)
-	if noShape[c] then return end
-	if c>=wallStart then
-		if c<= wallEnd then
-			sim.createWallBox(x1,y1,x2,y2,c-wallStart)
-		elseif c<=toolEnd then
-			if c>=toolStart then sim.toolBox(x1,y1,x2,y2,c-toolStart) end
-		elseif c<= decoEnd then
-			sim.decoBox(x1,y1,x2,y2,user.dcolour[2],user.dcolour[3],user.dcolour[4],user.dcolour[1],convertDecoTool(c)-decoStart)
-		end
-		return
-	elseif c>=golStart then
-		c = 78+(c-golStart)*256
-	end
-	sim.createBox(x1,y1,x2,y2,c,user and user.replacemode)
-end
 local function createPartsAny(x,y,rx,ry,c,brush,user)
 	if c>=wallStart then
 		if c<= wallEnd then
@@ -773,7 +762,9 @@ local function createPartsAny(x,y,rx,ry,c,brush,user)
 	elseif c>=golStart then
 		c = 78+(c-golStart)*256
 	end
-	if createOverride[c] then createOverride[c](x,y,rx,ry,c,brush) return end
+	if createOverride[c] then
+		rx,ry,c = createOverride[c](rx,ry,c)
+	end
 	sim.createParts(x,y,rx,ry,c,brush,user.replacemode)
 end
 local function createLineAny(x1,y1,x2,y2,rx,ry,c,brush,user)
@@ -792,7 +783,29 @@ local function createLineAny(x1,y1,x2,y2,rx,ry,c,brush,user)
 	elseif c>=golStart then
 		c = 78+(c-golStart)*256
 	end
+	if createOverride[c] then
+		rx,ry,c = createOverride[c](rx,ry,c)
+	end
 	sim.createLine(x1,y1,x2,y2,rx,ry,c,brush,user.replacemode)
+end
+local function createBoxAny(x1,y1,x2,y2,c,user)
+	if noShape[c] then return end
+	if c>=wallStart then
+		if c<= wallEnd then
+			sim.createWallBox(x1,y1,x2,y2,c-wallStart)
+		elseif c<=toolEnd then
+			if c>=toolStart then sim.toolBox(x1,y1,x2,y2,c-toolStart) end
+		elseif c<= decoEnd then
+			sim.decoBox(x1,y1,x2,y2,user.dcolour[2],user.dcolour[3],user.dcolour[4],user.dcolour[1],convertDecoTool(c)-decoStart)
+		end
+		return
+	elseif c>=golStart then
+		c = 78+(c-golStart)*256
+	end
+	if createOverride[c] then
+		_,_,c = createOverride[c](user.brushx,user.brushy,c)
+	end
+	sim.createBox(x1,y1,x2,y2,c,user and user.replacemode)
 end
 local function floodAny(x,y,c,cm,bm,user)
 	if noFlood[c] then return end
@@ -804,6 +817,9 @@ local function floodAny(x,y,c,cm,bm,user)
 		return
 	elseif c>=golStart then --GoL adjust
 		c = 78+(c-golStart)*256
+	end
+	if createOverride[c] then
+		_,_,c = createOverride[c](user.brushx,user.brushy,c)
 	end
 	sim.floodParts(x,y,c,cm,user.replacemode)
 end
@@ -1447,21 +1463,22 @@ end
 --some button locations that emulate tpt, return false will disable button
 local tpt_buttons = {
 	["open"] = {x1=1, y1=408, x2=17, y2=422, f=function() if not L.ctrl then L.browseMode=1 else L.browseMode=2 end L.lastSave=sim.getSaveID() end},
-	["rload"] = {x1=19, y1=408, x2=355, y2=422, firstClick = true, f=function() if L.lastSave then if L.ctrl then infoText:reset("If you re-opened the save, please type /sync") else conSend(70) end else infoText:reset("Reloading local saves is not synced currently. Type /sync") end end},
+	["rload"] = {x1=19, y1=408, x2=35, y2=422, f=function() if L.lastSave then if L.ctrl then infoText:reset("If you re-opened the save, please type /sync") else conSend(70) end else infoText:reset("Reloading local saves is not synced currently. Type /sync") end end},
 	["clear"] = {x1=470, y1=408, x2=486, y2=422, f=function() conSend(63) L.lastSave=nil end},
 	["opts"] = {x1=581, y1=408, x2=595, y2=422, f=function() L.checkOpt=true end},
 	["disp"] = {x1=597, y1=408, x2=611, y2=422, f=function() L.checkRen=true L.pModes=getViewModes() end},
-	["pause"] = {x1=613, y1=408, x2=627, y2=422, firstClick = true, f=function() conSend(49,tpt.set_pause()==0 and "\1" or "\0") end},
-	["deco"] = {x1=613, y1=33, x2=627, y2=47, f=function() conSend(51,tpt.decorations_enable()==0 and "\1" or "\0") end},
-	["newt"] = {x1=613, y1=49, x2=627, y2=63, f=function() conSend(54,tpt.newtonian_gravity()==0 and "\1" or "\0") end},
-	["ambh"] = {x1=613, y1=65, x2=627, y2=79, f=function() conSend(53,tpt.ambient_heat()==0 and "\1" or "\0") end},
+	["pause"] = {x1=613, y1=408, x2=627, y2=422, f=function() conSend(49,tpt.set_pause()==0 and "\1" or "\0") end},
+	["deco"] = {x1=613, y1=33, x2=627, y2=47, f=function() if jacobsmod and (L.tabs or L.ctrl) then return end conSend(51,tpt.decorations_enable()==0 and "\1" or "\0") end},
+	["newt"] = {x1=613, y1=49, x2=627, y2=63, f=function() if jacobsmod and (L.tabs or L.ctrl) then return end conSend(54,tpt.newtonian_gravity()==0 and "\1" or "\0") end},
+	["ambh"] = {x1=613, y1=65, x2=627, y2=79, f=function() if jacobsmod and (L.tabs or L.ctrl) then return end conSend(53,tpt.ambient_heat()==0 and "\1" or "\0") end},
 }
 if jacobsmod then
-	tpt_buttons["tab"] = {x1=613, y1=1, x2=627, y2=15, firstClick = true, f=function() L.tabs = not L.tabs end}
-	tpt_buttons["opts"] = {x1=470, y1=408, x2=484, y2=422, f=function() L.checkOpt=true end}
-	tpt_buttons["clear"] = {x1=486, y1=408, x2=502, y2=422, firstClick = true, f=function() conSend(63) L.lastSave=nil end}
-	tpt_buttons["disp"] = {x1=597, y1=408, x2=611, y2=422, firstClick = true, f=function() L.checkRen=2 L.pModes=getViewModes() end}
-	tpt_buttons["open"] = {x1=1, y1=408, x2=17, y2=422, firstClick = true, f=function() if not L.ctrl then L.browseMode=4 else L.browseMode=5 end L.lastSave=sim.getSaveID() end}
+	tpt_buttons["tab"] = {x1=613, y1=1, x2=627, y2=15, f=function() L.tabs = not L.tabs end}
+	tpt_buttons["tabs"] = {x1=613, y1=17, x2=627, y2=147, f=function() if L.tabs or L.ctrl then L.sendScreen = true end end}
+	tpt_buttons["opts"] = {x1=465, y1=408, x2=479, y2=422, f=function() L.checkOpt=true end}
+	tpt_buttons["clear"] = {x1=481, y1=408, x2=497, y2=422, f=function() conSend(63) L.lastSave=nil end}
+	tpt_buttons["disp"] = {x1=595, y1=408, x2=611, y2=422,f=function() L.checkRen=2 L.pModes=getViewModes() end}
+	tpt_buttons["open"] = {x1=1, y1=408, x2=17, y2=422, f=function() if not L.ctrl then L.browseMode=4 else L.browseMode=5 end L.lastSave=sim.getSaveID() end}
 end
 
 local function mouseclicky(mousex,mousey,button,event,wheel)
@@ -1549,39 +1566,31 @@ local function mouseclicky(mousex,mousey,button,event,wheel)
 		conSend(32,string.char(b1,b2,b3))
 		L.mousex,L.mousey = mousex,mousey
 	end
-	--Temporary SPRK floodfill crash block
-	if L.shift and L.ctrl and event == 1 and ((button == 1 and L.sell==15) or (button == 4 and L.selr==15) or (button == 2 and L.sela==15)) then
-		return false
-	end
 
 	--Click inside button first
 	if button==1 then
 		if event==1 then
-			if jacobsmod and (L.tabs or L.ctrl) and mousex>=613 and mousex<=627 and mousey >=17 and mousey<=143 then
-				L.sendScreen = 2
-			end
 			for k,v in pairs(tpt_buttons) do
 				if mousex>=v.x1 and mousex<=v.x2 and mousey>=v.y1 and mousey<=v.y2 then
-					if jacobsmod and tpt_buttons[k].firstClick then
-						return tpt_buttons[k].f()~=false
-					else
-						L.downInside = k
-					end
-					break
+					v.downInside = true
 				end
 			end
 		--Up inside the button we started with
-		elseif event==2 and L.downInside then
-			local butt = tpt_buttons[L.downInside]
-			if (jacobsmod and not butt.firstClick) or (mousex>=butt.x1 and mousex<=butt.x2 and mousey>=butt.y1 and mousey<=butt.y2) then
-				L.downInside = nil
-				return butt.f()~=false
+		elseif event==2 then
+			local ret = true
+			for k,v in pairs(tpt_buttons) do
+				if v.downInside and (mousex>=v.x1 and mousex<=v.x2 and mousey>=v.y1 and mousey<=v.y2) then
+					if v.f() == false then ret = false end
+				end
+				v.downInside = nil
 			end
+			return ret
 		--Mouse hold, we MUST stay inside button or don't trigger on up
-		elseif event==3 and L.downInside then
-			local butt = tpt_buttons[L.downInside]
-			if mousex<butt.x1 or mousex>butt.x2 or mousey<butt.y1 or mousey>butt.y2 then
-				L.downInside = nil
+		elseif event==3 then
+			for k,v in pairs(tpt_buttons) do
+				if v.downInside and (mousex<v.x1 or mousex>v.x2 or mousey<v.y1 or mousey>v.y2) then
+					v.downInside = nil
+				end
 			end
 		end
 	end
