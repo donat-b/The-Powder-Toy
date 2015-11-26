@@ -631,7 +631,8 @@ void PowderToy::SaveStamp(bool alt)
 void PowderToy::ConfirmUpdate()
 {
 	if (!confirm_update(changelog.c_str()))
-		Engine::Ref().CloseWindow(this);
+		exit(0);
+		//Engine::Ref().CloseWindow(this);
 }
 
 void PowderToy::UpdateDrawMode()

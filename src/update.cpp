@@ -85,7 +85,7 @@ int update_start(char *data, int len)
 	p = temp + strlen(temp) - 4;
 	if (_stricmp(p, ".exe"))
 		p += 4;
-	strcpy(p, "_update.exe");
+	strcpy(p, "_upd.exe");
 
 	if (!MoveFile(self, temp))
 		goto fail;
@@ -156,7 +156,7 @@ int update_finish(void)
 	p = temp + strlen(temp) - 4;
 	if (_stricmp(p, ".exe"))
 		p += 4;
-	strcpy(p, "_update.exe");
+	strcpy(p, "_upd.exe");
 
 	while (!DeleteFile(temp))
 	{
