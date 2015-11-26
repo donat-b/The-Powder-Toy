@@ -735,6 +735,15 @@ void PowderToy::UpdateZoomCoordinates(Point mouse)
 		zoomWindowPosition = Point(1, 1);
 }
 
+void PowderToy::UpdateZoomSize(int newSize)
+{
+	zoomSize = newSize;
+	zoomFactor = 256/zoomSize;
+	// hack
+	if (zoomWindowPosition != Point(1, 1))
+		zoomWindowPosition = Point(XRES-zoomSize*zoomFactor, 1);
+}
+
 void PowderToy::UpdateStampCoordinates(Point cursor, Point offset)
 {
 	loadPos.X = CELL*((cursor.X-loadSize.X/2+CELL/2)/CELL);
@@ -1561,9 +1570,7 @@ void PowderToy::OnMouseWheel(int x, int y, int d)
 	mouseWheel += d;
 	if (PlacingZoomWindow())
 	{
-		zoomSize += d;
-		zoomSize = std::max(2, std::min(zoomSize, 60));
-		zoomFactor = 256/zoomSize;
+		UpdateZoomSize(std::max(2, std::min(zoomSize+d, 60)));
 	}
 }
 
@@ -1778,17 +1785,13 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 	case SDLK_LEFTBRACKET:
 		if (PlacingZoomWindow())
 		{
-			zoomSize -= 1;
-			zoomSize = std::max(2, std::min(zoomSize, 60));
-			zoomFactor = 256/zoomSize;
+			UpdateZoomSize(std::max(2, std::min(--zoomSize, 60)));
 		}
 		break;
 	case SDLK_RIGHTBRACKET:
 		if (PlacingZoomWindow())
 		{
-			zoomSize += 1;
-			zoomSize = std::max(2, std::min(zoomSize, 60));
-			zoomFactor = 256/zoomSize;
+			UpdateZoomSize(std::max(2, std::min(++zoomSize, 60)));
 		}
 		break;
 	}

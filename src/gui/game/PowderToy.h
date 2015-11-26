@@ -130,6 +130,7 @@ public:
 	bool ZoomWindowShown() { return placingZoom || zoomEnabled; }
 	bool PlacingZoomWindow() { return placingZoom; }
 	void UpdateZoomCoordinates(Point mouse);
+	void UpdateZoomSize(int newSize);
 	void HideZoomWindow();
 	Point GetZoomedOnPosition() { return zoomedOnPosition; }
 	Point GetZoomWindowPosition() { return zoomWindowPosition; }
