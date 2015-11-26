@@ -1950,7 +1950,7 @@ bool login_ui(pixel *vid_buf)
 					}*/
 
 					svf_login = 1;
-					save_presets(0);
+					save_presets();
 				}
 				else
 				{
@@ -2000,7 +2000,7 @@ fail:
 	svf_admin = 0;
 	svf_mod = 0;
 	svf_messages = 0;
-	save_presets(0);
+	save_presets();
 	return false;
 }
 
@@ -3098,7 +3098,7 @@ void menu_select_element(int b, Tool* over)
 			if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && locked < 18 && pos2 <= 18-locked)
 			{
 				locked = locked + 1;
-				save_presets(0);
+				save_presets();
 			}
 			else
 			{
@@ -3153,7 +3153,7 @@ void menu_select_element(int b, Tool* over)
 					favMenu[j] = favMenu[j-1];
 				favMenu[18-locked] = temp;
 				locked = locked - 1;
-				save_presets(0);
+				save_presets();
 			}
 			else
 			{
@@ -3759,7 +3759,7 @@ void set_cmode(int cm) // sets to given view mode
 	UpdateToolTip(toolTip, Point(XCNTR-textwidth(toolTip.c_str())/2, YCNTR-10), INFOTIP, 255);
 
 	update_display_modes();// Update render_mode and display_mode from the relevant arrays
-	save_presets(0);
+	save_presets();
 }
 
 char *download_ui(pixel *vid_buf, const char *uri, int *len)

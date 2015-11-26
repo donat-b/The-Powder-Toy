@@ -1305,7 +1305,7 @@ int main(int argc, char *argv[])
 		kiosk_enable = 0;
 		if (!sdl_open()) exit(1);
 	}
-	save_presets(0);
+	save_presets();
 	http_init(http_proxy_string[0] ? http_proxy_string : NULL);
 
 	prepare_alpha(CELL, 1.0f);
@@ -2492,7 +2492,7 @@ void main_end_hack()
 	SaveWindowPosition();
 	DownloadManager::Ref().Shutdown();
 	http_done();
-	save_presets(0);
+	save_presets();
 	gravity_cleanup();
 #ifdef LUACONSOLE
 	luacon_close();

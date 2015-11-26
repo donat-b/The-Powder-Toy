@@ -148,7 +148,8 @@ void cJSON_AddString(cJSON** obj, const char *name, int number)
 	cJSON_AddStringToObject(*obj, name, str.str().c_str());
 }
 
-void save_presets(int do_update)
+bool doingUpdate = false;
+void save_presets()
 {
 	char * outputdata;
 	char mode[32];
@@ -241,7 +242,7 @@ void save_presets(int do_update)
 	cJSON_AddNumberToObject(versionobj, "major", SAVE_VERSION);
 	cJSON_AddNumberToObject(versionobj, "minor", MINOR_VERSION);
 	cJSON_AddNumberToObject(versionobj, "build", BUILD_NUM);
-	if (do_update)
+	if (doingUpdate)
 	{
 		cJSON_AddTrueToObject(versionobj, "update");
 	}

@@ -41,7 +41,7 @@ int strlist_find(struct strlist **list, char *str);
 
 void strlist_free(struct strlist **list);
 
-void save_presets(int do_update);
+void save_presets();
 
 void load_presets(void);
 
@@ -105,5 +105,7 @@ vector2d v2d_new(float x, float y);
 
 extern vector2d v2d_zero;
 extern matrix2d m2d_identity;
+
+extern bool doingUpdate;
 
 #endif

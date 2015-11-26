@@ -53,11 +53,13 @@ bool confirm_update(const char *changelog)
 
 		if (tmp)
 		{
-			save_presets(1);
+			doingUpdate = true;
+			save_presets();
 			if (update_start(tmp, len))
 			{
 				update_cleanup();
-				save_presets(0);
+				doingUpdate = false;
+				save_presets();
 				error_ui(vid_buf, 0, "Update failed - try downloading a new version.");
 			}
 			else
@@ -165,6 +167,13 @@ int update_finish(void)
 		{
 			// just as well, then
 			free(temp);
+			temp = (char*)malloc(strlen(self)+12);
+			strcpy(temp, self);
+			p = temp + strlen(temp) - 4;
+			if (_stricmp(p, ".exe"))
+				p += 4;
+			strcpy(p, "_update.exe");
+			DeleteFile(temp);
 			return 0;
 		}
 		Sleep(500);
