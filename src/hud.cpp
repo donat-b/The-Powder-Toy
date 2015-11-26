@@ -388,7 +388,7 @@ void DrawHud(int introTextAlpha, int qTipAlpha)
 			heatx = XRES-16-heatlength;
 		else
 			heatx = 16;
-		heaty = 270;
+		heaty = the_game->GetZoomWindowPosition().Y + the_game->GetZoomWindowSize()*the_game->GetZoomWindowFactor() + 7;
 		alpha = 127;
 	}
 	else
@@ -410,12 +410,12 @@ void DrawHud(int introTextAlpha, int qTipAlpha)
 		{
 			if (coordlength > heatlength)
 			{
-				fillrect(vid_buf, 19+heatlength, 277, coordlength-heatlength, 15, 0, 0, 0, alpha);
-				fillrect(vid_buf, 12, 280, heatlength+8, 12, 0, 0, 0, alpha);
+				fillrect(vid_buf, 19+heatlength, heaty+7, coordlength-heatlength, 15, 0, 0, 0, alpha);
+				fillrect(vid_buf, 12, heaty+10, heatlength+8, 12, 0, 0, 0, alpha);
 			}
 			else
-				fillrect(vid_buf, 12, 280, coordlength+8, 12, 0, 0, 0, alpha);
-			drawtext(vid_buf, 16, 281, coordtext, 255, 255, 255, (int)(alpha*1.5f));
+				fillrect(vid_buf, 12, heaty+10, coordlength+8, 12, 0, 0, 0, alpha);
+			drawtext(vid_buf, 16, heaty+11, coordtext, 255, 255, 255, (int)(alpha*1.5f));
 		}
 		else
 		{
