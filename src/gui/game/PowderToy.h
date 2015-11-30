@@ -53,6 +53,7 @@ private:
 	bool zoomEnabled;
 	Point zoomedOnPosition; // position the zoom window is zooming in on
 	Point zoomWindowPosition; // position where zoom is drawn on screen (either on the left or the right)
+	Point zoomMousePosition; // position where the mouse was when placing the zoom window, needed so that we can resize it without glitching things
 	int zoomSize;
 	int zoomFactor;
 
@@ -130,7 +131,6 @@ public:
 	bool ZoomWindowShown() { return placingZoom || zoomEnabled; }
 	bool PlacingZoomWindow() { return placingZoom; }
 	void UpdateZoomCoordinates(Point mouse);
-	void UpdateZoomSize(int newSize);
 	void HideZoomWindow();
 	Point GetZoomedOnPosition() { return zoomedOnPosition; }
 	Point GetZoomWindowPosition() { return zoomWindowPosition; }
