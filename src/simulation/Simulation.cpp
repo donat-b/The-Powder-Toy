@@ -1806,7 +1806,17 @@ int Simulation::FloodParts(int x, int y, int fullc, int replace, int flags)
 			// fill span
 			for (x=x1; x<=x2; x++)
 			{
-				if (CreateParts(x, y, fullc, flags, true))
+				if (!fullc)
+				{
+					if (elements[replace].Properties&TYPE_ENERGY)
+					{
+						if (photons[y][x])
+							part_kill(photons[y][x]>>8);
+					}
+					else if (pmap[y][x])
+						part_kill(pmap[y][x]>>8);
+				}
+				else if (CreateParts(x, y, fullc, flags, true))
 					created_something = 1;
 			}
 
