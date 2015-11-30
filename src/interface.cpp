@@ -71,6 +71,7 @@
 #include "simulation/ToolNumbers.h"
 #include "simulation/GolNumbers.h"
 
+#include "interface/Engine.h"
 #include "gui/game/PowderToy.h"
 #include "gui/profile/ProfileViewer.h"
 
@@ -5702,6 +5703,10 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		if (strcmp(profileToOpen, ""))
 		{
 			ProfileViewer *temp = new ProfileViewer(profileToOpen);
+			Engine *moreTemp = new Engine();
+			moreTemp->ShowWindow(temp);
+			moreTemp->MainLoop();
+			delete moreTemp;
 			profileToOpen = "";
 		}
 	}
