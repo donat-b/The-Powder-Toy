@@ -1811,10 +1811,16 @@ int Simulation::FloodParts(int x, int y, int fullc, int replace, int flags)
 					if (elements[replace].Properties&TYPE_ENERGY)
 					{
 						if (photons[y][x])
+						{
 							part_kill(photons[y][x]>>8);
+							created_something = 1;
+						}
 					}
 					else if (pmap[y][x])
+					{
 						part_kill(pmap[y][x]>>8);
+						created_something = 1;
+					}
 				}
 				else if (CreateParts(x, y, fullc, flags, true))
 					created_something = 1;
