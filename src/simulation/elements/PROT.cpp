@@ -72,7 +72,7 @@ int PROT_update(UPDATE_FUNC_ARGS)
 		parts[under>>8].ctype = PT_PROT;
 		break;
 	case PT_NONE:
-		if (!--parts[i].life)
+		if (parts[i].life && !--parts[i].life)
 			kill_part(i);
 		break;
 	case PT_WIFI:
