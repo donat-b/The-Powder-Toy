@@ -815,7 +815,10 @@ void PowderToy::OnTick(uint32_t ticks)
 		{
 			if (((ToolTool*)activeTools[toolIndex])->GetID() == TOOL_WIND)
 			{
-				activeTools[toolIndex]->DrawLine(globalSim, currentBrush, lastDrawPoint, cursor, false, toolStrength);
+				Point drawPoint2 = cursor;
+				if (altHeld)
+					drawPoint2 = LineSnapCoords(initialDrawPoint, cursor);
+				activeTools[toolIndex]->DrawLine(globalSim, currentBrush, initialDrawPoint, drawPoint2, false, toolStrength);
 			}
 		}
 		else if (drawState == FILL)
