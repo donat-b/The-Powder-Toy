@@ -24,6 +24,7 @@ DownloadManager::~DownloadManager()
 void DownloadManager::Shutdown()
 {
 	pthread_mutex_lock(&downloadLock);
+	pthread_mutex_lock(&downloadAddLock);
 	for (std::vector<Download*>::iterator iter = downloads.begin(); iter != downloads.end(); ++iter)
 	{
 		Download *download = (*iter);
@@ -35,6 +36,7 @@ void DownloadManager::Shutdown()
 	downloads.clear();
 	downloadsAddQueue.clear();
 	managerShutdown = true;
+	pthread_mutex_unlock(&downloadAddLock);
 	pthread_mutex_unlock(&downloadLock);
 	pthread_join(downloadThread, NULL);
 }
