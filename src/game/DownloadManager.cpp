@@ -9,9 +9,11 @@ DownloadManager::DownloadManager():
 	lastUsed(time(NULL)),
 	managerRunning(false),
 	managerShutdown(false),
-	downloads(NULL)
+	downloads(NULL),
+	downloadsAddQueue(NULL)
 {
 	pthread_mutex_init(&downloadLock, NULL);
+	pthread_mutex_init(&downloadAddLock, NULL);
 }
 
 DownloadManager::~DownloadManager()
@@ -31,6 +33,7 @@ void DownloadManager::Shutdown()
 		delete download;
 	}
 	downloads.clear();
+	downloadsAddQueue.clear();
 	managerShutdown = true;
 	pthread_mutex_unlock(&downloadLock);
 	pthread_join(downloadThread, NULL);
@@ -56,6 +59,16 @@ void DownloadManager::Update()
 	unsigned int numActiveDownloads;
 	while (!managerShutdown)
 	{
+		pthread_mutex_lock(&downloadAddLock);
+		if (downloadsAddQueue.size())
+		{
+			for (size_t i = 0; i < downloadsAddQueue.size(); i++)
+			{
+				downloads.push_back(downloadsAddQueue[i]);
+			}
+			downloadsAddQueue.clear();
+		}
+		pthread_mutex_unlock(&downloadAddLock);
 		if (downloads.size())
 		{
 			numActiveDownloads = 0;
@@ -113,8 +126,8 @@ void DownloadManager::EnsureRunning()
 
 void DownloadManager::AddDownload(Download *download)
 {
-	pthread_mutex_lock(&downloadLock);
-	downloads.push_back(download);
-	pthread_mutex_unlock(&downloadLock);
+	pthread_mutex_lock(&downloadAddLock);
+	downloadsAddQueue.push_back(download);
+	pthread_mutex_unlock(&downloadAddLock);
 	EnsureRunning();
 }

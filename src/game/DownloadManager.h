@@ -11,12 +11,14 @@ class DownloadManager : public Singleton<DownloadManager>
 private:
 	pthread_t downloadThread;
 	pthread_mutex_t downloadLock;
+	pthread_mutex_t downloadAddLock;
 	bool threadStarted;
 
 	int lastUsed;
 	volatile bool managerRunning;
 	volatile bool managerShutdown;
 	std::vector<Download*> downloads;
+	std::vector<Download*> downloadsAddQueue;
 
 	void Start();
 public:
