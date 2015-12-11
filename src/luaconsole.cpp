@@ -916,7 +916,11 @@ int luacon_step(int mx, int my)
 	lua_setfield(l, tptProperties, "mousex");
 	lua_setfield(l, tptProperties, "mousey");
 	lua_getglobal(l, "simulation");
-	lua_pushinteger(l, NUM_PARTS); lua_setfield(l, -2, "NUM_PARTS");
+	if (lua_istable(l, -1))
+	{
+		lua_pushinteger(l, NUM_PARTS);
+		lua_setfield(l, -2, "NUM_PARTS");
+	}
 	lua_pop(l, 1);
 
 	lua_pushstring(l, "stepfunctions");
