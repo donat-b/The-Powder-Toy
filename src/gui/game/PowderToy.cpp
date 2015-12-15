@@ -369,6 +369,13 @@ PowderToy::PowderToy():
 
 void PowderToy::OpenBrowser()
 {
+	if (voteDownload)
+	{
+		voteDownload->Cancel();
+		voteDownload = NULL;
+		svf_myvote = 0;
+		SetInfoTip("Error: a previous vote may not have gone through");
+	}
 	if (ctrlHeld)
 		catalogue_ui(vid_buf);
 	else
@@ -446,7 +453,10 @@ void PowderToy::DoSave()
 void PowderToy::DoVote(bool up)
 {
 	if (voteDownload != NULL)
+	{
+		SetInfoTip("Error: could not vote");
 		return;
+	}
 	voteDownload = new Download("http://" SERVER "/Vote.api");
 	voteDownload->AuthHeaders(svf_user_id, svf_session_id);
 	std::map<std::string, std::string> postData;
@@ -859,8 +869,7 @@ void PowderToy::OnTick(uint32_t ticks)
 		}
 		else
 		{
-			const char *temp = "Error, could not find update server. Press Ctrl+u to go check for a newer version manually on the tpt website";
-			UpdateToolTip(temp, Point(XCNTR-VideoBuffer::TextSize(temp).X/2, YCNTR-10), INFOTIP, 2500);
+			SetInfoTip("Error, could not find update server. Press Ctrl+u to go check for a newer version manually on the tpt website");
 			UpdateToolTip("", Point(16, 20), INTROTIP, 0);
 		}
 		free(ver_data);
@@ -943,7 +952,7 @@ void PowderToy::OnTick(uint32_t ticks)
 		if (ParseServerReturn(ret, status, false))
 			svf_myvote = 0;
 		else
-			UpdateToolTip("Voted Successfully", Point(XCNTR-VideoBuffer::TextSize("Voted Successfully").X/2, YCNTR-10), INFOTIP, 1000);
+			SetInfoTip("Voted Successfully");
 		free(ret);
 		voteDownload = NULL;
 	}
