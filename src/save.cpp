@@ -82,6 +82,9 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 
 int fix_type(int type, int version, int modver, int (elementPalette)[PT_NUM])
 {
+	// invalid element, we don't care about it
+	if (type < 0 || type > PT_NUM)
+		return type;
 	if (elementPalette)
 	{
 		if (elementPalette[type] >= 0)
