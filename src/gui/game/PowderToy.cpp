@@ -1755,6 +1755,7 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		if (isStampMouseDown)
 			break;
 		placingZoom = true;
+		isMouseDown = false;
 		UpdateZoomCoordinates(mouse);
 		break;
 	case 'v':
