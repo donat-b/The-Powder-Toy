@@ -140,14 +140,14 @@ const fav_menu fav[] =
 	{"FIND", COLPACK(0xFF0000), "Highlights the currently selected element in red (ctrl+f)"},
 	{"INFO", COLPACK(0x00FF00), "Displays statistics and records about The Powder Toy. Left click to toggle display"},
 	{"SPIN", COLPACK(0x0010A0), "Makes moving solids rotate. Currently "},
-	{"HEAT", COLPACK(0xFF00D4), "Changes heat display mode. Current mode: "},
+	{"HEAT", COLPACK(0xFF00D4), "Changes heat display mode. Right click to set manual temperatures. Current mode: "},
 	//{"SAVE", COLPACK(0x2B1AC9), "Makes saves/stamps compatible with: "},
 	{"LUA",  COLPACK(0xFFFF00), "Add Lua code to a save"},
 	{"HUD2", COLPACK(0x20D8FF), "Make a custom HUD"},
 	//{"AUTO", COLPACK(0xDF1BFF), "Sets how often your work is autosaved. Currently: "},
 	{"REAL", COLPACK(0xFF6800), "Turns on realistic heat mode, by savask. Now "},
 	{"FND2", COLPACK(0xDF0000), "Alternate find mode, looks different but may find things better. Now "},
-	{"DATE", COLPACK(0x3FBB3F), "Change date and time format. Example: "},
+	{"DATE", COLPACK(0x3FBB3F), "Change date and time format. Right click to toggle always showing time. Example: "},
 	{"", COLPACK(0x000000), ""}
 };
 
