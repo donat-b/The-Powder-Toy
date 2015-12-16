@@ -936,21 +936,32 @@ sandbox. Update to TPTMP .85. Tons of simulation and other updates from tpt++
 over the last few months.
 
 Version 32.1 11/23/15
-Fix resizing zoom window & changing mouse size while drawing. Fix tooltip
-never going away when upvoting a save. Fix alt+click issues (took precedence
-over line/box/flood fill drawing). Fix 'z' being a toggle. Fix some text
+Fix resizing zoom window & changing mouse size while drawing. Fix tooltip 
+never going away when upvoting a save. Fix alt+click issues (took precedence 
+over line/box/flood fill drawing). Fix 'z' being a toggle. Fix some text 
 selection issues in the profile viewer. Always select elements on mousedown.
 
 Version 32.1 (build 62) 11/23/15
 Fix update issues
 
 Version 32.2 11/25/15
-Fix being able to see things under update button. Fix stamps always including
-every sign. Fix ctrl+x not deleting signs correctly. Fix signs being too
-large. Fix crash when autorun.lua ran certain functions. Don't use internal
-tptmp if script manager version is detected. Update internal tptmp to .86. Fix
-zoom window being in the wrong position when resizing it. Improve HUD position
+Fix being able to see things under update button. Fix stamps always including 
+every sign. Fix ctrl+x not deleting signs correctly. Fix signs being too 
+large. Fix crash when autorun.lua ran certain functions. Don't use internal 
+tptmp if script manager version is detected. Update internal tptmp to .86. Fix 
+zoom window being in the wrong position when resizing it. Improve HUD position 
 when zoom window is out.
+
+Version 32.3 12/16/15
+Fix profile viewer not working on save preview screen (ctrl+click a username). 
+Fix being able to zoom in off the edge of the screen by resizing the zoom 
+window (can cause crash). Fix PROT life constantly decreasing into the 
+negatives. Fix flood fill on normal particles also deleting photons. Fixes to 
+shift+WIND tool drawing. Improve save browser, should freeze less now. Cancel 
+mouse drawing when starting a zoom window. Fix possible voting issues / 
+improve error messages. Fix crash when loading SPRK with huge ctype. Fix some 
+text in the options menu.
+
 
 
 
@@ -968,14 +979,11 @@ None (at least that I know of)
 TODO: '>' means currently being worked on/added next
 >Add avatars in game
 >Use new tpt++ methods to fetch saves and not over 2 year old ones.
->Support alternate save servers
->Support multiple logins / "remember me" setting
+Support alternate save servers
+Support multiple logins / "remember me" setting
 Redo fav menu ...
 Do something about the massively repeated drawing code in Simulation.cpp
 make open ui more colorful like tpt++, also fix cut off description in save uploading ui
-make buttons look clicked when pressed, moving mouse away will not do clicks, like tpt++ (redo interface)
-loading circle in save browser?
-redo some sign things and remove regex
 Ability to follow users using jacksonmj's website
 >Add things from tpt++ that look cool, and any new simulation changes it gets
 
@@ -983,5 +991,5 @@ Possible future plans:
 customizable settings menu completely, ability to add and read options. (also HUD option settings)
 CMND - command element to run old commands
 finish what was started and add ability for multiple Simulation*s to run at once?
-Things never backported: const* changes, lua panic, regex removal, old/lua syntax highlighting (https://github.com/simtr/The-Powder-Toy/commit/ecf1f0e3917386f087dbe569862bd6486a4b366a), png/bmp saving
+Things never backported: lua panic, regex removal, old/lua syntax highlighting (https://github.com/simtr/The-Powder-Toy/commit/ecf1f0e3917386f087dbe569862bd6486a4b366a), png/bmp saving
 ability to hide certain saves (based on things like number of votes, unpublished / published, username, etc.)

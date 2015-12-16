@@ -2203,14 +2203,14 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							globalSim->elementCount[parts[newIndex].type]--;
 						pmap[y][x] = 0;
 					}
-					else if(photons[y][x] && posCount==0)
+					/*else if(photons[y][x] && posCount==0)
 					{
 						//Replace existing particle or allocated block
 						newIndex = photons[y][x]>>8;
 						if (replace >= 0)
 							globalSim->elementCount[parts[newIndex].type]--;
 						photons[y][x] = 0;
-					}
+					}*/
 					else if(freeIndicesIndex<freeIndicesCount)
 					{
 						//Create new particle
