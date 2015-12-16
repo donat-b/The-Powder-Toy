@@ -4063,16 +4063,16 @@ int search_ui(pixel *vid_buf)
 			drawrect(vid_buf, XRES-18+xOffset, YRES+MENUSIZE-20, 16, 16, 255, 255, 255, 255);
 		}
 
-		if ((b && !bq && mx>=1+xOffset && mx<=17+xOffset && my>=YRES+MENUSIZE-20 && my<YRES+MENUSIZE-4) || sdl_wheel>0)
+		if ((!b && bq && mx>=1+xOffset && mx<=17+xOffset && my>=YRES+MENUSIZE-20 && my<YRES+MENUSIZE-4) || sdl_wheel>0)
 		{
 			if (search_page)
-				search_page --;
+				search_page--;
 			else if (!(search_own || search_fav || search_date) && !sdl_wheel)
 				p1_extra = !p1_extra;
 			sdl_wheel = 0;
 			uih = 1;
 		}
-		if ((b && !bq && mx>=XRES-18+xOffset && mx<=XRES-1+xOffset && my>=YRES+MENUSIZE-20 && my<YRES+MENUSIZE-4) || sdl_wheel<0)
+		if ((!b && bq && mx>=XRES-18+xOffset && mx<=XRES-1+xOffset && my>=YRES+MENUSIZE-20 && my<YRES+MENUSIZE-4) || sdl_wheel<0)
 		{
 			if (page_count>exp_res)
 			{
