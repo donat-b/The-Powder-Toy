@@ -6835,9 +6835,6 @@ int console_ui(pixel *vid_buf)
 	ed.multiline = 1;
 	ed.limit = 1023;
 	ed.resizable = 1;
-#ifndef TOUCHUI
-	ed.alwaysFocus = 1;
-#endif
 
 	if (!old_buf)
 		return 0;
@@ -6932,13 +6929,14 @@ int console_ui(pixel *vid_buf)
 
 		strncpy(laststr, ed.str, 256);
 		commandHeight = ui_edit_draw(vid_buf, &ed);
-#ifndef TOUCHUI
-		if (focused)
-			ed.alwaysFocus = 1;
-		else
-			ed.alwaysFocus = 0;
-#endif
 		ui_edit_process(mx, my, b, bq, &ed);
+#ifndef TOUCHUI
+		if (!focused && !ed.focus && b && !bq && my < 208+commandHeight)
+		{
+			ed.focus = 1;
+			ed.cursor = ed.cursorstart = strlen(ed.str);
+		}
+#endif
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 #ifdef OGLR
 		clearScreenNP(1.0f);
