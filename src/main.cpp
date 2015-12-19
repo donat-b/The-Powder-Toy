@@ -974,7 +974,7 @@ void BlueScreen(char * detailMessage)
 					break;
 				default:
 #ifdef ANDROID
-					DoRestart(true);
+					Platform::DoRestart(true);
 #endif
 					break;
 				}
