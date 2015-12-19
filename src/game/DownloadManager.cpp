@@ -80,7 +80,7 @@ void DownloadManager::Update()
 				Download *download = downloads[i];
 				if (download->CheckCanceled())
 				{
-					if (download->http && download->keepAlive && download->CheckStarted())
+					if (download->http && download->CheckStarted())
 						http_force_close(download->http);
 					delete download;
 					downloads.erase(downloads.begin()+i);
