@@ -275,7 +275,7 @@ void ToolTool::DrawLine(Simulation *sim, Brush *brush, Point startPos, Point end
 	if (ID == TOOL_SIGN)
 		return;
 	if (ID == TOOL_WIND)
-		toolStrength = held ? 0.01f : 0.002f;
+		toolStrength = held ? 0.01f*toolStrength : 0.002f;
 	sim->CreateToolLine(startPos.X, startPos.Y, endPos.X, endPos.Y, ID, toolStrength, brush);
 }
 void ToolTool::DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos)
