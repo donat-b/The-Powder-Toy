@@ -26,6 +26,10 @@
 #include <math.h>
 #include <SDLCompat.h>
 
+#ifdef ANDROID
+#include <SDL/SDL_screenkeyboard.h>
+#endif
+
 #include "misc.h"
 #include "defines.h"
 #include "interface.h"
@@ -922,7 +926,9 @@ void clipboard_push_text(char * text)
 		clipboardtext = NULL;
 	}
 	clipboardtext = mystrdup(text);
-#ifdef MACOSX
+#ifdef ANDROID
+	SDL_SetClipboardText(text);
+#elif MACOSX
 	writeClipboard(text);
 #elif WIN
 	if (OpenClipboard(NULL))
@@ -958,7 +964,16 @@ void clipboard_push_text(char * text)
 
 char * clipboard_pull_text()
 {
-#ifdef MACOSX
+#ifdef ANDROID
+	if (!SDL_HasClipboardText())
+		return mystrdup("");
+	char *data = SDL_GetClipboardText();
+	if (!data)
+		return mystrdup("");
+	char *ret = mystrdup(data);
+	SDL_free(data);
+	return ret;
+#elif MACOSX
 	char * data = readClipboard();
 	if (!data)
 		return mystrdup("");
