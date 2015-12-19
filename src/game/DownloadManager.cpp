@@ -108,7 +108,7 @@ void DownloadManager::Update()
 			pthread_mutex_unlock(&downloadLock);
 			return;
 		}
-		Platform::Millisleep(3);
+		Platform::Millisleep(1);
 	}
 }
 
