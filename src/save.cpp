@@ -18,6 +18,7 @@
 #include <bzlib.h>
 #include <math.h>
 #include <sstream>
+#include <stdexcept>
 #include "defines.h"
 #include "powder.h"
 #include "save.h"
@@ -49,15 +50,21 @@ pixel *prerender_save(void *save, int size, int *width, int *height)
 	{
 		return NULL;
 	}
-	if(saveData[0] == 'O' && saveData[1] == 'P' && (saveData[2] == 'S' || saveData[2] == 'J'))
+	try
 	{
-		return prerender_save_OPS(save, size, width, height);
+		if(saveData[0] == 'O' && saveData[1] == 'P' && (saveData[2] == 'S' || saveData[2] == 'J'))
+		{
+			return prerender_save_OPS(save, size, width, height);
+		}
+		else if((saveData[0]==0x66 && saveData[1]==0x75 && saveData[2]==0x43) || (saveData[0]==0x50 && saveData[1]==0x53 && saveData[2]==0x76))
+		{
+			return prerender_save_PSv(save, size, width, height);
+		}
 	}
-	else if((saveData[0]==0x66 && saveData[1]==0x75 && saveData[2]==0x43) || (saveData[0]==0x50 && saveData[1]==0x53 && saveData[2]==0x76))
+	catch (std::runtime_error)
 	{
-		return prerender_save_PSv(save, size, width, height);
+		return NULL;
 	}
-	return NULL;
 }
 
 int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* partsptr, unsigned pmap[YRES][XRES])
@@ -69,15 +76,21 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 	}
 	globalSim->forceStackingCheck = 1;//check for excessive stacking of particles next time update_particles is run
 	((PPIP_ElementDataContainer*)globalSim->elementData[PT_PPIP])->ppip_changed = 1;
-	if(saveData[0] == 'O' && saveData[1] == 'P' && (saveData[2] == 'S' || saveData[2] == 'J') && saveData[3] == '1')
+	try
 	{
-		return parse_save_OPS(save, size, replace, x0, y0, bmap, vx, vy, pv, fvx, fvy, signs, partsptr, pmap);
+		if(saveData[0] == 'O' && saveData[1] == 'P' && (saveData[2] == 'S' || saveData[2] == 'J') && saveData[3] == '1')
+		{
+			return parse_save_OPS(save, size, replace, x0, y0, bmap, vx, vy, pv, fvx, fvy, signs, partsptr, pmap);
+		}
+		else if((saveData[0]==0x66 && saveData[1]==0x75 && saveData[2]==0x43) || (saveData[0]==0x50 && saveData[1]==0x53 && saveData[2]==0x76))
+		{
+			return parse_save_PSv(save, size, replace, x0, y0, bmap, fvx, fvy, signs, partsptr, pmap);
+		}
 	}
-	else if((saveData[0]==0x66 && saveData[1]==0x75 && saveData[2]==0x43) || (saveData[0]==0x50 && saveData[1]==0x53 && saveData[2]==0x76))
+	catch (std::runtime_error)
 	{
-		return parse_save_PSv(save, size, replace, x0, y0, bmap, fvx, fvy, signs, partsptr, pmap);
+		return 1;
 	}
-	return 1;
 }
 
 int fix_type(int type, int version, int modver, int (elementPalette)[PT_NUM])
@@ -364,13 +377,13 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 	//Make sure bsonData is null terminated, since all string functions need null terminated strings
 	//(bson_iterator_key returns a pointer into bsonData, which is then used with strcmp)
 	bsonData[bsonDataLen] = 0;
-	
+
 	if (BZ2_bzBuffToBuffDecompress((char*)bsonData, (unsigned int*)(&bsonDataLen), (char*)inputData+12, inputDataLen-12, 0, 0))
 	{
 		fprintf(stderr, "Unable to decompress\n");
 		goto fail;
 	}
-	
+
 	bson_init_data(&b, (char*)bsonData);
 	bsonInitialised = 1;
 	bson_iterator_init(&iter, &b);

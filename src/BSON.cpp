@@ -952,6 +952,7 @@ void bson_fatal( int ok ) {
     bson_fatal_msg( ok, "" );
 }
 
+#include <stdexcept>
 void bson_fatal_msg( int ok , const char *msg ) {
     if ( ok )
         return;
@@ -961,7 +962,8 @@ void bson_fatal_msg( int ok , const char *msg ) {
     }
 
     bson_errprintf( "error: %s\n" , msg );
-    exit( -5 );
+	//exit( -5 );
+	throw std::runtime_error("Fatal BSON error");
 }
 
 
