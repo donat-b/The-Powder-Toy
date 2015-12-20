@@ -2750,6 +2750,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 			presetx += 31;
 		}
 	}
+#ifndef NOMOD
 	else if (i == SC_HUD)
 	{
 		fwidth = 0;
@@ -2761,6 +2762,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 			}
 		}
 	}
+#endif
 
 	//fancy scrolling
 	if ((!old_menu || i >= SC_FAV) && fwidth > menuStartPosition)
@@ -2795,6 +2797,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 	for (std::vector<Tool*>::iterator iter = menuSections[i]->tools.begin(), end = menuSections[i]->tools.end(); iter != end; ++iter)
 	{
 		Tool* current = *iter;
+#ifndef NOMOD
 		//special cases for fake menu things in my mod
 		if (i == SC_FAV || i == SC_FAV2 || i == SC_HUD)
 		{
@@ -2808,6 +2811,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 					continue;
 			}
 		}
+#endif
 		//if it's offscreen to the right or left, draw nothing
 		if (x-xoff > menuStartPosition-28 || x-xoff < -26)
 		{
@@ -2821,6 +2825,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 		}
 		x -= draw_tool_xy(vid_buf, x-xoff, y, current)+5;
 
+#ifndef NOMOD
 		if (i == SC_HUD) //HUD menu is special and should hopefully be removed someday ...
 		{
 			if (mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
@@ -2834,6 +2839,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 			}
 		}
 		else
+#endif
 		{
 			//draw rectangles around selected tools
 			if (activeTools[0]->GetIdentifier() == current->GetIdentifier())

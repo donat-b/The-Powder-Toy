@@ -37,6 +37,9 @@ void InitMenusections()
 	menuSections[14] = new MenuSection('\xE5', "Deco", true);
 	menuSections[15] = new MenuSection('\xC8', "Cracker!", false);
 	menuSections[16] = new MenuSection('\xE2', "Other", false); //list of elements that are hidden or disabled, not in any menu
+#ifdef TOUCHUI
+	menuSections[17] = new MenuSection('\xE6', "Search", true);
+#endif
 #else
 	menuSections[14] = new MenuSection('\xE2', "\brF\bla\bov\bgo\btr\bbi\bpt\bwe", true);
 	menuSections[15] = new MenuSection('\xE5', "Deco", true);
@@ -63,6 +66,19 @@ int GetNumMenus()
 		if (menuSections[j]->enabled)
 			total++;
 	return total;
+}
+
+int GetMenuSection(Tool *tool)
+{
+	for (int i = 0; i < SC_TOTAL; i++)
+	{
+		for (std::vector<Tool*>::iterator iter = menuSections[i]->tools.begin(), end = menuSections[i]->tools.end(); iter != end; ++iter)
+		{
+			if (tool == (*iter))
+				return i;
+		}
+	}
+	return -1;
 }
 
 //fills all the menus with Tool*s

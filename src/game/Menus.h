@@ -19,7 +19,12 @@
 #define SC_DECO 14
 #define SC_CRACKER 15
 #define SC_OTHER 16
+#define SC_SEARCH 17
+#ifdef TOUCHUI
+#define SC_TOTAL 18
+#else
 #define SC_TOTAL 17
+#endif
 
 #define SC_FAV 16
 #define SC_FAV2 16
@@ -31,6 +36,7 @@
 #define SC_FAV2 17
 #define SC_HUD 18
 #define SC_OTHER 19
+#define SC_SEARCH 20
 #define SC_TOTAL 20
 #endif
 
@@ -67,6 +73,7 @@ extern MenuSection* menuSections[SC_TOTAL];
 void InitMenusections();
 void ClearMenusections();
 int GetNumMenus();
+int GetMenuSection(Tool *tool);
 void FillMenus();
 
 #endif

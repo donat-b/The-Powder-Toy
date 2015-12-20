@@ -734,6 +734,7 @@ const int menuIconHeight = 20;
 int DrawMenusTouch(pixel *vid_buf, int b, int bq, int mx, int my)
 {
 	int xStart = menuStartPosition-2, y = YRES-70+menuOffset+1;
+	bool checkSearchMenu = false;
 
 	// draw menu icons
 	for (int i = 0; i < SC_TOTAL; i++)
@@ -790,10 +791,49 @@ int DrawMenusTouch(pixel *vid_buf, int b, int bq, int mx, int my)
 		if (bq)
 		{
 			menuOffset = (menuOffset-(menuIconHeight/2))/menuIconHeight*menuIconHeight;
+			checkSearchMenu = true;
 		}
 	}
 
-	return draggingMenuSections ? (menuOffset-(menuIconHeight/2))/-menuIconHeight : -1;
+	if (draggingMenuSections || checkSearchMenu)
+	{
+		// figure out which menu section is selected based on menuOffset, accounting for menusections that may not be enabled
+		int menu = (menuOffset-(menuIconHeight/2))/-menuIconHeight, count = -1;
+		for (int i = 0; i < SC_TOTAL; i++)
+			if (menuSections[i]->enabled)
+			{
+				count++;
+				// found the selected menu
+				if (count == menu)
+				{
+					// if search menu was scrolled to, open elemnt search
+					if (checkSearchMenu && i == SC_SEARCH)
+					{
+						element_search_ui(vid_buf, &activeTools[0], &activeTools[1]);
+						int menuSection = GetMenuSection(activeTools[0]);
+						// handle error (this shouldn't ever happen)
+						if (menuSection == -1)
+							return i;
+						int offset = 0;
+						// scroll back to menu with selected element in it (we don't want to leave search menu selected)
+						for (int i = 0; i < SC_TOTAL; i++)
+						{
+							if (i == menuSection)
+							{
+								menuOffset = offset;
+								break;
+							}
+							if (menuSections[i]->enabled)
+								offset -= menuIconHeight;
+						}
+						return menuSection;
+					}
+					return i;
+				}
+			}
+
+	}
+	return -1;
 }
 #endif
 
