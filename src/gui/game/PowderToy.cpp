@@ -132,11 +132,14 @@ PowderToy::PowderToy():
 	public:
 		virtual void ButtionActionCallback(Button *button, unsigned char b)
 		{
-			dynamic_cast<PowderToy*>(button->GetParent())->OpenBrowser();
+			dynamic_cast<PowderToy*>(button->GetParent())->OpenBrowser(b);
 		}
 	};
 	openBrowserButton = new Button(Point(xOffset, YRES+MENUSIZE-16), Point(18-xOffset, ySize), "\x81");
 	openBrowserButton->SetCallback(new OpenBrowserAction());
+#ifdef TOUCHUI
+	openBrowserButton->SetState(Button::HOLD);
+#endif
 	openBrowserButton->SetTooltip(new ToolTip("Find & open a simulation", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(openBrowserButton);
 
@@ -162,12 +165,15 @@ PowderToy::PowderToy():
 	public:
 		virtual void ButtionActionCallback(Button *button, unsigned char b)
 		{
-			dynamic_cast<PowderToy*>(button->GetParent())->DoSave();
+			dynamic_cast<PowderToy*>(button->GetParent())->DoSave(b);
 		}
 	};
 	saveButton = new Button(reloadButton->Right(Point(1, 0)), Point(151, ySize), "\x82 [untitled simulation]");
 	saveButton->SetAlign(Button::LEFT);
 	saveButton->SetCallback(new SaveAction());
+#ifdef TOUCHUI
+	saveButton->SetState(Button::HOLD);
+#endif
 	saveButton->SetTooltip(new ToolTip("Upload a new simulation", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(saveButton);
 
@@ -367,7 +373,7 @@ PowderToy::PowderToy():
 #endif
 }
 
-void PowderToy::OpenBrowser()
+void PowderToy::OpenBrowser(unsigned char b)
 {
 	if (voteDownload)
 	{
@@ -376,7 +382,11 @@ void PowderToy::OpenBrowser()
 		svf_myvote = 0;
 		SetInfoTip("Error: a previous vote may not have gone through");
 	}
+#ifdef TOUCHUI
+	if (ctrlHeld || b != 1)
+#else
 	if (ctrlHeld)
+#endif
 		catalogue_ui(vid_buf);
 	else
 		search_ui(vid_buf);
@@ -393,8 +403,13 @@ void PowderToy::ReloadSave(unsigned char b)
 		open_ui(vid_buf, svf_id, NULL, 0);
 }
 
-void PowderToy::DoSave()
+void PowderToy::DoSave(unsigned char b)
 {
+#ifdef TOUCHUI
+	if (!svf_login || (sdl_mod & (KMOD_CTRL|KMOD_META)) || b != 1)
+#else
+	if (!svf_login || (sdl_mod & (KMOD_CTRL|KMOD_META)))
+#endif
 	if (!svf_login || (sdl_mod & (KMOD_CTRL|KMOD_META)))
 	{
 		// local quick save
@@ -991,8 +1006,13 @@ void PowderToy::OnTick(uint32_t ticks)
 	// a ton of stuff with the buttons on the bottom row has to be updated
 	// later, this will only be done when an event happens
 	reloadButton->SetEnabled(svf_last ? true : false);
+#ifdef TOUCHUI
+	openBrowserButton->SetState(ctrlHeld ? Button::INVERTED : Button::HOLD);
+	saveButton->SetState((svf_login && ctrlHeld) ? Button::INVERTED : Button::HOLD);
+#else
 	openBrowserButton->SetState(ctrlHeld ? Button::INVERTED : Button::NORMAL);
 	saveButton->SetState((svf_login && ctrlHeld) ? Button::INVERTED : Button::NORMAL);
+#endif
 	std::string saveButtonText = "\x82 ";
 	std::string saveButtonTip;
 	if (!svf_login || ctrlHeld)

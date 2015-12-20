@@ -164,9 +164,9 @@ public:
 	bool BeforeKeyPress(int key, unsigned short character, unsigned short modifiers);
 	bool BeforeKeyRelease(int key, unsigned short character, unsigned short modifiers);
 
-	void OpenBrowser();
+	void OpenBrowser(unsigned char b);
 	void ReloadSave(unsigned char b);
-	void DoSave();
+	void DoSave(unsigned char b);
 	void DoVote(bool up);
 	void OpenTags();
 	void ReportBug();
