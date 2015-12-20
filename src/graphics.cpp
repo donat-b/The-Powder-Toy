@@ -730,6 +730,7 @@ int DrawMenus(pixel *vid_buf, int hover, int mouseY)
 
 bool draggingMenuSections = false;
 int menuOffset = 0, menuStart = 0;
+const int menuIconHeight = 20;
 int DrawMenusTouch(pixel *vid_buf, int b, int bq, int mx, int my)
 {
 	int xStart = menuStartPosition-2, y = YRES-70+menuOffset+1;
@@ -739,12 +740,12 @@ int DrawMenusTouch(pixel *vid_buf, int b, int bq, int mx, int my)
 	{
 		if (menuSections[i]->enabled)
 		{
-			if (y >= YRES-70-16*4 && y <= YRES-70+16*4)
+			if (y >= YRES-70-16*4-menuIconHeight/3+2 && y <= YRES-70+16*3+menuIconHeight/2+3)
 			{
-				drawrect(vid_buf, xStart+1, y, 14, 14, 255, 255, 255, 255);
-				drawchar(vid_buf, xStart+4, y+2, menuSections[i]->icon, 255, 255, 255, 255);
+				drawrect(vid_buf, xStart+1, y, menuIconWidth-3, menuIconHeight-2, 255, 255, 255, 255);
+				drawchar(vid_buf, xStart+4, y+(menuIconHeight-13)/2, menuSections[i]->icon, 255, 255, 255, 255);
 			}
-			y += 16;
+			y += menuIconHeight;
 		}
 	}
 	// fade out the icons on the edges
@@ -756,11 +757,11 @@ int DrawMenusTouch(pixel *vid_buf, int b, int bq, int mx, int my)
 			drawpixel(vid_buf, x, YRES-70+16*4-i-1, 0, 0, 0, 255-i*8);
 		}
 	}
-	fillrect(vid_buf, xStart, YRES-70-16*4-1, menuIconWidth, 16, 0, 0, 0, 255);
-	fillrect(vid_buf, xStart, YRES-70+16*4, menuIconWidth, 16, 0, 0, 0, 255);
+	fillrect(vid_buf, xStart, YRES-70-16*3-menuIconHeight-1, menuIconWidth, menuIconHeight, 0, 0, 0, 255);
+	fillrect(vid_buf, xStart, YRES-70+16*4, menuIconWidth, menuIconHeight, 0, 0, 0, 255);
 
 	// green box
-	drawrect(vid_buf, xStart+1, YRES-70+1, 14, 14, 0, 255, 0, 255);
+	drawrect(vid_buf, xStart+1, YRES-70+1, menuIconWidth-3, menuIconHeight-2, 0, 255, 0, 255);
 
 	// box around the entire thing
 	draw_line(vid_buf, xStart-1, YRES-70-16*3-1, xStart+menuIconWidth, YRES-70-16*3-1, 150, 150, 150, XRES+BARSIZE);
@@ -776,7 +777,7 @@ int DrawMenusTouch(pixel *vid_buf, int b, int bq, int mx, int my)
 	}
 	else if (b && draggingMenuSections)
 	{
-		int menuSize = (GetNumMenus()-1)*-16;
+		int menuSize = (GetNumMenus()-1)*-menuIconHeight;
 		menuOffset = my-menuStart;
 		if (menuOffset > 0)
 			menuOffset = 0;
@@ -788,11 +789,11 @@ int DrawMenusTouch(pixel *vid_buf, int b, int bq, int mx, int my)
 		draggingMenuSections = false;
 		if (bq)
 		{
-			menuOffset = (menuOffset-8)/16*16;
+			menuOffset = (menuOffset-(menuIconHeight/2))/menuIconHeight*menuIconHeight;
 		}
 	}
 
-	return draggingMenuSections ? (menuOffset-8)/-16 : -1;
+	return draggingMenuSections ? (menuOffset-(menuIconHeight/2))/-menuIconHeight : -1;
 }
 #endif
 
