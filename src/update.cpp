@@ -42,6 +42,9 @@
 
 bool confirm_update(const char *changelog, const char *file)
 {
+#ifdef ANDROID
+	return !confirm_ui(vid_buf, "\bwDo you want to update TPT?", changelog, "\btUpdate");
+#else
 	if (confirm_ui(vid_buf, "\bwDo you want to update Jacob1's Mod?", changelog, "\btUpdate"))
 	{
 		int len;
@@ -63,6 +66,7 @@ bool confirm_update(const char *changelog, const char *file)
 		}
 	}
 	return true;
+#endif
 }
 
 int update_start(char *data, int len)

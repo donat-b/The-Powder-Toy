@@ -651,8 +651,13 @@ void PowderToy::SaveStamp(bool alt)
 void PowderToy::ConfirmUpdate(std::string changelog, std::string file)
 {
 	if (!confirm_update(changelog.c_str(), file.c_str()))
+	{
+#ifdef ANDROID
+		Platform::OpenLink(file);
+#else
 		exit(0);
-		//Engine::Ref().CloseWindow(this);
+#endif
+	}
 }
 
 void PowderToy::UpdateDrawMode()
@@ -850,7 +855,6 @@ void PowderToy::OnTick(uint32_t ticks)
 	{
 		int status = 200;
 		char *ret = versionCheck->Finish(NULL, &status);
-		// ignore timeout errors or others, since the user didn't actually click anything
 		if (status != 200 || ParseServerReturn(ret, status, true))
 		{
 			SetInfoTip("Error, could not find update server. Press Ctrl+u to go check for a newer version manually on the tpt website");
@@ -896,7 +900,11 @@ void PowderToy::OnTick(uint32_t ticks)
 				if (buildnum > MOD_BUILD_VERSION)
 				{
 					std::stringstream changelogStream;
+#ifdef ANDROID
+					changelogStream << "\bbYour version: " << MOBILE_MAJOR << "." << MOBILE_MINOR << " (" << MOBILE_BUILD << ")\nNew version: " << major << "." << minor << " (" << buildnum << ")\n\n\bwChangeLog:\n";
+#else
 					changelogStream << "\bbYour version: " << MOD_VERSION << "." << MOD_MINOR_VERSION << " (" << MOD_BUILD_VERSION << ")\nNew version: " << major << "." << minor << " (" << buildnum << ")\n\n\bwChangeLog:\n";
+#endif
 					changelogStream << changelog;
 
 					Button *notification = AddNotification("A new version is available - click here!");
