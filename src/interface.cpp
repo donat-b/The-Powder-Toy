@@ -735,36 +735,31 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 	}
 }
 
-void ui_list_process(pixel * vid_buf, int mx, int my, int mb, ui_list *ed)
+void ui_list_process(pixel * vid_buf, int mx, int my, int mb, int mbq, ui_list *ed)
 {
 	int i, ystart, selected = 0;
-	if(ed->selected > ed->count || ed->selected < -1)
+	if (ed->selected > ed->count || ed->selected < -1)
 	{
 		ed->selected = -1;
 	}
-	if(mx > ed->x && mx < ed->x+ed->w && my > ed->y && my < ed->y+ed->h)
+	if (mx > ed->x && mx < ed->x+ed->w && my > ed->y && my < ed->y+ed->h)
 	{
 		ed->focus = 1;
-		if(mb)
+		if (!mb && mbq)
 		{
 			ystart = ed->y-(ed->count*8);
-			if(ystart < 5)
+			if (ystart < 5)
 				ystart = 5;
-			while (!sdl_poll())
-			{
-				mb = mouse_get_state(&mx, &my);
-				if (!mb)
-					break;
-			}
-
 			while (!sdl_poll() && !selected)
 			{
+				mbq = mb;
 				mb = mouse_get_state(&mx, &my);
-				for(i = 0; i < ed->count; i++)
+				for (i = 0; i < ed->count; i++)
 				{
-					if(mx > ed->x && mx < ed->x+ed->w && my > (ystart + i*16) && my < (ystart + i * 16) + 16)
+					if (mx > ed->x && mx < ed->x+ed->w && my > (ystart + i*16) && my < (ystart + i * 16) + 16)
 					{
-						if(mb){
+						if (!mb && mbq)
+						{
 							ed->selected = i;
 							selected = 1;
 						}
@@ -784,17 +779,15 @@ void ui_list_process(pixel * vid_buf, int mx, int my, int mb, ui_list *ed)
 				sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 				clearrect(vid_buf, ed->x-1, ystart-1, ed->w+3, (ed->count*16)+3);
 
-				if(!selected && mb)
+				if (!selected && !mb && mbq)
 					break;
-			}
-			while (!sdl_poll())
-			{
-				mb = mouse_get_state(&mx, &my);
-				if (!mb)
+				if (sdl_key == SDLK_RETURN)
+					break;
+				if (sdl_key == SDLK_ESCAPE)
 					break;
 			}
 			
-			if(ed->selected!=-1)
+			if (ed->selected!=-1)
 				strcpy(ed->str, ed->items[ed->selected]);
 		}
 	}
@@ -1457,7 +1450,7 @@ void prop_edit_ui(pixel *vid_buf)
 		drawrect(vid_buf, ed2.x-4, ed2.y-5, ed2.w+4, 16, 192, 192, 192, 255);
 
 		ui_list_draw(vid_buf, &ed);
-		ui_list_process(vid_buf, mx, my, b, &ed);
+		ui_list_process(vid_buf, mx, my, b, bq, &ed);
 		ui_edit_draw(vid_buf, &ed2);
 		ui_edit_process(mx, my, b, bq, &ed2);
 
@@ -8483,10 +8476,8 @@ void simulation_ui(pixel * vid_buf)
 		drawtext(vid_buf, x0+8, y0+194, "Edge Mode", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12, y0+208, "edgeMode", 255, 255, 255, 120);
 
-#ifndef NOMOD
 		drawtext(vid_buf, x0+8, y0+222, "Update Check", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12, y0+236, "doUpdates", 255, 255, 255, 120);
-#endif
 		
 		draw_line(vid_buf, x0, y0+250, x0+xsize, y0+250, 150, 150, 150, XRES+BARSIZE);
 
@@ -8522,9 +8513,7 @@ void simulation_ui(pixel * vid_buf)
 		ui_list_draw(vid_buf, &list);
 		ui_list_draw(vid_buf, &list2);
 		ui_list_draw(vid_buf, &list3);
-#ifndef NOMOD
 		ui_list_draw(vid_buf, &listUpdate);
-#endif
 #ifdef OGLR
 		clearScreen(1.0f);
 #endif
@@ -8538,12 +8527,10 @@ void simulation_ui(pixel * vid_buf)
 		ui_checkbox_process(mx, my, b, bq, &cb5);
 		ui_checkbox_process(mx, my, b, bq, &cb6);
 		ui_checkbox_process(mx, my, b, bq, &cb7);
-		ui_list_process(vid_buf, mx, my, b, &list);
-		ui_list_process(vid_buf, mx, my, b, &list2);
-		ui_list_process(vid_buf, mx, my, b, &list3);
-#ifndef NOMOD
-		ui_list_process(vid_buf, mx, my, b, &listUpdate);
-#endif
+		ui_list_process(vid_buf, mx, my, b, bq, &list);
+		ui_list_process(vid_buf, mx, my, b, bq, &list2);
+		ui_list_process(vid_buf, mx, my, b, bq, &list3);
+		ui_list_process(vid_buf, mx, my, b, bq, &listUpdate);
 
 #ifndef ANDROID
 		if (((cb3.checked)?2:1) != sdl_scale || ((cb4.checked)?1:0) != kiosk_enable)
@@ -8603,9 +8590,7 @@ void simulation_ui(pixel * vid_buf)
 		draw_bframe();
 	else if(edgeMode != 1 && oldedgeMode == 1)
 		erase_bframe();
-#ifndef NOMOD
 	doUpdates = listUpdate.selected ? true : false;
-#endif
 	fastquit = cb7.checked;
 
 	while (!sdl_poll())

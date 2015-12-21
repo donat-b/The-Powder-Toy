@@ -224,7 +224,7 @@ int ui_label_draw(pixel *vid_buf, ui_label *ed);
 void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed);
 
 void ui_list_draw(pixel *vid_buf, ui_list *ed);
-void ui_list_process(pixel * vid_buf, int mx, int my, int mb, ui_list *ed);
+void ui_list_process(pixel * vid_buf, int mx, int my, int mb, int mbq, ui_list *ed);
 
 void ui_checkbox_draw(pixel *vid_buf, ui_checkbox *ed);
 void ui_checkbox_process(int mx, int my, int mb, int mbq, ui_checkbox *ed);
