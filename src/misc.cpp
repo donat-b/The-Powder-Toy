@@ -424,10 +424,14 @@ void load_presets(void)
 				update_flag = 1;
 			else
 				update_flag = 0;
-			if ((tmpobj = cJSON_GetObjectItem(versionobj, "updateChecks")) && tmpobj->type == cJSON_True)
-				doUpdates = true;
-			else
-				doUpdates = false;
+			tmpobj = cJSON_GetObjectItem(versionobj, "updateChecks");
+			if (tmpobj)
+			{
+				if (tmpobj->type == cJSON_True)
+					doUpdates = true;
+				else
+					doUpdates = false;
+			}
 		}
 		else
 		{
