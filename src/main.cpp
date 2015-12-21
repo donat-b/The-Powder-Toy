@@ -2140,7 +2140,8 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		int hover = DrawMenusTouch(vid_buf, b, bq, x, y);
 		if (hover >= 0)
 		{
-			UpdateToolTip(menuSections[hover]->name, Point(menuStartPosition-5-textwidth(menuSections[hover]->name.c_str()), YRES-67), QTIP, -1);
+			if (y > 150)
+				UpdateToolTip(menuSections[hover]->name, Point(menuStartPosition-5-textwidth(menuSections[hover]->name.c_str()), YRES-67), QTIP, -1);
 			if (hover == SC_DECO && active_menu != SC_DECO)
 				last_active_menu = active_menu;
 			if (hover == SC_FAV)
