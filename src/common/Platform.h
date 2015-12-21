@@ -39,7 +39,7 @@ namespace Platform
 #ifdef BETA
 	#define IDENT_RELTYPE "B"
 #else
-	#define IDENT_RELTYPE "S"
+	#define IDENT_RELTYPE "R"
 #endif
 
 #if defined X86_SSE3

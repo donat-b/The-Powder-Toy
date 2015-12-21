@@ -247,13 +247,13 @@ void save_presets()
 	cJSON_AddNumberToObject(versionobj, "minor", MINOR_VERSION);
 	cJSON_AddNumberToObject(versionobj, "build", BUILD_NUM);
 	if (doingUpdate)
-	{
 		cJSON_AddTrueToObject(versionobj, "update");
-	}
 	else
-	{
 		cJSON_AddFalseToObject(versionobj, "update");
-	}
+	if (doUpdates)
+		cJSON_AddTrueToObject(versionobj, "updateChecks");
+	else
+		cJSON_AddFalseToObject(versionobj, "updateChecks");
 	
 	//Fav Menu/Records
 	cJSON_AddItemToObject(root, "records", recobj=cJSON_CreateObject());
@@ -303,7 +303,6 @@ void save_presets()
 		cJSON_AddNumberToObject(root, "alt_find", 1);
 	cJSON_AddNumberToObject(root, "dateformat", dateformat);
 	cJSON_AddNumberToObject(root, "decobox_hidden", decobox_hidden);
-	cJSON_AddNumberToObject(root, "doUpdates2", doUpdates);
 
 	cJSON_AddItemToObject(root, "SavePreview", tmpobj=cJSON_CreateObject());
 	cJSON_AddNumberToObject(tmpobj, "scrollSpeed", scrollSpeed);
@@ -425,6 +424,10 @@ void load_presets(void)
 				update_flag = 1;
 			else
 				update_flag = 0;
+			if ((tmpobj = cJSON_GetObjectItem(versionobj, "updateChecks")) && tmpobj->type == cJSON_True)
+				doUpdates = true;
+			else
+				doUpdates = false;
 		}
 		else
 		{
@@ -651,8 +654,6 @@ void load_presets(void)
 			dateformat = tmpobj->valueint;
 		if (tmpobj = cJSON_GetObjectItem(root, "decobox_hidden"))
 			decobox_hidden = tmpobj->valueint;
-		if (tmpobj = cJSON_GetObjectItem(root, "doUpdates2"))
-			doUpdates = tmpobj->valueint;
 
 		itemobj = cJSON_GetObjectItem(root, "SavePreview");
 		if (itemobj)

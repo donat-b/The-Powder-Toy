@@ -45,17 +45,7 @@
 	#define UPDATE_CPU "Unknown"
 #endif
 
-#ifndef UPDATESERVER
-	#define UPDATESERVER "178.219.36.155" // change this to check for updates on a different server
-	#define UPDATESERVERALT "mniip.com" // alternate update server (same as above)
-#endif
-
-const char update_uri[] = "http://" UPDATESERVER "/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
-const char changelog_uri[] = "http://" UPDATESERVER "/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
-const char update_uri_alt[] = "http://" UPDATESERVERALT "/jacob1/update.lua?Action=Download&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
-const char changelog_uri_alt[] = "http://" UPDATESERVERALT "/jacob1/update.lua?Action=CheckVersion&Architecture=" UPDATE_ARCH "&InstructionSet=" UPDATE_CPU;
-
-bool confirm_update(const char *changelog);
+bool confirm_update(const char *changelog, const char *file);
 int update_start(char *data, int len);
 int update_finish(void);
 void update_cleanup(void);

@@ -40,16 +40,12 @@
 #include "misc.h"
 #include "common/Platform.h"
 
-bool confirm_update(const char *changelog)
+bool confirm_update(const char *changelog, const char *file)
 {
 	if (confirm_ui(vid_buf, "\bwDo you want to update Jacob1's Mod?", changelog, "\btUpdate"))
 	{
-		char *tmp;
 		int len;
-		if (doUpdates == 2)
-			tmp = download_ui(vid_buf, update_uri_alt, &len);
-		else
-			tmp = download_ui(vid_buf, update_uri, &len);
+		char *tmp = download_ui(vid_buf, file, &len);
 
 		if (tmp)
 		{

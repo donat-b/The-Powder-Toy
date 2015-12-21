@@ -93,19 +93,14 @@ PowderToy::PowderToy():
 {
 	ignoreQuits = true;
 
-#ifndef NOMOD
-	if (doUpdates && strcmp(svf_user, "jacob1"))
+	if (doUpdates)
 	{
-		if (doUpdates == 2)
-			versionCheck = new Download(changelog_uri_alt);
-		else
-			versionCheck = new Download(changelog_uri);
+		versionCheck = new Download("http://" UPDATESERVER "/Startup.json");
 		if (svf_login)
 			versionCheck->AuthHeaders(svf_user, NULL); //username instead of session
 		versionCheck->Start();
 	}
 	else
-#endif
 		versionCheck = NULL;
 
 	if (svf_login)
@@ -410,7 +405,6 @@ void PowderToy::DoSave(unsigned char b)
 #else
 	if (!svf_login || (sdl_mod & (KMOD_CTRL|KMOD_META)))
 #endif
-	if (!svf_login || (sdl_mod & (KMOD_CTRL|KMOD_META)))
 	{
 		// local quick save
 		if (mouse.X <= saveButton->GetPosition().X+18 && svf_fileopen)
@@ -654,9 +648,9 @@ void PowderToy::SaveStamp(bool alt)
 #endif
 
 // misc main gui functions
-void PowderToy::ConfirmUpdate()
+void PowderToy::ConfirmUpdate(std::string changelog, std::string file)
 {
-	if (!confirm_update(changelog.c_str()))
+	if (!confirm_update(changelog.c_str(), file.c_str()))
 		exit(0);
 		//Engine::Ref().CloseWindow(this);
 }
@@ -855,39 +849,96 @@ void PowderToy::OnTick(uint32_t ticks)
 	if (versionCheck && versionCheck->CheckDone())
 	{
 		int status = 200;
-		char *ver_data = versionCheck->Finish(NULL, &status);
-		if (status == 200 && ver_data)
-		{
-			int count, buildnum, major, minor;
-			if (sscanf(ver_data, "%d %d %d%n", &buildnum, &major, &minor, &count) == 3)
-				if (buildnum > MOD_BUILD_VERSION)
-				{
-					std::stringstream changelogStream;
-					changelogStream << "\bbYour version: " << MOD_VERSION << "." << MOD_MINOR_VERSION << " (" << MOD_BUILD_VERSION << ")\nNew version: " << major << "." << minor << " (" << buildnum << ")\n\n\bwChangeLog:\n";
-					changelogStream << &ver_data[count+2];
-					changelog = changelogStream.str();
-
-					class DoUpdateAction : public ButtonAction
-					{
-					public:
-						virtual void ButtionActionCallback(Button *button, unsigned char b)
-						{
-							if (b == 1)
-								dynamic_cast<PowderToy*>(button->GetParent())->ConfirmUpdate();
-							button->GetParent()->RemoveComponent(button);
-						}
-					};
-					Button *notification = AddNotification("A new version is available - click here!");
-					notification->SetCallback(new DoUpdateAction());
-					AddComponent(notification);
-				}
-		}
-		else
+		char *ret = versionCheck->Finish(NULL, &status);
+		// ignore timeout errors or others, since the user didn't actually click anything
+		if (status != 200 || ParseServerReturn(ret, status, true))
 		{
 			SetInfoTip("Error, could not find update server. Press Ctrl+u to go check for a newer version manually on the tpt website");
 			UpdateToolTip("", Point(16, 20), INTROTIP, 0);
 		}
-		free(ver_data);
+		else
+		{
+			std::istringstream datastream(ret);
+			Json::Value root;
+
+			try
+			{
+				datastream >> root;
+
+				//std::string motd = root["MessageOfTheDay"].asString();
+
+				class DoUpdateAction : public ButtonAction
+				{
+					std::string changelog, filename;
+				public:
+					DoUpdateAction(std::string changelog_, std::string filename_):
+						ButtonAction(),
+						changelog(changelog_),
+						filename(filename_)
+					{
+
+					}
+
+					virtual void ButtionActionCallback(Button *button, unsigned char b)
+					{
+						if (b == 1)
+							dynamic_cast<PowderToy*>(button->GetParent())->ConfirmUpdate(changelog, filename);
+						button->GetParent()->RemoveComponent(button);
+					}
+				};
+				Json::Value updates = root["Updates"];
+				Json::Value stable = updates["Stable"];
+				int major = stable["Major"].asInt();
+				int minor = stable["Minor"].asInt();
+				int buildnum = stable["Build"].asInt();
+				std::string file = stable["File"].asString();
+				std::string changelog = stable["Changelog"].asString();
+				if (buildnum > MOD_BUILD_VERSION)
+				{
+					std::stringstream changelogStream;
+					changelogStream << "\bbYour version: " << MOD_VERSION << "." << MOD_MINOR_VERSION << " (" << MOD_BUILD_VERSION << ")\nNew version: " << major << "." << minor << " (" << buildnum << ")\n\n\bwChangeLog:\n";
+					changelogStream << changelog;
+
+					Button *notification = AddNotification("A new version is available - click here!");
+					notification->SetCallback(new DoUpdateAction(changelogStream.str(), file));
+					AddComponent(notification);
+				}
+
+
+				class NotificationOpenAction : public ButtonAction
+				{
+					std::string link;
+				public:
+					NotificationOpenAction(std::string link_):
+						ButtonAction()
+					{
+						link = link_;
+					}
+
+					virtual void ButtionActionCallback(Button *button, unsigned char b)
+					{
+						if (b == 1)
+							Platform::OpenLink(link);
+						dynamic_cast<PowderToy*>(button->GetParent())->RemoveComponent(button);
+					}
+				};
+				Json::Value notifications = root["Notifications"];
+				for (int i = 0; i < notifications.size(); i++)
+				{
+					std::string message = notifications[i]["Text"].asString();
+					std::string link = notifications[i]["Link"].asString();
+
+					Button *notification = AddNotification(message);
+					notification->SetCallback(new NotificationOpenAction(link));
+				}
+			}
+			catch (std::exception &e)
+			{
+				SetInfoTip("Error, the update server returned invalid data");
+				UpdateToolTip("", Point(16, 20), INTROTIP, 0);
+			}
+		}
+		free(ret);
 		versionCheck = NULL;
 	}
 	if (sessionCheck && sessionCheck->CheckDone())

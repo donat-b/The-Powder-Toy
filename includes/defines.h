@@ -47,8 +47,15 @@
 #define MTOS_EXPAND(str) #str
 #define MTOS(str) MTOS_EXPAND(str)
 
+#ifndef SERVER
 #define SERVER "powdertoy.co.uk"
+#endif
+#ifndef STATICSERVER
 #define STATICSERVER "static.powdertoy.co.uk"
+#endif
+#ifndef UPDATESERVER
+#define UPDATESERVER "starcatcher.us/TPT"
+#endif
 
 #define LOCAL_SAVE_DIR "Saves"
 
@@ -244,7 +251,7 @@ extern int timesplayed;
 
 extern int deco_disablestuff;
 
-extern int doUpdates;
+extern bool doUpdates;
 
 extern int debug_flags;
 #define DEBUG_PERF_FRAMECOUNT 256

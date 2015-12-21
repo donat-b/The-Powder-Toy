@@ -181,6 +181,7 @@ static int resolve(char *dns, char *srv, struct sockaddr_in *addr)
 	return 1;
 }
 
+std::string userAgent;
 void http_init(char *proxy)
 {
 	char *host, *port;
@@ -204,6 +205,18 @@ void http_init(char *proxy)
 		free(port);
 	}
 	memset(dns_cache, 0, sizeof(dns_cache));
+
+	std::stringstream userAgentBuilder;
+	userAgentBuilder << "PowderToy/" << SAVE_VERSION << "." << MINOR_VERSION << " ";
+	userAgentBuilder << "(" << IDENT_PLATFORM << "; " << IDENT_BUILD << "; M0) ";
+	userAgentBuilder << "TPTPP/" << SAVE_VERSION << "." << MINOR_VERSION << "." << BUILD_NUM << IDENT_RELTYPE << ".0";
+#ifndef NOMOD
+	userAgentBuilder << " JMOD/" << MOD_VERSION << "." << MOD_MINOR_VERSION << "." << MOD_BUILD_VERSION << "." << MOD_SAVE_VERSION;
+#endif
+#ifdef ANDROID
+	userAgentBuilder << " ANDROID/" << MOBILE_MAJOR << "." << MOBILE_MINOR << "." << MOBILE_BUILD;
+#endif
+	userAgent = userAgentBuilder.str();
 }
 
 void http_done(void)
@@ -506,7 +519,8 @@ int http_async_req_status(void *ctx)
 		if (cx->txdl)
 		{
 			// generate POST
-			cx->tbuf = (char*)malloc(strlen(cx->host) + strlen(cx->path) + 195 + cx->txdl + cx->thlen);
+			// 182 is entirely arbitrary, did not feel like couting what it should be, but it should be long enough
+			cx->tbuf = (char*)malloc(strlen(cx->host) + strlen(cx->path) + 182 + userAgent.length() + cx->txdl + cx->thlen);
 			cx->tptr = 0;
 			cx->tlen = 0;
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "POST %s HTTP/1.1\r\n", cx->path);
@@ -522,12 +536,7 @@ int http_async_req_status(void *ctx)
 				cx->thlen = 0;
 			}
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "Content-Length: %d\r\n", cx->txdl);
-
-			cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dS%d\r\n", IDENT_VERSION, SAVE_VERSION, MINOR_VERSION);
-			cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-J1Mod-Version: %d.%d.%d\r\n", MOD_VERSION, MOD_MINOR_VERSION, MOD_BUILD_VERSION);
-#ifdef ANDROID
-			cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Mobile-Version: %d.%d.%d\r\n", MOBILE_MAJOR, MOBILE_MINOR, MOBILE_BUILD);
-#endif
+			cx->tlen += sprintf(cx->tbuf+cx->tlen, "User-Agent: %s\r\n", userAgent.c_str());
 
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "\r\n");
 			memcpy(cx->tbuf+cx->tlen, cx->txd, cx->txdl);
@@ -539,7 +548,8 @@ int http_async_req_status(void *ctx)
 		else
 		{
 			// generate GET
-			cx->tbuf = (char*)malloc(strlen(cx->host) + strlen(cx->path) + 162 + cx->thlen);
+			// 150 is entirely arbitrary, did not feel like couting what it should be, but it should be long enough
+			cx->tbuf = (char*)malloc(strlen(cx->host) + strlen(cx->path) + 150 + cx->thlen);
 			cx->tptr = 0;
 			cx->tlen = 0;
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "GET %s HTTP/1.1\r\n", cx->path);
@@ -554,12 +564,7 @@ int http_async_req_status(void *ctx)
 			}
 			if (!cx->keep)
 				cx->tlen += sprintf(cx->tbuf+cx->tlen, "Connection: close\r\n");
-
-			cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Powder-Version: %s%dS%d\r\n", IDENT_VERSION, SAVE_VERSION, MINOR_VERSION);
-			cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-J1Mod-Version: %d.%d.%d\r\n", MOD_VERSION, MOD_MINOR_VERSION, MOD_BUILD_VERSION);
-#ifdef ANDROID
-			cx->tlen += sprintf(cx->tbuf+cx->tlen, "X-Mobile-Version: %d.%d.%d\r\n", MOBILE_MAJOR, MOBILE_MINOR, MOBILE_BUILD);
-#endif
+			cx->tlen += sprintf(cx->tbuf+cx->tlen, "User-Agent: %s\r\n", userAgent.c_str());
 
 			cx->tlen += sprintf(cx->tbuf+cx->tlen, "\n");
 		}

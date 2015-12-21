@@ -29,7 +29,6 @@ private:
 
 	// website stuff
 	Download *versionCheck;
-	std::string changelog;
 	Download *sessionCheck; // really a tpt++ version check but it does session too and has nice things
 	Download *voteDownload;
 
@@ -110,7 +109,7 @@ public:
 	PowderToy();
 	~PowderToy();
 
-	void ConfirmUpdate();
+	void ConfirmUpdate(std::string changelog, std::string file);
 	bool MouseClicksIgnored();
 	Point AdjustCoordinates(Point mouse);
 	bool IsMouseInZoom(Point mouse);

@@ -6459,7 +6459,7 @@ int execute_bug(pixel *vid_buf, char *feedback)
 	std::string bug = "bug=";
 	bug.append(URLEncode(feedback));
 
-	void *http = http_async_req_start(NULL, "http://" UPDATESERVER "/jacob1/bug.lua", bug.c_str(), bug.length(), 0);
+	void *http = http_async_req_start(NULL, "http://mniip.com/jacob1/bug.lua", bug.c_str(), bug.length(), 0);
 	if (svf_login)
 	{
 		http_auth_headers(http, svf_user, NULL, NULL);
@@ -8361,8 +8361,8 @@ void simulation_ui(pixel * vid_buf)
 	int gravityModeListCount = 3;
 	char * edgeModeList[] = {"Void", "Solid", "Loop"};//, "Empty"};
 	int edgeModeListCount = 3;
-	char * updateList[] = {"No Update Check", "ip: 178.219.36.155", "website: mniip.com"};//, "Empty"};
-	int updateListCount = 3;
+	char * updateList[] = {"No Update Check", "Updates On (http://starcatcher.us/TPT)"};
+	int updateListCount = 2;
 	ui_list list;
 	ui_list list2;
 	ui_list list3;
@@ -8433,12 +8433,12 @@ void simulation_ui(pixel * vid_buf)
 	list3.items = edgeModeList;
 	list3.count = edgeModeListCount;
 
-	listUpdate.x = x0+xsize-100;	//Edge Mode
+	listUpdate.x = x0+xsize-199;
 	listUpdate.y = y0+219;
-	listUpdate.w = 96;
+	listUpdate.w = 195;
 	listUpdate.h = 16;
 	listUpdate.def = "[update server]";
-	listUpdate.selected = doUpdates;
+	listUpdate.selected = doUpdates ? 1 : 0;
 	listUpdate.items = updateList;
 	listUpdate.count = updateListCount;
 
@@ -8604,7 +8604,7 @@ void simulation_ui(pixel * vid_buf)
 	else if(edgeMode != 1 && oldedgeMode == 1)
 		erase_bframe();
 #ifndef NOMOD
-	doUpdates = listUpdate.selected;
+	doUpdates = listUpdate.selected ? true : false;
 #endif
 	fastquit = cb7.checked;
 

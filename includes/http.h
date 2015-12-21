@@ -20,6 +20,7 @@
 #include <map>
 #include <string>
 
+extern std::string userAgent;
 void http_init(char *proxy);
 void http_done(void);
 

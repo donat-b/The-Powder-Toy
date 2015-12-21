@@ -246,7 +246,7 @@ int realistic = 0;
 int unlockedstuff = 0x08;
 int old_menu = 0;
 int loop_time = 0;
-int doUpdates = 2;
+bool doUpdates = true;
 
 int drawinfo = 0;
 int elapsedTime = 0;
