@@ -1276,12 +1276,16 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 		if(b==1 && hover!=-1)
 		{
 			selectedl = hover;
+#ifndef TOUCHUI
 			break;
+#endif
 		}
 		if(b==4 && hover!=-1)
 		{
 			selectedr = hover;
+#ifndef TOUCHUI
 			break;
+#endif
 		}
 		
 		drawtext(vid_buf, x0+5, y0+windowHeight-12, "Dismiss", 255, 255, 255, 255);
@@ -1294,9 +1298,15 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 		if (b && !bq)
 		{
 			if (mx>=x0 && mx<x0+windowWidth && my>=y0+windowHeight-16 && my<=y0+windowHeight)
+			{
+				selectedl = -1;
+				selectedr = -1;
 				break;
+			}
+#ifndef TOUCHUI
 			else if (mx < x0 || mx > x0+windowWidth || my < y0 || my > y0+windowHeight)
 				break;
+#endif
 		}
 
 		if (sdl_key==SDLK_RETURN)
@@ -1307,8 +1317,10 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 		}
 		if (sdl_key==SDLK_ESCAPE)
 		{
+#ifndef TOUCHUI
 			selectedl = -1;
 			selectedr = -1;
+#endif
 			break;
 		}
 	}
