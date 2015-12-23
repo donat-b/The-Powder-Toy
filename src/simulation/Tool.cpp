@@ -348,6 +348,7 @@ int DecoTool::FloodFill(Simulation *sim, Brush *brush, Point position)
 	pixel rep = vid_buf[position.X+position.Y*(XRES+BARSIZE)];
 	unsigned int col = (ID == DECO_CLEAR) ? COLARGB(0, 0, 0, 0) : decocolor;
 	sim->FloodDeco(vid_buf, position.X, position.Y, col, PIXCONV(rep));
+	return 1;
 }
 Tool* DecoTool::Sample(Simulation *sim, Point position)
 {

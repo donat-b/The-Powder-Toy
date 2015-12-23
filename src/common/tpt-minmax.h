@@ -13,26 +13,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This header is included in every single element file
+#ifndef TPT_MINMAX_H
+#define TPT_MINMAX_H
 
-#ifndef ELEMENTS_COMMON_H
-#define ELEMENTS_COMMON_H
-
-#include <cmath>
-#include <cstdlib>
-#include "common/tpt-minmax.h"
-#include "simulation/ElementNumbers.h"
-#include "simulation/WallNumbers.h"
-#include "simulation/Element.h"
-#include "simulation/Simulation.h"
-
-
-
-#include "powder.h"
-#include "gravity.h"
-#include "powdergraphics.h"
-#include "game/Menus.h"
-
-#define BOUNDS_CHECK true
+#ifdef _MSC_VER
+// less than VS2013. Untested since I don't use VS2012 anymore
+#if _MSC_VER < 1800
+#define fmin min
+#define fminf min
+#define fmax max
+#define fmaxf max
+#else
+// >= VS2013
+#include <algorithm>
+#define NOMINMAX
+#endif
+#else
+// not using visual studio, std::min and std::max are normal
+#include <algorithm>
+#endif
 
 #endif

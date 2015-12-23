@@ -17,7 +17,7 @@
 #define SIMULATION_ELEMENTS_PRTI_H 
 
 #include <cstring>
-#include <algorithm>
+#include "common/tpt-minmax.h"
 #include "simulation/ElementDataContainer.h"
 #include "simulation/elements/PPIP.h"
 #include "powder.h"
@@ -108,7 +108,7 @@ public:
 		if (rx>1 || ry>1 || rx<-1 || ry<-1)
 		{
 			// scale down if larger than +-1
-			float rmax = std::max(std::abs(rx), std::abs(ry));
+			float rmax = (float)std::max(std::abs(rx), std::abs(ry));
 			rx = (int)(rx/rmax);
 			ry = (int)(ry/rmax);
 		}

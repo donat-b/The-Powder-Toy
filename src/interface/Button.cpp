@@ -1,4 +1,5 @@
 #include "Button.h"
+#include "common/tpt-minmax.h"
 #include "game/ToolTip.h"
 #include "graphics/VideoBuffer.h"
 
@@ -39,6 +40,12 @@ void Button::SetText(std::string text_)
 			text.erase(text.length()-4, 1);
 		}
 	}
+}
+
+void Button::SetTooltip(ToolTip *newTip)
+{
+	delete tooltip;
+	tooltip = newTip;
 }
 
 void Button::SetTooltipText(std::string newTooltip)
@@ -88,7 +95,7 @@ void Button::OnDraw(VideoBuffer* vid)
 	if (enabled)
 		vid->DrawRect(position.X, position.Y, size.X, size.Y, COLR(color), COLG(color), COLB(color), 255);
 	else
-		vid->DrawRect(position.X, position.Y, size.X, size.Y, COLR(color)*.55f, COLG(color)*.55f, COLB(color)*.55f, 255);
+		vid->DrawRect(position.X, position.Y, size.X, size.Y, (int)(COLR(color)*.55f), (int)(COLG(color)*.55f), (int)(COLB(color)*.55f), 255);
 
 	ARGBColour textColor;
 	ARGBColour backgroundColor = 0;

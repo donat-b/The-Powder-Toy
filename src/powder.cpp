@@ -23,6 +23,8 @@
 #include "misc.h"
 #include "gravity.h"
 
+#include "common/tpt-inline.h"
+#include "common/tpt-minmax.h"
 #include "game/Brush.h"
 #include "game/Sign.h"
 #include "simulation/Simulation.h"
@@ -193,7 +195,7 @@ void set_emap(int x, int y)
 			}
 }
 
-TPT_GNU_INLINE int parts_avg(int ci, int ni,int t)
+int parts_avg(int ci, int ni,int t)
 {
 	if (t==PT_INSL)//to keep electronics working
 	{
@@ -840,7 +842,7 @@ int get_brush_flags()
 	return flags;
 }
 
-TPT_GNU_INLINE void orbitalparts_get(int block1, int block2, int resblock1[], int resblock2[])
+void orbitalparts_get(int block1, int block2, int resblock1[], int resblock2[])
 {
 	resblock1[0] = (block1&0x000000FF);
 	resblock1[1] = (block1&0x0000FF00)>>8;
@@ -853,7 +855,7 @@ TPT_GNU_INLINE void orbitalparts_get(int block1, int block2, int resblock1[], in
 	resblock2[3] = (block2&0xFF000000)>>24;
 }
 
-TPT_GNU_INLINE void orbitalparts_set(int *block1, int *block2, int resblock1[], int resblock2[])
+void orbitalparts_set(int *block1, int *block2, int resblock1[], int resblock2[])
 {
 	int block1tmp = 0;
 	int block2tmp = 0;

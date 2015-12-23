@@ -28,6 +28,7 @@
 #include <stdarg.h>
 #include "defines.h"
 
+#include "common/tpt-inline.h"
 #include "common/tpt-stdint.h" 
 
 

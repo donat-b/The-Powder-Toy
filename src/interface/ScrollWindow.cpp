@@ -1,4 +1,5 @@
 #include "ScrollWindow.h"
+#include "common/tpt-minmax.h"
 
 ScrollWindow::ScrollWindow(Point position, Point size):
 	Window_(position, size),

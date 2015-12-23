@@ -69,6 +69,7 @@
 #include "benchmark.h"
 
 #include "common/Platform.h"
+#include "common/tpt-minmax.h"
 #include "game/Brush.h"
 #include "game/Menus.h"
 #include "game/Sign.h"

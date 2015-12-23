@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "common/tpt-minmax.h"
 #include <cmath>
 #include <sstream>
 #include <bzlib.h>
@@ -58,6 +59,7 @@
 #include "images.h"
 #endif
 
+#include "common/tpt-inline.h"
 #include "game/Brush.h"
 #include "game/Menus.h"
 #include "game/Sign.h"

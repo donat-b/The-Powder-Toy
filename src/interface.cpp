@@ -21,7 +21,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sstream>
-#include <algorithm>
 #include <bzlib.h>
 #include <math.h>
 #include <time.h>
@@ -4060,7 +4059,7 @@ int search_ui(pixel *vid_buf)
 			drawtext(vid_buf, 4+xOffset, YRES+MENUSIZE-16, "\x96", 255, 255, 255, 255);
 			drawrect(vid_buf, 1+xOffset, YRES+MENUSIZE-20, 16, 16, 255, 255, 255, 255);
 		}
-		else if (page_count > exp_res && !(search_own || search_fav || search_date) && !strlen(ed.str) < 4)
+		else if (page_count > exp_res && !(search_own || search_fav || search_date))
 		{
 			if (p1_extra)
 				drawtext(vid_buf, 5+xOffset, YRES+MENUSIZE-15, "\x85", 255, 255, 255, 255);

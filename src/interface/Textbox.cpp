@@ -1,4 +1,4 @@
-#include <algorithm>
+#include "common/tpt-minmax.h"
 #include <sstream>
 #include "SDLCompat.h"
 #include "Textbox.h"

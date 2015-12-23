@@ -76,8 +76,10 @@ void Window_::FocusComponent(Component *toFocus)
 
 void Window_::UpdateComponents()
 {
-	for (std::vector<Component*>::iterator iter = Components.end()-1, end = Components.begin()-1; iter != end; iter--)
+	std::vector<Component*>::iterator iter = Components.end(), end = Components.begin();
+	do
 	{
+		iter--;
 		Component *c = *iter;
 		if (c->toDelete)
 		{
@@ -89,7 +91,7 @@ void Window_::UpdateComponents()
 		{
 			c->SetVisible(true);
 		}
-	}
+	} while (iter != end);
 }
 
 void Window_::DoExit()

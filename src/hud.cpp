@@ -9,6 +9,7 @@
 #include "luaconsole.h"
 #include "powder.h"
 
+#include "common/tpt-minmax.h"
 #include "game/Menus.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"

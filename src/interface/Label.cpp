@@ -1,3 +1,4 @@
+#include "common/tpt-minmax.h"
 #include <algorithm>
 #include <cstdlib>
 #include "SDLCompat.h"

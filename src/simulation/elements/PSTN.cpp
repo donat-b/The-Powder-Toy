@@ -159,8 +159,8 @@ int MoveStack(Simulation *sim, int stackX, int stackY, int directionX, int direc
 				int srcX = (int)(parts[jP].x + 0.5f), srcY = (int)(parts[jP].y + 0.5f);
 				int destX = srcX-directionX*amount, destY = srcY-directionY*amount;
 				pmap[srcY][srcX] = 0;
-				parts[jP].x = destX;
-				parts[jP].y = destY;
+				parts[jP].x = (float)destX;
+				parts[jP].y = (float)destY;
 				pmap[destY][destX] = parts[jP].type|(jP<<8);
 			}
 			return amount;
@@ -188,8 +188,8 @@ int MoveStack(Simulation *sim, int stackX, int stackY, int directionX, int direc
 				int srcX = (int)(parts[jP].x + 0.5f), srcY = (int)(parts[jP].y + 0.5f);
 				int destX = srcX+directionX*possibleMovement, destY = srcY+directionY*possibleMovement;
 				pmap[srcY][srcX] = 0;
-				parts[jP].x = destX;
-				parts[jP].y = destY;
+				parts[jP].x = (float)destX;
+				parts[jP].y = (float)destY;
 				pmap[destY][destX] = parts[jP].type|(jP<<8);
 			}
 			return possibleMovement;

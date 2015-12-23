@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "common/tpt-minmax.h"
 #include <bzlib.h>
 #include <math.h>
 #include <sstream>
@@ -65,6 +66,7 @@ pixel *prerender_save(void *save, int size, int *width, int *height)
 	{
 		return NULL;
 	}
+	return NULL;
 }
 
 int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* partsptr, unsigned pmap[YRES][XRES])
@@ -91,6 +93,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 	{
 		return 1;
 	}
+	return 1;
 }
 
 int fix_type(int type, int version, int modver, int (elementPalette)[PT_NUM])
@@ -2175,7 +2178,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		freeIndices = (int*)calloc(sizeof(int), NPART);
 		partsSimIndex = (unsigned*)calloc(NPART, sizeof(unsigned));
 		partsCount = 0;
-		for (int i = 0; i < NPART; i++)
+		for (i = 0; i < NPART; i++)
 		{
 			// keep a track of indices we can use
 			if (!partsptr[i].type)

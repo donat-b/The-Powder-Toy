@@ -13,26 +13,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This header is included in every single element file
+#ifndef TPT_INLINE_H
+#define TPT_INLINE_H
 
-#ifndef ELEMENTS_COMMON_H
-#define ELEMENTS_COMMON_H
-
-#include <cmath>
-#include <cstdlib>
-#include "common/tpt-minmax.h"
-#include "simulation/ElementNumbers.h"
-#include "simulation/WallNumbers.h"
-#include "simulation/Element.h"
-#include "simulation/Simulation.h"
-
-
-
-#include "powder.h"
-#include "gravity.h"
-#include "powdergraphics.h"
-#include "game/Menus.h"
-
-#define BOUNDS_CHECK true
+#if defined(_MSC_VER)
+#define TPT_INLINE _inline
+#elif defined(__llvm__)
+#define TPT_INLINE
+#else
+#define TPT_INLINE inline
+#endif
 
 #endif

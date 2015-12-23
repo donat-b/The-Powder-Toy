@@ -13,7 +13,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SDLCompat.h"
 #include "simulation/ElementsCommon.h"
 #include "simulation/ToolNumbers.h"
 #include "simulation/Tool.h"
@@ -657,6 +656,8 @@ void STKM_ElementDataContainer::Interact(Simulation* sim, Stickman *playerp, int
 	}
 }
 
+// .-.
+#include "SDLCompat.h"
 void STKM_ElementDataContainer::HandleKeys(int sdl_key, int sdl_rkey)
 {
 	//  4

@@ -1,7 +1,7 @@
 #include <cmath> // for pow
 #include <cstdlib> // needed in some compilers for std::abs
-#include <algorithm> // needed in some compilers for std::min
 #include "Brush.h"
+#include "common/tpt-minmax.h"
 
 bool Brush::IsInside(int x, int y)
 {

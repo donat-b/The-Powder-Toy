@@ -139,29 +139,8 @@ const int menuIconWidth = 17;
 #define GLASS_IOR      1.9f
 #define GLASS_DISP     0.07f
 
-#ifdef WIN
 #ifdef _MSC_VER
-#define strcasecmp _stricmp //stricmp is deprecated in visual studio
-#if _MSC_VER >= 1800
-#include <algorithm>
-#endif
-#pragma warning(disable: 4100) //unreferenced formal parameter
-#else
-#define strcasecmp stricmp
-#endif
-#endif
-
-#ifdef __cplusplus
-#define TPT_INLINE
-#define TPT_GNU_INLINE
-#else
-#if defined(WIN) && !defined(__GNUC__)
-#define TPT_INLINE _inline
-#define TPT_GNU_INLINE
-#else
-#define TPT_INLINE inline
-#define TPT_GNU_INLINE inline
-#endif
+#pragma warning(disable: 4100) // unreferenced formal parameter
 #endif
 
 #if defined(WIN) && defined(__GNUC__)

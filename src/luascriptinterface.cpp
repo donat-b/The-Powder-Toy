@@ -2919,6 +2919,7 @@ int platform_showOnScreenKeyboard(lua_State * l)
 {
 	const char *startText = luaL_optstring(l, 1, "");
 	Platform::ShowOnScreenKeyboard(startText);
+	return 0;
 }
 
 int platform_getOnScreenKeyboardInput(lua_State * l)

@@ -13,8 +13,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TPT_stdint_H
-#define TPT_stdint_H
+#ifndef TPT_STDINT_H
+#define TPT_STDINT_H
 
 // MSVC is a nuisance
 

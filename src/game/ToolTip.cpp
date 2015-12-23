@@ -1,5 +1,6 @@
 #include "ToolTip.h"
 #include "graphics.h"
+#include "common/tpt-minmax.h"
 
 // functions in tooltip class
 ToolTip::ToolTip(std::string tip_, Point location_, int ID_, int alpha_):

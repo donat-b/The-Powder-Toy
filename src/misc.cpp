@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "common/tpt-minmax.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -60,7 +61,7 @@ char *clipboard_text = NULL;
 static char hex[] = "0123456789ABCDEF";
 
 //Signum function
-TPT_GNU_INLINE int isign(float i)
+int isign(float i)
 {
 	if (i<0)
 		return -1;
@@ -69,7 +70,7 @@ TPT_GNU_INLINE int isign(float i)
 	return 0;
 }
 
-TPT_GNU_INLINE unsigned clamp_flt(float f, float min, float max)
+unsigned clamp_flt(float f, float min, float max)
 {
 	if (f<min)
 		return 0;
@@ -78,7 +79,7 @@ TPT_GNU_INLINE unsigned clamp_flt(float f, float min, float max)
 	return (int)(255.0f*(f-min)/(max-min));
 }
 
-TPT_GNU_INLINE float restrict_flt(float f, float min, float max)
+float restrict_flt(float f, float min, float max)
 {
 	if (f<min)
 		return min;

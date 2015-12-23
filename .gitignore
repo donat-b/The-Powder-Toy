@@ -24,6 +24,22 @@ config.log
 *.includes
 *.user
 
+# Visual studio project files
+*.sdf
+*.opensdf
+*.sln
+*.suo
+*.vcxproj
+*.vcxproj.filters
+*ilk
+*.pdb
+*.idb
+*.log
+*.tlog
+*.lastbuildstats
+*.obj
+*.res
+
 /stamps/
 /Saves/
 /scripts/
@@ -31,16 +47,7 @@ config.log
 /ipch/
 /font/
 /build/
-/build2/
 /updatepackager/
-/Debug/
-/Release/
-/Release-legacy/
-/Normal/
-/official/
-/OpenGL/
-/Static/
-/tpt-libs/
 /includes/SDL/*
 /includes/lua5.1/*
 /includes/bzlib.h

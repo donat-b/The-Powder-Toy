@@ -36,7 +36,7 @@ public:
 	virtual ~Button();
 
 	void SetText(std::string text_);
-	void SetTooltip(ToolTip *newTip) { delete tooltip; tooltip = newTip; }
+	void SetTooltip(ToolTip *newTip);
 	void SetTooltipText(std::string newTooltip);
 	void SetCallback(ButtonAction *callback_);
 	void SetAlign(TextAlign align) { alignment = align; }
