@@ -23,7 +23,6 @@
 #include "misc.h"
 #include "gravity.h"
 
-#include "common/tpt-inline.h"
 #include "common/tpt-minmax.h"
 #include "game/Brush.h"
 #include "game/Sign.h"
@@ -103,12 +102,12 @@ int create_part(int p, int x, int y, int tv)
 	return i;
 }
 
-TPT_INLINE int is_wire(int x, int y)
+int is_wire(int x, int y)
 {
 	return bmap[y][x]==WL_DETECT || bmap[y][x]==WL_EWALL || bmap[y][x]==WL_ALLOWLIQUID || bmap[y][x]==WL_WALLELEC || bmap[y][x]==WL_ALLOWALLELEC || bmap[y][x]==WL_EHOLE;
 }
 
-TPT_INLINE int is_wire_off(int x, int y)
+int is_wire_off(int x, int y)
 {
 	return (bmap[y][x]==WL_DETECT || bmap[y][x]==WL_EWALL || bmap[y][x]==WL_ALLOWLIQUID || bmap[y][x]==WL_WALLELEC || bmap[y][x]==WL_ALLOWALLELEC || bmap[y][x]==WL_EHOLE) && emap[y][x]<8;
 }
