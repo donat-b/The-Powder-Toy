@@ -1,6 +1,6 @@
 --Cracker64's Autorun Script Manager
 --The autorun to end all autoruns
---Version 3.4
+--Version 3.5
 
 --TODO:
 --manual file addition (that can be anywhere and any extension)
@@ -9,6 +9,7 @@
 --prettier, organize code
 
 --CHANGES:
+--Version 3.5: Lua5.2 support, TPT 91.0 platform API support, [] can be used to scroll, misc fixes
 --Version 3.4: some new buttons, better tooltips, fix 'Change dir' button, fix broken buttons on OS X
 --Version 3.3: fix apostophes in filenames, allow authors to rename their scripts on the server
 --Version 3.2: put MANAGER stuff in table, fix displaying changelogs
@@ -32,29 +33,39 @@ if tpt.version.jacob1s_mod == 30 and tpt.version.jacob1s_mod_minor == 0 then
 	return
 end
 
-local scriptversion = 6
-MANAGER = {["version"] = "3.4", ["scriptversion"] = scriptversion, ["hidden"] = true}
+local scriptversion = 7
+MANAGER = {["version"] = "3.5", ["scriptversion"] = scriptversion, ["hidden"] = true}
 
 local TPT_LUA_PATH = 'scripts'
 local PATH_SEP = '\\'
-local OS = "Windows"
+local OS = "WIN32"
 local jacobsmod = tpt.version.jacob1s_mod
 local CHECKUPDATE = false
-if os.getenv('HOME') then
-	PATH_SEP = '/'
-	if fs.exists("/Applications") then
-		OS = "OSX"
-	else
-		OS = "Linux"
-	end
-end
 local EXE_NAME
-if OS == "Windows" then
-	EXE_NAME = jacobsmod and "Jacob1\'s Mod.exe" or "Powder.exe"
-elseif OS == "Linux" then
-	EXE_NAME = jacobsmod and "Jacob1\'s Mod" or "powder"
-elseif OS == "OSX" then
-	EXE_NAME = "powder-x" --can't restart on OS X
+if platform then
+	OS = platform.platform()
+	if OS ~= "WIN32" and OS ~= "WIN64" then
+		PATH_SEP = '/'
+	end
+	EXE_NAME = platform.exeName()
+	local temp = EXE_NAME:reverse():find(PATH_SEP)
+	EXE_NAME = EXE_NAME:sub(#EXE_NAME-temp+2)
+else
+	if os.getenv('HOME') then
+		PATH_SEP = '/'
+		if fs.exists("/Applications") then
+			OS = "MACOSX"
+		else
+			OS = "LIN64"
+		end
+	end
+	if OS == "WIN32" or OS == "WIN64" then
+		EXE_NAME = jacobsmod and "Jacob1\'s Mod.exe" or "Powder.exe"
+	elseif OS == "MACOSX" then
+		EXE_NAME = "powder-x" --can't restart on OS X (if using < 91.0)
+	else
+		EXE_NAME = jacobsmod and "Jacob1\'s Mod" or "powder"
+	end
 end
 local filenames = {}
 local num_files = 0 --downloaded scripts aren't stored in filenames
@@ -104,7 +115,7 @@ local function save_last()
 	for script,v in pairs(running) do
 		savestring = savestring.." \""..script.."\""
 	end
-	savestring = "SAV "..savestring.."\nEXE "..EXE_NAME.."\nDIR "..TPT_LUA_PATH
+	savestring = "SAV "..savestring.."\nDIR "..TPT_LUA_PATH
 	for k,t in pairs(settings) do
 	for n,v in pairs(t) do
 		savestring = savestring.."\nSET "..k.." "..n..":\""..v.."\""
@@ -195,7 +206,7 @@ local function load_filenames()
 			elseif fs.isFile(file) then
 				if file:find("%.lua$") then
 					local toinsert = file:sub(#TPT_LUA_PATH+2)
-					if OS == "Windows" then
+					if OS == "WIN32" or OS == "WIN64" then
 						toinsert = toinsert:gsub("/", "\\") --not actually required
 					end
 					table.insert(filenames, toinsert)
@@ -790,7 +801,7 @@ function download_file(url)
 	local succ=pcall(conn.connect,conn,host,80)
 	conn:settimeout(5)
 	if not succ then return end
-	local userAgent = "PowderToy/"..tpt.version.major.."."..tpt.version.minor.."."..tpt.version.build.." ("..(OS == "Windows" and "WIN; " or (os == "Linux" and "LIN; " or "OSX; "))..(jacobsmod and "M1" or "M0")..") SCRIPT/"..MANAGER.version
+	local userAgent = "PowderToy/"..tpt.version.major.."."..tpt.version.minor.."."..tpt.version.build.." ("..((OS == "WIN32" or OS == "WIN64") and "WIN; " or (os == "MACOSX" and "OSX; " or "LIN; "))..(jacobsmod and "M1" or "M0")..") SCRIPT/"..MANAGER.version
 	succ,resp,something=pcall(conn.send,conn,"GET "..rest.." HTTP/1.1\r\nHost: "..host.."\r\nConnection: close\r\nUser-Agent: "..userAgent.."\r\n\n")
 	if not succ then return end
 	local data=""
@@ -833,15 +844,26 @@ end
 --Restart exe (if named correctly)
 local function do_restart()
 	save_last()
-	if OS == "Windows" then
+	if platform then
+		platform.restart()
+	end
+	if OS == "WIN32" or OS == "WIN64" then
 		os.execute("TASKKILL /IM \""..EXE_NAME.."\" /F &&START .\\\""..EXE_NAME.."\"")
-	elseif OS == "Linux" then
-		os.execute("killall -s KILL \""..EXE_NAME.."\" && ./\""..EXE_NAME.."\"")
 	elseif OS == "OSX" then
-		MANAGER.print("Can't restart TPT on OS X, please close and reopen The Powder Toy")
+		MANAGER.print("Can't restart on OS X when using game versions less than 91.0, please manually close and reopen The Powder Toy")
 		return
+	else
+		os.execute("killall -s KILL \""..EXE_NAME.."\" && ./\""..EXE_NAME.."\"")
 	end
 	MANAGER.print("Restart failed, do you have the exe name right?",255,0,0)
+end
+local function open_link(url)
+	if platform then
+		platform.openLink(url)
+	else
+		local command = (OS == "WIN32" or OS == "WIN64") and "start" or (OS == "MACOSX" and "open" or "xdg-open")
+		os.execute(command.." "..url)
+	end
 end
 --TPT interface
 local function step()
@@ -871,7 +893,16 @@ local jacobsmod_old_menu_check = false
 local function keypress(key,nkey,modifier,event)
 	if jacobsmod and key == 'o' and event == 1 then jacobsmod_old_menu_check = true end
 	if nkey==27 and not MANAGER.hidden then MANAGER.hidden=true return false end
-	if not MANAGER.hidden then return false end
+	if MANAGER.hidden then return end
+
+	if event == 1 then
+		if key == "[" then
+			mainwindow:process(mainwindow.x+30, mainwindow.y+30, 0, 2, 1)
+		elseif key == "]" then
+			mainwindow:process(mainwindow.x+30, mainwindow.y+30, 0, 2, -1)
+		end
+	end
+	return false
 end
 --small button on right to bring up main menu
 local WHITE = {255,255,255,255}
@@ -916,15 +947,6 @@ end
 function ui_button.consoleclear(self)
 	mainwindow.menuconsole:clear()
 end
-function ui_button.changeexename(self)
-	local last = EXE_NAME
-	local new = tpt.input("Change exe name","Enter the exact name of powder toy executable",EXE_NAME,EXE_NAME)
-	if new~=last and new~="" then
-		MANAGER.print("Executable name changed to "..new,255,255,0)
-		EXE_NAME = new
-	end
-	save_last()
-end
 function ui_button.changedir(self)
 	local last = TPT_LUA_PATH
 	local new = tpt.input("Change search directory","Enter the folder where your scripts are",TPT_LUA_PATH,TPT_LUA_PATH)
@@ -937,11 +959,11 @@ function ui_button.changedir(self)
 	save_last()
 end
 function ui_button.uploadscript(self)
-	local command = OS == "Windows" and "start" or (OS == "Linux" and "xdg-open" or "open")
-	if online then
-		os.execute(command.." http://starcatcher.us/scripts/#submit-page")
-	else
+	if not online then
+		local command = (OS == "WIN32" or OS == "WIN64") and "start" or (OS == "MACOSX" and "open" or "xdg-open")
 		os.execute(command.." "..TPT_LUA_PATH)
+	else
+		open_link("http://starcatcher.us/scripts/#submit-page")
 	end
 end
 local lastpaused
@@ -1043,8 +1065,7 @@ function ui_button.delete(self)
 	end
 end
 function ui_button.viewonline(self)
-	local command = OS == "Windows" and "start" or (OS == "Linux" and "xdg-open" or "open")
-	os.execute(command.." http://starcatcher.us/scripts/#"..self.ID)
+	open_link("http://starcatcher.us/scripts/#"..self.ID)
 end
 function ui_button.scriptcheck(self)
 	local oldpath = localscripts[self.ID]["path"]
@@ -1062,6 +1083,7 @@ function ui_button.scriptcheck(self)
 		if running[newpath] then
 			do_restart()
 		else
+			save_last()
 			MANAGER.print("Updated "..onlinescripts[self.ID]["name"])
 		end
 	end
@@ -1108,9 +1130,8 @@ nonebutton.drawbox = true
 mainwindow:add(nonebutton)
 mainwindow:add(ui_button.new(538,339,33,10,ui_button.consoleclear,"CLEAR"))
 mainwindow:add(ui_button.new(278,67,39,10,ui_button.reloadpressed,"RELOAD"))
-mainwindow:add(ui_button.new(333,67,79,10,ui_button.changeexename,"Change exe name"))
-mainwindow:add(ui_button.new(428,67,51,10,ui_button.changedir,"Change dir"))
-uploadscriptbutton = ui_button.new(493,67,79,10,ui_button.uploadscript,"\147 Script Folder")
+mainwindow:add(ui_button.new(378,67,51,10,ui_button.changedir,"Change dir"))
+uploadscriptbutton = ui_button.new(478,67,79,10,ui_button.uploadscript,"\147 Script Folder")
 mainwindow:add(uploadscriptbutton)
 local tempbutton = ui_button.new(60, 65, 30, 10, ui_button.localview, "Local")
 tempbutton.drawbox = true
@@ -1118,7 +1139,7 @@ mainwindow:add(tempbutton)
 tempbutton = ui_button.new(100, 65, 35, 10, ui_button.onlineview, "Online")
 tempbutton.drawbox = true
 mainwindow:add(tempbutton)
-sidebutton = ui_button.new(613,134,14,15,ui_button.sidepressed,'')
+sidebutton = ui_button.new(gfx.WIDTH-16,134,14,15,ui_button.sidepressed,'')
 if jacobsmod and tpt.oldmenu()==1 then
 	sidebutton:onmove(0, 256)
 end

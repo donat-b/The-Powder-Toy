@@ -14,7 +14,7 @@ def encode(x):
 
 f = open(sys.argv[2], 'rb')
 
-data = f.read()
+data = f.read().decode('utf-8')
 f.close()
 size = len(data)
 data = '"' + re.sub(r'[^ -~]|"|\\', encode, data) + '"';
