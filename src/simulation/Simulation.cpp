@@ -2122,7 +2122,7 @@ void Simulation::CreateToolLine(int x1, int y1, int x2, int y2, int tool, float 
 		int rx = brush->GetRadius().X, ry = brush->GetRadius().Y;
 		for (int j = -ry; j <= ry; j++)
 			for (int i = -rx; i <= rx; i++)
-				if (x2+i>0 && y2+j>0 && x2+i<XRES && y2+j<YRES && brush->IsInside(i, j))
+				if (x1+i>0 && y1+j>0 && x1+i<XRES && y1+j<YRES && brush->IsInside(i, j))
 				{
 					vx[(y1+j)/CELL][(x1+i)/CELL] += (x2-x1)*strength;
 					vy[(y1+j)/CELL][(x1+i)/CELL] += (y2-y1)*strength;
