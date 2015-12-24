@@ -122,7 +122,7 @@ void O2_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->LowPressureTransitionElement = NT;
 	elem->HighPressureTransitionThreshold = IPH;
 	elem->HighPressureTransitionElement = NT;
-	elem->LowTemperatureTransitionThreshold = 90.0f;
+	elem->LowTemperatureTransitionThreshold = 90.2f;
 	elem->LowTemperatureTransitionElement = PT_LO2;
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;

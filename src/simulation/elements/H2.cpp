@@ -144,8 +144,8 @@ void H2_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->LowPressureTransitionElement = NT;
 	elem->HighPressureTransitionThreshold = IPH;
 	elem->HighPressureTransitionElement = NT;
-	elem->LowTemperatureTransitionThreshold = ITL;
-	elem->LowTemperatureTransitionElement = NT;
+	elem->LowTemperatureTransitionThreshold = 20.3f;
+	elem->LowTemperatureTransitionElement = PT_LH2;
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
