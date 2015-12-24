@@ -83,14 +83,14 @@
 #define BARSIZE 17
 #endif
 #endif
-#define XRES	612
-#define YRES	384
+#define XRES	800
+#define YRES	600
 #define NPART XRES*YRES
 const int menuStartPosition = XRES+BARSIZE-17;
 const int menuIconWidth = 17;
 
-#define XCNTR   306
-#define YCNTR   192
+#define XCNTR   XRES/2
+#define YCNTR   YRES/2
 
 #define MAX_DISTANCE sqrt(pow(XRES, 2.0f)+pow(YRES, 2.0f))
 
