@@ -50,6 +50,7 @@ config.log
 /updatepackager/
 /includes/SDL/*
 /includes/lua5.1/*
+/includes/lua5.2/*
 /includes/bzlib.h
 /includes/fftw3.h
 /includes/pthread.h

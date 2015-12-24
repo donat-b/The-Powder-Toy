@@ -247,6 +247,16 @@ void save_presets()
 	cJSON_AddNumberToObject(versionobj, "major", SAVE_VERSION);
 	cJSON_AddNumberToObject(versionobj, "minor", MINOR_VERSION);
 	cJSON_AddNumberToObject(versionobj, "build", BUILD_NUM);
+#ifndef NOMOD
+	cJSON_AddNumberToObject(versionobj, "modmajor", MOD_VERSION);
+	cJSON_AddNumberToObject(versionobj, "modminor", MOD_MINOR_VERSION);
+	cJSON_AddNumberToObject(versionobj, "modbuild", MOD_BUILD_VERSION);
+#endif
+#ifdef ANDROID
+	cJSON_AddNumberToObject(versionobj, "modmajor", MOBILE_MAJOR);
+	cJSON_AddNumberToObject(versionobj, "modminor", MOBILE_MINOR);
+	cJSON_AddNumberToObject(versionobj, "modbuild", MOBILE_BUILD);
+#endif
 	if (doingUpdate)
 		cJSON_AddTrueToObject(versionobj, "update");
 	else
@@ -416,11 +426,11 @@ void load_presets(void)
 		if (versionobj)
 		{
 			if (tmpobj = cJSON_GetObjectItem(versionobj, "major"))
-				last_major = (unsigned char)tmpobj->valueint;
+				last_major = (unsigned short)tmpobj->valueint;
 			if (tmpobj = cJSON_GetObjectItem(versionobj, "minor"))
-				last_minor = (unsigned char)tmpobj->valueint;
+				last_minor = (unsigned short)tmpobj->valueint;
 			if (tmpobj = cJSON_GetObjectItem(versionobj, "build"))
-				last_build = (unsigned char)tmpobj->valueint;
+				last_build = (unsigned short)tmpobj->valueint;
 			if ((tmpobj = cJSON_GetObjectItem(versionobj, "update")) && tmpobj->type == cJSON_True)
 				update_flag = 1;
 			else
@@ -673,6 +683,18 @@ void load_presets(void)
 
 		cJSON_Delete(root);
 		free(prefdata);
+
+		// settings that need to be changed on specific updates can go here
+		if (update_flag)
+		{
+#ifdef WIN
+			if (last_build == 322)
+			{
+				scrollSpeed = 15;
+				scrollDeceleration = 0.99f;
+			}
+#endif
+		}
 	}
 	else
 		firstRun = true;

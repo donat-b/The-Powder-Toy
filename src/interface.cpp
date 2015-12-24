@@ -4876,8 +4876,15 @@ void converttotime(char *timestamp, char **timestring, int show_day, int show_ye
 	//strncpy(*timestring, asctime(stamptime), 63);
 }
 
+#ifdef WIN
+// not sure if it is my new computer or windows, scrolling is slow
+// other people have complained about it before too, so increase the default speed on windows
+int scrollSpeed = 15;
+float scrollDeceleration = 0.99f;
+#else
 int scrollSpeed = 6;
 float scrollDeceleration = 0.95f;
+#endif
 int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 {
 	int b=1,bq,mx,my,cc=0,ccy=0,cix=0;

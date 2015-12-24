@@ -733,7 +733,7 @@ bool thumb_cache_find(char *id, void **thumb, int *size)
 
 char http_proxy_string[256] = "";
 
-unsigned char last_major=0, last_minor=0, last_build=0, update_flag=0;
+unsigned short last_major=0, last_minor=0, last_build=0, update_flag=0;
 
 void ctrlzSnapshot()
 {
@@ -2207,18 +2207,10 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		if (update_flag)
 		{
 			info_box(vid_buf, "Finalizing update...");
-			if (last_build>BUILD_NUM)
-			{
-				update_cleanup();
+			if (update_finish())
 				error_ui(vid_buf, 0, "Update failed - try downloading a new version.");
-			}
 			else
-			{
-				if (update_finish())
-					error_ui(vid_buf, 0, "Update failed - try downloading a new version.");
-				else
-					info_ui(vid_buf, "Update success", "You have successfully updated Jacob1's Mod!");
-			}
+				info_ui(vid_buf, "Update success", "You have successfully updated Jacob1's Mod!");
 			update_flag = 0;
 		}
 

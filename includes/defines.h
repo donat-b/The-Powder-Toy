@@ -273,7 +273,7 @@ extern pixel *vid_buf;
 extern int scrollSpeed;
 extern float scrollDeceleration;
 
-extern unsigned char last_major, last_minor, update_flag, last_build;
+extern unsigned short last_major, last_minor, update_flag, last_build;
 
 extern char http_proxy_string[256];
 
